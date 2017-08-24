@@ -1,0 +1,24 @@
+{
+  "AttachStdin" : false,
+  "AttachStdout" : false,
+  "AttachStderr" : false,
+  "Tty" : true,
+  "OpenStdin" : true,
+  "Image" : "apache/nifi:1.2.0",
+  "Volumes" : { },
+  "ExposedPorts" : { },
+  "HostConfig" : {
+    "Binds" : [ ],
+    "PortBindings" : {
+      "8080/tcp" : [ {
+        "HostIp" : "",
+        "HostPort" : "8080"
+      } ],
+      "8181/tcp" : [ {
+        "HostIp" : "",
+        "HostPort" : "8181"
+      } ]
+    }
+  },
+  "_comment" : ""
+}
