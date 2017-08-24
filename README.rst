@@ -29,6 +29,7 @@ Background
 ----------
 
 This package provides high-level calls to execute common NiFi tasks
+
 It leverages `Chaffelson/nifi-python-swagger-client <https://github.com/Chaffelson/nifi-python-swagger-client>`_
 ,
 a swagger 2.0 compliant client auto-generated using the
@@ -48,11 +49,6 @@ Requirements
 
 Python 2.7+ or 3.4+
 
-
-Features
---------
-
-* TODO
 
 Credits
 ---------
