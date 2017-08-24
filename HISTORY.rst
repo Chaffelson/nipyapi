@@ -12,3 +12,9 @@ History
 ------------------
 
 * Cleaned up base project and integrations ready for code migration
+
+
+0.1.2 (2017-08-24)
+------------------
+
+* Created basic integration with nifi-python-swagger-client
