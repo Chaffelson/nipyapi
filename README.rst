@@ -1,7 +1,8 @@
 =======
-Nipyapi
+NiPyApi
 =======
 
+Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
 
 .. image:: https://img.shields.io/pypi/v/nipyapi.svg
         :target: https://pypi.python.org/pypi/nipyapi
@@ -17,8 +18,6 @@ Nipyapi
      :target: https://pyup.io/repos/github/Chaffelson/nipyapi/
      :alt: Updates
 
-
-Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
 
 
 * Free software: Apache Software License 2.0
@@ -42,7 +41,7 @@ Versioning
 
 NiFi API version: 1.2.0
 
-If you require a different version please raise an `issue <https://github.com/Chaffelson/nifi-python-swagger-client/issues>`_
+If you require a different version please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Requirements
 ------------

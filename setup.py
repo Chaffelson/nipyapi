@@ -12,17 +12,17 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    # TODO: put package requirements here
+    'nifi-python-swagger-client'
 ]
 
 setup_requirements = [
     'pytest-runner',
-    # TODO(Chaffelson): put setup requirements (distutils extensions, etc.) here
+    'nifi-python-swagger-client'
 ]
 
 test_requirements = [
     'pytest',
-    # TODO: put package test requirements here
+    'nifi-python-swagger-client'
 ]
 
 setup(
@@ -53,4 +53,5 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     setup_requires=setup_requirements,
+    dependency_links=['git+git://github.com/Chaffelson/nifi-python-swagger-client.git#egg=nifi-python-swagger-client']
 )
