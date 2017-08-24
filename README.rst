@@ -29,18 +29,19 @@ Background
 ----------
 
 This package provides high-level calls to execute common NiFi tasks
-It leverages [Chaffelson/nifi-python-swagger-client](https://github.com/Chaffelson/nifi-python-swagger-client),
+It leverages `Chaffelson/nifi-python-swagger-client <https://github.com/Chaffelson/nifi-python-swagger-client>`_
+,
 a swagger 2.0 compliant client auto-generated using the
-[Swagger Codegen](https://github.com/swagger-api/swagger-codegen) project
+`Swagger Codegen <https://github.com/swagger-api/swagger-codegen>`_ project
 
-For more information on Apache NiFi, please visit [https://nifi.apache.org](https://nifi.apache.org)
+For more information on Apache NiFi, please visit `https://nifi.apache.org <https://nifi.apache.org>`_
 
 Versioning
 ----------
 
 NiFi API version: 1.2.0
 
-If you require a different version please raise an [issue](https://github.com/Chaffelson/nifi-python-swagger-client/issues)
+If you require a different version please raise an `issue <https://github.com/Chaffelson/nifi-python-swagger-client/issues>`_
 
 Requirements
 ------------
@@ -62,4 +63,4 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 
 Inspired by the equivalent Java client maintained over at
-[hermannpencole/nifi-config](https://github.com/hermannpencole/nifi-config)
+`hermannpencole/nifi-config <https://github.com/hermannpencole/nifi-config>`_
