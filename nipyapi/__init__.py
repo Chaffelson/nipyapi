@@ -1,3 +1,7 @@
-# coding: utf-8
+# -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+"""Top-level package for Nipyapi."""
+
+__author__ = """Daniel Chaffelson"""
+__email__ = 'chaffelson@gmail.com'
+__version__ = '0.1.0'
