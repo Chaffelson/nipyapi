@@ -10,6 +10,7 @@ Contents:
    installation
    usage
    modules
+   todo
    contributing
    authors
    history
