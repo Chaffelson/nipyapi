@@ -11,3 +11,5 @@ PyYAML==3.12
 pytest==3.2.1
 pytest-runner==2.11.1
 twine>=1.9.1
+sphinx_rtd_theme>=0.2.5
+

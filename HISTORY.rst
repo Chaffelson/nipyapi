@@ -18,3 +18,14 @@ History
 ------------------
 
 * Created basic integration with nifi-python-swagger-client
+
+
+0.2.0 (2017-08-24)
+------------------
+
+* Merge the nifi swagger client into this repo as a sub package
+    * Restructured tests into package subfolders
+    * Consolidate package configuration
+    * Setup package import structure
+    * Updated usage instructions
+    * Integrate documentation
