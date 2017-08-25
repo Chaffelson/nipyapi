@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.reporting_task_dto import ReportingTaskDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.reporting_task_dto import ReportingTaskDTO
 
 
 class TestReportingTaskDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestReportingTaskDTO(unittest.TestCase):
         Test ReportingTaskDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.reporting_task_dto.ReportingTaskDTO()
+        #model =nipyapi.swagger_client.models.reporting_task_dto.ReportingTaskDTO()
         pass
 
 

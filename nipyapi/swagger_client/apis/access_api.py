@@ -1,9 +1,7 @@
 # coding: utf-8
 
 """
-    NiFi Rest Api
-
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+    nipyapi.swagger_client.
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -542,7 +540,7 @@ class AccessApi(object):
     def get_login_config(self, **kwargs):
         """
         Retrieves the access configuration for this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -567,7 +565,7 @@ class AccessApi(object):
     def get_login_config_with_http_info(self, **kwargs):
         """
         Retrieves the access configuration for this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

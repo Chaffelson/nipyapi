@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.version_info_dto import VersionInfoDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.version_info_dto import VersionInfoDTO
 
 
 class TestVersionInfoDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestVersionInfoDTO(unittest.TestCase):
         Test VersionInfoDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.version_info_dto.VersionInfoDTO()
+        #model =nipyapi.swagger_client.models.version_info_dto.VersionInfoDTO()
         pass
 
 

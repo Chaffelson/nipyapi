@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.user_group_entity import UserGroupEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.user_group_entity import UserGroupEntity
 
 
 class TestUserGroupEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestUserGroupEntity(unittest.TestCase):
         Test UserGroupEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.user_group_entity.UserGroupEntity()
+        #model =nipyapi.swagger_client.models.user_group_entity.UserGroupEntity()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.funnel_dto import FunnelDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.funnel_dto import FunnelDTO
 
 
 class TestFunnelDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestFunnelDTO(unittest.TestCase):
         Test FunnelDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.funnel_dto.FunnelDTO()
+        #model =nipyapi.swagger_client.models.funnel_dto.FunnelDTO()
         pass
 
 

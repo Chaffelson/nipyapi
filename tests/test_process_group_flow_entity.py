@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.process_group_flow_entity import ProcessGroupFlowEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.process_group_flow_entity import ProcessGroupFlowEntity
 
 
 class TestProcessGroupFlowEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestProcessGroupFlowEntity(unittest.TestCase):
         Test ProcessGroupFlowEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.process_group_flow_entity.ProcessGroupFlowEntity()
+        #model =nipyapi.swagger_client.models.process_group_flow_entity.ProcessGroupFlowEntity()
         pass
 
 

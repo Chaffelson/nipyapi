@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.counters_entity import CountersEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.counters_entity import CountersEntity
 
 
 class TestCountersEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestCountersEntity(unittest.TestCase):
         Test CountersEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.counters_entity.CountersEntity()
+        #model =nipyapi.swagger_client.models.counters_entity.CountersEntity()
         pass
 
 

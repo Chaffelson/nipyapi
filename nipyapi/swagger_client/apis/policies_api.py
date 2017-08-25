@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class PoliciesApi(object):
     def create_access_policy(self, body, **kwargs):
         """
         Creates an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class PoliciesApi(object):
     def create_access_policy_with_http_info(self, body, **kwargs):
         """
         Creates an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -149,7 +149,7 @@ class PoliciesApi(object):
     def get_access_policy(self, id, **kwargs):
         """
         Gets an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class PoliciesApi(object):
     def get_access_policy_with_http_info(self, id, **kwargs):
         """
         Gets an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -370,7 +370,7 @@ class PoliciesApi(object):
     def remove_access_policy(self, id, **kwargs):
         """
         Deletes an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -398,7 +398,7 @@ class PoliciesApi(object):
     def remove_access_policy_with_http_info(self, id, **kwargs):
         """
         Deletes an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -484,7 +484,7 @@ class PoliciesApi(object):
     def update_access_policy(self, id, body, **kwargs):
         """
         Updates a access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -511,7 +511,7 @@ class PoliciesApi(object):
     def update_access_policy_with_http_info(self, id, body, **kwargs):
         """
         Updates a access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

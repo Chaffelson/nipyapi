@@ -29,3 +29,9 @@ History
     * Setup package import structure
     * Updated usage instructions
     * Integrate documentation
+
+
+0.2.1 (2017-08-24)
+------------------
+
+* Fixed up removal of leftover swagger client dependencies

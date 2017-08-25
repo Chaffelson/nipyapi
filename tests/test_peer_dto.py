@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.peer_dto import PeerDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.peer_dto import PeerDTO
 
 
 class TestPeerDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestPeerDTO(unittest.TestCase):
         Test PeerDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.peer_dto.PeerDTO()
+        #model =nipyapi.swagger_client.models.peer_dto.PeerDTO()
         pass
 
 

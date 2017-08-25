@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.counters_dto import CountersDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.counters_dto import CountersDTO
 
 
 class TestCountersDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestCountersDTO(unittest.TestCase):
         Test CountersDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.counters_dto.CountersDTO()
+        #model =nipyapi.swagger_client.models.counters_dto.CountersDTO()
         pass
 
 

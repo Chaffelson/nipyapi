@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.flow_dto import FlowDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.flow_dto import FlowDTO
 
 
 class TestFlowDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestFlowDTO(unittest.TestCase):
         Test FlowDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.flow_dto.FlowDTO()
+        #model =nipyapi.swagger_client.models.flow_dto.FlowDTO()
         pass
 
 

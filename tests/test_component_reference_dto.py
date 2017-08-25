@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.component_reference_dto import ComponentReferenceDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.component_reference_dto import ComponentReferenceDTO
 
 
 class TestComponentReferenceDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestComponentReferenceDTO(unittest.TestCase):
         Test ComponentReferenceDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.component_reference_dto.ComponentReferenceDTO()
+        #model =nipyapi.swagger_client.models.component_reference_dto.ComponentReferenceDTO()
         pass
 
 

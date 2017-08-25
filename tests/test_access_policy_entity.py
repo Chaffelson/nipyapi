@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.access_policy_entity import AccessPolicyEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.access_policy_entity import AccessPolicyEntity
 
 
 class TestAccessPolicyEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAccessPolicyEntity(unittest.TestCase):
         Test AccessPolicyEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.access_policy_entity.AccessPolicyEntity()
+        #model =nipyapi.swagger_client.models.access_policy_entity.AccessPolicyEntity()
         pass
 
 

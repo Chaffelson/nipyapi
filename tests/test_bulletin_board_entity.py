@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.bulletin_board_entity import BulletinBoardEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.bulletin_board_entity import BulletinBoardEntity
 
 
 class TestBulletinBoardEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestBulletinBoardEntity(unittest.TestCase):
         Test BulletinBoardEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.bulletin_board_entity.BulletinBoardEntity()
+        #model =nipyapi.swagger_client.models.bulletin_board_entity.BulletinBoardEntity()
         pass
 
 

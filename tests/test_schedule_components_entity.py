@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.schedule_components_entity import ScheduleComponentsEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.schedule_components_entity import ScheduleComponentsEntity
 
 
 class TestScheduleComponentsEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestScheduleComponentsEntity(unittest.TestCase):
         Test ScheduleComponentsEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.schedule_components_entity.ScheduleComponentsEntity()
+        #model =nipyapi.swagger_client.models.schedule_components_entity.ScheduleComponentsEntity()
         pass
 
 

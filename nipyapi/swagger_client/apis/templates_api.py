@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class TemplatesApi(object):
     def export_template(self, id, **kwargs):
         """
         Exports a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class TemplatesApi(object):
     def export_template_with_http_info(self, id, **kwargs):
         """
         Exports a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -149,7 +149,7 @@ class TemplatesApi(object):
     def remove_template(self, id, **kwargs):
         """
         Deletes a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class TemplatesApi(object):
     def remove_template_with_http_info(self, id, **kwargs):
         """
         Deletes a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

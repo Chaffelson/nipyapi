@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class ProvenanceApi(object):
     def delete_lineage(self, id, **kwargs):
         """
         Deletes a lineage query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -70,7 +70,7 @@ class ProvenanceApi(object):
     def delete_lineage_with_http_info(self, id, **kwargs):
         """
         Deletes a lineage query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -153,7 +153,7 @@ class ProvenanceApi(object):
     def delete_provenance(self, id, **kwargs):
         """
         Deletes a provenance query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -180,7 +180,7 @@ class ProvenanceApi(object):
     def delete_provenance_with_http_info(self, id, **kwargs):
         """
         Deletes a provenance query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -263,7 +263,7 @@ class ProvenanceApi(object):
     def get_lineage(self, id, **kwargs):
         """
         Gets a lineage query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -290,7 +290,7 @@ class ProvenanceApi(object):
     def get_lineage_with_http_info(self, id, **kwargs):
         """
         Gets a lineage query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -373,7 +373,7 @@ class ProvenanceApi(object):
     def get_provenance(self, id, **kwargs):
         """
         Gets a provenance query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -402,7 +402,7 @@ class ProvenanceApi(object):
     def get_provenance_with_http_info(self, id, **kwargs):
         """
         Gets a provenance query
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -491,7 +491,7 @@ class ProvenanceApi(object):
     def get_search_options(self, **kwargs):
         """
         Gets the searchable attributes for provenance events
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -516,7 +516,7 @@ class ProvenanceApi(object):
     def get_search_options_with_http_info(self, **kwargs):
         """
         Gets the searchable attributes for provenance events
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

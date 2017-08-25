@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.action_entity import ActionEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.action_entity import ActionEntity
 
 
 class TestActionEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestActionEntity(unittest.TestCase):
         Test ActionEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.action_entity.ActionEntity()
+        #model =nipyapi.swagger_client.models.action_entity.ActionEntity()
         pass
 
 

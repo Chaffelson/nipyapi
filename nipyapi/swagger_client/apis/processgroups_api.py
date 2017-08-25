@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class ProcessgroupsApi(object):
     def copy_snippet(self, id, body, **kwargs):
         """
         Copies a snippet and discards it.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -70,7 +70,7 @@ class ProcessgroupsApi(object):
     def copy_snippet_with_http_info(self, id, body, **kwargs):
         """
         Copies a snippet and discards it.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -156,7 +156,7 @@ class ProcessgroupsApi(object):
     def create_connection(self, id, body, **kwargs):
         """
         Creates a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -183,7 +183,7 @@ class ProcessgroupsApi(object):
     def create_connection_with_http_info(self, id, body, **kwargs):
         """
         Creates a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -269,7 +269,7 @@ class ProcessgroupsApi(object):
     def create_controller_service(self, id, body, **kwargs):
         """
         Creates a new controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -296,7 +296,7 @@ class ProcessgroupsApi(object):
     def create_controller_service_with_http_info(self, id, body, **kwargs):
         """
         Creates a new controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -382,7 +382,7 @@ class ProcessgroupsApi(object):
     def create_funnel(self, id, body, **kwargs):
         """
         Creates a funnel
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -409,7 +409,7 @@ class ProcessgroupsApi(object):
     def create_funnel_with_http_info(self, id, body, **kwargs):
         """
         Creates a funnel
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -495,7 +495,7 @@ class ProcessgroupsApi(object):
     def create_input_port(self, id, body, **kwargs):
         """
         Creates an input port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -522,7 +522,7 @@ class ProcessgroupsApi(object):
     def create_input_port_with_http_info(self, id, body, **kwargs):
         """
         Creates an input port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -608,7 +608,7 @@ class ProcessgroupsApi(object):
     def create_label(self, id, body, **kwargs):
         """
         Creates a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -635,7 +635,7 @@ class ProcessgroupsApi(object):
     def create_label_with_http_info(self, id, body, **kwargs):
         """
         Creates a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -721,7 +721,7 @@ class ProcessgroupsApi(object):
     def create_output_port(self, id, body, **kwargs):
         """
         Creates an output port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -748,7 +748,7 @@ class ProcessgroupsApi(object):
     def create_output_port_with_http_info(self, id, body, **kwargs):
         """
         Creates an output port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -834,7 +834,7 @@ class ProcessgroupsApi(object):
     def create_process_group(self, id, body, **kwargs):
         """
         Creates a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -861,7 +861,7 @@ class ProcessgroupsApi(object):
     def create_process_group_with_http_info(self, id, body, **kwargs):
         """
         Creates a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -947,7 +947,7 @@ class ProcessgroupsApi(object):
     def create_processor(self, id, body, **kwargs):
         """
         Creates a new processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -974,7 +974,7 @@ class ProcessgroupsApi(object):
     def create_processor_with_http_info(self, id, body, **kwargs):
         """
         Creates a new processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1060,7 +1060,7 @@ class ProcessgroupsApi(object):
     def create_remote_process_group(self, id, body, **kwargs):
         """
         Creates a new process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1087,7 +1087,7 @@ class ProcessgroupsApi(object):
     def create_remote_process_group_with_http_info(self, id, body, **kwargs):
         """
         Creates a new process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1173,7 +1173,7 @@ class ProcessgroupsApi(object):
     def create_template(self, id, body, **kwargs):
         """
         Creates a template and discards the specified snippet.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1200,7 +1200,7 @@ class ProcessgroupsApi(object):
     def create_template_with_http_info(self, id, body, **kwargs):
         """
         Creates a template and discards the specified snippet.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1286,7 +1286,7 @@ class ProcessgroupsApi(object):
     def get_connections(self, id, **kwargs):
         """
         Gets all connections
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1312,7 +1312,7 @@ class ProcessgroupsApi(object):
     def get_connections_with_http_info(self, id, **kwargs):
         """
         Gets all connections
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1392,7 +1392,7 @@ class ProcessgroupsApi(object):
     def get_funnels(self, id, **kwargs):
         """
         Gets all funnels
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1418,7 +1418,7 @@ class ProcessgroupsApi(object):
     def get_funnels_with_http_info(self, id, **kwargs):
         """
         Gets all funnels
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1498,7 +1498,7 @@ class ProcessgroupsApi(object):
     def get_input_ports(self, id, **kwargs):
         """
         Gets all input ports
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1524,7 +1524,7 @@ class ProcessgroupsApi(object):
     def get_input_ports_with_http_info(self, id, **kwargs):
         """
         Gets all input ports
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1604,7 +1604,7 @@ class ProcessgroupsApi(object):
     def get_labels(self, id, **kwargs):
         """
         Gets all labels
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1630,7 +1630,7 @@ class ProcessgroupsApi(object):
     def get_labels_with_http_info(self, id, **kwargs):
         """
         Gets all labels
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1710,7 +1710,7 @@ class ProcessgroupsApi(object):
     def get_output_ports(self, id, **kwargs):
         """
         Gets all output ports
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1736,7 +1736,7 @@ class ProcessgroupsApi(object):
     def get_output_ports_with_http_info(self, id, **kwargs):
         """
         Gets all output ports
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1816,7 +1816,7 @@ class ProcessgroupsApi(object):
     def get_process_group(self, id, **kwargs):
         """
         Gets a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1842,7 +1842,7 @@ class ProcessgroupsApi(object):
     def get_process_group_with_http_info(self, id, **kwargs):
         """
         Gets a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1922,7 +1922,7 @@ class ProcessgroupsApi(object):
     def get_process_groups(self, id, **kwargs):
         """
         Gets all process groups
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1948,7 +1948,7 @@ class ProcessgroupsApi(object):
     def get_process_groups_with_http_info(self, id, **kwargs):
         """
         Gets all process groups
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2028,7 +2028,7 @@ class ProcessgroupsApi(object):
     def get_processors(self, id, **kwargs):
         """
         Gets all processors
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2054,7 +2054,7 @@ class ProcessgroupsApi(object):
     def get_processors_with_http_info(self, id, **kwargs):
         """
         Gets all processors
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2134,7 +2134,7 @@ class ProcessgroupsApi(object):
     def get_remote_process_groups(self, id, **kwargs):
         """
         Gets all remote process groups
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2160,7 +2160,7 @@ class ProcessgroupsApi(object):
     def get_remote_process_groups_with_http_info(self, id, **kwargs):
         """
         Gets all remote process groups
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2240,7 +2240,7 @@ class ProcessgroupsApi(object):
     def import_template(self, id, **kwargs):
         """
         Imports a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2266,7 +2266,7 @@ class ProcessgroupsApi(object):
     def import_template_with_http_info(self, id, **kwargs):
         """
         Imports a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2346,7 +2346,7 @@ class ProcessgroupsApi(object):
     def instantiate_template(self, id, body, **kwargs):
         """
         Instantiates a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2373,7 +2373,7 @@ class ProcessgroupsApi(object):
     def instantiate_template_with_http_info(self, id, body, **kwargs):
         """
         Instantiates a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2459,7 +2459,7 @@ class ProcessgroupsApi(object):
     def remove_process_group(self, id, **kwargs):
         """
         Deletes a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2487,7 +2487,7 @@ class ProcessgroupsApi(object):
     def remove_process_group_with_http_info(self, id, **kwargs):
         """
         Deletes a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2573,7 +2573,7 @@ class ProcessgroupsApi(object):
     def update_process_group(self, id, body, **kwargs):
         """
         Updates a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2600,7 +2600,7 @@ class ProcessgroupsApi(object):
     def update_process_group_with_http_info(self, id, body, **kwargs):
         """
         Updates a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2686,7 +2686,7 @@ class ProcessgroupsApi(object):
     def upload_template(self, id, **kwargs):
         """
         Uploads a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2713,7 +2713,7 @@ class ProcessgroupsApi(object):
     def upload_template_with_http_info(self, id, **kwargs):
         """
         Uploads a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

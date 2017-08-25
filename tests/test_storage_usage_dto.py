@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.storage_usage_dto import StorageUsageDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.storage_usage_dto import StorageUsageDTO
 
 
 class TestStorageUsageDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestStorageUsageDTO(unittest.TestCase):
         Test StorageUsageDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.storage_usage_dto.StorageUsageDTO()
+        #model =nipyapi.swagger_client.models.storage_usage_dto.StorageUsageDTO()
         pass
 
 

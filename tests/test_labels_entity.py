@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.labels_entity import LabelsEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.labels_entity import LabelsEntity
 
 
 class TestLabelsEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestLabelsEntity(unittest.TestCase):
         Test LabelsEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.labels_entity.LabelsEntity()
+        #model =nipyapi.swagger_client.models.labels_entity.LabelsEntity()
         pass
 
 

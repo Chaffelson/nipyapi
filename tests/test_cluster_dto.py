@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.cluster_dto import ClusterDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.cluster_dto import ClusterDTO
 
 
 class TestClusterDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestClusterDTO(unittest.TestCase):
         Test ClusterDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.cluster_dto.ClusterDTO()
+        #model =nipyapi.swagger_client.models.cluster_dto.ClusterDTO()
         pass
 
 

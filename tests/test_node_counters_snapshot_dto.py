@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.node_counters_snapshot_dto import NodeCountersSnapshotDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.node_counters_snapshot_dto import NodeCountersSnapshotDTO
 
 
 class TestNodeCountersSnapshotDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestNodeCountersSnapshotDTO(unittest.TestCase):
         Test NodeCountersSnapshotDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.node_counters_snapshot_dto.NodeCountersSnapshotDTO()
+        #model =nipyapi.swagger_client.models.node_counters_snapshot_dto.NodeCountersSnapshotDTO()
         pass
 
 

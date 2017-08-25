@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.resources_entity import ResourcesEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.resources_entity import ResourcesEntity
 
 
 class TestResourcesEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestResourcesEntity(unittest.TestCase):
         Test ResourcesEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.resources_entity.ResourcesEntity()
+        #model =nipyapi.swagger_client.models.resources_entity.ResourcesEntity()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.port_dto import PortDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.port_dto import PortDTO
 
 
 class TestPortDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestPortDTO(unittest.TestCase):
         Test PortDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.port_dto.PortDTO()
+        #model =nipyapi.swagger_client.models.port_dto.PortDTO()
         pass
 
 

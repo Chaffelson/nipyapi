@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.access_status_dto import AccessStatusDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.access_status_dto import AccessStatusDTO
 
 
 class TestAccessStatusDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAccessStatusDTO(unittest.TestCase):
         Test AccessStatusDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.access_status_dto.AccessStatusDTO()
+        #model =nipyapi.swagger_client.models.access_status_dto.AccessStatusDTO()
         pass
 
 

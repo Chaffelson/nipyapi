@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.flowfilequeues_api import FlowfilequeuesApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.flowfilequeues_api import FlowfilequeuesApi
 
 
 class TestFlowfilequeuesApi(unittest.TestCase):
     """ FlowfilequeuesApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.flowfilequeues_api.FlowfilequeuesApi()
+        self.api =nipyapi.swagger_client.apis.flowfilequeues_api.FlowfilequeuesApi()
 
     def tearDown(self):
         pass

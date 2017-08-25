@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.remote_process_group_port_dto import RemoteProcessGroupPortDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.remote_process_group_port_dto import RemoteProcessGroupPortDTO
 
 
 class TestRemoteProcessGroupPortDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestRemoteProcessGroupPortDTO(unittest.TestCase):
         Test RemoteProcessGroupPortDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.remote_process_group_port_dto.RemoteProcessGroupPortDTO()
+        #model =nipyapi.swagger_client.models.remote_process_group_port_dto.RemoteProcessGroupPortDTO()
         pass
 
 

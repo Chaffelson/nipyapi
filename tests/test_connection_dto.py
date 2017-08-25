@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.connection_dto import ConnectionDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.connection_dto import ConnectionDTO
 
 
 class TestConnectionDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestConnectionDTO(unittest.TestCase):
         Test ConnectionDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.connection_dto.ConnectionDTO()
+        #model =nipyapi.swagger_client.models.connection_dto.ConnectionDTO()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.flow_breadcrumb_dto import FlowBreadcrumbDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.flow_breadcrumb_dto import FlowBreadcrumbDTO
 
 
 class TestFlowBreadcrumbDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestFlowBreadcrumbDTO(unittest.TestCase):
         Test FlowBreadcrumbDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.flow_breadcrumb_dto.FlowBreadcrumbDTO()
+        #model =nipyapi.swagger_client.models.flow_breadcrumb_dto.FlowBreadcrumbDTO()
         pass
 
 

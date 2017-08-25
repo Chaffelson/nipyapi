@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.controller_service_types_entity import ControllerServiceTypesEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.controller_service_types_entity import ControllerServiceTypesEntity
 
 
 class TestControllerServiceTypesEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestControllerServiceTypesEntity(unittest.TestCase):
         Test ControllerServiceTypesEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.controller_service_types_entity.ControllerServiceTypesEntity()
+        #model =nipyapi.swagger_client.models.controller_service_types_entity.ControllerServiceTypesEntity()
         pass
 
 

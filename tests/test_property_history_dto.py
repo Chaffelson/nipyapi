@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.property_history_dto import PropertyHistoryDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.property_history_dto import PropertyHistoryDTO
 
 
 class TestPropertyHistoryDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestPropertyHistoryDTO(unittest.TestCase):
         Test PropertyHistoryDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.property_history_dto.PropertyHistoryDTO()
+        #model =nipyapi.swagger_client.models.property_history_dto.PropertyHistoryDTO()
         pass
 
 

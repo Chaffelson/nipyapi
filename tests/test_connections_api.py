@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.connections_api import ConnectionsApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.connections_api import ConnectionsApi
 
 
 class TestConnectionsApi(unittest.TestCase):
     """ ConnectionsApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.connections_api.ConnectionsApi()
+        self.api =nipyapi.swagger_client.apis.connections_api.ConnectionsApi()
 
     def tearDown(self):
         pass

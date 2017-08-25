@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.drop_request_dto import DropRequestDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.drop_request_dto import DropRequestDTO
 
 
 class TestDropRequestDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestDropRequestDTO(unittest.TestCase):
         Test DropRequestDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.drop_request_dto.DropRequestDTO()
+        #model =nipyapi.swagger_client.models.drop_request_dto.DropRequestDTO()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.copy_snippet_request_entity import CopySnippetRequestEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.copy_snippet_request_entity import CopySnippetRequestEntity
 
 
 class TestCopySnippetRequestEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestCopySnippetRequestEntity(unittest.TestCase):
         Test CopySnippetRequestEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.copy_snippet_request_entity.CopySnippetRequestEntity()
+        #model =nipyapi.swagger_client.models.copy_snippet_request_entity.CopySnippetRequestEntity()
         pass
 
 

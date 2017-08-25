@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.documented_type_dto import DocumentedTypeDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.documented_type_dto import DocumentedTypeDTO
 
 
 class TestDocumentedTypeDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestDocumentedTypeDTO(unittest.TestCase):
         Test DocumentedTypeDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.documented_type_dto.DocumentedTypeDTO()
+        #model =nipyapi.swagger_client.models.documented_type_dto.DocumentedTypeDTO()
         pass
 
 

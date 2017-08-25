@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.systemdiagnostics_api import SystemdiagnosticsApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.systemdiagnostics_api import SystemdiagnosticsApi
 
 
 class TestSystemdiagnosticsApi(unittest.TestCase):
     """ SystemdiagnosticsApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.systemdiagnostics_api.SystemdiagnosticsApi()
+        self.api =nipyapi.swagger_client.apis.systemdiagnostics_api.SystemdiagnosticsApi()
 
     def tearDown(self):
         pass

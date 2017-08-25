@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.lineage_results_dto import LineageResultsDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.lineage_results_dto import LineageResultsDTO
 
 
 class TestLineageResultsDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestLineageResultsDTO(unittest.TestCase):
         Test LineageResultsDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.lineage_results_dto.LineageResultsDTO()
+        #model =nipyapi.swagger_client.models.lineage_results_dto.LineageResultsDTO()
         pass
 
 

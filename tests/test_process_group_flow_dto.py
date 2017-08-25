@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.process_group_flow_dto import ProcessGroupFlowDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.process_group_flow_dto import ProcessGroupFlowDTO
 
 
 class TestProcessGroupFlowDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestProcessGroupFlowDTO(unittest.TestCase):
         Test ProcessGroupFlowDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.process_group_flow_dto.ProcessGroupFlowDTO()
+        #model =nipyapi.swagger_client.models.process_group_flow_dto.ProcessGroupFlowDTO()
         pass
 
 

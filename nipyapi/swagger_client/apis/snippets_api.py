@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class SnippetsApi(object):
     def create_snippet(self, body, **kwargs):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class SnippetsApi(object):
     def create_snippet_with_http_info(self, body, **kwargs):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -149,7 +149,7 @@ class SnippetsApi(object):
     def delete_snippet(self, id, **kwargs):
         """
         Deletes the components in a snippet and discards the snippet
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class SnippetsApi(object):
     def delete_snippet_with_http_info(self, id, **kwargs):
         """
         Deletes the components in a snippet and discards the snippet
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -255,7 +255,7 @@ class SnippetsApi(object):
     def update_snippet(self, id, body, **kwargs):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -282,7 +282,7 @@ class SnippetsApi(object):
     def update_snippet_with_http_info(self, id, body, **kwargs):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

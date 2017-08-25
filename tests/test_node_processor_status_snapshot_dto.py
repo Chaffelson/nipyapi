@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.node_processor_status_snapshot_dto import NodeProcessorStatusSnapshotDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.node_processor_status_snapshot_dto import NodeProcessorStatusSnapshotDTO
 
 
 class TestNodeProcessorStatusSnapshotDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestNodeProcessorStatusSnapshotDTO(unittest.TestCase):
         Test NodeProcessorStatusSnapshotDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.node_processor_status_snapshot_dto.NodeProcessorStatusSnapshotDTO()
+        #model =nipyapi.swagger_client.models.node_processor_status_snapshot_dto.NodeProcessorStatusSnapshotDTO()
         pass
 
 

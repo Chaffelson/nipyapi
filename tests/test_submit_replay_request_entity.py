@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.submit_replay_request_entity import SubmitReplayRequestEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.submit_replay_request_entity import SubmitReplayRequestEntity
 
 
 class TestSubmitReplayRequestEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestSubmitReplayRequestEntity(unittest.TestCase):
         Test SubmitReplayRequestEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.submit_replay_request_entity.SubmitReplayRequestEntity()
+        #model =nipyapi.swagger_client.models.submit_replay_request_entity.SubmitReplayRequestEntity()
         pass
 
 

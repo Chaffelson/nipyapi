@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.allowable_value_dto import AllowableValueDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.allowable_value_dto import AllowableValueDTO
 
 
 class TestAllowableValueDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAllowableValueDTO(unittest.TestCase):
         Test AllowableValueDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.allowable_value_dto.AllowableValueDTO()
+        #model =nipyapi.swagger_client.models.allowable_value_dto.AllowableValueDTO()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.allowable_value_entity import AllowableValueEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.allowable_value_entity import AllowableValueEntity
 
 
 class TestAllowableValueEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAllowableValueEntity(unittest.TestCase):
         Test AllowableValueEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.allowable_value_entity.AllowableValueEntity()
+        #model =nipyapi.swagger_client.models.allowable_value_entity.AllowableValueEntity()
         pass
 
 

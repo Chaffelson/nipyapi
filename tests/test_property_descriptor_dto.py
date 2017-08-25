@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.property_descriptor_dto import PropertyDescriptorDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.property_descriptor_dto import PropertyDescriptorDTO
 
 
 class TestPropertyDescriptorDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestPropertyDescriptorDTO(unittest.TestCase):
         Test PropertyDescriptorDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.property_descriptor_dto.PropertyDescriptorDTO()
+        #model =nipyapi.swagger_client.models.property_descriptor_dto.PropertyDescriptorDTO()
         pass
 
 

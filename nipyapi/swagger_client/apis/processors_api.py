@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class ProcessorsApi(object):
     def clear_state(self, id, **kwargs):
         """
         Clears the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class ProcessorsApi(object):
     def clear_state_with_http_info(self, id, **kwargs):
         """
         Clears the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -149,7 +149,7 @@ class ProcessorsApi(object):
     def delete_processor(self, id, **kwargs):
         """
         Deletes a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -177,7 +177,7 @@ class ProcessorsApi(object):
     def delete_processor_with_http_info(self, id, **kwargs):
         """
         Deletes a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -263,7 +263,7 @@ class ProcessorsApi(object):
     def get_processor(self, id, **kwargs):
         """
         Gets a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -289,7 +289,7 @@ class ProcessorsApi(object):
     def get_processor_with_http_info(self, id, **kwargs):
         """
         Gets a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -369,7 +369,7 @@ class ProcessorsApi(object):
     def get_property_descriptor(self, id, property_name, **kwargs):
         """
         Gets the descriptor for a processor property
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -397,7 +397,7 @@ class ProcessorsApi(object):
     def get_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
         Gets the descriptor for a processor property
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -486,7 +486,7 @@ class ProcessorsApi(object):
     def get_state(self, id, **kwargs):
         """
         Gets the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -512,7 +512,7 @@ class ProcessorsApi(object):
     def get_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -592,7 +592,7 @@ class ProcessorsApi(object):
     def update_processor(self, id, body, **kwargs):
         """
         Updates a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -619,7 +619,7 @@ class ProcessorsApi(object):
     def update_processor_with_http_info(self, id, body, **kwargs):
         """
         Updates a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

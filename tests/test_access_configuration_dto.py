@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.access_configuration_dto import AccessConfigurationDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.access_configuration_dto import AccessConfigurationDTO
 
 
 class TestAccessConfigurationDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAccessConfigurationDTO(unittest.TestCase):
         Test AccessConfigurationDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.access_configuration_dto.AccessConfigurationDTO()
+        #model =nipyapi.swagger_client.models.access_configuration_dto.AccessConfigurationDTO()
         pass
 
 

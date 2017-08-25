@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.batch_settings_dto import BatchSettingsDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.batch_settings_dto import BatchSettingsDTO
 
 
 class TestBatchSettingsDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestBatchSettingsDTO(unittest.TestCase):
         Test BatchSettingsDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.batch_settings_dto.BatchSettingsDTO()
+        #model =nipyapi.swagger_client.models.batch_settings_dto.BatchSettingsDTO()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.remote_process_group_status_snapshot_entity import RemoteProcessGroupStatusSnapshotEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.remote_process_group_status_snapshot_entity import RemoteProcessGroupStatusSnapshotEntity
 
 
 class TestRemoteProcessGroupStatusSnapshotEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestRemoteProcessGroupStatusSnapshotEntity(unittest.TestCase):
         Test RemoteProcessGroupStatusSnapshotEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.remote_process_group_status_snapshot_entity.RemoteProcessGroupStatusSnapshotEntity()
+        #model =nipyapi.swagger_client.models.remote_process_group_status_snapshot_entity.RemoteProcessGroupStatusSnapshotEntity()
         pass
 
 

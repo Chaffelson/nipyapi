@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.peers_entity import PeersEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.peers_entity import PeersEntity
 
 
 class TestPeersEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestPeersEntity(unittest.TestCase):
         Test PeersEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.peers_entity.PeersEntity()
+        #model =nipyapi.swagger_client.models.peers_entity.PeersEntity()
         pass
 
 

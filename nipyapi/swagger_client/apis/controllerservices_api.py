@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class ControllerservicesApi(object):
     def clear_state(self, id, **kwargs):
         """
         Clears the state for a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class ControllerservicesApi(object):
     def clear_state_with_http_info(self, id, **kwargs):
         """
         Clears the state for a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -149,7 +149,7 @@ class ControllerservicesApi(object):
     def get_controller_service(self, id, **kwargs):
         """
         Gets a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class ControllerservicesApi(object):
     def get_controller_service_with_http_info(self, id, **kwargs):
         """
         Gets a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -255,7 +255,7 @@ class ControllerservicesApi(object):
     def get_controller_service_references(self, id, **kwargs):
         """
         Gets a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -281,7 +281,7 @@ class ControllerservicesApi(object):
     def get_controller_service_references_with_http_info(self, id, **kwargs):
         """
         Gets a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -361,7 +361,7 @@ class ControllerservicesApi(object):
     def get_property_descriptor(self, id, property_name, **kwargs):
         """
         Gets a controller service property descriptor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -388,7 +388,7 @@ class ControllerservicesApi(object):
     def get_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a controller service property descriptor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -474,7 +474,7 @@ class ControllerservicesApi(object):
     def get_state(self, id, **kwargs):
         """
         Gets the state for a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -500,7 +500,7 @@ class ControllerservicesApi(object):
     def get_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -580,7 +580,7 @@ class ControllerservicesApi(object):
     def remove_controller_service(self, id, **kwargs):
         """
         Deletes a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -608,7 +608,7 @@ class ControllerservicesApi(object):
     def remove_controller_service_with_http_info(self, id, **kwargs):
         """
         Deletes a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -694,7 +694,7 @@ class ControllerservicesApi(object):
     def update_controller_service(self, id, body, **kwargs):
         """
         Updates a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -721,7 +721,7 @@ class ControllerservicesApi(object):
     def update_controller_service_with_http_info(self, id, body, **kwargs):
         """
         Updates a controller service
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -807,7 +807,7 @@ class ControllerservicesApi(object):
     def update_controller_service_references(self, id, body, **kwargs):
         """
         Updates a controller services references
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -834,7 +834,7 @@ class ControllerservicesApi(object):
     def update_controller_service_references_with_http_info(self, id, body, **kwargs):
         """
         Updates a controller services references
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

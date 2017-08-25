@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.flow_breadcrumb_entity import FlowBreadcrumbEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.flow_breadcrumb_entity import FlowBreadcrumbEntity
 
 
 class TestFlowBreadcrumbEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestFlowBreadcrumbEntity(unittest.TestCase):
         Test FlowBreadcrumbEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.flow_breadcrumb_entity.FlowBreadcrumbEntity()
+        #model =nipyapi.swagger_client.models.flow_breadcrumb_entity.FlowBreadcrumbEntity()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.streaming_output import StreamingOutput
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.streaming_output import StreamingOutput
 
 
 class TestStreamingOutput(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestStreamingOutput(unittest.TestCase):
         Test StreamingOutput
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.streaming_output.StreamingOutput()
+        #model =nipyapi.swagger_client.models.streaming_output.StreamingOutput()
         pass
 
 

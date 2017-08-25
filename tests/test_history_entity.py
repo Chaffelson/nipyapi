@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.history_entity import HistoryEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.history_entity import HistoryEntity
 
 
 class TestHistoryEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestHistoryEntity(unittest.TestCase):
         Test HistoryEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.history_entity.HistoryEntity()
+        #model =nipyapi.swagger_client.models.history_entity.HistoryEntity()
         pass
 
 

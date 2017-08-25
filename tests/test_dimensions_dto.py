@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.dimensions_dto import DimensionsDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.dimensions_dto import DimensionsDTO
 
 
 class TestDimensionsDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestDimensionsDTO(unittest.TestCase):
         Test DimensionsDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.dimensions_dto.DimensionsDTO()
+        #model =nipyapi.swagger_client.models.dimensions_dto.DimensionsDTO()
         pass
 
 

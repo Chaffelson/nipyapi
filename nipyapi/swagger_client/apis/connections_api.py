@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class ConnectionsApi(object):
     def delete_connection(self, id, **kwargs):
         """
         Deletes a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -71,7 +71,7 @@ class ConnectionsApi(object):
     def delete_connection_with_http_info(self, id, **kwargs):
         """
         Deletes a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -157,7 +157,7 @@ class ConnectionsApi(object):
     def get_connection(self, id, **kwargs):
         """
         Gets a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -183,7 +183,7 @@ class ConnectionsApi(object):
     def get_connection_with_http_info(self, id, **kwargs):
         """
         Gets a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -263,7 +263,7 @@ class ConnectionsApi(object):
     def update_connection(self, id, body, **kwargs):
         """
         Updates a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -290,7 +290,7 @@ class ConnectionsApi(object):
     def update_connection_with_http_info(self, id, body, **kwargs):
         """
         Updates a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

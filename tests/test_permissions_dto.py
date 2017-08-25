@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.permissions_dto import PermissionsDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.permissions_dto import PermissionsDTO
 
 
 class TestPermissionsDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestPermissionsDTO(unittest.TestCase):
         Test PermissionsDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.permissions_dto.PermissionsDTO()
+        #model =nipyapi.swagger_client.models.permissions_dto.PermissionsDTO()
         pass
 
 

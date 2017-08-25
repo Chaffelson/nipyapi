@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.cluste_summary_entity import ClusteSummaryEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.cluste_summary_entity import ClusteSummaryEntity
 
 
 class TestClusteSummaryEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestClusteSummaryEntity(unittest.TestCase):
         Test ClusteSummaryEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.cluste_summary_entity.ClusteSummaryEntity()
+        #model =nipyapi.swagger_client.models.cluste_summary_entity.ClusteSummaryEntity()
         pass
 
 

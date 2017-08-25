@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.reporting_task_types_entity import ReportingTaskTypesEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.reporting_task_types_entity import ReportingTaskTypesEntity
 
 
 class TestReportingTaskTypesEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestReportingTaskTypesEntity(unittest.TestCase):
         Test ReportingTaskTypesEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.reporting_task_types_entity.ReportingTaskTypesEntity()
+        #model =nipyapi.swagger_client.models.reporting_task_types_entity.ReportingTaskTypesEntity()
         pass
 
 

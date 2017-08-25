@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.connections_entity import ConnectionsEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.connections_entity import ConnectionsEntity
 
 
 class TestConnectionsEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestConnectionsEntity(unittest.TestCase):
         Test ConnectionsEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.connections_entity.ConnectionsEntity()
+        #model =nipyapi.swagger_client.models.connections_entity.ConnectionsEntity()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.remote_process_group_status_dto import RemoteProcessGroupStatusDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.remote_process_group_status_dto import RemoteProcessGroupStatusDTO
 
 
 class TestRemoteProcessGroupStatusDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestRemoteProcessGroupStatusDTO(unittest.TestCase):
         Test RemoteProcessGroupStatusDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.remote_process_group_status_dto.RemoteProcessGroupStatusDTO()
+        #model =nipyapi.swagger_client.models.remote_process_group_status_dto.RemoteProcessGroupStatusDTO()
         pass
 
 

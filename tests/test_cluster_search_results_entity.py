@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.cluster_search_results_entity import ClusterSearchResultsEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.cluster_search_results_entity import ClusterSearchResultsEntity
 
 
 class TestClusterSearchResultsEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestClusterSearchResultsEntity(unittest.TestCase):
         Test ClusterSearchResultsEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.cluster_search_results_entity.ClusterSearchResultsEntity()
+        #model =nipyapi.swagger_client.models.cluster_search_results_entity.ClusterSearchResultsEntity()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.lineage_entity import LineageEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.lineage_entity import LineageEntity
 
 
 class TestLineageEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestLineageEntity(unittest.TestCase):
         Test LineageEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.lineage_entity.LineageEntity()
+        #model =nipyapi.swagger_client.models.lineage_entity.LineageEntity()
         pass
 
 

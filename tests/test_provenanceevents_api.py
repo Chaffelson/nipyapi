@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.provenanceevents_api import ProvenanceeventsApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.provenanceevents_api import ProvenanceeventsApi
 
 
 class TestProvenanceeventsApi(unittest.TestCase):
     """ ProvenanceeventsApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.provenanceevents_api.ProvenanceeventsApi()
+        self.api =nipyapi.swagger_client.apis.provenanceevents_api.ProvenanceeventsApi()
 
     def tearDown(self):
         pass

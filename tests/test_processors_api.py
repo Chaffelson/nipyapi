@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.processors_api import ProcessorsApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.processors_api import ProcessorsApi
 
 
 class TestProcessorsApi(unittest.TestCase):
     """ ProcessorsApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.processors_api.ProcessorsApi()
+        self.api =nipyapi.swagger_client.apis.processors_api.ProcessorsApi()
 
     def tearDown(self):
         pass

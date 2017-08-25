@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.funnel_api import FunnelApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.funnel_api import FunnelApi
 
 
 class TestFunnelApi(unittest.TestCase):
     """ FunnelApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.funnel_api.FunnelApi()
+        self.api =nipyapi.swagger_client.apis.funnel_api.FunnelApi()
 
     def tearDown(self):
         pass

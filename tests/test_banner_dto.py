@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.banner_dto import BannerDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.banner_dto import BannerDTO
 
 
 class TestBannerDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestBannerDTO(unittest.TestCase):
         Test BannerDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.banner_dto.BannerDTO()
+        #model =nipyapi.swagger_client.models.banner_dto.BannerDTO()
         pass
 
 

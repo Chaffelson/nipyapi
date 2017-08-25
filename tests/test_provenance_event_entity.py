@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.provenance_event_entity import ProvenanceEventEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.provenance_event_entity import ProvenanceEventEntity
 
 
 class TestProvenanceEventEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestProvenanceEventEntity(unittest.TestCase):
         Test ProvenanceEventEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.provenance_event_entity.ProvenanceEventEntity()
+        #model =nipyapi.swagger_client.models.provenance_event_entity.ProvenanceEventEntity()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.listing_request_entity import ListingRequestEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.listing_request_entity import ListingRequestEntity
 
 
 class TestListingRequestEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestListingRequestEntity(unittest.TestCase):
         Test ListingRequestEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.listing_request_entity.ListingRequestEntity()
+        #model =nipyapi.swagger_client.models.listing_request_entity.ListingRequestEntity()
         pass
 
 

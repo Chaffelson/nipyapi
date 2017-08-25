@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.status_history_dto import StatusHistoryDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.status_history_dto import StatusHistoryDTO
 
 
 class TestStatusHistoryDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestStatusHistoryDTO(unittest.TestCase):
         Test StatusHistoryDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.status_history_dto.StatusHistoryDTO()
+        #model =nipyapi.swagger_client.models.status_history_dto.StatusHistoryDTO()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.process_group_status_snapshot_dto import ProcessGroupStatusSnapshotDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.process_group_status_snapshot_dto import ProcessGroupStatusSnapshotDTO
 
 
 class TestProcessGroupStatusSnapshotDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestProcessGroupStatusSnapshotDTO(unittest.TestCase):
         Test ProcessGroupStatusSnapshotDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.process_group_status_snapshot_dto.ProcessGroupStatusSnapshotDTO()
+        #model =nipyapi.swagger_client.models.process_group_status_snapshot_dto.ProcessGroupStatusSnapshotDTO()
         pass
 
 

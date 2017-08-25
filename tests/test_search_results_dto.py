@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.search_results_dto import SearchResultsDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.search_results_dto import SearchResultsDTO
 
 
 class TestSearchResultsDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestSearchResultsDTO(unittest.TestCase):
         Test SearchResultsDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.search_results_dto.SearchResultsDTO()
+        #model =nipyapi.swagger_client.models.search_results_dto.SearchResultsDTO()
         pass
 
 

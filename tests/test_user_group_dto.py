@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.user_group_dto import UserGroupDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.user_group_dto import UserGroupDTO
 
 
 class TestUserGroupDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestUserGroupDTO(unittest.TestCase):
         Test UserGroupDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.user_group_dto.UserGroupDTO()
+        #model =nipyapi.swagger_client.models.user_group_dto.UserGroupDTO()
         pass
 
 

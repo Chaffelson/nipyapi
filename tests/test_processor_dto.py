@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.processor_dto import ProcessorDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.processor_dto import ProcessorDTO
 
 
 class TestProcessorDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestProcessorDTO(unittest.TestCase):
         Test ProcessorDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.processor_dto.ProcessorDTO()
+        #model =nipyapi.swagger_client.models.processor_dto.ProcessorDTO()
         pass
 
 

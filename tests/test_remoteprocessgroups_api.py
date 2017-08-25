@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.remoteprocessgroups_api import RemoteprocessgroupsApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.remoteprocessgroups_api import RemoteprocessgroupsApi
 
 
 class TestRemoteprocessgroupsApi(unittest.TestCase):
     """ RemoteprocessgroupsApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.remoteprocessgroups_api.RemoteprocessgroupsApi()
+        self.api =nipyapi.swagger_client.apis.remoteprocessgroups_api.RemoteprocessgroupsApi()
 
     def tearDown(self):
         pass

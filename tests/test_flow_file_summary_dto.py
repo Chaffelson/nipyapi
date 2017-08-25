@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.flow_file_summary_dto import FlowFileSummaryDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.flow_file_summary_dto import FlowFileSummaryDTO
 
 
 class TestFlowFileSummaryDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestFlowFileSummaryDTO(unittest.TestCase):
         Test FlowFileSummaryDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.flow_file_summary_dto.FlowFileSummaryDTO()
+        #model =nipyapi.swagger_client.models.flow_file_summary_dto.FlowFileSummaryDTO()
         pass
 
 

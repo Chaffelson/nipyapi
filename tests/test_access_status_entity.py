@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.access_status_entity import AccessStatusEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.access_status_entity import AccessStatusEntity
 
 
 class TestAccessStatusEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestAccessStatusEntity(unittest.TestCase):
         Test AccessStatusEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.access_status_entity.AccessStatusEntity()
+        #model =nipyapi.swagger_client.models.access_status_entity.AccessStatusEntity()
         pass
 
 

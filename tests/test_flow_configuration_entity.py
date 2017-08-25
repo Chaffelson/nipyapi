@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.flow_configuration_entity import FlowConfigurationEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.flow_configuration_entity import FlowConfigurationEntity
 
 
 class TestFlowConfigurationEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestFlowConfigurationEntity(unittest.TestCase):
         Test FlowConfigurationEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.flow_configuration_entity.FlowConfigurationEntity()
+        #model =nipyapi.swagger_client.models.flow_configuration_entity.FlowConfigurationEntity()
         pass
 
 

@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.port_entity import PortEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.port_entity import PortEntity
 
 
 class TestPortEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestPortEntity(unittest.TestCase):
         Test PortEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.port_entity.PortEntity()
+        #model =nipyapi.swagger_client.models.port_entity.PortEntity()
         pass
 
 

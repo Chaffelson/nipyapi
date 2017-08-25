@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.labels_api import LabelsApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.labels_api import LabelsApi
 
 
 class TestLabelsApi(unittest.TestCase):
     """ LabelsApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.labels_api.LabelsApi()
+        self.api =nipyapi.swagger_client.apis.labels_api.LabelsApi()
 
     def tearDown(self):
         pass

@@ -17,16 +17,16 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.apis.sitetosite_api import SitetositeApi
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.apis.sitetosite_api import SitetositeApi
 
 
 class TestSitetositeApi(unittest.TestCase):
     """ SitetositeApi unit test stubs """
 
     def setUp(self):
-        self.api = swagger_client.apis.sitetosite_api.SitetositeApi()
+        self.api =nipyapi.swagger_client.apis.sitetosite_api.SitetositeApi()
 
     def tearDown(self):
         pass

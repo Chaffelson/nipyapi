@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class FlowApi(object):
     def generate_client_id(self, **kwargs):
         """
         Generates a client id.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -68,7 +68,7 @@ class FlowApi(object):
     def generate_client_id_with_http_info(self, **kwargs):
         """
         Generates a client id.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -141,7 +141,7 @@ class FlowApi(object):
     def get_about_info(self, **kwargs):
         """
         Retrieves details about this NiFi to put in the About dialog
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -166,7 +166,7 @@ class FlowApi(object):
     def get_about_info_with_http_info(self, **kwargs):
         """
         Retrieves details about this NiFi to put in the About dialog
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -345,7 +345,7 @@ class FlowApi(object):
     def get_banners(self, **kwargs):
         """
         Retrieves the banners for this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -370,7 +370,7 @@ class FlowApi(object):
     def get_banners_with_http_info(self, **kwargs):
         """
         Retrieves the banners for this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -443,7 +443,7 @@ class FlowApi(object):
     def get_bulletin_board(self, **kwargs):
         """
         Gets current bulletins
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -474,7 +474,7 @@ class FlowApi(object):
     def get_bulletin_board_with_http_info(self, **kwargs):
         """
         Gets current bulletins
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -566,7 +566,7 @@ class FlowApi(object):
     def get_bulletins(self, **kwargs):
         """
         Retrieves Controller level bulletins
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -591,7 +591,7 @@ class FlowApi(object):
     def get_bulletins_with_http_info(self, **kwargs):
         """
         Retrieves Controller level bulletins
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -664,7 +664,7 @@ class FlowApi(object):
     def get_cluster_summary(self, **kwargs):
         """
         The cluster summary for this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -689,7 +689,7 @@ class FlowApi(object):
     def get_cluster_summary_with_http_info(self, **kwargs):
         """
         The cluster summary for this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -868,7 +868,7 @@ class FlowApi(object):
     def get_connection_status(self, id, **kwargs):
         """
         Gets status for a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -896,7 +896,7 @@ class FlowApi(object):
     def get_connection_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -982,7 +982,7 @@ class FlowApi(object):
     def get_connection_status_history(self, id, **kwargs):
         """
         Gets the status history for a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1008,7 +1008,7 @@ class FlowApi(object):
     def get_connection_status_history_with_http_info(self, id, **kwargs):
         """
         Gets the status history for a connection
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1215,7 +1215,7 @@ class FlowApi(object):
     def get_controller_services_from_controller(self, **kwargs):
         """
         Gets all controller services
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1240,7 +1240,7 @@ class FlowApi(object):
     def get_controller_services_from_controller_with_http_info(self, **kwargs):
         """
         Gets all controller services
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1313,7 +1313,7 @@ class FlowApi(object):
     def get_controller_services_from_group(self, id, **kwargs):
         """
         Gets all controller services
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1339,7 +1339,7 @@ class FlowApi(object):
     def get_controller_services_from_group_with_http_info(self, id, **kwargs):
         """
         Gets all controller services
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1419,7 +1419,7 @@ class FlowApi(object):
     def get_controller_status(self, **kwargs):
         """
         Gets the current status of this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1444,7 +1444,7 @@ class FlowApi(object):
     def get_controller_status_with_http_info(self, **kwargs):
         """
         Gets the current status of this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1517,7 +1517,7 @@ class FlowApi(object):
     def get_current_user(self, **kwargs):
         """
         Retrieves the user identity of the user making the request
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1542,7 +1542,7 @@ class FlowApi(object):
     def get_current_user_with_http_info(self, **kwargs):
         """
         Retrieves the user identity of the user making the request
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1615,7 +1615,7 @@ class FlowApi(object):
     def get_flow(self, id, **kwargs):
         """
         Gets a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1641,7 +1641,7 @@ class FlowApi(object):
     def get_flow_with_http_info(self, id, **kwargs):
         """
         Gets a process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1721,7 +1721,7 @@ class FlowApi(object):
     def get_flow_config(self, **kwargs):
         """
         Retrieves the configuration for this NiFi flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1746,7 +1746,7 @@ class FlowApi(object):
     def get_flow_config_with_http_info(self, **kwargs):
         """
         Retrieves the configuration for this NiFi flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1819,7 +1819,7 @@ class FlowApi(object):
     def get_input_port_status(self, id, **kwargs):
         """
         Gets status for an input port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1847,7 +1847,7 @@ class FlowApi(object):
     def get_input_port_status_with_http_info(self, id, **kwargs):
         """
         Gets status for an input port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1933,7 +1933,7 @@ class FlowApi(object):
     def get_output_port_status(self, id, **kwargs):
         """
         Gets status for an output port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1961,7 +1961,7 @@ class FlowApi(object):
     def get_output_port_status_with_http_info(self, id, **kwargs):
         """
         Gets status for an output port
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2263,7 +2263,7 @@ class FlowApi(object):
     def get_process_group_status_history(self, id, **kwargs):
         """
         Gets status history for a remote process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2289,7 +2289,7 @@ class FlowApi(object):
     def get_process_group_status_history_with_http_info(self, id, **kwargs):
         """
         Gets status history for a remote process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2369,7 +2369,7 @@ class FlowApi(object):
     def get_processor_status(self, id, **kwargs):
         """
         Gets status for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2397,7 +2397,7 @@ class FlowApi(object):
     def get_processor_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2483,7 +2483,7 @@ class FlowApi(object):
     def get_processor_status_history(self, id, **kwargs):
         """
         Gets status history for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2509,7 +2509,7 @@ class FlowApi(object):
     def get_processor_status_history_with_http_info(self, id, **kwargs):
         """
         Gets status history for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2700,7 +2700,7 @@ class FlowApi(object):
     def get_remote_process_group_status(self, id, **kwargs):
         """
         Gets status for a remote process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2728,7 +2728,7 @@ class FlowApi(object):
     def get_remote_process_group_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a remote process group
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2814,7 +2814,7 @@ class FlowApi(object):
     def get_remote_process_group_status_history(self, id, **kwargs):
         """
         Gets the status history
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2840,7 +2840,7 @@ class FlowApi(object):
     def get_remote_process_group_status_history_with_http_info(self, id, **kwargs):
         """
         Gets the status history
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3031,7 +3031,7 @@ class FlowApi(object):
     def get_reporting_tasks(self, **kwargs):
         """
         Gets all reporting tasks
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3056,7 +3056,7 @@ class FlowApi(object):
     def get_reporting_tasks_with_http_info(self, **kwargs):
         """
         Gets all reporting tasks
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3129,7 +3129,7 @@ class FlowApi(object):
     def get_templates(self, **kwargs):
         """
         Gets all templates
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3154,7 +3154,7 @@ class FlowApi(object):
     def get_templates_with_http_info(self, **kwargs):
         """
         Gets all templates
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3364,7 +3364,7 @@ class FlowApi(object):
     def schedule_components(self, id, body, **kwargs):
         """
         Schedule or unschedule comopnents in the specified Process Group.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3391,7 +3391,7 @@ class FlowApi(object):
     def schedule_components_with_http_info(self, id, body, **kwargs):
         """
         Schedule or unschedule comopnents in the specified Process Group.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

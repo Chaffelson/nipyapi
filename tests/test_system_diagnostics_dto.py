@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.system_diagnostics_dto import SystemDiagnosticsDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.system_diagnostics_dto import SystemDiagnosticsDTO
 
 
 class TestSystemDiagnosticsDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestSystemDiagnosticsDTO(unittest.TestCase):
         Test SystemDiagnosticsDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.system_diagnostics_dto.SystemDiagnosticsDTO()
+        #model =nipyapi.swagger_client.models.system_diagnostics_dto.SystemDiagnosticsDTO()
         pass
 
 

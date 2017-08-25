@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.status_descriptor_dto import StatusDescriptorDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.status_descriptor_dto import StatusDescriptorDTO
 
 
 class TestStatusDescriptorDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestStatusDescriptorDTO(unittest.TestCase):
         Test StatusDescriptorDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.status_descriptor_dto.StatusDescriptorDTO()
+        #model =nipyapi.swagger_client.models.status_descriptor_dto.StatusDescriptorDTO()
         pass
 
 

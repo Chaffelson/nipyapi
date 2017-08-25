@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.funnel_entity import FunnelEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.funnel_entity import FunnelEntity
 
 
 class TestFunnelEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestFunnelEntity(unittest.TestCase):
         Test FunnelEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.funnel_entity.FunnelEntity()
+        #model =nipyapi.swagger_client.models.funnel_entity.FunnelEntity()
         pass
 
 

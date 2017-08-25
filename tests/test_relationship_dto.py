@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.relationship_dto import RelationshipDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.relationship_dto import RelationshipDTO
 
 
 class TestRelationshipDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestRelationshipDTO(unittest.TestCase):
         Test RelationshipDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.relationship_dto.RelationshipDTO()
+        #model =nipyapi.swagger_client.models.relationship_dto.RelationshipDTO()
         pass
 
 

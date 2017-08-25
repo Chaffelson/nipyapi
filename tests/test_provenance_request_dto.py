@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.provenance_request_dto import ProvenanceRequestDTO
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.provenance_request_dto import ProvenanceRequestDTO
 
 
 class TestProvenanceRequestDTO(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestProvenanceRequestDTO(unittest.TestCase):
         Test ProvenanceRequestDTO
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.provenance_request_dto.ProvenanceRequestDTO()
+        #model =nipyapi.swagger_client.models.provenance_request_dto.ProvenanceRequestDTO()
         pass
 
 

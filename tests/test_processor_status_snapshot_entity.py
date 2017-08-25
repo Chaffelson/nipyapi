@@ -17,9 +17,9 @@ import os
 import sys
 import unittest
 
-from nipyapi import swagger_client
-from swagger_client.rest import ApiException
-from swagger_client.models.processor_status_snapshot_entity import ProcessorStatusSnapshotEntity
+import nipyapi
+from nipyapi.swagger_client.rest import ApiException
+from nipyapi.swagger_client.models.processor_status_snapshot_entity import ProcessorStatusSnapshotEntity
 
 
 class TestProcessorStatusSnapshotEntity(unittest.TestCase):
@@ -36,7 +36,7 @@ class TestProcessorStatusSnapshotEntity(unittest.TestCase):
         Test ProcessorStatusSnapshotEntity
         """
         # FIXME: construct object with mandatory attributes with example values
-        #model = swagger_client.models.processor_status_snapshot_entity.ProcessorStatusSnapshotEntity()
+        #model =nipyapi.swagger_client.models.processor_status_snapshot_entity.ProcessorStatusSnapshotEntity()
         pass
 
 

@@ -3,7 +3,7 @@
 """
     NiFi Rest Api
 
-    The Rest Api provides programmatic access to command and control a NiFi instance in real time. Start and                                              stop processors, monitor queues, query provenance data, and more. Each endpoint below includes a description,                                             definitions of the expected input and output, potential response codes, and the authorizations required                                             to invoke each service.
+
 
     OpenAPI spec version: 1.2.0
     Contact: dev@nifi.apache.org
@@ -43,7 +43,7 @@ class SitetositeApi(object):
     def get_peers(self, **kwargs):
         """
         Returns the available Peers and its status of this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -68,7 +68,7 @@ class SitetositeApi(object):
     def get_peers_with_http_info(self, **kwargs):
         """
         Returns the available Peers and its status of this NiFi
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -141,7 +141,7 @@ class SitetositeApi(object):
     def get_site_to_site_details(self, **kwargs):
         """
         Returns the details about this NiFi necessary to communicate via site to site
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -166,7 +166,7 @@ class SitetositeApi(object):
     def get_site_to_site_details_with_http_info(self, **kwargs):
         """
         Returns the details about this NiFi necessary to communicate via site to site
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
