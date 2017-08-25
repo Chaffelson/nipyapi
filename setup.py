@@ -12,17 +12,14 @@ with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
 requirements = [
-    'nifi-python-swagger-client'
-]
+    ]
 
 setup_requirements = [
-    'pytest-runner',
-    'nifi-python-swagger-client'
+    'pytest-runner'
 ]
 
 test_requirements = [
-    'pytest',
-    'nifi-python-swagger-client'
+    'pytest'
 ]
 
 setup(
@@ -33,7 +30,7 @@ setup(
     author="Daniel Chaffelson",
     author_email='chaffelson@gmail.com',
     url='https://github.com/Chaffelson/nipyapi',
-    download_url = 'https://github.com/Chaffelson/nipyapi/archive/0.1.0.tar.gz',
+    download_url = 'https://github.com/Chaffelson/nipyapi/archive/0.2.1.tar.gz',
     packages=find_packages(include=['nipyapi']),
     include_package_data=True,
     install_requires=requirements,
@@ -53,5 +50,4 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     setup_requires=setup_requirements,
-    dependency_links=['git+git://github.com/Chaffelson/nifi-python-swagger-client.git#egg=nifi-python-swagger-client']
 )
