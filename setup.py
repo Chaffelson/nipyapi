@@ -24,7 +24,7 @@ test_requirements = [
 
 setup(
     name='nipyapi',
-    version='0.2.0',
+    version='0.2.1',
     description="Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API",
     long_description=readme + '\n\n' + history,
     author="Daniel Chaffelson",
