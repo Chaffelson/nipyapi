@@ -151,3 +151,6 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+# Somehow a virtualenv ended up here
+/nipyapi-py2/
