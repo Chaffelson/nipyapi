@@ -34,9 +34,7 @@ Background
 
 This package provides high-level calls to execute common NiFi tasks
 
-It leverages `Chaffelson/nifi-python-swagger-client <https://github.com/Chaffelson/nifi-python-swagger-client>`_
-,
-a swagger 2.0 compliant client auto-generated using the
+It leverages a swagger 2.0 compliant client auto-generated using the
 `Swagger Codegen <https://github.com/swagger-api/swagger-codegen>`_ project
 
 For more information on Apache NiFi, please visit `https://nifi.apache.org <https://nifi.apache.org>`_
@@ -51,7 +49,7 @@ If you require a different version please raise an `issue <https://github.com/Ch
 Requirements
 ------------
 
-Python 2.7 or 3.6
+Python 2.7 or 3.6 supported, though other versions may work
 
 
 Credits
