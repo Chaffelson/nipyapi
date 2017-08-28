@@ -6,9 +6,11 @@ Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
 
 .. image:: https://img.shields.io/pypi/v/nipyapi.svg
         :target: https://pypi.python.org/pypi/nipyapi
+        :alt: Release Status
 
 .. image:: https://img.shields.io/travis/Chaffelson/nipyapi.svg
         :target: https://travis-ci.org/Chaffelson/nipyapi
+        :alt: Build Status
 
 .. image:: https://readthedocs.org/projects/nipyapi/badge/?version=latest
         :target: https://nipyapi.readthedocs.io/en/latest/?badge=latest
@@ -16,8 +18,11 @@ Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
 
 .. image:: https://pyup.io/repos/github/Chaffelson/nipyapi/shield.svg
      :target: https://pyup.io/repos/github/Chaffelson/nipyapi/
-     :alt: Updates
+     :alt: Python Updates
 
+.. image:: https://coveralls.io/repos/github/Chaffelson/nipyapi/badge.svg?branch=master
+    :target: https://coveralls.io/github/Chaffelson/nipyapi?branch=master
+    :alt: test coverage
 
 
 * Free software: Apache Software License 2.0
