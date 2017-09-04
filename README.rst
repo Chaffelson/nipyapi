@@ -24,9 +24,9 @@ Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
     :target: https://coveralls.io/github/Chaffelson/nipyapi?branch=master
     :alt: test coverage
 
-
-* Free software: Apache Software License 2.0
-* Documentation: https://nipyapi.readthedocs.io.
+.. image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
+    :target: https://opensource.org/licenses/Apache-2.0
+    :alt: License
 
 
 Background
@@ -39,10 +39,12 @@ It leverages a swagger 2.0 compliant client auto-generated using the
 
 For more information on Apache NiFi, please visit `https://nifi.apache.org <https://nifi.apache.org>`_
 
-Versioning
-----------
+For Documentation on this package please visit `https://nipyapi.readthedocs.io. <https://nipyapi.readthedocs.io/en/latest>`_
 
-NiFi API version: 1.2.0
+Version Support
+---------------
+
+Supports NiFi version: 1.2.x
 
 If you require a different version please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
