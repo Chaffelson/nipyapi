@@ -11,6 +11,8 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
+version = '0.2.1'
+
 requirements = [
     ]
 
@@ -24,13 +26,13 @@ test_requirements = [
 
 setup(
     name='nipyapi',
-    version='0.2.1',
+    version=version,
     description="Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API",
     long_description=readme + '\n\n' + history,
     author="Daniel Chaffelson",
     author_email='chaffelson@gmail.com',
     url='https://github.com/Chaffelson/nipyapi',
-    download_url = 'https://github.com/Chaffelson/nipyapi/archive/0.2.1.tar.gz',
+    download_url = 'https://github.com/Chaffelson/nipyapi/archive/' + version + '.tar.gz',
     packages=find_packages(include=['nipyapi']),
     include_package_data=True,
     install_requires=requirements,
