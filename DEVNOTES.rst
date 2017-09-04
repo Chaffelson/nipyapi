@@ -54,6 +54,7 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     source ./my_virtualenv/bin/activate
     bumpversion patch|minor|major
     python setup.py develop
+    tox
     python setup.py test
     python setup.py build_sphinx
     # check docs in build/sphinx/html/index.html
