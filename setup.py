@@ -11,10 +11,10 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-version = 'version='0.3.0''
+proj_version = '0.3.0'
 
-requirements = [
-    ]
+with open('requirements.txt') as requirements_file:
+    requirements = requirements_file.read()
 
 setup_requirements = [
     'pytest-runner'
@@ -26,14 +26,17 @@ test_requirements = [
 
 setup(
     name='nipyapi',
-    version=version,
+    version=proj_version,
     description="Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API",
     long_description=readme + '\n\n' + history,
     author="Daniel Chaffelson",
     author_email='chaffelson@gmail.com',
     url='https://github.com/Chaffelson/nipyapi',
-    download_url = 'https://github.com/Chaffelson/nipyapi/archive/' + version + '.tar.gz',
-    packages=find_packages(include=['nipyapi']),
+    download_url = 'https://github.com/Chaffelson/nipyapi/archive/' + proj_version + '.tar.gz',
+    packages=find_packages(
+        include=['nipyapi', 'nipyapi.swagger_client', 'nipyapi.swagger_client.apis', 'nipyapi.swagger_client.models'],
+        exclude=['*.tests', '*.tests.*', 'tests.*', 'tests', 'swagger_client_tests']
+    ),
     include_package_data=True,
     install_requires=requirements,
     license="Apache Software License 2.0",

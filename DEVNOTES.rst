@@ -55,13 +55,15 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     bumpversion patch|minor|major
     python setup.py develop
     python setup.py test
-    python setup.py sdist bdist_wheel
-    twine upload dist/*
-    mktmpenv
-    pip install nipyapi
-    # Run appropriate tests
-    deactivate
+    python setup.py build_sphinx
     # check docs in build/sphinx/html/index.html
+    python setup.py sdist bdist_wheel
+    mktmpenv
+    pip install pip install path/to/nipyapi-0.3.0-py2.py3-none-any.whl  # for example
+    # Run appropriate tests, such as usage tests etc.
+    deactivate
+    twine upload dist/*
+    # You may get a file exists error, check you're not trying to reupload an existing version
     git push --follow-tags
 
 - check build in TravisCI

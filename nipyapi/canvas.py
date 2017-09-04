@@ -13,7 +13,6 @@ class Canvas:
     """
     Class to contain Wrapper methods for Canvas interaction
     """
-
     def __init__(self, host=None):
         """
         Constructor

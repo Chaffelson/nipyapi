@@ -46,3 +46,8 @@ History
 * Added Coveralls and License Badge
 * Removed broken venv that ended up in project directory, added similar to ignore file
 * Changed default URL in the configuration to default docker url and port on localhost
+
+0.3.1 (2017-09-04)
+------------------
+
+* Fixed imports and requirements for wheel install from PyPi
