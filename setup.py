@@ -13,8 +13,12 @@ with open('HISTORY.rst') as history_file:
 
 proj_version = '0.3.1'
 
-with open('requirements.txt') as requirements_file:
-    requirements = requirements_file.read()
+requirements = [
+    'certifi',
+    'six',
+    'python_dateutil',
+    'urllib3'
+]
 
 setup_requirements = [
     'pytest-runner'
