@@ -35,3 +35,14 @@ History
 ------------------
 
 * Fixed up removal of leftover swagger client dependencies
+
+0.3.0 (2017-09-04)
+------------------
+
+* Created basic wrapper structure for future development
+* Added simple usage functions to complete todo task
+* Added devnotes, updated usage, and various sundry other documentation cleanups
+* Split tests into subfolders for better management and clarity
+* Added Coveralls and License Badge
+* Removed broken venv that ended up in project directory, added similar to ignore file
+* Changed default URL in the configuration to default docker url and port on localhost

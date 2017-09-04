@@ -21,3 +21,11 @@ To fetch the NiFi system's root Process Group ID::
     import nipyapi
     canvas = nipyapi.Canvas()
     canvas.get_root_pg_id()
+
+Configuration
+-------------
+
+Further configuration parameters for the swagger_client may be found in swagger_client.configuration::
+
+    import nipyapi
+    nipyapi.swagger_client.configuration.host = 'http://localhost:8080/nifi-api'
