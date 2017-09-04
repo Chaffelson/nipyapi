@@ -6,7 +6,7 @@
 import pytest
 
 
-from nipyapi import nipyapi
+import nipyapi
 
 
 @pytest.fixture
