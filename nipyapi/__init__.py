@@ -10,4 +10,4 @@ from .system import System
 __all__ = ['swagger_client']
 __author__ = """Daniel Chaffelson"""
 __email__ = 'chaffelson@gmail.com'
-__version__ = '0.3.0'
+__version__ = '0.3.1'

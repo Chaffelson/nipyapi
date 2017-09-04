@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-proj_version = '0.3.0'
+proj_version = '0.3.1'
 
 with open('requirements.txt') as requirements_file:
     requirements = requirements_file.read()
