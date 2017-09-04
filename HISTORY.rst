@@ -2,6 +2,14 @@
 History
 =======
 
+0.3.2 (2017-09-04)
+------------------
+
+* Fixed bug where tox failing locally due to coveralls expecting travis
+* Fixed bug where TravisCI failing due to incorrectly set install requirements
+* Fixed bug where swagger_client not importing as expected
+
+
 0.3.1 (2017-09-04)
 ------------------
 
