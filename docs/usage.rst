@@ -4,16 +4,19 @@ Usage
 
 To use Nipyapi in a project::
 
-    import nypiapi
+    # in Bash
+    pip install nipyapi
 
+    # in Python
+    import nipyapi
 
-To retrieve the system diagonostics::
+To fetch the NiFi system's diagnostics::
 
     import nipyapi
-    system = nipyapi.System()
+    system = nipyapi.System(host='http://localhost:8080/nifi-api')
     system.get_system_diagnostics()
 
-To print the root Process Group ID::
+To fetch the NiFi system's root Process Group ID::
 
     import nipyapi
     canvas = nipyapi.Canvas()
