@@ -2,39 +2,10 @@
 History
 =======
 
-0.1.0 (2017-08-24)
+0.3.1 (2017-09-04)
 ------------------
 
-* First release on PyPI.
-
-
-0.1.1 (2017-08-24)
-------------------
-
-* Cleaned up base project and integrations ready for code migration
-
-
-0.1.2 (2017-08-24)
-------------------
-
-* Created basic integration with nifi-python-swagger-client
-
-
-0.2.0 (2017-08-25)
-------------------
-
-* Merge the nifi swagger client into this repo as a sub package
-    * Restructured tests into package subfolders
-    * Consolidate package configuration
-    * Setup package import structure
-    * Updated usage instructions
-    * Integrate documentation
-
-
-0.2.1 (2017-08-26)
-------------------
-
-* Fixed up removal of leftover swagger client dependencies
+* Fixed imports and requirements for wheel install from PyPi
 
 0.3.0 (2017-09-04)
 ------------------
@@ -47,7 +18,45 @@ History
 * Removed broken venv that ended up in project directory, added similar to ignore file
 * Changed default URL in the configuration to default docker url and port on localhost
 
-0.3.1 (2017-09-04)
+0.2.1 (2017-08-26)
 ------------------
 
-* Fixed imports and requirements for wheel install from PyPi
+* Fixed up removal of leftover swagger client dependencies
+
+0.2.0 (2017-08-25)
+------------------
+
+* Merge the nifi swagger client into this repo as a sub package
+    * Restructured tests into package subfolders
+    * Consolidate package configuration
+    * Setup package import structure
+    * Updated usage instructions
+    * Integrate documentation
+
+0.1.2 (2017-08-24)
+------------------
+
+* Created basic integration with nifi-python-swagger-client
+
+0.1.1 (2017-08-24)
+------------------
+
+* Cleaned up base project and integrations ready for code migration
+
+0.1.0 (2017-08-24)
+------------------
+
+* First release on PyPI.
+
+
+
+
+
+
+
+
+
+
+
+
+
