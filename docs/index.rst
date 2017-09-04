@@ -12,6 +12,7 @@ Contents:
    swagger_client
    todo
    contributing
+   devnotes
    authors
    history
 
