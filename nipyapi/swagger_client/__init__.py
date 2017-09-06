@@ -6,6 +6,8 @@
 
 from __future__ import absolute_import
 
+# Add any new imports to the __all__ definition at the foot of the file
+
 # import models into sdk package
 from .models.about_dto import AboutDTO
 from .models.about_entity import AboutEntity
@@ -243,5 +245,57 @@ from .apis.tenants_api import TenantsApi
 from .api_client import ApiClient
 
 from .configuration import Configuration
+
+__all__ = [
+    "AboutDTO", "AboutEntity", "AccessConfigurationDTO", "AccessConfigurationEntity", "AccessPolicyDTO",
+    "AccessPolicyEntity", "AccessPolicySummaryDTO", "AccessPolicySummaryEntity", "AccessStatusDTO",
+    "AccessStatusEntity", "ActionDTO", "ActionDetailsDTO", "ActionEntity", "AllowableValueDTO", "AllowableValueEntity",
+    "AttributeDTO", "BannerDTO", "BannerEntity", "BatchSettingsDTO", "BulletinBoardDTO", "BulletinBoardEntity",
+    "BulletinDTO", "BulletinEntity", "BundleDTO", "ClusteSummaryEntity", "ClusterDTO", "ClusterEntity",
+    "ClusterSearchResultsEntity", "ClusterSummaryDTO", "ComponentDetailsDTO", "ComponentHistoryDTO",
+    "ComponentHistoryEntity", "ComponentReferenceDTO", "ComponentReferenceEntity", "ComponentSearchResultDTO",
+    "ComponentStateDTO", "ConnectableDTO", "ConnectionDTO", "ConnectionEntity", "ConnectionStatusDTO",
+    "ConnectionStatusEntity", "ConnectionStatusSnapshotDTO", "ConnectionStatusSnapshotEntity", "ConnectionsEntity",
+    "ControllerBulletinsEntity", "ControllerConfigurationDTO", "ControllerConfigurationEntity", "ControllerDTO",
+    "ControllerEntity", "ControllerServiceApiDTO", "ControllerServiceDTO", "ControllerServiceEntity",
+    "ControllerServiceReferencingComponentDTO", "ControllerServiceReferencingComponentEntity",
+    "ControllerServiceReferencingComponentsEntity", "ControllerServiceTypesEntity", "ControllerServicesEntity",
+    "ControllerStatusDTO", "ControllerStatusEntity", "CopySnippetRequestEntity", "CounterDTO", "CounterEntity",
+    "CountersDTO", "CountersEntity", "CountersSnapshotDTO", "CreateTemplateRequestEntity", "CurrentUserEntity",
+    "DimensionsDTO", "DocumentedTypeDTO", "DropRequestDTO", "DropRequestEntity", "FlowBreadcrumbDTO",
+    "FlowBreadcrumbEntity", "FlowConfigurationDTO", "FlowConfigurationEntity", "FlowDTO", "FlowEntity",
+    "FlowFileSummaryDTO", "FlowSnippetDTO", "FlowSnippetEntity", "FunnelDTO", "FunnelEntity", "FunnelsEntity",
+    "GarbageCollectionDTO", "HistoryDTO", "HistoryEntity", "InputPortsEntity", "InstantiateTemplateRequestEntity",
+    "LabelDTO", "LabelEntity", "LabelsEntity", "LineageDTO", "LineageEntity", "LineageRequestDTO", "LineageResultsDTO",
+    "ListingRequestDTO", "ListingRequestEntity", "NodeConnectionStatusSnapshotDTO", "NodeCountersSnapshotDTO",
+    "NodeDTO", "NodeEntity", "NodeEventDTO", "NodePortStatusSnapshotDTO", "NodeProcessGroupStatusSnapshotDTO",
+    "NodeProcessorStatusSnapshotDTO", "NodeRemoteProcessGroupStatusSnapshotDTO", "NodeSearchResultDTO",
+    "NodeStatusSnapshotsDTO", "NodeSystemDiagnosticsSnapshotDTO", "OutputPortsEntity", "PeerDTO", "PeersEntity",
+    "PermissionsDTO", "PortDTO", "PortEntity", "PortStatusDTO", "PortStatusEntity", "PortStatusSnapshotDTO",
+    "PortStatusSnapshotEntity", "PositionDTO", "PreviousValueDTO", "PrioritizerTypesEntity", "ProcessGroupDTO",
+    "ProcessGroupEntity", "ProcessGroupFlowDTO", "ProcessGroupFlowEntity", "ProcessGroupStatusDTO",
+    "ProcessGroupStatusEntity", "ProcessGroupStatusSnapshotDTO", "ProcessGroupStatusSnapshotEntity",
+    "ProcessorConfigDTO", "ProcessorDTO", "ProcessorEntity", "ProcessorStatusDTO", "ProcessorStatusEntity",
+    "ProcessorStatusSnapshotDTO", "ProcessorStatusSnapshotEntity", "ProcessorTypesEntity", "ProcessorsEntity",
+    "PropertyDescriptorDTO", "PropertyDescriptorEntity", "PropertyHistoryDTO", "ProvenanceDTO", "ProvenanceEntity",
+    "ProvenanceEventDTO", "ProvenanceEventEntity", "ProvenanceLinkDTO", "ProvenanceNodeDTO", "ProvenanceOptionsDTO",
+    "ProvenanceOptionsEntity", "ProvenanceRequestDTO", "ProvenanceResultsDTO", "ProvenanceSearchableFieldDTO",
+    "QueueSizeDTO", "RelationshipDTO", "RemoteProcessGroupContentsDTO", "RemoteProcessGroupDTO",
+    "RemoteProcessGroupEntity", "RemoteProcessGroupPortDTO", "RemoteProcessGroupPortEntity",
+    "RemoteProcessGroupStatusDTO", "RemoteProcessGroupStatusSnapshotDTO", "RemoteProcessGroupStatusSnapshotEntity",
+    "RemoteProcessGroupsEntity", "ReportingTaskDTO", "ReportingTaskEntity", "ReportingTaskTypesEntity",
+    "ReportingTasksEntity", "ResourceDTO", "ResourcesEntity", "RevisionDTO", "ScheduleComponentsEntity",
+    "SearchResultsDTO", "SearchResultsEntity", "Set", "SnippetDTO", "SnippetEntity", "StateEntryDTO", "StateMapDTO",
+    "StatusDescriptorDTO", "StatusHistoryDTO", "StatusHistoryEntity", "StatusSnapshotDTO", "StorageUsageDTO",
+    "StreamingOutput", "SubmitReplayRequestEntity", "SystemDiagnosticsDTO", "SystemDiagnosticsEntity",
+    "SystemDiagnosticsSnapshotDTO", "TemplateDTO", "TemplateEntity", "TemplatesEntity", "TenantDTO", "TenantEntity",
+    "TenantsEntity", "TransactionResultEntity", "UpdateControllerServiceReferenceRequestEntity", "UserDTO",
+    "UserEntity", "UserGroupDTO", "UserGroupEntity", "UserGroupsEntity", "UsersEntity", "VersionInfoDTO", "AccessApi",
+    "ConnectionsApi", "ControllerApi", "ControllerservicesApi", "CountersApi", "DatatransferApi", "FlowApi",
+    "FlowfilequeuesApi", "FunnelApi", "InputportsApi", "LabelsApi", "OutputportsApi", "PoliciesApi", "ProcessgroupsApi",
+    "ProcessorsApi", "ProvenanceApi", "ProvenanceeventsApi", "RemoteprocessgroupsApi", "ReportingtasksApi",
+    "ResourcesApi", "SitetositeApi", "SnippetsApi", "SystemdiagnosticsApi", "TemplatesApi", "TenantsApi", "ApiClient",
+    "Configuration"
+]
 
 configuration = Configuration()
