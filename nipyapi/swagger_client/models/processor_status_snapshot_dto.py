@@ -256,7 +256,7 @@ class ProcessorStatusSnapshotDTO(object):
         :type: str
         """
         allowed_values = ["RUNNING", "STOPPED", "DISABLED", "INVALID"]
-        if run_status not in allowed_values:
+        if run_status.upper() not in allowed_values:
             raise ValueError(
                 "Invalid value for `run_status` ({0}), must be one of {1}"
                 .format(run_status, allowed_values)

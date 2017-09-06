@@ -27,3 +27,21 @@ class System:
     def get_system_diagnostics(self):
         con = swagger_client.SystemdiagnosticsApi()
         return con.get_system_diagnostics()
+
+    # TODO: Redo these with getters and setters
+    @staticmethod
+    def get_cluster():
+        """
+        Returns the contents of the NiFi cluster
+        :return:
+        """
+        return swagger_client.ControllerApi.get_cluster()
+
+    @staticmethod
+    def get_node(nid=None):
+        """
+        Returns the cluster node information
+        :param nid: NiFi ID (nid) from Node information
+        :return:
+        """
+        return swagger_client.ControllerApi.get_node(nid)
