@@ -121,7 +121,11 @@ class RESTClientObject(object):
                                  timeout. It can also be a pair (tuple) of (connection, read) timeouts.
         """
         method = method.upper()
-        assert method in ['GET', 'HEAD', 'DELETE', 'POST', 'PUT', 'PATCH', 'OPTIONS']
+        valid_methods = ['GET', 'HEAD', 'DELETE', 'POST', 'PUT', 'PATCH', 'OPTIONS']
+        if method not in valid_methods:
+            raise ValueError(
+                "Invalid method {0} supplied, expecting one of the following methods: {1}".format(method, valid_methods)
+            )
 
         if post_params and body:
             raise ValueError(
