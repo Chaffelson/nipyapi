@@ -128,7 +128,8 @@ class DatatransferApi(object):
         if 'response_code' in params:
             query_params.append(('responseCode', params['response_code']))
 
-        header_params = {}
+        header_params = {
+            'x-nifi-site-to-site-protocol-version': 1}
 
         form_params = []
         local_var_files = {}
@@ -255,7 +256,8 @@ class DatatransferApi(object):
         if 'checksum' in params:
             query_params.append(('checksum', params['checksum']))
 
-        header_params = {}
+        header_params = {
+            'x-nifi-site-to-site-protocol-version': 1}
 
         form_params = []
         local_var_files = {}
@@ -368,7 +370,8 @@ class DatatransferApi(object):
 
         query_params = []
 
-        header_params = {}
+        header_params = {
+            'x-nifi-site-to-site-protocol-version': 1}
 
         form_params = []
         local_var_files = {}
@@ -477,7 +480,8 @@ class DatatransferApi(object):
 
         query_params = []
 
-        header_params = {}
+        header_params = {
+            'x-nifi-site-to-site-protocol-version': 1}
 
         form_params = []
         local_var_files = {}
@@ -590,7 +594,8 @@ class DatatransferApi(object):
 
         query_params = []
 
-        header_params = {}
+        header_params = {
+            'x-nifi-site-to-site-protocol-version': 1}
 
         form_params = []
         local_var_files = {}
@@ -622,7 +627,7 @@ class DatatransferApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
-    def receive_flow_files(self, port_id, transaction_id, **kwargs):
+    def receive_flow_files(self, port_id, transaction_id, flow_files, **kwargs):
         """
         Transfer flow files to the input port
 
@@ -632,24 +637,25 @@ class DatatransferApi(object):
         >>> def callback_function(response):
         >>>     pprint(response)
         >>>
-        >>> thread = api.receive_flow_files(port_id, transaction_id, callback=callback_function)
+        >>> thread = api.receive_flow_files(port_id, transaction_id, flow_files, callback=callback_function)
 
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str port_id: The input port id. (required)
         :param str transaction_id: (required)
+        :param bytes flow_files: (required)
         :return: str
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
-            return self.receive_flow_files_with_http_info(port_id, transaction_id, **kwargs)
+            return self.receive_flow_files_with_http_info(port_id, transaction_id, flow_files, **kwargs)
         else:
-            (data) = self.receive_flow_files_with_http_info(port_id, transaction_id, **kwargs)
+            (data) = self.receive_flow_files_with_http_info(port_id, transaction_id, flow_files, **kwargs)
             return data
 
-    def receive_flow_files_with_http_info(self, port_id, transaction_id, **kwargs):
+    def receive_flow_files_with_http_info(self, port_id, transaction_id, flow_files, **kwargs):
         """
         Transfer flow files to the input port
 
@@ -659,18 +665,19 @@ class DatatransferApi(object):
         >>> def callback_function(response):
         >>>     pprint(response)
         >>>
-        >>> thread = api.receive_flow_files_with_http_info(port_id, transaction_id, callback=callback_function)
+        >>> thread = api.receive_flow_files_with_http_info(port_id, transaction_id, flow_files, callback=callback_function)
 
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str port_id: The input port id. (required)
         :param str transaction_id: (required)
+        :param bytes flow_files: (required)
         :return: str
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['port_id', 'transaction_id']
+        all_params = ['port_id', 'transaction_id', 'flow_files']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -691,6 +698,9 @@ class DatatransferApi(object):
         # verify the required parameter 'transaction_id' is set
         if ('transaction_id' not in params) or (params['transaction_id'] is None):
             raise ValueError("Missing the required parameter `transaction_id` when calling `receive_flow_files`")
+        # verify the required parameter 'transaction_id' is set
+        if ('flow_files' not in params) or (params['flow_files'] is None):
+            raise ValueError("Missing the required parameter `flow_files` when calling `receive_flow_files`")
 
 
         collection_formats = {}
@@ -703,12 +713,13 @@ class DatatransferApi(object):
 
         query_params = []
 
-        header_params = {}
+        header_params = {
+            'x-nifi-site-to-site-protocol-version': 1}
 
         form_params = []
         local_var_files = {}
 
-        body_params = None
+        body_params = flow_files
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['text/plain'])
@@ -816,7 +827,8 @@ class DatatransferApi(object):
 
         query_params = []
 
-        header_params = {}
+        header_params = {
+            'x-nifi-site-to-site-protocol-version': 1}
 
         form_params = []
         local_var_files = {}

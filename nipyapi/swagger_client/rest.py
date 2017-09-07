@@ -179,10 +179,15 @@ class RESTClientObject(object):
                 # Pass a `string` parameter directly in the body to support
                 # other content types than Json when `body` argument is provided
                 # in serialized form
-                elif isinstance(body, str):
+                elif isinstance(body, (str, bytes)):
                     request_body = body
                     r = self.pool_manager.request(method, url,
                                                   body=request_body,
+                                                  preload_content=_preload_content,
+                                                  timeout=timeout,
+                                                  headers=headers)
+                elif body is None:
+                    r = self.pool_manager.request(method, url,
                                                   preload_content=_preload_content,
                                                   timeout=timeout,
                                                   headers=headers)
@@ -207,7 +212,7 @@ class RESTClientObject(object):
 
             # In the python 3, the response.data is bytes.
             # we need to decode it to string.
-            if PY3:
+            if PY3 and headers['Accept'] != 'application/octet-stream':
                 r.data = r.data.decode('utf8')
 
             # log response body
