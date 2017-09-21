@@ -12,10 +12,20 @@ test_canvas = Canvas()
 
 
 class TestCanvas:
-    def test_process_group(self):
-        r = test_canvas.process_group(pg_id='root', detail='names')
+    def test_process_group_status(self):
+        r = test_canvas.process_group_status(pg_id='root', detail='names')
         assert isinstance(r, dict)
 
-    def test_get_tree(self):
+    def test_recurse_flows(self):
         r = test_canvas._recurse_flows()
+        assert isinstance(r, dict)
+
+    def test_flow(self):
+        r = test_canvas.flow('root')
+        assert isinstance(r, dict)
+        assert 'NiFi Flow' in r['name']
         pprint(r)
+
+    def test_get_root_pg_id(self):
+        r = test_canvas.get_root_pg_id()
+        assert isinstance(r, str)

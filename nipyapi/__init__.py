@@ -6,6 +6,7 @@ from __future__ import absolute_import
 
 from .canvas import Canvas
 from .system import System
+from .templates import Templates
 
 __all__ = ['swagger_client', 'Canvas', 'System']
 __author__ = """Daniel Chaffelson"""

@@ -23,6 +23,7 @@ class Canvas:
             self.host = swagger_client.configuration.host
         else:
             self.host = host
+            swagger_client.configuration.host = self.host
 
     @staticmethod
     def get_root_pg_id():
@@ -35,13 +36,13 @@ class Canvas:
     def flow(pg_id='root'):
         """
         Returns information about a Process Group and its Flow
-        :param pg_id: string of name or id of a Process Group, defaults to root if none supplied
+        :param pg_id: id of a Process Group, defaults to root if none supplied
         :returns: dict of the Process Group information
         """
-        return swagger_client.FlowApi().get_flow(pg_id)
+        return Canvas._recurse_flows(pg_id)
 
     @staticmethod
-    def process_group(pg_id='root', detail='names'):
+    def process_group_status(pg_id='root', detail='names'):
         """
         Returns information about a Process Group
         :param pg_id: NiFi ID of the Process Groupt to retrieve
@@ -78,7 +79,8 @@ class Canvas:
                 pg_detail = {
                     'name': node.process_group_flow.breadcrumb.breadcrumb.name,
                     'id': node.process_group_flow.breadcrumb.breadcrumb.id,
-                    'uri': node.process_group_flow.uri
+                    'uri': node.process_group_flow.uri,
+                    'parent_group_id': node.process_group_flow.parent_group_id
                 }
                 # there doesn't appear to be a command to fetch everything at once
                 # so we have to recurse down the chain of process_groups
@@ -94,8 +96,14 @@ class Canvas:
                         node.to_dict().keys()
                     }
             elif isinstance(node, ProcessGroupEntity):
+                # The Revision information is needed for creating snippets
+                # it's only available from the parent process group flow info
+                out = {
+                    'revision': node.revision
+                }
                 # recurse into the nested process group
-                return _walk_flow(swagger_client.FlowApi().get_flow(node.id))
+                out.update(_walk_flow(swagger_client.FlowApi().get_flow(node.id)))
+                return out
             elif isinstance(node, LabelEntity) or isinstance(node, FunnelEntity):
                 return {k: v for k, v in node.component.to_dict().items() if k in ['id', 'label']}
             else:
