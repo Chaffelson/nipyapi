@@ -17,5 +17,5 @@ class TestCanvas:
         assert isinstance(r, dict)
 
     def test_get_tree(self):
-        r = test_canvas._get_tree()
+        r = test_canvas._recurse_flows()
         pprint(r)

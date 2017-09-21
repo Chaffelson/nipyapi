@@ -35,7 +35,7 @@ class Canvas:
     def flow(pg_id='root'):
         """
         Returns information about a Process Group and its Flow
-        :param pg: string of name or id of a Process Group, defaults to root if none supplied
+        :param pg_id: string of name or id of a Process Group, defaults to root if none supplied
         :returns: dict of the Process Group information
         """
         return swagger_client.FlowApi().get_flow(pg_id)
@@ -48,7 +48,7 @@ class Canvas:
         :param detail: Level of detail to respond with, defaults to just names and NiFi IDs
         :return:
         """
-        valid_details = ['names','all']
+        valid_details = ['names', 'all']
         if detail not in valid_details:
             raise ValueError(
                 'detail requested ({0}) not in list of valid detail requests ({1})'.format(detail, valid_details)
@@ -63,13 +63,13 @@ class Canvas:
             return raw
 
     @staticmethod
-    def _get_tree():
+    def _recurse_flows():
         """
         Returns a nested dict of the names and ids of all components
         :return:
         """
         from nipyapi.swagger_client import ProcessGroupFlowEntity, FlowDTO
-        from nipyapi.swagger_client import ProcessorEntity, ProcessGroupEntity
+        from nipyapi.swagger_client import ProcessGroupEntity, LabelEntity, FunnelEntity
 
         def _walk_flow(node):
             # This recursively unpacks the data models
@@ -93,7 +93,11 @@ class Canvas:
                         node.to_dict().keys()
                     }
             elif isinstance(node, ProcessGroupEntity):
+                # recurse into the nested process group
                 return _walk_flow(swagger_client.FlowApi().get_flow(node.id))
+            elif isinstance(node, LabelEntity) or isinstance(node, FunnelEntity):
+                return {k: v for k, v in node.component.to_dict().items() if k in ['id', 'label']}
             else:
-                return {k:v for k, v in node.status.to_dict().items() if k in ['id', 'name']}
+                # otherwise parse out the name/id of the various components
+                return {k: v for k, v in node.status.to_dict().items() if k in ['id', 'name']}
         return _walk_flow(swagger_client.FlowApi().get_flow('root'))
