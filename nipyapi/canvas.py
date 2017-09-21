@@ -63,9 +63,10 @@ class Canvas:
             return raw
 
     @staticmethod
-    def _recurse_flows():
+    def _recurse_flows(process_group_id='root'):
         """
         Returns a nested dict of the names and ids of all components
+        :param process_group_id: ID of process group to treat as root of recursive fetch, or 'root' to fetch root
         :return:
         """
         from nipyapi.swagger_client import ProcessGroupFlowEntity, FlowDTO
@@ -74,15 +75,15 @@ class Canvas:
         def _walk_flow(node):
             # This recursively unpacks the data models
             if isinstance(node, ProcessGroupFlowEntity):
-                out = {
+                pg_detail = {
                     'name': node.process_group_flow.breadcrumb.breadcrumb.name,
                     'id': node.process_group_flow.breadcrumb.breadcrumb.id,
                     'uri': node.process_group_flow.uri
                 }
                 # there doesn't appear to be a command to fetch everything at once
                 # so we have to recurse down the chain of process_groups
-                out.update(_walk_flow(node.process_group_flow.flow))
-                return out
+                pg_detail.update(_walk_flow(node.process_group_flow.flow))
+                return pg_detail
             elif isinstance(node, FlowDTO):
                 # We have to use getattr here to retain the custom data type
                 # Each category (k) is a list of dicts, thus the complex comprehension
@@ -100,4 +101,5 @@ class Canvas:
             else:
                 # otherwise parse out the name/id of the various components
                 return {k: v for k, v in node.status.to_dict().items() if k in ['id', 'name']}
-        return _walk_flow(swagger_client.FlowApi().get_flow('root'))
+
+        return _walk_flow(swagger_client.FlowApi().get_flow(process_group_id))

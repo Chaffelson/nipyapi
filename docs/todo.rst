@@ -9,3 +9,4 @@ ToDo
 * Exclude test code from deployment with bdist etc
 * Create Delete PG and all Templates etc. function
 * Look into how sensitive properties are handled on template import
+* Add a depth limit to the recursion on the canvas flow fetcher
