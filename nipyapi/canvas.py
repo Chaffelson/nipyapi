@@ -2,6 +2,7 @@
 
 """
 For interactions with the NiFi Canvas
+STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
@@ -31,64 +32,68 @@ class Canvas:
         return pg_root.process_group_status.id
 
     @staticmethod
-    def flow(pg='root'):
+    def flow(pg_id='root'):
         """
         Returns information about a Process Group and its Flow
         :param pg: string of name or id of a Process Group, defaults to root if none supplied
         :returns: dict of the Process Group information
         """
-        return swagger_client.FlowApi().get_flow(pg)
+        return swagger_client.FlowApi().get_flow(pg_id)
 
     @staticmethod
-    def templates():
-        """
-        Returns all Templates
-        :return:
-        """
-        return swagger_client.FlowApi().get_templates()
-
-    @staticmethod
-    def process_group(nid='root'):
+    def process_group(pg_id='root', detail='names'):
         """
         Returns information about a Process Group
+        :param pg_id: NiFi ID of the Process Groupt to retrieve
+        :param detail: Level of detail to respond with, defaults to just names and NiFi IDs
         :return:
         """
-        return swagger_client.ProcessgroupsApi().get_process_group(id=nid)
+        valid_details = ['names','all']
+        if detail not in valid_details:
+            raise ValueError(
+                'detail requested ({0}) not in list of valid detail requests ({1})'.format(detail, valid_details)
+            )
+        raw = swagger_client.ProcessgroupsApi().get_process_group(id=pg_id)
+        if detail is 'names':
+            out = {
+                raw.component.name: raw.component.id
+            }
+            return out
+        elif detail is 'all':
+            return raw
 
-    def deploy_template(self, pg_id, template_config):
+    @staticmethod
+    def _get_tree():
         """
-        Instantiates a given template request in a given process group
-        :param pg_id: The NiFi ID of the process Group to target for the template
-        :param template_config: the template request form
+        Returns a nested dict of the names and ids of all components
         :return:
         """
-        # TODO: Test for valid template config
-        # TODO: Test response
-        _ = swagger_client.ProcessgroupsApi().instantiate_template(
-            id=pg_id,
-            body=template_config
-        )
+        from nipyapi.swagger_client import ProcessGroupFlowEntity, FlowDTO
+        from nipyapi.swagger_client import ProcessorEntity, ProcessGroupEntity
 
-    def upload_template(self, pg_id, template_file):
-        """
-        Uploads a template file (template.xml) to the given process group
-        :param pg_id: The NiFi ID of the process group to target for the template
-        :param template_file: the template file (template.xml)
-        :return:
-        """
-        # TODO: Test for valid template.xml
-        # TODO: Test response
-        _ = swagger_client.ProcessgroupsApi().upload_template(
-            id=pg_id,
-            template=template_file
-        )
-
-    def export_template(self, t_id):
-        """
-        Exports a given template
-        :param t_id: NiFi ID of the Template
-        :return:
-        """
-        template_file = swagger_client.TemplatesApi().export_template(
-            id=t_id
-        )
+        def _walk_flow(node):
+            # This recursively unpacks the data models
+            if isinstance(node, ProcessGroupFlowEntity):
+                out = {
+                    'name': node.process_group_flow.breadcrumb.breadcrumb.name,
+                    'id': node.process_group_flow.breadcrumb.breadcrumb.id,
+                    'uri': node.process_group_flow.uri
+                }
+                # there doesn't appear to be a command to fetch everything at once
+                # so we have to recurse down the chain of process_groups
+                out.update(_walk_flow(node.process_group_flow.flow))
+                return out
+            elif isinstance(node, FlowDTO):
+                # We have to use getattr here to retain the custom data type
+                # Each category (k) is a list of dicts, thus the complex comprehension
+                return {
+                        k: [
+                            _walk_flow(li) for li in getattr(node, k)
+                        ] for k in
+                        node.to_dict().keys()
+                    }
+            elif isinstance(node, ProcessGroupEntity):
+                return _walk_flow(swagger_client.FlowApi().get_flow(node.id))
+            else:
+                return {k:v for k, v in node.status.to_dict().items() if k in ['id', 'name']}
+        return _walk_flow(swagger_client.FlowApi().get_flow('root'))
