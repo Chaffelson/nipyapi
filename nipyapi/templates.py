@@ -25,7 +25,7 @@ class Templates:
             swagger_client.configuration.host = self.host
 
     @staticmethod
-    def templates():
+    def all_templates():
         """
         Returns all Templates
         :return:
@@ -33,7 +33,27 @@ class Templates:
         return swagger_client.FlowApi().get_templates()
 
     @staticmethod
-    def deploy_template(pg_id, template_config):
+    def get_template_by_name(name):
+        """
+        Returns a specific template by name, if it exists
+        :param name:
+        :return:
+        """
+        r = [
+            i for i in
+            Templates.all_templates().to_dict()['templates']
+            if
+            name == i['template']['name']
+        ]
+        if len(r) is 1:
+            return r[0]
+        else:
+            raise ValueError("Expected exactly 1 Template named ({0}), found ({1}) instead"
+                             .format(name, len(r)))
+
+    @staticmethod
+    def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
+        from nipyapi.swagger_client import InstantiateTemplateRequestEntity
         """
         Instantiates a given template request in a given process group
         :param pg_id: The NiFi ID of the process Group to target for the template
@@ -42,10 +62,16 @@ class Templates:
         """
         # TODO: Test for valid template config
         # TODO: Test response
-        _ = swagger_client.ProcessgroupsApi().instantiate_template(
-            id=pg_id,
-            body=template_config
+        tr = InstantiateTemplateRequestEntity(
+            origin_x=loc_x,
+            origin_y=loc_y,
+            template_id=template_id
         )
+        resp = swagger_client.ProcessgroupsApi().instantiate_template(
+            id=pg_id,
+            body=tr
+        )
+        return resp
 
     @staticmethod
     def upload_template(pg_id, template_file):
@@ -57,10 +83,11 @@ class Templates:
         """
         # TODO: Test for valid template.xml
         # TODO: Test response
-        _ = swagger_client.ProcessgroupsApi().upload_template(
+        resp = swagger_client.ProcessgroupsApi().upload_template(
             id=pg_id,
             template=template_file
         )
+        return resp
 
     @staticmethod
     def export_template(t_id):
@@ -116,3 +143,18 @@ class Templates:
             body=new_template
         )
         return resp
+
+    @staticmethod
+    def delete_template(t_id):
+        """
+        Delets a Template
+        :param t_id: ID of the Template to be deleted
+        :return:
+        """
+        from nipyapi.swagger_client.rest import ApiException
+        try:
+            r = swagger_client.TemplatesApi().remove_template(
+                id=t_id
+            )
+        except ApiException as e:
+            raise ValueError(e.body)

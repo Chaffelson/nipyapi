@@ -29,3 +29,7 @@ class TestCanvas:
     def test_get_root_pg_id(self):
         r = test_canvas.get_root_pg_id()
         assert isinstance(r, str)
+
+    def test_list_all_process_groups(self):
+        r = test_canvas.list_all_process_groups()
+        assert isinstance(r, list)

@@ -111,3 +111,36 @@ class Canvas:
                 return {k: v for k, v in node.status.to_dict().items() if k in ['id', 'name']}
 
         return _walk_flow(swagger_client.FlowApi().get_flow(process_group_id))
+
+    @staticmethod
+    def get_process_group_by_name(pg_name):
+        """
+        Retrieves a specific process group by name, if it exists
+        """
+        out = [
+            li for li in Canvas.list_all_process_groups()
+            if li['name'] == pg_name
+        ]
+        if len(out) is 1:
+            return out[0]
+        else:
+            return None
+
+    @staticmethod
+    def list_all_process_groups():
+        """
+        Returns a flattened list of all Process groups as {id:name} dicts
+        :return:
+        """
+        def _pg_list(pg_flow):
+            r = []
+            for li in pg_flow['process_groups']:
+                r.append(
+                    {
+                        'id': li['id'],
+                        'name': li['name']
+                     }
+                )
+                r += _pg_list(li)
+            return r
+        return _pg_list(Canvas.flow())
