@@ -24,7 +24,6 @@ class TestCanvas:
         r = test_canvas.flow('root')
         assert isinstance(r, dict)
         assert 'NiFi Flow' in r['name']
-        pprint(r)
 
     def test_get_root_pg_id(self):
         r = test_canvas.get_root_pg_id()

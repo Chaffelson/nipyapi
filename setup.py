@@ -21,10 +21,12 @@ requirements = [
 ]
 
 setup_requirements = [
+    'certifi',
     'pytest-runner'
 ]
 
 test_requirements = [
+    'certifi',
     'pytest'
 ]
 

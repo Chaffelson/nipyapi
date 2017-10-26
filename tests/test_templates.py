@@ -44,7 +44,6 @@ class Testtemplates:
         test_pg_id = c.get_process_group_by_name('Layer0')['id']
         r = t._make_pg_snippet(test_pg_id)
         assert isinstance(r, SnippetEntity)
-        pprint(r)
 
     def test_create_template(self):
         from nipyapi.swagger_client import TemplateEntity
@@ -55,6 +54,3 @@ class Testtemplates:
             desc='Nothing Here'
         )
         assert isinstance(r, TemplateEntity)
-        pprint(r)
-
-

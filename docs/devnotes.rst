@@ -13,7 +13,7 @@ Decision Points
 * Using Swagger 2.0 instead of OpenAPI3.0 as it (currently as of Aug2017) has wider adoption and completed codegen tools
 
 
-Test Environment
+Docker Test Environment
 ----------------
 
 There is an Apache NiFi image available on Dockerhub::
@@ -22,9 +22,20 @@ There is an Apache NiFi image available on Dockerhub::
 
 There is a configuration file for launching it in ./test_env_config for convenience when working in Pycharm
 
+Testing on OSX
+--------------
+
+There is a known issue with testing newer versions of Python on OSX.
+You may receive an error reporting [SSL: CERTIFICATE_VERIFY_FAILED] when trying to install packages from Pypi
+
+You can fix this by running the following commands:
+
+    export PIP_REQUIRE_VIRTUALENV=false
+    /Applications/Python\ 3.6/Install\ Certificates.command
+
 
 Generate Swagger client
----------------------------
+-----------------------
 
 1. build relevant version of NiFi from source
 2. retrieve swagger.json from NiFi build::

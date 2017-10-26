@@ -17,3 +17,4 @@ pluggy>=0.3.1
 py>=1.4.31
 randomize>=0.13
 coveralls==1.2.0
+certifi==2017.7.27.1
