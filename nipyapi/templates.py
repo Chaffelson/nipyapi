@@ -48,7 +48,8 @@ class Templates:
         if len(r) is 1:
             return r[0]
         else:
-            raise ValueError("Expected exactly 1 Template named ({0}), found ({1}) instead"
+            raise ValueError("Expected exactly 1 Template named ({0}), "
+                             "found ({1}) instead"
                              .format(name, len(r)))
 
     @staticmethod
@@ -56,7 +57,7 @@ class Templates:
         from nipyapi.swagger_client import InstantiateTemplateRequestEntity
         """
         Instantiates a given template request in a given process group
-        :param pg_id: The NiFi ID of the process Group to target for the template
+        :param pg_id: The NiFi ID of the process Group to target
         :param template_config: the template request form
         :return:
         """
@@ -77,7 +78,7 @@ class Templates:
     def upload_template(pg_id, template_file):
         """
         Uploads a template file (template.xml) to the given process group
-        :param pg_id: The NiFi ID of the process group to target for the template
+        :param pg_id: The NiFi ID of the process group to target
         :param template_file: the template file (template.xml)
         :return:
         """
@@ -96,9 +97,10 @@ class Templates:
         :param t_id: NiFi ID of the Template
         :return:
         """
-        template_file = swagger_client.TemplatesApi().export_template(
-            id=t_id
-        )
+        # template_file = swagger_client.TemplatesApi().export_template(
+        #     id=t_id
+        # )
+        return None
 
     @staticmethod
     def _make_pg_snippet(pg_id):
@@ -109,7 +111,11 @@ class Templates:
         target_pg = Canvas().flow(pg_id)
         # get it's parent process group so we get the revision information
         parent_pg = Canvas().flow(target_pg['parent_group_id'])
-        enriched_target_pg = [li for li in parent_pg['process_groups'] if li['id'] == pg_id][0]
+        enriched_target_pg = [
+            li for li in
+            parent_pg['process_groups'] if
+            li['id'] == pg_id
+        ][0]
         new_snippet_req = SnippetEntity()
         new_snippet_req.snippet = {
             'processGroups': {
@@ -117,7 +123,9 @@ class Templates:
             },
             'parentGroupId': enriched_target_pg['parent_group_id']
         }
-        snippet_resp = swagger_client.SnippetsApi().create_snippet(new_snippet_req)
+        snippet_resp = swagger_client.SnippetsApi().create_snippet(
+            new_snippet_req
+        )
         return snippet_resp
 
     @staticmethod
@@ -129,7 +137,8 @@ class Templates:
         :param desc: Description of the Template
         :return: dict of Template information
         """
-        from nipyapi.swagger_client import ProcessgroupsApi, CreateTemplateRequestEntity
+        from nipyapi.swagger_client import ProcessgroupsApi
+        from nipyapi.swagger_client import CreateTemplateRequestEntity
         # TODO: Ensure unique Template names
         # TODO: Validate inputs
         snippet = Templates._make_pg_snippet(pg_id)
@@ -153,7 +162,7 @@ class Templates:
         """
         from nipyapi.swagger_client.rest import ApiException
         try:
-            r = swagger_client.TemplatesApi().remove_template(
+            _ = swagger_client.TemplatesApi().remove_template(
                 id=t_id
             )
         except ApiException as e:
