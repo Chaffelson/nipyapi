@@ -19,8 +19,7 @@ To fetch the NiFi system's diagnostics::
 To fetch the NiFi system's root Process Group ID::
 
     import nipyapi
-    canvas = nipyapi.Canvas()
-    canvas.get_root_pg_id()
+    nipyapi.Canvas().get_root_pg_id()
 
 Configuration
 -------------

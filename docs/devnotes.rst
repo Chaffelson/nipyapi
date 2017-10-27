@@ -28,11 +28,10 @@ Testing on OSX
 There is a known issue with testing newer versions of Python on OSX.
 You may receive an error reporting [SSL: CERTIFICATE_VERIFY_FAILED] when trying to install packages from Pypi
 
-You can fix this by running the following commands:
+You can fix this by running the following commands::
 
     export PIP_REQUIRE_VIRTUALENV=false
     /Applications/Python\ 3.6/Install\ Certificates.command
-
 
 Generate Swagger client
 -----------------------
