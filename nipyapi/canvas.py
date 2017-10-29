@@ -154,6 +154,6 @@ class Canvas(object):
                 })
                 # Not using += here due to bug in pylint
                 # https://github.com/PyCQA/pylint/issues/1462
-                r_new = r + _pg_list(li)
-            return r_new
+                r = r + _pg_list(li)
+            return r
         return _pg_list(Canvas.flow())

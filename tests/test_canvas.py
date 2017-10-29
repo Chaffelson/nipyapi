@@ -11,7 +11,7 @@ from nipyapi import Canvas
 test_canvas = Canvas()
 
 
-class TestCanvas:
+class TestCanvas(object):
     def test_process_group_status(self):
         r = test_canvas.process_group_status(pg_id='root', detail='names')
         assert isinstance(r, dict)
