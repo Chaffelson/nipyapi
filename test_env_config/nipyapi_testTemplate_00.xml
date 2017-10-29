@@ -2,10 +2,10 @@
 <template encoding-version="1.1">
   <description></description>
   <groupId>4d5dcf9a-015e-1000-097e-e505ed0f7fd2</groupId>
-  <name>testTemplate_00</name>
+  <name>nipyapi_testTemplate_00</name>
   <snippet>
     <processGroups>
-      <id>dbb44ab1-5b46-3d7b-0000-000000000000</id>
+      <id>ad01921c-5af6-3cc2-0000-000000000000</id>
       <parentGroupId>446916d9-6831-387f-0000-000000000000</parentGroupId>
       <position>
         <x>0.0</x>
@@ -14,11 +14,11 @@
       <comments></comments>
       <contents>
         <processors>
-          <id>c2b46193-6d26-382b-0000-000000000000</id>
-          <parentGroupId>dbb44ab1-5b46-3d7b-0000-000000000000</parentGroupId>
+          <id>ddbc8bf1-76d5-3d17-0000-000000000000</id>
+          <parentGroupId>ad01921c-5af6-3cc2-0000-000000000000</parentGroupId>
           <position>
-            <x>712.0</x>
-            <y>418.0</y>
+            <x>594.0000057043299</x>
+            <y>231.99999566595076</y>
           </position>
           <bundle>
             <artifact>nifi-standard-nar</artifact>
@@ -244,8 +244,8 @@
           <type>org.apache.nifi.processors.standard.DebugFlow</type>
         </processors>
       </contents>
-      <name>Layer0</name>
+      <name>nipyapi_test_0</name>
     </processGroups>
   </snippet>
-  <timestamp>10/06/2017 18:52:23 UTC</timestamp>
+  <timestamp>10/29/2017 17:10:27 UTC</timestamp>
 </template>

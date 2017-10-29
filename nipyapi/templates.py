@@ -47,10 +47,7 @@ class Templates(object):
         ]
         if len(out) is 1:
             return out[0]
-        else:
-            raise ValueError("Expected exactly 1 Template named ({0}), "
-                             "found ({1}) instead"
-                             .format(name, len(out)))
+        return None
 
     @staticmethod
     def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
@@ -156,7 +153,7 @@ class Templates(object):
     @staticmethod
     def delete_template(t_id):
         """
-        Delets a Template
+        Deletes a Template
         :param t_id: ID of the Template to be deleted
         :return:
         """

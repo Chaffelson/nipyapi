@@ -4,61 +4,78 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from random import randint
-
 from nipyapi import Templates, Canvas
 
 
 @pytest.fixture(scope="class")
 def class_wrapper(request):
-    root_pg_id = Canvas().get_root_pg_id()
+    def remove_test_templates():
+        test_templates = ['nipyapi_testTemplate_00', 'nipyapi_testTemplate_01']
+        for item in test_templates:
+            details = Templates().get_template_by_name(item)
+            if details is not None:
+                Templates().delete_template(details['id'])
 
-    def fin():
-        print("\nMic drop")
+    def remove_test_pgs():
+        pg_list = Canvas().list_all_process_groups()
+        test_pgs = [
+            item for item in pg_list
+            if 'nipyapi_test' in item['name']
+        ]
+        for pg in test_pgs:
+            Canvas().delete_process_group(
+                pg['id'], pg['revision']
+        )
 
-    request.addfinalizer(fin)
+    remove_test_templates()
     if request.cls is not None:
-        request.cls.root_pg_id = root_pg_id
+        request.cls.t_hand = Templates()
+        request.cls.c_hand = Canvas()
+        request.cls.root_pg_id = request.cls.c_hand.get_root_pg_id()
+
+    def cleanup():
+        remove_test_templates()
+        remove_test_pgs()
+    request.addfinalizer(cleanup)
 
 
 @pytest.mark.usefixtures('class_wrapper')
 class TestTemplates(object):
-    def test_get_templates_by_name(self):
-        try:
-            r1 = Templates().get_template_by_name('testTemplate_00')
-            # Template found, remove it to test again
-            r2 = Templates().delete_template(r1['id'])
-        except ValueError:
-            # We don't want the Template to already be present
-            # TODO: Turn this into test init calls
-            pass
-
+    # Note that tests in this class are incremental
+    # so consider order when adding new tests or modifying them
     def test_upload_template(self):
-        r = Templates().upload_template(
+        r = self.t_hand.upload_template(
             pg_id=self.root_pg_id,
-            template_file='test_env_config/testTemplate_00.xml'
+            template_file='test_env_config/nipyapi_testTemplate_00.xml'
         )
 
+    def test_get_templates_by_name(self):
+        template = self.t_hand.get_template_by_name('nipyapi_testTemplate_00')
+        assert template is not None
+
     def test_deploy_template(self):
-        r = Templates().deploy_template(
+        r = self.t_hand.deploy_template(
             self.root_pg_id,
-            Templates().get_template_by_name('testTemplate_00')['id']
+            self.t_hand.get_template_by_name('nipyapi_testTemplate_00')['id']
         )
 
     def test_get_snippet(self):
         from nipyapi.swagger_client import SnippetEntity
-        # This assumes the above Template deployment tests have been run
-        # TODO: Make tests independent rather than sequence dependent
-        test_pg_id = Canvas().get_process_group_by_name('Layer0')['id']
-        r = Templates()._make_pg_snippet(test_pg_id)
+        t_id = self.c_hand.get_process_group_by_name('nipyapi_test_0')['id']
+        r = self.t_hand._make_pg_snippet(t_id)
         assert isinstance(r, SnippetEntity)
 
     def test_create_template(self):
         from nipyapi.swagger_client import TemplateEntity
-        test_pg_id = Canvas().get_process_group_by_name('Layer0')['id']
-        r = Templates().create_template(
-            pg_id=test_pg_id,
-            name='ATotallyUniqueTemplate' + str(randint(0, 50)),
+        t_id = self.c_hand.get_process_group_by_name('nipyapi_test_0')['id']
+        r = self.t_hand.create_template(
+            pg_id=t_id,
+            name='nipyapi_testTemplate_01',
             desc='Nothing Here'
         )
         assert isinstance(r, TemplateEntity)
+
+    def test_delete_template(self):
+        template = self.t_hand.get_template_by_name('nipyapi_testTemplate_00')
+        r = self.t_hand.delete_template(template['id'])
+        assert r is None

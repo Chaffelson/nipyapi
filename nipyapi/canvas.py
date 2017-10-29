@@ -149,10 +149,26 @@ class Canvas(object):
             for item in pg_flow['process_groups']:
                 out.append({
                     'id': item['id'],
-                    'name': item['name']
+                    'name': item['name'],
+                    'revision': item['revision']
                 })
                 # Not using += here due to bug in pylint
                 # https://github.com/PyCQA/pylint/issues/1462
                 out = out + _pg_list(item)
             return out
         return _pg_list(Canvas.flow())
+
+    @staticmethod
+    def delete_process_group(process_group_id, revision):
+        """
+        deletes a specific process group
+        :param process_group_id:
+        :param revision:
+        :return None:
+        """
+        response = swagger_client.ProcessgroupsApi().remove_process_group(
+            id=process_group_id,
+            version=revision.version,
+            client_id=revision.client_id
+        )
+
