@@ -2,6 +2,19 @@
 History
 =======
 
+0.4.0 (2017-10-29)
+------------------
+
+* Added wrapper functions for many common Template commands (templates.py)
+* Added new functions for common Process Groups commands (canvas.py)
+* Significant test framework enhancements for wrapper functions
+* Many coding style cleanups in preparation for filling out test suite
+* Added linting
+* Cleaned up docs layout and placement within project
+* Integrated with TravisCI
+* Dropped Python2.6 testing (wasn't listed as supported anyway)
+* Updated examples and Readme to be more informative
+
 0.3.2 (2017-09-04)
 ------------------
 
