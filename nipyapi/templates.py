@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from nipyapi import swagger_client
 
 
-class Templates:
+class Templates(object):
     """
     Class to contain Wrapper methods for Template interaction
     """
@@ -39,38 +39,38 @@ class Templates:
         :param name:
         :return:
         """
-        r = [
+        out = [
             i for i in
             Templates.all_templates().to_dict()['templates']
             if
             name == i['template']['name']
         ]
-        if len(r) is 1:
-            return r[0]
+        if len(out) is 1:
+            return out[0]
         else:
             raise ValueError("Expected exactly 1 Template named ({0}), "
                              "found ({1}) instead"
-                             .format(name, len(r)))
+                             .format(name, len(out)))
 
     @staticmethod
     def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
-        from nipyapi.swagger_client import InstantiateTemplateRequestEntity
         """
         Instantiates a given template request in a given process group
         :param pg_id: The NiFi ID of the process Group to target
         :param template_config: the template request form
         :return:
         """
+        from nipyapi.swagger_client import InstantiateTemplateRequestEntity
         # TODO: Test for valid template config
         # TODO: Test response
-        tr = InstantiateTemplateRequestEntity(
+        req = InstantiateTemplateRequestEntity(
             origin_x=loc_x,
             origin_y=loc_y,
             template_id=template_id
         )
         resp = swagger_client.ProcessgroupsApi().instantiate_template(
             id=pg_id,
-            body=tr
+            body=req
         )
         return resp
 
@@ -90,17 +90,17 @@ class Templates:
         )
         return resp
 
-    @staticmethod
-    def export_template(t_id):
-        """
-        Exports a given template
-        :param t_id: NiFi ID of the Template
-        :return:
-        """
-        # template_file = swagger_client.TemplatesApi().export_template(
-        #     id=t_id
-        # )
-        return None
+    # @staticmethod
+    # def export_template(t_id):
+    #     """
+    #     Exports a given template
+    #     :param t_id: NiFi ID of the Template
+    #     :return:
+    #     """
+    #     template_file = swagger_client.TemplatesApi().export_template(
+    #         id=t_id
+    #     )
+    #     return None
 
     @staticmethod
     def _make_pg_snippet(pg_id):
@@ -162,8 +162,6 @@ class Templates:
         """
         from nipyapi.swagger_client.rest import ApiException
         try:
-            _ = swagger_client.TemplatesApi().remove_template(
-                id=t_id
-            )
-        except ApiException as e:
-            raise ValueError(e.body)
+            swagger_client.TemplatesApi().remove_template(id=t_id)
+        except ApiException as err:
+            raise ValueError(err.body)

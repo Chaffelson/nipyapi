@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from nipyapi import swagger_client
 
 
-class System:
+class System(object):
     """
     Class to contain Wrapper methods for NiFi System vinteraction
     """
@@ -24,7 +24,12 @@ class System:
         else:
             self.host = host
 
-    def get_system_diagnostics(self):
+    @staticmethod
+    def get_system_diagnostics():
+        """
+        Returns NiFi Sytems diagnostics page
+        :return JSON object:
+        """
         con = swagger_client.SystemdiagnosticsApi()
         return con.get_system_diagnostics()
 
@@ -38,7 +43,7 @@ class System:
         return swagger_client.ControllerApi.get_cluster()
 
     @staticmethod
-    def get_node(nid=None):
+    def get_node(nid):
         """
         Returns the cluster node information
         :param nid: NiFi ID (nid) from Node information

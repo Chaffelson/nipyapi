@@ -136,8 +136,7 @@ class Canvas(object):
         ]
         if len(out) is 1:
             return out[0]
-        else:
-            return None
+        return None
 
     @staticmethod
     def list_all_process_groups():
@@ -146,14 +145,14 @@ class Canvas(object):
         :return:
         """
         def _pg_list(pg_flow):
-            r = []
-            for li in pg_flow['process_groups']:
-                r.append({
-                    'id': li['id'],
-                    'name': li['name']
+            out = []
+            for item in pg_flow['process_groups']:
+                out.append({
+                    'id': item['id'],
+                    'name': item['name']
                 })
                 # Not using += here due to bug in pylint
                 # https://github.com/PyCQA/pylint/issues/1462
-                r = r + _pg_list(li)
-            return r
+                out = out + _pg_list(item)
+            return out
         return _pg_list(Canvas.flow())
