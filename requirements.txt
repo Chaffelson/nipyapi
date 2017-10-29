@@ -1,5 +1,5 @@
-certifi==2017.7.27.1
-six==1.11.0
-python_dateutil == 2.6.1
-setuptools >= 21.0.0
-urllib3 == 1.22
+certifi>=2017.7.27.1
+six>=1.11.0
+python_dateutil>=2.6.1
+setuptools>=21.0.0
+urllib3>=1.22
