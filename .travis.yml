@@ -4,6 +4,7 @@ services:
 before_install:
 - docker pull apache/nifi:1.2.0
 - docker run -d -p 127.0.0.1:8080:8080 apache/nifi:1.2.0
+- pip install six
 deploy:
   true:
     python: 2.7
