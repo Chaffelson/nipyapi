@@ -2,6 +2,9 @@
 Usage
 =====
 
+Examples
+--------
+
 To use Nipyapi in a project::
 
     # in Bash

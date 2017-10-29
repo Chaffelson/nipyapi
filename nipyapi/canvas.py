@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from nipyapi import swagger_client
 
 
-class Canvas:
+class Canvas(object):
     """
     Class to contain Wrapper methods for Canvas interaction
     """
@@ -56,12 +56,12 @@ class Canvas:
                 .format(detail, valid_details)
             )
         raw = swagger_client.ProcessgroupsApi().get_process_group(id=pg_id)
-        if detail is 'names':
+        if detail == 'names':
             out = {
                 raw.component.name: raw.component.id
             }
             return out
-        elif detail is 'all':
+        elif detail == 'all':
             return raw
 
     @staticmethod
@@ -93,11 +93,11 @@ class Canvas:
                 # We have to use getattr here to retain the custom data type
                 # Each category (k) is a list of dicts
                 return {
-                        k: [
-                            _walk_flow(li) for li in getattr(node, k)
-                        ] for k in
-                        node.to_dict().keys()
-                    }
+                    k: [
+                        _walk_flow(li) for li in getattr(node, k)
+                    ] for k in
+                    node.to_dict().keys()
+                }
             elif isinstance(node, ProcessGroupEntity):
                 # The Revision information is needed for creating snippets
                 # it's only available from the parent process group flow info
@@ -109,22 +109,19 @@ class Canvas:
                     _walk_flow(swagger_client.FlowApi().get_flow(node.id))
                 )
                 return out
-            elif isinstance(node, LabelEntity) or \
-                    isinstance(node, FunnelEntity):
+            elif isinstance(node, (LabelEntity, FunnelEntity)):
                 return {
                     k: v for
                     k, v in
                     node.component.to_dict().items() if
                     k in ['id', 'label']
                 }
-            else:
-                # otherwise parse out the name/id of the various components
-                return {
-                    k: v for
-                    k, v in
-                    node.status.to_dict().items() if
-                    k in ['id', 'name']
-                }
+            return {
+                k: v for
+                k, v in
+                node.status.to_dict().items() if
+                k in ['id', 'name']
+            }
 
         return _walk_flow(swagger_client.FlowApi().get_flow(process_group_id))
 
@@ -151,12 +148,12 @@ class Canvas:
         def _pg_list(pg_flow):
             r = []
             for li in pg_flow['process_groups']:
-                r.append(
-                    {
-                        'id': li['id'],
-                        'name': li['name']
-                     }
-                )
-                r += _pg_list(li)
-            return r
+                r.append({
+                    'id': li['id'],
+                    'name': li['name']
+                })
+                # Not using += here due to bug in pylint
+                # https://github.com/PyCQA/pylint/issues/1462
+                r_new = r + _pg_list(li)
+            return r_new
         return _pg_list(Canvas.flow())
