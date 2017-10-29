@@ -11,4 +11,4 @@ from .templates import Templates
 __all__ = ['swagger_client', 'Canvas', 'System']
 __author__ = """Daniel Chaffelson"""
 __email__ = 'chaffelson@gmail.com'
-__version__ = '0.3.2'
+__version__ = '0.4.0'
