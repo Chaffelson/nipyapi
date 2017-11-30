@@ -14,7 +14,7 @@ Decision Points
 
 
 Docker Test Environment
-----------------
+-----------------------
 
 There is an Apache NiFi image available on Dockerhub::
 
