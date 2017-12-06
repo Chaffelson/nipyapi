@@ -4,20 +4,11 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-import nipyapi
+from nipyapi import system
+from swagger_client import models
 
 
-@pytest.fixture
-def response():
-    """Sample pytest fixture.
-
-    See more at: http://doc.pytest.org/en/latest/fixture.html
-    """
-    # import requests
-    # return requests.get('https://github.com/audreyr/cookiecutter-pypackage')
-
-
-def test_content(response):
-    """Sample pytest test function with the pytest fixture as an argument."""
-    # from bs4 import BeautifulSoup
-    # assert 'GitHub' in BeautifulSoup(response.content).title.string
+def test_get_nifi_version_info():
+    r = system.get_nifi_version_info()
+    assert isinstance(r, models.version_info_dto.VersionInfoDTO)
+    assert "ni_fi_version" in r.to_dict().keys()

@@ -6,6 +6,7 @@ For interactions with the NiFi Canvas
 
 from __future__ import absolute_import
 from swagger_client import ControllerApi, SystemdiagnosticsApi
+from swagger_client import VersionInfoDTO
 
 
 def get_system_diagnostics():
@@ -31,3 +32,12 @@ def get_node(nid):
     :return:
     """
     return ControllerApi().get_node(nid)
+
+
+def get_nifi_version_info():
+    """
+    Returns the version of the connected NiFi instance
+    :return:
+    """
+    diags = get_system_diagnostics()
+    return diags.system_diagnostics.aggregate_snapshot.version_info
