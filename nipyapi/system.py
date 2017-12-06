@@ -5,48 +5,29 @@ For interactions with the NiFi Canvas
 """
 
 from __future__ import absolute_import
+from swagger_client import ControllerApi, SystemdiagnosticsApi
 
-from nipyapi import swagger_client
 
-
-class System(object):
+def get_system_diagnostics():
     """
-    Class to contain Wrapper methods for NiFi System vinteraction
+    Returns NiFi Sytems diagnostics page
+    :return JSON object:
     """
+    return SystemdiagnosticsApi().get_system_diagnostics()
 
-    def __init__(self, host=None):
-        """
-        Constructor
-        :param host: The NiFi host base url to talk to
-        """
-        if host is None:
-            self.host = swagger_client.configuration.host
-        else:
-            self.host = host
 
-    @staticmethod
-    def get_system_diagnostics():
-        """
-        Returns NiFi Sytems diagnostics page
-        :return JSON object:
-        """
-        con = swagger_client.SystemdiagnosticsApi()
-        return con.get_system_diagnostics()
+def get_cluster():
+    """
+    Returns the contents of the NiFi cluster
+    :return:
+    """
+    return ControllerApi().get_cluster()
 
-    # TODO: Redo these with getters and setters
-    @staticmethod
-    def get_cluster():
-        """
-        Returns the contents of the NiFi cluster
-        :return:
-        """
-        return swagger_client.ControllerApi.get_cluster()
 
-    @staticmethod
-    def get_node(nid):
-        """
-        Returns the cluster node information
-        :param nid: NiFi ID (nid) from Node information
-        :return:
-        """
-        return swagger_client.ControllerApi.get_node(nid)
+def get_node(nid):
+    """
+    Returns the cluster node information
+    :param nid: NiFi ID (nid) from Node information
+    :return:
+    """
+    return ControllerApi().get_node(nid)

@@ -6,31 +6,29 @@
 import pytest
 from pprint import pprint
 
-from nipyapi import Canvas
-
-test_canvas = Canvas()
+from nipyapi import canvas
 
 
 class TestCanvas(object):
     def test_get_root_pg_id(self):
-        r = test_canvas.get_root_pg_id()
+        r = canvas.get_root_pg_id()
         assert isinstance(r, str)
 
     def test_process_group_status(self):
-        r = test_canvas.process_group_status(pg_id='root', detail='names')
+        r = canvas.process_group_status(pg_id='root', detail='names')
         assert isinstance(r, dict)
 
     def test_recurse_flows(self):
-        r = test_canvas._recurse_flows()
+        r = canvas._recurse_flows()
         assert isinstance(r, dict)
 
     def test_flow(self):
-        r = test_canvas.flow('root')
+        r = canvas.flow('root')
         assert isinstance(r, dict)
         assert 'NiFi Flow' in r['name']
 
     def test_list_all_process_groups(self):
-        r = test_canvas.list_all_process_groups()
+        r = canvas.list_all_process_groups()
         assert isinstance(r, list)
 
     def test_get_process_group_by_name(self):

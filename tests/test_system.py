@@ -4,8 +4,6 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-
-
 import nipyapi
 
 

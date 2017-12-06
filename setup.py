@@ -40,8 +40,8 @@ setup(
     url='https://github.com/Chaffelson/nipyapi',
     download_url='https://github.com/Chaffelson/nipyapi/archive/' + proj_version + '.tar.gz',
     packages=find_packages(
-        include=['nipyapi', 'nipyapi.swagger_client', 'nipyapi.swagger_client.apis', 'nipyapi.swagger_client.models'],
-        exclude=['*.tests', '*.tests.*', 'tests.*', 'tests', 'swagger_client_tests']
+        include=['nipyapi'],
+        exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']
     ),
     include_package_data=True,
     install_requires=requirements,
