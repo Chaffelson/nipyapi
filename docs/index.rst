@@ -9,7 +9,6 @@ Contents:
    readme
    installation
    usage
-   swagger_client
    todo
    contributing
    devnotes
