@@ -6,7 +6,6 @@ For interactions with the NiFi Canvas
 
 from __future__ import absolute_import
 from swagger_client import ControllerApi, SystemdiagnosticsApi
-from swagger_client import VersionInfoDTO
 
 
 def get_system_diagnostics():
