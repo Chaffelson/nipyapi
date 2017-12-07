@@ -48,12 +48,14 @@ Then import and use the module::
     # in python
     from nipyapi import canvas
     dir(canvas)
-    > 'delete_process_group', 'get_flow', 'get_process_group_by_name', 'get_root_pg_id', 'list_all_process_groups', 'process_group_status', 'schedule_process_group'
+    > 'delete_process_group', 'get_flow', 'get_process_group_by_name', 'get_root_pg_id',
+    > 'list_all_process_groups', 'process_group_status', 'schedule_process_group'
     canvas.get_root_pg_id()
 
     from nipyapi import templates
     dir(templates)
-    > 'all_templates', 'create_template', 'delete_template', 'deploy_template', 'export_template', 'get_template_by_name', 'make_pg_snippet', 'upload_template'
+    > 'all_templates', 'create_template', 'delete_template', 'deploy_template',
+    > 'export_template', 'get_template_by_name', 'make_pg_snippet', 'upload_template'
     templates.all_templates()
 
 Background
