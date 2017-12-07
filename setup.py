@@ -17,7 +17,8 @@ requirements = [
     'certifi',
     'six',
     'python_dateutil',
-    'urllib3'
+    'urllib3',
+    'nifi-python-swagger-client>=1.2.1, <1.3'
 ]
 
 setup_requirements = [

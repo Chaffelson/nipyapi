@@ -2,6 +2,13 @@
 History
 =======
 
+0.5.0 (2017-12-06)
+------------------
+
+* migrated swagger_client to separate repo to allow independent versions
+* refactored wrapper Classes to simpler functions instead
+* cleaned up documentation and project administrivia to support the split
+
 0.4.0 (2017-10-29)
 ------------------
 

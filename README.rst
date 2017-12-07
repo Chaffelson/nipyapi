@@ -32,12 +32,8 @@ Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
 Features
 --------
 
-This package provides two main areas of functionality:
-    - high-level calls to execute common NiFi tasks:
-        - ./nipyapi/canvas.py etc.
-    - a full swagger 2.0 compliant NiFi Rest API interface and Datamodels:
-        - ./nipyapi/swagger_client/apis/flow_api.py etc.
-        - ./nipyapi/swagger_client/models/process_group_entity.py etc.
+| This package provides pythonic calls for common NiFi tasks and CICD/SDLC integrations
+| These are implemented by replicating the action of the same task in the GUI and surfacing the underlying NiFi Data structures and calls wherever possible, to retain UX parallelism for the user
 
 
 Background
@@ -50,7 +46,8 @@ Background
 Version Support
 ---------------
 
-| Supports NiFi version: 1.2.x
+| This project leverages the `nifi-python-swagger-client <https://github.com/Chaffelson/nifi-python-swagger-client>`_ to maintain version compatibility with NiFi releases
+| Currently we are testing against NiFi version 1.2.x
 | If you require a different version please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Requirements
@@ -62,7 +59,7 @@ Python 2.7 or 3.6 supported, though other versions may work
 Credits
 ---------
 
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template
 
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
@@ -72,4 +69,4 @@ Inspired by the equivalent Java client maintained over at
 
 The swagger 2.0 compliant client auto-generated using the
 `Swagger Codegen <https://github.com/swagger-api/swagger-codegen>`_ project,
-and then cleaned / bugfixed by the authors.
+and then cleaned / bugfixed by the authors
