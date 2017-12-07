@@ -23,7 +23,7 @@ def test_recurse_flows():
 
 
 def test_flow():
-    r = canvas.flow('root')
+    r = canvas.get_flow('root')
     assert isinstance(r, dict)
     assert 'NiFi Flow' in r['name']
 

@@ -87,9 +87,9 @@ def make_pg_snippet(pg_id):
     :return: Snippet Object
     """
     # Get the targeted process group
-    target_pg = canvas.flow(pg_id)
+    target_pg = canvas.get_flow(pg_id)
     # get it's parent process group so we get the revision information
-    parent_pg = canvas.flow(target_pg['parent_group_id'])
+    parent_pg = canvas.get_flow(target_pg['parent_group_id'])
     enriched_target_pg = [
         li for li in
         parent_pg['process_groups'] if

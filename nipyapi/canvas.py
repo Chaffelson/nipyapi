@@ -20,7 +20,7 @@ def get_root_pg_id():
     return pg_root.process_group_status.id
 
 
-def flow(pg_id='root'):
+def get_flow(pg_id='root'):
     """
     Returns information about a Process Group and its Flow
     :param pg_id: id of a Process Group, defaults to root if none supplied
@@ -144,7 +144,7 @@ def list_all_process_groups():
             # https://github.com/PyCQA/pylint/issues/1462
             out = out + _pg_list(item)
         return out
-    return _pg_list(flow())
+    return _pg_list(get_flow())
 
 
 def delete_process_group(process_group_id, revision):

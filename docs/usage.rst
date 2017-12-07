@@ -15,14 +15,13 @@ To use Nipyapi in a project::
 
 To fetch the NiFi system's diagnostics::
 
-    import nipyapi
-    system = nipyapi.System(host='http://localhost:8080/nifi-api')
+    from nipyapi import system
     system.get_system_diagnostics()
 
 To fetch the NiFi system's root Process Group ID::
 
-    import nipyapi
-    nipyapi.Canvas().get_root_pg_id()
+    from nipyapi import canvas
+    canvas.get_root_pg_id()
 
 Configuration
 -------------
