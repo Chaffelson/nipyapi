@@ -3,4 +3,5 @@ six>=1.11.0
 python_dateutil>=2.6.1
 setuptools>=21.0.0
 urllib3>=1.22
+lxml>=4.1.1
 nifi-python-swagger-client>=1.2.1, <1.3

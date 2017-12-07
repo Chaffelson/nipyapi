@@ -5,9 +5,15 @@ For managing flow deployments
 """
 
 from __future__ import absolute_import
+from os import access, R_OK, W_OK
+from os.path import isfile, dirname
+from urllib3 import PoolManager
+from lxml.etree import tostring, fromstring, ElementTree
 from swagger_client import FlowApi, ProcessgroupsApi, SnippetEntity
 from swagger_client import SnippetsApi, TemplatesApi
 from swagger_client import CreateTemplateRequestEntity
+from swagger_client import configuration
+from swagger_client.rest import ApiException
 from nipyapi import canvas
 
 
@@ -39,13 +45,13 @@ def get_template_by_name(name):
 def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
     """
     Instantiates a given template request in a given process group
-    :param pg_id: The NiFi ID of the process Group to target
-    :param template_config: the template request form
-    :return:
+    :param pg_id: ID of the process group to be parent
+    :param template_id: ID of the template to be deployed
+    :param loc_x: x-axis location of the template
+    :param loc_y: y-axis location of the template
+    :return: dict of the server response
     """
     from swagger_client import InstantiateTemplateRequestEntity
-    # TODO: Test for valid template config
-    # TODO: Test response
     req = InstantiateTemplateRequestEntity(
         origin_x=loc_x,
         origin_y=loc_y,
@@ -65,8 +71,8 @@ def upload_template(pg_id, template_file):
     :param template_file: the template file (template.xml)
     :return:
     """
-    # TODO: Test for valid template.xml
-    # TODO: Test response
+    assert isfile(template_file) and access(template_file, R_OK), \
+        SystemError("File {0} invalid or unreadable".format(template_file))
     resp = ProcessgroupsApi().upload_template(
         id=pg_id,
         template=template_file
@@ -74,20 +80,12 @@ def upload_template(pg_id, template_file):
     return resp
 
 
-# def export_template(t_id):
-#     """
-#     Exports a given template
-#     :param t_id: NiFi ID of the Template
-#     :return:
-#     """
-#     template_file = swagger_client.TemplatesApi().export_template(
-#         id=t_id
-#     )
-#     return None
-
-
-def _make_pg_snippet(pg_id):
-    # TODO: Validate inputs
+def make_pg_snippet(pg_id):
+    """
+    Creates a snippet of the targetted process group, and returns the object
+    :param pg_id: ID of the process Group to snippet
+    :return: Snippet Object
+    """
     # Get the targeted process group
     target_pg = canvas.flow(pg_id)
     # get it's parent process group so we get the revision information
@@ -118,12 +116,10 @@ def create_template(pg_id, name, desc=''):
     :param desc: Description of the Template
     :return: dict of Template information
     """
-    # TODO: Ensure unique Template names
-    # TODO: Validate inputs
-    snippet = _make_pg_snippet(pg_id)
+    snippet = make_pg_snippet(pg_id)
     new_template = CreateTemplateRequestEntity(
-        name=name,
-        description=desc,
+        name=str(name),
+        description=str(desc),
         snippet_id=snippet.snippet.id
     )
     resp = ProcessgroupsApi().create_template(
@@ -139,8 +135,38 @@ def delete_template(t_id):
     :param t_id: ID of the Template to be deleted
     :return:
     """
-    from swagger_client.rest import ApiException
     try:
         TemplatesApi().remove_template(id=t_id)
     except ApiException as err:
         raise ValueError(err.body)
+
+
+def export_template(t_id, output='string', file_path=None):
+    """
+    Exports a template as a string of xml
+    :param t_id: ID of the template to export
+    :param output: string of return type of template, 'str' or 'file'
+    :param file_path: if file output type, the path and filename to write to
+    :return: basestring of the xml template or file path written
+    """
+    # TemplatesAPI.export template is broken in swagger definition of NiFi1.2
+    # return TemplateDTO is replaced by return string in a later version
+    valid_output_types = ['file', 'string']
+    con = PoolManager()
+    url = configuration.host + '/templates/' + t_id + '/download'
+    response = con.request('GET', url, preload_content=False)
+    template_xml = fromstring(response.data)
+    if output == 'string':
+        return tostring(template_xml, encoding='utf8', method='xml')
+    elif output == 'file':
+        assert access(dirname(file_path), W_OK), \
+            "File_path {0} is inaccessible or not writable".format(file_path)
+        xml_tree = ElementTree(template_xml)
+        xml_tree.write(file_path)
+        return file_path
+    else:
+        raise ValueError(
+            "Output type {0} not part of valid list ({1})".format(
+                output, valid_output_types
+            )
+        )

@@ -18,6 +18,7 @@ requirements = [
     'six',
     'python_dateutil',
     'urllib3',
+    'lxml',
     'nifi-python-swagger-client>=1.2.1, <1.3'
 ]
 

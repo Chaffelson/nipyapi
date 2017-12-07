@@ -6,6 +6,9 @@
 import pytest
 from nipyapi import templates
 from nipyapi import canvas
+from swagger_client.models import flow_entity, template_entity
+from lxml.etree import fromstring, parse
+import six
 
 
 @pytest.fixture(scope="class")
@@ -45,6 +48,12 @@ class TestTemplates(object):
             pg_id=canvas.get_root_pg_id(),
             template_file='test_env_config/nipyapi_testTemplate_00.xml'
         )
+        assert isinstance(r, template_entity.TemplateEntity)
+        with pytest.raises(AssertionError):
+            r = templates.upload_template(
+                pg_id=canvas.get_root_pg_id(),
+                template_file='/tmp/haha/definitelynotafile.jpg'
+            )
 
     def test_get_templates_by_name(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')
@@ -55,11 +64,12 @@ class TestTemplates(object):
             canvas.get_root_pg_id(),
             templates.get_template_by_name('nipyapi_testTemplate_00')['id']
         )
+        assert isinstance(r, flow_entity.FlowEntity)
 
     def test_get_snippet(self):
         from swagger_client import SnippetEntity
         t_id = canvas.get_process_group_by_name('nipyapi_test_0')['id']
-        r = templates._make_pg_snippet(t_id)
+        r = templates.make_pg_snippet(t_id)
         assert isinstance(r, SnippetEntity)
 
     def test_create_template(self):
@@ -71,6 +81,24 @@ class TestTemplates(object):
             desc='Nothing Here'
         )
         assert isinstance(r, TemplateEntity)
+
+    def test_export_template(self):
+        template = templates.get_template_by_name('nipyapi_testTemplate_00')
+        r = templates.export_template(template['id'])
+        _ = fromstring(r)
+        r = templates.export_template(
+            template['id'],
+            output='file',
+            file_path='/tmp/nifi_template_test.xml'
+        )
+        assert r == '/tmp/nifi_template_test.xml'
+        _ = parse('/tmp/nifi_template_test.xml')
+        with pytest.raises(AssertionError):
+            r = templates.export_template(
+                template['id'],
+                output='file',
+                file_path='/definitelynotapath/to/anythingthatshould/exist_'
+            )
 
     def test_delete_template(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')

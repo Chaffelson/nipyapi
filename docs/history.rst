@@ -2,6 +2,14 @@
 History
 =======
 
+0.5.1 (2017-12-07)
+------------------
+
+* Added template import/export with working xml parsing and tests
+* Added a ton of testing and validation steps
+* Cleared many todos out of code by either implementing or moving to todo doc
+
+
 0.5.0 (2017-12-06)
 ------------------
 

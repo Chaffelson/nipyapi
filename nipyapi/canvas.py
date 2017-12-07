@@ -10,6 +10,7 @@ from swagger_client import ProcessGroupFlowEntity, FlowDTO
 from swagger_client import ProcessGroupEntity, LabelEntity
 from swagger_client import FunnelEntity, FlowApi
 from swagger_client import ProcessgroupsApi
+from swagger_client.rest import ApiException
 
 
 def get_root_pg_id():
@@ -58,6 +59,11 @@ def _recurse_flows(process_group_id='root'):
         recursive fetch, or 'root' to fetch root
     :return:
     """
+    try:
+        FlowApi().get_flow(process_group_id)
+    except ApiException as err:
+        raise ValueError(err.body)
+
     def _walk_flow(node):
         # This recursively unpacks the data models
         if isinstance(node, ProcessGroupFlowEntity):
@@ -153,3 +159,28 @@ def delete_process_group(process_group_id, revision):
         version=revision.version,
         client_id=revision.client_id
     )
+
+
+def schedule_process_group(process_group_id, target_state):
+    """
+    Start or stop a Process Group and all children
+    :param process_group_id: ID of the Process Group to Target
+    :param target_state: Either 'RUNNING' or 'STOPPED'
+    :return: dict of resulting process group state
+    """
+    # ideally this should be pulled from the client definition
+    valid_states = ['STOPPED', 'RUNNING']
+    if target_state not in valid_states:
+        raise ValueError(
+            "supplied state {0} not in valid states ({1})".format(
+                target_state, valid_states
+            )
+        )
+    out = FlowApi().schedule_components(
+        id=process_group_id,
+        body={
+            'id': process_group_id,
+            'state': target_state
+        }
+    )
+    return out
