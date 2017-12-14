@@ -54,6 +54,11 @@ class TestTemplates(object):
                 pg_id=canvas.get_root_pg_id(),
                 template_file='/tmp/haha/definitelynotafile.jpg'
             )
+        with pytest.raises(TypeError):
+            r = templates.upload_template(
+                pg_id=canvas.get_root_pg_id(),
+                template_file='test_env_config/nipyapi_testFlow_00.xml'
+            )
 
     def test_get_templates_by_name(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')

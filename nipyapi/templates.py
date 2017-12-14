@@ -8,7 +8,7 @@ from __future__ import absolute_import
 from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 from urllib3 import PoolManager
-from lxml.etree import tostring, fromstring, ElementTree
+from lxml.etree import tostring, fromstring, ElementTree, parse
 from swagger_client import FlowApi, ProcessgroupsApi, SnippetEntity
 from swagger_client import SnippetsApi, TemplatesApi
 from swagger_client import CreateTemplateRequestEntity
@@ -71,8 +71,18 @@ def upload_template(pg_id, template_file):
     :param template_file: the template file (template.xml)
     :return:
     """
+    # Ensure we are receiving a valid file
     assert isfile(template_file) and access(template_file, R_OK), \
         SystemError("File {0} invalid or unreadable".format(template_file))
+    # Test for expected Template XML elements
+    tree = parse(template_file)
+    root_tag = tree.getroot().tag
+    if root_tag != 'template':
+        raise TypeError(
+            "Expected 'template' as xml root element, got ({0}) instead."
+            "Are you sure this is a Template?"
+            .format(root_tag)
+        )
     resp = ProcessgroupsApi().upload_template(
         id=pg_id,
         template=template_file
