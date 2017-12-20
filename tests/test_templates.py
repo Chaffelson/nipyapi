@@ -60,9 +60,14 @@ class TestTemplates(object):
                 template_file='test_env_config/nipyapi_testFlow_00.xml'
             )
 
+    def test_all_templates(self):
+        r = templates.all_templates()
+        assert (isinstance(r, template_entity.TemplateEntity))
+
     def test_get_templates_by_name(self):
-        template = templates.get_template_by_name('nipyapi_testTemplate_00')
-        assert template is not None
+        r = templates.get_template_by_name('nipyapi_testTemplate_00')
+        assert r is not None
+        assert isinstance(r, template_entity.TemplateEntity)
 
     def test_deploy_template(self):
         r = templates.deploy_template(

@@ -8,13 +8,13 @@ from __future__ import absolute_import
 from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 from urllib3 import PoolManager
-from lxml.etree import tostring, fromstring, ElementTree, parse
+from lxml import etree
 from swagger_client import FlowApi, ProcessgroupsApi, SnippetEntity
 from swagger_client import SnippetsApi, TemplatesApi
 from swagger_client import CreateTemplateRequestEntity
-from swagger_client import configuration
 from swagger_client.rest import ApiException
-from nipyapi import canvas
+from nipyapi.config import swagger_config
+from nipyapi.canvas import get_flow
 
 
 def all_templates():
@@ -28,14 +28,14 @@ def all_templates():
 def get_template_by_name(name):
     """
     Returns a specific template by name, if it exists
-    :param name:
-    :return:
+    :param name: String of the template name, exact matching
+    :return TemplateEntity:
     """
     out = [
         i for i in
-        all_templates().to_dict()['templates']
+        all_templates().templates
         if
-        name == i['template']['name']
+        name == i.template.name
     ]
     if len(out) is 1:
         return out[0]
@@ -75,7 +75,7 @@ def upload_template(pg_id, template_file):
     assert isfile(template_file) and access(template_file, R_OK), \
         SystemError("File {0} invalid or unreadable".format(template_file))
     # Test for expected Template XML elements
-    tree = parse(template_file)
+    tree = etree.parse(template_file)
     root_tag = tree.getroot().tag
     if root_tag != 'template':
         raise TypeError(
@@ -97,9 +97,9 @@ def make_pg_snippet(pg_id):
     :return: Snippet Object
     """
     # Get the targeted process group
-    target_pg = canvas.get_flow(pg_id)
+    target_pg = get_flow(pg_id)
     # get it's parent process group so we get the revision information
-    parent_pg = canvas.get_flow(target_pg['parent_group_id'])
+    parent_pg = get_flow(target_pg['parent_group_id'])
     enriched_target_pg = [
         li for li in
         parent_pg['process_groups'] if
@@ -163,15 +163,15 @@ def export_template(t_id, output='string', file_path=None):
     # return TemplateDTO is replaced by return string in a later version
     valid_output_types = ['file', 'string']
     con = PoolManager()
-    url = configuration.host + '/templates/' + t_id + '/download'
+    url = swagger_config.host + '/templates/' + t_id + '/download'
     response = con.request('GET', url, preload_content=False)
-    template_xml = fromstring(response.data)
+    template_xml = etree.fromstring(response.data)
     if output == 'string':
-        return tostring(template_xml, encoding='utf8', method='xml')
+        return etree.tostring(template_xml, encoding='utf8', method='xml')
     elif output == 'file':
         assert access(dirname(file_path), W_OK), \
             "File_path {0} is inaccessible or not writable".format(file_path)
-        xml_tree = ElementTree(template_xml)
+        xml_tree = etree.ElementTree(template_xml)
         xml_tree.write(file_path)
         return file_path
     else:

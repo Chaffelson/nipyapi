@@ -21,7 +21,7 @@ def get_cluster():
     Returns the contents of the NiFi cluster
     :return:
     """
-    return ControllerApi().get_cluster()
+    return ControllerApi().get_cluster()1
 
 
 def get_node(nid):
@@ -36,7 +36,7 @@ def get_node(nid):
 def get_nifi_version_info():
     """
     Returns the version of the connected NiFi instance
-    :return:
+    :return VersionInfoDTO:
     """
     diags = get_system_diagnostics()
     return diags.system_diagnostics.aggregate_snapshot.version_info
