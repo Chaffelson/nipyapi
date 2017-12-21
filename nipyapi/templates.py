@@ -17,6 +17,13 @@ from nipyapi.config import swagger_config
 from nipyapi.canvas import get_process_group
 
 
+__all__ = [
+    "all_templates", "get_template_by_name", "deploy_template",
+    "upload_template", "create_pg_snippet", "create_template",
+    "delete_template", "export_template"
+]
+
+
 def all_templates():
     """
     Returns all Templates
@@ -90,7 +97,7 @@ def upload_template(pg_id, template_file):
     return resp
 
 
-def make_pg_snippet(pg_id):
+def create_pg_snippet(pg_id):
     """
     Creates a snippet of the targetted process group, and returns the object
     :param pg_id: ID of the process Group to snippet
@@ -120,7 +127,7 @@ def create_template(pg_id, name, desc=''):
     :param desc: Description of the Template
     :return: dict of Template information
     """
-    snippet = make_pg_snippet(pg_id)
+    snippet = create_pg_snippet(pg_id)
     new_template = CreateTemplateRequestEntity(
         name=str(name),
         description=str(desc),

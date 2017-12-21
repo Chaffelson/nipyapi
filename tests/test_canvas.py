@@ -14,7 +14,7 @@ def test_get_root_pg_id():
 
 
 def test_process_group_status():
-    r = canvas.process_group_status(pg_id='root', detail='names')
+    r = canvas.get_process_group_status(pg_id='root', detail='names')
     assert isinstance(r, dict)
 
 

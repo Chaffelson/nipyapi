@@ -80,7 +80,7 @@ class TestTemplates(object):
     def test_get_snippet(self):
         from swagger_client import SnippetEntity
         t_id = canvas.get_process_group('nipyapi_test_0').id
-        r = templates.make_pg_snippet(t_id)
+        r = templates.create_pg_snippet(t_id)
         assert isinstance(r, SnippetEntity)
 
     def test_create_template(self):

@@ -10,6 +10,12 @@ from swagger_client import ProcessGroupFlowEntity, FlowApi
 from swagger_client import ProcessgroupsApi
 from swagger_client.rest import ApiException
 
+__all__ = [
+    "get_root_pg_id", "recurse_flow", "get_flow", "get_process_group_status",
+    "get_process_group", "list_all_process_groups", "delete_process_group",
+    "schedule_process_group"
+]
+
 
 def get_root_pg_id():
     """Simple Example function for wrapper demonstration"""
@@ -55,7 +61,7 @@ def get_flow(pg_id='root'):
         raise ValueError(err.body)
 
 
-def process_group_status(pg_id='root', detail='names'):
+def get_process_group_status(pg_id='root', detail='names'):
     """
     Returns information about a Process Group
     :param pg_id: NiFi ID of the Process Groupt to retrieve
