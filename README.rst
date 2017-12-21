@@ -46,17 +46,13 @@ The easiest way to install NiPyApi is with pip::
 Then import and use the module::
 
     # in python
-    from nipyapi import canvas
-    dir(canvas)
-    > 'delete_process_group', 'get_flow', 'get_process_group_by_name', 'get_root_pg_id',
-    > 'list_all_process_groups', 'process_group_status', 'schedule_process_group'
-    canvas.get_root_pg_id()
-
-    from nipyapi import templates
-    dir(templates)
-    > 'all_templates', 'create_template', 'delete_template', 'deploy_template',
-    > 'export_template', 'get_template_by_name', 'make_pg_snippet', 'upload_template'
-    templates.all_templates()
+    from nipyapi.canvas import *
+    from nipyapi.templates import *
+    from nipyapi.system import *
+    dir()
+    >['__builtins__', 'all_templates', 'create_pg_snippet', 'create_template', 'delete_process_group', 'delete_template', 'deploy_template', 'export_template', 'get_cluster', 'get_flow', 'get_nifi_version_info', 'get_node', 'get_process_group', 'get_process_group_status', 'get_root_pg_id', 'get_system_diagnostics', 'get_template_by_name', 'list_all_process_groups', 'recurse_flow', 'schedule_process_group', 'sys', 'upload_template']
+    get_root_pg_id()
+    >'4d5dcf9a-015e-1000-097e-e505ed0f7fd2'
 
 Background
 ----------
