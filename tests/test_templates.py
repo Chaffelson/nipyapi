@@ -6,7 +6,7 @@
 import pytest
 from nipyapi import templates
 from nipyapi import canvas
-from swagger_client.models import flow_entity, template_entity
+from swagger_client import models as swagger_models
 from lxml.etree import fromstring, parse
 import six
 
@@ -18,17 +18,18 @@ def class_wrapper(request):
         for item in test_templates:
             details = templates.get_template_by_name(item)
             if details is not None:
-                templates.delete_template(details['id'])
+                templates.delete_template(details.id)
 
     def remove_test_pgs():
         pg_list = canvas.list_all_process_groups()
         test_pgs = [
             item for item in pg_list
-            if 'nipyapi_test' in item['name']
+            if 'nipyapi_test' in item.status.name
         ]
         for pg in test_pgs:
             canvas.delete_process_group(
-                pg['id'], pg['revision']
+                pg.id,
+                pg.revision
         )
 
     remove_test_templates()
@@ -48,7 +49,7 @@ class TestTemplates(object):
             pg_id=canvas.get_root_pg_id(),
             template_file='test_env_config/nipyapi_testTemplate_00.xml'
         )
-        assert isinstance(r, template_entity.TemplateEntity)
+        assert isinstance(r, swagger_models.template_entity.TemplateEntity)
         with pytest.raises(AssertionError):
             r = templates.upload_template(
                 pg_id=canvas.get_root_pg_id(),
@@ -62,29 +63,29 @@ class TestTemplates(object):
 
     def test_all_templates(self):
         r = templates.all_templates()
-        assert (isinstance(r, template_entity.TemplateEntity))
+        assert (isinstance(r, swagger_models.templates_entity.TemplatesEntity))
 
     def test_get_templates_by_name(self):
         r = templates.get_template_by_name('nipyapi_testTemplate_00')
         assert r is not None
-        assert isinstance(r, template_entity.TemplateEntity)
+        assert isinstance(r, swagger_models.template_entity.TemplateEntity)
 
     def test_deploy_template(self):
         r = templates.deploy_template(
             canvas.get_root_pg_id(),
-            templates.get_template_by_name('nipyapi_testTemplate_00')['id']
+            templates.get_template_by_name('nipyapi_testTemplate_00').id
         )
-        assert isinstance(r, flow_entity.FlowEntity)
+        assert isinstance(r, swagger_models.flow_entity.FlowEntity)
 
     def test_get_snippet(self):
         from swagger_client import SnippetEntity
-        t_id = canvas.get_process_group_by_name('nipyapi_test_0')['id']
+        t_id = canvas.get_process_group('nipyapi_test_0').id
         r = templates.make_pg_snippet(t_id)
         assert isinstance(r, SnippetEntity)
 
     def test_create_template(self):
         from swagger_client import TemplateEntity
-        t_id = canvas.get_process_group_by_name('nipyapi_test_0')['id']
+        t_id = canvas.get_process_group('nipyapi_test_0').id
         r = templates.create_template(
             pg_id=t_id,
             name='nipyapi_testTemplate_01',
@@ -94,10 +95,10 @@ class TestTemplates(object):
 
     def test_export_template(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')
-        r = templates.export_template(template['id'])
+        r = templates.export_template(template.id)
         _ = fromstring(r)
         r = templates.export_template(
-            template['id'],
+            template.id,
             output='file',
             file_path='/tmp/nifi_template_test.xml'
         )
@@ -105,12 +106,12 @@ class TestTemplates(object):
         _ = parse('/tmp/nifi_template_test.xml')
         with pytest.raises(AssertionError):
             r = templates.export_template(
-                template['id'],
+                template.id,
                 output='file',
                 file_path='/definitelynotapath/to/anythingthatshould/exist_'
             )
 
     def test_delete_template(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')
-        r = templates.delete_template(template['id'])
+        r = templates.delete_template(template.id)
         assert r is None

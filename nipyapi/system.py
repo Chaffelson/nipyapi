@@ -21,7 +21,7 @@ def get_cluster():
     Returns the contents of the NiFi cluster
     :return:
     """
-    return ControllerApi().get_cluster()1
+    return ControllerApi().get_cluster()
 
 
 def get_node(nid):

@@ -6,9 +6,7 @@ STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
-from swagger_client import ProcessGroupFlowEntity, FlowDTO
-from swagger_client import ProcessGroupEntity, LabelEntity
-from swagger_client import FunnelEntity, FlowApi
+from swagger_client import ProcessGroupFlowEntity, FlowApi
 from swagger_client import ProcessgroupsApi
 from swagger_client.rest import ApiException
 
@@ -20,13 +18,41 @@ def get_root_pg_id():
     return pg_root.process_group_status.id
 
 
+def recurse_flow(pg_id='root'):
+    """
+    Returns information about a Process Group and all its Child Flows
+    :param pg_id: id of a Process Group to use as the root for recursion
+    , defaults to root if none supplied
+    :returns ProcessGroupFlowEntity: Nested Process Group information
+    """
+    def _walk_flow(node):
+        """This recursively extends the ProcessGroupEntity to contain the
+        ProcessGroupFlowEntity of each of it's child process groups.
+        So you can have the entire canvas in a single object
+        """
+        if isinstance(node, ProcessGroupFlowEntity):
+            for pg in node.process_group_flow.flow.process_groups:
+                pg.__setattr__(
+                    'nipyapi_extended',
+                    recurse_flow(pg.id)
+                )
+            return node
+    return _walk_flow(get_flow(pg_id))
+
+
 def get_flow(pg_id='root'):
     """
-    Returns information about a Process Group and its Flow
-    :param pg_id: id of a Process Group, defaults to root if none supplied
-    :returns: dict of the Process Group information
+    Returns information about a Process Group and flow
+    This surfaces the native implementation, for the recursed implementation
+    see 'recurse_flow'
+    :param pg_id: id of the Process Group to retrieve, defaults to the root
+    process group if not set
+    :return ProcessGroupFlowEntity: the Process Group object
     """
-    return _recurse_flows(pg_id)
+    try:
+        return FlowApi().get_flow(pg_id)
+    except ApiException as err:
+        raise ValueError(err.body)
 
 
 def process_group_status(pg_id='root', detail='names'):
@@ -52,99 +78,50 @@ def process_group_status(pg_id='root', detail='names'):
         return raw
 
 
-def _recurse_flows(process_group_id='root'):
+def get_process_group(identifier, identifier_type='name'):
     """
-    Returns a nested dict of the names and ids of all components
-    :param process_group_id: ID of process group to treat as root of
-        recursive fetch, or 'root' to fetch root
-    :return:
+    Retrieves a process group by name or id, if it exists
     """
-    try:
-        FlowApi().get_flow(process_group_id)
-    except ApiException as err:
-        raise ValueError(err.body)
-
-    def _walk_flow(node):
-        # This recursively unpacks the data models
-        if isinstance(node, ProcessGroupFlowEntity):
-            pg_detail = {
-                'name': node.process_group_flow.breadcrumb.breadcrumb.name,
-                'id': node.process_group_flow.breadcrumb.breadcrumb.id,
-                'uri': node.process_group_flow.uri,
-                'parent_group_id': node.process_group_flow.parent_group_id
-            }
-            # there doesn't appear to be a command to fetch everything
-            # so we have to recurse down the chain of process_groups
-            pg_detail.update(_walk_flow(node.process_group_flow.flow))
-            return pg_detail
-        elif isinstance(node, FlowDTO):
-            # We have to use getattr here to retain the custom data type
-            # Each category (k) is a list of dicts
-            return {
-                k: [
-                    _walk_flow(li) for li in getattr(node, k)
-                ] for k in
-                node.to_dict().keys()
-            }
-        elif isinstance(node, ProcessGroupEntity):
-            # The Revision information is needed for creating snippets
-            # it's only available from the parent process group flow info
-            out = {
-                'revision': node.revision
-            }
-            # recurse into the nested process group
-            out.update(
-                _walk_flow(FlowApi().get_flow(node.id))
-            )
-            return out
-        elif isinstance(node, (LabelEntity, FunnelEntity)):
-            return {
-                k: v for
-                k, v in
-                node.component.to_dict().items() if
-                k in ['id', 'label']
-            }
-        return {
-            k: v for
-            k, v in
-            node.status.to_dict().items() if
-            k in ['id', 'name']
-        }
-
-    return _walk_flow(FlowApi().get_flow(process_group_id))
-
-
-def get_process_group_by_name(pg_name):
-    """
-    Retrieves a specific process group by name, if it exists
-    """
-    out = [
-        li for li in list_all_process_groups()
-        if li['name'] == pg_name
-    ]
-    if len(out) is 1:
+    all_pgs = list_all_process_groups()
+    if identifier_type == 'name':
+        out = [
+            li for li in all_pgs
+            if li.status.name == identifier
+        ]
+    elif identifier_type == 'id':
+        out = [
+            li for li in all_pgs
+            if li.id == identifier
+        ]
+    else:
+        out = []
+    if len(out) == 1:
         return out[0]
+    elif len(out) > 1:
+        raise ValueError(
+            "More than one match, found ({0}) matches".format(
+                len(out)
+            )
+        )
     return None
 
 
 def list_all_process_groups():
     """
-    Returns a flattened list of all Process groups as {id:name} dicts
-    :return:
+    Returns a flattened list of all Process Groups, excluding root.
+    :return list: list of ProcessGroupEntity objects
     """
-    def _pg_list(pg_flow):
-        out = []
-        for item in pg_flow['process_groups']:
-            out.append({
-                'id': item['id'],
-                'name': item['name'],
-                'revision': item['revision']
-            })
-            # Not using += here due to bug in pylint
-            # https://github.com/PyCQA/pylint/issues/1462
-            out = out + _pg_list(item)
-        return out
-    return _pg_list(get_flow())
+    def flatten(parent_pg):
+        """
+        Recursively flattens the native datatypes into a generic list
+        :param parent_pg: ProcessGroupEntity to flatten
+        :return yield: generator for all ProcessGroupEntities, eventually
+        """
+        for child_pg in parent_pg.process_group_flow.flow.process_groups:
+            for sub in flatten(child_pg.nipyapi_extended):
+                yield sub
+            yield child_pg
+    return list(flatten(recurse_flow('root')))
 
 
 def delete_process_group(process_group_id, revision):

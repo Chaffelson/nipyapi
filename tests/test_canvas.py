@@ -5,6 +5,7 @@
 
 import pytest
 from nipyapi import canvas
+from swagger_client import ProcessGroupFlowEntity
 
 
 def test_get_root_pg_id():
@@ -17,15 +18,14 @@ def test_process_group_status():
     assert isinstance(r, dict)
 
 
-def test_recurse_flows():
-    r = canvas._recurse_flows()
-    assert isinstance(r, dict)
+def test_get_flow():
+    r = canvas.recurse_flow('root')
+    assert isinstance(r, ProcessGroupFlowEntity)
+    assert r.process_group_flow.breadcrumb.breadcrumb.name == 'NiFi Flow'
 
 
-def test_flow():
-    r = canvas.get_flow('root')
-    assert isinstance(r, dict)
-    assert 'NiFi Flow' in r['name']
+def test_recurse_flow():
+    pass
 
 
 def test_list_all_process_groups():

@@ -14,7 +14,7 @@ from swagger_client import SnippetsApi, TemplatesApi
 from swagger_client import CreateTemplateRequestEntity
 from swagger_client.rest import ApiException
 from nipyapi.config import swagger_config
-from nipyapi.canvas import get_flow
+from nipyapi.canvas import get_process_group
 
 
 def all_templates():
@@ -96,22 +96,16 @@ def make_pg_snippet(pg_id):
     :param pg_id: ID of the process Group to snippet
     :return: Snippet Object
     """
-    # Get the targeted process group
-    target_pg = get_flow(pg_id)
-    # get it's parent process group so we get the revision information
-    parent_pg = get_flow(target_pg['parent_group_id'])
-    enriched_target_pg = [
-        li for li in
-        parent_pg['process_groups'] if
-        li['id'] == pg_id
-    ][0]
-    new_snippet_req = SnippetEntity()
-    new_snippet_req.snippet = {
-        'processGroups': {
-            enriched_target_pg['id']: enriched_target_pg['revision']
-        },
-        'parentGroupId': enriched_target_pg['parent_group_id']
-    }
+    target_pg = get_process_group(pg_id, 'id')
+    new_snippet_req = SnippetEntity(
+        snippet={
+            'processGroups': {
+                target_pg.id: target_pg.revision
+            },
+            'parentGroupId':
+                target_pg.nipyapi_extended.process_group_flow.parent_group_id
+        }
+    )
     snippet_resp = SnippetsApi().create_snippet(
         new_snippet_req
     )
