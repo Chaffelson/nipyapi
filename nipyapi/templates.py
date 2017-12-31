@@ -163,21 +163,21 @@ def export_template(t_id, output='string', file_path=None):
     # TemplatesAPI.export template is broken in swagger definition of NiFi1.2
     # return TemplateDTO is replaced by return string in a later version
     valid_output_types = ['file', 'string']
+    if output not in valid_output_types:
+        raise ValueError(
+            "Output type {0} not valid for ({1})".format(
+                output, valid_output_types
+            )
+        )
     con = PoolManager()
     url = swagger_config.host + '/templates/' + t_id + '/download'
     response = con.request('GET', url, preload_content=False)
     template_xml = etree.fromstring(response.data)
     if output == 'string':
         return etree.tostring(template_xml, encoding='utf8', method='xml')
-    elif output == 'file':
+    if output == 'file':
         assert access(dirname(file_path), W_OK), \
             "File_path {0} is inaccessible or not writable".format(file_path)
         xml_tree = etree.ElementTree(template_xml)
         xml_tree.write(file_path)
         return file_path
-    else:
-        raise ValueError(
-            "Output type {0} not part of valid list ({1})".format(
-                output, valid_output_types
-            )
-        )

@@ -8,7 +8,6 @@ from nipyapi import templates
 from nipyapi import canvas
 from swagger_client import models as swagger_models
 from lxml.etree import fromstring, parse
-import six
 
 
 @pytest.fixture(scope="class")
@@ -110,8 +109,15 @@ class TestTemplates(object):
                 output='file',
                 file_path='/definitelynotapath/to/anythingthatshould/exist_'
             )
+        with pytest.raises(ValueError):
+            _ = templates.export_template(
+                t_id=template.id,
+                output='invalid'
+            )
 
     def test_delete_template(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')
         r = templates.delete_template(template.id)
         assert r is None
+        with pytest.raises(ValueError):
+            _ = templates.delete_template('invalid')

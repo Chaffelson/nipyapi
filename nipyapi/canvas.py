@@ -86,8 +86,18 @@ def get_process_group_status(pg_id='root', detail='names'):
 
 def get_process_group(identifier, identifier_type='name'):
     """
-    Retrieves a process group by name or id, if it exists
+    Returns a process group, if it exists. Returns a list for duplicates
+    :param identifier: String of the name or id of the process group
+    :param identifier_type: 'name' or 'id'
+    :return: ProcessGroupEntity if unique, None if not found, List if duplicate
     """
+    valid_id_types = ['name', 'id']
+    if identifier_type not in valid_id_types:
+        raise ValueError(
+            "invalid identifier_type. ({0}) not in ({1})".format(
+                identifier_type, valid_id_types
+            )
+        )
     all_pgs = list_all_process_groups()
     if identifier_type == 'name':
         out = [
@@ -101,15 +111,11 @@ def get_process_group(identifier, identifier_type='name'):
         ]
     else:
         out = []
-    if len(out) == 1:
-        return out[0]
+    if not out:
+        return None
     elif len(out) > 1:
-        raise ValueError(
-            "More than one match, found ({0}) matches".format(
-                len(out)
-            )
-        )
-    return None
+        return out
+    return out[0]
 
 
 def list_all_process_groups():
