@@ -2,7 +2,7 @@
 History
 =======
 
-0.5.2 (2017-12-31)
+0.6.0 (2017-12-31)
 ------------------
 
 * Refactored many functions to use native NiFi datatypes instead of generics
