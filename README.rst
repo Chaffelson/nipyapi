@@ -43,7 +43,7 @@ The easiest way to install NiPyApi is with pip::
     # in bash
     pip install nipyapi
 
-Then import and use the module::
+Then import and use the modules::
 
     # in python
     from nipyapi.canvas import *

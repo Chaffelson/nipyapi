@@ -55,7 +55,7 @@ Release Process
 This assumes you have virtualenvwrapper, git, and appropriate python versions installed, as well as the necessary test environment:
 
 - update History.rst
-- update setup.py
+- check setup.py
 - check requirements.txt and requirements_dev.txt
 - Commit all changes
 - in bash::

@@ -2,6 +2,15 @@
 History
 =======
 
+0.5.2 (2017-12-31)
+------------------
+
+* Refactored many functions to use native NiFi datatypes instead of generics
+* Standardised several call names for consistency
+* Updated examples
+* Created additional tests and enhanced existing to capture several exceptions
+
+
 0.5.1 (2017-12-07)
 ------------------
 
