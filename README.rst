@@ -21,7 +21,7 @@ Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
      :alt: Python Updates
 
 .. image:: https://coveralls.io/repos/github/Chaffelson/nipyapi/badge.svg?branch=master
-    :target: https://coveralls.io/github/Chaffelson/nipyapi?branch=master
+    :target: https://coveralls.io/github/Chaffelson/nipyapi?branch=master&service=github
     :alt: test coverage
 
 .. image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
