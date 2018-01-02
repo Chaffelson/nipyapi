@@ -145,11 +145,11 @@ def list_all_process_groups():
 def delete_process_group(process_group_id, revision):
     """
     deletes a specific process group
-    :param process_group_id:
-    :param revision:
-    :return None:
+    :param process_group_id: id of the process group to be removed
+    :param revision: revision object from the parent PG to the removal target
+    :return ProcessGroupEntity: the updated entity object for the deleted PG
     """
-    ProcessgroupsApi().remove_process_group(
+    return ProcessgroupsApi().remove_process_group(
         id=process_group_id,
         version=revision.version,
         client_id=revision.client_id

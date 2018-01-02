@@ -53,18 +53,29 @@ def test_create_process_group():
     assert r.component.parent_group_id == canvas.get_root_pg_id()
 
 
-def test_get_process_group():
+def test_get_process_group(test_pg):
     with pytest.raises(ValueError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
-    # # TODO create function to deploy a pair of groups with the same name
-    # # TODO create function to deploy a single process group for testing
-    # r = canvas.get_process_group('nipyapi_test', 'name')
-    # assert isinstance(r, ProcessGroupEntity)
+    single_pg = test_pg.generate()
+    pg1 = canvas.get_process_group(single_pg.id, 'id')
+    assert isinstance(pg1, ProcessGroupEntity)
+    duplicate_pg = test_pg.generate()
+    pg2 = canvas.get_process_group(duplicate_pg.id, 'id')
+    assert pg2.id != pg1.id
+    pg_list = canvas.get_process_group(single_pg.status.name)
+    assert isinstance(pg_list, list)
+    assert len(pg_list) == 2
 
 
-def test_delete_process_group():
-    # TODO write test
-    pass
+def test_delete_process_group(test_pg):
+    single_pg = test_pg.generate()
+    target_pg = canvas.get_process_group(single_pg.component.name)
+    r = canvas.delete_process_group(
+        target_pg.id,
+        target_pg.revision
+    )
+    assert r.id == target_pg.id
+    assert r.status is None
 
 
 def test_schedule_process_group():
