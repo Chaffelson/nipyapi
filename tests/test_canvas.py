@@ -41,6 +41,18 @@ def test_list_all_process_groups():
     assert isinstance(r, list)
 
 
+def test_create_process_group():
+    test_pg_name = "nipyapi_testProcessGroup_00"
+    r = canvas.create_process_group(
+        canvas.get_process_group('NiFi Flow'),
+        test_pg_name,
+        location=(400.0,400.0)
+    )
+    assert r.component.name == test_pg_name
+    assert r.position.x == r.position.y == 400
+    assert r.component.parent_group_id == canvas.get_root_pg_id()
+
+
 def test_get_process_group():
     with pytest.raises(ValueError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')

@@ -7,13 +7,14 @@ STATUS: Work in Progress to determine pythonic datamodel
 
 from __future__ import absolute_import
 from swagger_client import ProcessGroupFlowEntity, FlowApi
-from swagger_client import ProcessgroupsApi
+from swagger_client import ProcessgroupsApi, ProcessGroupEntity
+from swagger_client import ProcessGroupDTO, PositionDTO
 from swagger_client.rest import ApiException
 
 __all__ = [
     "get_root_pg_id", "recurse_flow", "get_flow", "get_process_group_status",
     "get_process_group", "list_all_process_groups", "delete_process_group",
-    "schedule_process_group"
+    "schedule_process_group", "create_process_group"
 ]
 
 
@@ -125,7 +126,8 @@ def list_all_process_groups():
     """
     def flatten(parent_pg):
         """
-        Recursively flattens the native datatypes into a generic list
+        Recursively flattens the native datatypes into a generic list.
+        Note that the root is a special case as it has no parent
         :param parent_pg: ProcessGroupEntity to flatten
         :return yield: generator for all ProcessGroupEntities, eventually
         """
@@ -133,7 +135,11 @@ def list_all_process_groups():
             for sub in flatten(child_pg.nipyapi_extended):
                 yield sub
             yield child_pg
-    return list(flatten(recurse_flow('root')))
+    out = list(flatten(recurse_flow('root')))
+    out.append(
+        ProcessgroupsApi().get_process_group('root')
+    )
+    return out
 
 
 def delete_process_group(process_group_id, revision):
@@ -173,3 +179,29 @@ def schedule_process_group(process_group_id, target_state):
         }
     )
     return out
+
+
+def create_process_group(parent_pg, new_pg_name, location):
+    """
+    Creates a new PG with a given name under the provided parent PG
+    :param parent_pg: ProcessGroupEntity object of the parent PG
+    :param new_pg_name: String to name the new PG
+    :param location: Tuple of (x,y) coordinates to place the new PG
+    :return: ProcessGroupEntity of the new PG
+    """
+    try:
+        return ProcessgroupsApi().create_process_group(
+            id=parent_pg.id,
+            body=ProcessGroupEntity(
+                revision=parent_pg.revision,
+                component=ProcessGroupDTO(
+                    name=new_pg_name,
+                    position=PositionDTO(
+                        x=float(location[0]),
+                        y=float(location[1])
+                    )
+                )
+            )
+        )
+    except ApiException as e:
+        raise e
