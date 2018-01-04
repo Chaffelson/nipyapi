@@ -2,6 +2,13 @@
 History
 =======
 
+0.6.1 (2018-01-04)
+------------------
+
+* Added requested functions to find and list Processors on the canvas
+* Fixed list all process groups to include the root special case properly
+
+
 0.6.0 (2017-12-31)
 ------------------
 

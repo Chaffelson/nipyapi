@@ -14,7 +14,8 @@ from swagger_client.rest import ApiException
 __all__ = [
     "get_root_pg_id", "recurse_flow", "get_flow", "get_process_group_status",
     "get_process_group", "list_all_process_groups", "delete_process_group",
-    "schedule_process_group", "create_process_group"
+    "schedule_process_group", "create_process_group", "list_all_processors",
+    "list_all_processor_types", "get_processor_type"
 ]
 
 
@@ -121,7 +122,7 @@ def get_process_group(identifier, identifier_type='name'):
 
 def list_all_process_groups():
     """
-    Returns a flattened list of all Process Groups, excluding root.
+    Returns a flattened list of all Process Groups.
     :return list: list of ProcessGroupEntity objects
     """
     def flatten(parent_pg):
@@ -135,11 +136,29 @@ def list_all_process_groups():
             for sub in flatten(child_pg.nipyapi_extended):
                 yield sub
             yield child_pg
-    out = list(flatten(recurse_flow('root')))
-    out.append(
-        ProcessgroupsApi().get_process_group('root')
-    )
+    root_flow = recurse_flow('root')
+    out = list(flatten(root_flow))
+    # This duplicates the nipyapi_extended structure to the root case
+    root_entity = ProcessgroupsApi().get_process_group('root')
+    root_entity.__setattr__('nipyapi_extended', root_flow)
+    out.append(root_entity)
     return out
+
+
+def list_all_processors():
+    """
+    Returns a flat list of all Processors anywhere on the canvas
+    :return: list of ProcessorEntity's
+    """
+    def flattener():
+        """
+        Memory efficient flattener, sort of.
+        :return: yield's a ProcessEntity
+        """
+        for pg in list_all_process_groups():
+            for proc in pg.nipyapi_extended.process_group_flow.flow.processors:
+                yield proc
+    return list(flattener())
 
 
 def delete_process_group(process_group_id, revision):
@@ -205,3 +224,52 @@ def create_process_group(parent_pg, new_pg_name, location):
         )
     except ApiException as e:
         raise e
+
+
+def list_all_processor_types():
+    """
+    Produces the list of all available processor types in the NiFi instance
+    :return ProcessorTypesEntity: Native Datatype containing list
+    """
+    try:
+        return FlowApi().get_processor_types()
+    except ApiException as e:
+        raise e
+
+
+def get_processor_type(identifier, identifier_type='name'):
+    """
+
+    :param identifier: String to search for
+    :param identifier_type: Processor descriptor to search: bundle, name or tag
+    :return: DocumentedTypeDTO if unique, None if not found, List if duplicate
+    """
+    valid_id_types = ['bundle', 'name', 'tag']
+    if identifier_type not in valid_id_types:
+        raise ValueError(
+            "identifier_type not in valid list ({0})".format(
+                identifier_type
+            )
+        )
+    out = []
+    all_p = list_all_processor_types().processor_types
+    if identifier_type == 'name':
+        out = [
+            i for i in all_p if
+            identifier in i.type
+        ]
+    if identifier_type == 'bundle':
+        out = [
+            i for i in all_p if
+            identifier in i.bundle.artifact
+        ]
+    if identifier_type == 'tag':
+        out = [
+            i for i in all_p if
+            identifier in str(i.tags)
+        ]
+    if not out:
+        return None
+    elif len(out) > 1:
+        return out
+    return out[0]
