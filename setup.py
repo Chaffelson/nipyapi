@@ -14,21 +14,16 @@ with open('docs/history.rst') as history_file:
 proj_version = '0.6.1'
 
 requirements = [
-    'certifi',
-    'six',
-    'python_dateutil',
     'urllib3',
     'lxml',
-    'nifi-python-swagger-client>=1.2.1, <1.3'
+    'nifi-python-swagger-client'
 ]
 
 setup_requirements = [
-    'certifi',
     'pytest-runner'
 ]
 
 test_requirements = [
-    'certifi',
     'pytest'
 ]
 
