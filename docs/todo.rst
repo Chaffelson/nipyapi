@@ -14,3 +14,4 @@ ToDo
 * https://community.hortonworks.com/articles/56849/automate-deployment-of-hdf-20-clusters-using-ambar.html
 * https://github.com/hayanige/docker-nifi-cluster
 * Set enforcement of ProcessGroup best practice like unique template names
+* Export Entity objects as Yaml for: ProcessGroups, Processors, RPGs

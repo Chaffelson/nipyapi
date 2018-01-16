@@ -92,6 +92,7 @@ class TestTemplates(object):
         )
         assert isinstance(r, TemplateEntity)
 
+    @pytest.mark.skip
     def test_export_template(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')
         r = templates.export_template(template.id)

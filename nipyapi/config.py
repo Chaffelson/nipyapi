@@ -14,3 +14,7 @@ swagger_config = swagger_client.configuration
 # If True, then we have tested and there are no issues
 # If False, then we believe we are incompatible
 swagger_config.version_check = None
+
+
+# Set Default Host
+swagger_config.host = 'http://localhost:8080/nifi-api'

@@ -4,7 +4,7 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from nipyapi import canvas
+from nipyapi import canvas, config
 from swagger_client import ProcessGroupFlowEntity, ProcessGroupEntity
 from swagger_client import ProcessorTypesEntity, DocumentedTypeDTO
 from swagger_client.rest import ApiException
@@ -54,7 +54,7 @@ def test_list_all_process_groups(test_pg):
 def test_create_process_group():
     test_pg_name = "nipyapi_testProcessGroup_00"
     r = canvas.create_process_group(
-        canvas.get_process_group('NiFi Flow'),
+        canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
         test_pg_name,
         location=(400.0,400.0)
     )

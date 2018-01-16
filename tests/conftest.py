@@ -5,10 +5,33 @@
 
 import pytest
 from nipyapi.canvas import create_process_group, get_process_group
-from nipyapi.canvas import delete_process_group
+from nipyapi.canvas import delete_process_group, get_root_pg_id
+from nipyapi.config import swagger_config
 
 test_header = 'nipyapi_test'
 test_pg_name = test_header + "_ProcessGroup"
+
+
+def pytest_generate_tests(metafunc):
+    if 'regress' in metafunc.fixturenames:
+        # print("Regression testing requested for ({0})."
+        #       .format(metafunc.function.__name__))
+        metafunc.parametrize(
+            argnames='regress',
+            argvalues=[
+                'http://localhost:10120/nifi-api',  # add earlier as required
+                'http://localhost:10130/nifi-api',
+                'http://localhost:10140/nifi-api',
+                swagger_config.host  # reset to default, currently 1.5.0
+            ],
+            indirect=True
+        )
+
+
+@pytest.fixture(scope="function")
+def regress(request):
+    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
+    swagger_config.api_client.host = request.param
 
 
 @pytest.fixture(scope="function")
@@ -16,7 +39,7 @@ def test_pg(request):
     class Dummy:
         def generate(self):
             return create_process_group(
-                    get_process_group('NiFi Flow'),
+                    get_process_group(get_root_pg_id(), 'id'),
                     test_pg_name,
                     location=(400.0, 400.0)
                 )
