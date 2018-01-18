@@ -4,7 +4,7 @@ services:
 before_install:
 - docker pull apache/nifi:1.2.0
 - docker pull apache/nifi:1.4.0
-- docker pull docker pull chaffelson/nifi-dataflow:latest
+- docker pull chaffelson/nifi-dataflow:latest
 - docker run -d -p 127.0.0.1:10120:8080 apache/nifi:1.2.0
 - docker run -d -p 127.0.0.1:10140:8080 apache/nifi:1.4.0
 - docker run -d -p 127.0.0.1:18080:18080 -p 127.0.0.1:8080:8080 chaffelson/nifi-dataflow
