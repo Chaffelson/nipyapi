@@ -20,7 +20,6 @@ def pytest_generate_tests(metafunc):
             argnames='regress',
             argvalues=[
                 'http://localhost:10120/nifi-api',  # add earlier as required
-                'http://localhost:10130/nifi-api',
                 'http://localhost:10140/nifi-api',
                 swagger_config.host  # reset to default, currently 1.5.0
             ],

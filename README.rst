@@ -65,7 +65,7 @@ Version Support
 ---------------
 
 | This project leverages the `nifi-python-swagger-client <https://github.com/Chaffelson/nifi-python-swagger-client>`_ to maintain version compatibility with NiFi releases
-| Currently we are testing against NiFi version 1.2.x
+| Currently we are testing against NiFi version 1.2 - 1.5
 | If you require a different version please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Requirements
