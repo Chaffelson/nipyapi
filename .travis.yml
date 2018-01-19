@@ -2,10 +2,8 @@ sudo: required
 services:
   - docker
 before_install:
-  - docker-compose --version
-  - docker-compose -f test_env_config/docker_compose_full_test/docker-compose.yml pull
-  - docker-compose -f test_env_config/docker_compose_full_test/docker-compose.yml build
-  - docker-compose -f test_env_config/docker_compose_full_test/docker-compose.yml start
+  - docker-compose version
+  - docker-compose -f test_env_config/docker_compose_full_test/docker-compose.yml up
   - docker ps
 deploy:
   true:
