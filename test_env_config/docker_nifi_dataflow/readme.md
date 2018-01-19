@@ -1,5 +1,8 @@
 # Docker Image Quickstart
 
+This will create a single docker image containing both NiFi and the NiFi-Registry.  
+This may not be desirable over using Docker Compose to create an environment more traditionally.
+
 ## Capabilities
 This image currently supports running in unsecured standalone mode
 

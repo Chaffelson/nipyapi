@@ -1,0 +1,22 @@
+version: '2'
+services:
+  nifi-120:
+    image: apache/nifi:1.2.0
+    container_name: nifi-120
+    ports:
+      - "10120:8080"
+  nifi-140:
+    image: apache/nifi:1.4.0
+    container_name: nifi-140
+    ports:
+      - "10140:8080"
+  nifi-150:
+    image: apache/nifi:1.5.0
+    container_name: nifi-150
+    ports:
+      - "8080:8080"
+  registry-010:
+    image: chaffelson/nifi-registry:0.1.0
+    container_name: registry-010
+    ports:
+      - "18080:18080"
