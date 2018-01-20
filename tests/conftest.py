@@ -4,12 +4,26 @@
 """Configuration fixtures for pytest for `nipyapi` package."""
 
 import pytest
+from os import environ
 from nipyapi.canvas import create_process_group, get_process_group
 from nipyapi.canvas import delete_process_group, get_root_pg_id
 from nipyapi.config import swagger_config
 
 test_header = 'nipyapi_test'
 test_pg_name = test_header + "_ProcessGroup"
+
+# Determining test environment
+# Can't use skiptest with parametrize for Travis
+if "TRAVIS" in environ and environ["TRAVIS"] == "true":
+    print("Running tests on TRAVIS, skipping regression suite")
+    test_endpoints = [swagger_config.host]
+else:
+    print("Running tests on NOT TRAVIS, enabling regression suite")
+    test_endpoints = [
+                'http://localhost:10120/nifi-api',  # add earlier as required
+                'http://localhost:10140/nifi-api',
+                swagger_config.host  # reset to default, currently 1.5.0
+            ]
 
 
 def pytest_generate_tests(metafunc):
@@ -18,11 +32,7 @@ def pytest_generate_tests(metafunc):
         #       .format(metafunc.function.__name__))
         metafunc.parametrize(
             argnames='regress',
-            argvalues=[
-                'http://localhost:10120/nifi-api',  # add earlier as required
-                'http://localhost:10140/nifi-api',
-                swagger_config.host  # reset to default, currently 1.5.0
-            ],
+            argvalues=test_endpoints,
             indirect=True
         )
 
