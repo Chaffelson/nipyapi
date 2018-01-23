@@ -4,8 +4,8 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from nipyapi import system, config
-from swagger_client import models
+from nipyapi import system, config, nifi
+from nipyapi.nifi import models
 
 
 def test_get_nifi_version_info(regress):

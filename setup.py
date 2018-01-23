@@ -16,7 +16,6 @@ proj_version = '0.6.1'
 requirements = [
     'urllib3',
     'lxml',
-    'nifi-python-swagger-client'
 ]
 
 setup_requirements = [

@@ -6,10 +6,8 @@ STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
-from swagger_client import ProcessGroupFlowEntity, FlowApi
-from swagger_client import ProcessgroupsApi, ProcessGroupEntity
-from swagger_client import ProcessGroupDTO, PositionDTO
-from swagger_client.rest import ApiException
+from . import nifi
+from nipyapi.nifi.rest import ApiException
 
 __all__ = [
     "get_root_pg_id", "recurse_flow", "get_flow", "get_process_group_status",
@@ -21,7 +19,7 @@ __all__ = [
 
 def get_root_pg_id():
     """Simple Example function for wrapper demonstration"""
-    con = FlowApi()
+    con = nifi.FlowApi()
     pg_root = con.get_process_group_status('root')
     return pg_root.process_group_status.id
 
@@ -38,7 +36,7 @@ def recurse_flow(pg_id='root'):
         ProcessGroupFlowEntity of each of it's child process groups.
         So you can have the entire canvas in a single object
         """
-        if isinstance(node, ProcessGroupFlowEntity):
+        if isinstance(node, nifi.ProcessGroupFlowEntity):
             for pg in node.process_group_flow.flow.process_groups:
                 pg.__setattr__(
                     'nipyapi_extended',
@@ -58,7 +56,7 @@ def get_flow(pg_id='root'):
     :return ProcessGroupFlowEntity: the Process Group object
     """
     try:
-        return FlowApi().get_flow(pg_id)
+        return nifi.FlowApi().get_flow(pg_id)
     except ApiException as err:
         raise ValueError(err.body)
 
@@ -76,7 +74,7 @@ def get_process_group_status(pg_id='root', detail='names'):
             'detail requested ({0}) not in valid list ({1})'
             .format(detail, valid_details)
         )
-    raw = ProcessgroupsApi().get_process_group(id=pg_id)
+    raw = nifi.ProcessgroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
         out = {
             raw.component.name: raw.component.id
@@ -104,12 +102,12 @@ def get_process_group(identifier, identifier_type='name'):
     if identifier_type == 'name':
         out = [
             li for li in all_pgs
-            if li.status.name == identifier
+            if identifier in li.status.name
         ]
     elif identifier_type == 'id':
         out = [
             li for li in all_pgs
-            if li.id == identifier
+            if identifier in li.id
         ]
     else:
         out = []
@@ -139,7 +137,7 @@ def list_all_process_groups():
     root_flow = recurse_flow('root')
     out = list(flatten(root_flow))
     # This duplicates the nipyapi_extended structure to the root case
-    root_entity = ProcessgroupsApi().get_process_group('root')
+    root_entity = nifi.ProcessgroupsApi().get_process_group('root')
     root_entity.__setattr__('nipyapi_extended', root_flow)
     out.append(root_entity)
     return out
@@ -168,7 +166,7 @@ def delete_process_group(process_group_id, revision):
     :param revision: revision object from the parent PG to the removal target
     :return ProcessGroupEntity: the updated entity object for the deleted PG
     """
-    return ProcessgroupsApi().remove_process_group(
+    return nifi.ProcessgroupsApi().remove_process_group(
         id=process_group_id,
         version=revision.version,
         client_id=revision.client_id
@@ -190,7 +188,7 @@ def schedule_process_group(process_group_id, target_state):
                 target_state, valid_states
             )
         )
-    out = FlowApi().schedule_components(
+    out = nifi.FlowApi().schedule_components(
         id=process_group_id,
         body={
             'id': process_group_id,
@@ -209,13 +207,13 @@ def create_process_group(parent_pg, new_pg_name, location):
     :return: ProcessGroupEntity of the new PG
     """
     try:
-        return ProcessgroupsApi().create_process_group(
+        return nifi.ProcessgroupsApi().create_process_group(
             id=parent_pg.id,
-            body=ProcessGroupEntity(
+            body=nifi.ProcessGroupEntity(
                 revision=parent_pg.revision,
-                component=ProcessGroupDTO(
+                component=nifi.ProcessGroupDTO(
                     name=new_pg_name,
-                    position=PositionDTO(
+                    position=nifi.PositionDTO(
                         x=float(location[0]),
                         y=float(location[1])
                     )
@@ -232,7 +230,7 @@ def list_all_processor_types():
     :return ProcessorTypesEntity: Native Datatype containing list
     """
     try:
-        return FlowApi().get_processor_types()
+        return nifi.FlowApi().get_processor_types()
     except ApiException as e:
         raise e
 

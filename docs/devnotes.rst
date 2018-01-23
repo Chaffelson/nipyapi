@@ -45,9 +45,16 @@ Generate Swagger client
 
     wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar -O /tmp/swagger-codegen-cli.jar
 
-4. run codegen for appropriate language to a convenient working directory::
+4. generate a config.json file naming the package::
 
-    java -jar /tmp/swagger-codegen-cli.jar generate -i /tmp/swagger.json -l python -o /tmp/nifi-python-swagger-client
+    vi /tmp/config.json
+    {
+        "packageName": "nifi"
+    }
+
+5. run codegen for appropriate language to a convenient working directory::
+
+    java -jar /tmp/swagger-codegen-cli.jar generate -i /tmp/swagger.json -c config.json -l python -o /tmp/nifi-python-swagger-client
 
 Release Process
 ---------------

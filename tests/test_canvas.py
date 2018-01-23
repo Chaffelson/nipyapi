@@ -4,10 +4,10 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from nipyapi import canvas, config
-from swagger_client import ProcessGroupFlowEntity, ProcessGroupEntity
-from swagger_client import ProcessorTypesEntity, DocumentedTypeDTO
-from swagger_client.rest import ApiException
+from nipyapi import canvas, config, nifi
+from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
+from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
+from nipyapi.nifi.rest import ApiException
 
 
 def test_get_root_pg_id():
@@ -52,13 +52,12 @@ def test_list_all_process_groups(test_pg):
 
 
 def test_create_process_group():
-    test_pg_name = "nipyapi_testProcessGroup_00"
     r = canvas.create_process_group(
         canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
-        test_pg_name,
+        config.test_pg_name,
         location=(400.0,400.0)
     )
-    assert r.component.name == test_pg_name
+    assert r.component.name == config.test_pg_name
     assert r.position.x == r.position.y == 400
     assert r.component.parent_group_id == canvas.get_root_pg_id()
     with pytest.raises(ApiException):
@@ -82,7 +81,8 @@ def test_get_process_group(test_pg):
     assert pg2.id != pg1.id
     pg_list = canvas.get_process_group(single_pg.status.name)
     assert isinstance(pg_list, list)
-    assert len(pg_list) == 2
+    # the two duplicates, and root = 3
+    assert len(pg_list) == 3
 
 
 def test_delete_process_group(test_pg):

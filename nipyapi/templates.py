@@ -9,11 +9,9 @@ from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 from urllib3 import PoolManager
 from lxml import etree
-from swagger_client import FlowApi, ProcessgroupsApi, SnippetEntity
-from swagger_client import SnippetsApi, TemplatesApi
-from swagger_client import CreateTemplateRequestEntity
-from swagger_client.rest import ApiException
-from nipyapi.config import swagger_config
+from . import nifi
+from nipyapi.nifi.rest import ApiException
+from nipyapi.config import nifi_config
 from nipyapi.canvas import get_process_group
 
 
@@ -29,7 +27,7 @@ def all_templates():
     Returns all Templates
     :return:
     """
-    return FlowApi().get_templates()
+    return nifi.FlowApi().get_templates()
 
 
 def get_template_by_name(name):
@@ -64,11 +62,66 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
         origin_y=loc_y,
         template_id=template_id
     )
-    resp = ProcessgroupsApi().instantiate_template(
+    resp = nifi.ProcessgroupsApi().instantiate_template(
         id=pg_id,
         body=req
     )
     return resp
+
+
+def create_pg_snippet(pg_id):
+    """
+    Creates a snippet of the targetted process group, and returns the object
+    :param pg_id: ID of the process Group to snippet
+    :return: Snippet Object
+    """
+    target_pg = get_process_group(pg_id, 'id')
+    new_snippet_req = nifi.SnippetEntity(
+        snippet={
+            'processGroups': {
+                target_pg.id: target_pg.revision
+            },
+            'parentGroupId':
+                target_pg.nipyapi_extended.process_group_flow.parent_group_id
+        }
+    )
+    snippet_resp = nifi.SnippetsApi().create_snippet(
+        new_snippet_req
+    )
+    return snippet_resp
+
+
+def create_template(pg_id, name, desc=''):
+    """
+    Turns a process group into a Template
+    :param pg_id: NiFi ID of the Process Group to Template
+    :param name: Unique Name of the Template
+    :param desc: Description of the Template
+    :return: dict of Template information
+    """
+    snippet = create_pg_snippet(pg_id)
+    new_template = nifi.CreateTemplateRequestEntity(
+        name=str(name),
+        description=str(desc),
+        snippet_id=snippet.snippet.id
+    )
+    resp = nifi.ProcessgroupsApi().create_template(
+        id=snippet.snippet.parent_group_id,
+        body=new_template
+    )
+    return resp
+
+
+def delete_template(t_id):
+    """
+    Deletes a Template
+    :param t_id: ID of the Template to be deleted
+    :return:
+    """
+    try:
+        nifi.TemplatesApi().remove_template(id=t_id)
+    except ApiException as err:
+        raise ValueError(err.body)
 
 
 def upload_template(pg_id, template_file):
@@ -88,68 +141,14 @@ def upload_template(pg_id, template_file):
         raise TypeError(
             "Expected 'template' as xml root element, got ({0}) instead."
             "Are you sure this is a Template?"
-            .format(root_tag)
+                .format(root_tag)
         )
-    resp = ProcessgroupsApi().upload_template(
+    # NiFi-1.2.0 method
+    resp = nifi.ProcessgroupsApi().upload_template(
         id=pg_id,
         template=template_file
     )
     return resp
-
-
-def create_pg_snippet(pg_id):
-    """
-    Creates a snippet of the targetted process group, and returns the object
-    :param pg_id: ID of the process Group to snippet
-    :return: Snippet Object
-    """
-    target_pg = get_process_group(pg_id, 'id')
-    new_snippet_req = SnippetEntity(
-        snippet={
-            'processGroups': {
-                target_pg.id: target_pg.revision
-            },
-            'parentGroupId':
-                target_pg.nipyapi_extended.process_group_flow.parent_group_id
-        }
-    )
-    snippet_resp = SnippetsApi().create_snippet(
-        new_snippet_req
-    )
-    return snippet_resp
-
-
-def create_template(pg_id, name, desc=''):
-    """
-    Turns a process group into a Template
-    :param pg_id: NiFi ID of the Process Group to Template
-    :param name: Unique Name of the Template
-    :param desc: Description of the Template
-    :return: dict of Template information
-    """
-    snippet = create_pg_snippet(pg_id)
-    new_template = CreateTemplateRequestEntity(
-        name=str(name),
-        description=str(desc),
-        snippet_id=snippet.snippet.id
-    )
-    resp = ProcessgroupsApi().create_template(
-        id=snippet.snippet.parent_group_id,
-        body=new_template
-    )
-    return resp
-
-
-def delete_template(t_id):
-    """
-    Deletes a Template
-    :param t_id: ID of the Template to be deleted
-    :return:
-    """
-    try:
-        TemplatesApi().remove_template(id=t_id)
-    except ApiException as err:
-        raise ValueError(err.body)
 
 
 def export_template(t_id, output='string', file_path=None):
@@ -170,7 +169,7 @@ def export_template(t_id, output='string', file_path=None):
             )
         )
     con = PoolManager()
-    url = swagger_config.host + '/templates/' + t_id + '/download'
+    url = nifi_config.host + '/templates/' + t_id + '/download'
     response = con.request('GET', url, preload_content=False)
     template_xml = etree.fromstring(response.data)
     if output == 'string':

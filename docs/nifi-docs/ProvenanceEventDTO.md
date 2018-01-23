@@ -1,0 +1,50 @@
+# ProvenanceEventDTO
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**id** | **str** | The event uuid. | [optional] 
+**event_id** | **int** | The event id. This is a one up number thats unique per node. | [optional] 
+**event_time** | **str** | The timestamp of the event. | [optional] 
+**event_duration** | **int** | The event duration in milliseconds. | [optional] 
+**lineage_duration** | **int** | The duration since the lineage began, in milliseconds. | [optional] 
+**event_type** | **str** | The type of the event. | [optional] 
+**flow_file_uuid** | **str** | The uuid of the flowfile for the event. | [optional] 
+**file_size** | **str** | The size of the flowfile for the event. | [optional] 
+**file_size_bytes** | **int** | The size of the flowfile in bytes for the event. | [optional] 
+**cluster_node_id** | **str** | The identifier for the node where the event originated. | [optional] 
+**cluster_node_address** | **str** | The label for the node where the event originated. | [optional] 
+**group_id** | **str** | The id of the group that the component resides in. If the component is no longer in the flow, the group id will not be set. | [optional] 
+**component_id** | **str** | The id of the component that generated the event. | [optional] 
+**component_type** | **str** | The type of the component that generated the event. | [optional] 
+**component_name** | **str** | The name of the component that generated the event. | [optional] 
+**source_system_flow_file_id** | **str** | The source system flowfile id. | [optional] 
+**alternate_identifier_uri** | **str** | The alternate identifier uri for the fileflow for the event. | [optional] 
+**attributes** | [**list[AttributeDTO]**](AttributeDTO.md) | The attributes of the flowfile for the event. | [optional] 
+**parent_uuids** | **list[str]** | The parent uuids for the event. | [optional] 
+**child_uuids** | **list[str]** | The child uuids for the event. | [optional] 
+**transit_uri** | **str** | The source/destination system uri if the event was a RECEIVE/SEND. | [optional] 
+**relationship** | **str** | The relationship to which the flowfile was routed if the event is of type ROUTE. | [optional] 
+**details** | **str** | The event details. | [optional] 
+**content_equal** | **bool** | Whether the input and output content claim is the same. | [optional] 
+**input_content_available** | **bool** | Whether the input content is still available. | [optional] 
+**input_content_claim_section** | **str** | The section in which the input content claim lives. | [optional] 
+**input_content_claim_container** | **str** | The container in which the input content claim lives. | [optional] 
+**input_content_claim_identifier** | **str** | The identifier of the input content claim. | [optional] 
+**input_content_claim_offset** | **int** | The offset into the input content claim where the flowfiles content begins. | [optional] 
+**input_content_claim_file_size** | **str** | The file size of the input content claim formatted. | [optional] 
+**input_content_claim_file_size_bytes** | **int** | The file size of the intput content claim in bytes. | [optional] 
+**output_content_available** | **bool** | Whether the output content is still available. | [optional] 
+**output_content_claim_section** | **str** | The section in which the output content claim lives. | [optional] 
+**output_content_claim_container** | **str** | The container in which the output content claim lives. | [optional] 
+**output_content_claim_identifier** | **str** | The identifier of the output content claim. | [optional] 
+**output_content_claim_offset** | **int** | The offset into the output content claim where the flowfiles content begins. | [optional] 
+**output_content_claim_file_size** | **str** | The file size of the output content claim formatted. | [optional] 
+**output_content_claim_file_size_bytes** | **int** | The file size of the output content claim in bytes. | [optional] 
+**replay_available** | **bool** | Whether or not replay is available. | [optional] 
+**replay_explanation** | **str** | Explanation as to why replay is unavailable. | [optional] 
+**source_connection_identifier** | **str** | The identifier of the queue/connection from which the flowfile was pulled to genereate this event. May be null if the queue/connection is unknown or the flowfile was generated from this event. | [optional] 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

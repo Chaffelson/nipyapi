@@ -12,11 +12,11 @@ services:
       - "10140:8080"
   nifi-150:
     image: apache/nifi:1.5.0
-    container_name: nifi-150
+    container_name: nifi
     ports:
       - "8080:8080"
   registry-010:
     image: chaffelson/nifi-registry:0.1.0
-    container_name: registry-010
+    container_name: registry
     ports:
       - "18080:18080"

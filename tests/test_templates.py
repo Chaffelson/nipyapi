@@ -4,9 +4,8 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from nipyapi import templates
-from nipyapi import canvas
-from swagger_client import models as swagger_models
+from nipyapi import templates, nifi, canvas
+from nipyapi.nifi import models as nifi_models
 from lxml.etree import fromstring, parse
 
 
@@ -39,6 +38,7 @@ def class_wrapper(request):
     request.addfinalizer(cleanup)
 
 
+# Upload/Download template is bugged in NiFi1.5.0, so skipping for now
 @pytest.mark.usefixtures('class_wrapper')
 class TestTemplates(object):
     # Note that tests in this class are incremental
@@ -48,7 +48,7 @@ class TestTemplates(object):
             pg_id=canvas.get_root_pg_id(),
             template_file='test_env_config/nipyapi_testTemplate_00.xml'
         )
-        assert isinstance(r, swagger_models.template_entity.TemplateEntity)
+        assert isinstance(r, nifi_models.template_entity.TemplateEntity)
         with pytest.raises(AssertionError):
             r = templates.upload_template(
                 pg_id=canvas.get_root_pg_id(),
@@ -62,28 +62,28 @@ class TestTemplates(object):
 
     def test_all_templates(self):
         r = templates.all_templates()
-        assert (isinstance(r, swagger_models.templates_entity.TemplatesEntity))
+        assert (isinstance(r, nifi_models.templates_entity.TemplatesEntity))
 
     def test_get_templates_by_name(self):
         r = templates.get_template_by_name('nipyapi_testTemplate_00')
         assert r is not None
-        assert isinstance(r, swagger_models.template_entity.TemplateEntity)
+        assert isinstance(r, nifi_models.template_entity.TemplateEntity)
 
     def test_deploy_template(self):
         r = templates.deploy_template(
             canvas.get_root_pg_id(),
             templates.get_template_by_name('nipyapi_testTemplate_00').id
         )
-        assert isinstance(r, swagger_models.flow_entity.FlowEntity)
+        assert isinstance(r, nifi_models.flow_entity.FlowEntity)
 
     def test_get_snippet(self):
-        from swagger_client import SnippetEntity
+        from nipyapi.nifi import SnippetEntity
         t_id = canvas.get_process_group('nipyapi_test_0').id
         r = templates.create_pg_snippet(t_id)
         assert isinstance(r, SnippetEntity)
 
     def test_create_template(self):
-        from swagger_client import TemplateEntity
+        from nipyapi.nifi import TemplateEntity
         t_id = canvas.get_process_group('nipyapi_test_0').id
         r = templates.create_template(
             pg_id=t_id,
@@ -92,7 +92,6 @@ class TestTemplates(object):
         )
         assert isinstance(r, TemplateEntity)
 
-    @pytest.mark.skip
     def test_export_template(self):
         template = templates.get_template_by_name('nipyapi_testTemplate_00')
         r = templates.export_template(template.id)
