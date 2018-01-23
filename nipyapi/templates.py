@@ -56,7 +56,7 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
     :param loc_y: y-axis location of the template
     :return: dict of the server response
     """
-    from swagger_client import InstantiateTemplateRequestEntity
+    from nipyapi.nifi import InstantiateTemplateRequestEntity
     req = InstantiateTemplateRequestEntity(
         origin_x=loc_x,
         origin_y=loc_y,
