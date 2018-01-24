@@ -163,3 +163,7 @@ def test_delete_processor(fixture_processor, regress):
     # try to delete twice
     with pytest.raises(ValueError):
         _ = canvas.delete_processor(test_proc)
+
+
+def test_update_processor():
+    pass

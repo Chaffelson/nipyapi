@@ -30,3 +30,5 @@ test_docker_registry_endpoint = 'http://registry:18080'
 test_pg_name = "nipyapi_test_ProcessGroup"
 test_registry_client_name = 'nipyapi_test_0'
 test_processor_name = 'nipyapi_test_0'
+test_bucket_name = 'nipyapi_test_0'
+test_versioned_flow_name = 'nipyapi_test_0'

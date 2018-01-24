@@ -43,7 +43,7 @@ class BucketsApi(object):
     def create_bucket(self, **kwargs):
         """
         Creates a bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -54,6 +54,7 @@ class BucketsApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param Bucket body: The bucket to create
         :return: Bucket
                  If the method is called asynchronously,
                  returns the request thread.
@@ -68,7 +69,7 @@ class BucketsApi(object):
     def create_bucket_with_http_info(self, **kwargs):
         """
         Creates a bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -79,12 +80,13 @@ class BucketsApi(object):
 
         :param callback function: The callback function
             for asynchronous request. (optional)
+        :param Bucket body: The bucket to create
         :return: Bucket
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = []
+        all_params = ['body']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -100,6 +102,7 @@ class BucketsApi(object):
             params[key] = val
         del params['kwargs']
 
+
         collection_formats = {}
 
         path_params = {}
@@ -112,6 +115,8 @@ class BucketsApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['application/json'])
@@ -141,7 +146,7 @@ class BucketsApi(object):
     def delete_bucket(self, bucket_id, **kwargs):
         """
         Deletes a bucket along with all objects stored in the bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -167,7 +172,7 @@ class BucketsApi(object):
     def delete_bucket_with_http_info(self, bucket_id, **kwargs):
         """
         Deletes a bucket along with all objects stored in the bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -247,7 +252,7 @@ class BucketsApi(object):
     def get_available_bucket_fields(self, **kwargs):
         """
         Retrieves field names for searching or sorting on buckets.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -272,7 +277,7 @@ class BucketsApi(object):
     def get_available_bucket_fields_with_http_info(self, **kwargs):
         """
         Retrieves field names for searching or sorting on buckets.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -345,7 +350,7 @@ class BucketsApi(object):
     def get_bucket(self, bucket_id, **kwargs):
         """
         Gets a bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -371,7 +376,7 @@ class BucketsApi(object):
     def get_bucket_with_http_info(self, bucket_id, **kwargs):
         """
         Gets a bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -549,7 +554,7 @@ class BucketsApi(object):
     def update_bucket(self, bucket_id, **kwargs):
         """
         Updates a bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -561,6 +566,7 @@ class BucketsApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
+        :param Bucket body: The updated bucket
         :return: Bucket
                  If the method is called asynchronously,
                  returns the request thread.
@@ -575,7 +581,7 @@ class BucketsApi(object):
     def update_bucket_with_http_info(self, bucket_id, **kwargs):
         """
         Updates a bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -587,12 +593,13 @@ class BucketsApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
+        :param Bucket body: The updated bucket
         :return: Bucket
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['bucket_id']
+        all_params = ['bucket_id', 'body']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -626,6 +633,8 @@ class BucketsApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['application/json'])

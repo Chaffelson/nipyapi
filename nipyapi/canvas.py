@@ -367,3 +367,8 @@ def schedule_processor(processor, target_state, refresh=True):
         )
     except ApiException as e:
         raise ValueError(e.body)
+
+
+def update_processor(processor):
+    # Needed to modify processor in fixture for version diffs
+    pass

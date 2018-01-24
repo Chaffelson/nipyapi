@@ -6,9 +6,8 @@
 import pytest
 from os import environ
 from nipyapi.canvas import *
-from nipyapi.templates import get_template_by_name, delete_template
-from nipyapi.versioning import create_registry_client, delete_registry_client
-from nipyapi.versioning import list_all_registry_clients
+from nipyapi.templates import *
+from nipyapi.versioning import *
 from nipyapi import config
 from nipyapi.nifi import ProcessorConfigDTO
 
@@ -117,20 +116,19 @@ def fixture_pg(request):
 
 @pytest.fixture()
 def fixture_reg_client(request):
-    def cleanup_test_registry_clients():
+    def cleanup_test_registry_client():
         _ = [delete_registry_client(li) for
-             li in list_all_registry_clients().registries
+             li in list_registry_clients().registries
              if config.test_registry_client_name in li.component.name
             ]
 
-    cleanup_test_registry_clients()
+    cleanup_test_registry_client()
     create_registry_client(
         name=config.test_registry_client_name,
         uri=config.test_docker_registry_endpoint,
         description='NiPyApi Test Wrapper'
     )
-
-    request.addfinalizer(cleanup_test_registry_clients)
+    request.addfinalizer(cleanup_test_registry_client)
 
 
 @pytest.fixture()
@@ -163,3 +161,15 @@ def fixture_processor(request):
 
     request.addfinalizer(cleanup_test_processors)
     return Dummy()
+
+
+@pytest.fixture()
+def fixture_registry_bucket(request):
+    def cleanup_test_bucket():
+        _ = [delete_registry_bucket(li) for li
+             in list_registry_buckets() if
+             config.test_bucket_name in li.name]
+
+    cleanup_test_bucket()
+    create_registry_bucket(config.test_bucket_name)
+    request.addfinalizer(cleanup_test_bucket)
