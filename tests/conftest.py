@@ -7,6 +7,8 @@ import pytest
 from os import environ
 from nipyapi.canvas import create_process_group, get_process_group
 from nipyapi.canvas import delete_process_group, get_root_pg_id
+from nipyapi.canvas import list_all_process_groups
+from nipyapi.templates import get_template_by_name, delete_template
 from nipyapi import config
 
 
@@ -26,6 +28,37 @@ else:
             ]
 
 
+# This wraps the template tests to ensure things are cleaned up.
+@pytest.fixture(scope="class")
+def template_class_wrapper(request):
+    def remove_test_templates():
+        test_templates = ['nipyapi_testTemplate_00', 'nipyapi_testTemplate_01']
+        for item in test_templates:
+            details = get_template_by_name(item)
+            if details is not None:
+                delete_template(details.id)
+
+    def remove_test_pgs():
+        pg_list = list_all_process_groups()
+        test_pgs = [
+            item for item in pg_list
+            if 'nipyapi_test' in item.status.name
+        ]
+        for pg in test_pgs:
+            delete_process_group(
+                pg.id,
+                pg.revision
+        )
+
+    remove_test_templates()
+
+    def cleanup():
+        remove_test_templates()
+        remove_test_pgs()
+    request.addfinalizer(cleanup)
+
+
+# 'regress' generates tests against previous versions of NiFi
 def pytest_generate_tests(metafunc):
     if 'regress' in metafunc.fixturenames:
         # print("Regression testing requested for ({0})."

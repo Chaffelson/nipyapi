@@ -15,7 +15,7 @@ def test_get_root_pg_id():
     assert isinstance(r, str)
 
 
-def test_process_group_status():
+def test_get_process_group_status(regress):
     r = canvas.get_process_group_status(pg_id='root', detail='names')
     assert isinstance(r, dict)
     r = canvas.get_process_group_status('root', 'all')
@@ -32,7 +32,7 @@ def test_get_flow():
         _ = canvas.get_flow('definitelyNotAPG')
 
 
-def test_recurse_flow(test_pg):
+def test_recurse_flow(test_pg, regress):
     _ = test_pg.generate()
     r = canvas.recurse_flow('root')
     assert isinstance(r, ProcessGroupFlowEntity)
@@ -43,7 +43,7 @@ def test_recurse_flow(test_pg):
     )
 
 
-def test_list_all_process_groups(test_pg):
+def test_list_all_process_groups(test_pg, regress):
     _ = test_pg.generate()
     r = canvas.list_all_process_groups()
     assert isinstance(r, list)
@@ -51,7 +51,7 @@ def test_list_all_process_groups(test_pg):
         assert isinstance(pg, ProcessGroupEntity)
 
 
-def test_create_process_group():
+def test_create_process_group(regress):
     r = canvas.create_process_group(
         canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
         config.test_pg_name,
@@ -70,7 +70,7 @@ def test_create_process_group():
         )
 
 
-def test_get_process_group(test_pg):
+def test_get_process_group(test_pg, regress):
     with pytest.raises(ValueError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
     single_pg = test_pg.generate()
