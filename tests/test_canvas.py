@@ -85,7 +85,7 @@ def test_get_process_group(fixture_pg, regress):
     assert len(pg_list) == 3
 
 
-def test_delete_process_group(fixture_pg):
+def test_delete_process_group(fixture_pg, regress):
     single_pg = fixture_pg.generate()
     r = canvas.delete_process_group(
         single_pg.id,
@@ -100,22 +100,50 @@ def test_schedule_process_group():
     pass
 
 
-def test_list_all_processor_types():
+def test_list_all_processor_types(regress):
     r = canvas.list_all_processor_types()
     assert isinstance(r, ProcessorTypesEntity)
     assert len(r.processor_types) > 1
 
 
-def test_get_processor_type():
+def test_get_processor_type(regress):
     r1 = canvas.get_processor_type('twitter')
     assert r1.type == 'org.apache.nifi.processors.twitter.GetTwitter'
     assert isinstance(r1, DocumentedTypeDTO)
     r2 = canvas.get_processor_type("syslog", 'tag')
     assert isinstance(r2, list)
     r3 = canvas.get_processor_type('amqp', 'bundle')
-    assert  isinstance(r3, list)
+    assert isinstance(r3, list)
 
 
-def test_list_all_processors():
-    # todo write test case after creating pg with proc for testing
-    pass
+def test_create_processor(fixture_pg, regress):
+    test_pg = fixture_pg.generate()
+    r1 = canvas.create_processor(
+        parent_pg=test_pg,
+        processor=canvas.get_processor_type('ListenSyslog'),
+        location=(400.0, 400.0),
+        name=config.test_processor_name
+    )
+    assert isinstance(r1, nifi.ProcessorEntity)
+    assert r1.status.name == config.test_processor_name
+
+
+def test_list_all_processors(fixture_processor, regress):
+    # First clear all leftover test processors
+    _ = [canvas.delete_processor(li) for
+         li in canvas.list_all_processors()
+         if config.test_processor_name in li.status.name
+         ]
+    p1 = fixture_processor.generate()
+    p2 = fixture_processor.generate()
+    r = canvas.list_all_processors()
+    assert len(r) == 2
+
+
+def test_delete_processor(fixture_processor, regress):
+    test_proc = fixture_processor.generate()
+    assert test_proc.status.name == config.test_processor_name
+    r = canvas.delete_processor(test_proc)
+    assert r.status is None
+    with pytest.raises(ValueError):
+        _ = canvas.delete_processor(test_proc)

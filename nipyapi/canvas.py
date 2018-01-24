@@ -13,7 +13,8 @@ __all__ = [
     "get_root_pg_id", "recurse_flow", "get_flow", "get_process_group_status",
     "get_process_group", "list_all_process_groups", "delete_process_group",
     "schedule_process_group", "create_process_group", "list_all_processors",
-    "list_all_processor_types", "get_processor_type"
+    "list_all_processor_types", "get_processor_type", 'create_processor',
+    'delete_processor'
 ]
 
 
@@ -271,3 +272,37 @@ def get_processor_type(identifier, identifier_type='name'):
     elif len(out) > 1:
         return out
     return out[0]
+
+
+def create_processor(parent_pg, processor, location, name=None):
+    if name is None:
+        processor_name = processor.type.split('.')[-1]
+    else:
+        processor_name = name
+    try:
+        return nifi.ProcessgroupsApi().create_processor(
+            id=parent_pg.id,
+            body=nifi.ProcessorEntity(
+                revision={'version': 0},
+                component=nifi.ProcessorDTO(
+                    position=nifi.PositionDTO(
+                        x=float(location[0]),
+                        y=float(location[1])
+                    ),
+                    type=processor.type,
+                    name=processor_name
+                )
+            )
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
+
+
+def delete_processor(processor):
+    try:
+        return nifi.ProcessorsApi().delete_processor(
+            id=processor.id,
+            version=processor.revision.version
+        )
+    except ApiException as e:
+        raise ValueError(e.body)

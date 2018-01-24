@@ -47,7 +47,6 @@ def list_all_registry_clients():
 
 
 def get_registry_client(identifier, identifier_type='name'):
-    # TODO: This duplicates functionality from canvas, consider a common func
     valid_id_types = ['name', 'id']
     if identifier_type not in valid_id_types:
         raise ValueError(

@@ -7,7 +7,9 @@ import pytest
 from os import environ
 from nipyapi.canvas import create_process_group, get_process_group
 from nipyapi.canvas import delete_process_group, get_root_pg_id
-from nipyapi.canvas import list_all_process_groups
+from nipyapi.canvas import list_all_process_groups, create_processor
+from nipyapi.canvas import delete_processor, list_all_processors
+from nipyapi.canvas import get_processor_type
 from nipyapi.templates import get_template_by_name, delete_template
 from nipyapi.versioning import create_registry_client, delete_registry_client
 from nipyapi.versioning import list_all_registry_clients
@@ -111,7 +113,7 @@ def fixture_pg(request):
 @pytest.fixture()
 def fixture_reg_client(request):
     def cleanup_test_registry_clients():
-        [delete_registry_client(li) for
+        _ = [delete_registry_client(li) for
          li in list_all_registry_clients().registries
          if config.test_registry_client_name in li.component.name
         ]
@@ -125,3 +127,23 @@ def fixture_reg_client(request):
 
     request.addfinalizer(cleanup_test_registry_clients)
 
+
+@pytest.fixture()
+def fixture_processor(request):
+    class Dummy:
+        def generate(self):
+            return create_processor(
+                parent_pg=get_process_group(get_root_pg_id(), 'id'),
+                processor=get_processor_type('ListenSyslog'),
+                location=(400.0, 400.0),
+                name=config.test_processor_name
+            )
+
+    def cleanup_test_processors():
+        _ = [delete_processor(li) for
+         li in list_all_processors()
+         if config.test_processor_name in li.status.name
+         ]
+
+    request.addfinalizer(cleanup_test_processors)
+    return Dummy()

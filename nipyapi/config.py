@@ -29,3 +29,4 @@ registry_config.host = 'http://localhost:18080/nifi-registry-api'
 test_docker_registry_endpoint = 'http://registry:18080'
 test_pg_name = "nipyapi_test_ProcessGroup"
 test_registry_client_name = 'nipyapi_test_0'
+test_processor_name = 'nipyapi_test_0'
