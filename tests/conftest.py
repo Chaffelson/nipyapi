@@ -5,15 +5,12 @@
 
 import pytest
 from os import environ
-from nipyapi.canvas import create_process_group, get_process_group
-from nipyapi.canvas import delete_process_group, get_root_pg_id
-from nipyapi.canvas import list_all_process_groups, create_processor
-from nipyapi.canvas import delete_processor, list_all_processors
-from nipyapi.canvas import get_processor_type
+from nipyapi.canvas import *
 from nipyapi.templates import get_template_by_name, delete_template
 from nipyapi.versioning import create_registry_client, delete_registry_client
 from nipyapi.versioning import list_all_registry_clients
 from nipyapi import config
+from nipyapi.nifi import ProcessorConfigDTO
 
 
 
@@ -83,9 +80,13 @@ def regress(request):
 @pytest.fixture(scope="function")
 def fixture_pg(request):
     class Dummy:
-        def generate(self):
+        def generate(self, parent_pg=None):
+            if parent_pg is None:
+                target_pg = get_process_group(get_root_pg_id(), 'id')
+            else:
+                target_pg = parent_pg
             return create_process_group(
-                    get_process_group(get_root_pg_id(), 'id'),
+                    target_pg,
                     config.test_pg_name,
                     location=(400.0, 400.0)
                 )
@@ -93,17 +94,21 @@ def fixture_pg(request):
     def cleanup_test_pgs():
         test_pgs = get_process_group(config.test_pg_name)
         try:
-            # If unique, then delete
+            # If unique, stop, then delete
+            schedule_process_group(test_pgs.id, 'STOPPED')
+            updated_test_pg = get_process_group(test_pgs.id, 'id')
             delete_process_group(
-                test_pgs.id,
-                test_pgs.revision
+                updated_test_pg.id,
+                updated_test_pg.revision
             )
         except AttributeError:
             if isinstance(test_pgs, list):
                 for this_test_pg in test_pgs:
+                    schedule_process_group(this_test_pg.id, 'STOPPED')
+                    updated_test_pg = get_process_group(this_test_pg.id, 'id')
                     delete_process_group(
-                        this_test_pg.id,
-                        this_test_pg.revision
+                        updated_test_pg.id,
+                        updated_test_pg.revision
                     )
 
     request.addfinalizer(cleanup_test_pgs)
@@ -114,9 +119,9 @@ def fixture_pg(request):
 def fixture_reg_client(request):
     def cleanup_test_registry_clients():
         _ = [delete_registry_client(li) for
-         li in list_all_registry_clients().registries
-         if config.test_registry_client_name in li.component.name
-        ]
+             li in list_all_registry_clients().registries
+             if config.test_registry_client_name in li.component.name
+            ]
 
     cleanup_test_registry_clients()
     create_registry_client(
@@ -131,19 +136,30 @@ def fixture_reg_client(request):
 @pytest.fixture()
 def fixture_processor(request):
     class Dummy:
-        def generate(self):
+        def generate(self, parent_pg=None):
+            if parent_pg is None:
+                target_pg = get_process_group(get_root_pg_id(), 'id')
+            else:
+                target_pg = parent_pg
             return create_processor(
-                parent_pg=get_process_group(get_root_pg_id(), 'id'),
-                processor=get_processor_type('ListenSyslog'),
+                parent_pg=target_pg,
+                processor=get_processor_type('GenerateFlowFile'),
                 location=(400.0, 400.0),
-                name=config.test_processor_name
+                name=config.test_processor_name,
+                config=ProcessorConfigDTO(
+                    scheduling_period='1s',
+                    auto_terminated_relationships=['success']
+                )
             )
 
     def cleanup_test_processors():
-        _ = [delete_processor(li) for
-         li in list_all_processors()
-         if config.test_processor_name in li.status.name
-         ]
+        target_list = [li for
+             li in list_all_processors()
+             if config.test_processor_name in li.status.name
+             ]
+        for target in target_list:
+            schedule_processor(target, 'STOPPED')
+            delete_processor(target)
 
     request.addfinalizer(cleanup_test_processors)
     return Dummy()

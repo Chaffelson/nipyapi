@@ -95,9 +95,24 @@ def test_delete_process_group(fixture_pg, regress):
     assert r.status is None
 
 
-def test_schedule_process_group():
-    # todo write test after creating processor deployment for test cases
-    pass
+def test_schedule_process_group(fixture_processor, fixture_pg):
+    test_pg = fixture_pg.generate()
+    _ = fixture_processor.generate(parent_pg=test_pg)
+    r1 = canvas.schedule_process_group(
+        test_pg.id,
+        'RUNNING'
+    )
+    assert r1.state == 'RUNNING'
+    r2 = canvas.schedule_process_group(
+        test_pg.id,
+        'STOPPED'
+    )
+    assert r2.state == 'STOPPED'
+    with pytest.raises(ValueError):
+        _ = canvas.schedule_process_group(
+            test_pg.id,
+            'BANANA'
+        )
 
 
 def test_list_all_processor_types(regress):
@@ -129,21 +144,22 @@ def test_create_processor(fixture_pg, regress):
 
 
 def test_list_all_processors(fixture_processor, regress):
-    # First clear all leftover test processors
-    _ = [canvas.delete_processor(li) for
-         li in canvas.list_all_processors()
-         if config.test_processor_name in li.status.name
-         ]
     p1 = fixture_processor.generate()
     p2 = fixture_processor.generate()
     r = canvas.list_all_processors()
-    assert len(r) == 2
+    assert len(r) >= 2
 
 
 def test_delete_processor(fixture_processor, regress):
     test_proc = fixture_processor.generate()
     assert test_proc.status.name == config.test_processor_name
+    # try to delete running processor
+    canvas.schedule_processor(test_proc, 'RUNNING')
+    with pytest.raises(ValueError):
+        _ = canvas.delete_processor(test_proc)
+    canvas.schedule_processor(test_proc, 'STOPPED')
     r = canvas.delete_processor(test_proc)
     assert r.status is None
+    # try to delete twice
     with pytest.raises(ValueError):
         _ = canvas.delete_processor(test_proc)

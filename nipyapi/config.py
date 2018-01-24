@@ -16,7 +16,7 @@ registry_config = nipyapi.registry.configuration
 # If True, then we have tested and there are no issues
 # If False, then we believe we are incompatible
 nifi_config.version_check = None
-
+registry_config.version_check = None
 
 # Set Default Host for NiFi
 nifi_config.host = 'http://localhost:8080/nifi-api'

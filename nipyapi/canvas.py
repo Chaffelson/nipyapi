@@ -14,7 +14,7 @@ __all__ = [
     "get_process_group", "list_all_process_groups", "delete_process_group",
     "schedule_process_group", "create_process_group", "list_all_processors",
     "list_all_processor_types", "get_processor_type", 'create_processor',
-    'delete_processor'
+    'delete_processor', 'get_processor', 'schedule_processor'
 ]
 
 
@@ -189,14 +189,17 @@ def schedule_process_group(process_group_id, target_state):
                 target_state, valid_states
             )
         )
-    out = nifi.FlowApi().schedule_components(
-        id=process_group_id,
-        body={
-            'id': process_group_id,
-            'state': target_state
-        }
-    )
-    return out
+    try:
+        return nifi.FlowApi().schedule_components(
+            id=process_group_id,
+            body={
+                'id': process_group_id,
+                'state': target_state
+            }
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
+
 
 
 def create_process_group(parent_pg, new_pg_name, location):
@@ -274,11 +277,15 @@ def get_processor_type(identifier, identifier_type='name'):
     return out[0]
 
 
-def create_processor(parent_pg, processor, location, name=None):
+def create_processor(parent_pg, processor, location, name=None, config=None):
     if name is None:
         processor_name = processor.type.split('.')[-1]
     else:
         processor_name = name
+    if config is None:
+        target_config=nifi.ProcessorConfigDTO()
+    else:
+        target_config=config
     try:
         return nifi.ProcessgroupsApi().create_processor(
             id=parent_pg.id,
@@ -290,7 +297,8 @@ def create_processor(parent_pg, processor, location, name=None):
                         y=float(location[1])
                     ),
                     type=processor.type,
-                    name=processor_name
+                    name=processor_name,
+                    config=target_config
                 )
             )
         )
@@ -298,11 +306,64 @@ def create_processor(parent_pg, processor, location, name=None):
         raise ValueError(e.body)
 
 
-def delete_processor(processor):
+def get_processor(identifier, identifier_type='name'):
+    valid_id_types = ['name', 'id']
+    if identifier_type not in valid_id_types:
+        raise ValueError(
+            "invalid identifier_type. ({0}) not in ({1})".format(
+                identifier_type, valid_id_types
+            )
+        )
+    if identifier_type == 'name':
+        out = [
+            li for li in list_all_processors()
+            if identifier in li.status.name
+        ]
+        if not out:
+            return None
+        elif len(out) > 1:
+            return out
+        return out[0]
+    if identifier_type == 'id':
+        return nifi.ProcessorsApi().get_processor(identifier)
+
+
+def delete_processor(processor, refresh=True):
     try:
+        if refresh:
+            target_proc = get_processor(processor.id, 'id')
+        else:
+            target_proc = processor
         return nifi.ProcessorsApi().delete_processor(
-            id=processor.id,
-            version=processor.revision.version
+            id=target_proc.id,
+            version=target_proc.revision.version
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
+
+
+def schedule_processor(processor, target_state, refresh=True):
+    valid_states = ['STOPPED', 'RUNNING']
+    if target_state not in valid_states:
+        raise ValueError(
+            "supplied state {0} not in valid states ({1})".format(
+                target_state, valid_states
+            )
+        )
+    try:
+        if refresh:
+            target_proc = get_processor(processor.id, 'id')
+        else:
+            target_proc = processor
+        return nifi.ProcessorsApi().update_processor(
+            id=target_proc.id,
+            body=nifi.ProcessorEntity(
+                revision=target_proc.revision,
+                component=nifi.ProcessorDTO(
+                    state=target_state,
+                    id=target_proc.id
+                ),
+            )
         )
     except ApiException as e:
         raise ValueError(e.body)
