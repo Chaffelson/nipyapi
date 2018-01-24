@@ -32,8 +32,8 @@ def test_get_flow():
         _ = canvas.get_flow('definitelyNotAPG')
 
 
-def test_recurse_flow(test_pg, regress):
-    _ = test_pg.generate()
+def test_recurse_flow(fixture_pg, regress):
+    _ = fixture_pg.generate()
     r = canvas.recurse_flow('root')
     assert isinstance(r, ProcessGroupFlowEntity)
     assert r.process_group_flow.breadcrumb.breadcrumb.name == 'NiFi Flow'
@@ -43,8 +43,8 @@ def test_recurse_flow(test_pg, regress):
     )
 
 
-def test_list_all_process_groups(test_pg, regress):
-    _ = test_pg.generate()
+def test_list_all_process_groups(fixture_pg, regress):
+    _ = fixture_pg.generate()
     r = canvas.list_all_process_groups()
     assert isinstance(r, list)
     for pg in r:
@@ -70,13 +70,13 @@ def test_create_process_group(regress):
         )
 
 
-def test_get_process_group(test_pg, regress):
+def test_get_process_group(fixture_pg, regress):
     with pytest.raises(ValueError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
-    single_pg = test_pg.generate()
+    single_pg = fixture_pg.generate()
     pg1 = canvas.get_process_group(single_pg.id, 'id')
     assert isinstance(pg1, ProcessGroupEntity)
-    duplicate_pg = test_pg.generate()
+    duplicate_pg = fixture_pg.generate()
     pg2 = canvas.get_process_group(duplicate_pg.id, 'id')
     assert pg2.id != pg1.id
     pg_list = canvas.get_process_group(single_pg.status.name)
@@ -85,8 +85,8 @@ def test_get_process_group(test_pg, regress):
     assert len(pg_list) == 3
 
 
-def test_delete_process_group(test_pg):
-    single_pg = test_pg.generate()
+def test_delete_process_group(fixture_pg):
+    single_pg = fixture_pg.generate()
     r = canvas.delete_process_group(
         single_pg.id,
         single_pg.revision

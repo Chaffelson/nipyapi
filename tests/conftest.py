@@ -9,6 +9,8 @@ from nipyapi.canvas import create_process_group, get_process_group
 from nipyapi.canvas import delete_process_group, get_root_pg_id
 from nipyapi.canvas import list_all_process_groups
 from nipyapi.templates import get_template_by_name, delete_template
+from nipyapi.versioning import create_registry_client, delete_registry_client
+from nipyapi.versioning import list_all_registry_clients
 from nipyapi import config
 
 
@@ -77,7 +79,7 @@ def regress(request):
 
 
 @pytest.fixture(scope="function")
-def test_pg(request):
+def fixture_pg(request):
     class Dummy:
         def generate(self):
             return create_process_group(
@@ -104,3 +106,22 @@ def test_pg(request):
 
     request.addfinalizer(cleanup_test_pgs)
     return Dummy()
+
+
+@pytest.fixture()
+def fixture_reg_client(request):
+    def cleanup_test_registry_clients():
+        [delete_registry_client(li) for
+         li in list_all_registry_clients().registries
+         if config.test_registry_client_name in li.component.name
+        ]
+
+    cleanup_test_registry_clients()
+    create_registry_client(
+        name=config.test_registry_client_name,
+        uri=config.test_docker_registry_endpoint,
+        description='NiPyApi Test Wrapper'
+    )
+
+    request.addfinalizer(cleanup_test_registry_clients)
+
