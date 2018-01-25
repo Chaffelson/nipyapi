@@ -4,7 +4,7 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from nipyapi import registry, config, nifi, versioning
+from nipyapi import registry, config, nifi, versioning, canvas
 
 
 def test_create_registry_client():
@@ -34,8 +34,7 @@ def test_list_registry_clients(fixture_reg_client):
 
 
 def test_delete_registry_client(fixture_reg_client):
-    client = versioning.get_registry_client(config.test_registry_client_name)
-    r = versioning.delete_registry_client(client)
+    r = versioning.delete_registry_client(fixture_reg_client)
     assert isinstance(r, nifi.RegistryClientEntity)
     assert r.uri is None
     assert r.component.name == config.test_registry_client_name
@@ -49,7 +48,7 @@ def test_get_registry_client(fixture_reg_client):
     assert r2.id == r1.id
 
 
-def test_list_registry_buckets(fixture_registry_bucket, fixture_reg_client):
+def test_list_registry_buckets(fixture_registry_bucket):
     r = versioning.list_registry_buckets()
     assert isinstance(r, list)
     assert len(r) >= 1
@@ -64,15 +63,15 @@ def test_create_registry_bucket(fixture_reg_client):
         _ = versioning.create_registry_bucket(config.test_bucket_name)
 
 
-def test_delete_registry_bucket(fixture_registry_bucket, fixture_reg_client):
-    b1 = versioning.get_registry_bucket(config.test_bucket_name)
+def test_delete_registry_bucket(fixture_registry_bucket):
+    b1, c1 = fixture_registry_bucket
     r = versioning.delete_registry_bucket(b1)
     assert r.identifier == b1.identifier
     with pytest.raises(ValueError):
         _ = versioning.get_registry_bucket(b1.identifier, 'id')
 
 
-def test_get_registry_bucket(fixture_registry_bucket, fixture_reg_client):
+def test_get_registry_bucket(fixture_registry_bucket):
     r1 = versioning.get_registry_bucket(config.test_bucket_name)
     assert r1.name == config.test_bucket_name
     r2 = versioning.get_registry_bucket(r1.identifier, 'id')
@@ -83,23 +82,63 @@ def test_get_registry_bucket(fixture_registry_bucket, fixture_reg_client):
     assert r3 is None
 
 
-def test_save_flow(
-        fixture_registry_bucket,
-        fixture_reg_client,
-        fixture_pg,):
+def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
     test_pg = fixture_pg.generate()
-    test_rc = versioning.get_registry_client(config.test_registry_client_name)
-    test_b = versioning.get_registry_bucket(config.test_bucket_name)
-    r1 = versioning.save_flow(test_pg, test_rc, test_b,
-                              config.test_versioned_flow_name, 'just a test',
-                              'testing regularly')
+    test_b, test_rc = fixture_registry_bucket
+    r1 = versioning.save_flow_ver(
+        process_group=test_pg,
+        registry_client=test_rc,
+        bucket=test_b,
+        flow_name=config.test_versioned_flow_name,
+        comment='a test comment',
+        desc='a test description'
+    )
     assert isinstance(r1, nifi.VersionControlInformationEntity)
+    # Next we validate you can't duplicate a flow name in a bucket
     with pytest.raises(ValueError):
-        r2 = versioning.save_flow(test_pg, test_rc, test_b,
-                                  config.test_versioned_flow_name,
-                                  'just a test',
-                                  'testing regularly')
+        _ = versioning.save_flow_ver(
+            process_group=test_pg,
+            registry_client=test_rc,
+            bucket=test_b,
+            flow_name=config.test_versioned_flow_name,
+            comment='a test comment',
+            desc='a test description'
+        )
+    # Add a processor, refresh status, and save a new version
+    fixture_processor.generate(parent_pg=test_pg)
+    test_pg = canvas.get_process_group(test_pg.id, 'id')
+    r2 = versioning.save_flow_ver(
+        process_group=test_pg,
+        registry_client=test_rc,
+        bucket=test_b,
+        flow_id=r1.version_control_information.flow_id,
+        comment='a test comment'
+    )
+    assert isinstance(r2, nifi.VersionControlInformationEntity)
+    assert r2.version_control_information.version > \
+           r1.version_control_information.version
 
 
-def test_update_flow():
+def test_stop_flow_ver():
     pass
+
+
+def test_revert_flow_ver():
+    pass
+
+
+def test_list_flows_in_bucket():
+    pass
+
+
+def test_get_flow_in_bucket():
+    pass
+
+
+def test_get_latest_flow_ver():
+    pass
+
+
+def test_update_flow_ver():
+    pass
+

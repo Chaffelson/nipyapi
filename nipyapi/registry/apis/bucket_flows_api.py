@@ -262,7 +262,7 @@ class BucketFlowsApi(object):
     def delete_flow(self, bucket_id, flow_id, **kwargs):
         """
         Deletes a flow.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -289,7 +289,7 @@ class BucketFlowsApi(object):
     def delete_flow_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Deletes a flow.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -375,7 +375,7 @@ class BucketFlowsApi(object):
     def get_flow(self, bucket_id, flow_id, **kwargs):
         """
         Gets a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -402,7 +402,7 @@ class BucketFlowsApi(object):
     def get_flow_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Gets a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -488,7 +488,7 @@ class BucketFlowsApi(object):
     def get_flow_version(self, bucket_id, flow_id, version_number, **kwargs):
         """
         Gets the given version of a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -516,7 +516,7 @@ class BucketFlowsApi(object):
     def get_flow_version_with_http_info(self, bucket_id, flow_id, version_number, **kwargs):
         """
         Gets the given version of a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -610,7 +610,7 @@ class BucketFlowsApi(object):
     def get_flow_versions(self, bucket_id, flow_id, **kwargs):
         """
         Gets summary information for all versions of a flow. Versions are ordered newest->oldest.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -637,7 +637,7 @@ class BucketFlowsApi(object):
     def get_flow_versions_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Gets summary information for all versions of a flow. Versions are ordered newest->oldest.
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -650,7 +650,7 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
-        :return: list[VersionedFlowSnapshot]
+        :return: list[VersionedFlowSnapshotMetadata]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -712,7 +712,7 @@ class BucketFlowsApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='list[VersionedFlowSnapshot]',
+                                        response_type='list[VersionedFlowSnapshotMetadata]',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -723,7 +723,7 @@ class BucketFlowsApi(object):
     def get_flows(self, bucket_id, **kwargs):
         """
         Gets all flows in the given bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -749,7 +749,7 @@ class BucketFlowsApi(object):
     def get_flows_with_http_info(self, bucket_id, **kwargs):
         """
         Gets all flows in the given bucket
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -829,7 +829,7 @@ class BucketFlowsApi(object):
     def get_latest_flow_version(self, bucket_id, flow_id, **kwargs):
         """
         Get the latest version of a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -856,7 +856,7 @@ class BucketFlowsApi(object):
     def get_latest_flow_version_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Get the latest version of a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -942,7 +942,7 @@ class BucketFlowsApi(object):
     def get_latest_flow_version_metadata(self, bucket_id, flow_id, **kwargs):
         """
         Get the metadata for the latest version of a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -955,7 +955,7 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
-        :return: VersionedFlowSnapshot
+        :return: VersionedFlowSnapshotMetadata
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -969,7 +969,7 @@ class BucketFlowsApi(object):
     def get_latest_flow_version_metadata_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Get the metadata for the latest version of a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -982,7 +982,7 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
-        :return: VersionedFlowSnapshot
+        :return: VersionedFlowSnapshotMetadata
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1044,7 +1044,7 @@ class BucketFlowsApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='VersionedFlowSnapshot',
+                                        response_type='VersionedFlowSnapshotMetadata',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
@@ -1055,7 +1055,7 @@ class BucketFlowsApi(object):
     def update_flow(self, bucket_id, flow_id, **kwargs):
         """
         Updates a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1082,7 +1082,7 @@ class BucketFlowsApi(object):
     def update_flow_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Updates a flow
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

@@ -31,7 +31,7 @@ class VersionedFlowSnapshot(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-        'snapshot_metadata': 'VersionedFlowSnapshot',
+        'snapshot_metadata': 'VersionedFlowSnapshotMetadata',
         'flow_contents': 'VersionedProcessGroup',
         'flow': 'VersionedFlow',
         'bucket': 'Bucket',
@@ -73,7 +73,7 @@ class VersionedFlowSnapshot(object):
         The metadata for this snapshot
 
         :return: The snapshot_metadata of this VersionedFlowSnapshot.
-        :rtype: VersionedFlowSnapshot
+        :rtype: VersionedFlowSnapshotMetadata
         """
         return self._snapshot_metadata
 
@@ -84,7 +84,7 @@ class VersionedFlowSnapshot(object):
         The metadata for this snapshot
 
         :param snapshot_metadata: The snapshot_metadata of this VersionedFlowSnapshot.
-        :type: VersionedFlowSnapshot
+        :type: VersionedFlowSnapshotMetadata
         """
         if snapshot_metadata is None:
             raise ValueError("Invalid value for `snapshot_metadata`, must not be `None`")

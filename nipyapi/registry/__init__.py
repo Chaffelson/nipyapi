@@ -38,6 +38,7 @@ from .models.versioned_controller_service import VersionedControllerService
 from .models.versioned_flow import VersionedFlow
 from .models.versioned_flow_coordinates import VersionedFlowCoordinates
 from .models.versioned_flow_snapshot import VersionedFlowSnapshot
+from .models.versioned_flow_snapshot_metadata import VersionedFlowSnapshotMetadata
 from .models.versioned_funnel import VersionedFunnel
 from .models.versioned_label import VersionedLabel
 from .models.versioned_port import VersionedPort

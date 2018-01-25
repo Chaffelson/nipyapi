@@ -13,7 +13,8 @@ __all__ = [
     'create_registry_client', 'list_registry_clients',
     'delete_registry_client', 'get_registry_client', 'list_registry_buckets',
     'create_registry_bucket', 'delete_registry_bucket', 'get_registry_bucket',
-    'save_flow'
+    'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
+    'get_latest_flow_ver', 'update_flow_ver'
 ]
 
 
@@ -132,8 +133,40 @@ def get_registry_bucket(identifier, identifier_type='name'):
         raise ValueError(e.body)
 
 
-def save_flow(process_group, registry_client, bucket, name, comment='',
-              desc=''):
+def list_flows_in_bucket(bucket_id):
+    try:
+        return registry.BucketFlowsApi().get_flows(bucket_id)
+    except ApiExceptionR as e:
+        raise ValueError(e.body)
+
+
+def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
+    valid_id_types = ['name', 'id']
+    if identifier_type not in valid_id_types:
+        raise ValueError(
+            "invalid identifier_type. ({0}) not in ({1})".format(
+                identifier_type, valid_id_types
+            )
+        )
+    try:
+        if identifier_type == 'id':
+            return registry.BucketFlowsApi().get_flow(bucket_id, identifier)
+        if identifier_type == 'name':
+            out = [
+                li for li in list_flows_in_bucket(bucket_id)
+                if identifier in li.name
+            ]
+            if not out:
+                return None
+            elif len(out) > 1:
+                return out
+            return out[0]
+    except ApiExceptionR as e:
+        raise ValueError(e.body)
+
+
+def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
+                  flow_id=None, comment='', desc=''):
     try:
         return nifi.VersionsApi().save_to_flow_registry(
             id=process_group.id,
@@ -143,7 +176,8 @@ def save_flow(process_group, registry_client, bucket, name, comment='',
                     bucket_id=bucket.identifier,
                     comments=comment,
                     description=desc,
-                    flow_name=name,
+                    flow_name=flow_name,
+                    flow_id=flow_id,
                     registry_id=registry_client.id
                 )
             )
@@ -152,6 +186,49 @@ def save_flow(process_group, registry_client, bucket, name, comment='',
         raise ValueError(e.body)
 
 
-def update_flow():
-    # needed to update the version in the registry
-    pass
+def stop_flow_ver(process_group):
+    try:
+        return nifi.VersionsApi().stop_version_control(
+            id=process_group.id,
+            version=process_group.revision.version
+        )
+    except ApiExceptionN as e:
+        raise ValueError(e.body)
+
+
+def revert_flow_ver(process_group):
+    try:
+        return nifi.VersionsApi().initiate_revert_flow_version(
+            id=process_group.id,
+            body=nifi.VersionsApi().get_version_information(process_group.id)
+        )
+    except ApiExceptionN as e:
+        raise ValueError(e.body)
+
+
+def update_flow_ver(process_group, registry_client, flow,
+                    update_children=False):
+    try:
+        return nifi.VersionsApi().update_flow_version(
+            id=process_group.id,
+            body=nifi.VersionedFlowSnapshotEntity(
+                process_group_revision=process_group.revision,
+                registry_id=registry_client.id,
+                update_descendant_versioned_flows=update_children,
+                versioned_flow_snapshot=get_latest_flow_ver(
+                    bucket_id=flow.bucket_identifier,
+                    flow_id=flow.identifier
+                )
+            )
+        )
+    except ApiExceptionN as e:
+        raise ValueError(e.body)
+
+
+def get_latest_flow_ver(bucket_id, flow_id):
+    try:
+        return registry.BucketFlowsApi().get_latest_flow_version(
+            bucket_id, flow_id
+        )
+    except ApiExceptionR as e:
+        raise ValueError(e.body)

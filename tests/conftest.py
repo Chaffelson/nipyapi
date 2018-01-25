@@ -123,12 +123,12 @@ def fixture_reg_client(request):
             ]
 
     cleanup_test_registry_client()
-    create_registry_client(
+    request.addfinalizer(cleanup_test_registry_client)
+    return create_registry_client(
         name=config.test_registry_client_name,
         uri=config.test_docker_registry_endpoint,
         description='NiPyApi Test Wrapper'
     )
-    request.addfinalizer(cleanup_test_registry_client)
 
 
 @pytest.fixture()
@@ -164,12 +164,14 @@ def fixture_processor(request):
 
 
 @pytest.fixture()
-def fixture_registry_bucket(request):
+def fixture_registry_bucket(request, fixture_reg_client):
     def cleanup_test_bucket():
         _ = [delete_registry_bucket(li) for li
              in list_registry_buckets() if
              config.test_bucket_name in li.name]
 
     cleanup_test_bucket()
-    create_registry_bucket(config.test_bucket_name)
     request.addfinalizer(cleanup_test_bucket)
+    return (create_registry_bucket(config.test_bucket_name),
+            fixture_reg_client)
+
