@@ -85,14 +85,24 @@ def test_get_process_group(fixture_pg, regress):
     assert len(pg_list) == 3
 
 
-def test_delete_process_group(fixture_pg, regress):
-    single_pg = fixture_pg.generate()
-    r = canvas.delete_process_group(
-        single_pg.id,
-        single_pg.revision
+def test_delete_process_group(fixture_pg, regress, fixture_processor):
+    # Delete stopped PG
+    pg_1 = fixture_pg.generate()
+    r1 = canvas.delete_process_group(
+        pg_1.id,
+        pg_1.revision
     )
-    assert r.id == single_pg.id
-    assert r.status is None
+    assert r1.id == pg_1.id
+    assert r1.status is None
+    # Test deleting a running PG
+    pg_2 = fixture_pg.generate()
+    p_1 = fixture_processor.generate(parent_pg=pg_2)
+    canvas.schedule_process_group(pg_2.id, 'RUNNING')
+    with pytest.raises(ValueError):
+        _ = canvas.delete_process_group(
+            pg_2.id,
+            pg_2.revision
+        )
 
 
 def test_schedule_process_group(fixture_processor, fixture_pg):

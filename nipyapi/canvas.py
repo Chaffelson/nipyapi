@@ -167,11 +167,14 @@ def delete_process_group(process_group_id, revision):
     :param revision: revision object from the parent PG to the removal target
     :return ProcessGroupEntity: the updated entity object for the deleted PG
     """
-    return nifi.ProcessgroupsApi().remove_process_group(
-        id=process_group_id,
-        version=revision.version,
-        client_id=revision.client_id
-    )
+    try:
+        return nifi.ProcessgroupsApi().remove_process_group(
+            id=process_group_id,
+            version=revision.version,
+            client_id=revision.client_id
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
 
 
 def schedule_process_group(process_group_id, target_state):
