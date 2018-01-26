@@ -201,6 +201,7 @@ def stop_flow_ver(process_group, refresh=True):
 
 
 def revert_flow_ver(process_group):
+    # ToDo: Add handling for flows with live data
     try:
         return nifi.VersionsApi().initiate_revert_flow_version(
             id=process_group.id,
@@ -212,21 +213,23 @@ def revert_flow_ver(process_group):
 
 def update_flow_ver(process_group, registry_client, flow,
                     update_children=False):
-    try:
-        return nifi.VersionsApi().update_flow_version(
-            id=process_group.id,
-            body=nifi.VersionedFlowSnapshotEntity(
-                process_group_revision=process_group.revision,
-                registry_id=registry_client.id,
-                update_descendant_versioned_flows=update_children,
-                versioned_flow_snapshot=get_latest_flow_ver(
-                    bucket_id=flow.bucket_identifier,
-                    flow_id=flow.identifier
-                )
-            )
-        )
-    except ApiExceptionN as e:
-        raise ValueError(e.body)
+    # TODO: This needs a lot more investigation
+    pass
+    # try:
+    #     return nifi.VersionsApi().update_flow_version(
+    #         id=process_group.id,
+    #         body=nifi.VersionedFlowSnapshotEntity(
+    #             process_group_revision=process_group.revision,
+    #             registry_id=registry_client.id,
+    #             update_descendant_versioned_flows=update_children,
+    #             versioned_flow_snapshot=get_latest_flow_ver(
+    #                 bucket_id=flow.bucket_identifier,
+    #                 flow_id=flow.identifier
+    #             )
+    #         )
+    #     )
+    # except ApiExceptionN as e:
+    #     raise ValueError(e.body)
 
 
 def get_latest_flow_ver(bucket_id, flow_id):

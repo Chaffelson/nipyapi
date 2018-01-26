@@ -123,22 +123,51 @@ def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
 def test_stop_flow_ver(fixture_versioned_flow):
     test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
     r1 = versioning.stop_flow_ver(test_pg)
+    assert isinstance(r1, nifi.VersionControlInformationEntity)
+    assert r1.version_control_information is None
+    with pytest.raises(ValueError,
+                       match='not currently under Version Control'):
+        _ = versioning.stop_flow_ver(test_pg)
 
 
-def test_revert_flow_ver():
-    pass
+def test_revert_flow_ver(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+    r1 = versioning.revert_flow_ver(test_pg)
+    assert isinstance(r1, nifi.VersionedFlowUpdateRequestEntity)
+    # TODO: Add Tests for flows with data loss on reversion
 
 
-def test_list_flows_in_bucket():
-    pass
+def test_list_flows_in_bucket(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+    r1 = versioning.list_flows_in_bucket(test_rb.identifier)
+    assert isinstance(r1, list)
+    assert isinstance(r1[0], registry.VersionedFlow)
+    with pytest.raises(ValueError, match='Bucket does not exist'):
+        _ = versioning.list_flows_in_bucket('NiPyApi-FakeNews')
 
 
-def test_get_flow_in_bucket():
-    pass
+def test_get_flow_in_bucket(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+    r1 = versioning.get_flow_in_bucket(
+        test_rb.identifier,
+        test_vf.version_control_information.flow_id,
+        'id'
+    )
+    assert isinstance(r1, registry.VersionedFlow)
+    assert r1.identifier == test_vf.version_control_information.flow_id
+    with pytest.raises(ValueError, match='Versioned flow does not exist'):
+        _ = versioning.get_flow_in_bucket(test_rb.identifier, 'fakenews', 'id')
 
 
-def test_get_latest_flow_ver():
-    pass
+def test_get_latest_flow_ver(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+    r1 = versioning.get_latest_flow_ver(
+        test_rb.identifier,
+        test_vf.version_control_information.flow_id
+    )
+    assert isinstance(r1, registry.VersionedFlowSnapshot)
+    with pytest.raises(ValueError, match='Versioned flow does not exist'):
+        _ = versioning.get_latest_flow_ver(test_rb.identifier, 'fakenews')
 
 
 def test_update_flow_ver():
