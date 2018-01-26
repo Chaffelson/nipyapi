@@ -175,5 +175,11 @@ def test_delete_processor(fixture_processor, regress):
         _ = canvas.delete_processor(test_proc)
 
 
-def test_update_processor():
-    pass
+def test_update_processor(fixture_processor, regress):
+    test_proc = fixture_processor.generate()
+    update = nifi.ProcessorConfigDTO(
+        scheduling_period='3s'
+    )
+    r1 = canvas.update_processor(test_proc, update)
+    with pytest.raises(ValueError, match='update param is not an instance'):
+        _ = canvas.update_processor(test_proc, 'FakeNews')

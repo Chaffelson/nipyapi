@@ -372,6 +372,21 @@ def schedule_processor(processor, target_state, refresh=True):
         raise ValueError(e.body)
 
 
-def update_processor(processor):
-    # Needed to modify processor in fixture for version diffs
-    pass
+def update_processor(processor, update):
+    if not isinstance(update, nifi.ProcessorConfigDTO):
+        raise ValueError(
+            "update param is not an instance of nifi.ProcessorConfigDTO"
+        )
+    try:
+        return nifi.ProcessorsApi().update_processor(
+            processor.id,
+            body=nifi.ProcessorEntity(
+                component=nifi.ProcessorDTO(
+                    config=update,
+                    id=processor.id
+                ),
+                revision=processor.revision,
+            )
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
