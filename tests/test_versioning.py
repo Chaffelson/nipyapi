@@ -38,6 +38,7 @@ def test_delete_registry_client(fixture_reg_client):
     assert isinstance(r, nifi.RegistryClientEntity)
     assert r.uri is None
     assert r.component.name == config.test_registry_client_name
+    # TODO Add test for when a PG is attached to the client
 
 
 def test_get_registry_client(fixture_reg_client):
@@ -101,8 +102,8 @@ def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
             registry_client=test_rc,
             bucket=test_b,
             flow_name=config.test_versioned_flow_name,
-            comment='a test comment',
-            desc='a test description'
+            comment='NiPyApi Test',
+            desc='NiPyApi Test'
         )
     # Add a processor, refresh status, and save a new version
     fixture_processor.generate(parent_pg=test_pg)
@@ -119,8 +120,9 @@ def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
            r1.version_control_information.version
 
 
-def test_stop_flow_ver():
-    pass
+def test_stop_flow_ver(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+    r1 = versioning.stop_flow_ver(test_pg)
 
 
 def test_revert_flow_ver():

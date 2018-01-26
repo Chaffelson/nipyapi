@@ -61,6 +61,8 @@ Then import and use the modules::
     get_root_pg_id()
     >'4d5dcf9a-015e-1000-097e-e505ed0f7fd2'
 
+You can also pull the repository from Github and play or contribute on the latest features, check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ for more info.
+
 Background
 ----------
 

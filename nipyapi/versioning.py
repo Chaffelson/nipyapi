@@ -5,7 +5,7 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 from __future__ import absolute_import
-from . import nifi, config, registry
+from . import nifi, config, registry, canvas
 from nipyapi.nifi.rest import ApiException as ApiExceptionN
 from nipyapi.registry.rest import ApiException as ApiExceptionR
 
@@ -186,11 +186,15 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
         raise ValueError(e.body)
 
 
-def stop_flow_ver(process_group):
+def stop_flow_ver(process_group, refresh=True):
     try:
+        if refresh:
+            target_pg = canvas.get_process_group(process_group.id, 'id')
+        else:
+            target_pg = process_group
         return nifi.VersionsApi().stop_version_control(
-            id=process_group.id,
-            version=process_group.revision.version
+            id=target_pg.id,
+            version=target_pg.revision.version
         )
     except ApiExceptionN as e:
         raise ValueError(e.body)

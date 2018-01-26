@@ -175,3 +175,22 @@ def fixture_registry_bucket(request, fixture_reg_client):
     return (create_registry_bucket(config.test_bucket_name),
             fixture_reg_client)
 
+
+@pytest.fixture()
+def fixture_versioned_flow(fixture_registry_bucket, fixture_pg,
+                           fixture_processor):
+    fix_rb, fix_rc = fixture_registry_bucket
+    fix_pg = fixture_pg.generate()
+    fix_p = fixture_processor.generate(parent_pg=fix_pg)
+    fix_vf = save_flow_ver(
+        process_group=fix_pg,
+        registry_client=fix_rc,
+        bucket=fix_rb,
+        flow_name=config.test_versioned_flow_name,
+        comment='NiPyApi Test',
+        desc='NiPyApi Test'
+    )
+    return (
+        fix_rc, fix_rb, fix_pg, fix_p, fix_vf
+    )
+

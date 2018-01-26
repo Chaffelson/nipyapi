@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-A convenience script for generating an interactive test environment
+A convenience script for generating an interactive test environment.
+Note that running the main test suite will also clean up this console environment as they share namespace.
 """
 
 from __future__ import absolute_import
