@@ -14,7 +14,7 @@ __all__ = [
     'delete_registry_client', 'get_registry_client', 'list_registry_buckets',
     'create_registry_bucket', 'delete_registry_bucket', 'get_registry_bucket',
     'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
-    'get_latest_flow_ver', 'update_flow_ver'
+    'get_latest_flow_ver', 'update_flow_ver', 'get_version_info'
 ]
 
 
@@ -231,4 +231,13 @@ def get_latest_flow_ver(bucket_id, flow_id):
             bucket_id, flow_id
         )
     except ApiExceptionR as e:
+        raise ValueError(e.body)
+
+
+def get_version_info(process_group):
+    try:
+        return nifi.VersionsApi().get_version_information(
+            process_group.id
+        )
+    except ApiExceptionN as e:
         raise ValueError(e.body)
