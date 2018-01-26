@@ -14,7 +14,8 @@ __all__ = [
     "get_process_group", "list_all_process_groups", "delete_process_group",
     "schedule_process_group", "create_process_group", "list_all_processors",
     "list_all_processor_types", "get_processor_type", 'create_processor',
-    'delete_processor', 'get_processor', 'schedule_processor'
+    'delete_processor', 'get_processor', 'schedule_processor',
+    'update_processor', 'get_variable_registry', 'update_variable_registry'
 ]
 
 
@@ -124,6 +125,7 @@ def list_all_process_groups():
     Returns a flattened list of all Process Groups.
     :return list: list of ProcessGroupEntity objects
     """
+    # TODO: Check if get_process_groups is fixed in newer versions
     def flatten(parent_pg):
         """
         Recursively flattens the native datatypes into a generic list.
@@ -386,6 +388,50 @@ def update_processor(processor, update):
                     id=processor.id
                 ),
                 revision=processor.revision,
+            )
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
+
+
+def get_variable_registry(process_group, ancestors=True):
+    try:
+        return nifi.ProcessgroupsApi().get_variable_registry(
+            process_group.id,
+            include_ancestor_groups=ancestors
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
+
+
+def update_variable_registry(process_group, update):
+    if not isinstance(process_group, nifi.ProcessGroupEntity):
+        raise ValueError(
+            'param process_group is not a valid nifi.ProcessGroupEntity'
+        )
+    if not isinstance(update, list):
+        raise ValueError(
+            'param update is not a valid list of (key,value) tuples'
+        )
+    # Parse variable update into the datatype
+    var_update = [
+        nifi.VariableEntity(
+            nifi.VariableDTO(
+                name=li[0],
+                value=li[1],
+                process_group_id=process_group.id
+            )
+        ) for li in update
+    ]
+    try:
+        return nifi.ProcessgroupsApi().update_variable_registry(
+            id=process_group.id,
+            body=nifi.VariableRegistryEntity(
+                process_group_revision=process_group.revision,
+                variable_registry=nifi.VariableRegistryDTO(
+                    process_group_id=process_group.id,
+                    variables=var_update
+                )
             )
         )
     except ApiException as e:

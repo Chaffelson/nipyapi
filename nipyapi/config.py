@@ -32,3 +32,4 @@ test_registry_client_name = 'nipyapi_test_0'
 test_processor_name = 'nipyapi_test_0'
 test_bucket_name = 'nipyapi_test_0'
 test_versioned_flow_name = 'nipyapi_test_0'
+test_variable_registry_entry = [('nipyapi_test_name', 'nipyapi_test_value')]

@@ -183,3 +183,24 @@ def test_update_processor(fixture_processor, regress):
     r1 = canvas.update_processor(test_proc, update)
     with pytest.raises(ValueError, match='update param is not an instance'):
         _ = canvas.update_processor(test_proc, 'FakeNews')
+
+
+def test_get_variable_registry(fixture_pg):
+    test_pg = fixture_pg.generate()
+    r1 = canvas.get_variable_registry(test_pg)
+    assert isinstance(r1, nifi.VariableRegistryEntity)
+    with pytest.raises(ValueError, match='Unable to locate group with id'):
+        canvas.delete_process_group(test_pg.id, test_pg.revision)
+        _ = canvas.get_variable_registry(test_pg)
+
+
+def test_update_variable_registry(fixture_pg):
+    test_pg = fixture_pg.generate()
+    r1 = canvas.update_variable_registry(
+        test_pg,
+        config.test_variable_registry_entry
+    )
+    with pytest.raises(ValueError,
+                       match='param update is not a valid list of'
+                       ):
+        _ = canvas.update_variable_registry(test_pg, '')
