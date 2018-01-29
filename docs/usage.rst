@@ -11,7 +11,9 @@ To use Nipyapi in a project::
     pip install nipyapi
 
     # in Python
+    # To change default nifi port, see Configuration section below
     import nipyapi
+    
 
 To fetch the NiFi system's diagnostics::
 
@@ -29,4 +31,5 @@ Configuration
 Further configuration parameters for the swagger_client may be found in swagger_client.configuration::
 
     import nipyapi
-    nipyapi.swagger_client.configuration.host = 'http://localhost:8080/nifi-api'
+    from nipyapi import config
+    config.swagger_config.host = 'http://localhost:8080/nifi-api'
