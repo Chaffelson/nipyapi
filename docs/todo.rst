@@ -2,9 +2,7 @@
 ToDo
 =====
 
-* Create a Configuration wrapper to allow better dev/prod settings management
 * Bring accross features from https://github.com/pvillard31/nifi-api-client-python
-* Backfill tests in used apis, potentially autoflag them if used in wrapper module?
 * Bring across features from https://github.com/jdye64/nifi-shell
 * Exclude test code from deployment with bdist etc
 * Look into how sensitive properties are handled on template import
@@ -15,3 +13,4 @@ ToDo
 * https://github.com/hayanige/docker-nifi-cluster
 * Set enforcement of ProcessGroup best practice like unique template names
 * Export Entity objects as Yaml for: ProcessGroups, Processors, RPGs
+* Investigate how update variable registry

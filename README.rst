@@ -32,9 +32,21 @@ Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
 Features
 --------
 
-| This package provides pythonic calls for common NiFi tasks and CICD/SDLC integrations
+| This package provides pythonic calls for common NiFi tasks and CICD/SDLC integrations - you might call it Flow Development LifeCycle
 | These are implemented by replicating the action of the same task in the GUI and surfacing the underlying NiFi Data structures and calls wherever possible, to retain UX parallelism for the user
 
+Functionality Highlights:
+ - Full native Python rest client for NiFi and NiFi-Registry
+ - CRUD wrappers for common task areas like Processor Groups, Processors, Templates, Registry Clients, Registry Buckets, Registry Flows, etc.
+ - Convenience functions for inventory tasks, such as recursively retrieving the entire canvas, or a flat list of all Process Groups
+ - Docker Compose configurations for testing and deployment
+ - Limited support for scheduling components
+ - A scripted deployment of an interactive environment for testing and demonstration purposes
+
+Coming soon:
+ - Secured environment support is not currently implemented, but it is planned to be done very soon
+ - Support for complex scheduling requests, such as stopping a large flow and waiting for all Processors to be halted
+ - Support for edge cases during Versioning changes, such as Reverting a flow containing live data
 
 Usage
 -----
@@ -43,25 +55,24 @@ The easiest way to install NiPyApi is with pip::
     # in bash
     pip install nipyapi
 
-Then import and use the modules::
+Then import a module and execute tasks::
 
     # in python
-    from nipyapi.canvas import *
-    from nipyapi.templates import *
-    from nipyapi.system import *
-    from nipyapi.versioning import *
-    dir()
-    >['__builtins__', 'all_templates', 'create_pg_snippet', 'create_process_group', 'create_processor', 'create_registry_bucket',
-    'create_registry_client', 'create_template', 'delete_process_group', 'delete_processor', 'delete_registry_bucket',
-    'delete_registry_client', 'delete_template', 'deploy_template', 'export_template', 'get_flow', 'get_process_group',
-    'get_process_group_status', 'get_processor', 'get_processor_type', 'get_registry_bucket', 'get_registry_client',
-    'get_root_pg_id', 'get_template_by_name', 'list_all_process_groups', 'list_all_processor_types', 'list_all_processors',
-    'list_registry_buckets', 'list_registry_clients', 'recurse_flow', 'schedule_process_group', 'schedule_processor', 'sys',
-    'upload_template']
+    from nipyapi import config
+    config.nifi_config.host = 'http://localhost:8080/nifi-api'
+    from nipyapi.canvas import get_root_pg_id
     get_root_pg_id()
     >'4d5dcf9a-015e-1000-097e-e505ed0f7fd2'
 
-You can also pull the repository from Github and play or contribute on the latest features, check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ for more info.
+You can also use the demo to create an interactive console showing a few of the features::
+
+    # in python
+    from nipyapi import config
+    config.nifi_config.host = 'http://localhost:8080/nifi-api'
+    config.registry_config.host = 'http://localhost:18080/nifi-registry-api'
+    from nipyapi.demo.console import *
+
+You can also pull the repository from Github and use or contribute to the latest features, check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ for more info.
 
 Background
 ----------

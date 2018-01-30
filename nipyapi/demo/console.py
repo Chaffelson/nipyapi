@@ -7,9 +7,13 @@ A convenience script for generating an interactive test environment.
 from __future__ import absolute_import
 from nipyapi.canvas import *
 from nipyapi.versioning import *
+from nipyapi import config
 from nipyapi.nifi import ProcessorConfigDTO
 
-_rc_endpoint = 'http://registry:18080'
+_rc_endpoint = config.registry_config.host.rstrip(
+    config.registry_config.host.split('/')[-1]
+)
+
 _basename = "nipyapi_console"
 _pg0 = _basename + '_process_group_0'
 _proc0 = _basename + '_processor_0'
@@ -93,7 +97,7 @@ try:
 except ValueError:
     ver_flow_1 = get_flow_in_bucket(bucket_1.identifier, _vf1)
 
-# Clone the flow into the new stub
+# Clone the versioned flow into the new stub flow in the
 try:
     ver_flow_snapshot_1 = create_flow_version(
         bucket_id=bucket_1.identifier,
