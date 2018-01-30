@@ -10,7 +10,21 @@ from nipyapi.templates import *
 from nipyapi.versioning import *
 from nipyapi import config
 from nipyapi.nifi import ProcessorConfigDTO
+from time import sleep
 
+
+# Test Configuration parameters
+test_docker_registry_endpoint = 'http://registry:18080'
+test_basename = "nipyapi_test"
+test_pg_name = test_basename + "_ProcessGroup"
+test_registry_client_name = test_basename + "_reg_client"
+test_processor_name = test_basename + "_proc"
+test_bucket_name = test_basename + "_bucket"
+test_versioned_flow_name = test_basename + "_ver_flow"
+test_cloned_ver_flow_name = test_basename + '_cloned_ver_flow'
+test_variable_registry_entry = [
+    (test_basename + '_name', test_basename + '_name' + '_value')
+]
 
 
 # Determining test environment
@@ -79,22 +93,25 @@ def regress(request):
 @pytest.fixture(scope="function")
 def fixture_pg(request):
     class Dummy:
-        def generate(self, parent_pg=None):
+        def generate(self, parent_pg=None, suffix=''):
             if parent_pg is None:
                 target_pg = get_process_group(get_root_pg_id(), 'id')
             else:
                 target_pg = parent_pg
             return create_process_group(
                     target_pg,
-                    config.test_pg_name,
+                    test_pg_name + suffix,
                     location=(400.0, 400.0)
                 )
 
     def cleanup_test_pgs():
-        test_pgs = get_process_group(config.test_pg_name)
+        test_pgs = get_process_group(test_pg_name)
         try:
             # If unique, stop, then delete
             schedule_process_group(test_pgs.id, 'STOPPED')
+            # This is a workaround until determistic process_group management
+            # is implemented
+            sleep(2)
             updated_test_pg = get_process_group(test_pgs.id, 'id')
             delete_process_group(
                 updated_test_pg.id,
@@ -119,14 +136,14 @@ def fixture_reg_client(request):
     def cleanup_test_registry_client():
         _ = [delete_registry_client(li) for
              li in list_registry_clients().registries
-             if config.test_registry_client_name in li.component.name
+             if test_registry_client_name in li.component.name
             ]
 
     cleanup_test_registry_client()
     request.addfinalizer(cleanup_test_registry_client)
     return create_registry_client(
-        name=config.test_registry_client_name,
-        uri=config.test_docker_registry_endpoint,
+        name=test_registry_client_name,
+        uri=test_docker_registry_endpoint,
         description='NiPyApi Test Wrapper'
     )
 
@@ -134,7 +151,7 @@ def fixture_reg_client(request):
 @pytest.fixture()
 def fixture_processor(request):
     class Dummy:
-        def generate(self, parent_pg=None):
+        def generate(self, parent_pg=None, suffix=''):
             if parent_pg is None:
                 target_pg = get_process_group(get_root_pg_id(), 'id')
             else:
@@ -143,7 +160,7 @@ def fixture_processor(request):
                 parent_pg=target_pg,
                 processor=get_processor_type('GenerateFlowFile'),
                 location=(400.0, 400.0),
-                name=config.test_processor_name,
+                name=test_processor_name + suffix,
                 config=ProcessorConfigDTO(
                     scheduling_period='1s',
                     auto_terminated_relationships=['success']
@@ -153,10 +170,12 @@ def fixture_processor(request):
     def cleanup_test_processors():
         target_list = [li for
              li in list_all_processors()
-             if config.test_processor_name in li.status.name
+             if test_processor_name in li.status.name
              ]
         for target in target_list:
             schedule_processor(target, 'STOPPED')
+            # Workaround until deterministic processor management implemented
+            sleep(2)
             delete_processor(target)
 
     request.addfinalizer(cleanup_test_processors)
@@ -165,32 +184,38 @@ def fixture_processor(request):
 
 @pytest.fixture()
 def fixture_registry_bucket(request, fixture_reg_client):
-    def cleanup_test_bucket():
+    class Dummy:
+        def generate(self, suffix=''):
+            return (
+                create_registry_bucket(test_bucket_name + suffix),
+                fixture_reg_client
+            )
+
+    def cleanup_test_buckets():
         _ = [delete_registry_bucket(li) for li
              in list_registry_buckets() if
-             config.test_bucket_name in li.name]
+             test_bucket_name in li.name]
 
-    cleanup_test_bucket()
-    request.addfinalizer(cleanup_test_bucket)
-    return (create_registry_bucket(config.test_bucket_name),
-            fixture_reg_client)
+    cleanup_test_buckets()
+    request.addfinalizer(cleanup_test_buckets)
+    return Dummy()
 
 
 @pytest.fixture()
 def fixture_versioned_flow(fixture_registry_bucket, fixture_pg,
                            fixture_processor):
-    fix_rb, fix_rc = fixture_registry_bucket
+    fix_rb, fix_rc = fixture_registry_bucket.generate()
     fix_pg = fixture_pg.generate()
     fix_p = fixture_processor.generate(parent_pg=fix_pg)
-    fix_vf = save_flow_ver(
+    fix_vf_info = save_flow_ver(
         process_group=fix_pg,
         registry_client=fix_rc,
         bucket=fix_rb,
-        flow_name=config.test_versioned_flow_name,
+        flow_name=test_versioned_flow_name,
         comment='NiPyApi Test',
         desc='NiPyApi Test'
     )
     return (
-        fix_rc, fix_rb, fix_pg, fix_p, fix_vf
+        fix_rc, fix_rb, fix_pg, fix_p, fix_vf_info
     )
 

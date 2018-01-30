@@ -14,7 +14,8 @@ __all__ = [
     'delete_registry_client', 'get_registry_client', 'list_registry_buckets',
     'create_registry_bucket', 'delete_registry_bucket', 'get_registry_bucket',
     'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
-    'get_latest_flow_ver', 'update_flow_ver', 'get_version_info'
+    'get_latest_flow_ver', 'update_flow_ver', 'get_version_info',
+    'create_flow', 'create_flow_version'
 ]
 
 
@@ -214,6 +215,8 @@ def revert_flow_ver(process_group):
 def update_flow_ver(process_group, registry_client, flow,
                     update_children=False):
     # TODO: This needs a lot more investigation
+    # This function is more complicated than expected, so leaving it for the
+    # next release
     pass
     # try:
     #     return nifi.VersionsApi().update_flow_version(
@@ -247,4 +250,35 @@ def get_version_info(process_group):
             process_group.id
         )
     except ApiExceptionN as e:
+        raise ValueError(e.body)
+
+
+def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
+    try:
+        return registry.BucketFlowsApi().create_flow(
+            bucket_id=bucket_id,
+            body=registry.VersionedFlow(
+                name=flow_name,
+                description=flow_desc,
+                bucket_identifier=bucket_id,
+                type=flow_type
+            )
+        )
+    except ApiExceptionR as e:
+        raise ValueError(e.body)
+
+
+def create_flow_version(bucket_id, flow, flow_snapshot):
+    try:
+        return registry.BucketFlowsApi().create_flow_version(
+            bucket_id=bucket_id,
+            flow_id=flow.identifier,
+            body=registry.VersionedFlowSnapshot(
+                flow_contents=flow_snapshot.flow_contents,
+                snapshot_metadata=registry.VersionedFlowSnapshotMetadata(
+                    version=flow.version_count + 1
+                ),
+            )
+        )
+    except ApiExceptionR as e:
         raise ValueError(e.body)

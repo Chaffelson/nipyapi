@@ -55,6 +55,7 @@ class BucketFlowsApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
+        :param VersionedFlow body: The details of the flow to create.
         :return: VersionedFlow
                  If the method is called asynchronously,
                  returns the request thread.
@@ -81,12 +82,13 @@ class BucketFlowsApi(object):
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
+        :param VersionedFlow body: The details of the flow to create.
         :return: VersionedFlow
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['bucket_id']
+        all_params = ['bucket_id', 'body']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -120,6 +122,8 @@ class BucketFlowsApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['application/json'])
@@ -162,6 +166,7 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
+        :param VersionedFlowSnapshot body: The new versioned flow snapshot.
         :return: VersionedFlowSnapshot
                  If the method is called asynchronously,
                  returns the request thread.
@@ -189,12 +194,13 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
+        :param VersionedFlowSnapshot body: The new versioned flow snapshot.
         :return: VersionedFlowSnapshot
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['bucket_id', 'flow_id']
+        all_params = ['bucket_id', 'flow_id', 'body']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -233,6 +239,8 @@ class BucketFlowsApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['application/json'])
@@ -623,7 +631,7 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
-        :return: list[VersionedFlowSnapshot]
+        :return: list[VersionedFlowSnapshotMetadata]
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1068,6 +1076,7 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
+        :param VersionedFlow body: The updated flow
         :return: VersionedFlow
                  If the method is called asynchronously,
                  returns the request thread.
@@ -1095,12 +1104,13 @@ class BucketFlowsApi(object):
             for asynchronous request. (optional)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
+        :param VersionedFlow body: The updated flow
         :return: VersionedFlow
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['bucket_id', 'flow_id']
+        all_params = ['bucket_id', 'flow_id', 'body']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -1139,6 +1149,8 @@ class BucketFlowsApi(object):
         local_var_files = {}
 
         body_params = None
+        if 'body' in params:
+            body_params = params['body']
         # HTTP header `Accept`
         header_params['Accept'] = self.api_client.\
             select_header_accept(['application/json'])

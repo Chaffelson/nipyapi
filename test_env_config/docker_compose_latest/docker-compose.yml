@@ -1,22 +1,12 @@
-version: '3'
+version: '2'
 services:
   nifi-150:
     image: apache/nifi:1.5.0
     container_name: nifi
     ports:
       - "8080:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://nifi:8080"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
   registry-010:
     image: chaffelson/nifi-registry:0.1.0
     container_name: registry
     ports:
       - "18080:18080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://registry:18080"]
-      interval: 30s
-      timeout: 10s
-      retries: 5

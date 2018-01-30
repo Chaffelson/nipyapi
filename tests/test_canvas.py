@@ -4,7 +4,8 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from nipyapi import canvas, config, nifi
+from tests import conftest
+from nipyapi import canvas, nifi
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
 from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
 from nipyapi.nifi.rest import ApiException
@@ -54,10 +55,10 @@ def test_list_all_process_groups(fixture_pg, regress):
 def test_create_process_group(regress):
     r = canvas.create_process_group(
         canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
-        config.test_pg_name,
+        conftest.test_pg_name,
         location=(400.0,400.0)
     )
-    assert r.component.name == config.test_pg_name
+    assert r.component.name == conftest.test_pg_name
     assert r.position.x == r.position.y == 400
     assert r.component.parent_group_id == canvas.get_root_pg_id()
     with pytest.raises(ApiException):
@@ -147,10 +148,10 @@ def test_create_processor(fixture_pg, regress):
         parent_pg=test_pg,
         processor=canvas.get_processor_type('ListenSyslog'),
         location=(400.0, 400.0),
-        name=config.test_processor_name
+        name=conftest.test_processor_name
     )
     assert isinstance(r1, nifi.ProcessorEntity)
-    assert r1.status.name == config.test_processor_name
+    assert r1.status.name == conftest.test_processor_name
 
 
 def test_list_all_processors(fixture_processor, regress):
@@ -162,7 +163,7 @@ def test_list_all_processors(fixture_processor, regress):
 
 def test_delete_processor(fixture_processor, regress):
     test_proc = fixture_processor.generate()
-    assert test_proc.status.name == config.test_processor_name
+    assert test_proc.status.name == conftest.test_processor_name
     # try to delete running processor
     canvas.schedule_processor(test_proc, 'RUNNING')
     with pytest.raises(ValueError):
@@ -198,7 +199,7 @@ def test_update_variable_registry(fixture_pg):
     test_pg = fixture_pg.generate()
     r1 = canvas.update_variable_registry(
         test_pg,
-        config.test_variable_registry_entry
+        conftest.test_variable_registry_entry
     )
     with pytest.raises(ValueError,
                        match='param update is not a valid list of'

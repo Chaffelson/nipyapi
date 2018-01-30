@@ -4,6 +4,7 @@
 """Tests for `nipyapi` package."""
 
 import pytest
+from tests import conftest
 from nipyapi import registry, config, nifi, versioning, canvas
 
 
@@ -11,19 +12,19 @@ def test_create_registry_client():
     # First remove any leftover test client connections
     [versioning.delete_registry_client(li) for
      li in versioning.list_registry_clients().registries
-     if config.test_registry_client_name in li.component.name
+     if conftest.test_registry_client_name in li.component.name
      ]
     r = versioning.create_registry_client(
-        name=config.test_registry_client_name,
-        uri=config.test_docker_registry_endpoint,
+        name=conftest.test_registry_client_name,
+        uri=conftest.test_docker_registry_endpoint,
         description='a test connection'
     )
     assert isinstance(r, nifi.RegistryClientEntity)
     # test duplicate catch result
     with pytest.raises(ValueError):
         _ = versioning.create_registry_client(
-            name=config.test_registry_client_name,
-            uri=config.test_docker_registry_endpoint,
+            name=conftest.test_registry_client_name,
+            uri=conftest.test_docker_registry_endpoint,
             description='who cares?'
         )
 
@@ -37,14 +38,14 @@ def test_delete_registry_client(fixture_reg_client):
     r = versioning.delete_registry_client(fixture_reg_client)
     assert isinstance(r, nifi.RegistryClientEntity)
     assert r.uri is None
-    assert r.component.name == config.test_registry_client_name
+    assert r.component.name == conftest.test_registry_client_name
     # TODO Add test for when a PG is attached to the client
 
 
 def test_get_registry_client(fixture_reg_client):
-    r1 = versioning.get_registry_client(config.test_registry_client_name)
+    r1 = versioning.get_registry_client(conftest.test_registry_client_name)
     assert isinstance(r1, nifi.RegistryClientEntity)
-    assert r1.component.name == config.test_registry_client_name
+    assert r1.component.name == conftest.test_registry_client_name
     r2 = versioning.get_registry_client(r1.id, 'id')
     assert r2.id == r1.id
 
@@ -56,16 +57,16 @@ def test_list_registry_buckets(fixture_registry_bucket):
 
 
 def test_create_registry_bucket(fixture_reg_client):
-    r = versioning.create_registry_bucket(config.test_bucket_name)
+    r = versioning.create_registry_bucket(conftest.test_bucket_name)
     assert isinstance(r, registry.Bucket)
-    assert r.name == config.test_bucket_name
+    assert r.name == conftest.test_bucket_name
     # Bucket names are unique
     with pytest.raises(ValueError) as v:
-        _ = versioning.create_registry_bucket(config.test_bucket_name)
+        _ = versioning.create_registry_bucket(conftest.test_bucket_name)
 
 
 def test_delete_registry_bucket(fixture_registry_bucket):
-    b1, c1 = fixture_registry_bucket
+    b1, c1 = fixture_registry_bucket.generate()
     r = versioning.delete_registry_bucket(b1)
     assert r.identifier == b1.identifier
     with pytest.raises(ValueError):
@@ -73,8 +74,9 @@ def test_delete_registry_bucket(fixture_registry_bucket):
 
 
 def test_get_registry_bucket(fixture_registry_bucket):
-    r1 = versioning.get_registry_bucket(config.test_bucket_name)
-    assert r1.name == config.test_bucket_name
+    b1, c1 = fixture_registry_bucket.generate()
+    r1 = versioning.get_registry_bucket(conftest.test_bucket_name)
+    assert r1.name == conftest.test_bucket_name
     r2 = versioning.get_registry_bucket(r1.identifier, 'id')
     assert r2.name == r1.name
     with pytest.raises(ValueError):
@@ -85,12 +87,12 @@ def test_get_registry_bucket(fixture_registry_bucket):
 
 def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
     test_pg = fixture_pg.generate()
-    test_b, test_rc = fixture_registry_bucket
+    test_b, test_rc = fixture_registry_bucket.generate()
     r1 = versioning.save_flow_ver(
         process_group=test_pg,
         registry_client=test_rc,
         bucket=test_b,
-        flow_name=config.test_versioned_flow_name,
+        flow_name=conftest.test_versioned_flow_name,
         comment='a test comment',
         desc='a test description'
     )
@@ -101,7 +103,7 @@ def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
             process_group=test_pg,
             registry_client=test_rc,
             bucket=test_b,
-            flow_name=config.test_versioned_flow_name,
+            flow_name=conftest.test_versioned_flow_name,
             comment='NiPyApi Test',
             desc='NiPyApi Test'
         )
@@ -160,10 +162,10 @@ def test_get_flow_in_bucket(fixture_versioned_flow):
 
 
 def test_get_latest_flow_ver(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+    test_rc, test_rb, test_pg, test_p, test_vf_info = fixture_versioned_flow
     r1 = versioning.get_latest_flow_ver(
         test_rb.identifier,
-        test_vf.version_control_information.flow_id
+        test_vf_info.version_control_information.flow_id
     )
     assert isinstance(r1, registry.VersionedFlowSnapshot)
     with pytest.raises(ValueError, match='Versioned flow does not exist'):
@@ -171,5 +173,40 @@ def test_get_latest_flow_ver(fixture_versioned_flow):
 
 
 def test_update_flow_ver():
+    # This function is more complicated than expected
+    # Will implement in a future version
     pass
+
+
+def test_create_flow(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf_info = fixture_versioned_flow
+    r1 = versioning.create_flow(
+        bucket_id=test_rb.identifier,
+        flow_name=conftest.test_cloned_ver_flow_name,
+    )
+    assert isinstance(r1, registry.VersionedFlow)
+    assert r1.name == conftest.test_cloned_ver_flow_name
+    # test duplicate behavior
+    with pytest.raises(ValueError):
+        _ = versioning.create_flow(
+            bucket_id=test_rb.identifier,
+            flow_name=conftest.test_cloned_ver_flow_name,
+        )
+
+
+def test_create_flow_version(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf_info = fixture_versioned_flow
+    new_ver_stub = versioning.create_flow(
+        bucket_id=test_rb.identifier,
+        flow_name=conftest.test_cloned_ver_flow_name,
+    )
+    ver_flow_snapshot = versioning.get_latest_flow_ver(
+        test_rb.identifier, test_vf_info.version_control_information.flow_id
+    )
+    r1 = versioning.create_flow_version(
+        bucket_id=test_rb.identifier,
+        flow=new_ver_stub,
+        flow_snapshot=ver_flow_snapshot
+    )
+    assert isinstance(r1, registry.VersionedFlowSnapshot)
 
