@@ -51,6 +51,7 @@ def test_get_registry_client(fixture_reg_client):
 
 
 def test_list_registry_buckets(fixture_registry_bucket):
+    b1 = fixture_registry_bucket.generate()
     r = versioning.list_registry_buckets()
     assert isinstance(r, list)
     assert len(r) >= 1
@@ -176,6 +177,12 @@ def test_update_flow_ver():
     # This function is more complicated than expected
     # Will implement in a future version
     pass
+
+
+def test_get_version_info(fixture_versioned_flow):
+    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+    r1 = versioning.get_version_info(test_pg)
+    assert isinstance(r1, nifi.VersionControlInformationEntity)
 
 
 def test_create_flow(fixture_versioned_flow):

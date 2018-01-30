@@ -161,6 +161,17 @@ def test_list_all_processors(fixture_processor, regress):
     assert len(r) >= 2
 
 
+def test_get_processor(fixture_processor, regress):
+    p1 = fixture_processor.generate()
+    r1 = canvas.get_processor(p1.status.name)
+    assert isinstance(r1, nifi.ProcessorEntity)
+    r2 = canvas.get_processor('ClearlyNotAProcessor')
+    assert r2 is None
+    p2 = fixture_processor.generate()
+    r3 = canvas.get_processor(p1.status.name)
+    assert isinstance(r3, list)
+
+
 def test_delete_processor(fixture_processor, regress):
     test_proc = fixture_processor.generate()
     assert test_proc.status.name == conftest.test_processor_name
@@ -171,9 +182,31 @@ def test_delete_processor(fixture_processor, regress):
     canvas.schedule_processor(test_proc, 'STOPPED')
     r = canvas.delete_processor(test_proc)
     assert r.status is None
+    assert isinstance(r, nifi.ProcessorEntity)
     # try to delete twice
     with pytest.raises(ValueError):
         _ = canvas.delete_processor(test_proc)
+
+
+def test_schedule_processor(fixture_processor):
+    p1 = fixture_processor.generate()
+    r1 = canvas.schedule_processor(
+        p1,
+        'RUNNING'
+    )
+    assert r1.component.state == 'RUNNING'
+    assert isinstance(r1, nifi.ProcessorEntity)
+    r2 = canvas.schedule_processor(
+        p1,
+        'STOPPED'
+    )
+    assert r2.component.state == 'STOPPED'
+    assert isinstance(r2, nifi.ProcessorEntity)
+    with pytest.raises(ValueError):
+        _ = canvas.schedule_process_group(
+            p1,
+            'BANANA'
+        )
 
 
 def test_update_processor(fixture_processor, regress):
@@ -201,6 +234,7 @@ def test_update_variable_registry(fixture_pg):
         test_pg,
         conftest.test_variable_registry_entry
     )
+    assert isinstance(r1, nifi.VariableRegistryEntity)
     with pytest.raises(ValueError,
                        match='param update is not a valid list of'
                        ):

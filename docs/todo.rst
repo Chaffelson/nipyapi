@@ -14,3 +14,5 @@ ToDo
 * Set enforcement of ProcessGroup best practice like unique template names
 * Export Entity objects as Yaml for: ProcessGroups, Processors, RPGs
 * Investigate how update variable registry
+* Create Ansible wrappers for executing against Yaml
+* Create more deterministic deploy/reset/kill controls for Demo/Test fixtures

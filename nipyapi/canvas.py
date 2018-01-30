@@ -246,7 +246,7 @@ def list_all_processor_types():
 
 def get_processor_type(identifier, identifier_type='name'):
     """
-
+    Gets the abstract object describing a Processor, or list thereof
     :param identifier: String to search for
     :param identifier_type: Processor descriptor to search: bundle, name or tag
     :return: DocumentedTypeDTO if unique, None if not found, List if duplicate
@@ -283,6 +283,15 @@ def get_processor_type(identifier, identifier_type='name'):
 
 
 def create_processor(parent_pg, processor, location, name=None, config=None):
+    """
+    Instantiates a given processon the canvas
+    :param parent_pg: Process Group to instantiate the Processor in
+    :param processor: Processor Type object
+    :param location: (x,y) coordinates to instantiate that processor at
+    :param name: String name of the processor
+    :param config: Processor Config object of parameters
+    :return: ProcessorEntity
+    """
     if name is None:
         processor_name = processor.type.split('.')[-1]
     else:
@@ -312,6 +321,12 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
 
 
 def get_processor(identifier, identifier_type='name'):
+    """
+    Gets a deployed Processor, or list thereof
+    :param identifier: String to filter on
+    :param identifier_type: 'name' or 'id' to identify field to filter on
+    :return:
+    """
     valid_id_types = ['name', 'id']
     if identifier_type not in valid_id_types:
         raise ValueError(
@@ -334,6 +349,12 @@ def get_processor(identifier, identifier_type='name'):
 
 
 def delete_processor(processor, refresh=True):
+    """
+    Removes a Processor from the Canvas
+    :param processor: Processor Object to be removed
+    :param refresh: True|False, whether to refresh the object state
+    :return: ProcessorEntity with updated status etc.
+    """
     try:
         if refresh:
             target_proc = get_processor(processor.id, 'id')
@@ -348,6 +369,14 @@ def delete_processor(processor, refresh=True):
 
 
 def schedule_processor(processor, target_state, refresh=True):
+    """
+    Starts or Stops a given Processor.
+    WARNING: Limited functionality and many uncontrolled edgecases!
+    :param processor: Processor object to Schedule
+    :param target_state: 'STOPPED' or 'RUNNING'
+    :param refresh: True|False, whether to refresh the processor state
+    :return: Updated ProcessorEntity
+    """
     valid_states = ['STOPPED', 'RUNNING']
     if target_state not in valid_states:
         raise ValueError(
@@ -395,6 +424,12 @@ def update_processor(processor, update):
 
 
 def get_variable_registry(process_group, ancestors=True):
+    """
+    Gets the contents of the variable registry attached to a Process Group
+    :param process_group: ProcessGroup object
+    :param ancestors: Whether to get the variables from parent Process Groups
+    :return: VariableRegistryEntity
+    """
     try:
         return nifi.ProcessgroupsApi().get_variable_registry(
             process_group.id,
@@ -405,6 +440,12 @@ def get_variable_registry(process_group, ancestors=True):
 
 
 def update_variable_registry(process_group, update):
+    """
+    Updates one or more key:value pairs in the variable registry
+    :param process_group: ProcessGroup object to update the variables on
+    :param update: (key,value) tuples of the variables to write to the registry
+    :return: VariableRegistryEntity
+    """
     if not isinstance(process_group, nifi.ProcessGroupEntity):
         raise ValueError(
             'param process_group is not a valid nifi.ProcessGroupEntity'

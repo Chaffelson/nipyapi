@@ -10,9 +10,9 @@ from nipyapi.versioning import *
 from nipyapi import config
 from nipyapi.nifi import ProcessorConfigDTO
 
-_rc_endpoint = config.registry_config.host.rstrip(
-    config.registry_config.host.split('/')[-1]
-)
+# Note that this is the URI for NiFi to connect to Registry
+# Which may be different from your localhost connection if using Docker
+_rc_endpoint = 'http://registry:18080'
 
 _basename = "nipyapi_console"
 _pg0 = _basename + '_process_group_0'
