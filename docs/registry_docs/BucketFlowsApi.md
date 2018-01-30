@@ -17,7 +17,7 @@ Method | HTTP request | Description
 
 
 # **create_flow**
-> VersionedFlow create_flow(bucket_id)
+> VersionedFlow create_flow(bucket_id, body=body)
 
 Creates a flow
 
@@ -34,10 +34,11 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = registry.BucketFlowsApi()
 bucket_id = 'bucket_id_example' # str | The bucket identifier
+body = registry.VersionedFlow() # VersionedFlow | The details of the flow to create. (optional)
 
 try: 
     # Creates a flow
-    api_response = api_instance.create_flow(bucket_id)
+    api_response = api_instance.create_flow(bucket_id, body=body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling BucketFlowsApi->create_flow: %s\n" % e)
@@ -48,6 +49,7 @@ except ApiException as e:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **bucket_id** | **str**| The bucket identifier | 
+ **body** | [**VersionedFlow**](VersionedFlow.md)| The details of the flow to create. | [optional] 
 
 ### Return type
 
@@ -65,7 +67,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **create_flow_version**
-> VersionedFlowSnapshot create_flow_version(bucket_id, flow_id)
+> VersionedFlowSnapshot create_flow_version(bucket_id, flow_id, body=body)
 
 Creates the next version of a flow
 
@@ -83,10 +85,11 @@ from pprint import pprint
 api_instance = registry.BucketFlowsApi()
 bucket_id = 'bucket_id_example' # str | The bucket identifier
 flow_id = 'flow_id_example' # str | The flow identifier
+body = registry.VersionedFlowSnapshot() # VersionedFlowSnapshot | The new versioned flow snapshot. (optional)
 
 try: 
     # Creates the next version of a flow
-    api_response = api_instance.create_flow_version(bucket_id, flow_id)
+    api_response = api_instance.create_flow_version(bucket_id, flow_id, body=body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling BucketFlowsApi->create_flow_version: %s\n" % e)
@@ -98,6 +101,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **bucket_id** | **str**| The bucket identifier | 
  **flow_id** | **str**| The flow identifier | 
+ **body** | [**VersionedFlowSnapshot**](VersionedFlowSnapshot.md)| The new versioned flow snapshot. | [optional] 
 
 ### Return type
 
@@ -267,7 +271,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_flow_versions**
-> list[VersionedFlowSnapshot] get_flow_versions(bucket_id, flow_id)
+> list[VersionedFlowSnapshotMetadata] get_flow_versions(bucket_id, flow_id)
 
 Gets summary information for all versions of a flow. Versions are ordered newest->oldest.
 
@@ -303,7 +307,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**list[VersionedFlowSnapshot]**](VersionedFlowSnapshot.md)
+[**list[VersionedFlowSnapshotMetadata]**](VersionedFlowSnapshotMetadata.md)
 
 ### Authorization
 
@@ -415,7 +419,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **get_latest_flow_version_metadata**
-> VersionedFlowSnapshot get_latest_flow_version_metadata(bucket_id, flow_id)
+> VersionedFlowSnapshotMetadata get_latest_flow_version_metadata(bucket_id, flow_id)
 
 Get the metadata for the latest version of a flow
 
@@ -451,7 +455,7 @@ Name | Type | Description  | Notes
 
 ### Return type
 
-[**VersionedFlowSnapshot**](VersionedFlowSnapshot.md)
+[**VersionedFlowSnapshotMetadata**](VersionedFlowSnapshotMetadata.md)
 
 ### Authorization
 
@@ -465,7 +469,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **update_flow**
-> VersionedFlow update_flow(bucket_id, flow_id)
+> VersionedFlow update_flow(bucket_id, flow_id, body=body)
 
 Updates a flow
 
@@ -483,10 +487,11 @@ from pprint import pprint
 api_instance = registry.BucketFlowsApi()
 bucket_id = 'bucket_id_example' # str | The bucket identifier
 flow_id = 'flow_id_example' # str | The flow identifier
+body = registry.VersionedFlow() # VersionedFlow | The updated flow (optional)
 
 try: 
     # Updates a flow
-    api_response = api_instance.update_flow(bucket_id, flow_id)
+    api_response = api_instance.update_flow(bucket_id, flow_id, body=body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling BucketFlowsApi->update_flow: %s\n" % e)
@@ -498,6 +503,7 @@ Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **bucket_id** | **str**| The bucket identifier | 
  **flow_id** | **str**| The flow identifier | 
+ **body** | [**VersionedFlow**](VersionedFlow.md)| The updated flow | [optional] 
 
 ### Return type
 

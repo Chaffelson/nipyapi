@@ -16,6 +16,7 @@ proj_version = '0.6.1'
 requirements = [
     'urllib3',
     'lxml',
+    'docker_compose'
 ]
 
 setup_requirements = [

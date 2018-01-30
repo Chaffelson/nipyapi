@@ -13,7 +13,7 @@ Method | HTTP request | Description
 
 
 # **create_bucket**
-> Bucket create_bucket()
+> Bucket create_bucket(body=body)
 
 Creates a bucket
 
@@ -29,17 +29,21 @@ from pprint import pprint
 
 # create an instance of the API class
 api_instance = registry.BucketsApi()
+body = registry.Bucket() # Bucket | The bucket to create (optional)
 
 try: 
     # Creates a bucket
-    api_response = api_instance.create_bucket()
+    api_response = api_instance.create_bucket(body=body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling BucketsApi->create_bucket: %s\n" % e)
 ```
 
 ### Parameters
-This endpoint does not need any parameter.
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **body** | [**Bucket**](Bucket.md)| The bucket to create | [optional] 
 
 ### Return type
 
@@ -241,7 +245,7 @@ No authorization required
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **update_bucket**
-> Bucket update_bucket(bucket_id)
+> Bucket update_bucket(bucket_id, body=body)
 
 Updates a bucket
 
@@ -258,10 +262,11 @@ from pprint import pprint
 # create an instance of the API class
 api_instance = registry.BucketsApi()
 bucket_id = 'bucket_id_example' # str | The bucket identifier
+body = registry.Bucket() # Bucket | The updated bucket (optional)
 
 try: 
     # Updates a bucket
-    api_response = api_instance.update_bucket(bucket_id)
+    api_response = api_instance.update_bucket(bucket_id, body=body)
     pprint(api_response)
 except ApiException as e:
     print("Exception when calling BucketsApi->update_bucket: %s\n" % e)
@@ -272,6 +277,7 @@ except ApiException as e:
 Name | Type | Description  | Notes
 ------------- | ------------- | ------------- | -------------
  **bucket_id** | **str**| The bucket identifier | 
+ **body** | [**Bucket**](Bucket.md)| The updated bucket | [optional] 
 
 ### Return type
 
