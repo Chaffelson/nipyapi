@@ -18,9 +18,14 @@ Docker Test Environment
 
 There is an Apache NiFi image available on Dockerhub::
 
-    docker pull apache/nifi:1.2.0
+    docker pull apache/nifi:1.5.0
 
-There is a configuration file for launching it in ./test_env_config for convenience when working in Pycharm
+However this is released with the official Apache cadence; for development convenience I keep slightly upstream versions of the NiFi & NiFi-Registry docker images on::
+
+    docker pull chaffelson/nifi:latest
+    docker pull chaffelson/nifi-registry:latest
+
+There are a couple of configuration files for launching various Docker environment configurations in ./test_env_config for convenience.
 
 Testing on OSX
 --------------
@@ -55,6 +60,8 @@ Generate Swagger client
 5. run codegen for appropriate language to a convenient working directory::
 
     java -jar /tmp/swagger-codegen-cli.jar generate -i /tmp/swagger.json -c config.json -l python -o /tmp/nifi-python-swagger-client
+
+6. Review and merge changes with the embedded clients and submit a PR!
 
 Release Process
 ---------------

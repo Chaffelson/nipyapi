@@ -26,7 +26,7 @@ To fetch the NiFi system's root Process Group ID::
 Configuration
 -------------
 
-Further configuration parameters for the swagger_client may be found in swagger_client.configuration::
+Further configuration parameters for the Nifi and Registry may be found in nipyapi.config::
 
-    import nipyapi
-    nipyapi.swagger_client.configuration.host = 'http://localhost:8080/nifi-api'
+    from nipyapi import config
+    config.nifi_config.host = 'http://localhost:8080/nifi-api'

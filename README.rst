@@ -72,7 +72,8 @@ You can also use the demo to create an interactive console showing a few of the 
     config.registry_config.host = 'http://localhost:18080/nifi-registry-api'
     from nipyapi.demo.console import *
 
-You can also pull the repository from Github and use or contribute to the latest features, check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ for more info.
+You can also pull the repository from Github and use or contribute to the latest features.
+Please check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ for more info.
 
 Background
 ----------
@@ -84,9 +85,8 @@ Background
 Version Support
 ---------------
 
-| This project leverages the `nifi-python-swagger-client <https://github.com/Chaffelson/nifi-python-swagger-client>`_ to maintain version compatibility with NiFi releases
 | Currently we are testing against NiFi version 1.2 - 1.5, and NiFi-Registry version 0.1.0
-| If you require a different version please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
+| If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Requirements
 ------------
@@ -108,3 +108,5 @@ Inspired by the equivalent Java client maintained over at
 The swagger 2.0 compliant client auto-generated using the
 `Swagger Codegen <https://github.com/swagger-api/swagger-codegen>`_ project,
 and then cleaned / bugfixed by the authors
+
+Props to the NiFi-dev and NiFi-user mailing list members over at Apache for all the assistance and kindnesses.

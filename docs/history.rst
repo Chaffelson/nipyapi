@@ -2,6 +2,22 @@
 History
 =======
 
+0.7.0 (2018-01-30)
+------------------
+
+* Updated project to support NiFi-1.5.0 and NiFi-Registry-0.1.0
+* Merged api clients into main codebase, deprecated external client requirement
+* Created centralised project configuration and test configuration
+* Updated automated test environment to consistent docker for local and Travis
+* Removed procedurally generated boilerplate stub tests to improve readability
+* Moved pytest fixtures into conftest and expanded dramatically
+* Added limited support for processor and process group scheduling
+* Added support for all common Nifi-Registry calls
+* Added a demo package to provide an interactive test and demo console
+* Significant readme, contribution, and other documentation refresh
+* Expanded CRUD support for most processor, process group and related tasks
+
+
 0.6.1 (2018-01-04)
 ------------------
 
