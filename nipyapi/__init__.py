@@ -8,4 +8,4 @@ __author__ = """Daniel Chaffelson"""
 __email__ = 'chaffelson@gmail.com'
 __version__ = '0.7.0'
 __all__ = ['canvas', 'system', 'templates', 'config', 'nifi', 'registry',
-           'versioning']
+           'versioning', 'demo']
