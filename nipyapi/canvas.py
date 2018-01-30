@@ -33,6 +33,7 @@ def recurse_flow(pg_id='root'):
     , defaults to root if none supplied
     :returns ProcessGroupFlowEntity: Nested Process Group information
     """
+
     def _walk_flow(node):
         """This recursively extends the ProcessGroupEntity to contain the
         ProcessGroupFlowEntity of each of it's child process groups.
@@ -45,6 +46,7 @@ def recurse_flow(pg_id='root'):
                     recurse_flow(pg.id)
                 )
             return node
+
     return _walk_flow(get_flow(pg_id))
 
 
@@ -125,6 +127,7 @@ def list_all_process_groups():
     Returns a flattened list of all Process Groups.
     :return list: list of ProcessGroupEntity objects
     """
+
     # TODO: Check if get_process_groups is fixed in newer versions
     def flatten(parent_pg):
         """
@@ -137,6 +140,7 @@ def list_all_process_groups():
             for sub in flatten(child_pg.nipyapi_extended):
                 yield sub
             yield child_pg
+
     root_flow = recurse_flow('root')
     out = list(flatten(root_flow))
     # This duplicates the nipyapi_extended structure to the root case
@@ -151,6 +155,7 @@ def list_all_processors():
     Returns a flat list of all Processors anywhere on the canvas
     :return: list of ProcessorEntity's
     """
+
     def flattener():
         """
         Memory efficient flattener, sort of.
@@ -159,6 +164,7 @@ def list_all_processors():
         for pg in list_all_process_groups():
             for proc in pg.nipyapi_extended.process_group_flow.flow.processors:
                 yield proc
+
     return list(flattener())
 
 
@@ -204,7 +210,6 @@ def schedule_process_group(process_group_id, target_state):
         )
     except ApiException as e:
         raise ValueError(e.body)
-
 
 
 def create_process_group(parent_pg, new_pg_name, location):
@@ -297,9 +302,9 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
     else:
         processor_name = name
     if config is None:
-        target_config=nifi.ProcessorConfigDTO()
+        target_config = nifi.ProcessorConfigDTO()
     else:
-        target_config=config
+        target_config = config
     try:
         return nifi.ProcessgroupsApi().create_processor(
             id=parent_pg.id,
