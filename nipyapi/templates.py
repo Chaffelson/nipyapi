@@ -9,7 +9,7 @@ from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 from urllib3 import PoolManager
 from lxml import etree
-from . import nifi
+from nipyapi import nifi
 from nipyapi.nifi.rest import ApiException
 from nipyapi.config import nifi_config
 from nipyapi.canvas import get_process_group

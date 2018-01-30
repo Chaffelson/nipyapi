@@ -5,7 +5,7 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 from __future__ import absolute_import
-from . import nifi, config, registry, canvas
+from nipyapi import nifi, config, registry, canvas
 from nipyapi.nifi.rest import ApiException as ApiExceptionN
 from nipyapi.registry.rest import ApiException as ApiExceptionR
 

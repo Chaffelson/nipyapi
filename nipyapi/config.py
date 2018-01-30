@@ -5,11 +5,8 @@ NiPyAPI: A convenient Python wrapper for the Apache NiFi Rest API
 """
 
 from __future__ import absolute_import
-import nipyapi.nifi
-import nipyapi.registry
-
-nifi_config = nipyapi.nifi.configuration
-registry_config = nipyapi.registry.configuration
+from nipyapi.nifi import configuration as nifi_config
+from nipyapi.registry import configuration as registry_config
 
 # Method to check if we're compatible with the API endpoint
 # If None, then no check has been done

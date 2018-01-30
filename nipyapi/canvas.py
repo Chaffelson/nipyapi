@@ -6,7 +6,7 @@ STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
-from . import nifi
+from nipyapi import nifi
 from nipyapi.nifi.rest import ApiException
 
 __all__ = [

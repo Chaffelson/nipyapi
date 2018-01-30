@@ -5,7 +5,7 @@ For interactions with the NiFi Canvas
 """
 
 from __future__ import absolute_import
-from . import nifi
+from nipyapi import nifi
 
 
 __all__ = [
