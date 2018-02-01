@@ -5,6 +5,8 @@
 
 import pytest
 from os import environ
+import requests
+from requests import ConnectionError
 from nipyapi.canvas import *
 from nipyapi.templates import *
 from nipyapi.versioning import *
@@ -32,14 +34,54 @@ test_variable_registry_entry = [
 # Mostly because loading up all the environments takes too long
 if "TRAVIS" in environ and environ["TRAVIS"] == "true":
     print("Running tests on TRAVIS, skipping regression suite")
-    test_endpoints = [config.nifi_config.host]
+    nifi_test_endpoints = [config.nifi_config.host]
+    registry_test_endpoints = [config.registry_config.host]
 else:
     print("Running tests on NOT TRAVIS, enabling regression suite")
-    test_endpoints = [
+    nifi_test_endpoints = [
                 'http://localhost:10120/nifi-api',  # add earlier as required
                 'http://localhost:10140/nifi-api',
                 config.nifi_config.host  # reset to default, currently 1.5.0
             ]
+    registry_test_endpoints = [config.registry_config.host]
+
+
+# 'regress' generates tests against previous versions of NiFi
+def pytest_generate_tests(metafunc):
+    if 'regress' in metafunc.fixturenames:
+        # print("Regression testing requested for ({0})."
+        #       .format(metafunc.function.__name__))
+        metafunc.parametrize(
+            argnames='regress',
+            argvalues=nifi_test_endpoints,
+            indirect=True
+        )
+
+
+@pytest.fixture(scope="function")
+def regress(request):
+    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
+    config.nifi_config.api_client.host = request.param
+
+
+# Tests that the Docker test environment is available before running test suite
+@pytest.fixture(scope="session", autouse=True)
+def session_setup():
+    def is_endpoint_up(endpoint_url):
+        try:
+            response = requests.get(endpoint_url)
+            if response.status_code == 200:
+                return True
+        except ConnectionError:
+            return False
+
+    for url in nifi_test_endpoints + registry_test_endpoints:
+        target_url = url.replace('-api', '')
+        if not is_endpoint_up(target_url):
+            pytest.exit(
+                "Expected Service endpoint ({0}) is not responding"
+                    .format(target_url)
+            )
 
 
 # This wraps the template tests to ensure things are cleaned up.
@@ -70,24 +112,6 @@ def template_class_wrapper(request):
         remove_test_templates()
         remove_test_pgs()
     request.addfinalizer(cleanup)
-
-
-# 'regress' generates tests against previous versions of NiFi
-def pytest_generate_tests(metafunc):
-    if 'regress' in metafunc.fixturenames:
-        # print("Regression testing requested for ({0})."
-        #       .format(metafunc.function.__name__))
-        metafunc.parametrize(
-            argnames='regress',
-            argvalues=test_endpoints,
-            indirect=True
-        )
-
-
-@pytest.fixture(scope="function")
-def regress(request):
-    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
-    config.nifi_config.api_client.host = request.param
 
 
 @pytest.fixture(scope="function")
