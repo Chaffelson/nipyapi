@@ -9,6 +9,6 @@ Name | Type | Description | Notes
 **process_group_id** | **str** | The ID of the Process Group that the component belongs to | [optional] 
 **differences** | [**list[DifferenceDTO]**](DifferenceDTO.md) | The differences in the component between the two flows | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

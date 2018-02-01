@@ -19,6 +19,6 @@ Name | Type | Description | Notes
 **locally_modified_and_stale_count** | **int** | The number of locally modified and stale versioned process groups in the NiFi. | [optional] 
 **sync_failure_count** | **int** | The number of versioned process groups in the NiFi that are unable to sync to a registry. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

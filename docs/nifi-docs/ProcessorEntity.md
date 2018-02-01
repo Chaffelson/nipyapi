@@ -13,6 +13,6 @@ Name | Type | Description | Notes
 **input_requirement** | **str** | The input requirement for this processor. | [optional] 
 **status** | [**ProcessorStatusDTO**](ProcessorStatusDTO.md) |  | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

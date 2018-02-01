@@ -25,6 +25,6 @@ Name | Type | Description | Notes
 **tasks_duration** | **str** | The total duration of all tasks for this connectable over the last 5 minutes. | [optional] 
 **active_thread_count** | **int** | The number of threads currently executing in the processor. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

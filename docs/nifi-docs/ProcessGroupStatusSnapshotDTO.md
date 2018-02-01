@@ -38,6 +38,6 @@ Name | Type | Description | Notes
 **sent** | **str** | The count/size sent from this process group in the last 5 minutes. | [optional] 
 **active_thread_count** | **int** | The active thread count for this process group. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

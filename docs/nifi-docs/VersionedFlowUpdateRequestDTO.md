@@ -13,6 +13,6 @@ Name | Type | Description | Notes
 **state** | **str** | The state of the request | [optional] 
 **version_control_information** | [**VersionControlInformationDTO**](VersionControlInformationDTO.md) | The VersionControlInformation that describes where the Versioned Flow is located; this may not be populated until the request is completed. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

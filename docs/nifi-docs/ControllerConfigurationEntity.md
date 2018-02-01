@@ -7,6 +7,6 @@ Name | Type | Description | Notes
 **permissions** | [**PermissionsDTO**](PermissionsDTO.md) | The permissions for this component. | [optional] 
 **component** | [**ControllerConfigurationDTO**](ControllerConfigurationDTO.md) | The controller configuration. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

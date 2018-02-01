@@ -20,3 +20,4 @@ coveralls>=1.2.0
 certifi>=2017.7.27.1
 pylint>=1.7.4
 virtualenvwrapper>=4.8
+-e git://github.com/lyft/m2r.git@1aa9d312efa9c71eb0622e9e3c8e5692440a25f3#egg=m2r

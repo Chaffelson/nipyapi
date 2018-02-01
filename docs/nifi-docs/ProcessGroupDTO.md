@@ -26,6 +26,6 @@ Name | Type | Description | Notes
 **output_port_count** | **int** | The number of output ports in the process group. | [optional] 
 **contents** | [**FlowSnippetDTO**](FlowSnippetDTO.md) | The contents of this process group. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

@@ -12,6 +12,6 @@ Name | Type | Description | Notes
 **labels** | [**list[LabelEntity]**](LabelEntity.md) | The labels in this flow. | [optional] 
 **funnels** | [**list[FunnelEntity]**](FunnelEntity.md) | The funnels in this flow. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

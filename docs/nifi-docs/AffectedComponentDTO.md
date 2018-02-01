@@ -11,6 +11,6 @@ Name | Type | Description | Notes
 **active_thread_count** | **int** | The number of active threads for the referencing component. | [optional] 
 **validation_errors** | **list[str]** | The validation errors for the component. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

@@ -12,6 +12,6 @@ Name | Type | Description | Notes
 **request** | [**LineageRequestDTO**](LineageRequestDTO.md) | The initial lineage result. | [optional] 
 **results** | [**LineageResultsDTO**](LineageResultsDTO.md) | The results of the lineage query. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

@@ -15,6 +15,6 @@ Name | Type | Description | Notes
 **state** | **str** | The current state of the Process Group, as it relates to the Versioned Flow | [optional] 
 **state_explanation** | **str** | Explanation of why the group is in the specified state | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

@@ -8,6 +8,6 @@ Name | Type | Description | Notes
 **api_port** | **int** | The API port used to communicate with the node | [optional] 
 **status_snapshot** | [**PortStatusSnapshotDTO**](PortStatusSnapshotDTO.md) | The port status snapshot from the node. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

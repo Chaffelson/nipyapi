@@ -15,6 +15,6 @@ Name | Type | Description | Notes
 **target_id** | **str** | The ID of the port on the target NiFi instance | [optional] 
 **group_identifier** | **str** | The ID of the Process Group that this component belongs to | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

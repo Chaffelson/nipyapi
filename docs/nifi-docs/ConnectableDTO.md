@@ -13,6 +13,6 @@ Name | Type | Description | Notes
 **exists** | **bool** | If the connectable component represents a remote port, indicates if the target exists. | [optional] 
 **comments** | **str** | The comments for the connectable component. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

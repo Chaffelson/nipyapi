@@ -15,6 +15,6 @@ Name | Type | Description | Notes
 **permissions** | [**Permissions**](Permissions.md) | The access that the current user has to the bucket containing this item. | [optional] 
 **version_count** | **int** | The number of versions of this flow. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

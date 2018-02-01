@@ -35,18 +35,20 @@ import nipyapi
 
 # -- General configuration ---------------------------------------------
 
+github_doc_root = 'https://github.com/Chaffelson/nipyapi/tree/master/docs'
+
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.0'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode', 'm2r']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 
 # The suffix of source filenames.
-source_suffix = '.rst'
+source_suffix = ['.rst', '.md']
 
 # The encoding of source files.
 #source_encoding = 'utf-8-sig'
@@ -283,3 +285,8 @@ texinfo_documents = [
 # -- Custom Options -------------
 
 autoclass_content = 'both'
+
+
+# M2R
+no_underscore_emphasis = True
+m2r_parse_relative_links = True

@@ -14,6 +14,6 @@ Name | Type | Description | Notes
 **users** | [**list[TenantEntity]**](TenantEntity.md) | The set of user IDs associated with this access policy. | [optional] 
 **user_groups** | [**list[TenantEntity]**](TenantEntity.md) | The set of user group IDs associated with this access policy. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

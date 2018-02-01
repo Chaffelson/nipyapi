@@ -12,6 +12,6 @@ Name | Type | Description | Notes
 **encoding_version** | **str** | The encoding version of this template. | [optional] 
 **snippet** | [**FlowSnippetDTO**](FlowSnippetDTO.md) | The contents of the template. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

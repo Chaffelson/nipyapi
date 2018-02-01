@@ -8,6 +8,6 @@ Name | Type | Description | Notes
 **collection_time** | **str** | The total amount of time spent garbage collecting. | [optional] 
 **collection_millis** | **int** | The total number of milliseconds spent garbage collecting. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 
