@@ -32,14 +32,40 @@ test_variable_registry_entry = [
 # Mostly because loading up all the environments takes too long
 if "TRAVIS" in environ and environ["TRAVIS"] == "true":
     print("Running tests on TRAVIS, skipping regression suite")
-    test_endpoints = [config.nifi_config.host]
+    nifi_test_endpoints = [config.nifi_config.host]
+    registry_test_endpoints = [config.registry_config.host]
 else:
     print("Running tests on NOT TRAVIS, enabling regression suite")
-    test_endpoints = [
+    nifi_test_endpoints = [
                 'http://localhost:10120/nifi-api',  # add earlier as required
                 'http://localhost:10140/nifi-api',
                 config.nifi_config.host  # reset to default, currently 1.5.0
             ]
+    registry_test_endpoints = [config.registry_config.host]
+
+
+# 'regress' generates tests against previous versions of NiFi
+def pytest_generate_tests(metafunc):
+    if 'regress' in metafunc.fixturenames:
+        # print("Regression testing requested for ({0})."
+        #       .format(metafunc.function.__name__))
+        metafunc.parametrize(
+            argnames='regress',
+            argvalues=nifi_test_endpoints,
+            indirect=True
+        )
+
+
+@pytest.fixture(scope="function")
+def regress(request):
+    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
+    config.nifi_config.api_client.host = request.param
+
+
+# Fixture to ensure test environment is available before running
+@pytest.fixture(scope="session", autouse=True)
+def test_environment_setup():
+    pass
 
 
 # This wraps the template tests to ensure things are cleaned up.
@@ -70,24 +96,6 @@ def template_class_wrapper(request):
         remove_test_templates()
         remove_test_pgs()
     request.addfinalizer(cleanup)
-
-
-# 'regress' generates tests against previous versions of NiFi
-def pytest_generate_tests(metafunc):
-    if 'regress' in metafunc.fixturenames:
-        # print("Regression testing requested for ({0})."
-        #       .format(metafunc.function.__name__))
-        metafunc.parametrize(
-            argnames='regress',
-            argvalues=test_endpoints,
-            indirect=True
-        )
-
-
-@pytest.fixture(scope="function")
-def regress(request):
-    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
-    config.nifi_config.api_client.host = request.param
 
 
 @pytest.fixture(scope="function")
