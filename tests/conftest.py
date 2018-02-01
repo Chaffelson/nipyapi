@@ -5,6 +5,8 @@
 
 import pytest
 from os import environ
+import requests
+from requests import ConnectionError
 from nipyapi.canvas import *
 from nipyapi.templates import *
 from nipyapi.versioning import *
@@ -62,10 +64,24 @@ def regress(request):
     config.nifi_config.api_client.host = request.param
 
 
-# Fixture to ensure test environment is available before running
+# Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
-def test_environment_setup():
-    pass
+def session_setup():
+    def is_endpoint_up(endpoint_url):
+        try:
+            response = requests.get(endpoint_url)
+            if response.status_code == 200:
+                return True
+        except ConnectionError:
+            return False
+
+    for url in nifi_test_endpoints + registry_test_endpoints:
+        target_url = url.replace('-api', '')
+        if not is_endpoint_up(target_url):
+            pytest.exit(
+                "Expected Service endpoint ({0}) is not responding"
+                    .format(target_url)
+            )
 
 
 # This wraps the template tests to ensure things are cleaned up.
