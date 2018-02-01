@@ -409,6 +409,12 @@ def schedule_processor(processor, target_state, refresh=True):
 
 
 def update_processor(processor, update):
+    """
+    Updates the configuration parameters of a stopped processor
+    :param processor: Processor object to be updated
+    :param update: ProcessorConfigDTO, updated configuration parameters
+    :return: updated ProcessorEntity
+    """
     if not isinstance(update, nifi.ProcessorConfigDTO):
         raise ValueError(
             "update param is not an instance of nifi.ProcessorConfigDTO"

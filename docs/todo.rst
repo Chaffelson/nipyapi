@@ -16,3 +16,5 @@ ToDo
 * Investigate how update variable registry
 * Create Ansible wrappers for executing against Yaml
 * Create more deterministic deploy/reset/kill controls for Demo/Test fixtures
+* Setup regression testing to handle forward version logic
+* test export flow from registry a, write to registry b, without NiFi

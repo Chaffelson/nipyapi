@@ -12,6 +12,7 @@ from nipyapi.nifi import ProcessorConfigDTO
 
 # Note that this is the URI for NiFi to connect to Registry
 # Which may be different from your localhost connection if using Docker
+# Docker is likely to be http://<docker name for registry>:18080
 _rc_endpoint = 'http://registry:18080'
 
 _basename = "nipyapi_console"

@@ -15,8 +15,9 @@ from nipyapi.registry import configuration as registry_config
 nifi_config.version_check = None
 registry_config.version_check = None
 
+# Note that changing the default hosts below will not affect an API connection
+# that's already running, you'll need to change the .api_client.host for that
 # Set Default Host for NiFi
 nifi_config.host = 'http://localhost:8080/nifi-api'
-
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://localhost:18080/nifi-registry-api'

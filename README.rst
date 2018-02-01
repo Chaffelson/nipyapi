@@ -2,7 +2,7 @@
 NiPyApi
 =======
 
-Nifi-Python-Api: A convenient Python wrapper for the Apache NiFi Rest API
+Nifi-Python-Api: A convenient Python wrapper for Apache NiFi & sub-projects
 
 .. image:: https://img.shields.io/pypi/v/nipyapi.svg
         :target: https://pypi.python.org/pypi/nipyapi
