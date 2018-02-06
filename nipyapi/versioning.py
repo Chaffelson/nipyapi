@@ -492,7 +492,7 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     flow object, then this is the String name for the flow object. EXOR flow_id
     :param flow_id: Optional; If this is a new version for an existing flow
     object, then this is the ID of that object. EXOR flow_name
-    :return:
+    :return: the new VersionedFlowSnapshot
     """
     # First, decode the flow snapshot contents
     if file_path is None and encoded_flow is not None:

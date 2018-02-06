@@ -14,10 +14,11 @@ with open('docs/history.rst') as history_file:
 proj_version = '0.7.0'
 
 requirements = [
-    'urllib3',
-    'lxml',
-    'deepdiff',
-    'ruamel.yaml'
+    'urllib3',  # Required for custom API calls
+    'lxml',  # Required for parsing NiFi Templates
+    'm2r',  # Required for docs build
+    'deepdiff',  # Required for comparing configurations
+    'ruamel.yaml'  # Required for parsing Json/Yaml consistently
 ]
 
 setup_requirements = [
