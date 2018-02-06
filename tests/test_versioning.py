@@ -3,9 +3,10 @@
 
 """Tests for `nipyapi` package."""
 
+from __future__ import absolute_import
 import pytest
 from tests import conftest
-from nipyapi import registry, config, nifi, versioning, canvas
+from nipyapi import registry, config, nifi, versioning, canvas, _utils
 
 
 def test_create_registry_client():
@@ -29,20 +30,20 @@ def test_create_registry_client():
         )
 
 
-def test_list_registry_clients(fixture_reg_client):
+def test_list_registry_clients(fix_reg_client):
     r = versioning.list_registry_clients()
     assert isinstance(r, nifi.RegistryClientsEntity)
 
 
-def test_delete_registry_client(fixture_reg_client):
-    r = versioning.delete_registry_client(fixture_reg_client)
+def test_delete_registry_client(fix_reg_client):
+    r = versioning.delete_registry_client(fix_reg_client)
     assert isinstance(r, nifi.RegistryClientEntity)
     assert r.uri is None
     assert r.component.name == conftest.test_registry_client_name
     # TODO Add test for when a PG is attached to the client
 
 
-def test_get_registry_client(fixture_reg_client):
+def test_get_registry_client(fix_reg_client):
     r1 = versioning.get_registry_client(conftest.test_registry_client_name)
     assert isinstance(r1, nifi.RegistryClientEntity)
     assert r1.component.name == conftest.test_registry_client_name
@@ -50,14 +51,13 @@ def test_get_registry_client(fixture_reg_client):
     assert r2.id == r1.id
 
 
-def test_list_registry_buckets(fixture_registry_bucket):
-    b1 = fixture_registry_bucket.generate()
+def test_list_registry_buckets(fix_bucket):
     r = versioning.list_registry_buckets()
     assert isinstance(r, list)
     assert len(r) >= 1
 
 
-def test_create_registry_bucket(fixture_reg_client):
+def test_create_registry_bucket(fix_reg_client):
     r = versioning.create_registry_bucket(conftest.test_bucket_name)
     assert isinstance(r, registry.Bucket)
     assert r.name == conftest.test_bucket_name
@@ -66,16 +66,17 @@ def test_create_registry_bucket(fixture_reg_client):
         _ = versioning.create_registry_bucket(conftest.test_bucket_name)
 
 
-def test_delete_registry_bucket(fixture_registry_bucket):
-    b1, c1 = fixture_registry_bucket.generate()
-    r = versioning.delete_registry_bucket(b1)
-    assert r.identifier == b1.identifier
+def test_delete_registry_bucket(fix_bucket):
+    r = versioning.delete_registry_bucket(fix_bucket.bucket)
+    assert r.identifier == fix_bucket.bucket.identifier
     with pytest.raises(ValueError):
-        _ = versioning.get_registry_bucket(b1.identifier, 'id')
+        _ = versioning.get_registry_bucket(
+            fix_bucket.bucket.identifier,
+            'id'
+        )
 
 
-def test_get_registry_bucket(fixture_registry_bucket):
-    b1, c1 = fixture_registry_bucket.generate()
+def test_get_registry_bucket(fix_bucket):
     r1 = versioning.get_registry_bucket(conftest.test_bucket_name)
     assert r1.name == conftest.test_bucket_name
     r2 = versioning.get_registry_bucket(r1.identifier, 'id')
@@ -86,13 +87,12 @@ def test_get_registry_bucket(fixture_registry_bucket):
     assert r3 is None
 
 
-def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
-    test_pg = fixture_pg.generate()
-    test_b, test_rc = fixture_registry_bucket.generate()
+def test_save_flow_ver(fix_bucket, fix_pg, fix_proc):
+    f_pg = fix_pg.generate()
     r1 = versioning.save_flow_ver(
-        process_group=test_pg,
-        registry_client=test_rc,
-        bucket=test_b,
+        process_group=f_pg,
+        registry_client=fix_bucket.client,
+        bucket=fix_bucket.bucket,
         flow_name=conftest.test_versioned_flow_name,
         comment='a test comment',
         desc='a test description'
@@ -101,20 +101,20 @@ def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
     # Next we validate you can't duplicate a flow name in a bucket
     with pytest.raises(ValueError):
         _ = versioning.save_flow_ver(
-            process_group=test_pg,
-            registry_client=test_rc,
-            bucket=test_b,
+            process_group=f_pg,
+            registry_client=fix_bucket.client,
+            bucket=fix_bucket.bucket,
             flow_name=conftest.test_versioned_flow_name,
             comment='NiPyApi Test',
             desc='NiPyApi Test'
         )
     # Add a processor, refresh status, and save a new version
-    fixture_processor.generate(parent_pg=test_pg)
-    test_pg = canvas.get_process_group(test_pg.id, 'id')
+    fix_proc.generate(parent_pg=f_pg)
+    f_pg = canvas.get_process_group(f_pg.id, 'id')
     r2 = versioning.save_flow_ver(
-        process_group=test_pg,
-        registry_client=test_rc,
-        bucket=test_b,
+        process_group=f_pg,
+        registry_client=fix_bucket.client,
+        bucket=fix_bucket.bucket,
         flow_id=r1.version_control_information.flow_id,
         comment='a test comment'
     )
@@ -123,54 +123,56 @@ def test_save_flow_ver(fixture_registry_bucket, fixture_pg, fixture_processor):
            r1.version_control_information.version
 
 
-def test_stop_flow_ver(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
-    r1 = versioning.stop_flow_ver(test_pg)
+def test_stop_flow_ver(fix_ver_flow):
+    r1 = versioning.stop_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionControlInformationEntity)
     assert r1.version_control_information is None
     with pytest.raises(ValueError,
                        match='not currently under Version Control'):
-        _ = versioning.stop_flow_ver(test_pg)
+        _ = versioning.stop_flow_ver(fix_ver_flow.pg)
 
 
-def test_revert_flow_ver(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
-    r1 = versioning.revert_flow_ver(test_pg)
+def test_revert_flow_ver(fix_ver_flow):
+    r1 = versioning.revert_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionedFlowUpdateRequestEntity)
     # TODO: Add Tests for flows with data loss on reversion
 
 
-def test_list_flows_in_bucket(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
-    r1 = versioning.list_flows_in_bucket(test_rb.identifier)
+def test_list_flows_in_bucket(fix_ver_flow):
+    r1 = versioning.list_flows_in_bucket(fix_ver_flow.bucket.identifier)
     assert isinstance(r1, list)
     assert isinstance(r1[0], registry.VersionedFlow)
     with pytest.raises(ValueError, match='Bucket does not exist'):
         _ = versioning.list_flows_in_bucket('NiPyApi-FakeNews')
 
 
-def test_get_flow_in_bucket(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
+def test_get_flow_in_bucket(fix_ver_flow):
     r1 = versioning.get_flow_in_bucket(
-        test_rb.identifier,
-        test_vf.version_control_information.flow_id,
+        fix_ver_flow.bucket.identifier,
+        fix_ver_flow.flow.identifier,
         'id'
     )
     assert isinstance(r1, registry.VersionedFlow)
-    assert r1.identifier == test_vf.version_control_information.flow_id
+    assert r1.identifier == fix_ver_flow.info.version_control_information.flow_id
     with pytest.raises(ValueError, match='Versioned flow does not exist'):
-        _ = versioning.get_flow_in_bucket(test_rb.identifier, 'fakenews', 'id')
+        _ = versioning.get_flow_in_bucket(
+            fix_ver_flow.bucket.identifier,
+            'fakenews',
+            'id'
+        )
 
 
-def test_get_latest_flow_ver(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf_info = fixture_versioned_flow
+def test_get_latest_flow_ver(fix_ver_flow):
     r1 = versioning.get_latest_flow_ver(
-        test_rb.identifier,
-        test_vf_info.version_control_information.flow_id
+        fix_ver_flow.bucket.identifier,
+        fix_ver_flow.flow.identifier
     )
     assert isinstance(r1, registry.VersionedFlowSnapshot)
     with pytest.raises(ValueError, match='Versioned flow does not exist'):
-        _ = versioning.get_latest_flow_ver(test_rb.identifier, 'fakenews')
+        _ = versioning.get_latest_flow_ver(
+            fix_ver_flow.bucket.identifier,
+            'fakenews'
+        )
 
 
 def test_update_flow_ver():
@@ -179,16 +181,14 @@ def test_update_flow_ver():
     pass
 
 
-def test_get_version_info(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf = fixture_versioned_flow
-    r1 = versioning.get_version_info(test_pg)
+def test_get_version_info(fix_ver_flow):
+    r1 = versioning.get_version_info(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionControlInformationEntity)
 
 
-def test_create_flow(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf_info = fixture_versioned_flow
+def test_create_flow(fix_ver_flow):
     r1 = versioning.create_flow(
-        bucket_id=test_rb.identifier,
+        bucket_id=fix_ver_flow.bucket.identifier,
         flow_name=conftest.test_cloned_ver_flow_name,
     )
     assert isinstance(r1, registry.VersionedFlow)
@@ -196,24 +196,79 @@ def test_create_flow(fixture_versioned_flow):
     # test duplicate behavior
     with pytest.raises(ValueError):
         _ = versioning.create_flow(
-            bucket_id=test_rb.identifier,
+            bucket_id=fix_ver_flow.bucket.identifier,
             flow_name=conftest.test_cloned_ver_flow_name,
         )
 
 
-def test_create_flow_version(fixture_versioned_flow):
-    test_rc, test_rb, test_pg, test_p, test_vf_info = fixture_versioned_flow
+def test_create_flow_version(fix_ver_flow):
     new_ver_stub = versioning.create_flow(
-        bucket_id=test_rb.identifier,
+        bucket_id=fix_ver_flow.bucket.identifier,
         flow_name=conftest.test_cloned_ver_flow_name,
     )
     ver_flow_snapshot = versioning.get_latest_flow_ver(
-        test_rb.identifier, test_vf_info.version_control_information.flow_id
+        fix_ver_flow.bucket.identifier,
+        fix_ver_flow.flow.identifier
     )
     r1 = versioning.create_flow_version(
-        bucket_id=test_rb.identifier,
         flow=new_ver_stub,
         flow_snapshot=ver_flow_snapshot
     )
     assert isinstance(r1, registry.VersionedFlowSnapshot)
+    # registry bug https://issues.apache.org/jira/browse/NIFIREG-135
+    # assert r1.flow.version_count == 2
 
+
+def test_get_flow_version(fix_ver_flow):
+    r1 = versioning.get_flow_version(
+        fix_ver_flow.bucket.identifier,
+        fix_ver_flow.flow.identifier
+    )
+    assert isinstance(r1, registry.VersionedFlowSnapshot)
+    assert r1.snapshot_metadata.version == 1
+    test_vf_2 = versioning.create_flow_version(
+        bucket_id=fix_ver_flow.bucket.identifier,
+        flow=r1.flow,
+        flow_snapshot=r1
+    )
+    assert isinstance(test_vf_2, registry.VersionedFlowSnapshot)
+    assert test_vf_2.snapshot_metadata.version == 2
+    r2 = versioning.get_flow_version(
+        fix_ver_flow.bucket.identifier,
+        test_vf_2.snapshot_metadata.flow_identifier
+    )
+    assert r2.flow.version_count == 2
+    assert r2.snapshot_metadata.version ==2
+    r3 = versioning.get_flow_version(
+        fix_ver_flow.bucket.identifier,
+        test_vf_2.snapshot_metadata.flow_identifier,
+        version='1'
+    )
+    assert r3.snapshot_metadata.version == 1
+    assert r3.flow.version_count == 2
+
+
+def test_export_flow(fix_flow_serde):
+    # Test we can turn a flow snapshot into a json string
+    r1 = versioning.export_flow(fix_flow_serde.snapshot)
+    assert isinstance(r1, str)
+    # Test writing it to a file
+    r2 = versioning.export_flow(
+        flow_snapshot=fix_flow_serde.snapshot,
+        file_path=fix_flow_serde.filepath,
+        mode='json'
+    )
+    assert isinstance(r2, str)
+
+
+def test_import_flow(fix_flow_serde):
+    # Test we can import from a String in memory
+    # Test we can import as new version in existing bucket
+    r1 = versioning.import_flow(
+        bucket_id=fix_flow_serde.bucket.identifier,
+        encoded_flow=fix_flow_serde.json,
+        flow_id=fix_flow_serde.flow.identifier
+    )
+    assert isinstance(r1, registry.VersionedFlowSnapshot)
+
+    # Test we can also import from a file

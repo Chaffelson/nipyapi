@@ -187,6 +187,7 @@ def delete_process_group(process_group_id, revision):
 
 def schedule_process_group(process_group_id, target_state):
     """
+    EXPERIMENTAL
     Start or stop a Process Group and all children
     :param process_group_id: ID of the Process Group to Target
     :param target_state: Either 'RUNNING' or 'STOPPED'
@@ -375,8 +376,8 @@ def delete_processor(processor, refresh=True):
 
 def schedule_processor(processor, target_state, refresh=True):
     """
+    EXPERIMENTAL
     Starts or Stops a given Processor.
-    WARNING: Limited functionality and many uncontrolled edgecases!
     :param processor: Processor object to Schedule
     :param target_state: 'STOPPED' or 'RUNNING'
     :param refresh: True|False, whether to refresh the processor state
@@ -410,6 +411,7 @@ def schedule_processor(processor, target_state, refresh=True):
 
 def update_processor(processor, update):
     """
+    EXPERIMENTAL
     Updates the configuration parameters of a stopped processor
     :param processor: Processor object to be updated
     :param update: ProcessorConfigDTO, updated configuration parameters

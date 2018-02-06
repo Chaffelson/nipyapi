@@ -28,28 +28,30 @@ __all__ = ['process_group_0', 'processor_0', 'reg_client_0', 'bucket_0',
            'bucket_1', 'ver_flow_info_0', 'ver_flow_0', 'ver_flow_snapshot_0',
            'ver_flow_1', 'ver_flow_snapshot_1']
 
-# Get or create a process group
+# recreate or create a process group
 process_group_0 = get_process_group(_pg0)
-if process_group_0 is None:
-    process_group_0 = create_process_group(
-        get_process_group(get_root_pg_id(), 'id'),
-        _pg0,
-        location=(400.0, 400.0)
+if process_group_0 is not None:
+    delete_process_group(process_group_0.id, process_group_0.revision)
+process_group_0 = create_process_group(
+    get_process_group(get_root_pg_id(), 'id'),
+    _pg0,
+    location=(400.0, 400.0)
     )
 
 # Get or create a processor in the above PG
 processor_0 = get_processor(_proc0)
-if processor_0 is None:
-    processor_0 = create_processor(
-        parent_pg=process_group_0,
-        processor=get_processor_type('GenerateFlowFile'),
-        location=(400.0, 400.0),
-        name=_proc0,
-        config=ProcessorConfigDTO(
-            scheduling_period='1s',
-            auto_terminated_relationships=['success']
-        )
+if processor_0 is not None:
+        delete_processor(process_group_0, True)
+processor_0 = create_processor(
+    parent_pg=process_group_0,
+    processor=get_processor_type('GenerateFlowFile'),
+    location=(400.0, 400.0),
+    name=_proc0,
+    config=ProcessorConfigDTO(
+        scheduling_period='1s',
+        auto_terminated_relationships=['success']
     )
+)
 
 # get or create a registry client
 try:
@@ -61,49 +63,42 @@ try:
 except ValueError:
     reg_client_0 = get_registry_client(_rc0)
 
-# get or create two buckets
+# recreate or create two buckets
 bucket_0 = get_registry_bucket(_b0)
-if bucket_0 is None:
-    bucket_0 = create_registry_bucket(_b0)
+if bucket_0 is not None:
+    delete_registry_bucket(bucket_0)
+bucket_0 = create_registry_bucket(_b0)
 bucket_1 = get_registry_bucket(_b1)
-if bucket_1 is None:
-    bucket_1 = create_registry_bucket(_b1)
+if bucket_1 is not None:
+    delete_registry_bucket(bucket_1)
+bucket_1 = create_registry_bucket(_b1)
 
 # Save the PG + Proc to the first bucket as a new version
-try:
-    ver_flow_info_0 = save_flow_ver(
-        process_group_0, reg_client_0, bucket_0, flow_name=_vf0
-    )
-    ver_flow_0 = get_flow_in_bucket(
-        bucket_0.identifier,
-        ver_flow_info_0.version_control_information.flow_id, 'id'
-    )
-    ver_flow_snapshot_0 = get_latest_flow_ver(
-        bucket_0.identifier, ver_flow_0.identifier
-    )
-except ValueError:
-    ver_flow_0 = get_flow_in_bucket(bucket_0.identifier, _vf0)
-    ver_flow_info_0 = get_version_info(process_group_0)
-    ver_flow_snapshot_0 = get_latest_flow_ver(
-        bucket_0.identifier, ver_flow_0.identifier
-    )
+ver_flow_info_0 = save_flow_ver(
+    process_group=process_group_0,
+    registry_client=reg_client_0,
+    bucket=bucket_0,
+    flow_name=_vf0
+)
+ver_flow_0 = get_flow_in_bucket(
+    bucket_0.identifier,
+    ver_flow_info_0.version_control_information.flow_id,
+    'id'
+)
+ver_flow_snapshot_0 = get_latest_flow_ver(
+    bucket_0.identifier, ver_flow_0.identifier
+)
 
 # Create a flow version stub the second bucket
-try:
-    ver_flow_1 = create_flow(
-        bucket_id=bucket_1.identifier,
-        flow_name=_vf1,
-        flow_desc='A cloned Versioned NiFi-Registry Flow'
-    )
-except ValueError:
-    ver_flow_1 = get_flow_in_bucket(bucket_1.identifier, _vf1)
+ver_flow_1 = create_flow(
+    bucket_id=bucket_1.identifier,
+    flow_name=_vf1,
+    flow_desc='A cloned Versioned NiFi-Registry Flow'
+)
 
 # Clone the versioned flow into the new stub flow in the
-try:
-    ver_flow_snapshot_1 = create_flow_version(
-        bucket_id=bucket_1.identifier,
-        flow=ver_flow_1,
-        flow_snapshot=ver_flow_snapshot_0
-    )
-except ValueError:
-    ver_flow_snapshot_1 = get_flow_in_bucket(bucket_1.identifier, _vf1)
+ver_flow_snapshot_1 = create_flow_version(
+    bucket_id=bucket_1.identifier,
+    flow=ver_flow_1,
+    flow_snapshot=ver_flow_snapshot_0
+)

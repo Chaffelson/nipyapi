@@ -5,7 +5,7 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 from __future__ import absolute_import
-from nipyapi import nifi, config, registry, canvas
+from nipyapi import nifi, registry, canvas, _utils
 from nipyapi.nifi.rest import ApiException as ApiExceptionN
 from nipyapi.registry.rest import ApiException as ApiExceptionR
 
@@ -15,7 +15,8 @@ __all__ = [
     'create_registry_bucket', 'delete_registry_bucket', 'get_registry_bucket',
     'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
     'get_latest_flow_ver', 'update_flow_ver', 'get_version_info',
-    'create_flow', 'create_flow_version'
+    'create_flow', 'create_flow_version', 'get_flow_version', 'export_flow',
+    'import_flow'
 ]
 
 
@@ -221,7 +222,7 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
 
 
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
-                  flow_id=None, comment='', desc=''):
+                  flow_id=None, comment='', desc='', refresh=True):
     """
     Adds a Process Group into NiFi Registry Version Control, or saves a new
     version to an existing VersionedFlow
@@ -236,13 +237,18 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
     bucket
     :param comment: String, a comment for the version commit
     :param desc: String, a description of the VersionedFlow
+    :param refresh: whether to refresh the object revisions before executing
     :return: VersionControlInformationEntity
     """
+    if refresh:
+        target_pg = canvas.get_process_group(process_group.id, 'id')
+    else:
+        target_pg = process_group
     try:
         return nifi.VersionsApi().save_to_flow_registry(
-            id=process_group.id,
+            id=target_pg.id,
             body=nifi.StartVersionControlRequestEntity(
-                process_group_revision=process_group.revision,
+                process_group_revision=target_pg.revision,
                 versioned_flow=nifi.VersionedFlowDTO(
                     bucket_id=bucket.identifier,
                     comments=comment,
@@ -357,7 +363,7 @@ def get_version_info(process_group):
 def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
     """
     Creates a new VersionedFlow stub in NiFi Registry. Can be used to write
-    VersionedFlow information to with using a NiFi Process Group directly
+    VersionedFlow information to without using a NiFi Process Group directly
     :param bucket_id: identifier of the Bucket to write to
     :param flow_name: String, name of the VersionedFlow object
     :param flow_desc: String, description of the VersionedFlow object
@@ -378,21 +384,28 @@ def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
         raise ValueError(e.body)
 
 
-def create_flow_version(bucket_id, flow, flow_snapshot):
+def create_flow_version(flow, flow_snapshot, bucket_id=None,
+                        raw_snapshot=True):
     """
     Writes a FlowSnapshot into a VersionedFlow as a new version update
-    :param bucket_id: identifier of the Bucket containing the VersionedFlow
+    :param bucket_id: Deprecated, now pulled from the flow parameter
     :param flow: the VersionedFlow object to write to
     :param flow_snapshot: the VersionedFlowSnapshot to write into the
     VersionedFlow
+    :param raw_snapshot: True if a raw VersionedFlowSnapshot, False if just
+    the flow_contents (usually from a VersionedSnapShot or import)
     :return: the new VersionedFlowSnapshot
     """
+    if raw_snapshot:
+        flow_contents = flow_snapshot.flow_contents
+    else:
+        flow_contents = flow_snapshot
     try:
         return registry.BucketFlowsApi().create_flow_version(
-            bucket_id=bucket_id,
+            bucket_id=flow.bucket_identifier,
             flow_id=flow.identifier,
             body=registry.VersionedFlowSnapshot(
-                flow_contents=flow_snapshot.flow_contents,
+                flow_contents=flow_contents,
                 snapshot_metadata=registry.VersionedFlowSnapshotMetadata(
                     version=flow.version_count + 1
                 ),
@@ -400,3 +413,131 @@ def create_flow_version(bucket_id, flow, flow_snapshot):
         )
     except ApiExceptionR as e:
         raise ValueError(e.body)
+
+
+def get_flow_version(bucket_id, flow_id, version=None):
+    """
+    Retrieves the latest, or a specific, version of a Flow
+    :param bucket_id: the id of the bucket containing the Flow
+    :param flow_id: the id of the Flow to be retrieved from the Bucket
+    :param version: 'None' to retrieve the latest version, or a version
+    number as a string to get that version
+    :return: an updated VersionedFlowSnapshot
+    WARNING: This call is impacted by
+    https://issues.apache.org/jira/browse/NIFIREG-135
+    """
+    if version is not None:
+        try:
+            return registry.BucketFlowsApi().get_flow_version(
+                bucket_id=bucket_id,
+                flow_id=flow_id,
+                version_number=version
+            )
+        except ApiExceptionR as e:
+            raise ValueError(e.body)
+    try:
+        return get_latest_flow_ver(bucket_id, flow_id)
+    except ValueError as e:
+        raise e
+
+
+def export_flow(flow_snapshot, file_path=None, mode='json'):
+    """
+    Exports the flow_contents of a given VersionedFlowSnapshot in the provided
+    format mode
+    :param flow_snapshot: The VersionedFlowSnapshot to export
+    :param file_path: Optional; String for the file to be written. No file will
+    be written if left blank, the encoded object is still returned
+    :param mode: String 'json' or 'yaml' to specific the encoding format
+    :return: String of the encoded Snapshot
+    """
+    if not isinstance(flow_snapshot, registry.VersionedFlowSnapshot):
+        raise TypeError("flow_snapshot must be a VersionedFlowSnapshot object")
+    export_obj = flow_snapshot.flow_contents.to_dict()
+    try:
+        out = _utils.dump(
+            obj=export_obj,
+            mode=mode
+        )
+    except ValueError as e:
+        raise e
+    if file_path is None:
+        return out
+    elif file_path is not None:
+        return _utils.fs_write(
+            obj=_utils.dump(
+                obj=export_obj,
+                mode=mode),
+            file_path=file_path,
+        )
+    else:
+        raise ValueError("file_path must either be a valid String pointing"
+                         " to the file to be written or None to return"
+                         "the flow_snapshot in export format")
+
+
+def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
+                flow_id=None):
+    """
+    Imports a given encoded_flow version into the bucket and flow described,
+    may optionally be passed a file to read the encoded flow_contents from.
+    Note that only one of encoded_flow or file_path, and only one of flow_name
+    or flow_id should be specified.
+    :param bucket_id: ID of the bucket to write the encoded_flow version to
+    :param encoded_flow: Optional; String of the encoded flow to import; if
+    not specified file_path is read from. EXOR file_path
+    :param file_path: Optional; String of the file path to read the encoded
+    flow from, if not specified encoded_flow is read from. EXOR encoded_flow
+    :param flow_name: Optional; If this is to be the first version in a new
+    flow object, then this is the String name for the flow object. EXOR flow_id
+    :param flow_id: Optional; If this is a new version for an existing flow
+    object, then this is the ID of that object. EXOR flow_name
+    :return:
+    """
+    # First, decode the flow snapshot contents
+    if file_path is None and encoded_flow is not None:
+        try:
+            flow_contents = _utils.load(
+                encoded_flow
+            )
+        except ValueError as e:
+            raise e
+    elif file_path is not None and encoded_flow is None:
+        try:
+            flow_contents = _utils.load(
+                obj=_utils.fs_read(
+                    file_path=file_path
+                )
+            )
+        except ValueError as e:
+            raise e
+    else:
+        raise ValueError("Either file_path must point to a file for import, or"
+                         " flow_snapshot must be an importable object, but"
+                         "not both")
+    # Now handle determining which Versioned Item to write to
+    if flow_id is None and flow_name is not None:
+        # Case: New flow
+        # create the Bucket item
+        # TODO: invetisgate bringing description over
+        ver_flow = create_flow(
+            bucket_id=bucket_id,
+            flow_name=flow_name
+        )
+    elif flow_name is None and flow_id is not None:
+        # Case: New version in existing flow
+        ver_flow = get_latest_flow_ver(
+            bucket_id=bucket_id,
+            flow_id=flow_id,
+        )
+    else:
+        raise ValueError("Either flow_id must be the identifier of a flow to"
+                         " add this version to, or flow_name must be a unique "
+                         "name for a flow in this bucket, but not both")
+    # Now write the new version
+    return create_flow_version(
+        flow=ver_flow.flow,
+        flow_snapshot=flow_contents,
+        raw_snapshot=False
+    )
+    # TODO: Return diff of imported flow

@@ -131,6 +131,7 @@ def upload_template(pg_id, template_file):
     :param template_file: the template file (template.xml)
     :return:
     """
+    # TODO: Rework with utils functions
     # Ensure we are receiving a valid file
     assert isfile(template_file) and access(template_file, R_OK), \
         SystemError("File {0} invalid or unreadable".format(template_file))
@@ -141,7 +142,7 @@ def upload_template(pg_id, template_file):
         raise TypeError(
             "Expected 'template' as xml root element, got ({0}) instead."
             "Are you sure this is a Template?"
-                .format(root_tag)
+            .format(root_tag)
         )
     # NiFi-1.2.0 method
     resp = nifi.ProcessgroupsApi().upload_template(
@@ -159,6 +160,7 @@ def export_template(t_id, output='string', file_path=None):
     :param file_path: if file output type, the path and filename to write to
     :return: basestring of the xml template or file path written
     """
+    # TODO: Rework with utils functions
     # TemplatesAPI.export template is broken in swagger definition of NiFi1.2
     # return TemplateDTO is replaced by return string in a later version
     valid_output_types = ['file', 'string']

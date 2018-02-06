@@ -5,6 +5,7 @@
 
 import pytest
 from tests import conftest
+from time import sleep
 from nipyapi import canvas, nifi
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
 from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
@@ -33,8 +34,8 @@ def test_get_flow():
         _ = canvas.get_flow('definitelyNotAPG')
 
 
-def test_recurse_flow(fixture_pg, regress):
-    _ = fixture_pg.generate()
+def test_recurse_flow(fix_pg, regress):
+    _ = fix_pg.generate()
     r = canvas.recurse_flow('root')
     assert isinstance(r, ProcessGroupFlowEntity)
     assert r.process_group_flow.breadcrumb.breadcrumb.name == 'NiFi Flow'
@@ -44,8 +45,8 @@ def test_recurse_flow(fixture_pg, regress):
     )
 
 
-def test_list_all_process_groups(fixture_pg, regress):
-    _ = fixture_pg.generate()
+def test_list_all_process_groups(fix_pg, regress):
+    _ = fix_pg.generate()
     r = canvas.list_all_process_groups()
     assert isinstance(r, list)
     for pg in r:
@@ -71,33 +72,33 @@ def test_create_process_group(regress):
         )
 
 
-def test_get_process_group(fixture_pg, regress):
+def test_get_process_group(fix_pg, regress):
     with pytest.raises(ValueError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
-    single_pg = fixture_pg.generate()
-    pg1 = canvas.get_process_group(single_pg.id, 'id')
+    f_pg = fix_pg.generate()
+    pg1 = canvas.get_process_group(f_pg.id, 'id')
     assert isinstance(pg1, ProcessGroupEntity)
-    duplicate_pg = fixture_pg.generate()
+    duplicate_pg = fix_pg.generate()
     pg2 = canvas.get_process_group(duplicate_pg.id, 'id')
     assert pg2.id != pg1.id
-    pg_list = canvas.get_process_group(single_pg.status.name)
+    pg_list = canvas.get_process_group(f_pg.status.name)
     assert isinstance(pg_list, list)
     # the two duplicates, and root = 3
     assert len(pg_list) == 3
 
 
-def test_delete_process_group(fixture_pg, regress, fixture_processor):
+def test_delete_process_group(fix_pg, regress, fix_proc):
     # Delete stopped PG
-    pg_1 = fixture_pg.generate()
+    f_pg1 = fix_pg.generate()
     r1 = canvas.delete_process_group(
-        pg_1.id,
-        pg_1.revision
+        f_pg1.id,
+        f_pg1.revision
     )
-    assert r1.id == pg_1.id
+    assert r1.id == f_pg1.id
     assert r1.status is None
     # Test deleting a running PG
-    pg_2 = fixture_pg.generate()
-    p_1 = fixture_processor.generate(parent_pg=pg_2)
+    pg_2 = fix_pg.generate()
+    _ = fix_proc.generate(parent_pg=pg_2)
     canvas.schedule_process_group(pg_2.id, 'RUNNING')
     with pytest.raises(ValueError):
         _ = canvas.delete_process_group(
@@ -106,22 +107,22 @@ def test_delete_process_group(fixture_pg, regress, fixture_processor):
         )
 
 
-def test_schedule_process_group(fixture_processor, fixture_pg):
-    test_pg = fixture_pg.generate()
-    _ = fixture_processor.generate(parent_pg=test_pg)
+def test_schedule_process_group(fix_proc, fix_pg):
+    f_pg = fix_pg.generate()
+    _ = fix_proc.generate(parent_pg=f_pg)
     r1 = canvas.schedule_process_group(
-        test_pg.id,
+        f_pg.id,
         'RUNNING'
     )
     assert r1.state == 'RUNNING'
     r2 = canvas.schedule_process_group(
-        test_pg.id,
+        f_pg.id,
         'STOPPED'
     )
     assert r2.state == 'STOPPED'
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
-            test_pg.id,
+            f_pg.id,
             'BANANA'
         )
 
@@ -142,10 +143,10 @@ def test_get_processor_type(regress):
     assert isinstance(r3, list)
 
 
-def test_create_processor(fixture_pg, regress):
-    test_pg = fixture_pg.generate()
+def test_create_processor(fix_pg, regress):
+    f_pg = fix_pg.generate()
     r1 = canvas.create_processor(
-        parent_pg=test_pg,
+        parent_pg=f_pg,
         processor=canvas.get_processor_type('ListenSyslog'),
         location=(400.0, 400.0),
         name=conftest.test_processor_name
@@ -154,73 +155,76 @@ def test_create_processor(fixture_pg, regress):
     assert r1.status.name == conftest.test_processor_name
 
 
-def test_list_all_processors(fixture_processor, regress):
-    p1 = fixture_processor.generate()
-    p2 = fixture_processor.generate()
+def test_list_all_processors(fix_proc, regress):
+    _ = fix_proc.generate()
+    _ = fix_proc.generate()
     r = canvas.list_all_processors()
     assert len(r) >= 2
 
 
-def test_get_processor(fixture_processor, regress):
-    p1 = fixture_processor.generate()
-    r1 = canvas.get_processor(p1.status.name)
+def test_get_processor(fix_proc, regress):
+    f_p1 = fix_proc.generate()
+    r1 = canvas.get_processor(f_p1.status.name)
     assert isinstance(r1, nifi.ProcessorEntity)
     r2 = canvas.get_processor('ClearlyNotAProcessor')
     assert r2 is None
-    p2 = fixture_processor.generate()
-    r3 = canvas.get_processor(p1.status.name)
+    f_p2 = fix_proc.generate()
+    r3 = canvas.get_processor(f_p1.status.name)
     assert isinstance(r3, list)
+    r4 = canvas.get_processor(f_p2.id, 'id')
+    assert isinstance(r4, nifi.ProcessorEntity)
+    assert r4.id != r1.id
 
 
-def test_delete_processor(fixture_processor, regress):
-    test_proc = fixture_processor.generate()
-    assert test_proc.status.name == conftest.test_processor_name
+def test_delete_processor(fix_proc, regress):
+    f_p1 = fix_proc.generate()
+    r1 = canvas.delete_processor(f_p1)
+    assert r1.status is None
+    assert isinstance(r1, nifi.ProcessorEntity)
+    # try to delete processor twice
+    with pytest.raises(ValueError):
+        _ = canvas.delete_processor(f_p1)
     # try to delete running processor
-    canvas.schedule_processor(test_proc, 'RUNNING')
+    f_p2 = fix_proc.generate()
+    canvas.schedule_processor(f_p2, 'RUNNING')
     with pytest.raises(ValueError):
-        _ = canvas.delete_processor(test_proc)
-    canvas.schedule_processor(test_proc, 'STOPPED')
-    r = canvas.delete_processor(test_proc)
-    assert r.status is None
-    assert isinstance(r, nifi.ProcessorEntity)
-    # try to delete twice
-    with pytest.raises(ValueError):
-        _ = canvas.delete_processor(test_proc)
+        _ = canvas.delete_processor(f_p2)
 
 
-def test_schedule_processor(fixture_processor):
-    p1 = fixture_processor.generate()
+def test_schedule_processor(fix_proc):
+    f_p1 = fix_proc.generate()
     r1 = canvas.schedule_processor(
-        p1,
+        f_p1,
         'RUNNING'
     )
     assert r1.component.state == 'RUNNING'
     assert isinstance(r1, nifi.ProcessorEntity)
     r2 = canvas.schedule_processor(
-        p1,
+        f_p1,
         'STOPPED'
     )
     assert r2.component.state == 'STOPPED'
     assert isinstance(r2, nifi.ProcessorEntity)
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
-            p1,
+            f_p1,
             'BANANA'
         )
 
 
-def test_update_processor(fixture_processor, regress):
-    test_proc = fixture_processor.generate()
+def test_update_processor(fix_proc, regress):
+    # TODO: Add way more tests to this
+    f_p1 = fix_proc.generate()
     update = nifi.ProcessorConfigDTO(
         scheduling_period='3s'
     )
-    r1 = canvas.update_processor(test_proc, update)
+    r1 = canvas.update_processor(f_p1, update)
     with pytest.raises(ValueError, match='update param is not an instance'):
-        _ = canvas.update_processor(test_proc, 'FakeNews')
+        _ = canvas.update_processor(f_p1, 'FakeNews')
 
 
-def test_get_variable_registry(fixture_pg):
-    test_pg = fixture_pg.generate()
+def test_get_variable_registry(fix_pg):
+    test_pg = fix_pg.generate()
     r1 = canvas.get_variable_registry(test_pg)
     assert isinstance(r1, nifi.VariableRegistryEntity)
     with pytest.raises(ValueError, match='Unable to locate group with id'):
@@ -228,8 +232,8 @@ def test_get_variable_registry(fixture_pg):
         _ = canvas.get_variable_registry(test_pg)
 
 
-def test_update_variable_registry(fixture_pg):
-    test_pg = fixture_pg.generate()
+def test_update_variable_registry(fix_pg):
+    test_pg = fix_pg.generate()
     r1 = canvas.update_variable_registry(
         test_pg,
         conftest.test_variable_registry_entry

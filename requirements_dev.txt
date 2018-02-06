@@ -1,23 +1,33 @@
-pip>=9.0.1
-bumpversion>=0.5.3
+# basics
 wheel>=0.30.0
+pip>=9.0.1
+
+# Project management and Deployment
+bumpversion>=0.5.3
 watchdog>=0.8.3
+twine>=1.9.1
+virtualenvwrapper>=4.8
+
+# Testing
 tox>=2.9.1
 flake8>=3.5.0
 coverage>=4.4.1
-Sphinx>=1.6.3
-cryptography>=2.1.2
-PyYAML>=3.12
+coveralls>=1.2.0
 pytest>=3.2.3
 pytest-runner>=2.12.1
-twine>=1.9.1
-sphinx_rtd_theme>=0.2.5b1
 nose>=1.3.7
 pluggy>=0.3.1
+pylint>=1.7.4
+
+# Docs
+Sphinx>=1.6.3
+sphinx_rtd_theme>=0.2.5b1
+-e git://github.com/lyft/m2r.git@1aa9d312efa9c71eb0622e9e3c8e5692440a25f3#egg=m2r
+
+# Code Deps
+cryptography>=2.1.2
+PyYAML>=3.12
 py>=1.4.31
 randomize>=0.13
-coveralls>=1.2.0
 certifi>=2017.7.27.1
-pylint>=1.7.4
-virtualenvwrapper>=4.8
--e git://github.com/lyft/m2r.git@1aa9d312efa9c71eb0622e9e3c8e5692440a25f3#egg=m2r
+deepdiff>=3.3.0
