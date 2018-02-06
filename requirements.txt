@@ -1,10 +1,15 @@
+# Dependencies are set at the lowest currently tested version
+# If you need an older version of a dependency please open an Issue on Github
 # Basics
-setuptools==38.5.1
+setuptools>=38.5
 
 # Templates management implementation
-urllib3==1.22
-lxml==4.1.1
+urllib3>=1.22
+lxml>=4.1.1
 
 # Import Export and Utils implementation
 ruamel.yaml>=0.15
 deepdiff>=3.3.0
+
+# Docs build requirements
+-e git://github.com/lyft/m2r.git@1aa9d312efa9c71eb0622e9e3c8e5692440a25f3#egg=m2r
