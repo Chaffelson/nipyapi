@@ -13,6 +13,6 @@ Name | Type | Description | Notes
 **update_steps** | [**list[VariableRegistryUpdateStepDTO]**](VariableRegistryUpdateStepDTO.md) | The steps that are required in order to complete the request, along with the status of each | [optional] 
 **affected_components** | [**list[AffectedComponentEntity]**](AffectedComponentEntity.md) | A set of all components that will be affected if the value of this variable is changed | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

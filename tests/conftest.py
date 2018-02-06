@@ -3,10 +3,12 @@
 
 """Configuration fixtures for pytest for `nipyapi` package."""
 
+from __future__ import absolute_import
 import pytest
 from os import environ
 import requests
 from requests import ConnectionError
+from collections import namedtuple
 from nipyapi.canvas import *
 from nipyapi.templates import *
 from nipyapi.versioning import *
@@ -27,7 +29,11 @@ test_cloned_ver_flow_name = test_basename + '_cloned_ver_flow'
 test_variable_registry_entry = [
     (test_basename + '_name', test_basename + '_name' + '_value')
 ]
-
+test_write_file_path = test_basename + '_fs_write_dir'
+test_read_file_path = test_basename + '_fs_read_dir'
+test_write_file_name = test_basename + '_fs_write_file'
+test_ver_export_tmpdir = test_basename + '_ver_flow_dir'
+test_ver_export_filename = test_basename + "_ver_flow_export"
 
 # Determining test environment
 # Can't use skiptest with parametrize for Travis
@@ -104,7 +110,7 @@ def template_class_wrapper(request):
             delete_process_group(
                 pg.id,
                 pg.revision
-        )
+            )
 
     remove_test_templates()
 
@@ -115,8 +121,42 @@ def template_class_wrapper(request):
 
 
 @pytest.fixture(scope="function")
+def regress(request):
+    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
+    config.nifi_config.api_client.host = request.param
+
+
+def cleanup_test_pgs():
+    test_pgs = get_process_group(test_pg_name)
+    try:
+        # If unique, stop, then delete
+        schedule_process_group(test_pgs.id, 'STOPPED')
+        # This is a workaround until determistic process_group management
+        # is implemented
+        sleep(2)
+        updated_test_pg = get_process_group(test_pgs.id, 'id')
+        delete_process_group(
+            updated_test_pg.id,
+            updated_test_pg.revision
+        )
+    except AttributeError:
+        if isinstance(test_pgs, list):
+            for this_test_pg in test_pgs:
+                schedule_process_group(this_test_pg.id, 'STOPPED')
+                sleep(2)
+                updated_test_pg = get_process_group(this_test_pg.id, 'id')
+                delete_process_group(
+                    updated_test_pg.id,
+                    updated_test_pg.revision
+                )
+
+
+@pytest.fixture(scope="function", name='fix_pg')
 def fixture_pg(request):
     class Dummy:
+        def __init__(self):
+            pass
+
         def generate(self, parent_pg=None, suffix=''):
             if parent_pg is None:
                 target_pg = get_process_group(get_root_pg_id(), 'id')
@@ -128,41 +168,19 @@ def fixture_pg(request):
                     location=(400.0, 400.0)
                 )
 
-    def cleanup_test_pgs():
-        test_pgs = get_process_group(test_pg_name)
-        try:
-            # If unique, stop, then delete
-            schedule_process_group(test_pgs.id, 'STOPPED')
-            # This is a workaround until determistic process_group management
-            # is implemented
-            sleep(2)
-            updated_test_pg = get_process_group(test_pgs.id, 'id')
-            delete_process_group(
-                updated_test_pg.id,
-                updated_test_pg.revision
-            )
-        except AttributeError:
-            if isinstance(test_pgs, list):
-                for this_test_pg in test_pgs:
-                    schedule_process_group(this_test_pg.id, 'STOPPED')
-                    updated_test_pg = get_process_group(this_test_pg.id, 'id')
-                    delete_process_group(
-                        updated_test_pg.id,
-                        updated_test_pg.revision
-                    )
-
     request.addfinalizer(cleanup_test_pgs)
     return Dummy()
 
 
-@pytest.fixture()
+@pytest.fixture(name='fix_reg_client')
 def fixture_reg_client(request):
     def cleanup_test_registry_client():
         _ = [delete_registry_client(li) for
              li in list_registry_clients().registries
              if test_registry_client_name in li.component.name
-            ]
+             ]
 
+    cleanup_test_pgs()
     cleanup_test_registry_client()
     request.addfinalizer(cleanup_test_registry_client)
     return create_registry_client(
@@ -172,9 +190,12 @@ def fixture_reg_client(request):
     )
 
 
-@pytest.fixture()
-def fixture_processor(request):
+@pytest.fixture(name='fix_proc')
+def fixture_proc(request):
     class Dummy:
+        def __init__(self):
+            pass
+
         def generate(self, parent_pg=None, suffix=''):
             if parent_pg is None:
                 target_pg = get_process_group(get_root_pg_id(), 'id')
@@ -193,9 +214,9 @@ def fixture_processor(request):
 
     def cleanup_test_processors():
         target_list = [li for
-             li in list_all_processors()
-             if test_processor_name in li.status.name
-             ]
+                       li in list_all_processors()
+                       if test_processor_name in li.status.name
+                       ]
         for target in target_list:
             schedule_processor(target, 'STOPPED')
             # Workaround until deterministic processor management implemented
@@ -206,15 +227,8 @@ def fixture_processor(request):
     return Dummy()
 
 
-@pytest.fixture()
-def fixture_registry_bucket(request, fixture_reg_client):
-    class Dummy:
-        def generate(self, suffix=''):
-            return (
-                create_registry_bucket(test_bucket_name + suffix),
-                fixture_reg_client
-            )
-
+@pytest.fixture(name='fix_bucket')
+def fixture_bucket(request, fix_reg_client):
     def cleanup_test_buckets():
         _ = [delete_registry_bucket(li) for li
              in list_registry_buckets() if
@@ -222,24 +236,65 @@ def fixture_registry_bucket(request, fixture_reg_client):
 
     cleanup_test_buckets()
     request.addfinalizer(cleanup_test_buckets)
-    return Dummy()
-
-
-@pytest.fixture()
-def fixture_versioned_flow(fixture_registry_bucket, fixture_pg,
-                           fixture_processor):
-    fix_rb, fix_rc = fixture_registry_bucket.generate()
-    fix_pg = fixture_pg.generate()
-    fix_p = fixture_processor.generate(parent_pg=fix_pg)
-    fix_vf_info = save_flow_ver(
-        process_group=fix_pg,
-        registry_client=fix_rc,
-        bucket=fix_rb,
-        flow_name=test_versioned_flow_name,
-        comment='NiPyApi Test',
-        desc='NiPyApi Test'
+    FixtureBucket = namedtuple(
+        'FixtureBucket', ('client', 'bucket')
     )
-    return (
-        fix_rc, fix_rb, fix_pg, fix_p, fix_vf_info
+    return FixtureBucket(
+        client=fix_reg_client,
+        bucket=create_registry_bucket(test_bucket_name)
     )
 
+
+@pytest.fixture(name='fix_ver_flow')
+def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
+    FixtureVerFlow = namedtuple(
+        'FixtureVerFlow', getattr(fix_bucket, '_fields') + (
+            'pg', 'proc', 'info', 'flow', 'snapshot')
+    )
+    f_pg = fix_pg.generate()
+    f_proc = fix_proc.generate(parent_pg=f_pg)
+    f_info = save_flow_ver(
+            process_group=f_pg,
+            registry_client=fix_bucket.client,
+            bucket=fix_bucket.bucket,
+            flow_name=test_versioned_flow_name,
+            comment='NiPyApi Test',
+            desc='NiPyApi Test'
+        )
+    f_flow = get_flow_in_bucket(
+            bucket_id=fix_bucket.bucket.identifier,
+            identifier=f_info.version_control_information.flow_id,
+            identifier_type='id'
+        )
+    f_snapshot = get_latest_flow_ver(
+        fix_bucket.bucket.identifier,
+        f_flow.identifier
+    )
+    return FixtureVerFlow(
+        *fix_bucket,
+        pg=f_pg,
+        proc=f_proc,
+        info=f_info,
+        flow=f_flow,
+        snapshot=f_snapshot
+    )
+
+
+@pytest.fixture(name='fix_flow_serde')
+def fixture_flow_serde(tmpdir, fix_ver_flow):
+    FixtureFlowSerde = namedtuple(
+        'FixtureFlowSerde',
+        getattr(fix_ver_flow, '_fields') + ('filepath', 'json')
+    )
+    f_filepath = tmpdir.mkdir(test_ver_export_tmpdir)\
+        .join(test_ver_export_filename)
+    f_json = export_flow(
+        flow_snapshot=fix_ver_flow.snapshot,
+        file_path=f_filepath,
+        mode='json'
+    )
+    return FixtureFlowSerde(
+        *fix_ver_flow,
+        filepath=f_filepath,
+        json=f_json
+    )

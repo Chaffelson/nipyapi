@@ -27,6 +27,6 @@ Name | Type | Description | Notes
 **active_thread_count** | **int** | The number of active threads for the reporting task. | [optional] 
 **extension_missing** | **bool** | Whether the underlying extension is missing. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

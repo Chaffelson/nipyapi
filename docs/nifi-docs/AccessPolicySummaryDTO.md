@@ -12,6 +12,6 @@ Name | Type | Description | Notes
 **component_reference** | [**ComponentReferenceEntity**](ComponentReferenceEntity.md) | Component this policy references if applicable. | [optional] 
 **configurable** | **bool** | Whether this policy is configurable. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

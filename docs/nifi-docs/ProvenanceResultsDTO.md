@@ -11,6 +11,6 @@ Name | Type | Description | Notes
 **time_offset** | **int** | The time offset of the server that&#39;s used for event time. | [optional] 
 **errors** | **list[str]** | Any errors that occurred while performing the provenance request. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

@@ -27,6 +27,6 @@ Name | Type | Description | Notes
 **input_port_count** | **int** | The number of input ports in the process group. | [optional] 
 **output_port_count** | **int** | The number of output ports in the process group. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

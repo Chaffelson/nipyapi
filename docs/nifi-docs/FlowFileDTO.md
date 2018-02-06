@@ -21,6 +21,6 @@ Name | Type | Description | Notes
 **content_claim_file_size_bytes** | **int** | The file size of the content claim in bytes. | [optional] 
 **penalized** | **bool** | If the FlowFile is penalized. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

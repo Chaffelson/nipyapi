@@ -24,6 +24,6 @@ Name | Type | Description | Notes
 **percent_use_count** | **int** | Connection percent use regarding queued flow files count and backpressure threshold if configured. | [optional] 
 **percent_use_bytes** | **int** | Connection percent use regarding queued flow files size and backpressure threshold if configured. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

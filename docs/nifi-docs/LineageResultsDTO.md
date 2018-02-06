@@ -7,6 +7,6 @@ Name | Type | Description | Notes
 **nodes** | [**list[ProvenanceNodeDTO]**](ProvenanceNodeDTO.md) | The nodes in the lineage. | [optional] 
 **links** | [**list[ProvenanceLinkDTO]**](ProvenanceLinkDTO.md) | The links between the nodes in the lineage. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

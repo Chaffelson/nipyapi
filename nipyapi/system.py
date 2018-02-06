@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-For interactions with the NiFi Canvas
+For interactions with the NiFi and Registry Services
 """
 
 from __future__ import absolute_import

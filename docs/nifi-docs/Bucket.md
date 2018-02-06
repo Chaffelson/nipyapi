@@ -10,6 +10,6 @@ Name | Type | Description | Notes
 **description** | **str** | A description of the bucket. | [optional] 
 **permissions** | [**Permissions**](Permissions.md) | The access that the current user has to this bucket. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

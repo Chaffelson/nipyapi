@@ -17,6 +17,6 @@ Name | Type | Description | Notes
 **group_access_control** | **list[str]** | The user groups that are allowed to access the port. | [optional] 
 **validation_errors** | **list[str]** | Gets the validation errors from this port. These validation errors represent the problems with the port that must be resolved before it can be started. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

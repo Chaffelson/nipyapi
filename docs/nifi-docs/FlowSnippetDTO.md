@@ -13,6 +13,6 @@ Name | Type | Description | Notes
 **funnels** | [**list[FunnelDTO]**](FunnelDTO.md) | The funnels in this flow snippet. | [optional] 
 **controller_services** | [**list[ControllerServiceDTO]**](ControllerServiceDTO.md) | The controller services in this flow snippet. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

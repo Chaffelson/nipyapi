@@ -16,7 +16,8 @@ proj_version = '0.7.0'
 requirements = [
     'urllib3',
     'lxml',
-    'docker_compose'
+    'deepdiff',
+    'ruamel.yaml'
 ]
 
 setup_requirements = [

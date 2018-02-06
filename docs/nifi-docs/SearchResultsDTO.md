@@ -11,6 +11,6 @@ Name | Type | Description | Notes
 **remote_process_group_results** | [**list[ComponentSearchResultDTO]**](ComponentSearchResultDTO.md) | The remote process groups that matched the search. | [optional] 
 **funnel_results** | [**list[ComponentSearchResultDTO]**](ComponentSearchResultDTO.md) | The funnels that matched the search. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

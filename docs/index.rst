@@ -9,6 +9,7 @@ Contents:
    readme
    installation
    usage
+   apiClients
    todo
    contributing
    devnotes

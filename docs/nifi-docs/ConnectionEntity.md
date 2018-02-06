@@ -21,6 +21,6 @@ Name | Type | Description | Notes
 **destination_group_id** | **str** | The identifier of the group of the destination of this connection. | [optional] 
 **destination_type** | **str** | The type of component the destination connectable is. | 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

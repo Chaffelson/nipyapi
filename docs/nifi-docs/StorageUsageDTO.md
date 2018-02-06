@@ -12,6 +12,6 @@ Name | Type | Description | Notes
 **used_space_bytes** | **int** | The number of bytes of used space. | [optional] 
 **utilization** | **str** | Utilization of this storage location. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 

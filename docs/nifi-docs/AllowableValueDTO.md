@@ -7,6 +7,6 @@ Name | Type | Description | Notes
 **value** | **str** | A value that is allowed for the property descriptor. | [optional] 
 **description** | **str** | A description for this allowable value. | [optional] 
 
-[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+[[Back to Model list]](../nifiDocs.md#documentation-for-models) [[Back to API list]](../nifiDocs.md#documentation-for-api-endpoints) [[Back to README]](../nifiDocs.md)
 
 
