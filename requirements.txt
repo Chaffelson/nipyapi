@@ -1,5 +1,5 @@
 # Basics
-setuptools==38.5.0
+setuptools==38.5.1
 
 # Templates management implementation
 urllib3==1.22
