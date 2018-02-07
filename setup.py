@@ -19,7 +19,8 @@ requirements = [
     'm2r',  # Required for docs build
     'deepdiff',  # Required for comparing configurations
     'ruamel.yaml',  # Required for parsing Json/Yaml consistently
-    'docker'  # Used to deploy demo assemblies
+    'docker',  # Used to deploy demo assemblies
+    'requests'  # Used in demo management
 ]
 
 setup_requirements = [
