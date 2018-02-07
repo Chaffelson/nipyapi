@@ -2,7 +2,7 @@
 # If you need an older version of a dependency please open an Issue on Github
 # Basics
 setuptools>=38.5
-six
+six==1.11.0
 
 # Templates management implementation
 urllib3>=1.22
