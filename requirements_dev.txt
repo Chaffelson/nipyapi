@@ -32,5 +32,4 @@ randomize>=0.13
 certifi>=2017.7.27.1
 pylint>=1.7.4
 virtualenvwrapper>=4.8
-requests>=2.18.4
 deepdiff>=3.3.0

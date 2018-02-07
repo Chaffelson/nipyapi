@@ -39,6 +39,8 @@ Functionality Highlights:
  - Full native Python rest client for NiFi and NiFi-Registry
  - CRUD wrappers for common task areas like Processor Groups, Processors, Templates, Registry Clients, Registry Buckets, Registry Flows, etc.
  - Convenience functions for inventory tasks, such as recursively retrieving the entire canvas, or a flat list of all Process Groups
+ - Support for Variable Registry
+ - Support for import/export of Versioned Flows from NiFi-Registry
  - Docker Compose configurations for testing and deployment
  - Limited support for scheduling components
  - A scripted deployment of an interactive environment for testing and demonstration purposes
