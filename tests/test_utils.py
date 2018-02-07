@@ -8,6 +8,7 @@ import pytest
 from tests import conftest
 import json
 from ruamel.yaml import safe_load
+from ruamel.yaml.reader import YAMLStreamError
 from deepdiff import DeepDiff
 from nipyapi import _utils
 # Fix for Py3 introducing better IO errors, but not available in Py2
@@ -15,6 +16,14 @@ try:
     from nipyapi._utils import PermissionError, FileNotFoundError
 except ImportError:
     pass
+
+
+def test_json_default(fix_pg):
+    f_pg = fix_pg.generate()
+    r1 = _utils._json_default(f_pg.revision)
+    assert isinstance(r1, dict)
+    with pytest.raises(TypeError):
+        _ = _utils._json_default({})
 
 
 def test_dump(fix_flow_serde):
@@ -34,6 +43,10 @@ def test_dump(fix_flow_serde):
         round_trip_json,
         verbose_level=2
     ) == {}
+    with pytest.raises(ValueError):
+        _ = _utils.dump('','FakeNews')
+    with pytest.raises(TypeError):
+        _ = _utils.dump({None}, 'json')
     # Todo: test sorting
 
 
@@ -49,6 +62,8 @@ def test_load(fix_flow_serde):
         r1,
         verbose_level=2
     ) == {}
+    with pytest.raises(YAMLStreamError):
+        _ = _utils.load({})
     # TODO: Test sorting
 
 

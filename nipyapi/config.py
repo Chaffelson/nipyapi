@@ -25,3 +25,15 @@ nifi_config.host = 'http://localhost:8080/nifi-api'
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://localhost:18080/nifi-registry-api'
 
+
+registered_filters = {
+    'Bucket': {'id': ['identifier'], 'name': ['name']},
+    'VersionedFlow': {'id': ['identifier'], 'name': ['name']},
+    'RegistryClientEntity': {'id': ['id'], 'name': ['component', 'name']},
+    'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
+    'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
+                          'name': ['type'],
+                          'tag': ['tags']
+                          },  # This is Processor Types
+    'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
+}

@@ -13,3 +13,7 @@ deepdiff>=3.3.0
 
 # Docs build requirements
 -e git://github.com/lyft/m2r.git@1aa9d312efa9c71eb0622e9e3c8e5692440a25f3#egg=m2r
+
+# Demo deployment automation
+docker>=3
+requests>=2.18

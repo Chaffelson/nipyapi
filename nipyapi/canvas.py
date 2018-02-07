@@ -6,7 +6,7 @@ STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
-from nipyapi import nifi
+from nipyapi import nifi, _utils
 from nipyapi.nifi.rest import ApiException
 
 __all__ = [
@@ -95,31 +95,11 @@ def get_process_group(identifier, identifier_type='name'):
     :param identifier_type: 'name' or 'id'
     :return: ProcessGroupEntity if unique, None if not found, List if duplicate
     """
-    valid_id_types = ['name', 'id']
-    if identifier_type not in valid_id_types:
-        raise ValueError(
-            "invalid identifier_type. ({0}) not in ({1})".format(
-                identifier_type, valid_id_types
-            )
-        )
-    all_pgs = list_all_process_groups()
-    if identifier_type == 'name':
-        out = [
-            li for li in all_pgs
-            if identifier in li.status.name
-        ]
-    elif identifier_type == 'id':
-        out = [
-            li for li in all_pgs
-            if identifier in li.id
-        ]
-    else:
-        out = []
-    if not out:
-        return None
-    elif len(out) > 1:
-        return out
-    return out[0]
+    try:
+        obj = list_all_process_groups()
+    except ApiException as e:
+        raise ValueError(e.body)
+    return _utils.filter_obj(obj, identifier, identifier_type)
 
 
 def list_all_process_groups():
@@ -257,35 +237,41 @@ def get_processor_type(identifier, identifier_type='name'):
     :param identifier_type: Processor descriptor to search: bundle, name or tag
     :return: DocumentedTypeDTO if unique, None if not found, List if duplicate
     """
-    valid_id_types = ['bundle', 'name', 'tag']
-    if identifier_type not in valid_id_types:
-        raise ValueError(
-            "identifier_type not in valid list ({0})".format(
-                identifier_type
-            )
-        )
-    out = []
-    all_p = list_all_processor_types().processor_types
-    if identifier_type == 'name':
-        out = [
-            i for i in all_p if
-            identifier in i.type
-        ]
-    if identifier_type == 'bundle':
-        out = [
-            i for i in all_p if
-            identifier in i.bundle.artifact
-        ]
-    if identifier_type == 'tag':
-        out = [
-            i for i in all_p if
-            identifier in str(i.tags)
-        ]
-    if not out:
-        return None
-    elif len(out) > 1:
-        return out
-    return out[0]
+    try:
+        obj = list_all_processor_types().processor_types
+    except ApiException as e:
+        raise ValueError(e.body)
+    return _utils.filter_obj(obj, identifier, identifier_type)
+    #
+    # valid_id_types = ['bundle', 'name', 'tag']
+    # if identifier_type not in valid_id_types:
+    #     raise ValueError(
+    #         "identifier_type not in valid list ({0})".format(
+    #             identifier_type
+    #         )
+    #     )
+    # out = []
+    # all_p = list_all_processor_types().processor_types
+    # if identifier_type == 'name':
+    #     out = [
+    #         i for i in all_p if
+    #         identifier in i.type
+    #     ]
+    # if identifier_type == 'bundle':
+    #     out = [
+    #         i for i in all_p if
+    #         identifier in i.bundle.artifact
+    #     ]
+    # if identifier_type == 'tag':
+    #     out = [
+    #         i for i in all_p if
+    #         identifier in str(i.tags)
+    #     ]
+    # if not out:
+    #     return None
+    # elif len(out) > 1:
+    #     return out
+    # return out[0]
 
 
 def create_processor(parent_pg, processor, location, name=None, config=None):
@@ -331,27 +317,33 @@ def get_processor(identifier, identifier_type='name'):
     Gets a deployed Processor, or list thereof
     :param identifier: String to filter on
     :param identifier_type: 'name' or 'id' to identify field to filter on
-    :return:
+    :return: None if 0 matches, list if > 1, single ProcessorEntity if ==1
     """
-    valid_id_types = ['name', 'id']
-    if identifier_type not in valid_id_types:
-        raise ValueError(
-            "invalid identifier_type. ({0}) not in ({1})".format(
-                identifier_type, valid_id_types
-            )
-        )
-    if identifier_type == 'name':
-        out = [
-            li for li in list_all_processors()
-            if identifier in li.status.name
-        ]
-        if not out:
-            return None
-        elif len(out) > 1:
-            return out
-        return out[0]
-    if identifier_type == 'id':
-        return nifi.ProcessorsApi().get_processor(identifier)
+    try:
+        obj = list_all_processors()
+    except ApiException as e:
+        raise ValueError(e.body)
+    return _utils.filter_obj(obj, identifier, identifier_type)
+    #
+    # valid_id_types = ['name', 'id']
+    # if identifier_type not in valid_id_types:
+    #     raise ValueError(
+    #         "invalid identifier_type. ({0}) not in ({1})".format(
+    #             identifier_type, valid_id_types
+    #         )
+    #     )
+    # if identifier_type == 'name':
+    #     out = [
+    #         li for li in list_all_processors()
+    #         if identifier in li.status.name
+    #     ]
+    #     if not out:
+    #         return None
+    #     elif len(out) > 1:
+    #         return out
+    #     return out[0]
+    # if identifier_type == 'id':
+    #     return nifi.ProcessorsApi().get_processor(identifier)
 
 
 def delete_processor(processor, refresh=True):
@@ -366,6 +358,9 @@ def delete_processor(processor, refresh=True):
             target_proc = get_processor(processor.id, 'id')
         else:
             target_proc = processor
+        if not isinstance(target_proc, nifi.ProcessorEntity):
+            raise ValueError("target ({0}) is not a valid nifi.ProcessorEntity"
+                             .format(type(target_proc)))
         return nifi.ProcessorsApi().delete_processor(
             id=target_proc.id,
             version=target_proc.revision.version

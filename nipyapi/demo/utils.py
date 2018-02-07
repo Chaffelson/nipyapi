@@ -9,6 +9,9 @@ import requests
 
 
 class DockerContainer(object):
+    """
+    Helper class for Docker containiner automation without using Ansible
+    """
     def __init__(self, name=None, image_name=None, image_tag=None, ports=None,
                  env=None, test_url=None, endpoint=None):
         self.name = name
@@ -20,6 +23,10 @@ class DockerContainer(object):
         self.endpoint = endpoint
 
     def get_test_url_status(self):
+        """
+        Checks if a URL is available
+        :return: status code if available, String 'ConnectionError' if not
+        """
         try:
             return requests.get(self.test_url).status_code
         except requests.ConnectionError:

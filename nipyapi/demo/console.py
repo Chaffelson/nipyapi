@@ -5,9 +5,16 @@ A convenience script for generating an interactive test environment.
 """
 
 from __future__ import absolute_import
-from nipyapi.canvas import *
-from nipyapi.versioning import *
 from nipyapi import config
+from nipyapi.canvas import get_process_group, delete_process_group
+from nipyapi.canvas import create_process_group, get_root_pg_id
+from nipyapi.canvas import get_processor, delete_processor, create_processor
+from nipyapi.canvas import get_processor_type
+from nipyapi.versioning import create_registry_client, get_registry_client
+from nipyapi.versioning import get_registry_bucket, delete_registry_bucket
+from nipyapi.versioning import create_registry_bucket, save_flow_ver
+from nipyapi.versioning import get_flow_in_bucket, get_latest_flow_ver
+from nipyapi.versioning import create_flow, create_flow_version
 from nipyapi.nifi import ProcessorConfigDTO
 
 # Note that this is the URI for NiFi to connect to Registry
@@ -36,12 +43,12 @@ process_group_0 = create_process_group(
     get_process_group(get_root_pg_id(), 'id'),
     _pg0,
     location=(400.0, 400.0)
-    )
+)
 
 # Get or create a processor in the above PG
 processor_0 = get_processor(_proc0)
 if processor_0 is not None:
-        delete_processor(process_group_0, True)
+    delete_processor(process_group_0, True)
 processor_0 = create_processor(
     parent_pg=process_group_0,
     processor=get_processor_type('GenerateFlowFile'),

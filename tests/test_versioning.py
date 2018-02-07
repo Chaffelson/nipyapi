@@ -40,6 +40,8 @@ def test_delete_registry_client(fix_reg_client):
     assert isinstance(r, nifi.RegistryClientEntity)
     assert r.uri is None
     assert r.component.name == conftest.test_registry_client_name
+    with pytest.raises(ValueError):
+        _ = versioning.delete_registry_client('FakeClient')
     # TODO Add test for when a PG is attached to the client
 
 
@@ -49,6 +51,8 @@ def test_get_registry_client(fix_reg_client):
     assert r1.component.name == conftest.test_registry_client_name
     r2 = versioning.get_registry_client(r1.id, 'id')
     assert r2.id == r1.id
+    with pytest.raises(ValueError):
+        _ = versioning.get_registry_client('', 'NotIDorName')
 
 
 def test_list_registry_buckets(fix_bucket):
@@ -70,10 +74,7 @@ def test_delete_registry_bucket(fix_bucket):
     r = versioning.delete_registry_bucket(fix_bucket.bucket)
     assert r.identifier == fix_bucket.bucket.identifier
     with pytest.raises(ValueError):
-        _ = versioning.get_registry_bucket(
-            fix_bucket.bucket.identifier,
-            'id'
-        )
+        _ = versioning.delete_registry_bucket('FakeNews')
 
 
 def test_get_registry_bucket(fix_bucket):
@@ -120,7 +121,17 @@ def test_save_flow_ver(fix_bucket, fix_pg, fix_proc):
     )
     assert isinstance(r2, nifi.VersionControlInformationEntity)
     assert r2.version_control_information.version > \
-           r1.version_control_information.version
+        r1.version_control_information.version
+    with pytest.raises(ValueError):
+        _ = versioning.save_flow_ver(
+            process_group=f_pg,
+            registry_client=fix_bucket.client,
+            bucket=fix_bucket.bucket,
+            flow_name=conftest.test_versioned_flow_name,
+            comment='a test comment',
+            desc='a test description',
+            refresh=False
+        )
 
 
 def test_stop_flow_ver(fix_ver_flow):
@@ -130,12 +141,16 @@ def test_stop_flow_ver(fix_ver_flow):
     with pytest.raises(ValueError,
                        match='not currently under Version Control'):
         _ = versioning.stop_flow_ver(fix_ver_flow.pg)
+    with pytest.raises(ValueError):
+        _ = versioning.stop_flow_ver(fix_ver_flow.pg, refresh=False)
 
 
 def test_revert_flow_ver(fix_ver_flow):
     r1 = versioning.revert_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionedFlowUpdateRequestEntity)
     # TODO: Add Tests for flows with data loss on reversion
+    with pytest.raises(ValueError):
+        _ = versioning.revert_flow_ver('NotAPg')
 
 
 def test_list_flows_in_bucket(fix_ver_flow):
@@ -153,13 +168,11 @@ def test_get_flow_in_bucket(fix_ver_flow):
         'id'
     )
     assert isinstance(r1, registry.VersionedFlow)
-    assert r1.identifier == fix_ver_flow.info.version_control_information.flow_id
-    with pytest.raises(ValueError, match='Versioned flow does not exist'):
-        _ = versioning.get_flow_in_bucket(
-            fix_ver_flow.bucket.identifier,
-            'fakenews',
-            'id'
-        )
+    assert r1.identifier == fix_ver_flow.info.version_control_information.\
+        flow_id
+    r2 = versioning.get_flow_in_bucket(fix_ver_flow.bucket.identifier,
+                                       'fakenews', 'id')
+    assert r2 is None
 
 
 def test_get_latest_flow_ver(fix_ver_flow):
@@ -184,6 +197,8 @@ def test_update_flow_ver():
 def test_get_version_info(fix_ver_flow):
     r1 = versioning.get_version_info(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionControlInformationEntity)
+    with pytest.raises(ValueError):
+        _ = versioning.get_version_info('NotAPG')
 
 
 def test_create_flow(fix_ver_flow):

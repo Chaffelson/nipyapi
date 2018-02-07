@@ -78,7 +78,7 @@ for c in d_clear_list:
 log.info("Getting Docker bridge network")
 d_n_list = [li for li in d_client.networks.list()
             if d_network_name in li.name]
-if len(d_n_list) == 0:
+if not d_n_list:
     d_network = d_client.networks.create(
         name=d_network_name,
         driver='bridge',
@@ -96,14 +96,14 @@ c_hooks = {}
 for c in d_containers:
     log.info("- Starting Container ({0})".format(c.name))
     c_hooks[c.name] = d_client.containers.run(
-                        image=c.image_name + ':' + c.image_tag,
-                        detach=True,
-                        network=d_network_name,
-                        hostname=c.name,
-                        name=c.name,
-                        ports=c.ports,
-                        environment=c.env
-                    )
+        image=c.image_name + ':' + c.image_tag,
+        detach=True,
+        network=d_network_name,
+        hostname=c.name,
+        name=c.name,
+        ports=c.ports,
+        environment=c.env
+    )
 
 log.info("Waiting on Service Startup")
 max_retry = 10

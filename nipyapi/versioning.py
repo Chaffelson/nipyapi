@@ -56,8 +56,8 @@ def delete_registry_client(client):
             id=client.id,
             version=client.revision.version
         )
-    except ApiExceptionN as e:
-        raise ValueError(e.body)
+    except (ApiExceptionN, AttributeError) as e:
+        raise ValueError(e)
 
 
 def list_registry_clients():
@@ -78,31 +78,11 @@ def get_registry_client(identifier, identifier_type='name'):
     :param identifier_type: String, the parameter to filter on, 'name' or 'id'
     :return: None if 0 matches, list if > 1, RegistryClientEntity if ==1
     """
-    valid_id_types = ['name', 'id']
-    if identifier_type not in valid_id_types:
-        raise ValueError(
-            "invalid identifier_type. ({0}) not in ({1})".format(
-                identifier_type, valid_id_types
-            )
-        )
-    all_rcs = list_registry_clients()
-    if identifier_type == 'name':
-        out = [
-            li for li in all_rcs.registries
-            if identifier in li.component.name
-        ]
-    elif identifier_type == 'id':
-        out = [
-            li for li in all_rcs.registries
-            if identifier in li.id
-        ]
-    else:
-        out = []
-    if not out:
-        return None
-    elif len(out) > 1:
-        return out
-    return out[0]
+    try:
+        obj = list_registry_clients().registries
+    except ApiExceptionR as e:
+        raise ValueError(e.body)
+    return _utils.filter_obj(obj, identifier, identifier_type)
 
 
 def list_registry_buckets():
@@ -142,8 +122,8 @@ def delete_registry_bucket(bucket):
         return registry.BucketsApi().delete_bucket(
             bucket_id=bucket.identifier
         )
-    except ApiExceptionR as e:
-        raise ValueError(e.body)
+    except (ApiExceptionR, AttributeError) as e:
+        raise ValueError(e)
 
 
 def get_registry_bucket(identifier, identifier_type='name'):
@@ -153,28 +133,11 @@ def get_registry_bucket(identifier, identifier_type='name'):
     :param identifier_type: String, the param to filter on, 'name' or 'id
     :return: None if 0 matches, list if > 1, single Bucket entity if ==1
     """
-    valid_id_types = ['name', 'id']
-    if identifier_type not in valid_id_types:
-        raise ValueError(
-            "invalid identifier_type. ({0}) not in ({1})".format(
-                identifier_type, valid_id_types
-            )
-        )
     try:
-        if identifier_type == 'name':
-            out = [
-                li for li in list_registry_buckets()
-                if identifier in li.name
-            ]
-            if not out:
-                return None
-            elif len(out) > 1:
-                return out
-            return out[0]
-        if identifier_type == 'id':
-            return registry.BucketsApi().get_bucket(identifier)
+        obj = list_registry_buckets()
     except ApiExceptionR as e:
         raise ValueError(e.body)
+    return _utils.filter_obj(obj, identifier, identifier_type)
 
 
 def list_flows_in_bucket(bucket_id):
@@ -197,28 +160,11 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
     :param identifier_type: String, the param to check, 'name' or 'id'
     :return: None if 0 matches, list if > 1, single VersionedFlow entity if ==1
     """
-    valid_id_types = ['name', 'id']
-    if identifier_type not in valid_id_types:
-        raise ValueError(
-            "invalid identifier_type. ({0}) not in ({1})".format(
-                identifier_type, valid_id_types
-            )
-        )
     try:
-        if identifier_type == 'id':
-            return registry.BucketFlowsApi().get_flow(bucket_id, identifier)
-        if identifier_type == 'name':
-            out = [
-                li for li in list_flows_in_bucket(bucket_id)
-                if identifier in li.name
-            ]
-            if not out:
-                return None
-            elif len(out) > 1:
-                return out
-            return out[0]
+        obj = list_flows_in_bucket(bucket_id)
     except ApiExceptionR as e:
         raise ValueError(e.body)
+    return _utils.filter_obj(obj, identifier, identifier_type)
 
 
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
@@ -296,8 +242,8 @@ def revert_flow_ver(process_group):
             id=process_group.id,
             body=nifi.VersionsApi().get_version_information(process_group.id)
         )
-    except ApiExceptionN as e:
-        raise ValueError(e.body)
+    except (ApiExceptionN, AttributeError) as e:
+        raise ValueError(e)
 
 
 def update_flow_ver(process_group, registry_client, flow,
@@ -356,8 +302,8 @@ def get_version_info(process_group):
         return nifi.VersionsApi().get_version_information(
             process_group.id
         )
-    except ApiExceptionN as e:
-        raise ValueError(e.body)
+    except (ApiExceptionN, AttributeError) as e:
+        raise ValueError(e)
 
 
 def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
@@ -540,4 +486,3 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
         flow_snapshot=flow_contents,
         raw_snapshot=False
     )
-    # TODO: Return diff of imported flow

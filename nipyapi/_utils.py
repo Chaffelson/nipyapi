@@ -10,6 +10,7 @@ from __future__ import absolute_import, unicode_literals
 import json
 from ruamel.yaml import safe_load
 from ruamel.yaml.reader import YAMLStreamError
+from nipyapi import config
 
 # Python 2.7 doesn't have Py3.3+ Error codes, but they're more readable
 try:
@@ -18,7 +19,6 @@ try:
 except ImportError:
     FileNotFoundError = IOError
     PermissionError = IOError
-
 
 
 def _json_default(obj):
@@ -31,7 +31,7 @@ def _json_default(obj):
         return obj.to_dict()
     except AttributeError:
         raise TypeError("Expected Object({0}) to have swagger defined"
-                        "to_dict() method".format(type(obj)))
+                        " to_dict() method".format(type(obj)))
 
 
 def dump(obj, mode=None):
@@ -49,7 +49,7 @@ def dump(obj, mode=None):
                 indent=4,
                 default=_json_default
             )
-        except ValueError as e:
+        except TypeError as e:
             raise e
     elif mode == 'yaml':
         raise TypeError("({0})) export/import not yet implemented"
@@ -98,5 +98,52 @@ def fs_read(file_path):
     try:
         with open(str(file_path), 'r') as f:
             return f.read()
-    except FileNotFoundError as e:
+    except (FileNotFoundError, PermissionError) as e:
         raise e
+
+
+def filter_obj(obj, value, key):
+    """
+    Implements a custom filter method because Objects returned by the API
+    don't have consistently named identifiers.
+    Note that each class must be registered with the identifiers to be used
+    :param obj: the NiFi or NiFi-Registry object to filter on
+    :param value: the String value to look for
+    :param key: the String of the object key to filter against
+    :return: None if 0 matches, list if > 1, single Object entity if ==1
+    """
+    from functools import reduce
+    import operator
+    # Check we haven't been passed an empty object
+    if not obj:
+        return None
+    # Using the object class name as a lookup as they are unique within the
+    # NiFi DTOs
+    obj_class_name = obj[0].__class__.__name__
+    # Check if this class has a registered filter in Nipyapi.config
+    this_filter = config.registered_filters.get(obj_class_name, False)
+    if not this_filter:
+        registered_filters = ' '.join(config.registered_filters.keys())
+        raise ValueError(
+            "({0}) is not a registered NiPyApi filterable class, registered "
+            "classes are ({1})".format(obj_class_name, registered_filters)
+        )
+    # Check if the supplied key is part of the registered filter
+    key_lookup = config.registered_filters[obj_class_name].get(key, False)
+    if not key_lookup:
+        valid_keys = ' '.join(config.registered_filters[obj_class_name].keys())
+        raise ValueError(
+            "({0}) is not a registered filter method for object ({1}), valid "
+            "methods are ({2})".format(key, obj_class_name, valid_keys)
+        )
+    # List comprehension using reduce to unpack the list of keys in the filter
+    out = [
+        i for i in obj if value in
+        reduce(operator.getitem, key_lookup, i.to_dict())
+    ]
+    # Manage our return contract
+    if not out:
+        return None
+    elif len(out) > 1:
+        return out
+    return out[0]
