@@ -33,7 +33,6 @@ registered_filters = {
     'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
     'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
                           'name': ['type'],
-                          'tag': ['tags']
-                          },  # This is Processor Types
+                          'tag': ['tags']},  # This is Processor Types
     'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
 }

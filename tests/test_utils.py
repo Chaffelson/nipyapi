@@ -10,7 +10,7 @@ import json
 from ruamel.yaml import safe_load
 from ruamel.yaml.reader import YAMLStreamError
 from deepdiff import DeepDiff
-from nipyapi import _utils
+from nipyapi import _utils, nifi
 # Fix for Py3 introducing better IO errors, but not available in Py2
 try:
     from nipyapi._utils import PermissionError, FileNotFoundError
@@ -100,3 +100,21 @@ def test_fs_read(fix_flow_serde, tmpdir):
         _ = _utils.fs_read(
             file_path='/dev/AlmostCertainlyNotAValidDevice'
         )
+
+
+def test_filter_obj(fix_pg):
+    f_pg = fix_pg.generate()
+    t_1 = ['pie']
+    with pytest.raises(ValueError):
+        _ = _utils.filter_obj(t_1, '', '')
+    with pytest.raises(ValueError):
+        _ = _utils.filter_obj([f_pg], '', 'pie')
+    r1 = _utils.filter_obj([f_pg], 'nipyapi', 'name')
+    assert isinstance(r1, nifi.ProcessGroupEntity)
+    r2 = _utils.filter_obj([f_pg], 'FakeNews', 'name')
+    assert r2 is None
+    f_pg2 = fix_pg.generate()
+    r3 = _utils.filter_obj([f_pg, f_pg2], 'nipyapi', 'name')
+    assert isinstance(r3, list)
+    r4 = _utils.filter_obj([], '', '')
+    assert r4 is None

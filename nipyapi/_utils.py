@@ -8,15 +8,13 @@ Convenience utility functions for NiPyApi
 
 from __future__ import absolute_import, unicode_literals
 import json
+from six import PY2
 from ruamel.yaml import safe_load
 from ruamel.yaml.reader import YAMLStreamError
 from nipyapi import config
 
 # Python 2.7 doesn't have Py3.3+ Error codes, but they're more readable
-try:
-    import FileNotFoundError
-    import PermissionError
-except ImportError:
+if PY2:
     FileNotFoundError = IOError
     PermissionError = IOError
 
@@ -114,12 +112,15 @@ def filter_obj(obj, value, key):
     """
     from functools import reduce
     import operator
-    # Check we haven't been passed an empty object
-    if not obj:
-        return None
     # Using the object class name as a lookup as they are unique within the
     # NiFi DTOs
-    obj_class_name = obj[0].__class__.__name__
+    if isinstance(obj, list) and not obj:
+        return None
+    try:
+        obj_class_name = obj[0].__class__.__name__
+    except (TypeError, IndexError):
+        raise TypeError("The passed object ({0}) is not a known filterable"
+                        " nipyapi object".format(obj.__class__.__name__))
     # Check if this class has a registered filter in Nipyapi.config
     this_filter = config.registered_filters.get(obj_class_name, False)
     if not this_filter:

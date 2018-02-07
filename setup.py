@@ -18,6 +18,7 @@ requirements = [
     'lxml',  # Required for parsing NiFi Templates
     'm2r',  # Required for docs build
     'deepdiff',  # Required for comparing configurations
+    'six',  # Required for managing Python version compatibility
     'ruamel.yaml',  # Required for parsing Json/Yaml consistently
     'docker',  # Used to deploy demo assemblies
     'requests'  # Used in demo management

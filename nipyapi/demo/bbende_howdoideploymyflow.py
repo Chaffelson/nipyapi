@@ -63,7 +63,7 @@ d_client = docker.from_env()
 # Pull relevant Images
 log.info("Pulling relevant Docker Images")
 for image in set([(c.image_name + ':' + c.image_tag) for c in d_containers]):
-    log.info("- Pulling ({0})".format(image))
+    log.info("- Pulling %s", image)
     d_client.images.pull(image)
 
 # Clear previous containers
@@ -71,7 +71,7 @@ log.info("Clearing previous containers for this demo")
 d_clear_list = [li for li in d_client.containers.list(all=True)
                 if li.name in [i.name for i in d_containers]]
 for c in d_clear_list:
-    log.info("- Removing old container ({0})".format(c.name))
+    log.info("- Removing old container %s", c.name)
     c.remove(force=True)
 
 # Deploy/Get Network
@@ -87,14 +87,14 @@ if not d_n_list:
 elif len(d_n_list) > 1:
     raise EnvironmentError("Too many test networks found")
 else:
-    log.info("- Found network ({0})".format(d_n_list[0]))
+    log.info("- Found network %s", d_n_list[0])
     d_network = d_n_list[0]
 
 # Deploy Containers
 log.info("Starting relevant Docker Containers")
 c_hooks = {}
 for c in d_containers:
-    log.info("- Starting Container ({0})".format(c.name))
+    log.info("- Starting Container %s", c.name)
     c_hooks[c.name] = d_client.containers.run(
         image=c.image_name + ':' + c.image_tag,
         detach=True,
@@ -110,8 +110,8 @@ max_retry = 10
 for retry in range(0, max_retry):
     current_status = [(c.name, c.get_test_url_status()) for c in d_containers]
     if str(list(set([i[1] for i in current_status]))) == '[200]':
-        log.info("- All started; status: ({0})".format(current_status))
+        log.info("- All started; status: %s", current_status)
         break
     else:
-        log.info("- Retry ({0}), Status: ({1})".format(retry, current_status))
+        log.info("- Retry %s Status: %s", retry, current_status)
         sleep(10)
