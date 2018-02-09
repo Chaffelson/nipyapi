@@ -8,9 +8,9 @@ import pytest
 from tests import conftest
 import json
 from ruamel.yaml import safe_load
-from ruamel.yaml.reader import YAMLStreamError
 from deepdiff import DeepDiff
 from nipyapi import _utils, nifi
+from nipyapi._utils import YAMLStreamError, RepresenterError
 # Fix for Py3 introducing better IO errors, but not available in Py2
 try:
     from nipyapi._utils import PermissionError, FileNotFoundError
@@ -29,42 +29,61 @@ def test_json_default(fix_pg):
 def test_dump(fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
+    export_obj = fix_flow_serde.snapshot.flow_contents.to_dict()
     ss_json = _utils.dump(
-        obj=fix_flow_serde.snapshot.flow_contents,
+        obj=export_obj,
         mode='json'
     )
     assert isinstance(ss_json, str)
     round_trip_json = safe_load(ss_json)
     # assert that a basic match of the dicts is true
-    assert round_trip_json == fix_flow_serde.snapshot.flow_contents.to_dict()
+    assert round_trip_json == export_obj
     # Deepdiff returns an empty dict on no variations at a much deeper detail
     assert DeepDiff(
-        fix_flow_serde.snapshot.flow_contents.to_dict(),
+        export_obj,
         round_trip_json,
-        verbose_level=2
+        verbose_level=2,
+        ignore_order=False
     ) == {}
     with pytest.raises(ValueError):
         _ = _utils.dump('','FakeNews')
     with pytest.raises(TypeError):
         _ = _utils.dump({None}, 'json')
+    # Test Yaml
+    ss_yaml = _utils.dump(
+        obj=export_obj,
+        mode='yaml'
+    )
+    assert isinstance(ss_yaml, str)
+    round_trip_yaml = safe_load(ss_yaml)
+    assert round_trip_yaml == export_obj
+    assert DeepDiff(
+        export_obj,
+        round_trip_yaml,
+        verbose_level=2,
+        ignore_order=False
+    ) == {}
+    with pytest.raises(RepresenterError):
+        _ = _utils.dump(fix_flow_serde.snapshot, 'yaml')
+    assert round_trip_yaml == round_trip_json
     # Todo: test sorting
 
 
 def test_load(fix_flow_serde):
     # Validating load testing again in case we break the 'dump' test
     r1 = _utils.load(
-        obj=fix_flow_serde.json
+        obj=fix_flow_serde.json,
+        dto=fix_flow_serde.dto
     )
-    # Validate dicts match
-    assert r1 == fix_flow_serde.snapshot.flow_contents.to_dict()
+    # Validate match
     assert DeepDiff(
-        fix_flow_serde.snapshot.flow_contents.to_dict(),
+        fix_flow_serde.snapshot.flow_contents,
         r1,
-        verbose_level=2
+        verbose_level=2,
+        ignore_order=True
     ) == {}
     with pytest.raises(YAMLStreamError):
         _ = _utils.load({})
-    # TODO: Test sorting
 
 
 def test_fs_write(tmpdir):
@@ -92,7 +111,7 @@ def test_fs_write(tmpdir):
 
 def test_fs_read(fix_flow_serde, tmpdir):
     r1 = _utils.fs_read(
-        file_path=fix_flow_serde.filepath
+        file_path=fix_flow_serde.filepath + '.json'
     )
     assert r1 == fix_flow_serde.json
     # Test reading from unreachable file

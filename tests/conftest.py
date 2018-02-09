@@ -249,7 +249,7 @@ def fixture_bucket(request, fix_reg_client):
 def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
     FixtureVerFlow = namedtuple(
         'FixtureVerFlow', getattr(fix_bucket, '_fields') + (
-            'pg', 'proc', 'info', 'flow', 'snapshot')
+            'pg', 'proc', 'info', 'flow', 'snapshot', 'dto')
     )
     f_pg = fix_pg.generate()
     f_proc = fix_proc.generate(parent_pg=f_pg)
@@ -270,13 +270,15 @@ def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
         fix_bucket.bucket.identifier,
         f_flow.identifier
     )
+    f_dto = ('nipyapi.registry.models', 'VersionedProcessGroup')
     return FixtureVerFlow(
         *fix_bucket,
         pg=f_pg,
         proc=f_proc,
         info=f_info,
         flow=f_flow,
-        snapshot=f_snapshot
+        snapshot=f_snapshot,
+        dto=f_dto
     )
 
 
@@ -284,17 +286,23 @@ def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
 def fixture_flow_serde(tmpdir, fix_ver_flow):
     FixtureFlowSerde = namedtuple(
         'FixtureFlowSerde',
-        getattr(fix_ver_flow, '_fields') + ('filepath', 'json')
+        getattr(fix_ver_flow, '_fields') + ('filepath', 'json', 'yaml')
     )
     f_filepath = tmpdir.mkdir(test_ver_export_tmpdir)\
         .join(test_ver_export_filename)
     f_json = export_flow(
         flow_snapshot=fix_ver_flow.snapshot,
-        file_path=f_filepath,
+        file_path=str(f_filepath) + '.json',
         mode='json'
+    )
+    f_yaml = export_flow(
+        flow_snapshot=fix_ver_flow.snapshot,
+        file_path=str(f_filepath) + '.yaml',
+        mode='yaml'
     )
     return FixtureFlowSerde(
         *fix_ver_flow,
-        filepath=f_filepath,
-        json=f_json
+        filepath=str(f_filepath),
+        json=f_json,
+        yaml=f_yaml
     )

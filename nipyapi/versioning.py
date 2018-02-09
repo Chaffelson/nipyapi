@@ -213,7 +213,7 @@ def stop_flow_ver(process_group, refresh=True):
     """
     Removes a Process Group from Version Control
     :param process_group: the ProcessGroup to work with
-    :param refresh: Bool, whether to refresh the objet status before actioning
+    :param refresh: Bool, whether to refresh the object status before actioning
     :return: VersionControlInformationEntity
     """
     try:
@@ -323,7 +323,8 @@ def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
                 name=flow_name,
                 description=flow_desc,
                 bucket_identifier=bucket_id,
-                type=flow_type
+                type=flow_type,
+                version_count=0
             )
         )
     except ApiExceptionR as e:
@@ -331,29 +332,38 @@ def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
 
 
 def create_flow_version(flow, flow_snapshot, bucket_id=None,
-                        raw_snapshot=True):
+                        raw_snapshot=True, refresh=True):
     """
     Writes a FlowSnapshot into a VersionedFlow as a new version update
     :param bucket_id: Deprecated, now pulled from the flow parameter
     :param flow: the VersionedFlow object to write to
     :param flow_snapshot: the VersionedFlowSnapshot to write into the
     VersionedFlow
+    :param refresh: Bool, whether to refresh the object status before actioning
     :param raw_snapshot: True if a raw VersionedFlowSnapshot, False if just
     the flow_contents (usually from a VersionedSnapShot or import)
     :return: the new VersionedFlowSnapshot
     """
-    if raw_snapshot:
-        flow_contents = flow_snapshot.flow_contents
-    else:
-        flow_contents = flow_snapshot
     try:
+        if refresh:
+            target_flow = get_flow_in_bucket(
+                bucket_id=flow.bucket_identifier,
+                identifier=flow.identifier,
+                identifier_type='id'
+            )
+        else:
+            target_flow = flow
+        if raw_snapshot:
+            flow_contents = flow_snapshot.flow_contents
+        else:
+            flow_contents = flow_snapshot
         return registry.BucketFlowsApi().create_flow_version(
-            bucket_id=flow.bucket_identifier,
-            flow_id=flow.identifier,
+            bucket_id=target_flow.bucket_identifier,
+            flow_id=target_flow.identifier,
             body=registry.VersionedFlowSnapshot(
                 flow_contents=flow_contents,
                 snapshot_metadata=registry.VersionedFlowSnapshotMetadata(
-                    version=flow.version_count + 1
+                    version=target_flow.version_count + 1
                 ),
             )
         )
@@ -405,11 +415,11 @@ def export_flow(flow_snapshot, file_path=None, mode='json'):
             obj=export_obj,
             mode=mode
         )
-    except ValueError as e:
+    except (ValueError, TypeError) as e:
         raise e
     if file_path is None:
         return out
-    elif file_path is not None:
+    elif file_path is not None and isinstance(file_path, str):
         return _utils.fs_write(
             obj=_utils.dump(
                 obj=export_obj,
@@ -444,7 +454,8 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     if file_path is None and encoded_flow is not None:
         try:
             flow_contents = _utils.load(
-                encoded_flow
+                encoded_flow,
+                dto=('nipyapi.registry.models', 'VersionedProcessGroup')
             )
         except ValueError as e:
             raise e
@@ -453,7 +464,8 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
             flow_contents = _utils.load(
                 obj=_utils.fs_read(
                     file_path=file_path
-                )
+                ),
+                dto=('nipyapi.registry.models', 'VersionedProcessGroup')
             )
         except ValueError as e:
             raise e
@@ -465,16 +477,17 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     if flow_id is None and flow_name is not None:
         # Case: New flow
         # create the Bucket item
-        # TODO: invetisgate bringing description over
+        # TODO: investigate bringing description over
         ver_flow = create_flow(
             bucket_id=bucket_id,
             flow_name=flow_name
         )
     elif flow_name is None and flow_id is not None:
         # Case: New version in existing flow
-        ver_flow = get_latest_flow_ver(
+        ver_flow = get_flow_in_bucket(
             bucket_id=bucket_id,
-            flow_id=flow_id,
+            identifier=flow_id,
+            identifier_type='id'
         )
     else:
         raise ValueError("Either flow_id must be the identifier of a flow to"
@@ -482,7 +495,7 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
                          "name for a flow in this bucket, but not both")
     # Now write the new version
     return create_flow_version(
-        flow=ver_flow.flow,
+        flow=ver_flow,
         flow_snapshot=flow_contents,
         raw_snapshot=False
     )

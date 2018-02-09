@@ -14,7 +14,7 @@ from nipyapi.versioning import create_registry_client, get_registry_client
 from nipyapi.versioning import get_registry_bucket, delete_registry_bucket
 from nipyapi.versioning import create_registry_bucket, save_flow_ver
 from nipyapi.versioning import get_flow_in_bucket, get_latest_flow_ver
-from nipyapi.versioning import create_flow, create_flow_version
+from nipyapi.versioning import create_flow, create_flow_version, export_flow
 from nipyapi.nifi import ProcessorConfigDTO
 
 # Note that this is the URI for NiFi to connect to Registry
@@ -33,7 +33,8 @@ _vf1 = _basename + '_ver_flow_1'
 
 __all__ = ['process_group_0', 'processor_0', 'reg_client_0', 'bucket_0',
            'bucket_1', 'ver_flow_info_0', 'ver_flow_0', 'ver_flow_snapshot_0',
-           'ver_flow_1', 'ver_flow_snapshot_1']
+           'ver_flow_1', 'ver_flow_snapshot_1', 'ver_flow_json_0',
+           'ver_flow_yaml_0']
 
 # recreate or create a process group
 process_group_0 = get_process_group(_pg0)
@@ -109,3 +110,7 @@ ver_flow_snapshot_1 = create_flow_version(
     flow=ver_flow_1,
     flow_snapshot=ver_flow_snapshot_0
 )
+
+# Export the Flow to Json
+ver_flow_json_0 = export_flow(ver_flow_snapshot_0, mode='json')
+ver_flow_yaml_0 = export_flow(ver_flow_snapshot_0, mode='yaml')
