@@ -10,7 +10,7 @@ import json
 from ruamel.yaml import safe_load
 from deepdiff import DeepDiff
 from nipyapi import _utils, nifi
-from nipyapi._utils import YAMLStreamError, RepresenterError
+from nipyapi._utils import YAMLStreamError
 # Fix for Py3 introducing better IO errors, but not available in Py2
 try:
     from nipyapi._utils import PermissionError, FileNotFoundError
