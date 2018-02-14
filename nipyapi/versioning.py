@@ -331,8 +331,7 @@ def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
         raise ValueError(e.body)
 
 
-def create_flow_version(flow, flow_snapshot, bucket_id=None,
-                        raw_snapshot=True, refresh=True):
+def create_flow_version(flow, flow_snapshot, refresh=True):
     """
     Writes a FlowSnapshot into a VersionedFlow as a new version update
     :param bucket_id: Deprecated, now pulled from the flow parameter
@@ -340,10 +339,14 @@ def create_flow_version(flow, flow_snapshot, bucket_id=None,
     :param flow_snapshot: the VersionedFlowSnapshot to write into the
     VersionedFlow
     :param refresh: Bool, whether to refresh the object status before actioning
-    :param raw_snapshot: True if a raw VersionedFlowSnapshot, False if just
-    the flow_contents (usually from a VersionedSnapShot or import)
+    :param raw_snapshot: Deprecated, as not using a full snapshot resulted in
+    inconsistent behavior
     :return: the new VersionedFlowSnapshot
     """
+    if not isinstance(flow_snapshot, registry.VersionedFlowSnapshot):
+        raise ValueError("flow_snapshot must be an instance of a "
+                         "registry.VersionedFlowSnapshot object, not an ({0})"
+                         .format(type(flow_snapshot)))
     try:
         if refresh:
             target_flow = get_flow_in_bucket(
@@ -353,17 +356,16 @@ def create_flow_version(flow, flow_snapshot, bucket_id=None,
             )
         else:
             target_flow = flow
-        if raw_snapshot:
-            flow_contents = flow_snapshot.flow_contents
-        else:
-            flow_contents = flow_snapshot
         return registry.BucketFlowsApi().create_flow_version(
             bucket_id=target_flow.bucket_identifier,
             flow_id=target_flow.identifier,
             body=registry.VersionedFlowSnapshot(
-                flow_contents=flow_contents,
+                flow_contents=flow_snapshot.flow_contents,
                 snapshot_metadata=registry.VersionedFlowSnapshotMetadata(
-                    version=target_flow.version_count + 1
+                    version=target_flow.version_count + 1,
+                    comments=flow_snapshot.snapshot_metadata.comments,
+                    bucket_identifier=target_flow.bucket_identifier,
+                    flow_identifier=target_flow.identifier
                 ),
             )
         )
@@ -409,7 +411,7 @@ def export_flow(flow_snapshot, file_path=None, mode='json'):
     """
     if not isinstance(flow_snapshot, registry.VersionedFlowSnapshot):
         raise TypeError("flow_snapshot must be a VersionedFlowSnapshot object")
-    export_obj = flow_snapshot.flow_contents.to_dict()
+    export_obj = flow_snapshot
     try:
         out = _utils.dump(
             obj=export_obj,
@@ -451,11 +453,12 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     :return: the new VersionedFlowSnapshot
     """
     # First, decode the flow snapshot contents
+    dto = ('nipyapi.registry.models', 'VersionedFlowSnapshot')
     if file_path is None and encoded_flow is not None:
         try:
             flow_contents = _utils.load(
                 encoded_flow,
-                dto=('nipyapi.registry.models', 'VersionedProcessGroup')
+                dto=dto
             )
         except ValueError as e:
             raise e
@@ -465,7 +468,7 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
                 obj=_utils.fs_read(
                     file_path=file_path
                 ),
-                dto=('nipyapi.registry.models', 'VersionedProcessGroup')
+                dto=dto
             )
         except ValueError as e:
             raise e
@@ -497,5 +500,4 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     return create_flow_version(
         flow=ver_flow,
         flow_snapshot=flow_contents,
-        raw_snapshot=False
     )

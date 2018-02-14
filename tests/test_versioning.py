@@ -242,8 +242,7 @@ def test_create_flow_version(fix_ver_flow):
     # Write it again to increment the version, check it's consistent
     r2 = versioning.create_flow_version(
         flow=new_ver_stub,
-        flow_snapshot=ver_flow_snapshot_0,
-        raw_snapshot=True
+        flow_snapshot=ver_flow_snapshot_0
     )
     assert isinstance(r2, registry.VersionedFlowSnapshot)
     assert DeepDiff(
@@ -256,12 +255,11 @@ def test_create_flow_version(fix_ver_flow):
     # Note that we cannot simply pass the to_dict() as that doesn't handle
     # the nested DTOs from NiFi-Registry
     flow_snapshot = _utils.load(
-            _utils.dump(ver_flow_snapshot_0.flow_contents),
+            _utils.dump(ver_flow_snapshot_0),
             dto=fix_ver_flow.dto)
     r3 = versioning.create_flow_version(
         flow=new_ver_stub,
-        flow_snapshot=flow_snapshot,
-        raw_snapshot=False
+        flow_snapshot=flow_snapshot
     )
     assert isinstance(r3, registry.VersionedFlowSnapshot)
     assert DeepDiff(
@@ -280,7 +278,6 @@ def test_get_flow_version(fix_ver_flow):
     assert isinstance(r1, registry.VersionedFlowSnapshot)
     assert r1.snapshot_metadata.version == 1
     test_vf_2 = versioning.create_flow_version(
-        bucket_id=fix_ver_flow.bucket.identifier,
         flow=r1.flow,
         flow_snapshot=r1
     )
@@ -319,7 +316,9 @@ def test_export_flow(fix_flow_serde):
 
 
 def test_import_flow(fix_flow_serde):
-    test_obj = fix_flow_serde.snapshot.flow_contents
+    test_obj = fix_flow_serde.snapshot
+    # Note that we're only testing the SerDe of the flow_contents, because the
+    # snapshot metadata changes a lot
     # Test that our test_obj serialises and deserialises
     assert DeepDiff(
         test_obj,
@@ -336,12 +335,11 @@ def test_import_flow(fix_flow_serde):
         flow_snapshot=_utils.load(
             obj=fix_flow_serde.json,
             dto=fix_flow_serde.dto
-        ),
-        raw_snapshot=False
+        )
     )
     assert isinstance(r0, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj,
+        test_obj.flow_contents,
         r0.flow_contents,
         ignore_order=False,
         verbose_level=2
@@ -355,7 +353,7 @@ def test_import_flow(fix_flow_serde):
     )
     assert isinstance(r1, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj,
+        test_obj.flow_contents,
         r1.flow_contents,
         ignore_order=False,
         verbose_level=2
@@ -368,7 +366,7 @@ def test_import_flow(fix_flow_serde):
     )
     assert isinstance(r2, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj,
+        test_obj.flow_contents,
         r2.flow_contents,
         ignore_order=False,
         verbose_level=2
@@ -384,7 +382,7 @@ def test_import_flow(fix_flow_serde):
     )
     assert isinstance(r3, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj,
+        test_obj.flow_contents,
         r3.flow_contents,
         ignore_order=False,
         verbose_level=2

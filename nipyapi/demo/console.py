@@ -106,7 +106,6 @@ ver_flow_1 = create_flow(
 
 # Clone the versioned flow into the new stub flow in the
 ver_flow_snapshot_1 = create_flow_version(
-    bucket_id=bucket_1.identifier,
     flow=ver_flow_1,
     flow_snapshot=ver_flow_snapshot_0
 )

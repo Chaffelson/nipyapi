@@ -29,7 +29,7 @@ def test_json_default(fix_pg):
 def test_dump(fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
-    export_obj = fix_flow_serde.snapshot.flow_contents.to_dict()
+    export_obj = fix_flow_serde.snapshot
     ss_json = _utils.dump(
         obj=export_obj,
         mode='json'
@@ -63,8 +63,6 @@ def test_dump(fix_flow_serde):
         verbose_level=2,
         ignore_order=False
     ) == {}
-    with pytest.raises(RepresenterError):
-        _ = _utils.dump(fix_flow_serde.snapshot, 'yaml')
     assert round_trip_yaml == round_trip_json
     # Todo: test sorting
 
@@ -78,7 +76,7 @@ def test_load(fix_flow_serde):
     # Validate match
     assert DeepDiff(
         fix_flow_serde.snapshot.flow_contents,
-        r1,
+        r1.flow_contents,
         verbose_level=2,
         ignore_order=True
     ) == {}

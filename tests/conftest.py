@@ -270,7 +270,8 @@ def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
         fix_bucket.bucket.identifier,
         f_flow.identifier
     )
-    f_dto = ('nipyapi.registry.models', 'VersionedProcessGroup')
+    # f_dto = ('nipyapi.registry.models', 'VersionedProcessGroup')
+    f_dto = ('nipyapi.registry.models', 'VersionedFlowSnapshot')
     return FixtureVerFlow(
         *fix_bucket,
         pg=f_pg,

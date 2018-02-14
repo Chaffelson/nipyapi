@@ -12,7 +12,6 @@ import importlib
 from six import PY2
 from ruamel.yaml import safe_load, safe_dump
 from ruamel.yaml.reader import YAMLStreamError
-from ruamel.yaml.representer import RepresenterError
 from nipyapi import config
 
 
@@ -43,25 +42,22 @@ def dump(obj, mode='json'):
     :param mode: String of 'json' or 'yaml'
     :return: String of the encoded object
     """
+    try:
+        out = json.dumps(
+            obj=obj,
+            sort_keys=True,
+            indent=4,
+            default=_json_default
+        )
+    except TypeError as e:
+        raise e
     if mode == 'json':
-        try:
-            return json.dumps(
-                obj=obj,
-                sort_keys=True,
-                indent=4,
-                default=_json_default
-            )
-        except TypeError as e:
-            raise e
+        return out
     elif mode == 'yaml':
-        try:
-            return safe_dump(
-                data=obj,
-                allow_unicode=True,
-                default_flow_style=False
-            )
-        except RepresenterError as e:
-            raise e
+        return safe_dump(
+            json.loads(out),
+            default_flow_style=False
+        )
     else:
         raise ValueError("Invalid dump Mode specified ({0})"
                          .format(mode))
