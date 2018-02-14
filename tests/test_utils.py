@@ -36,15 +36,6 @@ def test_dump(fix_flow_serde):
     )
     assert isinstance(ss_json, str)
     round_trip_json = safe_load(ss_json)
-    # assert that a basic match of the dicts is true
-    assert round_trip_json == export_obj
-    # Deepdiff returns an empty dict on no variations at a much deeper detail
-    assert DeepDiff(
-        export_obj,
-        round_trip_json,
-        verbose_level=2,
-        ignore_order=False
-    ) == {}
     with pytest.raises(ValueError):
         _ = _utils.dump('','FakeNews')
     with pytest.raises(TypeError):
@@ -56,14 +47,12 @@ def test_dump(fix_flow_serde):
     )
     assert isinstance(ss_yaml, str)
     round_trip_yaml = safe_load(ss_yaml)
-    assert round_trip_yaml == export_obj
     assert DeepDiff(
-        export_obj,
+        round_trip_json,
         round_trip_yaml,
         verbose_level=2,
         ignore_order=False
     ) == {}
-    assert round_trip_yaml == round_trip_json
     # Todo: test sorting
 
 
