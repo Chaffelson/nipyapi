@@ -325,7 +325,11 @@ class VersionControlInformationDTO(object):
         :param state: The state of this VersionControlInformationDTO.
         :type: str
         """
-        allowed_values = ["LOCALLY_MODIFIED_DESCENDANT", "LOCALLY_MODIFIED", "STALE", "LOCALLY_MODIFIED_AND_STALE", "UP_TO_DATE"]
+        # allowed_values = ["LOCALLY_MODIFIED_DESCENDANT", "LOCALLY_MODIFIED", "STALE", "LOCALLY_MODIFIED_AND_STALE", "UP_TO_DATE"]
+        # https://issues.apache.org/jira/browse/NIFI-4859
+        allowed_values = ["LOCALLY_MODIFIED_DESCENDANT", "LOCALLY_MODIFIED",
+                          "STALE", "LOCALLY_MODIFIED_AND_STALE", "UP_TO_DATE",
+                          "SYNC_FAILURE"]
         if state not in allowed_values:
             raise ValueError(
                 "Invalid value for `state` ({0}), must be one of {1}"

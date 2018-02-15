@@ -134,7 +134,9 @@ class FlowBreadcrumbEntity(object):
         :param versioned_flow_state: The versioned_flow_state of this FlowBreadcrumbEntity.
         :type: str
         """
-        allowed_values = ["LOCALLY_MODIFIED_DESCENDANT", "LOCALLY_MODIFIED", "STALE", "LOCALLY_MODIFIED_AND_STALE", "UP_TO_DATE"]
+        allowed_values = ["LOCALLY_MODIFIED_DESCENDANT", "LOCALLY_MODIFIED",
+                          "STALE", "LOCALLY_MODIFIED_AND_STALE", "UP_TO_DATE",
+                          "SYNC_FAILURE"]
         if versioned_flow_state not in allowed_values:
             raise ValueError(
                 "Invalid value for `versioned_flow_state` ({0}), must be one of {1}"

@@ -5,6 +5,7 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 from __future__ import absolute_import
+from time import sleep
 from nipyapi import nifi, registry, canvas, _utils
 from nipyapi.nifi.rest import ApiException as ApiExceptionN
 from nipyapi.registry.rest import ApiException as ApiExceptionR
@@ -16,7 +17,7 @@ __all__ = [
     'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
     'get_latest_flow_ver', 'update_flow_ver', 'get_version_info',
     'create_flow', 'create_flow_version', 'get_flow_version', 'export_flow',
-    'import_flow'
+    'import_flow', 'list_flow_versions'
 ]
 
 
@@ -246,35 +247,54 @@ def revert_flow_ver(process_group):
         raise ValueError(e)
 
 
-def update_flow_ver(process_group, registry_client, flow,
-                    update_children=False):
+def list_flow_versions(bucket_id, flow_id):
+    try:
+        return registry.BucketFlowsApi().get_flow_versions(
+            bucket_id=bucket_id,
+            flow_id=flow_id
+        )
+    except ApiExceptionR as e:
+        raise ValueError(e.body)
+
+
+def update_flow_ver(process_group, version_info, target_version=None):
     """
-    Don't use this it's not ready yet
-    :param process_group:
-    :param registry_client:
-    :param flow:
-    :param update_children:
+    Changes a versioned flow to the specified version, or the latest version
+    :param process_group: ProcessGroupEntity under version control to change
+    :param version_info: VersionControlInformationEntity about the PG to change
+    :param target_version: Either None to move to the latest available version,
+    or an Int to specify the version number to move to
     :return:
     """
-    # TODO: This needs a lot more investigation
-    # This function is more complicated than expected, so leaving it for the
-    # next release
-    pass
-    # try:
-    #     return nifi.VersionsApi().update_flow_version(
-    #         id=process_group.id,
-    #         body=nifi.VersionedFlowSnapshotEntity(
-    #             process_group_revision=process_group.revision,
-    #             registry_id=registry_client.id,
-    #             update_descendant_versioned_flows=update_children,
-    #             versioned_flow_snapshot=get_latest_flow_ver(
-    #                 bucket_id=flow.bucket_identifier,
-    #                 flow_id=flow.identifier
-    #             )
-    #         )
-    #     )
-    # except ApiExceptionN as e:
-    #     raise ValueError(e.body)
+    try:
+        vci = version_info.version_control_information
+        flow_vers = list_flow_versions(vci.bucket_id, vci.flow_id)
+        if target_version is None:
+            ver = flow_vers[0].version
+        else:
+            ver = target_version
+        u_init = nifi.VersionsApi().initiate_version_control_update(
+            id=process_group.id,
+            body=nifi.VersionControlInformationEntity(
+                process_group_revision=version_info.process_group_revision,
+                version_control_information=nifi.VersionControlInformationDTO(
+                    bucket_id=vci.bucket_id,
+                    flow_id=vci.flow_id,
+                    group_id=vci.group_id,
+                    registry_id=vci.registry_id,
+                    version=ver
+                )
+            )
+        )
+        for i in range(10):
+            test = nifi.VersionsApi().get_update_request(u_init.request.request_id)
+            if test.request.complete:
+                break
+            else:
+                sleep(1)
+        return test
+    except ApiExceptionN as e:
+        raise ValueError(e.body)
 
 
 def get_latest_flow_ver(bucket_id, flow_id):
@@ -356,10 +376,20 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
             )
         else:
             target_flow = flow
+        target_bucket = get_registry_bucket(
+            target_flow.bucket_identifier, 'id'
+        )
+        # The current version of NiFi doesn't ignore link objects passed to it
+        bad_params = ['link']
+        for obj in [target_bucket, target_flow]:
+            for p in bad_params:
+                obj.__setattr__(p, None)
         return registry.BucketFlowsApi().create_flow_version(
-            bucket_id=target_flow.bucket_identifier,
+            bucket_id=target_bucket.identifier,
             flow_id=target_flow.identifier,
             body=registry.VersionedFlowSnapshot(
+                flow=target_flow,
+                bucket=target_bucket,
                 flow_contents=flow_snapshot.flow_contents,
                 snapshot_metadata=registry.VersionedFlowSnapshotMetadata(
                     version=target_flow.version_count + 1,

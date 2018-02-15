@@ -270,6 +270,35 @@ def test_create_flow_version(fix_ver_flow):
     ) == {}
 
 
+def test_complex_template_versioning(fix_ctv):
+    # There is a complex bug where a new flow version cannot be switched to
+    # and generates a NiFi NPE if attempted when create_flow_version is used
+    # This doesn't occur with simple flows for some reason
+
+    # Create a new flow version
+    vers = versioning.list_flow_versions(
+        fix_ctv.bucket.identifier,
+        fix_ctv.flow.identifier
+    )
+    assert vers[0].version == 2
+    # create_flow_version is the problem
+    new_ss = versioning.create_flow_version(
+        flow=fix_ctv.flow,
+        flow_snapshot=fix_ctv.snapshot_w_template,
+        refresh=True
+    )
+    assert isinstance(new_ss, registry.VersionedFlowSnapshot)
+    vers = versioning.list_flow_versions(
+        fix_ctv.bucket.identifier,
+        fix_ctv.flow.identifier
+    )
+    assert vers[0].version == 3
+    new_ver_info = versioning.get_version_info(fix_ctv.pg)
+    r = versioning.update_flow_ver(fix_ctv.pg, new_ver_info)
+    assert r.request.complete is True
+    assert r.request.failure_reason == None
+
+
 def test_get_flow_version(fix_ver_flow):
     r1 = versioning.get_flow_version(
         fix_ver_flow.bucket.identifier,

@@ -4,7 +4,9 @@
 """Tests for `nipyapi` package."""
 
 import pytest
+from os import path
 from nipyapi import templates, nifi, canvas
+from tests import conftest
 from nipyapi.nifi import models as nifi_models
 from lxml.etree import fromstring, parse
 
@@ -13,10 +15,19 @@ from lxml.etree import fromstring, parse
 class TestTemplates(object):
     # Note that tests in this class are incremental
     # so consider order when adding new tests or modifying them
+    t_type = 'basic'
+    t_name = conftest.test_templates[t_type]
+    t_filename = t_name + '.xml'
+    t_path = path.join(
+        path.dirname(__file__),
+        conftest.test_resource_dir,
+        t_filename
+    )
+
     def test_upload_template(self):
         r = templates.upload_template(
             pg_id=canvas.get_root_pg_id(),
-            template_file='test_env_config/nipyapi_testTemplate_00.xml'
+            template_file=self.t_path
         )
         assert isinstance(r, nifi_models.template_entity.TemplateEntity)
         with pytest.raises(AssertionError):
@@ -27,7 +38,7 @@ class TestTemplates(object):
         with pytest.raises(TypeError):
             r = templates.upload_template(
                 pg_id=canvas.get_root_pg_id(),
-                template_file='test_env_config/nipyapi_testFlow_00.xml'
+                template_file=self.t_path
             )
 
     def test_all_templates(self):
@@ -35,14 +46,14 @@ class TestTemplates(object):
         assert (isinstance(r, nifi_models.templates_entity.TemplatesEntity))
 
     def test_get_templates_by_name(self):
-        r = templates.get_template_by_name('nipyapi_testTemplate_00')
+        r = templates.get_template_by_name(self.t_name)
         assert r is not None
         assert isinstance(r, nifi_models.template_entity.TemplateEntity)
 
     def test_deploy_template(self):
         r = templates.deploy_template(
             canvas.get_root_pg_id(),
-            templates.get_template_by_name('nipyapi_testTemplate_00').id
+            templates.get_template_by_name(self.t_name).id
         )
         assert isinstance(r, nifi_models.flow_entity.FlowEntity)
 
@@ -63,7 +74,7 @@ class TestTemplates(object):
         assert isinstance(r, TemplateEntity)
 
     def test_export_template(self):
-        template = templates.get_template_by_name('nipyapi_testTemplate_00')
+        template = templates.get_template_by_name(self.t_name)
         r = templates.export_template(template.id)
         _ = fromstring(r)
         r = templates.export_template(

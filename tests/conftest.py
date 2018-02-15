@@ -5,7 +5,7 @@
 
 from __future__ import absolute_import
 import pytest
-from os import environ
+from os import environ, path
 import requests
 from requests import ConnectionError
 from collections import namedtuple
@@ -34,6 +34,14 @@ test_read_file_path = test_basename + '_fs_read_dir'
 test_write_file_name = test_basename + '_fs_write_file'
 test_ver_export_tmpdir = test_basename + '_ver_flow_dir'
 test_ver_export_filename = test_basename + "_ver_flow_export"
+
+test_resource_dir = 'resources'
+# Test template filenames should match the template PG name
+test_templates = {
+    'basic': 'nipyapi_testTemplate_00',
+    'complex': 'nipyapi_testTemplate_01'
+}
+
 
 # Determining test environment
 # Can't use skiptest with parametrize for Travis
@@ -88,45 +96,18 @@ def session_setup():
                 "Expected Service endpoint ({0}) is not responding"
                     .format(target_url)
             )
+    # Run cleanup at the start of the session to ensure it's clean
+    cleanup()
 
 
-# This wraps the template tests to ensure things are cleaned up.
-@pytest.fixture(scope="class")
-def template_class_wrapper(request):
-    def remove_test_templates():
-        test_templates = ['nipyapi_testTemplate_00', 'nipyapi_testTemplate_01']
-        for item in test_templates:
-            details = get_template_by_name(item)
-            if details is not None:
-                delete_template(details.id)
-
-    def remove_test_pgs():
-        pg_list = list_all_process_groups()
-        test_pgs = [
-            item for item in pg_list
-            if 'nipyapi_test' in item.status.name
-        ]
-        for pg in test_pgs:
-            delete_process_group(
-                pg.id,
-                pg.revision
-            )
-
-    remove_test_templates()
-
-    def cleanup():
-        remove_test_templates()
-        remove_test_pgs()
-    request.addfinalizer(cleanup)
+def remove_test_templates():
+    for item in test_templates.keys():
+        details = get_template_by_name(test_templates[item])
+        if details is not None:
+            delete_template(details.id)
 
 
-@pytest.fixture(scope="function")
-def regress(request):
-    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
-    config.nifi_config.api_client.host = request.param
-
-
-def cleanup_test_pgs():
+def remove_test_pgs():
     test_pgs = get_process_group(test_pg_name)
     try:
         # If unique, stop, then delete
@@ -151,6 +132,51 @@ def cleanup_test_pgs():
                 )
 
 
+def remove_test_processors():
+    target_list = [li for
+                   li in list_all_processors()
+                   if test_processor_name in li.status.name
+                   ]
+    for target in target_list:
+        schedule_processor(target, 'STOPPED')
+        # Workaround until deterministic processor management implemented
+        sleep(2)
+        delete_processor(target)
+
+
+def remove_test_registry_client():
+    _ = [delete_registry_client(li) for
+         li in list_registry_clients().registries
+         if test_registry_client_name in li.component.name
+         ]
+
+
+def remove_test_buckets():
+    _ = [delete_registry_bucket(li) for li
+         in list_registry_buckets() if
+         test_bucket_name in li.name]
+
+
+def cleanup():
+    remove_test_templates()
+    remove_test_processors()
+    remove_test_pgs()
+    remove_test_buckets()
+    remove_test_registry_client()
+
+
+@pytest.fixture(scope="class")
+def template_class_wrapper(request):
+    remove_test_templates()
+    request.addfinalizer(cleanup)
+
+
+@pytest.fixture(scope="function")
+def regress(request):
+    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
+    config.nifi_config.api_client.host = request.param
+
+
 @pytest.fixture(scope="function", name='fix_pg')
 def fixture_pg(request):
     class Dummy:
@@ -168,21 +194,13 @@ def fixture_pg(request):
                     location=(400.0, 400.0)
                 )
 
-    request.addfinalizer(cleanup_test_pgs)
+    request.addfinalizer(cleanup)
     return Dummy()
 
 
 @pytest.fixture(name='fix_reg_client')
 def fixture_reg_client(request):
-    def cleanup_test_registry_client():
-        _ = [delete_registry_client(li) for
-             li in list_registry_clients().registries
-             if test_registry_client_name in li.component.name
-             ]
-
-    cleanup_test_pgs()
-    cleanup_test_registry_client()
-    request.addfinalizer(cleanup_test_registry_client)
+    request.addfinalizer(remove_test_registry_client)
     return create_registry_client(
         name=test_registry_client_name,
         uri=test_docker_registry_endpoint,
@@ -212,30 +230,13 @@ def fixture_proc(request):
                 )
             )
 
-    def cleanup_test_processors():
-        target_list = [li for
-                       li in list_all_processors()
-                       if test_processor_name in li.status.name
-                       ]
-        for target in target_list:
-            schedule_processor(target, 'STOPPED')
-            # Workaround until deterministic processor management implemented
-            sleep(2)
-            delete_processor(target)
-
-    request.addfinalizer(cleanup_test_processors)
+    request.addfinalizer(remove_test_processors)
     return Dummy()
 
 
 @pytest.fixture(name='fix_bucket')
 def fixture_bucket(request, fix_reg_client):
-    def cleanup_test_buckets():
-        _ = [delete_registry_bucket(li) for li
-             in list_registry_buckets() if
-             test_bucket_name in li.name]
-
-    cleanup_test_buckets()
-    request.addfinalizer(cleanup_test_buckets)
+    request.addfinalizer(remove_test_buckets)
     FixtureBucket = namedtuple(
         'FixtureBucket', ('client', 'bucket')
     )
@@ -306,4 +307,48 @@ def fixture_flow_serde(tmpdir, fix_ver_flow):
         filepath=str(f_filepath),
         json=f_json,
         yaml=f_yaml
+    )
+
+
+@pytest.fixture(name='fix_ctv')
+def fixture_complex_template_versioning(fix_ver_flow):
+    FixtureCTV = namedtuple(
+        'FixtureCTV', getattr(fix_ver_flow, '_fields') + (
+            'template', 'info_w_template', 'snapshot_w_template'
+        )
+    )
+    f_t_type = 'complex'
+    f_t_name = test_templates[f_t_type]
+    f_t_filename = f_t_name + '.xml'
+    f_t_path = path.join(
+        path.dirname(__file__),
+        test_resource_dir,
+        f_t_filename
+    )
+    f_template = get_template_by_name(f_t_name)
+    if not f_template:
+        upload_template(
+            pg_id=fix_ver_flow.pg.id,
+            template_file=f_t_path
+        )
+        f_template = get_template_by_name(f_t_name)
+    _ = deploy_template(
+        fix_ver_flow.pg.id,
+        f_template.id
+    )
+    f_info_2 = save_flow_ver(
+        process_group=fix_ver_flow.pg,
+        registry_client=fix_ver_flow.client,
+        bucket=fix_ver_flow.bucket,
+        flow_id=fix_ver_flow.flow.identifier
+    )
+    f_snapshot_2 = get_latest_flow_ver(
+        fix_ver_flow.bucket.identifier,
+        fix_ver_flow.flow.identifier
+    )
+    return FixtureCTV(
+        *fix_ver_flow,
+        template=f_template,
+        info_w_template=f_info_2,
+        snapshot_w_template=f_snapshot_2
     )
