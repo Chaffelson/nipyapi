@@ -121,7 +121,7 @@ class SitetositeApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/site-to-site/peers', 'GET',
                                         path_params,
@@ -219,7 +219,7 @@ class SitetositeApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/site-to-site', 'GET',
                                         path_params,

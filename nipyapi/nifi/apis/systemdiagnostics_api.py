@@ -130,7 +130,7 @@ class SystemdiagnosticsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/system-diagnostics', 'GET',
                                         path_params,

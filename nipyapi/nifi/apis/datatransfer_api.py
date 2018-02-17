@@ -143,7 +143,7 @@ class DatatransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}', 'DELETE',
                                         path_params,
@@ -270,7 +270,7 @@ class DatatransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}', 'DELETE',
                                         path_params,
@@ -379,7 +379,7 @@ class DatatransferApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/{portType}/{portId}/transactions', 'POST',
                                         path_params,
@@ -492,7 +492,7 @@ class DatatransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}', 'PUT',
                                         path_params,
@@ -605,7 +605,7 @@ class DatatransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}', 'PUT',
                                         path_params,
@@ -718,7 +718,7 @@ class DatatransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}/flow-files', 'POST',
                                         path_params,
@@ -831,7 +831,7 @@ class DatatransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}/flow-files', 'GET',
                                         path_params,

@@ -5,7 +5,6 @@ A convenience script for generating an interactive test environment.
 """
 
 from __future__ import absolute_import
-from nipyapi import config
 from nipyapi.canvas import get_process_group, delete_process_group
 from nipyapi.canvas import create_process_group, get_root_pg_id
 from nipyapi.canvas import get_processor, delete_processor, create_processor

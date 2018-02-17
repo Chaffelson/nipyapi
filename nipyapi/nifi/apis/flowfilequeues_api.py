@@ -129,7 +129,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests', 'POST',
                                         path_params,
@@ -235,7 +235,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests', 'POST',
                                         path_params,
@@ -348,7 +348,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'DELETE',
                                         path_params,
@@ -469,7 +469,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}/content', 'GET',
                                         path_params,
@@ -582,7 +582,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'GET',
                                         path_params,
@@ -699,7 +699,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}', 'GET',
                                         path_params,
@@ -812,7 +812,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'GET',
                                         path_params,
@@ -925,7 +925,7 @@ class FlowfilequeuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'DELETE',
                                         path_params,
