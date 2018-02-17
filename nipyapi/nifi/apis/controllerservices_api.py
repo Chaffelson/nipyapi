@@ -129,7 +129,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -235,7 +235,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}', 'GET',
                                         path_params,
@@ -341,7 +341,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/references', 'GET',
                                         path_params,
@@ -454,7 +454,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/descriptors', 'GET',
                                         path_params,
@@ -560,7 +560,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/state', 'GET',
                                         path_params,
@@ -674,7 +674,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}', 'DELETE',
                                         path_params,
@@ -787,7 +787,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}', 'PUT',
                                         path_params,
@@ -900,7 +900,7 @@ class ControllerservicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/references', 'PUT',
                                         path_params,

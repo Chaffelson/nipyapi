@@ -129,7 +129,7 @@ class InputportsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'GET',
                                         path_params,
@@ -243,7 +243,7 @@ class InputportsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'DELETE',
                                         path_params,
@@ -356,7 +356,7 @@ class InputportsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'PUT',
                                         path_params,
