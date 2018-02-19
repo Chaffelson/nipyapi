@@ -80,7 +80,7 @@ def regress(request):
 
 # Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
-def session_setup():
+def session_setup(request):
     def is_endpoint_up(endpoint_url):
         try:
             response = requests.get(endpoint_url)
@@ -98,6 +98,7 @@ def session_setup():
             )
     # Run cleanup at the start of the session to ensure it's clean
     cleanup()
+    request.addfinalizer(cleanup)
 
 
 def remove_test_templates():
@@ -108,7 +109,7 @@ def remove_test_templates():
 
 
 def remove_test_pgs():
-    test_pgs = get_process_group(test_pg_name)
+    test_pgs = get_process_group(test_basename)
     try:
         # If unique, stop, then delete
         schedule_process_group(test_pgs.id, 'STOPPED')
@@ -158,11 +159,10 @@ def remove_test_buckets():
 
 
 def cleanup():
+    # Only bulk-cleanup universally compatible components
     remove_test_templates()
     remove_test_processors()
     remove_test_pgs()
-    remove_test_buckets()
-    remove_test_registry_client()
 
 
 @pytest.fixture(scope="class")
@@ -201,6 +201,7 @@ def fixture_pg(request):
 @pytest.fixture(name='fix_reg_client')
 def fixture_reg_client(request):
     request.addfinalizer(remove_test_registry_client)
+    remove_test_registry_client()
     return create_registry_client(
         name=test_registry_client_name,
         uri=test_docker_registry_endpoint,
@@ -237,6 +238,7 @@ def fixture_proc(request):
 @pytest.fixture(name='fix_bucket')
 def fixture_bucket(request, fix_reg_client):
     request.addfinalizer(remove_test_buckets)
+    remove_test_buckets()
     FixtureBucket = namedtuple(
         'FixtureBucket', ('client', 'bucket')
     )

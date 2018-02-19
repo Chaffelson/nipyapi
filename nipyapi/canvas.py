@@ -6,6 +6,7 @@ STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
+from tenacity import retry, TryAgain, wait_exponential
 from nipyapi import nifi, _utils
 from nipyapi.nifi.rest import ApiException
 
@@ -67,8 +68,9 @@ def get_flow(pg_id='root'):
 
 def get_process_group_status(pg_id='root', detail='names'):
     """
-    Returns information about a Process Group
-    :param pg_id: NiFi ID of the Process Groupt to retrieve
+    # TODO: Totally the wrong function somehow, redo
+    Returns status information about a Process Group
+    :param pg_id: NiFi ID of the Process Group to retrieve
     :param detail: Level of detail to respond with
     :return:
     """
@@ -174,6 +176,11 @@ def schedule_process_group(process_group_id, target_state):
     :return: dict of resulting process group state
     """
     # ideally this should be pulled from the client definition
+    @retry
+    def wait_to_complete(wait=wait_exponential(multiplier=1, max=5)):
+        test = get_process_group(process_group_id, 'id')
+        if test.status:
+            raise TryAgain
     valid_states = ['STOPPED', 'RUNNING']
     if target_state not in valid_states:
         raise ValueError(

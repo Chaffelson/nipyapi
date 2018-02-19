@@ -145,10 +145,13 @@ def upload_template(pg_id, template_file):
             .format(root_tag)
         )
     # NiFi-1.2.0 method
-    resp = nifi.ProcessgroupsApi().upload_template(
-        id=pg_id,
-        template=template_file
-    )
+    try:
+        resp = nifi.ProcessgroupsApi().upload_template(
+            id=pg_id,
+            template=template_file
+        )
+    except ApiException as e:
+        raise ValueError(e.body)
     return resp
 
 

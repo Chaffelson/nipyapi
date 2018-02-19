@@ -287,7 +287,9 @@ def update_flow_ver(process_group, version_info, target_version=None):
             )
         )
         for i in range(10):
-            test = nifi.VersionsApi().get_update_request(u_init.request.request_id)
+            test = nifi.VersionsApi().get_update_request(
+                u_init.request.request_id
+            )
             if test.request.complete:
                 break
             else:
@@ -353,6 +355,8 @@ def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
 
 def create_flow_version(flow, flow_snapshot, refresh=True):
     """
+    Status: Experimental. There is a bug in the ConnectionsDTO stopping this
+    from working for non-trivial usecases.
     Writes a FlowSnapshot into a VersionedFlow as a new version update
     :param bucket_id: Deprecated, now pulled from the flow parameter
     :param flow: the VersionedFlow object to write to

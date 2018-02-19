@@ -35,7 +35,8 @@ class TestTemplates(object):
                 pg_id=canvas.get_root_pg_id(),
                 template_file='/tmp/haha/definitelynotafile.jpg'
             )
-        with pytest.raises(TypeError):
+        # Try to upload an already existing template
+        with pytest.raises(ValueError):
             r = templates.upload_template(
                 pg_id=canvas.get_root_pg_id(),
                 template_file=self.t_path
