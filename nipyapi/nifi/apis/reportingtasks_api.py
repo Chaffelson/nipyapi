@@ -129,7 +129,7 @@ class ReportingtasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -242,7 +242,7 @@ class ReportingtasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}/descriptors', 'GET',
                                         path_params,
@@ -348,7 +348,7 @@ class ReportingtasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'GET',
                                         path_params,
@@ -454,7 +454,7 @@ class ReportingtasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}/state', 'GET',
                                         path_params,
@@ -568,7 +568,7 @@ class ReportingtasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'DELETE',
                                         path_params,
@@ -681,7 +681,7 @@ class ReportingtasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'PUT',
                                         path_params,

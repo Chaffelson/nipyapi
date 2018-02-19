@@ -3,7 +3,7 @@
 """
     NiFi Registry REST API
 
-    The Rest Api provides an interface to a registry with operations for saving,                                             versioning, reading NiFi flows                                             and components.
+    The REST API provides an interface to a registry with operations for saving, versioning, reading NiFi flows and components.
 
     OpenAPI spec version: 0.2.0-SNAPSHOT
     Contact: dev@nifi.apache.org
@@ -65,12 +65,9 @@ class VersionedFlowSnapshotMetadata(object):
 
         if link is not None:
           self.link = link
-        if bucket_identifier is not None:
-          self.bucket_identifier = bucket_identifier
-        if flow_identifier is not None:
-          self.flow_identifier = flow_identifier
-        if version is not None:
-          self.version = version
+        self.bucket_identifier = bucket_identifier
+        self.flow_identifier = flow_identifier
+        self.version = version
         if timestamp is not None:
           self.timestamp = timestamp
         if author is not None:
@@ -121,6 +118,8 @@ class VersionedFlowSnapshotMetadata(object):
         :param bucket_identifier: The bucket_identifier of this VersionedFlowSnapshotMetadata.
         :type: str
         """
+        if bucket_identifier is None:
+            raise ValueError("Invalid value for `bucket_identifier`, must not be `None`")
 
         self._bucket_identifier = bucket_identifier
 
@@ -144,6 +143,8 @@ class VersionedFlowSnapshotMetadata(object):
         :param flow_identifier: The flow_identifier of this VersionedFlowSnapshotMetadata.
         :type: str
         """
+        if flow_identifier is None:
+            raise ValueError("Invalid value for `flow_identifier`, must not be `None`")
 
         self._flow_identifier = flow_identifier
 
@@ -167,6 +168,8 @@ class VersionedFlowSnapshotMetadata(object):
         :param version: The version of this VersionedFlowSnapshotMetadata.
         :type: int
         """
+        if version is None:
+            raise ValueError("Invalid value for `version`, must not be `None`")
         if version is not None and version < 1:
             raise ValueError("Invalid value for `version`, must be a value greater than or equal to `1`")
 
@@ -176,7 +179,7 @@ class VersionedFlowSnapshotMetadata(object):
     def timestamp(self):
         """
         Gets the timestamp of this VersionedFlowSnapshotMetadata.
-        The timestamp when the flow was saved.
+        The timestamp when the flow was saved, as milliseconds since epoch.
 
         :return: The timestamp of this VersionedFlowSnapshotMetadata.
         :rtype: int
@@ -187,7 +190,7 @@ class VersionedFlowSnapshotMetadata(object):
     def timestamp(self, timestamp):
         """
         Sets the timestamp of this VersionedFlowSnapshotMetadata.
-        The timestamp when the flow was saved.
+        The timestamp when the flow was saved, as milliseconds since epoch.
 
         :param timestamp: The timestamp of this VersionedFlowSnapshotMetadata.
         :type: int

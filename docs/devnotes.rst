@@ -38,30 +38,70 @@ You can fix this by running the following commands::
     export PIP_REQUIRE_VIRTUALENV=false
     /Applications/Python\ 3.6/Install\ Certificates.command
 
-Generate Swagger client
+Generate Swagger Client
 -----------------------
 
+The NiFi and NiFi Registry REST API clients are generated using swagger-codegen, which is available via a variety of methods:
+
+- the package manager for your OS
+- github: https://github.com/swagger-api/swagger-codegen
+- maven: http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar
+- pre-built Docker images on DockerHub (https://hub.docker.com/r/swaggerapi/swagger-codegen-cli/)
+
+In the examples below, we'll use Homebrew for macOS::
+
+    brew install swagger-codegen
+
+NiFi Swagger Client
+~~~~~~~~~~~~~~~~~~~
+
 1. build relevant version of NiFi from source
-2. retrieve swagger.json from NiFi build::
+2. use swagger-codegen to generate the Python client::
 
-    cp ./nifi/nifi-nar-bundles/nifi-framework-bundle/nifi-framework/nifi-web/nifi-web-api/target/swagger-ui/swagger.json /tmp
+    mkdir -p ~/tmp && \
+    echo '{ "packageName": "nifi" }' > ~/tmp/swagger-nifi-python-config.json && \
+    rm -rf ~/tmp/nifi-python-client && \
+    swagger-codegen generate \
+        --lang python \
+        --config swagger-nifi-python-config.json \
+        --api-package apis \
+        --model-package models \
+        --template-dir /path/to/nipyapi/templates \
+        --input-spec /path/to/nifi/nifi-nar-bundles/nifi-framework-bundle/nifi-framework/nifi-web/nifi-web-api/target/swagger-ui/swagger.json \
+        --output ~/tmp/nifi-python-client
 
-3. download swagger-codegen-cli of relevant version::
+3. replace the embedded clients::
 
-    wget http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar -O /tmp/swagger-codegen-cli.jar
+    rm -rf /path/to/nipyapi/nipyapi/nifi && cp -rf ~/tmp/nifi-python-client/nifi /path/to/nipyapi/nipyapi/nifi
 
-4. generate a config.json file naming the package::
+4. review the changes and submit a PR!
 
-    vi /tmp/config.json
-    {
-        "packageName": "nifi"
-    }
+NiFi Registry Swagger Client
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-5. run codegen for appropriate language to a convenient working directory::
+1. build relevant version of NiFi Registry from source
+2. use swagger-codegen to generate the Python client::
 
-    java -jar /tmp/swagger-codegen-cli.jar generate -i /tmp/swagger.json -c config.json -l python -o /tmp/nifi-python-swagger-client
 
-6. Review and merge changes with the embedded clients and submit a PR!
+    mkdir -p ~/tmp && \
+    echo '{ "packageName": "registry" }' > ~/tmp/swagger-registry-python-config.json && \
+    rm -rf ~/tmp/nifi-registry-python-client && \
+    swagger-codegen generate \
+        --lang python \
+        --config swagger-registry-python-config.json \
+        --api-package apis \
+        --model-package models \
+        --template-dir /path/to/nipyapi/templates \
+        --input-spec /path/to/nifi-registry/nifi-registry-web-api/target/swagger-ui/swagger.json \
+        --output ~/tmp/nifi-registry-python-client
+
+3. replace the embedded clients::
+
+    rm -r /path/to/nipyapi/nipyapi/registry && cp -rf /tmp/nifi-registry-python-client/swagger_client /path/to/nipyapi/nipyapi/registry
+
+4. review the changes and submit a PR!
+
+
 
 Release Process
 ---------------

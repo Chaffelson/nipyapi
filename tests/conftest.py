@@ -146,16 +146,22 @@ def remove_test_processors():
 
 
 def remove_test_registry_client():
-    _ = [delete_registry_client(li) for
-         li in list_registry_clients().registries
-         if test_registry_client_name in li.component.name
-         ]
+    try:
+        _ = [delete_registry_client(li) for
+             li in list_registry_clients().registries
+            if test_registry_client_name in li.component.name
+            ]
+    except ValueError:
+        pass
 
 
 def remove_test_buckets():
-    _ = [delete_registry_bucket(li) for li
-         in list_registry_buckets() if
-         test_bucket_name in li.name]
+    try:
+        _ = [delete_registry_bucket(li) for li
+             in list_registry_buckets() if
+             test_bucket_name in li.name]
+    except ValueError:
+        pass
 
 
 def cleanup():

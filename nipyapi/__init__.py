@@ -4,6 +4,8 @@
 NiPyAPI: A convenient Python wrapper for the Apache NiFi Rest API
 """
 
+from __future__ import absolute_import
+
 __author__ = """Daniel Chaffelson"""
 __email__ = 'chaffelson@gmail.com'
 __version__ = '0.7.0'
