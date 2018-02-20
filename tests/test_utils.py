@@ -129,6 +129,7 @@ def test_filter_obj(fix_pg):
 def test_waiting_to_complete():
     def _is_always_false():
         return False
+
     def _is_always_true():
         return True
     with pytest.raises(tenacity.RetryError):

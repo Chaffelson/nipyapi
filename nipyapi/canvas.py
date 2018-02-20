@@ -329,21 +329,23 @@ def get_processor(identifier, identifier_type='name'):
     return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
-def delete_processor(processor, refresh=True):
+def delete_processor(processor, refresh=True, force=False):
     """
     Removes a Processor from the Canvas
     :param processor: Processor Object to be removed
     :param refresh: True|False, whether to refresh the object state
     :return: ProcessorEntity with updated status etc.
     """
+    if force:
+        schedule_processor(processor, False)
+    if refresh:
+        target_proc = get_processor(processor.id, 'id')
+    else:
+        target_proc = processor
+    if not isinstance(target_proc, nipyapi.nifi.ProcessorEntity):
+        raise ValueError("target ({0}) is not a valid nifi.ProcessorEntity"
+                         .format(type(target_proc)))
     try:
-        if refresh:
-            target_proc = get_processor(processor.id, 'id')
-        else:
-            target_proc = processor
-        if not isinstance(target_proc, nipyapi.nifi.ProcessorEntity):
-            raise ValueError("target ({0}) is not a valid nifi.ProcessorEntity"
-                             .format(type(target_proc)))
         return nipyapi.nifi.ProcessorsApi().delete_processor(
             id=target_proc.id,
             version=target_proc.revision.version
