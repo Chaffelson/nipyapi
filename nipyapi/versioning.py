@@ -7,6 +7,9 @@ For interactions with the NiFi Registry Service and related functions
 from __future__ import absolute_import
 from tenacity import retry, TryAgain, wait_exponential
 import nipyapi
+# Due to line lengths, creating shortened names for these objects
+from nipyapi.nifi import VersionControlInformationDTO as VciDTO
+from nipyapi.registry import VersionedFlowSnapshotMetadata as VfsMd
 
 __all__ = [
     'create_registry_client', 'list_registry_clients',
@@ -282,7 +285,6 @@ def update_flow_ver(process_group, version_info, target_version=None):
         :return: the component state if successful, or raise RetryError on
         failure
         """
-        from nipyapi.nifi import VersionControlInformationDTO as VciDTO
         test = nipyapi.nifi.VersionsApi().get_update_request(
             u_init.request.request_id
         )
@@ -313,8 +315,7 @@ def update_flow_ver(process_group, version_info, target_version=None):
             id=process_group.id,
             body=nipyapi.nifi.VersionControlInformationEntity(
                 process_group_revision=version_info.process_group_revision,
-                # See concat name import at head of function
-                version_control_information=nipyapi.nifi.VciDTO(
+                version_control_information=VciDTO(
                     bucket_id=vci.bucket_id,
                     flow_id=vci.flow_id,
                     group_id=vci.group_id,
@@ -397,7 +398,6 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
     inconsistent behavior
     :return: the new VersionedFlowSnapshot
     """
-    from nipyapi.registry import VersionedFlowSnapshotMetadata as VfsMd
     if not isinstance(flow_snapshot, nipyapi.registry.VersionedFlowSnapshot):
         raise ValueError("flow_snapshot must be an instance of a "
                          "registry.VersionedFlowSnapshot object, not an ({0})"
@@ -426,8 +426,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
                 flow=target_flow,
                 bucket=target_bucket,
                 flow_contents=flow_snapshot.flow_contents,
-                # See concat name import at head of function
-                snapshot_metadata=nipyapi.registry.VfsMd(
+                snapshot_metadata=VfsMd(
                     version=target_flow.version_count + 1,
                     comments=flow_snapshot.snapshot_metadata.comments,
                     bucket_identifier=target_flow.bucket_identifier,
