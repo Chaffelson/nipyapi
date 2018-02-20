@@ -130,8 +130,7 @@ def remove_test_processors():
                    if test_processor_name in li.status.name
                    ]
     for target in target_list:
-        nipyapi.canvas.schedule_processor(target, False)
-        nipyapi.canvas.delete_processor(target)
+        nipyapi.canvas.delete_processor(target, force=True)
 
 
 def remove_test_registry_client():
