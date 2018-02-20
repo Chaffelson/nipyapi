@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import pytest
 from deepdiff import DeepDiff
 from tests import conftest
-from nipyapi import registry, config, nifi, versioning, canvas, _utils
+from nipyapi import registry, config, nifi, versioning, canvas, utils
 
 
 def test_create_registry_client():
@@ -260,8 +260,8 @@ def test_create_flow_version(fix_ver_flow):
     # Test Raw snapshot
     # Note that we cannot simply pass the to_dict() as that doesn't handle
     # the nested DTOs from NiFi-Registry
-    flow_snapshot = _utils.load(
-            _utils.dump(ver_flow_snapshot_0),
+    flow_snapshot = utils.load(
+            utils.dump(ver_flow_snapshot_0),
             dto=fix_ver_flow.dto)
     r3 = versioning.create_flow_version(
         flow=new_ver_stub,
@@ -363,8 +363,8 @@ def test_import_flow(fix_flow_serde):
     # Test that our test_obj serialises and deserialises
     assert DeepDiff(
         test_obj,
-        _utils.load(
-            _utils.dump(test_obj, 'json'),
+        utils.load(
+            utils.dump(test_obj, 'json'),
             dto=fix_flow_serde.dto
         ),
         ignore_order=False,
@@ -373,7 +373,7 @@ def test_import_flow(fix_flow_serde):
     # Test that we can issue a simple create_flow with this object
     r0 = versioning.create_flow_version(
         flow=fix_flow_serde.flow,
-        flow_snapshot=_utils.load(
+        flow_snapshot=utils.load(
             obj=fix_flow_serde.json,
             dto=fix_flow_serde.dto
         )

@@ -117,15 +117,15 @@ def test_schedule_process_group(fix_proc, fix_pg):
         True
     )
     assert isinstance(r1a, nifi.ScheduleComponentsEntity)
-    assert isinstance(r1b, nifi.ProcessGroupEntity)
-    assert r1b.running_count == 1
+    assert isinstance(r1b, bool)
+    assert r1b is True
     assert r1a.state == 'RUNNING'
     r2a, r2b = canvas.schedule_process_group(
         f_pg.id,
         False
     )
     assert r2a.state == 'STOPPED'
-    assert r2b.running_count == 0
+    assert r2b is True
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_pg.id,
@@ -199,18 +199,20 @@ def test_delete_processor(fix_proc, regress):
 
 def test_schedule_processor(fix_proc):
     f_p1 = fix_proc.generate()
-    r1 = canvas.schedule_processor(
+    r1a, r1b = canvas.schedule_processor(
         f_p1,
         True
     )
-    assert r1.run_status == 'Running'
-    assert isinstance(r1, nifi.ProcessorStatusDTO)
-    r2 = canvas.schedule_processor(
+    assert r1a.status.run_status == 'Running'
+    assert isinstance(r1a, nifi.ProcessorEntity)
+    assert r1b is True
+    r2a, r2b = canvas.schedule_processor(
         f_p1,
         False
     )
-    assert r2.run_status == 'Stopped'
-    assert isinstance(r2, nifi.ProcessorStatusDTO)
+    assert r2a.status.run_status == 'Stopped'
+    assert isinstance(r2a, nifi.ProcessorEntity)
+    assert r2b is True
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_p1,

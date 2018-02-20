@@ -5,7 +5,6 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 from __future__ import absolute_import
-from tenacity import retry, TryAgain, wait_exponential
 import nipyapi
 # Due to line lengths, creating shortened names for these objects
 from nipyapi.nifi import VersionControlInformationDTO as VciDTO
@@ -84,7 +83,7 @@ def get_registry_client(identifier, identifier_type='name'):
         obj = list_registry_clients().registries
     except nipyapi.registry.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
 def list_registry_buckets():
@@ -139,7 +138,7 @@ def get_registry_bucket(identifier, identifier_type='name'):
         obj = list_registry_buckets()
     except nipyapi.registry.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
 def list_flows_in_bucket(bucket_id):
@@ -166,7 +165,7 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
         obj = list_flows_in_bucket(bucket_id)
     except nipyapi.registry.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
@@ -277,26 +276,24 @@ def update_flow_ver(process_group, version_info, target_version=None):
     or an Int to specify the version number to move to
     :return:
     """
-    @retry
-    def wait_to_complete(wait=wait_exponential(multiplier=1, max=5)):
+    def _i_can_has_new_version():
         """
-        Retry loop using tenacity to wait for component scheduling completion
-        :param wait: tenacity configuration object
-        :return: the component state if successful, or raise RetryError on
-        failure
+        Tests for completion of the operation
+        :return: Boolean of operation success
+        :raises: RetryError if timeout, ValueError if NiFi is unable to execute
         """
-        test = nipyapi.nifi.VersionsApi().get_update_request(
+        status = nipyapi.nifi.VersionsApi().get_update_request(
             u_init.request.request_id
         )
-        if not test.request.complete:
-            raise TryAgain
+        if not status.request.complete:
+            return False
         else:
-            if test.request.failure_reason is None:
-                return test
+            if status.request.failure_reason is None:
+                return True
             else:
                 raise ValueError(
                     "Flow Version Update did not complete successfully. "
-                    "Error text ({0})".format(test.request.failure_reason)
+                    "Error text ({0})".format(status.request.failure_reason)
                 )
     try:
         vci = version_info.version_control_information
@@ -324,8 +321,10 @@ def update_flow_ver(process_group, version_info, target_version=None):
                 )
             )
         )
-        out = wait_to_complete()
-        return out
+        nipyapi.utils.wait_to_complete(_i_can_has_new_version)
+        return nipyapi.nifi.VersionsApi().get_update_request(
+            u_init.request.request_id
+        )
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
@@ -479,7 +478,7 @@ def export_flow(flow_snapshot, file_path=None, mode='json'):
         raise TypeError("flow_snapshot must be a VersionedFlowSnapshot object")
     export_obj = flow_snapshot
     try:
-        out = nipyapi._utils.dump(
+        out = nipyapi.utils.dump(
             obj=export_obj,
             mode=mode
         )
@@ -488,8 +487,8 @@ def export_flow(flow_snapshot, file_path=None, mode='json'):
     if file_path is None:
         return out
     elif file_path is not None and isinstance(file_path, str):
-        return nipyapi._utils.fs_write(
-            obj=nipyapi._utils.dump(
+        return nipyapi.utils.fs_write(
+            obj=nipyapi.utils.dump(
                 obj=export_obj,
                 mode=mode),
             file_path=file_path,
@@ -522,7 +521,7 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     dto = ('nipyapi.registry.models', 'VersionedFlowSnapshot')
     if file_path is None and encoded_flow is not None:
         try:
-            flow_contents = nipyapi._utils.load(
+            flow_contents = nipyapi.utils.load(
                 encoded_flow,
                 dto=dto
             )
@@ -530,8 +529,8 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
             raise e
     elif file_path is not None and encoded_flow is None:
         try:
-            flow_contents = nipyapi._utils.load(
-                obj=nipyapi._utils.fs_read(
+            flow_contents = nipyapi.utils.load(
+                obj=nipyapi.utils.fs_read(
                     file_path=file_path
                 ),
                 dto=dto

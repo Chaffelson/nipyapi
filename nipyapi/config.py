@@ -25,6 +25,12 @@ nifi_config.host = 'http://localhost:8080/nifi-api'
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://localhost:18080/nifi-registry-api'
 
+# Task wait delays
+# Set how fast to recheck for completion of a long running task in seconds
+retry_delay = 0.5
+# Set the max amount of time we will wait for a task to complete in seconds
+retry_max_wait = 3
+
 
 registered_filters = {
     'Bucket': {'id': ['identifier'], 'name': ['name']},

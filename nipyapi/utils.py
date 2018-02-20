@@ -9,6 +9,7 @@ Convenience utility functions for NiPyApi
 from __future__ import absolute_import, unicode_literals
 import json
 import importlib
+import tenacity
 from six import PY2
 from ruamel.yaml import safe_load, safe_dump
 from ruamel.yaml.reader import YAMLStreamError
@@ -255,3 +256,20 @@ def filter_obj(obj, value, key):
     elif len(out) > 1:
         return out
     return out[0]
+
+
+@tenacity.retry(
+    wait=tenacity.wait_fixed(nipyapi.config.retry_delay),
+    stop=tenacity.stop_after_delay(nipyapi.config.retry_max_wait)
+)
+def wait_to_complete(test_function):
+    """
+    Retry loop using tenacity to wait for component scheduling completion
+    :param function: function returning a bool on whether the tasks is complete
+    :return: the resulting bool
+    :raises: RetryError if timeout
+    """
+    test = test_function()
+    if not test:
+        raise tenacity.TryAgain
+    return test

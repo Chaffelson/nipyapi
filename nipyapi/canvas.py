@@ -6,7 +6,6 @@ STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
-from tenacity import retry, TryAgain, wait_exponential
 import nipyapi
 
 __all__ = [
@@ -102,7 +101,7 @@ def get_process_group(identifier, identifier_type='name'):
         obj = list_all_process_groups()
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
 def list_all_process_groups():
@@ -157,24 +156,23 @@ def schedule_process_group(process_group_id, scheduled):
     Start or stop a Process Group and all children
     :param process_group_id: ID of the Process Group to Target
     :param scheduled: Bool, True for running, or False for stopped
-    :return: Tuple of the scheduling request, and the resulting Entity state
+    :return: Tuple of the scheduling request, and bool regarding success
     :raises RetryError: If timeout waiting for state to change
     """
-    @retry
-    def wait_to_complete(wait=wait_exponential(multiplier=1, max=5)):
+    def _waiting_for_godot():
         """
-        Retry loop using tenacity to wait for component scheduling completion
-        :param wait: tenacity configuration object
-        :return: the component state if successful, or raise RetryError on
-        failure
+        Tests if the task is complete successfully
+        :return: Bool of success status
+        :raises: RetryError if task times out
         """
-        test = get_process_group_status(process_group_id, 'all')
-        if scheduled is False and test.running_count > 0:
-            raise TryAgain
-        elif scheduled is True and test.running_count < 1:
-            raise TryAgain
-        else:
-            return test
+        status = get_process_group_status(process_group_id, 'all')
+        if scheduled is False and status.running_count > 0:
+            return False
+        elif scheduled is True and status.running_count < 1:
+            # Note that this might fail if there isn't at least 1 processor
+            # in a schedulable state
+            return False
+        return True
     if not isinstance(scheduled, bool):
         raise ValueError("scheduled parameter must be a boolean")
     try:
@@ -185,8 +183,8 @@ def schedule_process_group(process_group_id, scheduled):
                 'state': 'RUNNING' if scheduled else 'STOPPED'
             }
         )
-        result = wait_to_complete()
-        return call_init, result
+        success = nipyapi.utils.wait_to_complete(_waiting_for_godot)
+        return call_init, success
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
@@ -276,7 +274,7 @@ def get_processor_type(identifier, identifier_type='name'):
         obj = list_all_processor_types().processor_types
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
 def create_processor(parent_pg, processor, location, name=None, config=None):
@@ -328,7 +326,7 @@ def get_processor(identifier, identifier_type='name'):
         obj = list_all_processors()
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
 def delete_processor(processor, refresh=True):
@@ -360,25 +358,22 @@ def schedule_processor(processor, scheduled, refresh=True):
     Starts or Stops a given Processor.
     :param processor: Processor object to Schedule
     :param scheduled: Boolean; True for Running, False for Stopped
-    :param refresh: Boolnea,, whether to refresh the processor state
-    :return: ProcessorStatusEntity
+    :param refresh: Boolean; whether to refresh the processor state
+    :return: Tuple of submitted ProcessorConfiguration and Bool of success
     """
-    @retry
-    def wait_to_complete(wait=wait_exponential(multiplier=1, max=5)):
+    def _waiting_to_exhale():
         """
-        Retry loop using tenacity to wait for component scheduling completion
-        :param wait: tenacity configuration object
-        :return: the component state if successful, or raise RetryError on
-        failure
+        Tests for the Processor scheduling task to be complete
+        :return: Bool for success
         """
-        test = nipyapi.nifi.FlowApi().get_processor_status(
+        status = nipyapi.nifi.FlowApi().get_processor_status(
             processor.id
         ).processor_status
-        if scheduled is False and test.run_status == 'Running':
-            raise TryAgain
-        elif scheduled is True and test.run_status == 'Stopped':
-            raise TryAgain
-        return test
+        if scheduled is False and status.run_status == 'Running':
+            return False
+        elif scheduled is True and status.run_status == 'Stopped':
+            return False
+        return True
     if not isinstance(scheduled, bool):
         raise ValueError("scheduled parameter must be a boolean")
     try:
@@ -386,7 +381,7 @@ def schedule_processor(processor, scheduled, refresh=True):
             target_proc = get_processor(processor.id, 'id')
         else:
             target_proc = processor
-        nipyapi.nifi.ProcessorsApi().update_processor(
+        call_init = nipyapi.nifi.ProcessorsApi().update_processor(
             id=target_proc.id,
             body=nipyapi.nifi.ProcessorEntity(
                 revision=target_proc.revision,
@@ -396,8 +391,8 @@ def schedule_processor(processor, scheduled, refresh=True):
                 ),
             )
         )
-        result = wait_to_complete()
-        return result
+        success = nipyapi.utils.wait_to_complete(_waiting_to_exhale)
+        return call_init, success
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 

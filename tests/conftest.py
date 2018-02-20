@@ -9,7 +9,6 @@ from os import environ, path
 import requests
 from requests import ConnectionError
 from collections import namedtuple
-from time import sleep
 import nipyapi
 
 
