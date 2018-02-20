@@ -5,7 +5,6 @@
 
 import pytest
 from tests import conftest
-from time import sleep
 from nipyapi import canvas, nifi
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
 from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
@@ -22,6 +21,8 @@ def test_get_process_group_status(regress):
     assert isinstance(r, dict)
     r = canvas.get_process_group_status('root', 'all')
     assert isinstance(r, ProcessGroupEntity)
+    # We rely on this int for testing if a PG is running or not
+    assert isinstance(r.running_count, int)
     with pytest.raises(ValueError):
         _ = canvas.get_process_group_status('root','invalid')
 
@@ -99,27 +100,32 @@ def test_delete_process_group(fix_pg, regress, fix_proc):
     # Test deleting a running PG
     pg_2 = fix_pg.generate()
     _ = fix_proc.generate(parent_pg=pg_2)
-    canvas.schedule_process_group(pg_2.id, 'RUNNING')
+    canvas.schedule_process_group(pg_2.id, True)
     with pytest.raises(ValueError):
         _ = canvas.delete_process_group(
             pg_2.id,
             pg_2.revision
         )
+    # TODO: Add further tests for Force and refresh option
 
 
 def test_schedule_process_group(fix_proc, fix_pg):
     f_pg = fix_pg.generate()
     _ = fix_proc.generate(parent_pg=f_pg)
-    r1 = canvas.schedule_process_group(
+    r1a, r1b = canvas.schedule_process_group(
         f_pg.id,
-        'RUNNING'
+        True
     )
-    assert r1.state == 'RUNNING'
-    r2 = canvas.schedule_process_group(
+    assert isinstance(r1a, nifi.ScheduleComponentsEntity)
+    assert isinstance(r1b, nifi.ProcessGroupEntity)
+    assert r1b.running_count == 1
+    assert r1a.state == 'RUNNING'
+    r2a, r2b = canvas.schedule_process_group(
         f_pg.id,
-        'STOPPED'
+        False
     )
-    assert r2.state == 'STOPPED'
+    assert r2a.state == 'STOPPED'
+    assert r2b.running_count == 0
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_pg.id,
@@ -186,7 +192,7 @@ def test_delete_processor(fix_proc, regress):
         _ = canvas.delete_processor(f_p1)
     # try to delete running processor
     f_p2 = fix_proc.generate()
-    canvas.schedule_processor(f_p2, 'RUNNING')
+    canvas.schedule_processor(f_p2, True)
     with pytest.raises(ValueError):
         _ = canvas.delete_processor(f_p2)
 
@@ -195,21 +201,22 @@ def test_schedule_processor(fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.schedule_processor(
         f_p1,
-        'RUNNING'
+        True
     )
-    assert r1.component.state == 'RUNNING'
-    assert isinstance(r1, nifi.ProcessorEntity)
+    assert r1.processor_status.run_status == 'Running'
+    assert isinstance(r1, nifi.ProcessorStatusEntity)
     r2 = canvas.schedule_processor(
         f_p1,
-        'STOPPED'
+        False
     )
-    assert r2.component.state == 'STOPPED'
-    assert isinstance(r2, nifi.ProcessorEntity)
+    assert r2.processor_status.run_status == 'Stopped'
+    assert isinstance(r2, nifi.ProcessorStatusEntity)
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_p1,
             'BANANA'
         )
+    # TODO: Test wait_to_complete
 
 
 def test_update_processor(fix_proc, regress):
@@ -243,3 +250,13 @@ def test_update_variable_registry(fix_pg):
                        match='param update is not a valid list of'
                        ):
         _ = canvas.update_variable_registry(test_pg, '')
+
+
+def test_get_connections():
+    # TODO: Implement test
+    pass
+
+
+def test_purge_connection():
+    # TODO: Implement test
+    pass

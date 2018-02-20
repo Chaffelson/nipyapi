@@ -43,7 +43,7 @@ class TestTemplates(object):
             )
 
     def test_all_templates(self):
-        r = templates.all_templates()
+        r = templates.list_all_templates()
         assert (isinstance(r, nifi_models.templates_entity.TemplatesEntity))
 
     def test_get_templates_by_name(self):
@@ -103,3 +103,7 @@ class TestTemplates(object):
         assert r is None
         with pytest.raises(ValueError):
             _ = templates.delete_template('invalid')
+
+    def test_list_all_templates(self):
+        # TODO: Implement test
+        pass

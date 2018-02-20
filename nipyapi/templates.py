@@ -9,25 +9,14 @@ from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 from urllib3 import PoolManager
 from lxml import etree
-from nipyapi import nifi
-from nipyapi.nifi.rest import ApiException
-from nipyapi.config import nifi_config
-from nipyapi.canvas import get_process_group
+import nipyapi
 
 
 __all__ = [
-    "all_templates", "get_template_by_name", "deploy_template",
+    "list_all_templates", "get_template_by_name", "deploy_template",
     "upload_template", "create_pg_snippet", "create_template",
     "delete_template", "export_template"
 ]
-
-
-def all_templates():
-    """
-    Returns all Templates
-    :return:
-    """
-    return nifi.FlowApi().get_templates()
 
 
 def get_template_by_name(name):
@@ -38,7 +27,7 @@ def get_template_by_name(name):
     """
     out = [
         i for i in
-        all_templates().templates
+        list_all_templates().templates
         if
         name == i.template.name
     ]
@@ -56,13 +45,12 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
     :param loc_y: y-axis location of the template
     :return: dict of the server response
     """
-    from nipyapi.nifi import InstantiateTemplateRequestEntity
-    req = InstantiateTemplateRequestEntity(
+    req = nipyapi.nifi.InstantiateTemplateRequestEntity(
         origin_x=loc_x,
         origin_y=loc_y,
         template_id=template_id
     )
-    resp = nifi.ProcessgroupsApi().instantiate_template(
+    resp = nipyapi.nifi.ProcessgroupsApi().instantiate_template(
         id=pg_id,
         body=req
     )
@@ -75,8 +63,8 @@ def create_pg_snippet(pg_id):
     :param pg_id: ID of the process Group to snippet
     :return: Snippet Object
     """
-    target_pg = get_process_group(pg_id, 'id')
-    new_snippet_req = nifi.SnippetEntity(
+    target_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
+    new_snippet_req = nipyapi.nifi.SnippetEntity(
         snippet={
             'processGroups': {
                 target_pg.id: target_pg.revision
@@ -85,7 +73,7 @@ def create_pg_snippet(pg_id):
                 target_pg.nipyapi_extended.process_group_flow.parent_group_id
         }
     )
-    snippet_resp = nifi.SnippetsApi().create_snippet(
+    snippet_resp = nipyapi.nifi.SnippetsApi().create_snippet(
         new_snippet_req
     )
     return snippet_resp
@@ -100,12 +88,12 @@ def create_template(pg_id, name, desc=''):
     :return: dict of Template information
     """
     snippet = create_pg_snippet(pg_id)
-    new_template = nifi.CreateTemplateRequestEntity(
+    new_template = nipyapi.nifi.CreateTemplateRequestEntity(
         name=str(name),
         description=str(desc),
         snippet_id=snippet.snippet.id
     )
-    resp = nifi.ProcessgroupsApi().create_template(
+    resp = nipyapi.nifi.ProcessgroupsApi().create_template(
         id=snippet.snippet.parent_group_id,
         body=new_template
     )
@@ -119,8 +107,8 @@ def delete_template(t_id):
     :return:
     """
     try:
-        nifi.TemplatesApi().remove_template(id=t_id)
-    except ApiException as err:
+        nipyapi.nifi.TemplatesApi().remove_template(id=t_id)
+    except nipyapi.nifi.rest.ApiException as err:
         raise ValueError(err.body)
 
 
@@ -146,11 +134,11 @@ def upload_template(pg_id, template_file):
         )
     # NiFi-1.2.0 method
     try:
-        resp = nifi.ProcessgroupsApi().upload_template(
+        resp = nipyapi.nifi.ProcessgroupsApi().upload_template(
             id=pg_id,
             template=template_file
         )
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
     return resp
 
@@ -174,7 +162,7 @@ def export_template(t_id, output='string', file_path=None):
             )
         )
     con = PoolManager()
-    url = nifi_config.host + '/templates/' + t_id + '/download'
+    url = nipyapi.config.nifi_config.host + '/templates/' + t_id + '/download'
     response = con.request('GET', url, preload_content=False)
     template_xml = etree.fromstring(response.data)
     if output == 'string':
@@ -185,3 +173,14 @@ def export_template(t_id, output='string', file_path=None):
         xml_tree = etree.ElementTree(template_xml)
         xml_tree.write(file_path)
         return file_path
+
+
+def list_all_templates():
+    """
+    Returns a list of all templates on the canvas
+    :return: list of TemplateEntity's
+    """
+    try:
+        return nipyapi.nifi.FlowApi().get_templates()
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)

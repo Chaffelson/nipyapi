@@ -192,6 +192,12 @@ def test_get_latest_flow_ver(fix_ver_flow):
 def test_update_flow_ver():
     # This function is more complicated than expected
     # Will implement in a future version
+    # TODO: Implement test
+    pass
+
+
+def test_list_flow_versions():
+    # TODO: Implement test
     pass
 
 
@@ -273,7 +279,8 @@ def test_create_flow_version(fix_ver_flow):
 def test_complex_template_versioning(fix_ctv):
     # There is a complex bug where a new flow version cannot be switched to
     # and generates a NiFi NPE if attempted when create_flow_version is used
-    # This doesn't occur with simple flows for some reason
+    # BUG FIXED: issue with variable name found in Swagger definition
+    # https://github.com/apache/nifi/pull/2479#issuecomment-366582829
 
     # Create a new flow version
     vers = versioning.list_flow_versions(
@@ -294,10 +301,14 @@ def test_complex_template_versioning(fix_ctv):
     )
     assert vers[0].version == 3
     new_ver_info = versioning.get_version_info(fix_ctv.pg)
-    r = versioning.update_flow_ver(fix_ctv.pg, new_ver_info)
-    assert r.request.complete is True
-    # There is a bug in Connections stopping this from working.
-    # assert r.request.failure_reason == None
+    r1 = versioning.update_flow_ver(fix_ctv.pg, new_ver_info)
+    assert r1.request.complete is True
+    assert r1.request.failure_reason is None
+    r2 = canvas.schedule_process_group(fix_ctv.pg.id, True)
+    with pytest.raises(ValueError):
+        _ = versioning.update_flow_ver(fix_ctv.pg, new_ver_info, 'bob')
+    with pytest.raises(ValueError):
+        _ = versioning.update_flow_ver(fix_ctv.pg, new_ver_info, '9999999')
 
 
 def test_get_flow_version(fix_ver_flow):

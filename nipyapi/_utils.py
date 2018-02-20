@@ -12,7 +12,7 @@ import importlib
 from six import PY2
 from ruamel.yaml import safe_load, safe_dump
 from ruamel.yaml.reader import YAMLStreamError
-from nipyapi import config
+import nipyapi
 
 
 # Python 2.7 doesn't have Py3.3+ Error codes, but they're more readable
@@ -42,6 +42,7 @@ def dump(obj, mode='json'):
     :param mode: String of 'json' or 'yaml'
     :return: String of the encoded object
     """
+    # TODO: Examine api_client serialize functionality
     try:
         out = json.dumps(
             obj=obj,
@@ -73,6 +74,7 @@ def _rehydrate_dto(mod_def, obj_name, data):
     :param data: the data structure that matches the object passed
     :return: The rehydrated DTO of the passed object
     """
+    # TODO: Examine api_client deserialise functionality
     import inspect
     # Get a list of all valid classes defined in the given module
     valid_class_defs = dict(inspect.getmembers(mod_def, inspect.isclass))
@@ -153,6 +155,7 @@ def load(obj, dto=None):
     :param dto: the DTO we are reconstituting, if necessary
     :return: Decoded object of native types, probably nested dicts and lists
     """
+    # TODO: Examine api_client deserialise functionality
     try:
         # safe_load from ruamel.yaml as it doesn't accidentally convert str
         # to unicode in py2. It also manages both json and yaml equally well
@@ -222,17 +225,21 @@ def filter_obj(obj, value, key):
         raise TypeError("The passed object ({0}) is not a known filterable"
                         " nipyapi object".format(obj.__class__.__name__))
     # Check if this class has a registered filter in Nipyapi.config
-    this_filter = config.registered_filters.get(obj_class_name, False)
+    this_filter = nipyapi.config.registered_filters.get(obj_class_name, False)
     if not this_filter:
-        registered_filters = ' '.join(config.registered_filters.keys())
+        registered_filters = ' '.join(nipyapi.config.registered_filters.keys())
         raise ValueError(
             "({0}) is not a registered NiPyApi filterable class, registered "
             "classes are ({1})".format(obj_class_name, registered_filters)
         )
     # Check if the supplied key is part of the registered filter
-    key_lookup = config.registered_filters[obj_class_name].get(key, False)
+    key_lookup = nipyapi.config.registered_filters[obj_class_name].get(
+        key, False
+    )
     if not key_lookup:
-        valid_keys = ' '.join(config.registered_filters[obj_class_name].keys())
+        valid_keys = ' '.join(
+            nipyapi.config.registered_filters[obj_class_name].keys()
+        )
         raise ValueError(
             "({0}) is not a registered filter method for object ({1}), valid "
             "methods are ({2})".format(key, obj_class_name, valid_keys)

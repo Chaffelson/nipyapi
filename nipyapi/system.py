@@ -5,7 +5,7 @@ For interactions with the NiFi and Registry Services
 """
 
 from __future__ import absolute_import
-from nipyapi import nifi
+import nipyapi
 
 
 __all__ = [
@@ -19,7 +19,7 @@ def get_system_diagnostics():
     Returns NiFi Sytems diagnostics page
     :return JSON object:
     """
-    return nifi.SystemdiagnosticsApi().get_system_diagnostics()
+    return nipyapi.nifi.SystemdiagnosticsApi().get_system_diagnostics()
 
 
 def get_cluster():
@@ -27,7 +27,7 @@ def get_cluster():
     Returns the contents of the NiFi cluster
     :return:
     """
-    return nifi.ControllerApi().get_cluster()
+    return nipyapi.nifi.ControllerApi().get_cluster()
 
 
 def get_node(nid):
@@ -36,7 +36,7 @@ def get_node(nid):
     :param nid: NiFi ID (nid) from Node information
     :return:
     """
-    return nifi.ControllerApi().get_node(nid)
+    return nipyapi.nifi.ControllerApi().get_node(nid)
 
 
 def get_nifi_version_info():

@@ -7,8 +7,7 @@ STATUS: Work in Progress to determine pythonic datamodel
 
 from __future__ import absolute_import
 from tenacity import retry, TryAgain, wait_exponential
-from nipyapi import nifi, _utils
-from nipyapi.nifi.rest import ApiException
+import nipyapi
 
 __all__ = [
     "get_root_pg_id", "recurse_flow", "get_flow", "get_process_group_status",
@@ -16,13 +15,14 @@ __all__ = [
     "schedule_process_group", "create_process_group", "list_all_processors",
     "list_all_processor_types", "get_processor_type", 'create_processor',
     'delete_processor', 'get_processor', 'schedule_processor',
-    'update_processor', 'get_variable_registry', 'update_variable_registry'
+    'update_processor', 'get_variable_registry', 'update_variable_registry',
+    'get_connections', 'purge_connection'
 ]
 
 
 def get_root_pg_id():
     """Simple Example function for wrapper demonstration"""
-    con = nifi.FlowApi()
+    con = nipyapi.nifi.FlowApi()
     pg_root = con.get_process_group_status('root')
     return pg_root.process_group_status.id
 
@@ -40,7 +40,7 @@ def recurse_flow(pg_id='root'):
         ProcessGroupFlowEntity of each of it's child process groups.
         So you can have the entire canvas in a single object
         """
-        if isinstance(node, nifi.ProcessGroupFlowEntity):
+        if isinstance(node, nipyapi.nifi.ProcessGroupFlowEntity):
             for pg in node.process_group_flow.flow.process_groups:
                 pg.__setattr__(
                     'nipyapi_extended',
@@ -61,15 +61,16 @@ def get_flow(pg_id='root'):
     :return ProcessGroupFlowEntity: the Process Group object
     """
     try:
-        return nifi.FlowApi().get_flow(pg_id)
-    except ApiException as err:
+        return nipyapi.nifi.FlowApi().get_flow(pg_id)
+    except nipyapi.nifi.rest.ApiException as err:
         raise ValueError(err.body)
 
 
 def get_process_group_status(pg_id='root', detail='names'):
     """
-    # TODO: Totally the wrong function somehow, redo
-    Returns status information about a Process Group
+    Returns the full record of a Process Group
+    Note that there is also a 'process group status' command available, but it
+    returns a subset of this data anyway, and this call is more useful
     :param pg_id: NiFi ID of the Process Group to retrieve
     :param detail: Level of detail to respond with
     :return:
@@ -80,7 +81,7 @@ def get_process_group_status(pg_id='root', detail='names'):
             'detail requested ({0}) not in valid list ({1})'
             .format(detail, valid_details)
         )
-    raw = nifi.ProcessgroupsApi().get_process_group(id=pg_id)
+    raw = nipyapi.nifi.ProcessgroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
         out = {
             raw.component.name: raw.component.id
@@ -99,9 +100,9 @@ def get_process_group(identifier, identifier_type='name'):
     """
     try:
         obj = list_all_process_groups()
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return _utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
 
 
 def list_all_process_groups():
@@ -126,7 +127,7 @@ def list_all_process_groups():
     root_flow = recurse_flow('root')
     out = list(flatten(root_flow))
     # This duplicates the nipyapi_extended structure to the root case
-    root_entity = nifi.ProcessgroupsApi().get_process_group('root')
+    root_entity = nipyapi.nifi.ProcessgroupsApi().get_process_group('root')
     root_entity.__setattr__('nipyapi_extended', root_flow)
     out.append(root_entity)
     return out
@@ -150,53 +151,80 @@ def list_all_processors():
     return list(flattener())
 
 
-def delete_process_group(process_group_id, revision):
-    """
-    deletes a specific process group
-    :param process_group_id: id of the process group to be removed
-    :param revision: revision object from the parent PG to the removal target
-    :return ProcessGroupEntity: the updated entity object for the deleted PG
-    """
-    try:
-        return nifi.ProcessgroupsApi().remove_process_group(
-            id=process_group_id,
-            version=revision.version,
-            client_id=revision.client_id
-        )
-    except ApiException as e:
-        raise ValueError(e.body)
-
-
-def schedule_process_group(process_group_id, target_state):
+def schedule_process_group(process_group_id, scheduled):
     """
     EXPERIMENTAL
     Start or stop a Process Group and all children
     :param process_group_id: ID of the Process Group to Target
-    :param target_state: Either 'RUNNING' or 'STOPPED'
-    :return: dict of resulting process group state
+    :param scheduled: Bool, True for running, or False for stopped
+    :return: Tuple of the scheduling request, and the resulting Entity state
+    :raises RetryError: If timeout waiting for state to change
     """
-    # ideally this should be pulled from the client definition
     @retry
     def wait_to_complete(wait=wait_exponential(multiplier=1, max=5)):
-        test = get_process_group(process_group_id, 'id')
-        if test.status:
+        """
+        Retry loop using tenacity to wait for component scheduling completion
+        :param wait: tenacity configuration object
+        :return: the component state if successful, or raise RetryError on
+        failure
+        """
+        test = get_process_group_status(process_group_id, 'all')
+        if scheduled is False and test.running_count > 0:
             raise TryAgain
-    valid_states = ['STOPPED', 'RUNNING']
-    if target_state not in valid_states:
-        raise ValueError(
-            "supplied state {0} not in valid states ({1})".format(
-                target_state, valid_states
-            )
-        )
+        elif scheduled is True and test.running_count < 1:
+            raise TryAgain
+        else:
+            return test
+    if not isinstance(scheduled, bool):
+        raise ValueError("scheduled parameter must be a boolean")
     try:
-        return nifi.FlowApi().schedule_components(
+        call_init = nipyapi.nifi.FlowApi().schedule_components(
             id=process_group_id,
             body={
                 'id': process_group_id,
-                'state': target_state
+                'state': 'RUNNING' if scheduled else 'STOPPED'
             }
         )
-    except ApiException as e:
+        result = wait_to_complete()
+        return call_init, result
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def delete_process_group(process_group_id, revision, force=False,
+                         refresh=False):
+    """
+    deletes a specific process group
+    :param process_group_id: id of the process group to be removed
+    :param revision: revision object from the parent PG to the removal target
+    :param force: Bool; will attempt to clean down the PG before removal.
+    Use with caution!
+    :param refresh: Boolean, whether to refresh the PG status before action
+    :return ProcessGroupEntity: the updated entity object for the deleted PG
+    """
+    try:
+        if force:
+            # Stop everything
+            schedule_process_group(process_group_id, False)
+            # Remove data from queues
+            for con in get_connections(process_group_id).connections:
+                purge_connection(con.id)
+            # Remove templates
+            for template in nipyapi.templates.list_all_templates().templates:
+                if process_group_id == template.template.group_id:
+                    nipyapi.templates.delete_template(template.id)
+        if refresh:
+            updated = nipyapi.nifi.ProcessgroupsApi().get_process_group(
+                process_group_id
+            ).revision
+        else:
+            updated = revision
+        return nipyapi.nifi.ProcessgroupsApi().remove_process_group(
+            id=process_group_id,
+            version=updated.version,
+            client_id=updated.client_id
+        )
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
 
@@ -209,20 +237,20 @@ def create_process_group(parent_pg, new_pg_name, location):
     :return: ProcessGroupEntity of the new PG
     """
     try:
-        return nifi.ProcessgroupsApi().create_process_group(
+        return nipyapi.nifi.ProcessgroupsApi().create_process_group(
             id=parent_pg.id,
-            body=nifi.ProcessGroupEntity(
+            body=nipyapi.nifi.ProcessGroupEntity(
                 revision=parent_pg.revision,
-                component=nifi.ProcessGroupDTO(
+                component=nipyapi.nifi.ProcessGroupDTO(
                     name=new_pg_name,
-                    position=nifi.PositionDTO(
+                    position=nipyapi.nifi.PositionDTO(
                         x=float(location[0]),
                         y=float(location[1])
                     )
                 )
             )
         )
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise e
 
 
@@ -232,8 +260,8 @@ def list_all_processor_types():
     :return ProcessorTypesEntity: Native Datatype containing list
     """
     try:
-        return nifi.FlowApi().get_processor_types()
-    except ApiException as e:
+        return nipyapi.nifi.FlowApi().get_processor_types()
+    except nipyapi.nifi.rest.ApiException as e:
         raise e
 
 
@@ -246,39 +274,9 @@ def get_processor_type(identifier, identifier_type='name'):
     """
     try:
         obj = list_all_processor_types().processor_types
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return _utils.filter_obj(obj, identifier, identifier_type)
-    #
-    # valid_id_types = ['bundle', 'name', 'tag']
-    # if identifier_type not in valid_id_types:
-    #     raise ValueError(
-    #         "identifier_type not in valid list ({0})".format(
-    #             identifier_type
-    #         )
-    #     )
-    # out = []
-    # all_p = list_all_processor_types().processor_types
-    # if identifier_type == 'name':
-    #     out = [
-    #         i for i in all_p if
-    #         identifier in i.type
-    #     ]
-    # if identifier_type == 'bundle':
-    #     out = [
-    #         i for i in all_p if
-    #         identifier in i.bundle.artifact
-    #     ]
-    # if identifier_type == 'tag':
-    #     out = [
-    #         i for i in all_p if
-    #         identifier in str(i.tags)
-    #     ]
-    # if not out:
-    #     return None
-    # elif len(out) > 1:
-    #     return out
-    # return out[0]
+    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
 
 
 def create_processor(parent_pg, processor, location, name=None, config=None):
@@ -296,16 +294,16 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
     else:
         processor_name = name
     if config is None:
-        target_config = nifi.ProcessorConfigDTO()
+        target_config = nipyapi.nifi.ProcessorConfigDTO()
     else:
         target_config = config
     try:
-        return nifi.ProcessgroupsApi().create_processor(
+        return nipyapi.nifi.ProcessgroupsApi().create_processor(
             id=parent_pg.id,
-            body=nifi.ProcessorEntity(
+            body=nipyapi.nifi.ProcessorEntity(
                 revision={'version': 0},
-                component=nifi.ProcessorDTO(
-                    position=nifi.PositionDTO(
+                component=nipyapi.nifi.ProcessorDTO(
+                    position=nipyapi.nifi.PositionDTO(
                         x=float(location[0]),
                         y=float(location[1])
                     ),
@@ -315,7 +313,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
                 )
             )
         )
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
 
@@ -328,29 +326,9 @@ def get_processor(identifier, identifier_type='name'):
     """
     try:
         obj = list_all_processors()
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return _utils.filter_obj(obj, identifier, identifier_type)
-    #
-    # valid_id_types = ['name', 'id']
-    # if identifier_type not in valid_id_types:
-    #     raise ValueError(
-    #         "invalid identifier_type. ({0}) not in ({1})".format(
-    #             identifier_type, valid_id_types
-    #         )
-    #     )
-    # if identifier_type == 'name':
-    #     out = [
-    #         li for li in list_all_processors()
-    #         if identifier in li.status.name
-    #     ]
-    #     if not out:
-    #         return None
-    #     elif len(out) > 1:
-    #         return out
-    #     return out[0]
-    # if identifier_type == 'id':
-    #     return nifi.ProcessorsApi().get_processor(identifier)
+    return nipyapi._utils.filter_obj(obj, identifier, identifier_type)
 
 
 def delete_processor(processor, refresh=True):
@@ -365,49 +343,62 @@ def delete_processor(processor, refresh=True):
             target_proc = get_processor(processor.id, 'id')
         else:
             target_proc = processor
-        if not isinstance(target_proc, nifi.ProcessorEntity):
+        if not isinstance(target_proc, nipyapi.nifi.ProcessorEntity):
             raise ValueError("target ({0}) is not a valid nifi.ProcessorEntity"
                              .format(type(target_proc)))
-        return nifi.ProcessorsApi().delete_processor(
+        return nipyapi.nifi.ProcessorsApi().delete_processor(
             id=target_proc.id,
             version=target_proc.revision.version
         )
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
 
-def schedule_processor(processor, target_state, refresh=True):
+def schedule_processor(processor, scheduled, refresh=True):
     """
     EXPERIMENTAL
     Starts or Stops a given Processor.
     :param processor: Processor object to Schedule
-    :param target_state: 'STOPPED' or 'RUNNING'
-    :param refresh: True|False, whether to refresh the processor state
-    :return: Updated ProcessorEntity
+    :param scheduled: Boolean; True for Running, False for Stopped
+    :param refresh: Boolnea,, whether to refresh the processor state
+    :return: ProcessorStatusEntity
     """
-    valid_states = ['STOPPED', 'RUNNING']
-    if target_state not in valid_states:
-        raise ValueError(
-            "supplied state {0} not in valid states ({1})".format(
-                target_state, valid_states
-            )
-        )
+    @retry
+    def wait_to_complete(wait=wait_exponential(multiplier=1, max=5)):
+        """
+        Retry loop using tenacity to wait for component scheduling completion
+        :param wait: tenacity configuration object
+        :return: the component state if successful, or raise RetryError on
+        failure
+        """
+        test = nipyapi.nifi.FlowApi().get_processor_status(processor.id)
+        if scheduled is False:
+            if test.processor_status.run_status == 'Running':
+                raise TryAgain
+        elif scheduled is True:
+            if test.processor_status.run_status == 'Stopped':
+                raise TryAgain
+        return test
+    if not isinstance(scheduled, bool):
+        raise ValueError("scheduled parameter must be a boolean")
     try:
         if refresh:
             target_proc = get_processor(processor.id, 'id')
         else:
             target_proc = processor
-        return nifi.ProcessorsApi().update_processor(
+        nipyapi.nifi.ProcessorsApi().update_processor(
             id=target_proc.id,
-            body=nifi.ProcessorEntity(
+            body=nipyapi.nifi.ProcessorEntity(
                 revision=target_proc.revision,
-                component=nifi.ProcessorDTO(
-                    state=target_state,
+                component=nipyapi.nifi.ProcessorDTO(
+                    state='RUNNING' if scheduled else 'STOPPED',
                     id=target_proc.id
                 ),
             )
         )
-    except ApiException as e:
+        result = wait_to_complete()
+        return result
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
 
@@ -419,22 +410,22 @@ def update_processor(processor, update):
     :param update: ProcessorConfigDTO, updated configuration parameters
     :return: updated ProcessorEntity
     """
-    if not isinstance(update, nifi.ProcessorConfigDTO):
+    if not isinstance(update, nipyapi.nifi.ProcessorConfigDTO):
         raise ValueError(
             "update param is not an instance of nifi.ProcessorConfigDTO"
         )
     try:
-        return nifi.ProcessorsApi().update_processor(
+        return nipyapi.nifi.ProcessorsApi().update_processor(
             processor.id,
-            body=nifi.ProcessorEntity(
-                component=nifi.ProcessorDTO(
+            body=nipyapi.nifi.ProcessorEntity(
+                component=nipyapi.nifi.ProcessorDTO(
                     config=update,
                     id=processor.id
                 ),
                 revision=processor.revision,
             )
         )
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
 
@@ -446,11 +437,11 @@ def get_variable_registry(process_group, ancestors=True):
     :return: VariableRegistryEntity
     """
     try:
-        return nifi.ProcessgroupsApi().get_variable_registry(
+        return nipyapi.nifi.ProcessgroupsApi().get_variable_registry(
             process_group.id,
             include_ancestor_groups=ancestors
         )
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
 
@@ -461,7 +452,7 @@ def update_variable_registry(process_group, update):
     :param update: (key,value) tuples of the variables to write to the registry
     :return: VariableRegistryEntity
     """
-    if not isinstance(process_group, nifi.ProcessGroupEntity):
+    if not isinstance(process_group, nipyapi.nifi.ProcessGroupEntity):
         raise ValueError(
             'param process_group is not a valid nifi.ProcessGroupEntity'
         )
@@ -471,8 +462,8 @@ def update_variable_registry(process_group, update):
         )
     # Parse variable update into the datatype
     var_update = [
-        nifi.VariableEntity(
-            nifi.VariableDTO(
+        nipyapi.nifi.VariableEntity(
+            nipyapi.nifi.VariableDTO(
                 name=li[0],
                 value=li[1],
                 process_group_id=process_group.id
@@ -480,15 +471,40 @@ def update_variable_registry(process_group, update):
         ) for li in update
     ]
     try:
-        return nifi.ProcessgroupsApi().update_variable_registry(
+        return nipyapi.nifi.ProcessgroupsApi().update_variable_registry(
             id=process_group.id,
-            body=nifi.VariableRegistryEntity(
+            body=nipyapi.nifi.VariableRegistryEntity(
                 process_group_revision=process_group.revision,
-                variable_registry=nifi.VariableRegistryDTO(
+                variable_registry=nipyapi.nifi.VariableRegistryDTO(
                     process_group_id=process_group.id,
                     variables=var_update
                 )
             )
         )
-    except ApiException as e:
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def get_connections(pg_id):
+    """
+    lists all child connections for a given ProcessGroup iD
+    :param pg_id: ID of the Process Group
+    :return: ConnectionsEntity, which contains a list of Connections
+    """
+    try:
+        return nipyapi.nifi.ProcessgroupsApi().get_connections(pg_id)
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def purge_connection(con_id):
+    """
+    Drops all flowfiles in a given connection
+    :param con_id: ID of the Connection to clear
+    :return:
+    """
+    # TODO: Implement wait_to_finish for this function
+    try:
+        return nipyapi.nifi.FlowfilequeuesApi().create_drop_request(con_id)
+    except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
