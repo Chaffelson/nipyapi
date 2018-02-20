@@ -203,14 +203,14 @@ def test_schedule_processor(fix_proc):
         f_p1,
         True
     )
-    assert r1.processor_status.run_status == 'Running'
-    assert isinstance(r1, nifi.ProcessorStatusEntity)
+    assert r1.run_status == 'Running'
+    assert isinstance(r1, nifi.ProcessorStatusDTO)
     r2 = canvas.schedule_processor(
         f_p1,
         False
     )
-    assert r2.processor_status.run_status == 'Stopped'
-    assert isinstance(r2, nifi.ProcessorStatusEntity)
+    assert r2.run_status == 'Stopped'
+    assert isinstance(r2, nifi.ProcessorStatusDTO)
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_p1,

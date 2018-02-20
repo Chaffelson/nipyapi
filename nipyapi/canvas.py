@@ -371,13 +371,13 @@ def schedule_processor(processor, scheduled, refresh=True):
         :return: the component state if successful, or raise RetryError on
         failure
         """
-        test = nipyapi.nifi.FlowApi().get_processor_status(processor.id)
-        if scheduled is False:
-            if test.processor_status.run_status == 'Running':
-                raise TryAgain
-        elif scheduled is True:
-            if test.processor_status.run_status == 'Stopped':
-                raise TryAgain
+        test = nipyapi.nifi.FlowApi().get_processor_status(
+            processor.id
+        ).processor_status
+        if scheduled is False and test.run_status == 'Running':
+            raise TryAgain
+        elif scheduled is True and test.run_status == 'Stopped':
+            raise TryAgain
         return test
     if not isinstance(scheduled, bool):
         raise ValueError("scheduled parameter must be a boolean")
