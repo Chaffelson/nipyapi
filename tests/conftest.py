@@ -86,10 +86,10 @@ def session_setup(request):
 
     for url in nifi_test_endpoints + registry_test_endpoints:
         target_url = url.replace('-api', '')
-        if not is_endpoint_up(target_url):
+        if not nipyapi.utils.wait_to_complete(is_endpoint_up, target_url):
             pytest.exit(
                 "Expected Service endpoint ({0}) is not responding"
-                    .format(target_url)
+                .format(target_url)
             )
     # Run cleanup at the start of the session to ensure it's clean
     cleanup()
@@ -108,15 +108,13 @@ def remove_test_pgs():
     if isinstance(test_pgs, list):
         for this_test_pg in test_pgs:
             nipyapi.canvas.delete_process_group(
-                this_test_pg.id,
-                this_test_pg.revision,
+                this_test_pg,
                 force=True,
                 refresh=True
             )
     elif isinstance(test_pgs, nipyapi.nifi.ProcessGroupEntity):
         nipyapi.canvas.delete_process_group(
-            test_pgs.id,
-            test_pgs.revision,
+            test_pgs,
             force=True,
             refresh=True
         )

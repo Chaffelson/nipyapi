@@ -91,10 +91,7 @@ def test_get_process_group(fix_pg, regress):
 def test_delete_process_group(fix_pg, regress, fix_proc):
     # Delete stopped PG
     f_pg1 = fix_pg.generate()
-    r1 = canvas.delete_process_group(
-        f_pg1.id,
-        f_pg1.revision
-    )
+    r1 = canvas.delete_process_group(f_pg1)
     assert r1.id == f_pg1.id
     assert r1.status is None
     # Test deleting a running PG
@@ -102,31 +99,34 @@ def test_delete_process_group(fix_pg, regress, fix_proc):
     _ = fix_proc.generate(parent_pg=pg_2)
     canvas.schedule_process_group(pg_2.id, True)
     with pytest.raises(ValueError):
-        _ = canvas.delete_process_group(
-            pg_2.id,
-            pg_2.revision
-        )
-    # TODO: Add further tests for Force and refresh option
+        _ = canvas.delete_process_group(pg_2)
+    # Once more with feeling
+    r2 = canvas.delete_process_group(
+        pg_2,
+        force=True
+    )
+    assert r2.status is None
 
 
 def test_schedule_process_group(fix_proc, fix_pg):
     f_pg = fix_pg.generate()
     _ = fix_proc.generate(parent_pg=f_pg)
-    r1a, r1b = canvas.schedule_process_group(
+    r1 = canvas.schedule_process_group(
         f_pg.id,
         True
     )
-    assert isinstance(r1a, nifi.ScheduleComponentsEntity)
-    assert isinstance(r1b, bool)
-    assert r1b is True
-    assert r1a.state == 'RUNNING'
-    r2a, r2b = canvas.schedule_process_group(
+    status = canvas.get_process_group(f_pg.id, 'id')
+    assert r1 is True
+    assert status.running_count == 1
+    r2= canvas.schedule_process_group(
         f_pg.id,
         False
     )
-    assert r2a.state == 'STOPPED'
-    assert r2b is True
-    with pytest.raises(ValueError):
+    assert r2 is True
+    status = canvas.get_process_group(f_pg.id, 'id')
+    assert status.running_count == 0
+    assert status.stopped_count == 1
+    with pytest.raises(AssertionError):
         _ = canvas.schedule_process_group(
             f_pg.id,
             'BANANA'
@@ -182,42 +182,45 @@ def test_get_processor(fix_proc, regress):
     assert r4.id != r1.id
 
 
+def test_schedule_processor(fix_proc):
+    f_p1 = fix_proc.generate()
+    r1 = canvas.schedule_processor(
+        f_p1,
+        True
+    )
+    status = canvas.get_processor(f_p1.id, 'id')
+    assert r1 is True
+    assert status.status.run_status == 'Running'
+    r2 = canvas.schedule_processor(
+        f_p1,
+        False
+    )
+    status = canvas.get_processor(f_p1.id, 'id')
+    assert status.status.run_status == 'Stopped'
+    assert r2 is True
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_processor(
+            f_p1,
+            'BANANA'
+        )
+
+
 def test_delete_processor(fix_proc, regress):
     f_p1 = fix_proc.generate()
     r1 = canvas.delete_processor(f_p1)
     assert r1.status is None
     assert isinstance(r1, nifi.ProcessorEntity)
     # try to delete processor twice
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         _ = canvas.delete_processor(f_p1)
     # try to delete running processor
     f_p2 = fix_proc.generate()
-    canvas.schedule_processor(f_p2, 'Running')
+    canvas.schedule_processor(f_p2, True)
     with pytest.raises(ValueError):
         _ = canvas.delete_processor(f_p2)
-
-
-def test_schedule_processor(fix_proc):
-    f_p1 = fix_proc.generate()
-    r1a, r1b = canvas.schedule_processor(
-        f_p1,
-        'Running'
-    )
-    assert r1a.status.run_status == 'Running'
-    assert isinstance(r1a, nifi.ProcessorEntity)
-    assert r1b is 'Success'
-    r2a, r2b = canvas.schedule_processor(
-        f_p1,
-        'Stopped'
-    )
-    assert r2a.status.run_status == 'Stopped'
-    assert isinstance(r2a, nifi.ProcessorEntity)
-    assert r2b is 'Success'
-    with pytest.raises(ValueError):
-        _ = canvas.schedule_process_group(
-            f_p1,
-            'BANANA'
-        )
+    # and once more with feeling, er, force
+    r2 = canvas.delete_processor(f_p2, force=True)
+    assert r2.status is None
 
 
 def test_update_processor(fix_proc, regress):
@@ -236,7 +239,7 @@ def test_get_variable_registry(fix_pg):
     r1 = canvas.get_variable_registry(test_pg)
     assert isinstance(r1, nifi.VariableRegistryEntity)
     with pytest.raises(ValueError, match='Unable to locate group with id'):
-        canvas.delete_process_group(test_pg.id, test_pg.revision)
+        canvas.delete_process_group(test_pg)
         _ = canvas.get_variable_registry(test_pg)
 
 

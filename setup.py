@@ -19,7 +19,6 @@ requirements = [
     'm2r',  # Required for docs build
     'deepdiff',  # Required for comparing configurations
     'six',  # Required for managing Python version compatibility
-    'tenacity',  # Retry management for async API calls
     'ruamel.yaml',  # Required for parsing Json/Yaml consistently
     'docker',  # Used to deploy demo assemblies
     'requests'  # Used in demo management

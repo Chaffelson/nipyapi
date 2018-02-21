@@ -30,8 +30,7 @@ __all__ = ['process_group_0', 'processor_0', 'reg_client_0', 'bucket_0',
 process_group_0 = nipyapi.canvas.get_process_group(_pg0)
 if process_group_0 is not None:
     nipyapi.canvas.delete_process_group(
-        process_group_0.id,
-        process_group_0.revision,
+        process_group_0,
         force=True,
         refresh=True
     )

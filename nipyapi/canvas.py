@@ -152,77 +152,79 @@ def list_all_processors():
 
 def schedule_process_group(process_group_id, scheduled):
     """
-    EXPERIMENTAL
-    Start or stop a Process Group and all children
-    :param process_group_id: ID of the Process Group to Target
-    :param scheduled: Bool, True for running, or False for stopped
-    :return: Tuple of the scheduling request, and bool regarding success
-    :raises RetryError: If timeout waiting for state to change
+    Start or Stop a Process Group and all components.
+    Note that this doesn't guarantee that all components have started, as
+    some may be in Invalid states.
+    :param process_group_id: ID of the Process Group
+    :param scheduled: Bool; True to Start, False to Stop
+    :return: Bool, Success or not
     """
-    def _waiting_for_godot(scheduled_, process_group_id_):
-        """
-        Tests if the task is complete successfully
-        :return: Bool of success status
-        :raises: RetryError if task times out
-        """
-        # TODO: rewrite this to be less fragile
-        status = get_process_group_status(process_group_id_, 'all')
-        if scheduled is False and status.running_count > 0:
+    def _waiting_for_godot(pg_id_):
+        test_obj = nipyapi.nifi.ProcessgroupsApi().get_process_group(pg_id_)
+        if test_obj.status.aggregate_snapshot.active_thread_count == 0:
+            return True
+        return False
+    assert isinstance(
+        get_process_group(process_group_id, 'id'),
+        nipyapi.nifi.ProcessGroupEntity
+    )
+    assert isinstance(scheduled, bool)
+    result = schedule_components(
+        pg_id=process_group_id,
+        scheduled=scheduled
+    )
+    # If target scheduled state was successfully updated
+    if result:
+        # If we want to stop the processor
+        if not scheduled:
+            # Test that the processor threads have halted
+            stop_test = nipyapi.utils.wait_to_complete(
+                _waiting_for_godot,
+                process_group_id
+            )
+            if stop_test:
+                # Return True if we stopped the Process Group
+                return result
+            # Return False if we scheduled a stop, but it didn't stop
             return False
-        elif scheduled is True and status.running_count < 1:
-            # Note that this might fail if there isn't at least 1 processor
-            # in a schedulable state
-            return False
-        return True
-    if not isinstance(scheduled, bool):
-        raise ValueError("scheduled parameter must be a boolean")
-    try:
-        call_init = nipyapi.nifi.FlowApi().schedule_components(
-            id=process_group_id,
-            body={
-                'id': process_group_id,
-                'state': 'RUNNING' if scheduled else 'STOPPED'
-            }
-        )
-        success = nipyapi.utils.wait_to_complete(
-            _waiting_for_godot, scheduled, process_group_id)
-        return call_init, success
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
+    # Return the True or False result if we were trying to start it
+    return result
 
 
-def delete_process_group(process_group_id, revision, force=False,
-                         refresh=False):
+def delete_process_group(process_group, force=False, refresh=True):
     """
     deletes a specific process group
-    :param process_group_id: id of the process group to be removed
-    :param revision: revision object from the parent PG to the removal target
+    :param process_group: ProcessGroupEntity of the process group to be removed
     :param force: Bool; will attempt to clean down the PG before removal.
     Use with caution!
     :param refresh: Boolean, whether to refresh the PG status before action
     :return ProcessGroupEntity: the updated entity object for the deleted PG
+    :raises: AssertionError for bad params, ValueError for bad API calls
     """
+    assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
+    assert isinstance(force, bool)
+    assert isinstance(refresh, bool)
+    if refresh or force:
+        target = nipyapi.nifi.ProcessgroupsApi().get_process_group(
+            process_group.id
+        )
+    else:
+        target = process_group
+    if force:
+        # Stop everything
+        schedule_process_group(target.id, scheduled=False)
+        # Remove data from queues
+        for con in get_connections(target.id).connections:
+            purge_connection(con.id)
+        # Remove templates
+        for template in nipyapi.templates.list_all_templates().templates:
+            if target.id == template.template.group_id:
+                nipyapi.templates.delete_template(template.id)
     try:
-        if force:
-            # Stop everything
-            schedule_process_group(process_group_id, False)
-            # Remove data from queues
-            for con in get_connections(process_group_id).connections:
-                purge_connection(con.id)
-            # Remove templates
-            for template in nipyapi.templates.list_all_templates().templates:
-                if process_group_id == template.template.group_id:
-                    nipyapi.templates.delete_template(template.id)
-        if refresh:
-            updated = nipyapi.nifi.ProcessgroupsApi().get_process_group(
-                process_group_id
-            ).revision
-        else:
-            updated = revision
         return nipyapi.nifi.ProcessgroupsApi().remove_process_group(
-            id=process_group_id,
-            version=updated.version,
-            client_id=updated.client_id
+            id=target.id,
+            version=target.revision.version,
+            client_id=target.revision.client_id
         )
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
@@ -333,68 +335,112 @@ def get_processor(identifier, identifier_type='name'):
 
 def delete_processor(processor, refresh=True, force=False):
     """
-    Removes a Processor from the Canvas
-    :param processor: Processor Object to be removed
-    :param refresh: True|False, whether to refresh the object state
-    :return: ProcessorEntity with updated status etc.
+    Remove a processor from the canvas, with prejudice if necessary
+    :param processor: ProcessorEntity of the processor to target
+    :param refresh: Whether to refresh the object, defaults to True
+    :param force: Whether to also stop the Processor first, if it is running
+    :return: Final Processor status
+    :raises: AssertionError for bad params, ValueError if the API rejects you
     """
-    if force:
-        init, result = schedule_processor(processor, 'Stopped')
-        if result not in ['Success', 'Invalid']:
-            raise ValueError("Could not prepare processor ({0}) for deletion, "
-                             "result was ({1})"
-                .format(processor.id, result))
-    if refresh:
-        target_proc = get_processor(processor.id, 'id')
+    assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+    assert isinstance(refresh, bool)
+    assert isinstance(force, bool)
+    if refresh or force:
+        target = get_processor(processor.id, 'id')
+        assert isinstance(target, nipyapi.nifi.ProcessorEntity)
     else:
-        target_proc = processor
-    if not isinstance(target_proc, nipyapi.nifi.ProcessorEntity):
-        raise ValueError("target ({0}) is not a valid nifi.ProcessorEntity"
-                         .format(type(target_proc)))
+        target = processor
+    if force:
+        if not schedule_processor(target, False):
+            raise ("Could not prepare processor ({0}) for deletion"
+                   .format(target.id))
+        target = get_processor(processor.id, 'id')
+        assert isinstance(target, nipyapi.nifi.ProcessorEntity)
     try:
         return nipyapi.nifi.ProcessorsApi().delete_processor(
-            id=target_proc.id,
-            version=target_proc.revision.version
+            id=target.id,
+            version=target.revision.version
         )
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
 
-def schedule_processor(processor, target_state, refresh=True):
+def schedule_components(pg_id, scheduled, components=None):
     """
-    EXPERIMENTAL
-    Starts or Stops a given Processor.
-    :param processor: Processor object to Schedule
-    :param target_state: String; 'Running' or 'Stopped'
-    :param refresh: Boolean; whether to refresh the processor state
-    :return: Tuple of submitted ProcessorConfiguration and Bool of success
+    Changes scheduled target state of a list of Components in a Process Group
+    :param pg_id: ID of the Process Group containing the components
+    :param scheduled: Bool; True to Start, False to stop
+    :param components: List of Component Entities to Schedule
+    :return: Bool of success or not
+    :raises: AssertionError for bad params, ValueError if the API rejects you
     """
-    if target_state not in ['Running', 'Stopped']:
-        raise ValueError("target_state must be either 'Running' or 'Stopped'")
+    assert isinstance(
+        get_process_group(pg_id, 'id'),
+        nipyapi.nifi.ProcessGroupEntity
+    )
+    assert isinstance(scheduled, bool)
+    assert components is None or isinstance(components, list)
+    target_state = 'RUNNING' if scheduled else 'STOPPED'
+    body = nipyapi.nifi.ScheduleComponentsEntity(
+        id=pg_id,
+        state=target_state
+    )
+    if components:
+        body.components = {i.id: i.revision for i in components}
     try:
-        if refresh:
-            target_proc = nipyapi.nifi.ProcessorsApi().get_processor(
-                processor.id
-            )
-        else:
-            target_proc = processor
-        call_state = 'RUNNING' if target_state == 'Running' else 'STOPPED'
-        call_init = nipyapi.nifi.ProcessorsApi().update_processor(
-            id=target_proc.id,
-            body=nipyapi.nifi.ProcessorEntity(
-                revision=target_proc.revision,
-                component=nipyapi.nifi.ProcessorDTO(
-                    state=call_state,
-                    id=target_proc.id
-                ),
-            )
+        result = nipyapi.nifi.FlowApi().schedule_components(
+            id=pg_id,
+            body=body
         )
-        result = call_init.status.aggregate_snapshot.run_status
-        if result == target_state:
-            return call_init, 'Success'
-        return call_init, result
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
+    if result.state == target_state:
+        return True
+    return False
+
+
+def schedule_processor(processor, scheduled, refresh=True):
+    """
+    Start or Stop a specific processor
+    :param processor: ProcessorEntity of the Processor target
+    :param scheduled: Bool; True to Start, False to Stop
+    :param refresh: Bool; whether to refresh the processor first
+    :return: Bool of success or not
+    :raises: AssertionError for bad params, ValueError if the API rejects you
+    """
+    assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+    assert isinstance(scheduled, bool)
+    assert isinstance(refresh, bool)
+
+    def _dangleberries(processor_):
+        test_obj = nipyapi.nifi.ProcessorsApi().get_processor(processor_.id)
+        if test_obj.status.aggregate_snapshot.active_thread_count == 0:
+            return True
+        return False
+    assert isinstance(scheduled, bool)
+    if refresh:
+        target = nipyapi.canvas.get_processor(processor.id, 'id')
+        assert isinstance(target, nipyapi.nifi.ProcessorEntity)
+    else:
+        target = processor
+    result = schedule_components(
+        pg_id=target.status.group_id,
+        scheduled=scheduled,
+        components=[target]
+    )
+    # If target scheduled state was successfully updated
+    if result:
+        # If we want to stop the processor
+        if not scheduled:
+            # Test that the processor threads have halted
+            stop_test = nipyapi.utils.wait_to_complete(_dangleberries, target)
+            if stop_test:
+                # Return True if we stopped the processor
+                return result
+            # Return False if we scheduled a stop, but it didn't stop
+            return False
+    # Return the True or False result if we were trying to start the processor
+    return result
 
 
 def update_processor(processor, update):
