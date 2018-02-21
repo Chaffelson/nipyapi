@@ -5,7 +5,6 @@
 
 from __future__ import absolute_import
 import pytest
-import tenacity
 from tests import conftest
 from ruamel.yaml import safe_load
 from deepdiff import DeepDiff

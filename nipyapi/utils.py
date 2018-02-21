@@ -259,6 +259,13 @@ def filter_obj(obj, value, key):
 
 
 def wait_to_complete(test_function, *args, **kwargs):
+    """
+    Implements a basic retry loop for a given test function
+    :param test_function: Function returning a Bool once a state is reached
+    :param args: any args to pass to the test function
+    :param kwargs: any kwargs to pass to the test function
+    :return: Bool of success or not
+    """
     timeout = time.time() + nipyapi.config.retry_max_wait
     while time.time() < timeout:
         test_result = test_function(*args, **kwargs)
