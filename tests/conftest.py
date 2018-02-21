@@ -127,7 +127,7 @@ def remove_test_pgs():
 def remove_test_processors():
     target_list = [li for
                    li in nipyapi.canvas.list_all_processors()
-                   if test_processor_name in li.status.name
+                   if test_basename in li.status.name
                    ]
     for target in target_list:
         nipyapi.canvas.delete_processor(target, force=True)
@@ -205,17 +205,21 @@ def fixture_proc(request):
         def __init__(self):
             pass
 
-        def generate(self, parent_pg=None, suffix=''):
+        def generate(self, parent_pg=None, suffix='', valid=True):
             if parent_pg is None:
                 target_pg = nipyapi.canvas.get_process_group(
                     nipyapi.canvas.get_root_pg_id(), 'id'
                 )
             else:
                 target_pg = parent_pg
+            if valid:
+                proc_type = 'GenerateFlowFile'
+            else:
+                proc_type = 'ListenSyslog'
             return nipyapi.canvas.create_processor(
                 parent_pg=target_pg,
                 processor=nipyapi.canvas.get_processor_type(
-                    'GenerateFlowFile'),
+                    proc_type),
                 location=(400.0, 400.0),
                 name=test_processor_name + suffix,
                 config=nipyapi.nifi.ProcessorConfigDTO(

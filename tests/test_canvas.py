@@ -153,7 +153,7 @@ def test_create_processor(fix_pg, regress):
     f_pg = fix_pg.generate()
     r1 = canvas.create_processor(
         parent_pg=f_pg,
-        processor=canvas.get_processor_type('ListenSyslog'),
+        processor=canvas.get_processor_type('GenerateFlowFile'),
         location=(400.0, 400.0),
         name=conftest.test_processor_name
     )
@@ -192,7 +192,7 @@ def test_delete_processor(fix_proc, regress):
         _ = canvas.delete_processor(f_p1)
     # try to delete running processor
     f_p2 = fix_proc.generate()
-    canvas.schedule_processor(f_p2, True)
+    canvas.schedule_processor(f_p2, 'Running')
     with pytest.raises(ValueError):
         _ = canvas.delete_processor(f_p2)
 
@@ -201,24 +201,23 @@ def test_schedule_processor(fix_proc):
     f_p1 = fix_proc.generate()
     r1a, r1b = canvas.schedule_processor(
         f_p1,
-        True
+        'Running'
     )
     assert r1a.status.run_status == 'Running'
     assert isinstance(r1a, nifi.ProcessorEntity)
-    assert r1b is True
+    assert r1b is 'Success'
     r2a, r2b = canvas.schedule_processor(
         f_p1,
-        False
+        'Stopped'
     )
     assert r2a.status.run_status == 'Stopped'
     assert isinstance(r2a, nifi.ProcessorEntity)
-    assert r2b is True
+    assert r2b is 'Success'
     with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_p1,
             'BANANA'
         )
-    # TODO: Test wait_to_complete
 
 
 def test_update_processor(fix_proc, regress):

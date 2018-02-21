@@ -159,13 +159,14 @@ def schedule_process_group(process_group_id, scheduled):
     :return: Tuple of the scheduling request, and bool regarding success
     :raises RetryError: If timeout waiting for state to change
     """
-    def _waiting_for_godot():
+    def _waiting_for_godot(scheduled_, process_group_id_):
         """
         Tests if the task is complete successfully
         :return: Bool of success status
         :raises: RetryError if task times out
         """
-        status = get_process_group_status(process_group_id, 'all')
+        # TODO: rewrite this to be less fragile
+        status = get_process_group_status(process_group_id_, 'all')
         if scheduled is False and status.running_count > 0:
             return False
         elif scheduled is True and status.running_count < 1:
@@ -183,7 +184,8 @@ def schedule_process_group(process_group_id, scheduled):
                 'state': 'RUNNING' if scheduled else 'STOPPED'
             }
         )
-        success = nipyapi.utils.wait_to_complete(_waiting_for_godot)
+        success = nipyapi.utils.wait_to_complete(
+            _waiting_for_godot, scheduled, process_group_id)
         return call_init, success
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
@@ -337,7 +339,11 @@ def delete_processor(processor, refresh=True, force=False):
     :return: ProcessorEntity with updated status etc.
     """
     if force:
-        schedule_processor(processor, False)
+        init, result = schedule_processor(processor, 'Stopped')
+        if result not in ['Success', 'Invalid']:
+            raise ValueError("Could not prepare processor ({0}) for deletion, "
+                             "result was ({1})"
+                .format(processor.id, result))
     if refresh:
         target_proc = get_processor(processor.id, 'id')
     else:
@@ -354,47 +360,39 @@ def delete_processor(processor, refresh=True, force=False):
         raise ValueError(e.body)
 
 
-def schedule_processor(processor, scheduled, refresh=True):
+def schedule_processor(processor, target_state, refresh=True):
     """
     EXPERIMENTAL
     Starts or Stops a given Processor.
     :param processor: Processor object to Schedule
-    :param scheduled: Boolean; True for Running, False for Stopped
+    :param target_state: String; 'Running' or 'Stopped'
     :param refresh: Boolean; whether to refresh the processor state
     :return: Tuple of submitted ProcessorConfiguration and Bool of success
     """
-    def _waiting_to_exhale():
-        """
-        Tests for the Processor scheduling task to be complete
-        :return: Bool for success
-        """
-        status = nipyapi.nifi.FlowApi().get_processor_status(
-            processor.id
-        ).processor_status
-        if scheduled is False and status.run_status == 'Running':
-            return False
-        elif scheduled is True and status.run_status == 'Stopped':
-            return False
-        return True
-    if not isinstance(scheduled, bool):
-        raise ValueError("scheduled parameter must be a boolean")
+    if target_state not in ['Running', 'Stopped']:
+        raise ValueError("target_state must be either 'Running' or 'Stopped'")
     try:
         if refresh:
-            target_proc = get_processor(processor.id, 'id')
+            target_proc = nipyapi.nifi.ProcessorsApi().get_processor(
+                processor.id
+            )
         else:
             target_proc = processor
+        call_state = 'RUNNING' if target_state == 'Running' else 'STOPPED'
         call_init = nipyapi.nifi.ProcessorsApi().update_processor(
             id=target_proc.id,
             body=nipyapi.nifi.ProcessorEntity(
                 revision=target_proc.revision,
                 component=nipyapi.nifi.ProcessorDTO(
-                    state='RUNNING' if scheduled else 'STOPPED',
+                    state=call_state,
                     id=target_proc.id
                 ),
             )
         )
-        success = nipyapi.utils.wait_to_complete(_waiting_to_exhale)
-        return call_init, success
+        result = call_init.status.aggregate_snapshot.run_status
+        if result == target_state:
+            return call_init, 'Success'
+        return call_init, result
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
 
