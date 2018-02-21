@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import pytest
 from deepdiff import DeepDiff
 from tests import conftest
-from nipyapi import registry, config, nifi, versioning, canvas, utils
+from nipyapi import registry, config, nifi, versioning, canvas, utils, templates
 
 
 def test_create_registry_client():
@@ -305,6 +305,8 @@ def test_complex_template_versioning(fix_ctv):
     assert r1.request.complete is True
     assert r1.request.failure_reason is None
     r2 = canvas.schedule_process_group(fix_ctv.pg.id, True)
+    status = canvas.get_process_group(fix_ctv.pg.id, 'id')
+    assert status.running_count >= 5
     with pytest.raises(ValueError):
         _ = versioning.update_flow_ver(fix_ctv.pg, new_ver_info, 'bob')
     with pytest.raises(ValueError):

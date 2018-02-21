@@ -109,8 +109,8 @@ def list_all_process_groups():
     Returns a flattened list of all Process Groups.
     :return list: list of ProcessGroupEntity objects
     """
-
-    # TODO: Check if get_process_groups is fixed in newer versions
+    # Note that the ProcessGroupsApi().get_process_groups(pg_id) command only
+    # provides the first layer of pgs, whereas this recurses the entire canvas
     def flatten(parent_pg):
         """
         Recursively flattens the native datatypes into a generic list.
@@ -532,10 +532,16 @@ def get_connections(pg_id):
     :param pg_id: ID of the Process Group
     :return: ConnectionsEntity, which contains a list of Connections
     """
+    assert isinstance(
+        get_process_group(pg_id, 'id'),
+        nipyapi.nifi.ProcessGroupEntity
+    )
     try:
-        return nipyapi.nifi.ProcessgroupsApi().get_connections(pg_id)
+        out = nipyapi.nifi.ProcessgroupsApi().get_connections(pg_id)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
+    assert isinstance(out, nipyapi.nifi.ConnectionsEntity)
+    return out
 
 
 def purge_connection(con_id):
@@ -544,8 +550,51 @@ def purge_connection(con_id):
     :param con_id: ID of the Connection to clear
     :return:
     """
-    # TODO: Implement wait_to_finish for this function
+    def _autumn_leaves(con_id_, drop_request_):
+        test_obj = nipyapi.nifi.FlowfilequeuesApi().get_drop_request(
+            con_id_,
+            drop_request_.drop_request.id
+        ).drop_request
+        if not test_obj.finished:
+            return False
+        elif test_obj.finished:
+            if test_obj.failure_reason:
+                raise ValueError(
+                    "Unable to complete drop request({0}), error was ({1})"
+                    .format(
+                        test_obj, test_obj.drop_request.failure_reason
+                    )
+                )
+            else:
+                return True
+
     try:
-        return nipyapi.nifi.FlowfilequeuesApi().create_drop_request(con_id)
+        drop_req = nipyapi.nifi.FlowfilequeuesApi().create_drop_request(con_id)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
+    assert isinstance(drop_req, nipyapi.nifi.DropRequestEntity)
+    return nipyapi.utils.wait_to_complete(_autumn_leaves, con_id, drop_req)
+
+
+def purge_process_group(process_group, stop=False):
+    """
+    Experimental
+    Purges the connections in a given Process Group of FlowFiles, and
+    optionally stops it first
+    :param process_group: ProcessGroupEntity to purge
+    :param stop: Bool; True to stop first, False to leave it running
+    :return: list of dict (Str; Connection ID : Bool; Success or not for purge)
+    """
+    assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
+    assert isinstance(stop, bool)
+    if stop:
+        if not schedule_process_group(process_group.id, False):
+            raise ValueError(
+                "Unable to stop Process Group ({0}) for purging"
+                .format(process_group.id)
+            )
+    cons = get_connections(process_group.id)
+    result = []
+    for con in cons.connections:
+        result.append({con.id: str(purge_connection(con.id))})
+    return result

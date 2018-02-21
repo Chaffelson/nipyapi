@@ -264,3 +264,8 @@ def test_get_connections():
 def test_purge_connection():
     # TODO: Implement test
     pass
+
+
+def test_purge_process_group():
+    # TODO: Implement test
+    pass
