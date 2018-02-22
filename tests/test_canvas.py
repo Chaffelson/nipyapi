@@ -257,15 +257,15 @@ def test_update_variable_registry(fix_pg):
 
 
 def test_get_connections():
-    # TODO: Implement test
+    # TODO: Waiting for create_connection to generate fixture
     pass
 
 
 def test_purge_connection():
-    # TODO: Implement test
+    # TODO: Waiting for create_connection to generate fixture
     pass
 
 
 def test_purge_process_group():
-    # TODO: Implement test
+    # TODO: Waiting for create_connection to generate fixture
     pass

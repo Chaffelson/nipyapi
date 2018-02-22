@@ -27,7 +27,7 @@ registry_config.host = 'http://localhost:18080/nifi-registry-api'
 
 # Task wait delays
 # Set how fast to recheck for completion of a long running task in seconds
-retry_delay = 1
+retry_delay = 0.5
 # Set the max amount of time we will wait for a task to complete in seconds
 retry_max_wait = 3
 
