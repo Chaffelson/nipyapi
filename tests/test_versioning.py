@@ -5,7 +5,6 @@
 
 from __future__ import absolute_import
 import pytest
-import six
 from deepdiff import DeepDiff
 from tests import conftest
 from nipyapi import registry, config, nifi, versioning, canvas, utils, templates

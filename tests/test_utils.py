@@ -8,14 +8,8 @@ import pytest
 import six
 from tests import conftest
 import json
-import ruamel.yaml
 from deepdiff import DeepDiff
 from nipyapi import utils, nifi
-# Fix for Py3 introducing better IO errors, but not available in Py2
-try:
-    from nipyapi.utils import PermissionError, FileNotFoundError
-except ImportError:
-    pass
 
 
 def test_dump(fix_flow_serde):
@@ -74,7 +68,7 @@ def test_fs_write(tmpdir):
     )
     assert r1 == test_obj
     # Test writing to an invalid location
-    with pytest.raises(PermissionError):
+    with pytest.raises(IOError):
         _ = utils.fs_write(
             obj=test_obj,
             file_path='/dev/AlmostCertainlyNotAValidDevice'
@@ -87,13 +81,13 @@ def test_fs_write(tmpdir):
         )
 
 
-def test_fs_read(fix_flow_serde, tmpdir):
+def test_fs_read(fix_flow_serde):
     r1 = utils.fs_read(
         file_path=fix_flow_serde.filepath + '.json'
     )
     assert r1 == fix_flow_serde.json
     # Test reading from unreachable file
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(IOError):
         _ = utils.fs_read(
             file_path='/dev/AlmostCertainlyNotAValidDevice'
         )

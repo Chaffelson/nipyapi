@@ -15,12 +15,6 @@ from requests.models import Response
 import nipyapi
 
 
-# Python 2.7 doesn't have Py3.3+ Error codes, but they're more readable
-if six.PY2:
-    FileNotFoundError = IOError
-    PermissionError = IOError
-
-
 def dump(obj, mode='json'):
     """
     Dumps a serialisable object to json or yaml, defaults to json
@@ -109,7 +103,7 @@ def fs_read(file_path):
     try:
         with open(str(file_path), 'r') as f:
             return f.read()
-    except (FileNotFoundError, PermissionError) as e:
+    except IOError as e:
         raise e
 
 
