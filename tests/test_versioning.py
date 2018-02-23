@@ -5,6 +5,7 @@
 
 from __future__ import absolute_import
 import pytest
+import six
 from deepdiff import DeepDiff
 from tests import conftest
 from nipyapi import registry, config, nifi, versioning, canvas, utils, templates
@@ -190,9 +191,7 @@ def test_get_latest_flow_ver(fix_ver_flow):
 
 
 def test_update_flow_ver():
-    # This function is more complicated than expected
-    # Will implement in a future version
-    # TODO: Implement test
+    # This function is tested in test_complex_template_versioning
     pass
 
 
@@ -257,23 +256,6 @@ def test_create_flow_version(fix_ver_flow):
         ignore_order=False,
         verbose_level=2
     ) == {}
-    # Test Raw snapshot
-    # Note that we cannot simply pass the to_dict() as that doesn't handle
-    # the nested DTOs from NiFi-Registry
-    flow_snapshot = utils.load(
-            utils.dump(ver_flow_snapshot_0),
-            dto=fix_ver_flow.dto)
-    r3 = versioning.create_flow_version(
-        flow=new_ver_stub,
-        flow_snapshot=flow_snapshot
-    )
-    assert isinstance(r3, registry.VersionedFlowSnapshot)
-    assert DeepDiff(
-        ver_flow_snapshot_0.flow_contents,
-        r3.flow_contents,
-        ignore_order=True,
-        verbose_level=2
-    ) == {}
 
 
 def test_complex_template_versioning(fix_ctv):
@@ -301,16 +283,16 @@ def test_complex_template_versioning(fix_ctv):
     )
     assert vers[0].version == 3
     new_ver_info = versioning.get_version_info(fix_ctv.pg)
-    r1 = versioning.update_flow_ver(fix_ctv.pg, new_ver_info)
+    r1 = versioning.update_flow_ver(fix_ctv.pg)
     assert r1.request.complete is True
     assert r1.request.failure_reason is None
     r2 = canvas.schedule_process_group(fix_ctv.pg.id, True)
     status = canvas.get_process_group(fix_ctv.pg.id, 'id')
     assert status.running_count >= 5
     with pytest.raises(ValueError):
-        _ = versioning.update_flow_ver(fix_ctv.pg, new_ver_info, 'bob')
+        _ = versioning.update_flow_ver(fix_ctv.pg, 'bob')
     with pytest.raises(ValueError):
-        _ = versioning.update_flow_ver(fix_ctv.pg, new_ver_info, '9999999')
+        _ = versioning.update_flow_ver(fix_ctv.pg, '9999999')
 
 
 def test_get_flow_version(fix_ver_flow):
@@ -327,46 +309,80 @@ def test_get_flow_version(fix_ver_flow):
     assert isinstance(test_vf_2, registry.VersionedFlowSnapshot)
     assert test_vf_2.snapshot_metadata.version == 2
     r2 = versioning.get_flow_version(
-        fix_ver_flow.bucket.identifier,
-        test_vf_2.snapshot_metadata.flow_identifier
+        bucket_id=test_vf_2.flow.bucket_identifier,
+        flow_id=test_vf_2.flow.identifier,
     )
     assert r2.flow.version_count == 2
-    assert r2.snapshot_metadata.version ==2
+    assert r2.snapshot_metadata.version == 2
     r3 = versioning.get_flow_version(
-        fix_ver_flow.bucket.identifier,
-        test_vf_2.snapshot_metadata.flow_identifier,
-        version='1'
+        bucket_id=test_vf_2.flow.bucket_identifier,
+        flow_id=test_vf_2.flow.identifier,
+        version='1',
     )
     assert r3.snapshot_metadata.version == 1
     assert r3.flow.version_count == 2
+    r4 = versioning.get_flow_version(
+        bucket_id=test_vf_2.flow.bucket_identifier,
+        flow_id=test_vf_2.flow.identifier,
+        export=True
+    )
+    assert isinstance(r4, bytes)
+    assert isinstance(utils.load(r4), dict)
 
 
-def test_export_flow(fix_flow_serde):
+def test_export_flow_version(fix_flow_serde):
     # Test we can turn a flow snapshot into a json string
-    r1 = versioning.export_flow(fix_flow_serde.snapshot)
+    r1 = versioning.export_flow_version(
+        fix_flow_serde.bucket.identifier,
+        fix_flow_serde.flow.identifier
+    )
     assert isinstance(r1, str)
     # Test writing it to a file
-    r2 = versioning.export_flow(
-        flow_snapshot=fix_flow_serde.snapshot,
-        file_path=fix_flow_serde.filepath,
-        mode='json'
+    r2 = versioning.export_flow_version(
+        fix_flow_serde.bucket.identifier,
+        fix_flow_serde.flow.identifier,
+        file_path=fix_flow_serde.filepath + '_test.json'
     )
     assert isinstance(r2, str)
-    with pytest.raises(TypeError):
-        _ = versioning.export_flow({})
-    with pytest.raises(ValueError):
-        _ = versioning.export_flow(fix_flow_serde.snapshot, file_path={})
+    r2l = utils.load(r2)
+    assert isinstance(r2l, dict)
+    assert r2l['snapshotMetadata'].__contains__('flowIdentifier')
+    # read in the file
+    r2f = utils.fs_read(fix_flow_serde.filepath + '_test.json')
+    DeepDiff(
+        r2,
+        r2f,
+        ignore_order=False,
+        verbose_level=2
+    )
+    # Test yaml dump
+    r3 = versioning.export_flow_version(
+        fix_flow_serde.bucket.identifier,
+        fix_flow_serde.flow.identifier,
+        mode='yaml'
+    )
+    assert isinstance(r3, str)
+    r3l = utils.load(r3)
+    assert isinstance(r3l, dict)
+    assert r3l['snapshotMetadata'].__contains__('flowIdentifier')
 
 
-def test_import_flow(fix_flow_serde):
-    test_obj = fix_flow_serde.snapshot
-    # Note that we're only testing the SerDe of the flow_contents, because the
-    # snapshot metadata changes a lot
-    # Test that our test_obj serialises and deserialises
+def test_import_flow_version(fix_flow_serde):
+    compare_obj = fix_flow_serde.snapshot
+    test_obj = fix_flow_serde.raw
+    # Test that our test_obj serialises and deserialises through the layers of
+    # json reformatting. This is because we load the NiFi Java json object,
+    # dump it using the Python json library, and load it again using
+    # ruamel.yaml.
     assert DeepDiff(
-        test_obj,
+        compare_obj,
         utils.load(
-            utils.dump(test_obj, 'json'),
+            utils.dump(
+                utils.load(
+                    obj=test_obj
+                ),
+                mode='json'
+            ),
             dto=fix_flow_serde.dto
         ),
         ignore_order=False,
@@ -382,34 +398,34 @@ def test_import_flow(fix_flow_serde):
     )
     assert isinstance(r0, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj.flow_contents,
+        compare_obj.flow_contents,
         r0.flow_contents,
         ignore_order=False,
         verbose_level=2
     ) == {}
     # Test we can import from a String in memory
     # Test we can import as new version in existing bucket
-    r1 = versioning.import_flow(
+    r1 = versioning.import_flow_version(
         bucket_id=fix_flow_serde.bucket.identifier,
         encoded_flow=fix_flow_serde.json,
         flow_id=fix_flow_serde.flow.identifier
     )
     assert isinstance(r1, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj.flow_contents,
+        compare_obj.flow_contents,
         r1.flow_contents,
         ignore_order=False,
         verbose_level=2
     ) == {}
     # Test we can also import from a file
-    r2 = versioning.import_flow(
+    r2 = versioning.import_flow_version(
         bucket_id=fix_flow_serde.bucket.identifier,
         file_path=fix_flow_serde.filepath + '.yaml',
         flow_id=fix_flow_serde.flow.identifier
     )
     assert isinstance(r2, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj.flow_contents,
+        compare_obj.flow_contents,
         r2.flow_contents,
         ignore_order=False,
         verbose_level=2
@@ -418,14 +434,14 @@ def test_import_flow(fix_flow_serde):
     f_bucket_2 = versioning.create_registry_bucket(
         conftest.test_bucket_name + '_02'
     )
-    r3 = versioning.import_flow(
+    r3 = versioning.import_flow_version(
         bucket_id=f_bucket_2.identifier,
         encoded_flow=fix_flow_serde.yaml,
         flow_name=conftest.test_cloned_ver_flow_name + '_01'
     )
     assert isinstance(r3, registry.VersionedFlowSnapshot)
     assert DeepDiff(
-        test_obj.flow_contents,
+        compare_obj.flow_contents,
         r3.flow_contents,
         ignore_order=False,
         verbose_level=2

@@ -23,7 +23,7 @@ def test_get_process_group_status(regress):
     assert isinstance(r, ProcessGroupEntity)
     # We rely on this int for testing if a PG is running or not
     assert isinstance(r.running_count, int)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         _ = canvas.get_process_group_status('root','invalid')
 
 
@@ -74,7 +74,7 @@ def test_create_process_group(regress):
 
 
 def test_get_process_group(fix_pg, regress):
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
     f_pg = fix_pg.generate()
     pg1 = canvas.get_process_group(f_pg.id, 'id')
@@ -211,7 +211,7 @@ def test_delete_processor(fix_proc, regress):
     assert r1.status is None
     assert isinstance(r1, nifi.ProcessorEntity)
     # try to delete processor twice
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         _ = canvas.delete_processor(f_p1)
     # try to delete running processor
     f_p2 = fix_proc.generate()

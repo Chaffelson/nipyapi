@@ -268,8 +268,7 @@ def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
         fix_bucket.bucket.identifier,
         f_flow.identifier
     )
-    # f_dto = ('nipyapi.registry.models', 'VersionedProcessGroup')
-    f_dto = ('nipyapi.registry.models', 'VersionedFlowSnapshot')
+    f_dto = ('registry', 'VersionedFlowSnapshot')
     return FixtureVerFlow(
         *fix_bucket,
         pg=f_pg,
@@ -285,25 +284,33 @@ def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
 def fixture_flow_serde(tmpdir, fix_ver_flow):
     FixtureFlowSerde = namedtuple(
         'FixtureFlowSerde',
-        getattr(fix_ver_flow, '_fields') + ('filepath', 'json', 'yaml')
+        getattr(fix_ver_flow, '_fields') + ('filepath', 'json', 'yaml', 'raw')
     )
-    f_filepath = tmpdir.mkdir(test_ver_export_tmpdir)\
-        .join(test_ver_export_filename)
-    f_json = nipyapi.versioning.export_flow(
-        flow_snapshot=fix_ver_flow.snapshot,
-        file_path=str(f_filepath) + '.json',
+    f_filepath = str(tmpdir.mkdir(test_ver_export_tmpdir)\
+        .join(test_ver_export_filename))
+    f_raw = nipyapi.versioning.get_flow_version(
+        bucket_id=fix_ver_flow.bucket.identifier,
+        flow_id=fix_ver_flow.flow.identifier,
+        export=True
+    )
+    f_json = nipyapi.versioning.export_flow_version(
+        bucket_id=fix_ver_flow.bucket.identifier,
+        flow_id=fix_ver_flow.flow.identifier,
+        file_path=f_filepath + '.json',
         mode='json'
     )
-    f_yaml = nipyapi.versioning.export_flow(
-        flow_snapshot=fix_ver_flow.snapshot,
-        file_path=str(f_filepath) + '.yaml',
+    f_yaml = nipyapi.versioning.export_flow_version(
+        bucket_id=fix_ver_flow.bucket.identifier,
+        flow_id=fix_ver_flow.flow.identifier,
+        file_path=f_filepath + '.yaml',
         mode='yaml'
     )
     return FixtureFlowSerde(
         *fix_ver_flow,
-        filepath=str(f_filepath),
+        filepath=f_filepath,
         json=f_json,
-        yaml=f_yaml
+        yaml=f_yaml,
+        raw=f_raw
     )
 
 

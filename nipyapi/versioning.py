@@ -5,6 +5,7 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 from __future__ import absolute_import
+import six
 import nipyapi
 # Due to line lengths, creating shortened names for these objects
 from nipyapi.nifi import VersionControlInformationDTO as VciDTO
@@ -16,8 +17,8 @@ __all__ = [
     'create_registry_bucket', 'delete_registry_bucket', 'get_registry_bucket',
     'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
     'get_latest_flow_ver', 'update_flow_ver', 'get_version_info',
-    'create_flow', 'create_flow_version', 'get_flow_version', 'export_flow',
-    'import_flow', 'list_flow_versions'
+    'create_flow', 'create_flow_version', 'get_flow_version',
+    'export_flow_version', 'import_flow_version', 'list_flow_versions'
 ]
 
 
@@ -267,11 +268,10 @@ def list_flow_versions(bucket_id, flow_id):
         raise ValueError(e.body)
 
 
-def update_flow_ver(process_group, version_info, target_version=None):
+def update_flow_ver(process_group, target_version=None):
     """
     Changes a versioned flow to the specified version, or the latest version
     :param process_group: ProcessGroupEntity under version control to change
-    :param version_info: VersionControlInformationEntity about the PG to change
     :param target_version: Either None to move to the latest available version,
     or an Int to specify the version number to move to
     :return:
@@ -296,8 +296,12 @@ def update_flow_ver(process_group, version_info, target_version=None):
                     "Error text ({0})".format(status.request.failure_reason)
                 )
     try:
-        vci = version_info.version_control_information
-        flow_vers = list_flow_versions(vci.bucket_id, vci.flow_id)
+        vci = get_version_info(process_group)
+        assert isinstance(vci, nipyapi.nifi.VersionControlInformationEntity)
+        flow_vers = list_flow_versions(
+            vci.version_control_information.bucket_id,
+            vci.version_control_information.flow_id
+        )
         if target_version is None:
             # the first version is always the latest available
             ver = flow_vers[0].version
@@ -311,12 +315,12 @@ def update_flow_ver(process_group, version_info, target_version=None):
         u_init = nipyapi.nifi.VersionsApi().initiate_version_control_update(
             id=process_group.id,
             body=nipyapi.nifi.VersionControlInformationEntity(
-                process_group_revision=version_info.process_group_revision,
+                process_group_revision=vci.process_group_revision,
                 version_control_information=VciDTO(
-                    bucket_id=vci.bucket_id,
-                    flow_id=vci.flow_id,
-                    group_id=vci.group_id,
-                    registry_id=vci.registry_id,
+                    bucket_id=vci.version_control_information.bucket_id,
+                    flow_id=vci.version_control_information.flow_id,
+                    group_id=vci.version_control_information.group_id,
+                    registry_id=vci.version_control_information.registry_id,
                     version=ver
                 )
             )
@@ -337,8 +341,8 @@ def get_latest_flow_ver(bucket_id, flow_id):
     :return: VersionedFlowSnapshot
     """
     try:
-        return nipyapi.registry.BucketFlowsApi().get_latest_flow_version(
-            bucket_id, flow_id
+        return get_flow_version(
+            bucket_id, flow_id, version=None
         )
     except nipyapi.registry.rest.ApiException as e:
         raise ValueError(e.body)
@@ -437,70 +441,79 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
         raise ValueError(e.body)
 
 
-def get_flow_version(bucket_id, flow_id, version=None):
+def get_flow_version(bucket_id, flow_id, version=None, export=False):
     """
     Retrieves the latest, or a specific, version of a Flow
     :param bucket_id: the id of the bucket containing the Flow
     :param flow_id: the id of the Flow to be retrieved from the Bucket
     :param version: 'None' to retrieve the latest version, or a version
     number as a string to get that version
-    :return: an updated VersionedFlowSnapshot
+    :param export: Str; 'json' or 'yaml' to return the serialised version of
+    the VersionedFlowSnapshot. Defaults to None to return the native object
+    :return: a VersionedFlowSnapshot if export=False, or the raw json otherwise
     WARNING: This call is impacted by
     https://issues.apache.org/jira/browse/NIFIREG-135
+    # which means you can't trust the version count
     """
-    if version is not None:
+    assert isinstance(bucket_id, six.string_types)
+    assert isinstance(flow_id, six.string_types)
+    assert version is None or isinstance(version, six.string_types)
+    assert isinstance(export, bool)
+    if version:
         try:
-            return nipyapi.registry.BucketFlowsApi().get_flow_version(
+            out = nipyapi.registry.BucketFlowsApi().get_flow_version(
                 bucket_id=bucket_id,
                 flow_id=flow_id,
-                version_number=version
+                version_number=version,
+                _preload_content=not export
             )
         except nipyapi.registry.rest.ApiException as e:
             raise ValueError(e.body)
-    try:
-        return get_latest_flow_ver(bucket_id, flow_id)
-    except ValueError as e:
-        raise e
+    else:
+        try:
+            out = nipyapi.registry.BucketFlowsApi().get_latest_flow_version(
+                bucket_id,
+                flow_id,
+                _preload_content=not export
+            )
+        except ValueError as e:
+            raise e
+    if export:
+        return out.data
+    return out
 
 
-def export_flow(flow_snapshot, file_path=None, mode='json'):
+def export_flow_version(bucket_id, flow_id, version=None, file_path=None,
+                        mode='json'):
     """
-    Exports the flow_contents of a given VersionedFlowSnapshot in the provided
-    format mode
-    :param flow_snapshot: The VersionedFlowSnapshot to export
-    :param file_path: Optional; String for the file to be written. No file will
-    be written if left blank, the encoded object is still returned
+    Convenience method to export the identified VersionedFlowSnapshot in the
+    provided format mode.
+    :param bucket_id: the id of the bucket containing the Flow
+    :param flow_id: the id of the Flow to be retrieved from the Bucket
+    :param version: 'None' to retrieve the latest version, or a version
+    number as a string to get that version
+    :param file_path: Str; the path and filename to write to. Defaults to None
+    which returns the serialised obj
     :param mode: String 'json' or 'yaml' to specific the encoding format
     :return: String of the encoded Snapshot
     """
-    # TODO: Reimplement using api_client with _preload_content=False
-    if not isinstance(flow_snapshot, nipyapi.registry.VersionedFlowSnapshot):
-        raise TypeError("flow_snapshot must be a VersionedFlowSnapshot object")
-    export_obj = flow_snapshot
-    try:
-        out = nipyapi.utils.dump(
-            obj=export_obj,
-            mode=mode
-        )
-    except (ValueError, TypeError) as e:
-        raise e
-    if file_path is None:
-        return out
-    elif file_path is not None and isinstance(file_path, str):
+    assert isinstance(bucket_id, six.string_types)
+    assert isinstance(flow_id, six.string_types)
+    assert file_path is None or isinstance(file_path, six.string_types)
+    assert version is None or isinstance(version, six.string_types)
+    assert mode in ['yaml', 'json']
+    raw_obj = get_flow_version(bucket_id, flow_id, version, export=True)
+    export_obj = nipyapi.utils.dump(nipyapi.utils.load(raw_obj), mode)
+    if file_path:
         return nipyapi.utils.fs_write(
-            obj=nipyapi.utils.dump(
-                obj=export_obj,
-                mode=mode),
+            obj=export_obj,
             file_path=file_path,
         )
-    else:
-        raise ValueError("file_path must either be a valid String pointing"
-                         " to the file to be written or None to return"
-                         "the flow_snapshot in export format")
+    return export_obj
 
 
-def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
-                flow_id=None):
+def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
+                        flow_name=None, flow_id=None):
     """
     Imports a given encoded_flow version into the bucket and flow described,
     may optionally be passed a file to read the encoded flow_contents from.
@@ -518,10 +531,10 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     :return: the new VersionedFlowSnapshot
     """
     # First, decode the flow snapshot contents
-    dto = ('nipyapi.registry.models', 'VersionedFlowSnapshot')
+    dto = ('registry', 'VersionedFlowSnapshot')
     if file_path is None and encoded_flow is not None:
         try:
-            flow_contents = nipyapi.utils.load(
+            imported_flow = nipyapi.utils.load(
                 encoded_flow,
                 dto=dto
             )
@@ -529,11 +542,17 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
             raise e
     elif file_path is not None and encoded_flow is None:
         try:
-            flow_contents = nipyapi.utils.load(
-                obj=nipyapi.utils.fs_read(
-                    file_path=file_path
-                ),
+            file_in = nipyapi.utils.fs_read(
+                file_path=file_path
+            )
+            assert isinstance(file_in, (six.string_types, bytes))
+            imported_flow = nipyapi.utils.load(
+                obj=file_in,
                 dto=dto
+            )
+            assert isinstance(
+                imported_flow,
+                nipyapi.registry.VersionedFlowSnapshot
             )
         except ValueError as e:
             raise e
@@ -545,7 +564,6 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     if flow_id is None and flow_name is not None:
         # Case: New flow
         # create the Bucket item
-        # TODO: investigate bringing description over
         ver_flow = create_flow(
             bucket_id=bucket_id,
             flow_name=flow_name
@@ -564,5 +582,5 @@ def import_flow(bucket_id, encoded_flow=None, file_path=None, flow_name=None,
     # Now write the new version
     return create_flow_version(
         flow=ver_flow,
-        flow_snapshot=flow_contents,
+        flow_snapshot=imported_flow,
     )
