@@ -24,7 +24,7 @@ _vf1 = _basename + '_ver_flow_1'
 __all__ = ['process_group_0', 'processor_0', 'reg_client_0', 'bucket_0',
            'bucket_1', 'ver_flow_info_0', 'ver_flow_0', 'ver_flow_snapshot_0',
            'ver_flow_1', 'ver_flow_snapshot_1', 'ver_flow_json_0',
-           'ver_flow_yaml_0']
+           'ver_flow_yaml_0', 'ver_flow_raw_0']
 
 # recreate or create a process group
 process_group_0 = nipyapi.canvas.get_process_group(_pg0)
@@ -80,7 +80,9 @@ ver_flow_info_0 = nipyapi.versioning.save_flow_ver(
     process_group=process_group_0,
     registry_client=reg_client_0,
     bucket=bucket_0,
-    flow_name=_vf0
+    flow_name=_vf0,
+    desc='A Versioned Flow',
+    comment='A Versioned Flow'
 )
 ver_flow_0 = nipyapi.versioning.get_flow_in_bucket(
     bucket_0.identifier,
@@ -104,10 +106,13 @@ ver_flow_snapshot_1 = nipyapi.versioning.create_flow_version(
     flow_snapshot=ver_flow_snapshot_0
 )
 
-# Export the Flow to Json
-ver_flow_json_0 = nipyapi.versioning.export_flow(
-    ver_flow_snapshot_0, mode='json'
+# # Export the Flow to Json/Yaml/raw
+ver_flow_raw_0 = nipyapi.versioning.get_flow_version(
+    bucket_0.identifier, ver_flow_0.identifier, export=True
 )
-ver_flow_yaml_0 = nipyapi.versioning.export_flow(
-    ver_flow_snapshot_0, mode='yaml'
+ver_flow_json_0 = nipyapi.versioning.export_flow_version(
+    bucket_0.identifier, ver_flow_0.identifier, mode='json'
+)
+ver_flow_yaml_0 = nipyapi.versioning.export_flow_version(
+    bucket_0.identifier, ver_flow_0.identifier, mode='yaml'
 )

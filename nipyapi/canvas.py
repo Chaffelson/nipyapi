@@ -6,6 +6,7 @@ STATUS: Work in Progress to determine pythonic datamodel
 """
 
 from __future__ import absolute_import
+import six
 import nipyapi
 
 __all__ = [
@@ -33,6 +34,7 @@ def recurse_flow(pg_id='root'):
     , defaults to root if none supplied
     :returns ProcessGroupFlowEntity: Nested Process Group information
     """
+    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
 
     def _walk_flow(node):
         """This recursively extends the ProcessGroupEntity to contain the
@@ -59,6 +61,7 @@ def get_flow(pg_id='root'):
     process group if not set
     :return ProcessGroupFlowEntity: the Process Group object
     """
+    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
     try:
         return nipyapi.nifi.FlowApi().get_flow(pg_id)
     except nipyapi.nifi.rest.ApiException as err:
@@ -74,20 +77,16 @@ def get_process_group_status(pg_id='root', detail='names'):
     :param detail: Level of detail to respond with
     :return:
     """
-    valid_details = ['names', 'all']
-    if detail not in valid_details:
-        raise ValueError(
-            'detail requested ({0}) not in valid list ({1})'
-            .format(detail, valid_details)
-        )
+    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert detail in ['names', 'all'], "detail should be either 'names' or " \
+                                       "'all'"
     raw = nipyapi.nifi.ProcessgroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
         out = {
             raw.component.name: raw.component.id
         }
         return out
-    elif detail == 'all':
-        return raw
+    return raw
 
 
 def get_process_group(identifier, identifier_type='name'):
@@ -97,11 +96,19 @@ def get_process_group(identifier, identifier_type='name'):
     :param identifier_type: 'name' or 'id'
     :return: ProcessGroupEntity if unique, None if not found, List if duplicate
     """
+    assert isinstance(identifier, six.string_types)
+    assert identifier_type in ['name', 'id']
     try:
-        obj = list_all_process_groups()
+        if identifier_type == 'id':
+            # assuming unique fetch of pg id
+            # implementing separately to avoid recursing entire canvas
+            out = nipyapi.nifi.ProcessgroupsApi().get_process_group(identifier)
+        else:
+            obj = list_all_process_groups()
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return out
 
 
 def list_all_process_groups():
@@ -159,6 +166,9 @@ def schedule_process_group(process_group_id, scheduled):
     :param scheduled: Bool; True to Start, False to Stop
     :return: Bool, Success or not
     """
+    assert isinstance(process_group_id, six.string_types)
+    assert isinstance(scheduled, bool)
+
     def _waiting_for_godot(pg_id_):
         test_obj = nipyapi.nifi.ProcessgroupsApi().get_process_group(pg_id_)
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
@@ -168,7 +178,6 @@ def schedule_process_group(process_group_id, scheduled):
         get_process_group(process_group_id, 'id'),
         nipyapi.nifi.ProcessGroupEntity
     )
-    assert isinstance(scheduled, bool)
     result = schedule_components(
         pg_id=process_group_id,
         scheduled=scheduled
@@ -211,11 +220,8 @@ def delete_process_group(process_group, force=False, refresh=True):
     else:
         target = process_group
     if force:
-        # Stop everything
-        schedule_process_group(target.id, scheduled=False)
-        # Remove data from queues
-        for con in get_connections(target.id).connections:
-            purge_connection(con.id)
+        # Stop, drop, and roll.
+        purge_process_group(target, stop=True)
         # Remove templates
         for template in nipyapi.templates.list_all_templates().templates:
             if target.id == template.template.group_id:
@@ -238,6 +244,9 @@ def create_process_group(parent_pg, new_pg_name, location):
     :param location: Tuple of (x,y) coordinates to place the new PG
     :return: ProcessGroupEntity of the new PG
     """
+    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    assert isinstance(new_pg_name, six.string_types)
+    assert isinstance(location, tuple)
     try:
         return nipyapi.nifi.ProcessgroupsApi().create_process_group(
             id=parent_pg.id,
@@ -326,11 +335,17 @@ def get_processor(identifier, identifier_type='name'):
     :param identifier_type: 'name' or 'id' to identify field to filter on
     :return: None if 0 matches, list if > 1, single ProcessorEntity if ==1
     """
+    assert isinstance(identifier, six.string_types)
+    assert identifier_type in ['name', 'id']
     try:
-        obj = list_all_processors()
+        if identifier_type == 'id':
+            out = nipyapi.nifi.ProcessorsApi().get_processor(identifier)
+        else:
+            obj = list_all_processors()
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return out
 
 
 def delete_processor(processor, refresh=True, force=False):
@@ -550,6 +565,7 @@ def purge_connection(con_id):
     :param con_id: ID of the Connection to clear
     :return:
     """
+    # TODO: Reimplement to batched instead of single threaded
     def _autumn_leaves(con_id_, drop_request_):
         test_obj = nipyapi.nifi.FlowfilequeuesApi().get_drop_request(
             con_id_,

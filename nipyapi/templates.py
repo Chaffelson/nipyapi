@@ -59,7 +59,7 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
 
 def create_pg_snippet(pg_id):
     """
-    Creates a snippet of the targetted process group, and returns the object
+    Creates a snippet of the targeted process group, and returns the object
     :param pg_id: ID of the process Group to snippet
     :return: Snippet Object
     """
@@ -70,7 +70,7 @@ def create_pg_snippet(pg_id):
                 target_pg.id: target_pg.revision
             },
             'parentGroupId':
-                target_pg.nipyapi_extended.process_group_flow.parent_group_id
+                target_pg.component.parent_group_id
         }
     )
     snippet_resp = nipyapi.nifi.SnippetsApi().create_snippet(

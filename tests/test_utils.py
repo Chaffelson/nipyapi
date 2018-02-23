@@ -5,37 +5,24 @@
 
 from __future__ import absolute_import
 import pytest
+import six
 from tests import conftest
-from ruamel.yaml import safe_load
+import json
 from deepdiff import DeepDiff
 from nipyapi import utils, nifi
-from nipyapi.utils import YAMLStreamError
-# Fix for Py3 introducing better IO errors, but not available in Py2
-try:
-    from nipyapi.utils import PermissionError, FileNotFoundError
-except ImportError:
-    pass
-
-
-def test_json_default(fix_pg):
-    f_pg = fix_pg.generate()
-    r1 = utils._json_default(f_pg.revision)
-    assert isinstance(r1, dict)
-    with pytest.raises(TypeError):
-        _ = utils._json_default({})
 
 
 def test_dump(fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
-    export_obj = fix_flow_serde.snapshot
+    export_obj = json.loads(fix_flow_serde.raw)
     ss_json = utils.dump(
         obj=export_obj,
         mode='json'
     )
-    assert isinstance(ss_json, str)
-    round_trip_json = safe_load(ss_json)
-    with pytest.raises(ValueError):
+    assert isinstance(ss_json, six.string_types)
+    round_trip_json = utils.load(ss_json)
+    with pytest.raises(AssertionError):
         _ = utils.dump('', 'FakeNews')
     with pytest.raises(TypeError):
         _ = utils.dump({None}, 'json')
@@ -44,15 +31,14 @@ def test_dump(fix_flow_serde):
         obj=export_obj,
         mode='yaml'
     )
-    assert isinstance(ss_yaml, str)
-    round_trip_yaml = safe_load(ss_yaml)
+    assert isinstance(ss_yaml, six.string_types)
+    round_trip_yaml = utils.load(ss_yaml)
     assert DeepDiff(
         round_trip_json,
         round_trip_yaml,
         verbose_level=2,
         ignore_order=False
     ) == {}
-    # Todo: test sorting
 
 
 def test_load(fix_flow_serde):
@@ -68,7 +54,7 @@ def test_load(fix_flow_serde):
         verbose_level=2,
         ignore_order=True
     ) == {}
-    with pytest.raises(YAMLStreamError):
+    with pytest.raises(AssertionError):
         _ = utils.load({})
 
 
@@ -82,7 +68,7 @@ def test_fs_write(tmpdir):
     )
     assert r1 == test_obj
     # Test writing to an invalid location
-    with pytest.raises(PermissionError):
+    with pytest.raises(IOError):
         _ = utils.fs_write(
             obj=test_obj,
             file_path='/dev/AlmostCertainlyNotAValidDevice'
@@ -95,13 +81,13 @@ def test_fs_write(tmpdir):
         )
 
 
-def test_fs_read(fix_flow_serde, tmpdir):
+def test_fs_read(fix_flow_serde):
     r1 = utils.fs_read(
         file_path=fix_flow_serde.filepath + '.json'
     )
     assert r1 == fix_flow_serde.json
     # Test reading from unreachable file
-    with pytest.raises(FileNotFoundError):
+    with pytest.raises(IOError):
         _ = utils.fs_read(
             file_path='/dev/AlmostCertainlyNotAValidDevice'
         )
