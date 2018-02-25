@@ -48,7 +48,8 @@ if "TRAVIS" in environ and environ["TRAVIS"] == "true":
 else:
     print("Running tests on NOT TRAVIS, enabling regression suite")
     nifi_test_endpoints = [
-                'http://localhost:10120/nifi-api',  # add earlier as required
+                'http://localhost:10112/nifi-api',  # add earlier as required
+                'http://localhost:10120/nifi-api',
                 'http://localhost:10140/nifi-api',
                 nipyapi.config.nifi_config.host  # reset to default
             ]
@@ -76,17 +77,12 @@ def regress(request):
 # Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
-    def is_endpoint_up(endpoint_url):
-        try:
-            response = requests.get(endpoint_url)
-            if response.status_code == 200:
-                return True
-        except ConnectionError:
-            return False
-
     for url in nifi_test_endpoints + registry_test_endpoints:
         target_url = url.replace('-api', '')
-        if not nipyapi.utils.wait_to_complete(is_endpoint_up, target_url):
+        if not nipyapi.utils.wait_to_complete(nipyapi.utils.is_endpoint_up,
+                                              target_url,
+                                              nipyapi_delay=5,
+                                              nipyapi_max_wait=60):
             pytest.exit(
                 "Expected Service endpoint ({0}) is not responding"
                 .format(target_url)

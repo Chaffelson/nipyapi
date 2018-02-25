@@ -16,7 +16,8 @@ __all__ = [
     "list_all_processor_types", "get_processor_type", 'create_processor',
     'delete_processor', 'get_processor', 'schedule_processor',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
-    'get_connections', 'purge_connection'
+    'get_connections', 'purge_connection', 'purge_process_group',
+    'get_bulletins', 'get_bulletin_board'
 ]
 
 
@@ -169,7 +170,7 @@ def schedule_process_group(process_group_id, scheduled):
     assert isinstance(process_group_id, six.string_types)
     assert isinstance(scheduled, bool)
 
-    def _waiting_for_godot(pg_id_):
+    def _running_schedule_process_group(pg_id_):
         test_obj = nipyapi.nifi.ProcessgroupsApi().get_process_group(pg_id_)
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
@@ -188,7 +189,7 @@ def schedule_process_group(process_group_id, scheduled):
         if not scheduled:
             # Test that the processor threads have halted
             stop_test = nipyapi.utils.wait_to_complete(
-                _waiting_for_godot,
+                _running_schedule_process_group,
                 process_group_id
             )
             if stop_test:
@@ -287,7 +288,9 @@ def get_processor_type(identifier, identifier_type='name'):
         obj = list_all_processor_types().processor_types
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    if obj:
+        return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return obj
 
 
 def create_processor(parent_pg, processor, location, name=None, config=None):
@@ -427,7 +430,7 @@ def schedule_processor(processor, scheduled, refresh=True):
     assert isinstance(scheduled, bool)
     assert isinstance(refresh, bool)
 
-    def _dangleberries(processor_):
+    def _running_schedule_processor(processor_):
         test_obj = nipyapi.nifi.ProcessorsApi().get_processor(processor_.id)
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
@@ -448,7 +451,9 @@ def schedule_processor(processor, scheduled, refresh=True):
         # If we want to stop the processor
         if not scheduled:
             # Test that the processor threads have halted
-            stop_test = nipyapi.utils.wait_to_complete(_dangleberries, target)
+            stop_test = nipyapi.utils.wait_to_complete(
+                _running_schedule_processor, target
+            )
             if stop_test:
                 # Return True if we stopped the processor
                 return result
@@ -614,3 +619,25 @@ def purge_process_group(process_group, stop=False):
     for con in cons.connections:
         result.append({con.id: str(purge_connection(con.id))})
     return result
+
+
+def get_bulletins():
+    """
+    Retrieves current bulletins (alerts) from the Flow Canvas
+    :return: ControllerBulletinsEntity
+    """
+    try:
+        return nipyapi.nifi.FlowApi().get_bulletins()
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def get_bulletin_board():
+    """
+    Retrieves the bulletin board object
+    :return: BulletinBoardEntity
+    """
+    try:
+        return nipyapi.nifi.FlowApi().get_bulletin_board()
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)

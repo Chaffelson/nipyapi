@@ -2,7 +2,7 @@
 NiPyApi
 =======
 
-Nifi-Python-Api: A convenient Python wrapper for Apache NiFi & sub-projects
+Nifi-Python-Api: A Python Client SDK for the Apache NiFi API
 
 .. image:: https://img.shields.io/pypi/v/nipyapi.svg
         :target: https://pypi.python.org/pypi/nipyapi
@@ -39,16 +39,19 @@ Functionality Highlights:
  - Full native Python rest client for NiFi and NiFi-Registry
  - CRUD wrappers for common task areas like Processor Groups, Processors, Templates, Registry Clients, Registry Buckets, Registry Flows, etc.
  - Convenience functions for inventory tasks, such as recursively retrieving the entire canvas, or a flat list of all Process Groups
+ - Support for scheduling and purging flows
  - Support for Variable Registry
  - Support for import/export of Versioned Flows from NiFi-Registry
  - Docker Compose configurations for testing and deployment
- - Limited support for scheduling components
- - A scripted deployment of an interactive environment for testing and demonstration purposes
+ - A scripted deployment of an interactive environment, and a secured configuration, for testing and demonstration purposes
 
 Coming soon:
- - Secured environment support is not currently implemented, but it is planned to be done very soon
- - Support for complex scheduling requests, such as stopping a large flow and waiting for all Processors to be halted
  - Support for edge cases during Versioning changes, such as Reverting a flow containing live data
+ - Support for Mnemonic component naming and path resolution
+ - Rich configuration differential support
+ - In-depth API documentation and usage examples
+
+Please see the `issue <https://github.com/Chaffelson/nipyapi/issues>`_ register for more information on current development.
 
 Usage
 -----
@@ -60,18 +63,17 @@ The easiest way to install NiPyApi is with pip::
 Then import a module and execute tasks::
 
     # in python
-    from nipyapi import config
-    config.nifi_config.host = 'http://localhost:8080/nifi-api'
-    from nipyapi.canvas import get_root_pg_id
-    get_root_pg_id()
+    import nipyapi
+    nipyapi.config.nifi_config.host = 'http://localhost:8080/nifi-api'
+    nipyapi.canvas.get_root_pg_id()
     >'4d5dcf9a-015e-1000-097e-e505ed0f7fd2'
 
-You can also use the demo to create an interactive console showing a few of the features::
+You can also use the demo to create an interactive console showing many features::
 
     # in python
-    from nipyapi import config
-    config.nifi_config.host = 'http://localhost:8080/nifi-api'
-    config.registry_config.host = 'http://localhost:18080/nifi-registry-api'
+    import nipyapi
+    nipyapi.config.nifi_config.host = 'http://localhost:8080/nifi-api'
+    nipyapi.config.registry_config.host = 'http://localhost:18080/nifi-registry-api'
     from nipyapi.demo.console import *
 
 You can also pull the repository from Github and use or contribute to the latest features.
@@ -87,7 +89,7 @@ Background
 Version Support
 ---------------
 
-| Currently we are testing against NiFi version 1.2 - 1.5, and NiFi-Registry version 0.1.0
+| Currently we are testing against NiFi versions 1.1.2 - 1.5.0, and NiFi-Registry version 0.1.0
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Requirements

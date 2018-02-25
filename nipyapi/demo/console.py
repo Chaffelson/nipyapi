@@ -24,7 +24,7 @@ _vf1 = _basename + '_ver_flow_1'
 __all__ = ['process_group_0', 'processor_0', 'reg_client_0', 'bucket_0',
            'bucket_1', 'ver_flow_info_0', 'ver_flow_0', 'ver_flow_snapshot_0',
            'ver_flow_1', 'ver_flow_snapshot_1', 'ver_flow_json_0',
-           'ver_flow_yaml_0', 'ver_flow_raw_0']
+           'ver_flow_yaml_0', 'ver_flow_raw_0', 'flow_template_0']
 
 # recreate or create a process group
 process_group_0 = nipyapi.canvas.get_process_group(_pg0)
@@ -115,4 +115,16 @@ ver_flow_json_0 = nipyapi.versioning.export_flow_version(
 )
 ver_flow_yaml_0 = nipyapi.versioning.export_flow_version(
     bucket_0.identifier, ver_flow_0.identifier, mode='yaml'
+)
+
+# Create a Template out of the Process Group
+flow_template_0 = nipyapi.templates.get_template_by_name(
+    process_group_0.status.name
+)
+if flow_template_0 is not None:
+    nipyapi.templates.delete_template(process_group_0.status.name)
+flow_template_0 = nipyapi.templates.create_template(
+    process_group_0.id,
+    process_group_0.status.name,
+    'A Demo Template'
 )

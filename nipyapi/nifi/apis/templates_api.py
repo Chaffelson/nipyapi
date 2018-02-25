@@ -43,7 +43,7 @@ class TemplatesApi(object):
     def export_template(self, id, **kwargs):
         """
         Exports a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class TemplatesApi(object):
     def export_template_with_http_info(self, id, **kwargs):
         """
         Exports a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -149,7 +149,7 @@ class TemplatesApi(object):
     def remove_template(self, id, **kwargs):
         """
         Deletes a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class TemplatesApi(object):
     def remove_template_with_http_info(self, id, **kwargs):
         """
         Deletes a template
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.

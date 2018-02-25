@@ -7,18 +7,20 @@ An implementation helper for connecting to secure NiFi instances.
 from __future__ import absolute_import
 import logging
 from pprint import pprint
-from time import sleep
 from os import path
-
-from nipyapi import config, registry, nifi
+import nipyapi
 from nipyapi.demo.utils import DockerContainer, start_docker_containers
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+log = logging.getLogger(__name__)
 
 d_network_name = 'securedemo'
 
-host_certs_path = path.abspath("../../tests/resources/keys")
+secured_registry_url = 'https://localhost:18443/nifi-registry-api'
+secured_nifi_url = 'https://localhost:8443/nifi-api'
+
+host_certs_path = path.abspath(
+    nipyapi.config.PROJECT_ROOT_DIR + "/../tests/resources/keys"
+)
 
 tls_env_vars = {
     'AUTH': 'tls',
@@ -76,30 +78,43 @@ d_containers = [
 ]
 
 # connection test disabled as it is not configured with the correct SSLContext
-start_docker_containers(d_containers, d_network_name, test_connection=False)
+start_docker_containers(
+    d_containers,
+    d_network_name,
+    test_connection=False
+)
 
-docker_startup_wait = 60
-logging.info("Waiting for docker containers to start "
-             "(sleeping {} seconds)...".format(docker_startup_wait))
-sleep(docker_startup_wait)  # seconds
-
-logging.info('Attempting connections. '
-             'If this fails, try increasing the sleep duration.')
-
-logging.info('Attempting connection to Registry using two-way TLS:')
-config.registry_config.host = 'https://localhost:18443/nifi-registry-api'
-config.create_registry_ssl_context(
+log.info("Creating Registry security context")
+nipyapi.config.registry_config.host = secured_registry_url
+nipyapi.security.create_registry_ssl_context(
     ca_file=host_certs_path + '/ca-cert.pem',
     client_cert_file=host_certs_path + '/client-cert.pem',
     client_key_file=host_certs_path + '/client-key.pem',
-    client_key_password='clientKeystorePassword')
-currentUser = registry.AccessApi().get_access_status()
-pprint(currentUser)
+    client_key_password='clientKeystorePassword'
+)
+log.debug("Waiting for Registry to be ready for login")
+registry_user = nipyapi.utils.wait_to_complete(
+    test_function=nipyapi.security.get_registry_access_status,
+    bool_response=True,
+    nipyapi_delay=5,
+    nipyapi_max_wait=60
+)
+pprint('nipyapi_secured_registry CurrentUser: ' + registry_user.identity)
 
-logging.info('Attempting connection to NiFi using LDAP credentials:')
-config.nifi_config.host = 'https://localhost:8443/nifi-api'
-config.create_nifi_ssl_context(
-    ca_file=host_certs_path + '/ca-cert.pem')
-config.login_to_nifi(username='nobel', password='password')
-currentUser = nifi.AccessApi().get_access_status()
-pprint(currentUser)
+log.info("Creating NiFi security context")
+nipyapi.config.nifi_config.host = secured_nifi_url
+nipyapi.security.create_nifi_ssl_context(
+    ca_file=host_certs_path + '/ca-cert.pem'
+)
+log.debug("Waiting for NiFi to be ready for login")
+nipyapi.utils.wait_to_complete(
+    test_function=nipyapi.security.login_to_nifi,
+    username='nobel',
+    password='password',
+    bool_response=True,
+    nipyapi_delay=5,
+    nipyapi_max_wait=60
+)
+nifi_user = nipyapi.nifi.AccessApi().get_access_status()
+pprint('nipyapi_secured_nifi CurrentUser: ' + nifi_user.access_status.identity)
+pprint("All Done!")

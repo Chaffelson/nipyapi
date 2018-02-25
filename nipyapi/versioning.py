@@ -276,7 +276,7 @@ def update_flow_ver(process_group, target_version=None):
     or an Int to specify the version number to move to
     :return:
     """
-    def _i_can_has_new_version():
+    def _running_update_flow_version():
         """
         Tests for completion of the operation
         :return: Boolean of operation success
@@ -325,7 +325,7 @@ def update_flow_ver(process_group, target_version=None):
                 )
             )
         )
-        nipyapi.utils.wait_to_complete(_i_can_has_new_version)
+        nipyapi.utils.wait_to_complete(_running_update_flow_version)
         return nipyapi.nifi.VersionsApi().get_update_request(
             u_init.request.request_id
         )

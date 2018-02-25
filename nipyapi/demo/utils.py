@@ -15,6 +15,8 @@ import requests
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+__all__ = ['DockerContainer', 'start_docker_containers']
+
 
 class DockerContainer(object):
     """

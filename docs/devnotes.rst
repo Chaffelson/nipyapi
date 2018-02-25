@@ -66,7 +66,7 @@ NiFi Swagger Client
         --config swagger-nifi-python-config.json \
         --api-package apis \
         --model-package models \
-        --template-dir /path/to/nipyapi/templates \
+        --template-dir /path/to/nipyapi/swagger_templates \
         --input-spec /path/to/nifi/nifi-nar-bundles/nifi-framework-bundle/nifi-framework/nifi-web/nifi-web-api/target/swagger-ui/swagger.json \
         --output ~/tmp/nifi-python-client
 
@@ -91,7 +91,7 @@ NiFi Registry Swagger Client
         --config swagger-registry-python-config.json \
         --api-package apis \
         --model-package models \
-        --template-dir /path/to/nipyapi/templates \
+        --template-dir /path/to/nipyapi/swagger_templates \
         --input-spec /path/to/nifi-registry/nifi-registry-web-api/target/swagger-ui/swagger.json \
         --output ~/tmp/nifi-registry-python-client
 

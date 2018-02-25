@@ -145,8 +145,9 @@ def test_get_processor_type(regress):
     assert isinstance(r1, DocumentedTypeDTO)
     r2 = canvas.get_processor_type("syslog", 'tag')
     assert isinstance(r2, list)
-    r3 = canvas.get_processor_type('amqp', 'bundle')
+    r3 = canvas.get_processor_type('standard')
     assert isinstance(r3, list)
+    assert len(r3) > 10
 
 
 def test_create_processor(fix_pg, regress):
@@ -269,3 +270,13 @@ def test_purge_connection():
 def test_purge_process_group():
     # TODO: Waiting for create_connection to generate fixture
     pass
+
+
+def test_get_bulletins():
+    r = canvas.get_bulletins()
+    assert isinstance(r, nifi.ControllerBulletinsEntity)
+
+
+def test_get_bulletin_board():
+    r = canvas.get_bulletin_board()
+    assert isinstance(r, nifi.BulletinBoardEntity)

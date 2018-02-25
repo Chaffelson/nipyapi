@@ -7,12 +7,17 @@ Convenience utility functions for NiPyApi
 """
 
 from __future__ import absolute_import, unicode_literals
+import logging
 import json
 import time
 import six
 import ruamel.yaml
+import requests
 from requests.models import Response
 import nipyapi
+
+
+log = logging.getLogger(__name__)
 
 
 def dump(obj, mode='json'):
@@ -165,14 +170,51 @@ def wait_to_complete(test_function, *args, **kwargs):
     """
     Implements a basic retry loop for a given test function
     :param test_function: Function returning a Bool once a state is reached
+    :param delay: seconds to wait between each retry
+    :param max_wait: maximum number of seconds to wait before declaring failure
     :param args: any args to pass to the test function
     :param kwargs: any kwargs to pass to the test function
     :return: Bool of success or not
     """
-    timeout = time.time() + nipyapi.config.retry_max_wait
+    log.info("Called wait_to_complete for function ({0})"
+             .format(test_function.__name__))
+    delay = kwargs.pop('nipyapi_delay', nipyapi.config.retry_delay)
+    max_wait = kwargs.pop('nipyapi_max_wait', nipyapi.config.retry_max_wait)
+    timeout = time.time() + max_wait
     while time.time() < timeout:
+        log.debug("- Calling test_function")
         test_result = test_function(*args, **kwargs)
+        log.debug("- Checking result")
         if test_result:
+            log.info("- Function output evaluated to True, returning output"
+                     .format(str(test_result)))
             return test_result
-        time.sleep(nipyapi.config.retry_delay)
-    return False
+        log.info("- Function output evaluated to False, sleeping..."
+                 .format(str(test_result)))
+        time.sleep(delay)
+    log.info("- Hit Timeout, raising TimeOut Error")
+    raise TimeoutError("- Timed Out waiting for ({0}) to complete"
+                       .format(test_function.__name__))
+
+
+def is_endpoint_up(endpoint_url):
+    """
+    Tests if an HTTP or HTTPS endpoint is available for requests
+    :param endpoint_url: Str; the URL to try
+    :return: Bool;True if available, False is not
+    """
+    log.info("Called is_endpoint_up with args ({0})"
+             .format(locals()))
+    try:
+        log.debug("- Calling endpoint")
+        response = requests.get(endpoint_url)
+        if response.status_code == 200:
+            log.info("- Got 200, returning True")
+            return True
+        else:
+            log.info("- Got status code ({0}), returning False"
+                     .format(response.status_code))
+            return False
+    except requests.ConnectionError:
+        log.info("- Got ConnectionError, returning False")
+        return False
