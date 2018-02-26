@@ -8,7 +8,8 @@ https://bryanbende.com/development/2018/01/19/apache-nifi-how-do-i-deploy-my-flo
 from __future__ import absolute_import
 import logging
 import sys
-from nipyapi.demo.utils import DockerContainer, start_docker_containers
+import nipyapi
+from nipyapi.utils import DockerContainer
 
 
 log = logging.getLogger()
@@ -52,4 +53,7 @@ d_containers = [
     ),
 ]
 
-start_docker_containers(d_containers, d_network_name, test_connection=True)
+nipyapi.utils.start_docker_containers(
+    d_containers,
+    d_network_name
+)

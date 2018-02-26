@@ -72,12 +72,12 @@ def login_to_nifi(username=None, password=None, bool_response=False):
 
     :param username: the user's directory username (e.g., LDAP)
     :param password: the user's directory password (e.g., LDAP)
-    :param bool_reponse: If set to True, this function will return False if
+    :param bool_response: If set to True, this function will return False if
     an exception is raised during the process. Useful for connection testing.
     """
     log_args = locals()
     log_args['password'] = 'REDACTED'
-    log.info("Called login_to_nifi with args ({0})".format(log_args))
+    log.info("Called login_to_nifi with args %s", log_args)
     # TODO: Tidy up logging and automate sensitive value redaction
     if not nipyapi.config.registry_config.host:
         raise Exception("NiFi host must be set prior to logging in.")
@@ -95,6 +95,8 @@ def login_to_nifi(username=None, password=None, bool_response=False):
         if bool_response:
             return False
         raise e
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ConnectionError(e.body)
     log.info("- Access token created, setting")
     set_nifi_auth_token(nifi_token)
     return True
@@ -252,8 +254,13 @@ def set_registry_auth_token(token=None):
 
 
 def get_registry_access_status(bool_response=False):
-    log.info("Called get_registry_access_status with args ({0})"
-             .format(locals()))
+    """
+    Returns the user access status for the connected NiFi Registry
+    :param bool_response: if True, returns False if the connection
+    fails, otherwise raises the error. Useful for connection testing
+    :return:
+    """
+    log.info("Called get_registry_access_status with args %s", locals())
     if bool_response:
         # Assume we are using this as a connection test and therefore disable
         # the Warnings urllib3 will shower us with
@@ -263,7 +270,7 @@ def get_registry_access_status(bool_response=False):
         log.debug("- Attempting to retrieve registry access status")
         return nipyapi.registry.AccessApi().get_access_status()
     except urllib3.exceptions.MaxRetryError as e:
-        log.debug("- Caught exception ({0})".format(type(e)))
+        log.debug("- Caught exception %s", type(e))
         if bool_response:
             log.debug("- bool_response is True, returning False instead of"
                       " raising exception")
@@ -296,8 +303,8 @@ def _create_configuration_ssl_context(
                 password=client_key_password)
         except FileNotFoundError as e:
             raise FileNotFoundError(
-                "Unable to read keyfile ({0}) or certfile ({1}), error was "
-                "({2})".format(client_cert_file, client_key_file, e))
+                "Unable to read keyfile {0} or certfile {1}, error was "
+                "{2}".format(client_cert_file, client_key_file, e))
 
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)

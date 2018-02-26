@@ -293,7 +293,7 @@ def update_flow_ver(process_group, target_version=None):
             else:
                 raise ValueError(
                     "Flow Version Update did not complete successfully. "
-                    "Error text ({0})".format(status.request.failure_reason)
+                    "Error text {0}".format(status.request.failure_reason)
                 )
     try:
         vci = get_version_info(process_group)
@@ -403,7 +403,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
     """
     if not isinstance(flow_snapshot, nipyapi.registry.VersionedFlowSnapshot):
         raise ValueError("flow_snapshot must be an instance of a "
-                         "registry.VersionedFlowSnapshot object, not an ({0})"
+                         "registry.VersionedFlowSnapshot object, not an {0}"
                          .format(type(flow_snapshot)))
     try:
         if refresh:

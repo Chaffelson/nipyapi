@@ -6,8 +6,6 @@
 from __future__ import absolute_import
 import pytest
 from os import environ, path
-import requests
-from requests import ConnectionError
 from collections import namedtuple
 import nipyapi
 
@@ -78,6 +76,7 @@ def regress(request):
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
     for url in nifi_test_endpoints + registry_test_endpoints:
+        nipyapi.utils.set_endpoint(url)
         target_url = url.replace('-api', '')
         if not nipyapi.utils.wait_to_complete(nipyapi.utils.is_endpoint_up,
                                               target_url,
@@ -87,8 +86,8 @@ def session_setup(request):
                 "Expected Service endpoint ({0}) is not responding"
                 .format(target_url)
             )
-    # Run cleanup at the start of the session to ensure it's clean
-    cleanup()
+        # This cleans each environment at the start of the session
+        cleanup()
     request.addfinalizer(cleanup)
 
 
@@ -142,6 +141,8 @@ def remove_test_buckets():
 
 def cleanup():
     # Only bulk-cleanup universally compatible components
+    # Ideally we would clean each test environment, but it's too slow to do it
+    # per test, so we rely on individual fixture cleanup
     remove_test_templates()
     remove_test_processors()
     remove_test_pgs()

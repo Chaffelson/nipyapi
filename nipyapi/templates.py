@@ -128,7 +128,7 @@ def upload_template(pg_id, template_file):
     root_tag = tree.getroot().tag
     if root_tag != 'template':
         raise TypeError(
-            "Expected 'template' as xml root element, got ({0}) instead."
+            "Expected 'template' as xml root element, got {0} instead."
             "Are you sure this is a Template?"
             .format(root_tag)
         )
@@ -157,7 +157,7 @@ def export_template(t_id, output='string', file_path=None):
     valid_output_types = ['file', 'string']
     if output not in valid_output_types:
         raise ValueError(
-            "Output type {0} not valid for ({1})".format(
+            "Output type {0} not valid for {1}".format(
                 output, valid_output_types
             )
         )

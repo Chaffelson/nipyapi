@@ -9,7 +9,7 @@ import logging
 from pprint import pprint
 from os import path
 import nipyapi
-from nipyapi.demo.utils import DockerContainer, start_docker_containers
+from nipyapi.utils import DockerContainer
 
 log = logging.getLogger(__name__)
 
@@ -78,10 +78,9 @@ d_containers = [
 ]
 
 # connection test disabled as it is not configured with the correct SSLContext
-start_docker_containers(
-    d_containers,
-    d_network_name,
-    test_connection=False
+nipyapi.utils.start_docker_containers(
+    docker_containers=d_containers,
+    network_name=d_network_name
 )
 
 log.info("Creating Registry security context")

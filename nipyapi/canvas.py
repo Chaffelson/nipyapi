@@ -370,7 +370,7 @@ def delete_processor(processor, refresh=True, force=False):
         target = processor
     if force:
         if not schedule_processor(target, False):
-            raise ("Could not prepare processor ({0}) for deletion"
+            raise ("Could not prepare processor {0} for deletion"
                    .format(target.id))
         target = get_processor(processor.id, 'id')
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
@@ -581,7 +581,7 @@ def purge_connection(con_id):
         elif test_obj.finished:
             if test_obj.failure_reason:
                 raise ValueError(
-                    "Unable to complete drop request({0}), error was ({1})"
+                    "Unable to complete drop request{0}, error was {1}"
                     .format(
                         test_obj, test_obj.drop_request.failure_reason
                     )
@@ -611,7 +611,7 @@ def purge_process_group(process_group, stop=False):
     if stop:
         if not schedule_process_group(process_group.id, False):
             raise ValueError(
-                "Unable to stop Process Group ({0}) for purging"
+                "Unable to stop Process Group {0} for purging"
                 .format(process_group.id)
             )
     cons = get_connections(process_group.id)
