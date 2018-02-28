@@ -45,7 +45,7 @@ The NiFi and NiFi Registry REST API clients are generated using swagger-codegen,
 
 - the package manager for your OS
 - github: https://github.com/swagger-api/swagger-codegen
-- maven: http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.2.3/swagger-codegen-cli-2.2.3.jar
+- maven: http://central.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.1/swagger-codegen-cli-2.3.1.jar
 - pre-built Docker images on DockerHub (https://hub.docker.com/r/swaggerapi/swagger-codegen-cli/)
 
 In the examples below, we'll use Homebrew for macOS::

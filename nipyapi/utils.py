@@ -193,7 +193,7 @@ def wait_to_complete(test_function, *args, **kwargs):
         log.info("- Function output evaluated to False, sleeping...")
         time.sleep(delay)
     log.info("- Hit Timeout, raising TimeOut Error")
-    raise ValueError("- Timed Out waiting for %s to complete",
+    raise ValueError("- Timed Out waiting for {0} to complete",
                      test_function.__name__)
 
 
@@ -228,10 +228,12 @@ def set_endpoint(endpoint_url):
     """
     log.info("Called set_endpoint with args %s", locals())
     if 'nifi-api' in endpoint_url:
+        log.info("Setting NiFi endpoint to %s", endpoint_url)
         if nipyapi.config.nifi_config.api_client:
             nipyapi.config.nifi_config.api_client.host = endpoint_url
         nipyapi.config.nifi_config.host = endpoint_url
     elif 'registry-api' in endpoint_url:
+        log.info("Setting Registry endpoint to %s", endpoint_url)
         if nipyapi.config.registry_config.api_client:
             nipyapi.config.registry_config.api_client.host = endpoint_url
         nipyapi.config.registry_config.host = endpoint_url

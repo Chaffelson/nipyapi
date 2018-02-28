@@ -6,6 +6,7 @@ Secure connectivity management for NiPyApi
 
 from __future__ import absolute_import
 import logging
+import six
 import ssl
 import urllib3
 import nipyapi
@@ -144,6 +145,42 @@ def get_nifi_access_status(bool_response=False):
             return False
         raise e
 
+
+# def bootstrap_nifi_access_policy(force=True):
+#     root_flow = nipyapi.nifi.FlowApi().get_flow('root')
+#     current_user = nipyapi.security.get_nifi_access_status()
+#     if force:
+#         cp = nipyapi.nifi.PoliciesApi().get_access_policy_for_resource(
+#             action='write',
+#             resource='/process-groups/' + root_flow.process_group_flow.id
+#         )
+#         if cp:
+#             nipyapi.nifi.PoliciesApi().remove_access_policy(cp.id)
+#     return nipyapi.nifi.PoliciesApi().create_access_policy(
+#         body=nipyapi.nifi.AccessPolicyEntity(
+#             id=root_flow.process_group_flow.id,
+#             revision=nipyapi.nifi.RevisionDTO(
+#                 version=0
+#             ),
+#             component=nipyapi.nifi.AccessPolicyDTO(
+#                 action='write',
+#                 resource='/process-groups/' + root_flow.process_group_flow.id,
+#                 users=[
+#                     nipyapi.nifi.TenantEntity(
+#                         component=nipyapi.nifi.TenantDTO(
+#                             identity=current_user.access_status.identity
+#                         ),
+#                         permissions=nipyapi.nifi.PermissionsDTO(
+#                             can_read=True,
+#                             can_write=True
+#                         )
+#                     )
+#                 ]
+#             )
+#         )
+#     )
+
+
 # --- NiFi Registry Helper Methods
 
 
@@ -279,6 +316,124 @@ def get_registry_access_status(bool_response=False):
         raise e
 
 # --- Generic Helper Methods
+
+
+def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
+    assert service in ['nifi', 'registry']
+    if service == 'nifi':
+        assert isinstance(user, nipyapi.nifi.UserEntity)
+        assert isinstance(policy, nipyapi.nifi.AccessPolicyEntity)
+    if refresh:
+        user_tgt = nipyapi.security.get_service_user(user.id, 'id', 'nifi')
+        policy_tgt = nipyapi.nifi.PoliciesApi().get_access_policy(policy.id)
+    else:
+        user_tgt = user
+        policy_tgt = policy
+    user_obj = nipyapi.nifi.TenantEntity(
+        id=user_tgt.id,
+        permissions=nipyapi.nifi.PermissionsDTO(
+            can_write=True,
+            can_read=True
+        ),
+        revision=nipyapi.nifi.RevisionDTO(
+            version=0
+        ),
+        component=nipyapi.nifi.TenantDTO(
+            id=user_tgt.id,
+            configurable=True,
+            identity=user_tgt.component.identity
+        )
+    )
+    policy_obj = nipyapi.nifi.AccessPolicyEntity(
+        revision=nipyapi.nifi.RevisionDTO(
+            version=policy_tgt.revision.version
+        ),
+        id=policy_tgt.id,
+        component=nipyapi.nifi.AccessPolicyDTO(
+            id=policy_tgt.id,
+            user_groups=policy_tgt.component.user_groups,
+            users=policy_tgt.component.users.append(user_obj)
+        )
+    )
+    return nipyapi.security.update_access_policy(policy_obj, service)
+
+
+def update_access_policy(policy, service='nifi'):
+    try:
+        return nipyapi.nifi.PoliciesApi().update_access_policy(
+            id=policy.id,
+            body=policy
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def get_access_policy_for_resource(resource,
+                                   action,
+                                   r_id=None,
+                                   service='nifi'):
+    assert service in ['nifi', 'registry']
+    assert action in ['read', 'write']
+    assert r_id is None or isinstance(r_id, six.string_types)
+    assert isinstance(resource, six.string_types)
+    log.info("Called get_access_policy_for_resource with Args %s", locals())
+    if service == 'nifi':
+        try:
+            log.info("Getting %s policy for %s/%s",
+                     action, resource, r_id)
+            return nipyapi.nifi.PoliciesApi().get_access_policy_for_resource(
+                action=action,
+                resource=resource,
+                id=r_id
+            )
+        except nipyapi.nifi.rest.ApiException as e:
+            if 'Unable to find access policy' in e.body:
+                log.info("Access policy not found, returning None")
+                return None
+            log.info("Unexpected Error, raising...")
+            raise ValueError(e.body)
+
+
+def create_access_policy(resource, action, r_id, service='nifi'):
+    assert isinstance(resource, six.string_types)
+    assert action in ['read', 'write']
+    assert isinstance(r_id, six.string_types)
+    assert service in ['nifi', 'registry']
+    if resource[0] != '/':
+        resource = '/' + resource
+    try:
+        return nipyapi.nifi.PoliciesApi().create_access_policy(
+            body=nipyapi.nifi.AccessPolicyEntity(
+                revision=nipyapi.nifi.RevisionDTO(version=0),
+                component=nipyapi.nifi.AccessPolicyDTO(
+                    action=action,
+                    resource=resource + '/' + r_id
+                )
+            )
+        )
+    except nipyapi.nifi.rest.ApiException as f:
+        log.info("Policy creation unsuccessful, raising error")
+        raise ValueError(f.body)
+
+
+def list_service_users(service='nifi'):
+    assert service in ['nifi', 'registry']
+    try:
+        out = getattr(nipyapi, service).TenantsApi().get_users()
+    except getattr(nipyapi, service).rest.ApiException as e:
+        raise ValueError(e.body)
+    if service == 'nifi':
+        return out.users
+    return out
+
+
+def get_service_user(identifier, identifier_type='identity', service='nifi'):
+    assert service in ['nifi', 'registry']
+    assert isinstance(identifier, six.string_types)
+    assert isinstance(identifier_type, six.string_types)
+    obj = list_service_users(service)
+    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return out
 
 
 def _create_configuration_ssl_context(

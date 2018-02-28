@@ -12,7 +12,7 @@ from nipyapi.registry import configuration as registry_config
 
 
 # --- Logging
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.INFO)
 
 # --- Version Checking
 # Method to check if we're compatible with the API endpoint
@@ -54,4 +54,6 @@ registered_filters = {
                           'name': ['type'],
                           'tag': ['tags']},  # This is Processor Types
     'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
+    'User': {'identity': ['identity'], 'id': ['identifier']},  # Registry User
+    'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']}  #NiFi
 }

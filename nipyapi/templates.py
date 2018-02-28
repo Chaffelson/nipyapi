@@ -5,12 +5,14 @@ For managing flow deployments
 """
 
 from __future__ import absolute_import
+import logging
 from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 from urllib3 import PoolManager
 from lxml import etree
 import nipyapi
 
+log = logging.getLogger(__name__)
 
 __all__ = [
     "list_all_templates", "get_template_by_name", "deploy_template",
@@ -25,6 +27,7 @@ def get_template_by_name(name):
     :param name: String of the template name, exact matching
     :return TemplateEntity:
     """
+    # TODO: Rework using the filter method
     out = [
         i for i in
         list_all_templates().templates
@@ -45,16 +48,17 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
     :param loc_y: y-axis location of the template
     :return: dict of the server response
     """
-    req = nipyapi.nifi.InstantiateTemplateRequestEntity(
-        origin_x=loc_x,
-        origin_y=loc_y,
-        template_id=template_id
-    )
-    resp = nipyapi.nifi.ProcessgroupsApi().instantiate_template(
-        id=pg_id,
-        body=req
-    )
-    return resp
+    try:
+        return nipyapi.nifi.ProcessgroupsApi().instantiate_template(
+            id=pg_id,
+            body=nipyapi.nifi.InstantiateTemplateRequestEntity(
+                origin_x=loc_x,
+                origin_y=loc_y,
+                template_id=template_id
+            )
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
 
 
 def create_pg_snippet(pg_id):
@@ -117,8 +121,10 @@ def upload_template(pg_id, template_file):
     Uploads a template file (template.xml) to the given process group
     :param pg_id: The NiFi ID of the process group to target
     :param template_file: the template file (template.xml)
-    :return:
+    :return: a TemplateEntity
     """
+    log.info("Called upload_template against endpoint %s with args %s",
+            nipyapi.config.nifi_config.api_client.host, locals())
     # TODO: Rework with utils functions
     # Ensure we are receiving a valid file
     assert isfile(template_file) and access(template_file, R_OK), \
@@ -132,15 +138,18 @@ def upload_template(pg_id, template_file):
             "Are you sure this is a Template?"
             .format(root_tag)
         )
-    # NiFi-1.2.0 method
     try:
-        resp = nipyapi.nifi.ProcessgroupsApi().upload_template(
-            id=pg_id,
+        this_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
+        assert isinstance(this_pg, nipyapi.nifi.ProcessGroupEntity)
+        nipyapi.nifi.ProcessgroupsApi().upload_template(
+            id=this_pg.id,
             template=template_file
+        )
+        return nipyapi.templates.get_template_by_name(
+            tree.find('name').text
         )
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return resp
 
 
 def export_template(t_id, output='string', file_path=None):
