@@ -239,7 +239,10 @@ def bootstrap_nifi_access_policies():
         )
 
 
-# Uncomment the two lines below to enable logging
+# Uncomment the block below to enable logging
+# import nipyapi.config
+# nipyapi.config.nifi_config.debug=True
+# nipyapi.config.registry_config.debug=True
 # root_logger = logging.getLogger()
 # root_logger.setLevel(logging.DEBUG)
 

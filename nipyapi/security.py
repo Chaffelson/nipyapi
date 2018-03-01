@@ -352,9 +352,10 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
         component=nipyapi.nifi.AccessPolicyDTO(
             id=policy_tgt.id,
             user_groups=policy_tgt.component.user_groups,
-            users=policy_tgt.component.users.append(user_obj)
+            users=policy_tgt.component.users
         )
     )
+    policy_obj.component.users.append(user_obj)
     return nipyapi.security.update_access_policy(policy_obj, service)
 
 
