@@ -146,40 +146,6 @@ def add_registry_user_to_access_policies(user_identity, access_policies=[]):
                 log.debug("Encountered REST API error: %s", e)
 
 
-# def add_nifi_user_to_access_policies(user_identity, access_policies=[],
-#                                      read=True, write=True):
-#     """
-#     Add a specified user to a list of access policies in the NiFi server.
-#
-#     Access policies in the form [ ('action1', 'resource1'), ('action2', 'resource2'), ... ]
-#
-#     :param user_identity: the identity of the user to whom you want to give access
-#     :param access_policies: a list of ('action', 'resource') pairs for the access polices
-#                             to grant the specified user
-#     """
-#     user = nipyapi.security.get_service_user(user_identity)
-#     user_tenant = nipyapi.nifi.TenantEntity(
-#         component=nipyapi.nifi.TenantDTO(
-#             id=user.component.id,
-#             identity=user.component.identity
-#         ),
-#         permissions=nipyapi.nifi.PermissionsDTO(
-#             can_write=write,
-#             can_read=read
-#         )
-#     )
-#
-#     for policy in access_policies:
-#         ap = get_or_create_nifi_access_policy(policy[0], policy[1], policy[2])
-#         if ap is not None:
-#             # TODO, should probably check that user is not already a member of this access policy
-#             ap.component.users.append(user_tenant)
-#             try:
-#                 nipyapi.nifi.PoliciesApi().update_access_policy(ap.component.id, ap)
-#             except nipyapi.nifi.rest.ApiException as e:
-#                 log.debug("Encountered REST API error: %s", e)
-
-
 def connect_nifi_to_registry():
     """
     Add the NiFi server as a trusted client/proxy for the NiFi Registry
@@ -296,7 +262,7 @@ log.info("Creating reg_client_0 as NiFi Registry Client named %s", _rc0)
 try:
     reg_client_0 = nipyapi.versioning.create_registry_client(
         name=_rc0,
-        uri='https://localhost:18443',
+        uri='https://nipyapi_secure_reg:18443',
         description='NiPyApi Secure Test'
     )
 except ValueError:

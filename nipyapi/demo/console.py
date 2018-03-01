@@ -11,7 +11,9 @@ import nipyapi
 # Note that this is the URI for NiFi to connect to Registry
 # Which may be different from your localhost connection if using Docker
 # Docker is likely to be http://<docker name for registry>:18080
+
 _rc_endpoint = 'http://registry:18080'
+
 
 _basename = "nipyapi_console"
 _pg0 = _basename + '_process_group_0'
@@ -68,7 +70,7 @@ try:
     reg_client_0 = nipyapi.versioning.create_registry_client(
         name=_rc0,
         uri=_rc_endpoint,
-        description='NiPyApi Test'
+        description='NiPyApi Demo Console'
     )
 except ValueError:
     reg_client_0 = nipyapi.versioning.get_registry_client(_rc0)
