@@ -23,7 +23,7 @@ secured_registry_url = 'https://localhost:18443/nifi-registry-api'
 secured_nifi_url = 'https://localhost:8443/nifi-api'
 
 host_certs_path = path.abspath(
-    nipyapi.config.PROJECT_ROOT_DIR + "/../tests/resources/keys"
+    nipyapi.config.PROJECT_ROOT_DIR + "/demo/resources/keys"
 )
 
 tls_env_vars = {
@@ -57,7 +57,7 @@ ldap_env_vars = {
 
 d_containers = [
     DockerContainer(
-        name='nipyapi_secure_nifi',
+        name='secure-nifi',
         image_name='chaffelson/nifi',
         image_tag='1.5.0',
         ports={'8443/tcp': 8443},
@@ -67,7 +67,7 @@ d_containers = [
         },
     ),
     DockerContainer(
-        name='nipyapi_secure_reg',
+        name='secure-registry',
         image_name='chaffelson/nifi-registry',
         image_tag='0.1.0',
         ports={'18443/tcp': 18443},
@@ -205,12 +205,13 @@ def bootstrap_nifi_access_policies():
         )
 
 
-# Uncomment the block below to enable logging
-# import nipyapi.config
-# nipyapi.config.nifi_config.debug=True
-# nipyapi.config.registry_config.debug=True
-# root_logger = logging.getLogger()
-# root_logger.setLevel(logging.DEBUG)
+# Uncomment the block below to enable debug logging
+import nipyapi.config
+import logging
+nipyapi.config.nifi_config.debug=True
+nipyapi.config.registry_config.debug=True
+root_logger = logging.getLogger()
+root_logger.setLevel(logging.DEBUG)
 
 # connection test disabled as it is not configured with the correct SSLContext
 nipyapi.utils.start_docker_containers(
@@ -221,10 +222,10 @@ nipyapi.utils.start_docker_containers(
 log.info("Creating Registry security context")
 nipyapi.utils.set_endpoint(secured_registry_url)
 nipyapi.security.create_registry_ssl_context(
-    ca_file=host_certs_path + '/ca-cert.pem',
+    ca_file=host_certs_path + '/localhost-ts.pem',
     client_cert_file=host_certs_path + '/client-cert.pem',
     client_key_file=host_certs_path + '/client-key.pem',
-    client_key_password='clientKeystorePassword'
+    client_key_password='clientPassword'
 )
 log.debug("Waiting for Registry to be ready for login")
 registry_user = nipyapi.utils.wait_to_complete(
@@ -238,7 +239,7 @@ pprint('nipyapi_secured_registry CurrentUser: ' + registry_user.identity)
 log.info("Creating NiFi security context")
 nipyapi.utils.set_endpoint(secured_nifi_url)
 nipyapi.security.create_nifi_ssl_context(
-    ca_file=host_certs_path + '/ca-cert.pem'
+    ca_file=host_certs_path + '/localhost-ts.pem'
 )
 log.debug("Waiting for NiFi to be ready for login")
 nipyapi.utils.wait_to_complete(
@@ -262,7 +263,7 @@ log.info("Creating reg_client_0 as NiFi Registry Client named %s", _rc0)
 try:
     reg_client_0 = nipyapi.versioning.create_registry_client(
         name=_rc0,
-        uri='https://nipyapi_secure_reg:18443',
+        uri='https://secure-registry:18443',
         description='NiPyApi Secure Test'
     )
 except ValueError:
