@@ -5,10 +5,10 @@ For managing flow deployments
 """
 
 from __future__ import absolute_import
-import logging
 from os import access, R_OK, W_OK
 from os.path import isfile, dirname
-from urllib3 import PoolManager
+import logging
+import six
 from lxml import etree
 import nipyapi
 
@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 __all__ = [
     "list_all_templates", "get_template_by_name", "deploy_template",
     "upload_template", "create_pg_snippet", "create_template",
-    "delete_template", "export_template"
+    "delete_template", "export_template", 'get_template'
 ]
 
 
@@ -123,9 +123,9 @@ def upload_template(pg_id, template_file):
     :param template_file: the template file (template.xml)
     :return: a TemplateEntity
     """
+    # TODO: Consider reworking to allow import from string by using tmpfile
     log.info("Called upload_template against endpoint %s with args %s",
-            nipyapi.config.nifi_config.api_client.host, locals())
-    # TODO: Rework with utils functions
+             nipyapi.config.nifi_config.api_client.host, locals())
     # Ensure we are receiving a valid file
     assert isfile(template_file) and access(template_file, R_OK), \
         SystemError("File {0} invalid or unreadable".format(template_file))
@@ -138,9 +138,17 @@ def upload_template(pg_id, template_file):
             "Are you sure this is a Template?"
             .format(root_tag)
         )
+    t_name = tree.find('name').text
     try:
         this_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
         assert isinstance(this_pg, nipyapi.nifi.ProcessGroupEntity)
+        # For some reason identical code that produces the duplicate error
+        # in later versions is going through OK for NiFi-1.1.2
+        # The error occurs as normal in Postman, so not sure what's going on
+        # Will force this error for consistency until it can be investigated
+        if nipyapi.templates.get_template_by_name(t_name):
+            raise ValueError('A template named {} already exists.'
+                             .format(t_name))
         nipyapi.nifi.ProcessgroupsApi().upload_template(
             id=this_pg.id,
             template=template_file
@@ -156,32 +164,24 @@ def export_template(t_id, output='string', file_path=None):
     """
     Exports a template as a string of xml
     :param t_id: ID of the template to export
-    :param output: string of return type of template, 'str' or 'file'
+    :param output: string of return type of template, 'string' or 'file'
     :param file_path: if file output type, the path and filename to write to
-    :return: basestring of the xml template or file path written
+    :return: basestring of the xml template
     """
-    # TODO: Rework with utils functions
-    # TemplatesAPI.export template is broken in swagger definition of NiFi1.2
-    # return TemplateDTO is replaced by return string in a later version
-    valid_output_types = ['file', 'string']
-    if output not in valid_output_types:
-        raise ValueError(
-            "Output type {0} not valid for {1}".format(
-                output, valid_output_types
-            )
-        )
-    con = PoolManager()
-    url = nipyapi.config.nifi_config.host + '/templates/' + t_id + '/download'
-    response = con.request('GET', url, preload_content=False)
-    template_xml = etree.fromstring(response.data)
+    assert output in ['string', 'file']
+    assert file_path is None or isinstance(file_path, six.string_types)
+    template = nipyapi.templates.get_template(t_id, 'id')
+    assert isinstance(template, nipyapi.nifi.TemplateEntity)
+    obj = nipyapi.nifi.TemplatesApi().export_template(t_id)
+    assert isinstance(obj, six.string_types)
+    assert obj[0] == '<'
     if output == 'string':
-        return etree.tostring(template_xml, encoding='utf8', method='xml')
+        return obj
     if output == 'file':
         assert access(dirname(file_path), W_OK), \
             "File_path {0} is inaccessible or not writable".format(file_path)
-        xml_tree = etree.ElementTree(template_xml)
-        xml_tree.write(file_path)
-        return file_path
+        nipyapi.utils.fs_write(obj, file_path)
+        return obj
 
 
 def list_all_templates():
@@ -193,3 +193,10 @@ def list_all_templates():
         return nipyapi.nifi.FlowApi().get_templates()
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
+
+
+def get_template(identifier, identifier_type):
+    assert isinstance(identifier, six.string_types)
+    assert identifier_type in ['name', 'id']
+    obj = nipyapi.templates.list_all_templates().templates
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)

@@ -14,6 +14,13 @@ from nipyapi.utils import DockerContainer
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
 
+# Uncomment the block below to enable debug logging
+# nipyapi.config.nifi_config.debug=True
+# nipyapi.config.registry_config.debug=True
+# root_logger = logging.getLogger()
+# root_logger.setLevel(logging.DEBUG)
+
+
 _basename = "nipyapi_secure"
 _rc0 = _basename + '_reg_client_0'
 
@@ -82,9 +89,6 @@ d_containers = [
 ]
 
 
-
-
-
 def get_or_create_registry_access_policy(action, resource):
     """
     Get a Registry access policy for the specified action, resource pair.
@@ -101,47 +105,59 @@ def get_or_create_registry_access_policy(action, resource):
     stripped_resource = resource[1:] if resource.startswith('/') else resource
 
     try:
-        policy = nipyapi.registry.PoliciesApi().get_access_policy_for_resource(action, stripped_resource)
-        log.debug("Found existing Registry policy for '%s:%s'", action, resource)
+        policy = nipyapi.registry.PoliciesApi().get_access_policy_for_resource(
+            action, stripped_resource
+        )
+        log.debug("Found existing Registry policy for '%s:%s'",
+                  action, resource)
         resolved_policy = policy
     except nipyapi.registry.rest.ApiException:
-        log.debug("Registry policy for '%s:%s' does not exist, creating...", action, resource)
+        log.debug("Registry policy for '%s:%s' does not exist, creating...",
+                  action, resource)
         policy_to_create = nipyapi.registry.AccessPolicy(
             action=action,
             resource=resource)
         try:
-            created_policy = nipyapi.registry.PoliciesApi().create_access_policy(policy_to_create)
-            log.debug("Successfully created Registry policy for '%s:%s'", action, resource)
-            resolved_policy = created_policy
+            new_pol = nipyapi.registry.PoliciesApi().create_access_policy(
+                policy_to_create
+            )
+            log.debug("Successfully created Registry policy for '%s:%s'",
+                      action, resource)
+            resolved_policy = new_pol
         except nipyapi.registry.rest.ApiException as e:
             log.warning("Encountered REST API error: %s", e)
 
     if resolved_policy is not None:
         return resolved_policy
-    else:
-        log.error("Failed to find or create Registry policy for %s:%s'", action, resource)
-        return None
+    log.error("Failed to find or create Registry policy for %s:%s'",
+              action, resource)
+    return None
 
 
 def add_registry_user_to_access_policies(user_identity, access_policies=[]):
     """
     Add a specified user to a list of access policies in the Registry server.
 
-    Access policies in the form [ ('action1', 'resource1'), ('action2', 'resource2'), ... ]
+    Access policies in the form [ ('action1', 'resource1'), ('action2',
+    'resource2'), ... ]
 
-    :param user_identity: the identity of the user to whom you want to give access
-    :param access_policies: a list of ('action', 'resource') pairs for the access polices
-                            to grant the specified user
+    :param user_identity: the identity of the user to whom you want to give
+    access
+    :param access_policies: a list of ('action', 'resource') pairs for the
+    access polices to grant the specified user
     """
     user = nipyapi.security.get_service_user(user_identity, service='registry')
 
     for policy in access_policies:
         ap = get_or_create_registry_access_policy(policy[0], policy[1])
         if ap is not None:
-            # TODO, should probably check that user is not already a member of this access policy
+            # TODO, should probably check that user is not already a
+            # member of this access policy
             ap.users.append(user)
             try:
-                nipyapi.registry.PoliciesApi().update_access_policy(ap.identifier, ap)
+                nipyapi.registry.PoliciesApi().update_access_policy(
+                    ap.identifier, ap
+                )
             except nipyapi.registry.rest.ApiException as e:
                 log.debug("Encountered REST API error: %s", e)
 
@@ -160,7 +176,8 @@ def connect_nifi_to_registry():
         ("write", "/proxy"),
         ("read", "/buckets"),
     ]
-    add_registry_user_to_access_policies(nifi_proxy.identity, proxy_access_policies)
+    add_registry_user_to_access_policies(nifi_proxy.identity,
+                                         proxy_access_policies)
 
     # Add current NiFi user (our NiFi admin) as user to NiFi Registry
     nifi_access_status = nipyapi.nifi.AccessApi().get_access_status()
@@ -174,7 +191,8 @@ def connect_nifi_to_registry():
         ("write", "/buckets"),
         ("delete", "/buckets")
     ]
-    add_registry_user_to_access_policies(nifi_current_user_identity, all_buckets_access_policies)
+    add_registry_user_to_access_policies(nifi_current_user_identity,
+                                         all_buckets_access_policies)
 
 
 def bootstrap_nifi_access_policies():
@@ -205,15 +223,8 @@ def bootstrap_nifi_access_policies():
         )
 
 
-# Uncomment the block below to enable debug logging
-import nipyapi.config
-import logging
-nipyapi.config.nifi_config.debug=True
-nipyapi.config.registry_config.debug=True
-root_logger = logging.getLogger()
-root_logger.setLevel(logging.DEBUG)
-
 # connection test disabled as it is not configured with the correct SSLContext
+log.info("Starting Secured NiFi and NiFi-Registry Docker Containers")
 nipyapi.utils.start_docker_containers(
     docker_containers=d_containers,
     network_name=d_network_name
@@ -227,7 +238,7 @@ nipyapi.security.create_registry_ssl_context(
     client_key_file=host_certs_path + '/client-key.pem',
     client_key_password='clientPassword'
 )
-log.debug("Waiting for Registry to be ready for login")
+log.info("Waiting for Registry to be ready for login")
 registry_user = nipyapi.utils.wait_to_complete(
     test_function=nipyapi.security.get_registry_access_status,
     bool_response=True,
@@ -241,7 +252,7 @@ nipyapi.utils.set_endpoint(secured_nifi_url)
 nipyapi.security.create_nifi_ssl_context(
     ca_file=host_certs_path + '/localhost-ts.pem'
 )
-log.debug("Waiting for NiFi to be ready for login")
+log.info("Waiting for NiFi to be ready for login")
 nipyapi.utils.wait_to_complete(
     test_function=nipyapi.security.login_to_nifi,
     username='nobel',
@@ -256,7 +267,8 @@ pprint('nipyapi_secured_nifi CurrentUser: ' + nifi_user.access_status.identity)
 log.info("Granting NiFi user access to root process group")
 bootstrap_nifi_access_policies()
 
-log.info("Connecting secured NiFi to secured Registry and granting NiFi user access to Registry")
+log.info("Connecting secured NiFi to secured Registry and granting NiFi user "
+         "access to Registry")
 connect_nifi_to_registry()
 
 log.info("Creating reg_client_0 as NiFi Registry Client named %s", _rc0)

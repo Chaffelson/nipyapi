@@ -146,41 +146,6 @@ def get_nifi_access_status(bool_response=False):
         raise e
 
 
-# def bootstrap_nifi_access_policy(force=True):
-#     root_flow = nipyapi.nifi.FlowApi().get_flow('root')
-#     current_user = nipyapi.security.get_nifi_access_status()
-#     if force:
-#         cp = nipyapi.nifi.PoliciesApi().get_access_policy_for_resource(
-#             action='write',
-#             resource='/process-groups/' + root_flow.process_group_flow.id
-#         )
-#         if cp:
-#             nipyapi.nifi.PoliciesApi().remove_access_policy(cp.id)
-#     return nipyapi.nifi.PoliciesApi().create_access_policy(
-#         body=nipyapi.nifi.AccessPolicyEntity(
-#             id=root_flow.process_group_flow.id,
-#             revision=nipyapi.nifi.RevisionDTO(
-#                 version=0
-#             ),
-#             component=nipyapi.nifi.AccessPolicyDTO(
-#                 action='write',
-#                 resource='/process-groups/' + root_flow.process_group_flow.id,
-#                 users=[
-#                     nipyapi.nifi.TenantEntity(
-#                         component=nipyapi.nifi.TenantDTO(
-#                             identity=current_user.access_status.identity
-#                         ),
-#                         permissions=nipyapi.nifi.PermissionsDTO(
-#                             can_read=True,
-#                             can_write=True
-#                         )
-#                     )
-#                 ]
-#             )
-#         )
-#     )
-
-
 # --- NiFi Registry Helper Methods
 
 

@@ -6,9 +6,13 @@
 import pytest
 from tests import conftest
 import six
-import lxml
-from lxml.etree import fromstring
+from lxml import etree
 import nipyapi
+
+if six.PY3:
+    from io import StringIO
+elif six.PY2:
+    from StringIO import StringIO
 
 
 def test_upload_template(fix_templates, regress):
@@ -20,6 +24,17 @@ def test_upload_template(fix_templates, regress):
     assert isinstance(r0, nipyapi.nifi.TemplateEntity)
     # Check it's not an empty object
     assert isinstance(r0.template.uri, six.string_types)
+    # Export it again and check it's good
+    r1 = nipyapi.templates.export_template(
+        r0.id,
+        output='file',
+        file_path='/tmp/nipyapi_test_template_001.xml'
+    )
+    # This test needs to be hand run, as it's difficult to test for the changed
+    # UUIDs and timestamps and unimportant information.
+    # t1 = etree.parse('/tmp/nipyapi_test_template_001.xml')
+    # t2 = etree.parse(fix_templates.c_file)
+    # DeepDiff(t1.getroot().itertext(), t2.getroot().itertext(), ignore_order=True)
     # Try to upload a nonexistant file
     with pytest.raises(AssertionError):
         _ = nipyapi.templates.upload_template(
@@ -97,22 +112,23 @@ def test_export_template(fix_templates, regress):
         pg.id,
         fix_templates.b_file
     )
+    assert isinstance(t1, nipyapi.nifi.TemplateEntity)
     r0 = nipyapi.templates.export_template(t1.id)
-    _ = lxml.etree.fromstring(r0)
+    assert r0[0] == '<'
     r1 = nipyapi.templates.export_template(
         t1.id,
         output='file',
         file_path='/tmp/nifi_template_test.xml'
     )
-    assert r1 == '/tmp/nifi_template_test.xml'
-    _ = lxml.etree.parse('/tmp/nifi_template_test.xml')
+    assert r1[0] == '<'
+    _ = etree.parse('/tmp/nifi_template_test.xml')
     with pytest.raises(AssertionError):
         _ = nipyapi.templates.export_template(
             t1.id,
             output='file',
             file_path='/definitelynotapath/to/anythingthatshould/exist_'
         )
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         _ = nipyapi.templates.export_template(
             t_id=t1.id,
             output='invalid'

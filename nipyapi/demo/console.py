@@ -12,7 +12,7 @@ import nipyapi
 # Which may be different from your localhost connection if using Docker
 # Docker is likely to be http://<docker name for registry>:18080
 
-_rc_endpoint = 'http://registry:18080'
+_insecure_rc_endpoint = 'http://registry:18080'
 
 
 _basename = "nipyapi_console"
@@ -65,15 +65,22 @@ processor_0 = nipyapi.canvas.create_processor(
     )
 )
 
-log.info("Creating reg_client_0 as NiFi Registry Client named %s", _rc0)
-try:
-    reg_client_0 = nipyapi.versioning.create_registry_client(
-        name=_rc0,
-        uri=_rc_endpoint,
-        description='NiPyApi Demo Console'
-    )
-except ValueError:
-    reg_client_0 = nipyapi.versioning.get_registry_client(_rc0)
+log.info("Creating reg_client_0 as NiFi Registry Client")
+# If the secured environment demo setup has already run, then we just
+# want to reuse that client for NiFi <> Registry Comms
+reg_client_0 = nipyapi.versioning.get_registry_client(
+    'nipyapi_secure_reg_client_0',
+    'name'
+)
+if not reg_client_0:
+    try:
+        reg_client_0 = nipyapi.versioning.create_registry_client(
+            name=_rc0,
+            uri=_insecure_rc_endpoint,
+            description='NiPyApi Demo Console'
+        )
+    except ValueError:
+        reg_client_0 = nipyapi.versioning.get_registry_client(_rc0)
 
 log.info("Cleaning up old NiPyApi Console Registry Buckets")
 bucket_0 = nipyapi.versioning.get_registry_bucket(_b0)
@@ -84,8 +91,10 @@ if bucket_1 is not None:
     nipyapi.versioning.delete_registry_bucket(bucket_1)
 log.info("Creating bucket_0 as new a Registry Bucket named %s", _b0)
 bucket_0 = nipyapi.versioning.create_registry_bucket(_b0)
+assert isinstance(bucket_0, nipyapi.registry.Bucket)
 log.info("Creating bucket_1 as new a Registry Bucket named %s", _b1)
 bucket_1 = nipyapi.versioning.create_registry_bucket(_b1)
+assert isinstance(bucket_1, nipyapi.registry.Bucket)
 
 log.info("Saving %s as a new Versioned Flow named %s in Bucket %s, and saving "
          "as variable ver_flow_info_0", _pg0, _vf0, _b0)
@@ -148,3 +157,4 @@ flow_template_0 = nipyapi.templates.create_template(
     process_group_0.status.name,
     'A Demo Template'
 )
+print("Demo Console deployed!")

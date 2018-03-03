@@ -193,8 +193,9 @@ def wait_to_complete(test_function, *args, **kwargs):
         log.info("- Function output evaluated to False, sleeping...")
         time.sleep(delay)
     log.info("- Hit Timeout, raising TimeOut Error")
-    raise ValueError("- Timed Out waiting for {0} to complete",
-                     test_function.__name__)
+    raise ValueError("Timed Out waiting for {0} to complete".format(
+        test_function.__name__)
+    )
 
 
 def is_endpoint_up(endpoint_url):
