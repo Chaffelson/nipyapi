@@ -89,101 +89,50 @@ d_containers = [
 ]
 
 
-def get_or_create_registry_access_policy(action, resource):
-    """
-    Get a Registry access policy for the specified action, resource pair.
-
-    If the access policy does not exist, it will be created.
-
-    :param action: The policy action, e.g., "read", "write", or "delete"
-    :param resource: The policy resource, e.g., "/buckets"
-    :return: a nypiapi.registry.AccessPolicy object
-    """
-    resolved_policy = None
-
-    # Strip leading '/' from resource as this lookup endpoint prepends a '/'
-    stripped_resource = resource[1:] if resource.startswith('/') else resource
-
-    try:
-        policy = nipyapi.registry.PoliciesApi().get_access_policy_for_resource(
-            action, stripped_resource
-        )
-        log.debug("Found existing Registry policy for '%s:%s'",
-                  action, resource)
-        resolved_policy = policy
-    except nipyapi.registry.rest.ApiException:
-        log.debug("Registry policy for '%s:%s' does not exist, creating...",
-                  action, resource)
-        policy_to_create = nipyapi.registry.AccessPolicy(
-            action=action,
-            resource=resource)
-        try:
-            new_pol = nipyapi.registry.PoliciesApi().create_access_policy(
-                policy_to_create
-            )
-            log.debug("Successfully created Registry policy for '%s:%s'",
-                      action, resource)
-            resolved_policy = new_pol
-        except nipyapi.registry.rest.ApiException as e:
-            log.warning("Encountered REST API error: %s", e)
-
-    if resolved_policy is not None:
-        return resolved_policy
-    log.error("Failed to find or create Registry policy for %s:%s'",
-              action, resource)
-    return None
-
-
-def add_registry_user_to_access_policies(user_identity, access_policies=[]):
-    """
-    Add a specified user to a list of access policies in the Registry server.
-
-    Access policies in the form [ ('action1', 'resource1'), ('action2',
-    'resource2'), ... ]
-
-    :param user_identity: the identity of the user to whom you want to give
-    access
-    :param access_policies: a list of ('action', 'resource') pairs for the
-    access polices to grant the specified user
-    """
-    user = nipyapi.security.get_service_user(user_identity, service='registry')
-
-    for policy in access_policies:
-        ap = get_or_create_registry_access_policy(policy[0], policy[1])
-        if ap is not None:
-            # TODO, should probably check that user is not already a
-            # member of this access policy
-            ap.users.append(user)
-            try:
-                nipyapi.registry.PoliciesApi().update_access_policy(
-                    ap.identifier, ap
-                )
-            except nipyapi.registry.rest.ApiException as e:
-                log.debug("Encountered REST API error: %s", e)
-
-
 def connect_nifi_to_registry():
     """
     Add the NiFi server as a trusted client/proxy for the NiFi Registry
     """
 
     # Add NiFi server identity as user to NiFi Registry
-    nifi_proxy = nipyapi.registry.User(identity="CN=localhost, OU=nifi")
-    nifi_proxy = nipyapi.registry.TenantsApi().create_user(nifi_proxy)
+    # nifi_proxy = nipyapi.registry.User(identity="CN=localhost, OU=nifi")
+    # nifi_proxy = nipyapi.registry.TenantsApi().create_user(nifi_proxy)
+    nifi_proxy = nipyapi.security.create_service_user(
+        identity="CN=localhost, OU=nifi",
+        service='registry'
+    )
 
     # Make NiFi server a trusted proxy in NiFi Registry
     proxy_access_policies = [
         ("write", "/proxy"),
         ("read", "/buckets"),
     ]
-    add_registry_user_to_access_policies(nifi_proxy.identity,
-                                         proxy_access_policies)
+    for action, resource in proxy_access_policies:
+        pol = nipyapi.security.get_access_policy_for_resource(
+            resource=resource,
+            action=action,
+            service='registry',
+            auto_create=True
+        )
+        nipyapi.security.add_user_to_access_policy(
+            user=nifi_proxy,
+            policy=pol,
+            service='registry'
+        )
+    # add_registry_user_to_access_policies(nifi_proxy.identity,
+    #                                      proxy_access_policies)
 
     # Add current NiFi user (our NiFi admin) as user to NiFi Registry
-    nifi_access_status = nipyapi.nifi.AccessApi().get_access_status()
-    nifi_current_user_identity = nifi_access_status.access_status.identity
-    nobel_user = nipyapi.registry.User(identity=nifi_current_user_identity)
-    nobel_user = nipyapi.registry.TenantsApi().create_user(nobel_user)
+    nifi_user_obj = nipyapi.security.get_service_user('nobel')
+    nifi_reg_user = nipyapi.security.create_service_user(
+        identity=nifi_user_obj.component.identity,
+        service='registry'
+    )
+    # nifi_reg_user = nipyapi.registry.TenantsApi().create_user(
+    #     nipyapi.registry.User(
+    #         identity=nifi_user_obj.component.identity
+    #     )
+    # )
 
     # Make NiFi "nobel" user have access to all buckets in Registry
     all_buckets_access_policies = [
@@ -191,8 +140,18 @@ def connect_nifi_to_registry():
         ("write", "/buckets"),
         ("delete", "/buckets")
     ]
-    add_registry_user_to_access_policies(nifi_current_user_identity,
-                                         all_buckets_access_policies)
+    for action, resource in all_buckets_access_policies:
+        pol = nipyapi.security.get_access_policy_for_resource(
+            resource=resource,
+            action=action,
+            service='registry',
+            auto_create=True
+        )
+        nipyapi.security.add_user_to_access_policy(
+            user=nifi_reg_user,
+            policy=pol,
+            service='registry'
+        )
 
 
 def bootstrap_nifi_access_policies():
@@ -211,8 +170,8 @@ def bootstrap_nifi_access_policies():
     ]
     for pol in access_policies:
         ap = nipyapi.security.create_access_policy(
-            resource=pol[1],
             action=pol[0],
+            resource=pol[1],
             r_id=pol[2],
             service='nifi'
         )
@@ -232,7 +191,8 @@ nipyapi.utils.start_docker_containers(
 
 log.info("Creating Registry security context")
 nipyapi.utils.set_endpoint(secured_registry_url)
-nipyapi.security.create_registry_ssl_context(
+nipyapi.security.set_service_ssl_context(
+    service='registry',
     ca_file=host_certs_path + '/localhost-ts.pem',
     client_cert_file=host_certs_path + '/client-cert.pem',
     client_key_file=host_certs_path + '/client-key.pem',
@@ -240,7 +200,8 @@ nipyapi.security.create_registry_ssl_context(
 )
 log.info("Waiting for Registry to be ready for login")
 registry_user = nipyapi.utils.wait_to_complete(
-    test_function=nipyapi.security.get_registry_access_status,
+    test_function=nipyapi.security.get_service_access_status,
+    service='registry',
     bool_response=True,
     nipyapi_delay=5,
     nipyapi_max_wait=60
@@ -249,19 +210,21 @@ pprint('nipyapi_secured_registry CurrentUser: ' + registry_user.identity)
 
 log.info("Creating NiFi security context")
 nipyapi.utils.set_endpoint(secured_nifi_url)
-nipyapi.security.create_nifi_ssl_context(
+nipyapi.security.set_service_ssl_context(
+    service='nifi',
     ca_file=host_certs_path + '/localhost-ts.pem'
 )
 log.info("Waiting for NiFi to be ready for login")
 nipyapi.utils.wait_to_complete(
-    test_function=nipyapi.security.login_to_nifi,
+    test_function=nipyapi.security.service_login,
+    service='nifi',
     username='nobel',
     password='password',
     bool_response=True,
     nipyapi_delay=5,
     nipyapi_max_wait=60
 )
-nifi_user = nipyapi.nifi.AccessApi().get_access_status()
+nifi_user = nipyapi.security.get_service_access_status(service='nifi')
 pprint('nipyapi_secured_nifi CurrentUser: ' + nifi_user.access_status.identity)
 
 log.info("Granting NiFi user access to root process group")

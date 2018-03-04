@@ -196,6 +196,8 @@ def list_all_templates():
 
 
 def get_template(identifier, identifier_type):
+    """Filters the template list for a template matching the identifier string
+    and identifier type"""
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
     obj = nipyapi.templates.list_all_templates().templates
