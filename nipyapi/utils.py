@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Convenience utility functions for NiPyApi
+Convenience utility functions for NiPyApi, not really intended for external use
 """
 
 from __future__ import absolute_import, unicode_literals
@@ -25,10 +25,14 @@ log = logging.getLogger(__name__)
 
 def dump(obj, mode='json'):
     """
-    Dumps a serialisable object to json or yaml, defaults to json
-    :param obj: object to serialise
-    :param mode: Str; 'json' or 'yaml
-    :return: the serialised object
+    Dumps a native datatype object to json or yaml, defaults to json
+
+    Args:
+        obj (varies): The native datatype object to serialise
+        mode (str): 'json' or 'yaml', the supported export modes
+
+    Returns (str): The serialised object
+
     """
     assert mode in ['json', 'yaml']
     try:
@@ -55,15 +59,29 @@ def load(obj, dto=None):
     """
     Loads a serialised object back into native datatypes, and optionally
     imports it back into the native NiFi DTO
-    :param obj: serialised object to load
-    :param dto: Optional (Str, Str)
-    Tuple of nifi model service as a string 'nifi' or 'registry', and the class
-    name to load into
-    :return:
+
+    Warning: Using this on objects not produced by this Package may have
+    unintended results! While efforts have been made to ensure that unsafe
+    loading is not possible, no stringent security testing has been completed.
+
+    Args:
+        obj (dict, list): The serialised object to import
+        dto (Optional [tuple{str, str}]): A Tuple describing the service and
+        object that should be constructed.
+
+        e.g. dto = ('registry', 'VersionedFlowSnapshot')
+
+    Returns: Either the loaded object in native Python datatypes, or the
+        constructed native datatype object
+
     """
     assert isinstance(obj, (six.string_types, bytes))
     assert dto is None or isinstance(dto, tuple)
     # ensure object is standard json before reusing the api_client deserializer
+    # safe_load from ruamel.yaml as it doesn't accidentally convert str
+    # to unicode in py2. It also manages both json and yaml equally well
+    # Good explanation: https://stackoverflow.com/a/16373377/4717963
+    # Safe Load also helps prevent code injection
     loaded_obj = ruamel.yaml.safe_load(obj)
     if dto:
         assert dto[0] in ['nifi', 'registry']
@@ -80,18 +98,18 @@ def load(obj, dto=None):
             response=response,
             response_type=dto[1]
         )
-    # safe_load from ruamel.yaml as it doesn't accidentally convert str
-    # to unicode in py2. It also manages both json and yaml equally well
-    # Good explanation: https://stackoverflow.com/a/16373377/4717963
     return loaded_obj
 
 
 def fs_write(obj, file_path):
     """
-    Convenience function to write a object to a file path
-    :param obj: Writable object, like a String
-    :param file_path: String path to the file for writing
-    :return: The Object that was written
+    Convenience function to write an Object to a FilePath
+
+    Args:
+        obj (varies): The Object to write out
+        file_path (str): The Full path including filename to write to
+
+    Returns: The object that was written
     """
     try:
         with open(str(file_path), 'w') as f:
@@ -103,9 +121,12 @@ def fs_write(obj, file_path):
 
 def fs_read(file_path):
     """
-    Convenience function to read contents from a file
-    :param file_path: String path to the file for reading
-    :return: The contents of the file
+    Convenience function to read an Object from a FilePath
+
+    Args:
+        file_path (str): The Full path including filename to read from
+
+    Returns: The object that was read
     """
     try:
         with open(str(file_path), 'r') as f:
@@ -116,13 +137,19 @@ def fs_read(file_path):
 
 def filter_obj(obj, value, key):
     """
-    Implements a custom filter method because Objects returned by the API
-    don't have consistently named identifiers.
-    Note that each class must be registered with the identifiers to be used
-    :param obj: the NiFi or NiFi-Registry object to filter on
-    :param value: the String value to look for
-    :param key: the String of the object key to filter against
-    :return: None if 0 matches, list if > 1, single Object entity if ==1
+    Implements a custom filter method because native datatypes don't have
+    consistently named or located fields.
+
+    Note that each object used by this function must be registered with
+    identifier_types and identifiers in config
+
+    Args:
+        obj (varies): the NiFi or NiFi-Registry object to filter on
+        value (str): the String value to look for
+        key (str): the object key to filter against
+
+    Returns: None if 0 matches, list if > 1, single Object entity if ==1
+
     """
     from functools import reduce
     import operator
@@ -170,13 +197,19 @@ def filter_obj(obj, value, key):
 
 def wait_to_complete(test_function, *args, **kwargs):
     """
-    Implements a basic retry loop for a given test function
-    :param test_function: Function returning a Bool once a state is reached
-    :param delay: seconds to wait between each retry
-    :param max_wait: maximum number of seconds to wait before declaring failure
-    :param args: any args to pass to the test function
-    :param kwargs: any kwargs to pass to the test function
-    :return: Bool of success or not
+    Implements a basic return loop for a given function which is capable of a
+    True|False output
+
+    Args:
+        test_function: Function which returns a bool once the target
+            state is reached
+        delay (int): The number of seconds between each attempt
+        max_wait (int): the maximum number of seconds before issuing a Timeout
+        *args: Any args to pass through to the test function
+        **kwargs: Any Keword Args to pass through to the test function
+
+    Returns (bool): True for success, False for not
+
     """
     log.info("Called wait_to_complete for function %s",
              test_function.__name__)
@@ -199,9 +232,13 @@ def wait_to_complete(test_function, *args, **kwargs):
 
 def is_endpoint_up(endpoint_url):
     """
-    Tests if an HTTP or HTTPS endpoint is available for requests
-    :param endpoint_url: Str; the URL to try
-    :return: Bool;True if available, False is not
+    Tests if a URL is available for requests
+
+    Args:
+        endpoint_url (str): The URL to test
+
+    Returns (bool): True for a 200 response, False for not
+
     """
     log.info("Called is_endpoint_up with args %s", locals())
     try:
@@ -220,11 +257,16 @@ def is_endpoint_up(endpoint_url):
 
 def set_endpoint(endpoint_url):
     """
-    Experimental.
+    EXPERIMENTAL
+
     Sets the endpoint when switching between instances of NiFi or other
     projects. Not tested extensively with secured instances.
-    :param endpoint_url:
-    :return:
+
+    Args:
+        endpoint_url (str): The URL to set as the endpoint. Autodetects the
+        relevant service e.g. 'http://localhost:18080/nifi-registry-api'
+
+    Returns (bool): True for success, False for not
     """
     log.info("Called set_endpoint with args %s", locals())
     if 'nifi-api' in endpoint_url:
@@ -232,11 +274,17 @@ def set_endpoint(endpoint_url):
         if nipyapi.config.nifi_config.api_client:
             nipyapi.config.nifi_config.api_client.host = endpoint_url
         nipyapi.config.nifi_config.host = endpoint_url
+        if nipyapi.config.nifi_config.host == endpoint_url:
+            return True
+        return False
     elif 'registry-api' in endpoint_url:
         log.info("Setting Registry endpoint to %s", endpoint_url)
         if nipyapi.config.registry_config.api_client:
             nipyapi.config.registry_config.api_client.host = endpoint_url
         nipyapi.config.registry_config.host = endpoint_url
+        if nipyapi.config.registry_config.host == endpoint_url:
+            return True
+        return False
     else:
         raise ValueError("Unrecognised NiFi or subproject API Endpoint")
 
@@ -269,17 +317,21 @@ class DockerContainer(object):
 
 def start_docker_containers(docker_containers, network_name='demo'):
     """
-    Start a docker container on a given network.
+    Deploys a list of DockerContainer's on a given network
 
-    :param docker_containers: a list of docker containers to start
-    :param network_name: the name of the Docker bridge network to create
-        for the containers
-    :param test_connection: a boolean flag (True or False) to control if this
-        helper method should try the test url endpoint to verify each
-        container starts.
+    Args:
+        docker_containers (list[DockerContainer]): list of Dockers to start
+        network_name (str): The name of the Docker Bridge Network to get or
+            create for the Docker Containers
+
+    Returns: Nothing
+
     """
     log.info("- Creating Docker client using Environment Variables")
     d_client = docker.from_env()
+
+    for target in docker_containers:
+        assert isinstance(target, DockerContainer)
 
     # Pull relevant Images
     log.info("- Pulling relevant Docker Images")

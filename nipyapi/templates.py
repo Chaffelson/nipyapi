@@ -23,11 +23,18 @@ __all__ = [
 
 def get_template_by_name(name):
     """
-    Returns a specific template by name, if it exists
-    :param name: String of the template name, exact matching
-    :return TemplateEntity:
+    DEPRECATED
+    Returns a specific template by name, if it exists.
+
+    Note: This function is replaced by get_template
+
+    Args:
+        name (str): The Name of the template, exact match required
+
+    Returns:
+        (TemplateEntity)
+
     """
-    # TODO: Rework using the filter method
     out = [
         i for i in
         list_all_templates().templates
@@ -39,14 +46,47 @@ def get_template_by_name(name):
     return None
 
 
+def get_template(identifier, identifier_type='name'):
+    """
+    Filters the list of all Templates for a given string in a given field.
+    Note that filters are configured in config.py
+
+    Args:
+        identifier (str): The string to filter on
+        identifier_type (str): The identifier of the field to filter on
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
+
+    """
+    assert isinstance(identifier, six.string_types)
+    assert identifier_type in ['name', 'id']
+    try:
+        obj = nipyapi.templates.list_all_templates().templates
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+    if obj:
+        return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return obj
+
+
 def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
     """
     Instantiates a given template request in a given process group
-    :param pg_id: ID of the process group to be parent
-    :param template_id: ID of the template to be deployed
-    :param loc_x: x-axis location of the template
-    :param loc_y: y-axis location of the template
-    :return: dict of the server response
+
+    Args:
+        pg_id (str): The UUID of the Process Group to deploy into
+        template_id (str): The UUID of the Template to deploy. Note that the
+            Template must already be uploaded and available to the target
+            Process Group
+        loc_x (int): The X coordinate to deploy the Template at. Default(0)
+        loc_y (int): The X coordinate to deploy the Template at. Default(0)
+
+    Returns:
+        (FlowEntity): The FlowEntity of the Process Group with the deployed
+            template
+
     """
     try:
         return nipyapi.nifi.ProcessgroupsApi().instantiate_template(
@@ -64,8 +104,13 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
 def create_pg_snippet(pg_id):
     """
     Creates a snippet of the targeted process group, and returns the object
-    :param pg_id: ID of the process Group to snippet
-    :return: Snippet Object
+    ready to be turned into a Template
+
+    Args:
+        pg_id: UUID of the process Group to snippet
+
+    Returns:
+        (SnippetEntity): The Snippet Object
     """
     target_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
     new_snippet_req = nipyapi.nifi.SnippetEntity(
@@ -85,11 +130,16 @@ def create_pg_snippet(pg_id):
 
 def create_template(pg_id, name, desc=''):
     """
-    Turns a process group into a Template
-    :param pg_id: NiFi ID of the Process Group to Template
-    :param name: Unique Name of the Template
-    :param desc: Description of the Template
-    :return: dict of Template information
+    Creates a Template from a Process Group
+
+    Args:
+        pg_id (str): The UUID of the target Process Group
+        name (str): The name for the new Template. Must be unique
+        desc (optional[str]): The description for the new Template
+
+    Returns:
+        (TemplateEntity): The newly created Template
+
     """
     snippet = create_pg_snippet(pg_id)
     new_template = nipyapi.nifi.CreateTemplateRequestEntity(
@@ -97,31 +147,40 @@ def create_template(pg_id, name, desc=''):
         description=str(desc),
         snippet_id=snippet.snippet.id
     )
-    resp = nipyapi.nifi.ProcessgroupsApi().create_template(
+    return nipyapi.nifi.ProcessgroupsApi().create_template(
         id=snippet.snippet.parent_group_id,
         body=new_template
     )
-    return resp
 
 
 def delete_template(t_id):
     """
     Deletes a Template
-    :param t_id: ID of the Template to be deleted
-    :return:
+
+    Args:
+        t_id (str): UUID of the Template to be deleted
+
+    Returns:
+        The updated Template object
     """
     try:
-        nipyapi.nifi.TemplatesApi().remove_template(id=t_id)
+        return nipyapi.nifi.TemplatesApi().remove_template(id=t_id)
     except nipyapi.nifi.rest.ApiException as err:
         raise ValueError(err.body)
 
 
 def upload_template(pg_id, template_file):
     """
-    Uploads a template file (template.xml) to the given process group
-    :param pg_id: The NiFi ID of the process group to target
-    :param template_file: the template file (template.xml)
-    :return: a TemplateEntity
+    Uploads a given template xml from from the file system to the given
+    Process Group
+
+    Args:
+        pg_id (str): The UUID of the Process Group to upload to
+        template_file (str): The path including filename to the template file
+
+    Returns:
+        (TemplateEntity): The new Template object
+
     """
     # TODO: Consider reworking to allow import from string by using tmpfile
     log.info("Called upload_template against endpoint %s with args %s",
@@ -146,14 +205,14 @@ def upload_template(pg_id, template_file):
         # in later versions is going through OK for NiFi-1.1.2
         # The error occurs as normal in Postman, so not sure what's going on
         # Will force this error for consistency until it can be investigated
-        if nipyapi.templates.get_template_by_name(t_name):
+        if nipyapi.templates.get_template(t_name):
             raise ValueError('A template named {} already exists.'
                              .format(t_name))
         nipyapi.nifi.ProcessgroupsApi().upload_template(
             id=this_pg.id,
             template=template_file
         )
-        return nipyapi.templates.get_template_by_name(
+        return nipyapi.templates.get_template(
             tree.find('name').text
         )
     except nipyapi.nifi.rest.ApiException as e:
@@ -162,11 +221,20 @@ def upload_template(pg_id, template_file):
 
 def export_template(t_id, output='string', file_path=None):
     """
-    Exports a template as a string of xml
-    :param t_id: ID of the template to export
-    :param output: string of return type of template, 'string' or 'file'
-    :param file_path: if file output type, the path and filename to write to
-    :return: basestring of the xml template
+    Exports a given Template as either a string or a file.
+
+    Note that to reimport the Template it must be a file
+
+    Args:
+        t_id (str): The UUID of the Template to export
+        output (str): 'string' or 'file' to set the export action
+        file_path (Optional [str]): The full path including filename to write
+            the Template export to
+
+    Returns:
+        (str): A String representation of the exported Template XML. Note
+            that this may not be utf-8 encoded.
+
     """
     assert output in ['string', 'file']
     assert file_path is None or isinstance(file_path, six.string_types)
@@ -186,19 +254,12 @@ def export_template(t_id, output='string', file_path=None):
 
 def list_all_templates():
     """
-    Returns a list of all templates on the canvas
-    :return: list of TemplateEntity's
+    Gets a list of all templates on the canvas
+
+    Returns:
+        (list[TemplateEntity]): A list of TemplateEntity's
     """
     try:
         return nipyapi.nifi.FlowApi().get_templates()
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-
-
-def get_template(identifier, identifier_type):
-    """Filters the template list for a template matching the identifier string
-    and identifier type"""
-    assert isinstance(identifier, six.string_types)
-    assert identifier_type in ['name', 'id']
-    obj = nipyapi.templates.list_all_templates().templates
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)

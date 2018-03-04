@@ -11,6 +11,7 @@ Decision Points
 ---------------
 
 * Using Swagger 2.0 instead of OpenAPI3.0 as it (currently as of Aug2017) has wider adoption and completed codegen tools
+* We use Google style Docstrings to better enable Sphinx to produce nicely readable documentation
 
 
 Docker Test Environment

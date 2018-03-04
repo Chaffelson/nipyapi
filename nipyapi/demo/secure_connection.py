@@ -182,7 +182,7 @@ def bootstrap_nifi_access_policies():
         )
 
 
-# connection test disabled as it is not configured with the correct SSLContext
+# connection test disabled as it not configured with the correct SSLContext
 log.info("Starting Secured NiFi and NiFi-Registry Docker Containers")
 nipyapi.utils.start_docker_containers(
     docker_containers=d_containers,
@@ -225,12 +225,15 @@ nipyapi.utils.wait_to_complete(
     nipyapi_max_wait=60
 )
 nifi_user = nipyapi.security.get_service_access_status(service='nifi')
-pprint('nipyapi_secured_nifi CurrentUser: ' + nifi_user.access_status.identity)
+pprint(
+    'nipyapi_secured_nifi CurrentUser: ' + nifi_user.access_status.identity
+)
 
 log.info("Granting NiFi user access to root process group")
 bootstrap_nifi_access_policies()
 
-log.info("Connecting secured NiFi to secured Registry and granting NiFi user "
+log.info("Connecting secured NiFi to secured Registry and granting NiFi "
+         "user "
          "access to Registry")
 connect_nifi_to_registry()
 

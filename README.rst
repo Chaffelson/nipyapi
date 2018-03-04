@@ -2,7 +2,7 @@
 NiPyApi
 =======
 
-Nifi-Python-Api: A Python Client SDK for the Apache NiFi API
+Nifi-Python-Api: A rich Apache NiFi Python Client SDK
 
 .. image:: https://img.shields.io/pypi/v/nipyapi.svg
         :target: https://pypi.python.org/pypi/nipyapi
@@ -32,29 +32,30 @@ Nifi-Python-Api: A Python Client SDK for the Apache NiFi API
 Features
 --------
 
-| This package provides pythonic calls for common NiFi tasks and CICD/SDLC integrations - you might call it Flow Development LifeCycle
-| These are implemented by replicating the action of the same task in the GUI and surfacing the underlying NiFi Data structures and calls wherever possible, to retain UX parallelism for the user
+**Three layers of Python support for working with Apache NiFi:**
+ - High-level Demos and example scripts
+ - Mid-level Client SDK for typical complex tasks
+ - Low-level Client SDKs for the full API implementation of NiFi and selected sub-projects
 
-Functionality Highlights:
- - Full native Python rest client for NiFi and NiFi-Registry
+**Functionality Highlights:**
+ - Detailed documentation of the full SDK at all levels
  - CRUD wrappers for common task areas like Processor Groups, Processors, Templates, Registry Clients, Registry Buckets, Registry Flows, etc.
  - Convenience functions for inventory tasks, such as recursively retrieving the entire canvas, or a flat list of all Process Groups
  - Support for scheduling and purging flows
- - Support for Variable Registry
+ - Support for fetching and updating Variable Registries
  - Support for import/export of Versioned Flows from NiFi-Registry
  - Docker Compose configurations for testing and deployment
  - A scripted deployment of an interactive environment, and a secured configuration, for testing and demonstration purposes
 
-Coming soon:
+**Coming soon:**
  - Support for edge cases during Versioning changes, such as Reverting a flow containing live data
  - Support for Mnemonic component naming and path resolution
  - Rich configuration differential support
- - In-depth API documentation and usage examples
 
 Please see the `issue <https://github.com/Chaffelson/nipyapi/issues>`_ register for more information on current development.
 
-Usage
------
+Quick Start
+-----------
 The easiest way to install NiPyApi is with pip::
 
     # in bash
@@ -76,41 +77,27 @@ You can also use the demo to create an interactive console showing many features
     nipyapi.config.registry_config.host = 'http://localhost:18080/nifi-registry-api'
     from nipyapi.demo.console import *
 
-You can also pull the repository from Github and use or contribute to the latest features.
-Please check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ for more info.
+| There are several scripts to produce demo environments in *nipyapi.demo.**
+| The mid-level functionality is in *nipyapi.canvas / nipyapi.security / nipyapi.templates / nipyapi.versioning*
+| You can access the entire API using the low-level SDKs in *nipyapi.nifi / nipyapi.registry*
 
-Background
-----------
+Please check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ if you are interested in contributing to the feature set.
+
+Background and Documentation
+----------------------------
 
 | For more information on Apache NiFi, please visit `https://nifi.apache.org <https://nifi.apache.org>`_
 | For Documentation on this package please visit `https://nipyapi.readthedocs.io. <https://nipyapi.readthedocs.io/en/latest>`_
 
 
-Version Support
----------------
+NiFi Version Support
+--------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.5.0, and NiFi-Registry version 0.1.0
+| Currently we are testing against NiFi versions 1.1.2 - 1.5.0, and NiFi-Registry version 0.1.0.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
-Requirements
-------------
+Python Requirements
+-------------------
 
-Python 2.7 or 3.6 supported, though other versions may work
-
-
-Credits
----------
-
-This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template
-
-.. _Cookiecutter: https://github.com/audreyr/cookiecutter
-.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
-
-Inspired by the equivalent Java client maintained over at
-`hermannpencole/nifi-config <https://github.com/hermannpencole/nifi-config>`_
-
-The swagger 2.0 compliant client auto-generated using the
-`Swagger Codegen <https://github.com/swagger-api/swagger-codegen>`_ project,
-and then cleaned / bugfixed by the authors
-
-Props to the NiFi-dev and NiFi-user mailing list members over at Apache for all the assistance and kindnesses.
+| Python 2.7 or 3.6 supported, though other versions may work.
+| Outside of the standard Python modules, we make use of lxml, DeepDiff and ruamel.yaml

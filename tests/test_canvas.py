@@ -63,6 +63,7 @@ def test_create_process_group(regress):
     assert r.component.name == conftest.test_pg_name
     assert r.position.x == r.position.y == 400
     assert r.component.parent_group_id == canvas.get_root_pg_id()
+    assert isinstance(r, nifi.ProcessGroupEntity)
     with pytest.raises(ApiException):
         parent_pg = canvas.get_process_group('NiFi Flow')
         parent_pg.id = 'invalid'
@@ -167,6 +168,7 @@ def test_list_all_processors(fix_proc, regress):
     _ = fix_proc.generate()
     r = canvas.list_all_processors()
     assert len(r) >= 2
+    assert isinstance(r[0], nifi.ProcessorEntity)
 
 
 def test_get_processor(fix_proc, regress):

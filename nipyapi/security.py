@@ -6,8 +6,8 @@ Secure connectivity management for NiPyApi
 
 from __future__ import absolute_import
 import logging
-import six
 import ssl
+import six
 import urllib3
 import nipyapi
 
@@ -28,7 +28,8 @@ def create_service_user(identity, service='nifi'):
         identity (str): Identity string for the user
         service (str): 'nifi' or 'registry'
 
-    Returns: The new User or UserEntity object
+    Returns:
+        The new (User) or (UserEntity) object
 
     """
     assert service in _valid_services
@@ -76,7 +77,8 @@ def service_login(service='nifi', username=None, password=None,
         bool_response (bool): If True, the function will return False instead
             of an error. Useful for connection testing.
 
-    Returns: True if successful, False or an Error if not - see bool_response
+    Returns:
+        (bool): True if successful, False or an Error if not. See bool_response
 
     """
     log_args = locals()
@@ -136,11 +138,11 @@ def set_service_auth_token(token=None, token_name='tokenAuth', service='nifi'):
     Args:
         token (Optional[str]): The token to set. Defaults to None.
         token_name (str): the api_key field name to set the token to. Defaults
-            to 'tokenAuth'
+        to 'tokenAuth'
         service (str): 'nifi' or 'registry', the service to set
 
-    Returns (bool): True on success, False if token not set
-
+    Returns:
+        (bool): True on success, False if token not set
     """
     assert service in _valid_services
     assert isinstance(token_name, six.string_types)
@@ -162,7 +164,8 @@ def service_logout(service='nifi'):
     Args:
         service (str): 'nifi' or 'registry'; the target service
 
-    Returns (bool): True of access removed, False if still set
+    Returns:
+        (bool): True of access removed, False if still set
 
     """
     assert service in _valid_services
@@ -175,11 +178,16 @@ def service_logout(service='nifi'):
 def get_service_access_status(service='nifi', bool_response=False):
     """
     Gets the access status for the current session
-    :param service: A String of 'nifi' or 'registry' to indicate which service
-    to check status for
-    :param bool_response: If True, the function will return False on hitting
-    an Error instead of raising it. Useful for connection testing.
-    :return:
+
+    Args:
+        service (str): A String of 'nifi' or 'registry' to indicate which
+            service to check status for
+        bool_response (bool): If True, the function will return False on
+            hitting an Error instead of raising it. Useful for connection
+            testing.
+
+    Returns:
+        (bool) if bool_response, else the Service Access Status of the User
     """
     log.info("Called get_registry_access_status with args %s", locals())
     assert service in _valid_services
@@ -204,13 +212,15 @@ def get_service_access_status(service='nifi', bool_response=False):
 def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
     """
     Attempts to add the given user object to the given access policy
+
     Args:
-        user : NiFi UserEntity or Registry User object to add
-        policy: NiFi AccessPolicyEntity or Registry AccessPolicy object
+        user (User) or (UserEntity): User object to add
+        policy (AccessPolicyEntity) or (AccessPolicy): Access Policy object
         service (str): 'nifi' or 'registry' to identify the target service
         refresh (bool): Whether to refresh the policy object before submission
 
-    Returns: Updated Policy object
+    Returns:
+        Updated Policy object
 
     """
     assert service in _valid_services
@@ -289,7 +299,8 @@ def update_access_policy(policy, service='nifi'):
         policy (PolicyEntity): The policy object to submit
         service (str): 'nifi' or 'registry' to indicate the target service
 
-    Returns (PolicyEntity): The updated policy if successful
+    Returns:
+        (PolicyEntity): The updated policy if successful
 
     """
     assert service in _valid_services
@@ -326,7 +337,8 @@ def get_access_policy_for_resource(resource,
         auto_create (bool): Whether to create the targeted policy if it doesn't
             already exist
 
-    Returns: The relevant AccessPolicy object
+    Returns:
+        The relevant AccessPolicy object
 
     """
     assert service in _valid_services
@@ -378,7 +390,8 @@ def create_access_policy(resource, action, r_id=None, service='nifi'):
         r_id (optional[str]): if NiFi, the resource ID of the resource
         service (str): the service to target
 
-    Returns: An access policy object for that service
+    Returns:
+        An access policy object for that service
 
     """
     assert isinstance(resource, six.string_types)
@@ -431,7 +444,8 @@ def get_service_user(identifier, identifier_type='identity', service='nifi'):
         identifier_type (str): the field to search in
         service (str): the name of the service
 
-    Returns: None if no match, list of multiple matches, else single object
+    Returns:
+        None if no match, list of multiple matches, else single object
 
     """
     assert service in _valid_services
@@ -464,16 +478,19 @@ def set_service_ssl_context(
     root CA trusted by your system/platform, this step is not
     necessary as the default TLS-handshake should "just work."
 
-    :param service: A string of 'nifi' or 'registry' to indicate which service
-        config to set the ssl context to
-    :param ca_file: A PEM file containing certs for the root CA(s)
-        for the NiFi Registry server
-    :param client_cert_file: A PEM file containing the public
-        certificates for the user/client identity
-    :param client_key_file: An encrypted (password-protected) PEM file
-        containing the client's secret key
-    :param client_key_password: The password to decrypt the client_key_file
-    :return:
+    Args:
+        service (str): 'nifi' or 'registry' to indicate which service
+            config to set the ssl context to
+        ca_file (str): A PEM file containing certs for the root CA(s)
+            for the NiFi Registry server
+        client_cert_file (str): A PEM file containing the public
+            certificates for the user/client identity
+        client_key_file (str): An encrypted (password-protected) PEM file
+            containing the client's secret key
+        client_key_password (str): The password to decrypt the client_key_file
+
+    Returns:
+        (None)
     """
     assert service in ['nifi', 'registry']
     if client_key_file is None:

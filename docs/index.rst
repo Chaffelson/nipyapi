@@ -1,15 +1,14 @@
-Welcome to Nipyapi's documentation!
-======================================
+NiPyApi: A Python Client SDK for Apache NiFi
+============================================
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 4
 
    readme
    installation
-   usage
-   apiClients
+   apiReference
    todo
    contributing
    devnotes

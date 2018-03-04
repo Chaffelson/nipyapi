@@ -142,6 +142,6 @@ def test_delete_template(fix_templates, regress):
         fix_templates.b_file
     )
     r = nipyapi.templates.delete_template(t1.id)
-    assert r is None
+    assert isinstance(r, nipyapi.nifi.TemplateEntity)
     with pytest.raises(ValueError):
         _ = nipyapi.templates.delete_template('invalid')
