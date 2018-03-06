@@ -43,7 +43,7 @@ class PoliciesApi(object):
     def create_access_policy(self, body, **kwargs):
         """
         Creates an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class PoliciesApi(object):
     def create_access_policy_with_http_info(self, body, **kwargs):
         """
         Creates an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class PoliciesApi(object):
     def get_access_policy(self, id, **kwargs):
         """
         Gets an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class PoliciesApi(object):
     def get_access_policy_with_http_info(self, id, **kwargs):
         """
         Gets an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -235,7 +235,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies/{id}', 'GET',
                                         path_params,
@@ -252,9 +252,9 @@ class PoliciesApi(object):
                                         _request_timeout=params.get('_request_timeout'),
                                         collection_formats=collection_formats)
 
-    def get_access_policy_for_resource(self, action, resource, **kwargs):
+    def get_access_policy_for_resource(self, action, resource, id, **kwargs):
         """
-        Gets an access policy for the specified action and resource
+        Gets an access policy for the specified action, resource and id
         Will return the effective policy if no component specific policy exists for the specified action and resource. Must have Read permissions to the policy with the desired action and resource. Permissions for the policy that is returned will be indicated in the response. This means the client could be authorized to get the policy for a given component but the effective policy may be inherited from an ancestor Process Group. If the client does not have permissions to that policy, the response will not include the policy and the permissions in the response will be marked accordingly. If the client does not have permissions to the policy of the desired action and resource a 403 response will be returned.
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
@@ -262,26 +262,27 @@ class PoliciesApi(object):
         >>> def callback_function(response):
         >>>     pprint(response)
         >>>
-        >>> thread = api.get_access_policy_for_resource(action, resource, callback=callback_function)
+        >>> thread = api.get_access_policy_for_resource(action, resource, id, callback=callback_function)
 
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
+        :param str id: The ID of the policy component. (required)
         :return: AccessPolicyEntity
                  If the method is called asynchronously,
                  returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
-            return self.get_access_policy_for_resource_with_http_info(action, resource, **kwargs)
+            return self.get_access_policy_for_resource_with_http_info(action, resource, id, **kwargs)
         else:
-            (data) = self.get_access_policy_for_resource_with_http_info(action, resource, **kwargs)
+            (data) = self.get_access_policy_for_resource_with_http_info(action, resource, id, **kwargs)
             return data
 
-    def get_access_policy_for_resource_with_http_info(self, action, resource, **kwargs):
+    def get_access_policy_for_resource_with_http_info(self, action, resource, id, **kwargs):
         """
-        Gets an access policy for the specified action and resource
+        Gets an access policy for the specified action, resource and id
         Will return the effective policy if no component specific policy exists for the specified action and resource. Must have Read permissions to the policy with the desired action and resource. Permissions for the policy that is returned will be indicated in the response. This means the client could be authorized to get the policy for a given component but the effective policy may be inherited from an ancestor Process Group. If the client does not have permissions to that policy, the response will not include the policy and the permissions in the response will be marked accordingly. If the client does not have permissions to the policy of the desired action and resource a 403 response will be returned.
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
@@ -289,18 +290,19 @@ class PoliciesApi(object):
         >>> def callback_function(response):
         >>>     pprint(response)
         >>>
-        >>> thread = api.get_access_policy_for_resource_with_http_info(action, resource, callback=callback_function)
+        >>> thread = api.get_access_policy_for_resource_with_http_info(action, resource, id, callback=callback_function)
 
         :param callback function: The callback function
             for asynchronous request. (optional)
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
+        :param str id: The ID of the policy component. (required)
         :return: AccessPolicyEntity
                  If the method is called asynchronously,
                  returns the request thread.
         """
 
-        all_params = ['action', 'resource']
+        all_params = ['action', 'resource', 'id']
         all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
@@ -321,9 +323,14 @@ class PoliciesApi(object):
         # verify the required parameter 'resource' is set
         if ('resource' not in params) or (params['resource'] is None):
             raise ValueError("Missing the required parameter `resource` when calling `get_access_policy_for_resource`")
+        # verify the required parameter 'id' is set
+        if ('id' not in params) or (params['id'] is None):
+            raise ValueError("Missing the required parameter `id` when calling `get_access_policy_for_resource`")
 
         if 'resource' in params and not re.search('.+', params['resource']):
             raise ValueError("Invalid value for parameter `resource` when calling `get_access_policy_for_resource`, must conform to the pattern `/.+/`")
+        if 'id' in params and not re.search('.+', params['id']):
+            raise ValueError("Invalid value for parameter `id` when calling `get_access_policy_for_resource`, must conform to the pattern `/.+/`")
 
         collection_formats = {}
 
@@ -332,6 +339,8 @@ class PoliciesApi(object):
             path_params['action'] = params['action']
         if 'resource' in params:
             path_params['resource'] = params['resource']
+        if 'id' in params:
+            path_params['id'] = params['id']
 
         query_params = []
 
@@ -350,9 +359,9 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
-        return self.api_client.call_api('/policies/{action}/{resource}', 'GET',
+        return self.api_client.call_api('/policies/{action}/{resource}/{id}', 'GET',
                                         path_params,
                                         query_params,
                                         header_params,
@@ -370,7 +379,7 @@ class PoliciesApi(object):
     def remove_access_policy(self, id, **kwargs):
         """
         Deletes an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -398,7 +407,7 @@ class PoliciesApi(object):
     def remove_access_policy_with_http_info(self, id, **kwargs):
         """
         Deletes an access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -464,7 +473,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies/{id}', 'DELETE',
                                         path_params,
@@ -484,7 +493,7 @@ class PoliciesApi(object):
     def update_access_policy(self, id, body, **kwargs):
         """
         Updates a access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -511,7 +520,7 @@ class PoliciesApi(object):
     def update_access_policy_with_http_info(self, id, body, **kwargs):
         """
         Updates a access policy
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -577,7 +586,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies/{id}', 'PUT',
                                         path_params,

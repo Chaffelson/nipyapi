@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-For interactions with the NiFi Canvas
-STATUS: Work in Progress to determine pythonic datamodel
+For interactions with the NiFi Canvas.
 """
 
 from __future__ import absolute_import
@@ -16,30 +15,39 @@ __all__ = [
     "list_all_processor_types", "get_processor_type", 'create_processor',
     'delete_processor', 'get_processor', 'schedule_processor',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
-    'get_connections', 'purge_connection'
+    'get_connections', 'purge_connection', 'purge_process_group',
+    'get_bulletins', 'get_bulletin_board'
 ]
 
 
 def get_root_pg_id():
-    """Simple Example function for wrapper demonstration"""
-    con = nipyapi.nifi.FlowApi()
-    pg_root = con.get_process_group_status('root')
-    return pg_root.process_group_status.id
+    """
+    Convenience function to return the UUID of the Root Process Group
+
+    Returns (str): The UUID of the root PG
+    """
+    return nipyapi.nifi.FlowApi().get_process_group_status('root')\
+        .process_group_status.id
 
 
 def recurse_flow(pg_id='root'):
     """
-    Returns information about a Process Group and all its Child Flows
-    :param pg_id: id of a Process Group to use as the root for recursion
-    , defaults to root if none supplied
-    :returns ProcessGroupFlowEntity: Nested Process Group information
+    Returns information about a Process Group and all its Child Flows.
+    Recurses the child flows by appending each process group with a
+    'nipyapi_extended' parameter which contains the child process groups, etc.
+
+    Args:
+        pg_id (str): The Process Group UUID
+
+    Returns:
+         (ProcessGroupFlowEntity): enriched NiFi Flow object
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
 
     def _walk_flow(node):
         """This recursively extends the ProcessGroupEntity to contain the
         ProcessGroupFlowEntity of each of it's child process groups.
-        So you can have the entire canvas in a single object
+        So you can have the entire canvas in a single object.
         """
         if isinstance(node, nipyapi.nifi.ProcessGroupFlowEntity):
             for pg in node.process_group_flow.flow.process_groups:
@@ -54,12 +62,17 @@ def recurse_flow(pg_id='root'):
 
 def get_flow(pg_id='root'):
     """
-    Returns information about a Process Group and flow
+    Returns information about a Process Group and flow.
+
     This surfaces the native implementation, for the recursed implementation
     see 'recurse_flow'
-    :param pg_id: id of the Process Group to retrieve, defaults to the root
-    process group if not set
-    :return ProcessGroupFlowEntity: the Process Group object
+
+    Args:
+        pg_id (str): id of the Process Group to retrieve, defaults to the root
+            process group if not set
+
+    Returns:
+         (ProcessGroupFlowEntity): The Process Group object
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
     try:
@@ -70,12 +83,19 @@ def get_flow(pg_id='root'):
 
 def get_process_group_status(pg_id='root', detail='names'):
     """
-    Returns the full record of a Process Group
+    Returns an entity containing the status of the Process Group.
+    Optionally may be configured to return a simple dict of name:id pairings
+
     Note that there is also a 'process group status' command available, but it
     returns a subset of this data anyway, and this call is more useful
-    :param pg_id: NiFi ID of the Process Group to retrieve
-    :param detail: Level of detail to respond with
-    :return:
+
+    Args:
+        pg_id (str): The UUID of the Process Group
+        detail (str): 'names' or 'all'; whether to return a simple dict of
+            name:id pairings, or the full details. Defaults to 'names'
+
+    Returns:
+         (ProcessGroupEntity): The Process Group Entity including the status
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
     assert detail in ['names', 'all'], "detail should be either 'names' or " \
@@ -91,10 +111,17 @@ def get_process_group_status(pg_id='root', detail='names'):
 
 def get_process_group(identifier, identifier_type='name'):
     """
-    Returns a process group, if it exists. Returns a list for duplicates
-    :param identifier: String of the name or id of the process group
-    :param identifier_type: 'name' or 'id'
-    :return: ProcessGroupEntity if unique, None if not found, List if duplicate
+    Filters the list of all process groups against a given identifier string
+    occuring in a given identifier_type field.
+
+    Args:
+        identifier (str): the string to filter the list for
+        identifier_type (str): the field to filter on, set in config.py
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
+
     """
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
@@ -113,17 +140,26 @@ def get_process_group(identifier, identifier_type='name'):
 
 def list_all_process_groups():
     """
-    Returns a flattened list of all Process Groups.
-    :return list: list of ProcessGroupEntity objects
+    Returns a flattened list of all Process Groups on the canvas.
+    Potentially slow if you have a large canvas.
+
+    Note that the ProcessGroupsApi().get_process_groups(pg_id) command only
+    provides the first layer of pgs, whereas this trawls the entire canvas
+
+    Returns:
+         list[ProcessGroupEntity]
+
     """
-    # Note that the ProcessGroupsApi().get_process_groups(pg_id) command only
-    # provides the first layer of pgs, whereas this recurses the entire canvas
     def flatten(parent_pg):
         """
         Recursively flattens the native datatypes into a generic list.
         Note that the root is a special case as it has no parent
-        :param parent_pg: ProcessGroupEntity to flatten
-        :return yield: generator for all ProcessGroupEntities, eventually
+
+        Args:
+            parent_pg (ProcessGroupEntity): object to flatten
+
+        Yields:
+            Generator for all ProcessGroupEntities, eventually
         """
         for child_pg in parent_pg.process_group_flow.flow.process_groups:
             for sub in flatten(child_pg.nipyapi_extended):
@@ -142,9 +178,10 @@ def list_all_process_groups():
 def list_all_processors():
     """
     Returns a flat list of all Processors anywhere on the canvas
-    :return: list of ProcessorEntity's
-    """
 
+    Returns:
+         list[ProcessorEntity]
+    """
     def flattener():
         """
         Memory efficient flattener, sort of.
@@ -160,16 +197,22 @@ def list_all_processors():
 def schedule_process_group(process_group_id, scheduled):
     """
     Start or Stop a Process Group and all components.
+
     Note that this doesn't guarantee that all components have started, as
     some may be in Invalid states.
-    :param process_group_id: ID of the Process Group
-    :param scheduled: Bool; True to Start, False to Stop
-    :return: Bool, Success or not
+
+    Args:
+        process_group_id (str): The UUID of the target Process Group
+        scheduled (bool): True to start, False to stop
+
+    Returns:
+         (bool): True of successfully scheduled, False if not
+
     """
     assert isinstance(process_group_id, six.string_types)
     assert isinstance(scheduled, bool)
 
-    def _waiting_for_godot(pg_id_):
+    def _running_schedule_process_group(pg_id_):
         test_obj = nipyapi.nifi.ProcessgroupsApi().get_process_group(pg_id_)
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
@@ -188,7 +231,7 @@ def schedule_process_group(process_group_id, scheduled):
         if not scheduled:
             # Test that the processor threads have halted
             stop_test = nipyapi.utils.wait_to_complete(
-                _waiting_for_godot,
+                _running_schedule_process_group,
                 process_group_id
             )
             if stop_test:
@@ -202,13 +245,17 @@ def schedule_process_group(process_group_id, scheduled):
 
 def delete_process_group(process_group, force=False, refresh=True):
     """
-    deletes a specific process group
-    :param process_group: ProcessGroupEntity of the process group to be removed
-    :param force: Bool; will attempt to clean down the PG before removal.
-    Use with caution!
-    :param refresh: Boolean, whether to refresh the PG status before action
-    :return ProcessGroupEntity: the updated entity object for the deleted PG
-    :raises: AssertionError for bad params, ValueError for bad API calls
+    Deletes a given Process Group, with optional prejudice.
+
+    Args:
+        process_group (ProcessGroupEntity): The target Process Group
+        force (bool): Stop, purge and clean the target Process Group before
+            deletion. Experimental.
+        refresh (bool): Whether to refresh the state first
+
+    Returns:
+         (ProcessGroupEntity: The updated object state
+
     """
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
     assert isinstance(force, bool)
@@ -238,11 +285,19 @@ def delete_process_group(process_group, force=False, refresh=True):
 
 def create_process_group(parent_pg, new_pg_name, location):
     """
-    Creates a new PG with a given name under the provided parent PG
-    :param parent_pg: ProcessGroupEntity object of the parent PG
-    :param new_pg_name: String to name the new PG
-    :param location: Tuple of (x,y) coordinates to place the new PG
-    :return: ProcessGroupEntity of the new PG
+    Creates a new Process Group with the given name under the provided parent
+    Process Group at the given Location
+
+    Args:
+        parent_pg (ProcessGroupEntity): The parent Process Group to create the
+            new process group in
+        new_pg_name (str): The name of the new Process Group
+        location (tuple[x, y]): the x,y coordinates to place the new Process
+            Group under the parent
+
+    Returns:
+         (ProcessGroupEntity): The new Process Group
+
     """
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert isinstance(new_pg_name, six.string_types)
@@ -268,7 +323,11 @@ def create_process_group(parent_pg, new_pg_name, location):
 def list_all_processor_types():
     """
     Produces the list of all available processor types in the NiFi instance
-    :return ProcessorTypesEntity: Native Datatype containing list
+
+    Returns:
+         list(ProcessorTypesEntity): A native datatype containing the
+         processors list
+
     """
     try:
         return nipyapi.nifi.FlowApi().get_processor_types()
@@ -279,26 +338,41 @@ def list_all_processor_types():
 def get_processor_type(identifier, identifier_type='name'):
     """
     Gets the abstract object describing a Processor, or list thereof
-    :param identifier: String to search for
-    :param identifier_type: Processor descriptor to search: bundle, name or tag
-    :return: DocumentedTypeDTO if unique, None if not found, List if duplicate
+
+    Args:
+        identifier (str): the string to filter the list for
+        identifier_type (str): the field to filter on, set in config.py
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
+
     """
     try:
         obj = list_all_processor_types().processor_types
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    if obj:
+        return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return obj
 
 
 def create_processor(parent_pg, processor, location, name=None, config=None):
     """
-    Instantiates a given processon the canvas
-    :param parent_pg: Process Group to instantiate the Processor in
-    :param processor: Processor Type object
-    :param location: (x,y) coordinates to instantiate that processor at
-    :param name: String name of the processor
-    :param config: Processor Config object of parameters
-    :return: ProcessorEntity
+    Instantiates a given processor on the canvas
+
+    Args:
+        parent_pg (ProcessGroupEntity): The parent Process Group
+        processor (DocumentedTypeDTO): The abstract processor type object to be
+            instantiated
+        location (tuple[x, y]): The location coordinates
+        name (Optional [str]):  The name for the new Processor
+        config (Optional [ProcessorConfigDTO]): A configuration object for the
+            new processor
+
+    Returns:
+         (ProcessorEntity): The new Processor
+
     """
     if name is None:
         processor_name = processor.type.split('.')[-1]
@@ -330,10 +404,17 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
 
 def get_processor(identifier, identifier_type='name'):
     """
-    Gets a deployed Processor, or list thereof
-    :param identifier: String to filter on
-    :param identifier_type: 'name' or 'id' to identify field to filter on
-    :return: None if 0 matches, list if > 1, single ProcessorEntity if ==1
+    Filters the list of all Processors against the given identifier string in
+    the given identifier_type field
+
+    Args:
+        identifier (str): The String to filter against
+        identifier_type (str): The field to apply the filter to. Set in
+            config.py
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
     """
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
@@ -350,12 +431,17 @@ def get_processor(identifier, identifier_type='name'):
 
 def delete_processor(processor, refresh=True, force=False):
     """
-    Remove a processor from the canvas, with prejudice if necessary
-    :param processor: ProcessorEntity of the processor to target
-    :param refresh: Whether to refresh the object, defaults to True
-    :param force: Whether to also stop the Processor first, if it is running
-    :return: Final Processor status
-    :raises: AssertionError for bad params, ValueError if the API rejects you
+    Deletes a Processor from the canvas, with optional prejudice.
+
+    Args:
+        processor (ProcessorEntity): The processor to delete
+        refresh (bool): Whether to refresh the Processor state before action
+        force (bool): Whether to stop the Processor before deletion. Behavior
+            may change in future releases. Experimental.
+
+    Returns:
+         (ProcessorEntity): The updated ProcessorEntity
+
     """
     assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
     assert isinstance(refresh, bool)
@@ -367,7 +453,7 @@ def delete_processor(processor, refresh=True, force=False):
         target = processor
     if force:
         if not schedule_processor(target, False):
-            raise ("Could not prepare processor ({0}) for deletion"
+            raise ("Could not prepare processor {0} for deletion"
                    .format(target.id))
         target = get_processor(processor.id, 'id')
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
@@ -382,12 +468,21 @@ def delete_processor(processor, refresh=True, force=False):
 
 def schedule_components(pg_id, scheduled, components=None):
     """
-    Changes scheduled target state of a list of Components in a Process Group
-    :param pg_id: ID of the Process Group containing the components
-    :param scheduled: Bool; True to Start, False to stop
-    :param components: List of Component Entities to Schedule
-    :return: Bool of success or not
-    :raises: AssertionError for bad params, ValueError if the API rejects you
+    Changes the scheduled target state of a list of components within a given
+    Process Group.
+
+    Note that this does not guarantee that components will be Started or
+    Stopped afterwards, merely that they will have their scheduling updated.
+
+    Args:
+        pg_id (str): The UUID of the parent Process Group
+        scheduled (bool): True to start, False to stop
+        components (list[ComponentType]): The list of Component Entities to
+            schdule, e.g. ProcessorEntity's
+
+    Returns:
+         (bool): True for success, False for not
+
     """
     assert isinstance(
         get_process_group(pg_id, 'id'),
@@ -416,18 +511,25 @@ def schedule_components(pg_id, scheduled, components=None):
 
 def schedule_processor(processor, scheduled, refresh=True):
     """
-    Start or Stop a specific processor
-    :param processor: ProcessorEntity of the Processor target
-    :param scheduled: Bool; True to Start, False to Stop
-    :param refresh: Bool; whether to refresh the processor first
-    :return: Bool of success or not
-    :raises: AssertionError for bad params, ValueError if the API rejects you
+    Set a Processor to Start or Stop.
+
+    Note that this doesn't guarantee that it will change state, merely that
+    it will be instructed to try.
+
+    Args:
+        processor (ProcessorEntity): The Processor to target
+        scheduled (bool): True to start, False to stop
+        refresh (bool): Whether to refresh the object before action
+
+    Returns:
+        (bool): True for success, False for failure
+
     """
     assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
     assert isinstance(scheduled, bool)
     assert isinstance(refresh, bool)
 
-    def _dangleberries(processor_):
+    def _running_schedule_processor(processor_):
         test_obj = nipyapi.nifi.ProcessorsApi().get_processor(processor_.id)
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
@@ -448,7 +550,9 @@ def schedule_processor(processor, scheduled, refresh=True):
         # If we want to stop the processor
         if not scheduled:
             # Test that the processor threads have halted
-            stop_test = nipyapi.utils.wait_to_complete(_dangleberries, target)
+            stop_test = nipyapi.utils.wait_to_complete(
+                _running_schedule_processor, target
+            )
             if stop_test:
                 # Return True if we stopped the processor
                 return result
@@ -460,11 +564,18 @@ def schedule_processor(processor, scheduled, refresh=True):
 
 def update_processor(processor, update):
     """
-    EXPERIMENTAL
-    Updates the configuration parameters of a stopped processor
-    :param processor: Processor object to be updated
-    :param update: ProcessorConfigDTO, updated configuration parameters
-    :return: updated ProcessorEntity
+    Updates configuration parameters for a given Processor.
+
+    An example update would be:
+    nifi.ProcessorConfigDTO(scheduling_period='3s')
+
+    Args:
+        processor (ProcessorEntity): The Processor to target for update
+        update (ProcessorConfigDTO): The new configuration parameters
+
+    Returns:
+        (ProcessorEntity): The updated ProcessorEntity
+
     """
     if not isinstance(update, nipyapi.nifi.ProcessorConfigDTO):
         raise ValueError(
@@ -488,9 +599,16 @@ def update_processor(processor, update):
 def get_variable_registry(process_group, ancestors=True):
     """
     Gets the contents of the variable registry attached to a Process Group
-    :param process_group: ProcessGroup object
-    :param ancestors: Whether to get the variables from parent Process Groups
-    :return: VariableRegistryEntity
+
+    Args:
+        process_group (ProcessGroupEntity): The Process Group to retrieve the
+            Variable Registry from
+        ancestors (bool): Whether to include the Variable Registries from child
+            Process Groups
+
+    Returns:
+        (VariableRegistryEntity): The Variable Registry
+
     """
     try:
         return nipyapi.nifi.ProcessgroupsApi().get_variable_registry(
@@ -504,9 +622,16 @@ def get_variable_registry(process_group, ancestors=True):
 def update_variable_registry(process_group, update):
     """
     Updates one or more key:value pairs in the variable registry
-    :param process_group: ProcessGroup object to update the variables on
-    :param update: (key,value) tuples of the variables to write to the registry
-    :return: VariableRegistryEntity
+
+    Args:
+        process_group (ProcessGroupEntity): The Process Group which has the
+        Variable Registry to be updated
+        update (tuple[key, value]): The variables to write to the registry
+
+    Returns:
+        (VariableRegistryEntity): The created or updated Variable Registry
+        Entries
+
     """
     if not isinstance(process_group, nipyapi.nifi.ProcessGroupEntity):
         raise ValueError(
@@ -543,9 +668,16 @@ def update_variable_registry(process_group, update):
 
 def get_connections(pg_id):
     """
-    lists all child connections for a given ProcessGroup iD
-    :param pg_id: ID of the Process Group
-    :return: ConnectionsEntity, which contains a list of Connections
+    EXPERIMENTAL
+    List all child connections within a given Process Group
+
+    Args:
+        pg_id (str): The UUID of the target Process Group
+
+    Returns:
+        (ConnectionsEntity): A native datatype which contains the list of
+        all Connections in the Process Group
+
     """
     assert isinstance(
         get_process_group(pg_id, 'id'),
@@ -561,9 +693,20 @@ def get_connections(pg_id):
 
 def purge_connection(con_id):
     """
-    Drops all flowfiles in a given connection
-    :param con_id: ID of the Connection to clear
-    :return:
+    EXPERIMENTAL
+    Drops all FlowFiles in a given connection. Waits until the action is
+    complete before returning.
+
+    Note that if upstream component isn't stopped, more data may flow into
+    the connection after this action.
+
+    Args:
+        con_id (str): The UUID of the Connection to be purged
+
+    Returns:
+        (DropRequestEntity): The status reporting object for the drop
+        request.
+
     """
     # TODO: Reimplement to batched instead of single threaded
     def _autumn_leaves(con_id_, drop_request_):
@@ -576,7 +719,7 @@ def purge_connection(con_id):
         elif test_obj.finished:
             if test_obj.failure_reason:
                 raise ValueError(
-                    "Unable to complete drop request({0}), error was ({1})"
+                    "Unable to complete drop request{0}, error was {1}"
                     .format(
                         test_obj, test_obj.drop_request.failure_reason
                     )
@@ -594,19 +737,25 @@ def purge_connection(con_id):
 
 def purge_process_group(process_group, stop=False):
     """
-    Experimental
+    EXPERIMENTAL
     Purges the connections in a given Process Group of FlowFiles, and
     optionally stops it first
-    :param process_group: ProcessGroupEntity to purge
-    :param stop: Bool; True to stop first, False to leave it running
-    :return: list of dict (Str; Connection ID : Bool; Success or not for purge)
+
+    Args:
+        process_group (ProcessGroupEntity): Target Process Group
+        stop (Optional [bool]): Whether to stop the Process Group before action
+
+    Returns:
+        (list[dict{ID:True|False}]): Result set. A list of Dicts of
+    Connection IDs mapped to True or False for success of each connection
+
     """
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
     assert isinstance(stop, bool)
     if stop:
         if not schedule_process_group(process_group.id, False):
             raise ValueError(
-                "Unable to stop Process Group ({0}) for purging"
+                "Unable to stop Process Group {0} for purging"
                 .format(process_group.id)
             )
     cons = get_connections(process_group.id)
@@ -614,3 +763,30 @@ def purge_process_group(process_group, stop=False):
     for con in cons.connections:
         result.append({con.id: str(purge_connection(con.id))})
     return result
+
+
+def get_bulletins():
+    """
+    Retrieves current bulletins (alerts) from the Flow Canvas
+
+    Returns:
+        (ControllerBulletinsEntity): The native datatype containing a list
+    of bulletins
+    """
+    try:
+        return nipyapi.nifi.FlowApi().get_bulletins()
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def get_bulletin_board():
+    """
+    Retrieves the bulletin board object
+
+    Returns:
+        (BulletinBoardEntity): The native datatype BulletinBoard object
+    """
+    try:
+        return nipyapi.nifi.FlowApi().get_bulletin_board()
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)

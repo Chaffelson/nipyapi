@@ -218,7 +218,7 @@ class AccessPolicySummaryDTO(object):
         :param action: The action of this AccessPolicySummaryDTO.
         :type: str
         """
-        allowed_values = ["READ", "WRITE"]
+        allowed_values = ["read", "write"]
         if action not in allowed_values:
             raise ValueError(
                 "Invalid value for `action` ({0}), must be one of {1}"

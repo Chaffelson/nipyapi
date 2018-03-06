@@ -4,13 +4,13 @@
 """Configuration fixtures for pytest for `nipyapi` package."""
 
 from __future__ import absolute_import
+import logging
 import pytest
 from os import environ, path
-import requests
-from requests import ConnectionError
 from collections import namedtuple
 import nipyapi
 
+log = logging.getLogger(__name__)
 
 # Test Configuration parameters
 test_docker_registry_endpoint = 'http://registry:18080'
@@ -33,8 +33,8 @@ test_ver_export_filename = test_basename + "_ver_flow_export"
 test_resource_dir = 'resources'
 # Test template filenames should match the template PG name
 test_templates = {
-    'basic': 'nipyapi_testTemplate_00',
-    'complex': 'nipyapi_testTemplate_01'
+    'basic': test_basename + 'Template_00',
+    'complex': test_basename + 'Template_01'
 }
 
 
@@ -48,7 +48,8 @@ if "TRAVIS" in environ and environ["TRAVIS"] == "true":
 else:
     print("Running tests on NOT TRAVIS, enabling regression suite")
     nifi_test_endpoints = [
-                'http://localhost:10120/nifi-api',  # add earlier as required
+                'http://localhost:10112/nifi-api',  # add earlier as required
+                'http://localhost:10120/nifi-api',
                 'http://localhost:10140/nifi-api',
                 nipyapi.config.nifi_config.host  # reset to default
             ]
@@ -56,6 +57,10 @@ else:
 
 
 # 'regress' generates tests against previous versions of NiFi
+# If you are using regression, note that you have to create NiFi objects within
+# the Test itself. This is because the fixture is generated before the
+# PyTest parametrize call, making the order
+# new test_func > fixtures > parametrize > run_test_func > teardown > next
 def pytest_generate_tests(metafunc):
     if 'regress' in metafunc.fixturenames:
         # print("Regression testing requested for ({0})."
@@ -76,31 +81,26 @@ def regress(request):
 # Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
-    def is_endpoint_up(endpoint_url):
-        try:
-            response = requests.get(endpoint_url)
-            if response.status_code == 200:
-                return True
-        except ConnectionError:
-            return False
-
     for url in nifi_test_endpoints + registry_test_endpoints:
+        nipyapi.utils.set_endpoint(url)
         target_url = url.replace('-api', '')
-        if not nipyapi.utils.wait_to_complete(is_endpoint_up, target_url):
+        if not nipyapi.utils.wait_to_complete(nipyapi.utils.is_endpoint_up,
+                                              target_url,
+                                              nipyapi_delay=5,
+                                              nipyapi_max_wait=60):
             pytest.exit(
                 "Expected Service endpoint ({0}) is not responding"
                 .format(target_url)
             )
-    # Run cleanup at the start of the session to ensure it's clean
-    cleanup()
+        # This cleans each environment at the start of the session
+        cleanup()
     request.addfinalizer(cleanup)
 
 
 def remove_test_templates():
-    for item in test_templates.keys():
-        details = nipyapi.templates.get_template_by_name(test_templates[item])
-        if details is not None:
-            nipyapi.templates.delete_template(details.id)
+    for this_template in nipyapi.templates.list_all_templates().templates:
+        if test_basename in this_template.template.name:
+            nipyapi.templates.delete_template(this_template.id)
 
 
 def remove_test_pgs():
@@ -146,24 +146,53 @@ def remove_test_buckets():
 
 def cleanup():
     # Only bulk-cleanup universally compatible components
+    # Ideally we would clean each test environment, but it's too slow to do it
+    # per test, so we rely on individual fixture cleanup
     remove_test_templates()
     remove_test_processors()
     remove_test_pgs()
 
 
-@pytest.fixture(scope="class")
-def template_class_wrapper(request):
-    remove_test_templates()
+@pytest.fixture(name='fix_templates', scope='function')
+def fixture_templates(request, fix_pg):
+    log.info("Creating PyTest Fixture fix_templates on endpoint %s",
+             nipyapi.config.nifi_config.api_client.host)
+    FixtureTemplates = namedtuple(
+        'FixtureTemplates', ('pg', 'b_file', 'b_name', 'c_file',
+                             'c_name')
+    )
+    f_pg = fix_pg
+    f_b_file = path.join(
+            path.dirname(__file__),
+            test_resource_dir,
+            test_templates['basic'] + '.xml'
+        )
+    f_b_name = 'nipyapi_testTemplate_00'
+    f_c_file = path.join(
+            path.dirname(__file__),
+            test_resource_dir,
+            test_templates['complex'] + '.xml'
+        )
+    f_c_name = 'nipyapi_testTemplate_01'
+    out = FixtureTemplates(
+        pg=f_pg,
+        b_name=f_b_name,
+        c_name=f_c_name,
+        b_file=f_b_file,
+        c_file=f_c_file
+    )
     request.addfinalizer(cleanup)
+    log.info("- Returning PyTest Fixture fix_templates")
+    return out
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture()
 def regress(request):
     # print("\nSetting nifi endpoint to ({0}).".format(request.param))
     nipyapi.config.nifi_config.api_client.host = request.param
 
 
-@pytest.fixture(scope="function", name='fix_pg')
+@pytest.fixture(name='fix_pg')
 def fixture_pg(request):
     class Dummy:
         def __init__(self):

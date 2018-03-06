@@ -1,5 +1,10 @@
 version: '2'
 services:
+  nifi-112:
+    image: chaffelson/nifi:1.1.2
+    container_name: nifi-112
+    ports:
+      - "10112:8080"
   nifi-120:
     image: apache/nifi:1.2.0
     container_name: nifi-120

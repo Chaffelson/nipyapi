@@ -63,6 +63,7 @@ def test_create_process_group(regress):
     assert r.component.name == conftest.test_pg_name
     assert r.position.x == r.position.y == 400
     assert r.component.parent_group_id == canvas.get_root_pg_id()
+    assert isinstance(r, nifi.ProcessGroupEntity)
     with pytest.raises(ApiException):
         parent_pg = canvas.get_process_group('NiFi Flow')
         parent_pg.id = 'invalid'
@@ -145,8 +146,9 @@ def test_get_processor_type(regress):
     assert isinstance(r1, DocumentedTypeDTO)
     r2 = canvas.get_processor_type("syslog", 'tag')
     assert isinstance(r2, list)
-    r3 = canvas.get_processor_type('amqp', 'bundle')
+    r3 = canvas.get_processor_type('standard')
     assert isinstance(r3, list)
+    assert len(r3) > 10
 
 
 def test_create_processor(fix_pg, regress):
@@ -166,6 +168,7 @@ def test_list_all_processors(fix_proc, regress):
     _ = fix_proc.generate()
     r = canvas.list_all_processors()
     assert len(r) >= 2
+    assert isinstance(r[0], nifi.ProcessorEntity)
 
 
 def test_get_processor(fix_proc, regress):
@@ -269,3 +272,13 @@ def test_purge_connection():
 def test_purge_process_group():
     # TODO: Waiting for create_connection to generate fixture
     pass
+
+
+def test_get_bulletins():
+    r = canvas.get_bulletins()
+    assert isinstance(r, nifi.ControllerBulletinsEntity)
+
+
+def test_get_bulletin_board():
+    r = canvas.get_bulletin_board()
+    assert isinstance(r, nifi.BulletinBoardEntity)

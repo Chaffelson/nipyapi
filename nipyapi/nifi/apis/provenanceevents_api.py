@@ -133,7 +133,7 @@ class ProvenanceeventsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/{id}/content/input', 'GET',
                                         path_params,
@@ -243,7 +243,7 @@ class ProvenanceeventsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/{id}/content/output', 'GET',
                                         path_params,
@@ -353,7 +353,7 @@ class ProvenanceeventsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/{id}', 'GET',
                                         path_params,
@@ -459,7 +459,7 @@ class ProvenanceeventsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/replays', 'POST',
                                         path_params,

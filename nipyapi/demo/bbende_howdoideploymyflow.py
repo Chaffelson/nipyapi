@@ -6,11 +6,10 @@ https://bryanbende.com/development/2018/01/19/apache-nifi-how-do-i-deploy-my-flo
 """
 
 from __future__ import absolute_import
-from time import sleep
 import logging
 import sys
-import docker
-from nipyapi.demo.utils import DockerContainer
+import nipyapi
+from nipyapi.utils import DockerContainer
 
 
 log = logging.getLogger()
@@ -21,8 +20,6 @@ log.addHandler(stream)
 
 
 d_network_name = 'bbdemo'
-# Note that port definitions are container:host
-# the tuple fomat is (hostname, imagename, portmappings, environment variables)
 
 d_containers = [
     DockerContainer(
@@ -56,62 +53,7 @@ d_containers = [
     ),
 ]
 
-log.info(
-    "Creating Docker client using Environment Variables")
-d_client = docker.from_env()
-
-# Pull relevant Images
-log.info("Pulling relevant Docker Images")
-for image in set([(c.image_name + ':' + c.image_tag) for c in d_containers]):
-    log.info("- Pulling %s", image)
-    d_client.images.pull(image)
-
-# Clear previous containers
-log.info("Clearing previous containers for this demo")
-d_clear_list = [li for li in d_client.containers.list(all=True)
-                if li.name in [i.name for i in d_containers]]
-for c in d_clear_list:
-    log.info("- Removing old container %s", c.name)
-    c.remove(force=True)
-
-# Deploy/Get Network
-log.info("Getting Docker bridge network")
-d_n_list = [li for li in d_client.networks.list()
-            if d_network_name in li.name]
-if not d_n_list:
-    d_network = d_client.networks.create(
-        name=d_network_name,
-        driver='bridge',
-        check_duplicate=True
-    )
-elif len(d_n_list) > 1:
-    raise EnvironmentError("Too many test networks found")
-else:
-    log.info("- Found network %s", d_n_list[0])
-    d_network = d_n_list[0]
-
-# Deploy Containers
-log.info("Starting relevant Docker Containers")
-c_hooks = {}
-for c in d_containers:
-    log.info("- Starting Container %s", c.name)
-    c_hooks[c.name] = d_client.containers.run(
-        image=c.image_name + ':' + c.image_tag,
-        detach=True,
-        network=d_network_name,
-        hostname=c.name,
-        name=c.name,
-        ports=c.ports,
-        environment=c.env
-    )
-
-log.info("Waiting on Service Startup")
-max_retry = 10
-for retry in range(0, max_retry):
-    current_status = [(c.name, c.get_test_url_status()) for c in d_containers]
-    if str(list(set([i[1] for i in current_status]))) == '[200]':
-        log.info("- All started; status: %s", current_status)
-        break
-    else:
-        log.info("- Retry %s Status: %s", retry, current_status)
-        sleep(10)
+nipyapi.utils.start_docker_containers(
+    d_containers,
+    d_network_name
+)

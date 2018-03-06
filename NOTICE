@@ -1,0 +1,14 @@
+NiPyApi
+Copyright (c) 2017-2018, Daniel Chaffelson
+
+This software includes derived works from the Swagger Codegen (ASLv2) project (https://github.com/swagger-api/swagger-codegen):
+  Copyright 2016 SmartBear Software
+  This includes the generator templates for the Python language in the swagger_templates directory.
+
+This software includes derived works from the NiFi (ASLv2) project (https://git-wip-us.apache.org/repos/asf/nifi.git):
+  Copyright 2014-2018 The Apache Software Foundation
+  This includes code that was generated based on NiFi public interface definitions.
+
+This software includes derived works from the NiFi Registry (ASLv2) project (https://git-wip-us.apache.org/repos/asf/nifi-registry.git):
+  Copyright 2014-2018 The Apache Software Foundation
+  This includes code that was generated based on NiFi Registry public interface definitions, as well as instructions and shell script for generating test certificates.

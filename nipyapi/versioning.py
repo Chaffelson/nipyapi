@@ -25,10 +25,14 @@ __all__ = [
 def create_registry_client(name, uri, description):
     """
     Creates a Registry Client in the NiFi Controller Services
-    :param name: String, name of the client
-    :param uri: String, URI such as 'http://registry:18080'
-    :param description: String, Describe your client
-    :return: RegistryClientEntity
+
+    Args:
+        name (str): The name of the new Client
+        uri (str): The URI for the connection, such as 'http://registry:18080'
+        description (str): A description for the Client
+
+    Returns:
+        (RegistryClientEntity): The new registry client object
     """
     try:
         return nipyapi.nifi.ControllerApi().create_registry_client(
@@ -50,8 +54,12 @@ def create_registry_client(name, uri, description):
 def delete_registry_client(client):
     """
     Deletes a Registry Client from the list of NiFI Controller Services
-    :param client: RegistryClientEntity to be deleted
-    :return: updated RegistryClientEntity
+
+    Args:
+        client (RegistryClientEntity): The client to delete
+
+    Returns:
+        (RegistryClientEntity): The updated client object
     """
     try:
         return nipyapi.nifi.ControllerApi().delete_registry_client(
@@ -64,8 +72,10 @@ def delete_registry_client(client):
 
 def list_registry_clients():
     """
-    Lists available Registry Clients in the NiFi Controller Services
-    :return: list of RegistryClientEntity objects
+    Lists the available Registry Clients in the NiFi Controller Services
+
+    Returns:
+        (list[RegistryClientEntity]) objects
     """
     try:
         return nipyapi.nifi.ControllerApi().get_registry_clients()
@@ -76,9 +86,14 @@ def list_registry_clients():
 def get_registry_client(identifier, identifier_type='name'):
     """
     Filters the Registry clients to a particular identifier
-    :param identifier: String, the filter string
-    :param identifier_type: String, the parameter to filter on, 'name' or 'id'
-    :return: None if 0 matches, list if > 1, RegistryClientEntity if ==1
+
+    Args:
+        identifier (str): the filter string
+        identifier_type (str): the parameter to filter on
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
     """
     try:
         obj = list_registry_clients().registries
@@ -90,7 +105,9 @@ def get_registry_client(identifier, identifier_type='name'):
 def list_registry_buckets():
     """
     Lists all available Buckets in the NiFi Registry
-    :return: list of Bucket objects
+
+    Returns:
+        (list[Bucket]) objects
     """
     try:
         return nipyapi.registry.BucketsApi().get_buckets()
@@ -101,8 +118,12 @@ def list_registry_buckets():
 def create_registry_bucket(name):
     """
     Creates a new Registry Bucket
-    :param name: String, names the bucket, must be unique in the Registry
-    :return: Bucket object
+
+    Args:
+        name (str): name for the bucket, must be unique in the Registry
+
+    Returns:
+        (Bucket): The new Bucket object
     """
     try:
         return nipyapi.registry.BucketsApi().create_bucket(
@@ -117,8 +138,12 @@ def create_registry_bucket(name):
 def delete_registry_bucket(bucket):
     """
     Removes a bucket from the NiFi Registry
-    :param bucket: the Bucket object to remove
-    :return: updated Bucket object
+
+    Args:
+        bucket (Bucket): the Bucket object to remove
+
+    Returns:
+        (Bucket): The updated Bucket object
     """
     try:
         return nipyapi.registry.BucketsApi().delete_bucket(
@@ -131,9 +156,14 @@ def delete_registry_bucket(bucket):
 def get_registry_bucket(identifier, identifier_type='name'):
     """
     Filters the Bucket list to a particular identifier
-    :param identifier: String, the filter string
-    :param identifier_type: String, the param to filter on, 'name' or 'id
-    :return: None if 0 matches, list if > 1, single Bucket entity if ==1
+
+    Args:
+        identifier (str): the filter string
+        identifier_type (str): the param to filter on
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
     """
     try:
         obj = list_registry_buckets()
@@ -145,8 +175,12 @@ def get_registry_bucket(identifier, identifier_type='name'):
 def list_flows_in_bucket(bucket_id):
     """
     List of all Flows in a given NiFi Registry Bucket
-    :param bucket_id: The identifier of the Bucket to fetch from
-    :return: list of VersionedFlow objects
+
+    Args:
+        bucket_id (str): The UUID of the Bucket to fetch from
+
+    Returns:
+        (list[VersionedFlow]) objects
     """
     try:
         return nipyapi.registry.BucketFlowsApi().get_flows(bucket_id)
@@ -157,10 +191,15 @@ def list_flows_in_bucket(bucket_id):
 def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
     """
     Filters the Flows in a Bucket against a particular identifier
-    :param bucket_id: identifier of the Bucket to filter against
-    :param identifier: String, the string to filter on
-    :param identifier_type: String, the param to check, 'name' or 'id'
-    :return: None if 0 matches, list if > 1, single VersionedFlow entity if ==1
+
+    Args:
+        bucket_id (str): UUID of the Bucket to filter against
+        identifier (str): The string to filter on
+        identifier_type (str): The param to check
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
     """
     try:
         obj = list_flows_in_bucket(bucket_id)
@@ -173,20 +212,25 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
                   flow_id=None, comment='', desc='', refresh=True):
     """
     Adds a Process Group into NiFi Registry Version Control, or saves a new
-    version to an existing VersionedFlow
-    With a new version
-    :param process_group: the ProcessGroup object to work with
-    :param registry_client: the RegistryClient to save to
-    :param bucket: the Bucket on the NiFi Registry to save to
-    Note you need either a name for a new VersionedFlow, or the ID of an
-    existing one to save a new version
-    :param flow_name: String, a name for the VersionedFlow in the Bucket
-    :param flow_id: String, identifier of an existing VersionedFlow in the
-    bucket
-    :param comment: String, a comment for the version commit
-    :param desc: String, a description of the VersionedFlow
-    :param refresh: whether to refresh the object revisions before executing
-    :return: VersionControlInformationEntity
+    version to an existing VersionedFlow with a new version
+
+    Args:
+        process_group (ProcessGroupEntity): the ProcessGroup object to save
+            as a new Flow Version
+        registry_client (RegistryClient): The Client linked to the Registry
+            which contains the Bucket to save to
+        bucket (Bucket): the Bucket on the NiFi Registry to save to
+            Note you need either a name for a new VersionedFlow, or the ID of
+            an existing one to save a new version
+        flow_name (str): A name for the VersionedFlow in the Bucket
+        flow_id (Optional [str]): Identifier of an existing VersionedFlow in
+            the bucket, if saving a new version to an existing flow
+        comment (str): A comment for the version commit
+        desc (str): A description of the VersionedFlow
+        refresh (bool): whether to refresh the object revisions before action
+
+    Returns:
+        (VersionControlInformationEntity)
     """
     if refresh:
         target_pg = nipyapi.canvas.get_process_group(process_group.id, 'id')
@@ -214,9 +258,13 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
 def stop_flow_ver(process_group, refresh=True):
     """
     Removes a Process Group from Version Control
-    :param process_group: the ProcessGroup to work with
-    :param refresh: Bool, whether to refresh the object status before actioning
-    :return: VersionControlInformationEntity
+
+    Args:
+        process_group (ProcessGroupEntity): the ProcessGroup to work with
+        refresh (bool): Whether to refresh the object status before actioning
+
+    Returns:
+        (VersionControlInformationEntity)
     """
     try:
         if refresh:
@@ -235,10 +283,14 @@ def stop_flow_ver(process_group, refresh=True):
 
 def revert_flow_ver(process_group):
     """
-    Attempts to roll back uncommited changes to a Process Group to the last
+    Attempts to roll back uncommitted changes to a Process Group to the last
     committed version
-    :param process_group: the ProcessGroup to work with
-    :return: VersionedFlowUpdateRequestEntity
+
+    Args:
+        process_group (ProcessGroupEntity): the ProcessGroup to work with
+
+    Returns:
+        (VersionedFlowUpdateRequestEntity)
     """
     # ToDo: Add handling for flows with live data
     try:
@@ -254,10 +306,15 @@ def revert_flow_ver(process_group):
 
 def list_flow_versions(bucket_id, flow_id):
     """
-    List all the versions of a given flow in a given bucket
-    :param bucket_id: ID of the bucket holding the flow to be enumerated
-    :param flow_id: ID of the flow in the bucket to be enumerated
-    :return:
+    EXPERIMENTAL
+    List all the versions of a given Flow in a given Bucket
+
+    Args:
+        bucket_id (str): UUID of the bucket holding the flow to be enumerated
+        flow_id (str): UUID of the flow in the bucket to be enumerated
+
+    Returns:
+        list(VersionedFlowSnapshotMetadata)
     """
     try:
         return nipyapi.registry.BucketFlowsApi().get_flow_versions(
@@ -271,16 +328,22 @@ def list_flow_versions(bucket_id, flow_id):
 def update_flow_ver(process_group, target_version=None):
     """
     Changes a versioned flow to the specified version, or the latest version
-    :param process_group: ProcessGroupEntity under version control to change
-    :param target_version: Either None to move to the latest available version,
-    or an Int to specify the version number to move to
-    :return:
+
+    Args:
+        process_group (ProcessGroupEntity): ProcessGroupEntity under version
+            control to change
+        target_version (Optional [None, Int]): Either None to move to the
+        latest available version, or Int of the version number to move to
+
+    Returns:
+        (bool): True if successful, False if not
     """
-    def _i_can_has_new_version():
+    def _running_update_flow_version():
         """
         Tests for completion of the operation
-        :return: Boolean of operation success
-        :raises: RetryError if timeout, ValueError if NiFi is unable to execute
+
+        Returns:
+            (bool) Boolean of operation success
         """
         status = nipyapi.nifi.VersionsApi().get_update_request(
             u_init.request.request_id
@@ -293,7 +356,7 @@ def update_flow_ver(process_group, target_version=None):
             else:
                 raise ValueError(
                     "Flow Version Update did not complete successfully. "
-                    "Error text ({0})".format(status.request.failure_reason)
+                    "Error text {0}".format(status.request.failure_reason)
                 )
     try:
         vci = get_version_info(process_group)
@@ -325,7 +388,7 @@ def update_flow_ver(process_group, target_version=None):
                 )
             )
         )
-        nipyapi.utils.wait_to_complete(_i_can_has_new_version)
+        nipyapi.utils.wait_to_complete(_running_update_flow_version)
         return nipyapi.nifi.VersionsApi().get_update_request(
             u_init.request.request_id
         )
@@ -336,9 +399,13 @@ def update_flow_ver(process_group, target_version=None):
 def get_latest_flow_ver(bucket_id, flow_id):
     """
     Gets the most recent version of a VersionedFlowSnapshot from a bucket
-    :param bucket_id: the identifier of the Bucket containing the flow
-    :param flow_id: the identifier of the VersionedFlow to be retrieved
-    :return: VersionedFlowSnapshot
+
+    Args:
+        bucket_id (str): the UUID of the Bucket containing the flow
+        flow_id (str): the UUID of the VersionedFlow to be retrieved
+
+    Returns:
+        (VersionedFlowSnapshot)
     """
     try:
         return get_flow_version(
@@ -350,9 +417,13 @@ def get_latest_flow_ver(bucket_id, flow_id):
 
 def get_version_info(process_group):
     """
-    Gets the Version Control information on a particular Process Group
-    :param process_group: the ProcessGroup to work with
-    :return: VersionControlInformationEntity
+    Gets the Version Control information for a particular Process Group
+
+    Args:
+        process_group (ProcessGroupEntity): the ProcessGroup to work with
+
+    Returns:
+        (VersionControlInformationEntity)
     """
     try:
         return nipyapi.nifi.VersionsApi().get_version_information(
@@ -364,13 +435,19 @@ def get_version_info(process_group):
 
 def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
     """
-    Creates a new VersionedFlow stub in NiFi Registry. Can be used to write
-    VersionedFlow information to without using a NiFi Process Group directly
-    :param bucket_id: identifier of the Bucket to write to
-    :param flow_name: String, name of the VersionedFlow object
-    :param flow_desc: String, description of the VersionedFlow object
-    :param flow_type: String, Type of the VersionedFlow, should be 'Flow'
-    :return: VersionedFlow
+    Creates a new VersionedFlow stub in NiFi Registry.
+    Can be used to write VersionedFlow information to without using a NiFi
+    Process Group directly
+
+    Args:
+        bucket_id (str): UUID of the Bucket to write to
+        flow_name (str): Name for the new VersionedFlow object
+        flow_desc (Optional [str]): Description for the new VersionedFlow
+            object
+        flow_type (Optional [str]): Type of the VersionedFlow, should be 'Flow'
+
+    Returns:
+        (VersionedFlow)
     """
     try:
         return nipyapi.registry.BucketFlowsApi().create_flow(
@@ -389,21 +466,29 @@ def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
 
 def create_flow_version(flow, flow_snapshot, refresh=True):
     """
-    Status: Experimental. There is a bug in the ConnectionsDTO stopping this
-    from working for non-trivial usecases.
+    EXPERIMENTAL
+
     Writes a FlowSnapshot into a VersionedFlow as a new version update
-    :param bucket_id: Deprecated, now pulled from the flow parameter
-    :param flow: the VersionedFlow object to write to
-    :param flow_snapshot: the VersionedFlowSnapshot to write into the
-    VersionedFlow
-    :param refresh: Bool, whether to refresh the object status before actioning
-    :param raw_snapshot: Deprecated, as not using a full snapshot resulted in
-    inconsistent behavior
-    :return: the new VersionedFlowSnapshot
+
+    Note that this differs from save_flow_ver which creates a new Flow Version
+    containing the snapshot. This function writes a snapshot to an existing
+    Flow Version. Useful in migrating Flow Versions between environments.
+
+    Args:
+        bucket_id (str): Deprecated, now pulled from the flow parameter
+        flow (VersionedFlowObject): the VersionedFlow object to write to
+        flow_snapshot (VersionedFlowSnapshot): the Snapshot to write into the
+            VersionedFlow
+        refresh (bool): Whether to refresh the object status before actioning
+        raw_snapshot (bool): Deprecated, as not using a full snapshot resulted
+            in inconsistent behavior
+
+    Returns:
+        The new (VersionedFlowSnapshot)
     """
     if not isinstance(flow_snapshot, nipyapi.registry.VersionedFlowSnapshot):
         raise ValueError("flow_snapshot must be an instance of a "
-                         "registry.VersionedFlowSnapshot object, not an ({0})"
+                         "registry.VersionedFlowSnapshot object, not an {0}"
                          .format(type(flow_snapshot)))
     try:
         if refresh:
@@ -444,16 +529,21 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
 def get_flow_version(bucket_id, flow_id, version=None, export=False):
     """
     Retrieves the latest, or a specific, version of a Flow
-    :param bucket_id: the id of the bucket containing the Flow
-    :param flow_id: the id of the Flow to be retrieved from the Bucket
-    :param version: 'None' to retrieve the latest version, or a version
-    number as a string to get that version
-    :param export: Str; 'json' or 'yaml' to return the serialised version of
-    the VersionedFlowSnapshot. Defaults to None to return the native object
-    :return: a VersionedFlowSnapshot if export=False, or the raw json otherwise
+
+    Args:
+        bucket_id (str): the UUID of the bucket containing the Flow
+        flow_id (str): the UUID of the Flow to be retrieved from the Bucket
+        version (Optional [None, str]): 'None' to retrieve the latest version,
+            or a version number as a string to get that version
+        export (bool): True to get the raw json object from the server for
+            export, False to get the native DataType
+
+    Returns:
+        (VersionedFlowSnapshot): If export=False, or the raw json otherwise
+
     WARNING: This call is impacted by
     https://issues.apache.org/jira/browse/NIFIREG-135
-    # which means you can't trust the version count
+    Which means you can't trust the version count
     """
     assert isinstance(bucket_id, six.string_types)
     assert isinstance(flow_id, six.string_types)
@@ -488,14 +578,18 @@ def export_flow_version(bucket_id, flow_id, version=None, file_path=None,
     """
     Convenience method to export the identified VersionedFlowSnapshot in the
     provided format mode.
-    :param bucket_id: the id of the bucket containing the Flow
-    :param flow_id: the id of the Flow to be retrieved from the Bucket
-    :param version: 'None' to retrieve the latest version, or a version
-    number as a string to get that version
-    :param file_path: Str; the path and filename to write to. Defaults to None
-    which returns the serialised obj
-    :param mode: String 'json' or 'yaml' to specific the encoding format
-    :return: String of the encoded Snapshot
+
+    Args:
+        bucket_id (str): the UUID of the bucket containing the Flow
+        flow_id (str): the UUID of the Flow to be retrieved from the Bucket
+        version (Optional [None, Str]): 'None' to retrieve the latest version, or a version
+            number as a string to get that version
+        file_path (str): The path and filename to write to. Defaults to None
+            which returns the serialised obj
+        mode (str): 'json' or 'yaml' to specific the encoding format
+
+    Returns:
+        (str) of the encoded Snapshot
     """
     assert isinstance(bucket_id, six.string_types)
     assert isinstance(flow_id, six.string_types)
@@ -517,18 +611,23 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
     """
     Imports a given encoded_flow version into the bucket and flow described,
     may optionally be passed a file to read the encoded flow_contents from.
+
     Note that only one of encoded_flow or file_path, and only one of flow_name
     or flow_id should be specified.
-    :param bucket_id: ID of the bucket to write the encoded_flow version to
-    :param encoded_flow: Optional; String of the encoded flow to import; if
-    not specified file_path is read from. EXOR file_path
-    :param file_path: Optional; String of the file path to read the encoded
-    flow from, if not specified encoded_flow is read from. EXOR encoded_flow
-    :param flow_name: Optional; If this is to be the first version in a new
-    flow object, then this is the String name for the flow object. EXOR flow_id
-    :param flow_id: Optional; If this is a new version for an existing flow
-    object, then this is the ID of that object. EXOR flow_name
-    :return: the new VersionedFlowSnapshot
+
+    Args:
+        bucket_id (str): UUID of the bucket to write the encoded_flow version
+        encoded_flow (Optional [str]): The encoded flow to import; if not
+            specified file_path is read from.
+        file_path (Optional [str]): The file path to read the encoded flow from
+            , if not specified encoded_flow is read from.
+        flow_name (Optional [str]): If this is to be the first version in a new
+            flow object, then this is the String name for the flow object.
+        flow_id (Optional [str]): If this is a new version for an existing flow
+            object, then this is the ID of that object.
+
+    Returns:
+        The new (VersionedFlowSnapshot)
     """
     # First, decode the flow snapshot contents
     dto = ('registry', 'VersionedFlowSnapshot')

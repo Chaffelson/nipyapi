@@ -43,7 +43,7 @@ class LabelsApi(object):
     def get_label(self, id, **kwargs):
         """
         Gets a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class LabelsApi(object):
     def get_label_with_http_info(self, id, **kwargs):
         """
         Gets a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class LabelsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/labels/{id}', 'GET',
                                         path_params,
@@ -149,7 +149,7 @@ class LabelsApi(object):
     def remove_label(self, id, **kwargs):
         """
         Deletes a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -177,7 +177,7 @@ class LabelsApi(object):
     def remove_label_with_http_info(self, id, **kwargs):
         """
         Deletes a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -243,7 +243,7 @@ class LabelsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/labels/{id}', 'DELETE',
                                         path_params,
@@ -263,7 +263,7 @@ class LabelsApi(object):
     def update_label(self, id, body, **kwargs):
         """
         Updates a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -290,7 +290,7 @@ class LabelsApi(object):
     def update_label_with_http_info(self, id, body, **kwargs):
         """
         Updates a label
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -356,7 +356,7 @@ class LabelsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/labels/{id}', 'PUT',
                                         path_params,

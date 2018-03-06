@@ -43,7 +43,7 @@ class ProcessorsApi(object):
     def clear_state(self, id, **kwargs):
         """
         Clears the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class ProcessorsApi(object):
     def clear_state_with_http_info(self, id, **kwargs):
         """
         Clears the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/processors/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class ProcessorsApi(object):
     def delete_processor(self, id, **kwargs):
         """
         Deletes a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -177,7 +177,7 @@ class ProcessorsApi(object):
     def delete_processor_with_http_info(self, id, **kwargs):
         """
         Deletes a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -243,7 +243,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/processors/{id}', 'DELETE',
                                         path_params,
@@ -263,7 +263,7 @@ class ProcessorsApi(object):
     def get_processor(self, id, **kwargs):
         """
         Gets a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -289,7 +289,7 @@ class ProcessorsApi(object):
     def get_processor_with_http_info(self, id, **kwargs):
         """
         Gets a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -349,7 +349,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/processors/{id}', 'GET',
                                         path_params,
@@ -369,7 +369,7 @@ class ProcessorsApi(object):
     def get_property_descriptor(self, id, property_name, **kwargs):
         """
         Gets the descriptor for a processor property
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -397,7 +397,7 @@ class ProcessorsApi(object):
     def get_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
         Gets the descriptor for a processor property
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -466,7 +466,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/processors/{id}/descriptors', 'GET',
                                         path_params,
@@ -486,7 +486,7 @@ class ProcessorsApi(object):
     def get_state(self, id, **kwargs):
         """
         Gets the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -512,7 +512,7 @@ class ProcessorsApi(object):
     def get_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -572,7 +572,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/processors/{id}/state', 'GET',
                                         path_params,
@@ -592,7 +592,7 @@ class ProcessorsApi(object):
     def update_processor(self, id, body, **kwargs):
         """
         Updates a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -619,7 +619,7 @@ class ProcessorsApi(object):
     def update_processor_with_http_info(self, id, body, **kwargs):
         """
         Updates a processor
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -685,7 +685,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/processors/{id}', 'PUT',
                                         path_params,
