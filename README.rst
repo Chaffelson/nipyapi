@@ -56,30 +56,35 @@ Please see the `issue <https://github.com/Chaffelson/nipyapi/issues>`_ register 
 
 Quick Start
 -----------
+
+| There are several scripts to produce demo environments in *nipyapi.demo.**
+| The mid-level functionality is in *nipyapi.canvas / nipyapi.security / nipyapi.templates / nipyapi.versioning*
+| You can access the entire API using the low-level SDKs in *nipyapi.nifi / nipyapi.registry*
+
 The easiest way to install NiPyApi is with pip::
 
     # in bash
     pip install nipyapi
 
-Then import a module and execute tasks::
-
-    # in python
-    import nipyapi
-    nipyapi.config.nifi_config.host = 'http://localhost:8080/nifi-api'
-    nipyapi.canvas.get_root_pg_id()
-    >'4d5dcf9a-015e-1000-097e-e505ed0f7fd2'
-
-You can also use the demo to create an interactive console showing many features::
+You can set the config for your endpoints in the central config file::
 
     # in python
     import nipyapi
     nipyapi.config.nifi_config.host = 'http://localhost:8080/nifi-api'
     nipyapi.config.registry_config.host = 'http://localhost:18080/nifi-registry-api'
+
+Then import a module and execute tasks::
+
+
+    nipyapi.canvas.get_root_pg_id()
+    >'4d5dcf9a-015e-1000-097e-e505ed0f7fd2'
+
+You can use the Docker demos to create a secured interactive console showing many features::
+
+    from nipyapi.demo.secured_console import *
     from nipyapi.demo.console import *
 
-| There are several scripts to produce demo environments in *nipyapi.demo.**
-| The mid-level functionality is in *nipyapi.canvas / nipyapi.security / nipyapi.templates / nipyapi.versioning*
-| You can access the entire API using the low-level SDKs in *nipyapi.nifi / nipyapi.registry*
+You can also explore the scripts to get ideas for how NiPyAPi can be used to automate your environment.
 
 Please check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/master/docs/contributing.rst>`_ if you are interested in contributing to the feature set.
 

@@ -203,8 +203,8 @@ registry_user = nipyapi.utils.wait_to_complete(
     test_function=nipyapi.security.get_service_access_status,
     service='registry',
     bool_response=True,
-    nipyapi_delay=5,
-    nipyapi_max_wait=60
+    nipyapi_delay=nipyapi.config.long_retry_delay,
+    nipyapi_max_wait=nipyapi.config.long_max_wait
 )
 pprint('nipyapi_secured_registry CurrentUser: ' + registry_user.identity)
 
@@ -221,8 +221,8 @@ nipyapi.utils.wait_to_complete(
     username='nobel',
     password='password',
     bool_response=True,
-    nipyapi_delay=5,
-    nipyapi_max_wait=60
+    nipyapi_delay=nipyapi.config.long_retry_delay,
+    nipyapi_max_wait=nipyapi.config.long_max_wait
 )
 nifi_user = nipyapi.security.get_service_access_status(service='nifi')
 pprint(

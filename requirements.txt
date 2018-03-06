@@ -12,9 +12,6 @@ lxml>=4.1.1
 ruamel.yaml==0.14.12 # pyup: ignore
 deepdiff>=3.3.0
 
-# Docs build requirements
--e git://github.com/lyft/m2r.git@1aa9d312efa9c71eb0622e9e3c8e5692440a25f3#egg=m2r
-
 # Demo deployment automation
 docker>=2.5.1
 requests>=2.18

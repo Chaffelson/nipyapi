@@ -20,11 +20,11 @@ logging.basicConfig(level=logging.WARNING)
 # --- Default Host URLs -----
 # Note that changing the default hosts below will not
 # affect an API connection that's already running.
-# You'll need to change the .api_client.host for that.
+# You'll need to change the .api_client.host for that, and there is a
+# convenience function for this in nipyapi.utils
 
 # Set Default Host for NiFi
 nifi_config.host = 'http://localhost:8080/nifi-api'
-
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://localhost:18080/nifi-registry-api'
 
@@ -35,10 +35,16 @@ PROJECT_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # --- Task wait delays ------
-# Set how fast to recheck for completion of a long running task in seconds
-retry_delay = 0.5
-# Set the max amount of time we will wait for a task to complete in seconds
-retry_max_wait = 3
+# Set how fast to recheck for completion of a short running task in seconds
+short_retry_delay = 0.5
+# Set the max amount of time we will wait for a short running task to complete
+# in seconds
+short_max_wait = 3
+# Long running task delay
+long_retry_delay = 5
+# and long max wait
+long_max_wait = 120
+
 
 
 # --- Object Filters ------

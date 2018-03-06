@@ -203,8 +203,10 @@ def wait_to_complete(test_function, *args, **kwargs):
     Args:
         test_function: Function which returns a bool once the target
             state is reached
-        delay (int): The number of seconds between each attempt
-        max_wait (int): the maximum number of seconds before issuing a Timeout
+        delay (int): The number of seconds between each attempt, defaults to
+            config.short_retry_delay
+        max_wait (int): the maximum number of seconds before issuing a Timeout,
+            defaults to config.short_max_wait
         *args: Any args to pass through to the test function
         **kwargs: Any Keword Args to pass through to the test function
 
@@ -213,8 +215,8 @@ def wait_to_complete(test_function, *args, **kwargs):
     """
     log.info("Called wait_to_complete for function %s",
              test_function.__name__)
-    delay = kwargs.pop('nipyapi_delay', nipyapi.config.retry_delay)
-    max_wait = kwargs.pop('nipyapi_max_wait', nipyapi.config.retry_max_wait)
+    delay = kwargs.pop('nipyapi_delay', nipyapi.config.short_retry_delay)
+    max_wait = kwargs.pop('nipyapi_max_wait', nipyapi.config.short_max_wait)
     timeout = time.time() + max_wait
     while time.time() < timeout:
         log.debug("- Calling test_function")

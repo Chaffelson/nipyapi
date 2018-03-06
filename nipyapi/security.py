@@ -14,6 +14,12 @@ import nipyapi
 
 log = logging.getLogger(__name__)
 
+__all__ = ['create_service_user', 'service_login', 'set_service_auth_token',
+           'service_logout', 'get_service_access_status',
+           'add_user_to_access_policy', 'update_access_policy',
+           'get_access_policy_for_resource', 'create_access_policy',
+           'list_service_users', 'get_service_user', 'set_service_ssl_context']
+
 # These are the known-valid policy actions
 _valid_actions = ['read', 'write', 'delete']
 # These are the services that these functions know how to configure

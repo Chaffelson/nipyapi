@@ -2,6 +2,50 @@
 History
 =======
 
+0.8.0 (2018-03-06)
+------------------
+
+| Introducing Secured environment support, vastly expanded Versioning support including import/export.
+| Fixed Templates, better documentation, more demos, and NiFi version backtesting.
+
+**Potentially Breaking Changes**
+
+*Users should check the updated documentation and ensure their tests pass as expected*
+
+* Import/Export of Flow Versions was reworked significantly and renamed to correct bugs and remove coding complications and be generally more obvious in its behavior
+* Template upload/download reworked significantly to remove direct reliance on requests and correct bugs in some environments
+* Reworked many list/get functions to be more standardised as we stabilise the approaches to certain tasks. This should not change again in future
+* Standardised bad user submission on AssertionError, bad API submission errors on ValueError, and general API errors on ApiException. This standard should flow forwards
+* Switched ruamel.yaml from >15 to <15 as advised in the project documentation, as >15 is not considered production ready
+
+**New Features**
+
+* Added support for working with secured NiFi environments, contributed by KevDoran
+    * Added demo compatibility between secured_connection and console to produce a rich secured and version-controlled demo environment
+    * Added many secured environment convenience functions to security.py
+    * Integrated tokenAuth support throughout the low-level clients
+* Added simple Docker deployment support in utils module for test, demo, and development
+* Standardised all documentation on more readable docstrings and rst templates across the entire codebase
+* Significantly expanded versioning support, users should consult the refreshed documentation
+* Added experimental support for cleaning queues, process_groups, and setting scheduling of various components
+* Many calls now have an auto-refresh before action option to simplify applying changes
+* Implemented short and long wait controls for relevant functions to allow more deterministic changes
+* Implemented generic object-list-filtering-for-a-string-in-a-field for many response get/list types
+* Standardised many responses to conform to a common response contract: None for none, object for single, and list-of-objects for many
+* Implemented import/export to json/yaml in versioning
+* Added regression/backtesting for many functions going back through major release versions to NiFi-1.1.2. More details will be obvious from reading tests/conftest.py
+* Test suites now more reliably clean up after themselves when executed on long-running environments
+
+**Other notes**
+
+* Various low-level SDK bugfixes corrected in the swagger spec and updated in the provided client
+* Enhanced Template and Flow Versioning to handle significantly more complex flows
+* Significantly enhanced testing fixtures
+* Refactored several common functions to utils.py, and moved several common configurations to config.py
+* versioning.get_flow will now export the raw Registry object for convenience when serialising flows
+* Significantly improved Py2/Py3 compatibility handling, and import management within the package
+* Removed docs dependency on M2R by converting everything over to reStructuredText
+
 0.7.0 (2018-01-30)
 ------------------
 
