@@ -18,6 +18,10 @@ History
 * Standardised bad user submission on AssertionError, bad API submission errors on ValueError, and general API errors on ApiException. This standard should flow forwards
 * Switched ruamel.yaml from >15 to <15 as advised in the project documentation, as >15 is not considered production ready
 
+**Known Issues**
+
+* Python2 environments with older versions of openssl may run into errors like 'SSLV3_ALERT_HANDSHAKE_FAILURE' when working in secured environments. This is not a NiPyApi bug, it's a problem with py2/openssl which is fixed by either upgrading openssl or moving to Python3 like you know you should
+
 **New Features**
 
 * Added support for working with secured NiFi environments, contributed by KevDoran
@@ -35,6 +39,7 @@ History
 * Implemented import/export to json/yaml in versioning
 * Added regression/backtesting for many functions going back through major release versions to NiFi-1.1.2. More details will be obvious from reading tests/conftest.py
 * Test suites now more reliably clean up after themselves when executed on long-running environments
+* Apparently logging is popular, so standard Python logging is now included
 
 **Other notes**
 

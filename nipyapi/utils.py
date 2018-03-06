@@ -329,29 +329,29 @@ def start_docker_containers(docker_containers, network_name='demo'):
     Returns: Nothing
 
     """
-    log.info("- Creating Docker client using Environment Variables")
+    log.info("Creating Docker client using Environment Variables")
     d_client = docker.from_env()
 
     for target in docker_containers:
         assert isinstance(target, DockerContainer)
 
     # Pull relevant Images
-    log.info("- Pulling relevant Docker Images")
+    log.info("Pulling relevant Docker Images")
     for image in set([(c.image_name + ':' + c.image_tag)
                       for c in docker_containers]):
-        log.info("- - Pulling %s", image)
+        log.info("Pulling %s", image)
         d_client.images.pull(image)
 
     # Clear previous containers
-    log.info("- Clearing previous containers for this demo")
+    log.info("Clearing previous containers for this demo")
     d_clear_list = [li for li in d_client.containers.list(all=True)
                     if li.name in [i.name for i in docker_containers]]
     for c in d_clear_list:
-        log.info("- - Removing old container %s", c.name)
+        log.info("Removing old container %s", c.name)
         c.remove(force=True)
 
     # Deploy/Get Network
-    log.info("- Getting Docker bridge network")
+    log.info("Getting Docker bridge network")
     d_n_list = [li for li in d_client.networks.list()
                 if network_name in li.name]
     if not d_n_list:
@@ -364,13 +364,13 @@ def start_docker_containers(docker_containers, network_name='demo'):
         raise EnvironmentError("Too many test networks found")
     else:
         d_network = d_n_list[0]
-    log.info("- - Using Docker network: %s", d_network.name)
+    log.info("Using Docker network: %s", d_network.name)
 
     # Deploy Containers
-    log.info("- Starting relevant Docker Containers")
+    log.info("Starting relevant Docker Containers")
     c_hooks = {}
     for c in docker_containers:
-        log.info("- - Starting Container %s", c.name)
+        log.info("Starting Container %s", c.name)
         c_hooks[c.name] = d_client.containers.run(
             image=c.image_name + ':' + c.image_tag,
             detach=True,

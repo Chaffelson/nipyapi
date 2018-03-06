@@ -18,9 +18,9 @@ requirements = [
     'lxml',  # Required for parsing NiFi Templates
     'deepdiff',  # Required for comparing configurations
     'six',  # Required for managing Python version compatibility
-    'ruamel.yaml',  # Required for parsing Json/Yaml consistently
+    'ruamel.yaml==0.14.12',  # Required for parsing Json/Yaml consistently
     'docker',  # Used to deploy demo assemblies
-    'requests'  # Used in utils functions
+    'requests[security]'  # Used in utils functions, security extras for Py2
 ]
 
 setup_requirements = [

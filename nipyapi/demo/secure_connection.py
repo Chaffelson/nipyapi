@@ -13,6 +13,9 @@ from nipyapi.utils import DockerContainer
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
+logging.getLogger('nipyapi.utils').setLevel(logging.INFO)
+logging.getLogger('nipyapi.security').setLevel(logging.INFO)
+logging.getLogger('nipyapi.versioning').setLevel(logging.INFO)
 
 # Uncomment the block below to enable debug logging
 # nipyapi.config.nifi_config.debug=True
@@ -29,8 +32,9 @@ d_network_name = 'securedemo'
 secured_registry_url = 'https://localhost:18443/nifi-registry-api'
 secured_nifi_url = 'https://localhost:8443/nifi-api'
 
-host_certs_path = path.abspath(
-    nipyapi.config.PROJECT_ROOT_DIR + "/demo/resources/keys"
+host_certs_path = path.join(
+    nipyapi.config.PROJECT_ROOT_DIR,
+    "demo/resources/keys"
 )
 
 tls_env_vars = {
@@ -191,11 +195,12 @@ nipyapi.utils.start_docker_containers(
 
 log.info("Creating Registry security context")
 nipyapi.utils.set_endpoint(secured_registry_url)
+log.info("Using demo certs from %s", host_certs_path)
 nipyapi.security.set_service_ssl_context(
     service='registry',
-    ca_file=host_certs_path + '/localhost-ts.pem',
-    client_cert_file=host_certs_path + '/client-cert.pem',
-    client_key_file=host_certs_path + '/client-key.pem',
+    ca_file=path.join(host_certs_path, 'localhost-ts.pem'),
+    client_cert_file=path.join(host_certs_path, 'client-cert.pem'),
+    client_key_file=path.join(host_certs_path, 'client-key.pem'),
     client_key_password='clientPassword'
 )
 log.info("Waiting for Registry to be ready for login")

@@ -582,8 +582,8 @@ def export_flow_version(bucket_id, flow_id, version=None, file_path=None,
     Args:
         bucket_id (str): the UUID of the bucket containing the Flow
         flow_id (str): the UUID of the Flow to be retrieved from the Bucket
-        version (Optional [None, Str]): 'None' to retrieve the latest version, or a version
-            number as a string to get that version
+        version (Optional [None, Str]): 'None' to retrieve the latest version,
+            or a version number as a string to get that version
         file_path (str): The path and filename to write to. Defaults to None
             which returns the serialised obj
         mode (str): 'json' or 'yaml' to specific the encoding format

@@ -105,4 +105,5 @@ Python Requirements
 -------------------
 
 | Python 2.7 or 3.6 supported, though other versions may work.
+| Tested on Ubuntu and OSX 10.11.x - Windows automated testing not attempted
 | Outside of the standard Python modules, we make use of lxml, DeepDiff and ruamel.yaml

@@ -4,6 +4,7 @@ include docs/history.rst
 include LICENSE
 include README.rst
 include requirements.txt
+include nipyapi/demo/resources/keys/*
 
 recursive-include nipyapi *
 recursive-exclude * *.py[co]

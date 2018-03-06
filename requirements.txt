@@ -14,4 +14,4 @@ deepdiff>=3.3.0
 
 # Demo deployment automation
 docker>=2.5.1
-requests>=2.18
+requests[security]>=2.18

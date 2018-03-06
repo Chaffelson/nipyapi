@@ -46,7 +46,6 @@ long_retry_delay = 5
 long_max_wait = 120
 
 
-
 # --- Object Filters ------
 # This sets the mappings of where in the native datatype objects to find
 # particularly useful fields, like UUID or NAME.

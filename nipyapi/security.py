@@ -195,7 +195,7 @@ def get_service_access_status(service='nifi', bool_response=False):
     Returns:
         (bool) if bool_response, else the Service Access Status of the User
     """
-    log.info("Called get_registry_access_status with args %s", locals())
+    log.info("Called get_service_access_status with args %s", locals())
     assert service in _valid_services
     assert isinstance(bool_response, bool)
     if bool_response:
@@ -204,12 +204,14 @@ def get_service_access_status(service='nifi', bool_response=False):
         log.debug("- bool_response is True, disabling urllib3 warnings")
         logging.getLogger('urllib3').setLevel(logging.ERROR)
     try:
-        return getattr(nipyapi, service).AccessApi().get_access_status()
+        out = getattr(nipyapi, service).AccessApi().get_access_status()
+        log.info("Got server response, returning")
+        return out
     except urllib3.exceptions.MaxRetryError as e:
         log.debug("- Caught exception %s", type(e))
         if bool_response:
-            log.debug("- bool_response is True, returning False instead of"
-                      " raising exception")
+            log.debug("Connection failed with error %s and bool_response is "
+                      "True, returning False", e)
             return False
         log.debug("- bool_response is False, raising Exception")
         raise e
@@ -507,7 +509,8 @@ def set_service_ssl_context(
             ssl_context.load_cert_chain(
                 certfile=client_cert_file,
                 keyfile=client_key_file,
-                password=client_key_password)
+                password=client_key_password
+            )
         except FileNotFoundError as e:
             raise FileNotFoundError(
                 "Unable to read keyfile {0} or certfile {1}, error was "
