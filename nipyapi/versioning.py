@@ -683,3 +683,48 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
         flow=ver_flow,
         flow_snapshot=imported_flow,
     )
+
+def deploy_flow_version(parent_pg, location, bucketId, flowId, registryId,
+                        ver=None):
+    """
+    Deploys a versioned flow as a new process group inside the given parent
+    process group. If version is not provided, the latest version will be
+    deployed.
+
+    Args:
+    parent_pg (ProcessGroupEntity): The parent Process Group to create the
+        new process group in.
+    location (tuple[x, y]): the x,y coordinates to place the new Process
+        Group under the parent
+    bucketId (str): ID of the bucket containing the versioned flow to deploy.
+    flowId (str): ID of the versioned flow to deploy.
+    registryId (str): ID of the Registry client configured in NiFi.
+    version (Optional [int]): version to deploy, if not provided latest version
+        will be deployed.
+
+    Returns:
+    The ID of the created process group.
+    """
+    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    assert isinstance(location, tuple)
+    try:
+        return nipyapi.nifi.ProcessgroupsApi().create_process_group(
+            id=parent_pg.id,
+            body=nipyapi.nifi.ProcessGroupEntity(
+                revision=parent_pg.revision,
+                component=nipyapi.nifi.ProcessGroupDTO(
+                    position=nipyapi.nifi.PositionDTO(
+                        x=float(location[0]),
+                        y=float(location[1])
+                    ),
+                    version_control_information=VciDTO(
+                        bucket_id=bucketId,
+                        flow_id=flowId,
+                        registry_id=registryId,
+                        version=ver
+                    )
+                )
+            )
+        ).id
+    except nipyapi.nifi.rest.ApiException as e:
+        raise e
