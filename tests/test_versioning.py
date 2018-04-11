@@ -457,3 +457,13 @@ def test_deploy_flow_version(fix_ver_flow):
         version=None
     )
     assert isinstance(r1, nifi.ProcessGroupEntity)
+    with pytest.raises(ValueError):
+        # can't deploy a pg inside itself
+        _ = versioning.deploy_flow_version(
+            parent_id=fix_ver_flow.pg.id,
+            location=(0, 0),
+            bucket_id=fix_ver_flow.bucket.identifier,
+            flow_id=fix_ver_flow.flow.identifier,
+            reg_client_id=fix_ver_flow.client.id,
+            version=None
+        )

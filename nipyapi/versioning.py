@@ -740,4 +740,4 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
             )
         )
     except nipyapi.nifi.rest.ApiException as e:
-        raise e
+        raise ValueError(e.body)
