@@ -445,3 +445,15 @@ def test_import_flow_version(fix_flow_serde):
         ignore_order=False,
         verbose_level=2
     ) == {}
+
+
+def test_deploy_flow_version(fix_ver_flow):
+    r1 = versioning.deploy_flow_version(
+        parent_id=canvas.get_root_pg_id(),
+        location=(0,0),
+        bucket_id=fix_ver_flow.bucket.identifier,
+        flow_id=fix_ver_flow.flow.identifier,
+        reg_client_id=fix_ver_flow.client.id,
+        version=None
+    )
+    assert isinstance(r1, nifi.ProcessGroupEntity)

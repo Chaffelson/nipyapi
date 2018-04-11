@@ -18,7 +18,8 @@ __all__ = [
     'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
     'get_latest_flow_ver', 'update_flow_ver', 'get_version_info',
     'create_flow', 'create_flow_version', 'get_flow_version',
-    'export_flow_version', 'import_flow_version', 'list_flow_versions'
+    'export_flow_version', 'import_flow_version', 'list_flow_versions',
+    'deploy_flow_version'
 ]
 
 
@@ -684,47 +685,59 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
         flow_snapshot=imported_flow,
     )
 
-def deploy_flow_version(parent_pg, location, bucketId, flowId, registryId,
-                        ver=None):
+
+def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
+                        version=None):
     """
     Deploys a versioned flow as a new process group inside the given parent
     process group. If version is not provided, the latest version will be
     deployed.
 
     Args:
-    parent_pg (ProcessGroupEntity): The parent Process Group to create the
+    parent_id (str): The ID of the parent Process Group to create the
         new process group in.
     location (tuple[x, y]): the x,y coordinates to place the new Process
         Group under the parent
-    bucketId (str): ID of the bucket containing the versioned flow to deploy.
-    flowId (str): ID of the versioned flow to deploy.
-    registryId (str): ID of the Registry client configured in NiFi.
+    bucket_id (str): ID of the bucket containing the versioned flow to deploy.
+    flow_id (str): ID of the versioned flow to deploy.
+    registry_id (str): ID of the Registry client configured in NiFi.
     version (Optional [int]): version to deploy, if not provided latest version
         will be deployed.
 
     Returns:
-    The ID of the created process group.
+    (ProcessGroupEntity) of the newly deployed Process Group
     """
-    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert isinstance(location, tuple)
     try:
+        # Being pedantic about checking this as API failure errors are terse
+        # Check flow details are valid
+        target_flow = get_flow_version(
+            bucket_id=bucket_id,
+            flow_id=flow_id,
+            version=version
+        )
+        # check reg client is valid
+        target_reg_client = get_registry_client(reg_client_id, 'id')
+        # Issue deploy statement
         return nipyapi.nifi.ProcessgroupsApi().create_process_group(
-            id=parent_pg.id,
+            id=parent_id,
             body=nipyapi.nifi.ProcessGroupEntity(
-                revision=parent_pg.revision,
+                revision=nipyapi.nifi.RevisionDTO(
+                    version=0
+                ),
                 component=nipyapi.nifi.ProcessGroupDTO(
                     position=nipyapi.nifi.PositionDTO(
                         x=float(location[0]),
                         y=float(location[1])
                     ),
                     version_control_information=VciDTO(
-                        bucket_id=bucketId,
-                        flow_id=flowId,
-                        registry_id=registryId,
-                        version=ver
+                        bucket_id=target_flow.bucket.identifier,
+                        flow_id=target_flow.flow.identifier,
+                        registry_id=target_reg_client.id,
+                        version=target_flow.snapshot_metadata.version
                     )
                 )
             )
-        ).id
+        )
     except nipyapi.nifi.rest.ApiException as e:
         raise e
