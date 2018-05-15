@@ -21,7 +21,7 @@ def get_system_diagnostics():
 
     Returns (json):
     """
-    return nipyapi.nifi.SystemdiagnosticsApi().get_system_diagnostics()
+    return nipyapi.nifi.SystemDiagnosticsApi().get_system_diagnostics()
 
 
 def get_cluster():

@@ -719,7 +719,7 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         # check reg client is valid
         target_reg_client = get_registry_client(reg_client_id, 'id')
         # Issue deploy statement
-        return nipyapi.nifi.ProcessgroupsApi().create_process_group(
+        return nipyapi.nifi.ProcessGroupsApi().create_process_group(
             id=parent_id,
             body=nipyapi.nifi.ProcessGroupEntity(
                 revision=nipyapi.nifi.RevisionDTO(

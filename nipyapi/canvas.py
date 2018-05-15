@@ -100,7 +100,7 @@ def get_process_group_status(pg_id='root', detail='names'):
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
     assert detail in ['names', 'all'], "detail should be either 'names' or " \
                                        "'all'"
-    raw = nipyapi.nifi.ProcessgroupsApi().get_process_group(id=pg_id)
+    raw = nipyapi.nifi.ProcessGroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
         out = {
             raw.component.name: raw.component.id
@@ -129,7 +129,7 @@ def get_process_group(identifier, identifier_type='name'):
         if identifier_type == 'id':
             # assuming unique fetch of pg id
             # implementing separately to avoid recursing entire canvas
-            out = nipyapi.nifi.ProcessgroupsApi().get_process_group(identifier)
+            out = nipyapi.nifi.ProcessGroupsApi().get_process_group(identifier)
         else:
             obj = list_all_process_groups()
             out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
@@ -169,7 +169,8 @@ def list_all_process_groups():
     root_flow = recurse_flow('root')
     out = list(flatten(root_flow))
     # This duplicates the nipyapi_extended structure to the root case
-    root_entity = nipyapi.nifi.ProcessgroupsApi().get_process_group('root')
+    pga_handle = nipyapi.nifi.ProcessGroupsApi()
+    root_entity = pga_handle.get_process_group('root')
     root_entity.__setattr__('nipyapi_extended', root_flow)
     out.append(root_entity)
     return out
@@ -213,7 +214,7 @@ def schedule_process_group(process_group_id, scheduled):
     assert isinstance(scheduled, bool)
 
     def _running_schedule_process_group(pg_id_):
-        test_obj = nipyapi.nifi.ProcessgroupsApi().get_process_group(pg_id_)
+        test_obj = nipyapi.nifi.ProcessGroupsApi().get_process_group(pg_id_)
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
         return False
@@ -261,7 +262,7 @@ def delete_process_group(process_group, force=False, refresh=True):
     assert isinstance(force, bool)
     assert isinstance(refresh, bool)
     if refresh or force:
-        target = nipyapi.nifi.ProcessgroupsApi().get_process_group(
+        target = nipyapi.nifi.ProcessGroupsApi().get_process_group(
             process_group.id
         )
     else:
@@ -274,7 +275,7 @@ def delete_process_group(process_group, force=False, refresh=True):
             if target.id == template.template.group_id:
                 nipyapi.templates.delete_template(template.id)
     try:
-        return nipyapi.nifi.ProcessgroupsApi().remove_process_group(
+        return nipyapi.nifi.ProcessGroupsApi().remove_process_group(
             id=target.id,
             version=target.revision.version,
             client_id=target.revision.client_id
@@ -303,7 +304,7 @@ def create_process_group(parent_pg, new_pg_name, location):
     assert isinstance(new_pg_name, six.string_types)
     assert isinstance(location, tuple)
     try:
-        return nipyapi.nifi.ProcessgroupsApi().create_process_group(
+        return nipyapi.nifi.ProcessGroupsApi().create_process_group(
             id=parent_pg.id,
             body=nipyapi.nifi.ProcessGroupEntity(
                 revision=parent_pg.revision,
@@ -383,7 +384,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
     else:
         target_config = config
     try:
-        return nipyapi.nifi.ProcessgroupsApi().create_processor(
+        return nipyapi.nifi.ProcessGroupsApi().create_processor(
             id=parent_pg.id,
             body=nipyapi.nifi.ProcessorEntity(
                 revision={'version': 0},
@@ -611,7 +612,7 @@ def get_variable_registry(process_group, ancestors=True):
 
     """
     try:
-        return nipyapi.nifi.ProcessgroupsApi().get_variable_registry(
+        return nipyapi.nifi.ProcessGroupsApi().get_variable_registry(
             process_group.id,
             include_ancestor_groups=ancestors
         )
@@ -652,7 +653,7 @@ def update_variable_registry(process_group, update):
         ) for li in update
     ]
     try:
-        return nipyapi.nifi.ProcessgroupsApi().update_variable_registry(
+        return nipyapi.nifi.ProcessGroupsApi().update_variable_registry(
             id=process_group.id,
             body=nipyapi.nifi.VariableRegistryEntity(
                 process_group_revision=process_group.revision,
@@ -684,7 +685,7 @@ def get_connections(pg_id):
         nipyapi.nifi.ProcessGroupEntity
     )
     try:
-        out = nipyapi.nifi.ProcessgroupsApi().get_connections(pg_id)
+        out = nipyapi.nifi.ProcessGroupsApi().get_connections(pg_id)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
     assert isinstance(out, nipyapi.nifi.ConnectionsEntity)
@@ -710,7 +711,7 @@ def purge_connection(con_id):
     """
     # TODO: Reimplement to batched instead of single threaded
     def _autumn_leaves(con_id_, drop_request_):
-        test_obj = nipyapi.nifi.FlowfilequeuesApi().get_drop_request(
+        test_obj = nipyapi.nifi.FlowfileQueuesApi().get_drop_request(
             con_id_,
             drop_request_.drop_request.id
         ).drop_request
@@ -728,7 +729,7 @@ def purge_connection(con_id):
                 return True
 
     try:
-        drop_req = nipyapi.nifi.FlowfilequeuesApi().create_drop_request(con_id)
+        drop_req = nipyapi.nifi.FlowfileQueuesApi().create_drop_request(con_id)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
     assert isinstance(drop_req, nipyapi.nifi.DropRequestEntity)

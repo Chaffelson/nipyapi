@@ -89,7 +89,7 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
 
     """
     try:
-        return nipyapi.nifi.ProcessgroupsApi().instantiate_template(
+        return nipyapi.nifi.ProcessGroupsApi().instantiate_template(
             id=pg_id,
             body=nipyapi.nifi.InstantiateTemplateRequestEntity(
                 origin_x=loc_x,
@@ -147,7 +147,7 @@ def create_template(pg_id, name, desc=''):
         description=str(desc),
         snippet_id=snippet.snippet.id
     )
-    return nipyapi.nifi.ProcessgroupsApi().create_template(
+    return nipyapi.nifi.ProcessGroupsApi().create_template(
         id=snippet.snippet.parent_group_id,
         body=new_template
     )
@@ -208,7 +208,7 @@ def upload_template(pg_id, template_file):
         if nipyapi.templates.get_template(t_name):
             raise ValueError('A template named {} already exists.'
                              .format(t_name))
-        nipyapi.nifi.ProcessgroupsApi().upload_template(
+        nipyapi.nifi.ProcessGroupsApi().upload_template(
             id=this_pg.id,
             template=template_file
         )
