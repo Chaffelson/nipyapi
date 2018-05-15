@@ -332,6 +332,12 @@ def start_docker_containers(docker_containers, network_name='demo'):
     log.info("Creating Docker client using Environment Variables")
     d_client = docker.from_env()
 
+    # Test if Docker Service is available
+    try:
+        d_client.version()
+    except Exception:
+        raise EnvironmentError("Docker Service not found")
+
     for target in docker_containers:
         assert isinstance(target, DockerContainer)
 

@@ -69,7 +69,7 @@ ldap_env_vars = {
 d_containers = [
     DockerContainer(
         name='secure-nifi',
-        image_name='chaffelson/nifi',
+        image_name='apache/nifi',
         image_tag='1.5.0',
         ports={'8443/tcp': 8443},
         env=ldap_env_vars,

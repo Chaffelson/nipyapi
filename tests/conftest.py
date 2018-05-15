@@ -51,6 +51,7 @@ else:
                 'http://localhost:10112/nifi-api',  # add earlier as required
                 'http://localhost:10120/nifi-api',
                 'http://localhost:10140/nifi-api',
+                'http://localhost:10150/nifi-api',
                 nipyapi.config.nifi_config.host  # reset to default
             ]
     registry_test_endpoints = [nipyapi.config.registry_config.host]

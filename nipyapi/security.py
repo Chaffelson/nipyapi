@@ -141,10 +141,11 @@ def service_login(service='nifi', username=None, password=None,
 def set_service_auth_token(token=None, token_name='tokenAuth', service='nifi'):
     """
     Helper method to set the auth token correctly for the specified service
+
     Args:
         token (Optional[str]): The token to set. Defaults to None.
         token_name (str): the api_key field name to set the token to. Defaults
-        to 'tokenAuth'
+            to 'tokenAuth'
         service (str): 'nifi' or 'registry', the service to set
 
     Returns:

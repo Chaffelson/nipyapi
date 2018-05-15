@@ -583,7 +583,7 @@ def update_processor(processor, update):
         )
     try:
         return nipyapi.nifi.ProcessorsApi().update_processor(
-            processor.id,
+            id=processor.id,
             body=nipyapi.nifi.ProcessorEntity(
                 component=nipyapi.nifi.ProcessorDTO(
                     config=update,

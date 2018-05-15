@@ -56,8 +56,8 @@ def test_list_all_process_groups(fix_pg, regress):
 
 def test_create_process_group(regress):
     r = canvas.create_process_group(
-        canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
-        conftest.test_pg_name,
+        parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
+        new_pg_name=conftest.test_pg_name,
         location=(400.0,400.0)
     )
     assert r.component.name == conftest.test_pg_name
