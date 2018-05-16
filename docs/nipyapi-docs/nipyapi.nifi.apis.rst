@@ -28,10 +28,10 @@ nipyapi.nifi.apis.controller\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.controllerservices\_api module
-------------------------------------------------
+nipyapi.nifi.apis.controller\_services\_api module
+--------------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.controllerservices_api
+.. automodule:: nipyapi.nifi.apis.controller_services_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -44,10 +44,10 @@ nipyapi.nifi.apis.counters\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.datatransfer\_api module
-------------------------------------------
+nipyapi.nifi.apis.data\_transfer\_api module
+--------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.datatransfer_api
+.. automodule:: nipyapi.nifi.apis.data_transfer_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -60,10 +60,10 @@ nipyapi.nifi.apis.flow\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.flowfilequeues\_api module
---------------------------------------------
+nipyapi.nifi.apis.flowfile\_queues\_api module
+----------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.flowfilequeues_api
+.. automodule:: nipyapi.nifi.apis.flowfile_queues_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -76,10 +76,10 @@ nipyapi.nifi.apis.funnel\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.inputports\_api module
-----------------------------------------
+nipyapi.nifi.apis.input\_ports\_api module
+------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.inputports_api
+.. automodule:: nipyapi.nifi.apis.input_ports_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -92,10 +92,10 @@ nipyapi.nifi.apis.labels\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.outputports\_api module
------------------------------------------
+nipyapi.nifi.apis.output\_ports\_api module
+-------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.outputports_api
+.. automodule:: nipyapi.nifi.apis.output_ports_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -108,10 +108,10 @@ nipyapi.nifi.apis.policies\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.processgroups\_api module
--------------------------------------------
+nipyapi.nifi.apis.process\_groups\_api module
+---------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.processgroups_api
+.. automodule:: nipyapi.nifi.apis.process_groups_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -132,26 +132,26 @@ nipyapi.nifi.apis.provenance\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.provenanceevents\_api module
+nipyapi.nifi.apis.provenance\_events\_api module
+------------------------------------------------
+
+.. automodule:: nipyapi.nifi.apis.provenance_events_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+nipyapi.nifi.apis.remote\_process\_groups\_api module
+-----------------------------------------------------
+
+.. automodule:: nipyapi.nifi.apis.remote_process_groups_api
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+nipyapi.nifi.apis.reporting\_tasks\_api module
 ----------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.provenanceevents_api
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.apis.remoteprocessgroups\_api module
--------------------------------------------------
-
-.. automodule:: nipyapi.nifi.apis.remoteprocessgroups_api
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.apis.reportingtasks\_api module
---------------------------------------------
-
-.. automodule:: nipyapi.nifi.apis.reportingtasks_api
+.. automodule:: nipyapi.nifi.apis.reporting_tasks_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -164,10 +164,10 @@ nipyapi.nifi.apis.resources\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.sitetosite\_api module
-----------------------------------------
+nipyapi.nifi.apis.site\_to\_site\_api module
+--------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.sitetosite_api
+.. automodule:: nipyapi.nifi.apis.site_to_site_api
     :members:
     :undoc-members:
     :show-inheritance:
@@ -180,10 +180,10 @@ nipyapi.nifi.apis.snippets\_api module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.apis.systemdiagnostics\_api module
------------------------------------------------
+nipyapi.nifi.apis.system\_diagnostics\_api module
+-------------------------------------------------
 
-.. automodule:: nipyapi.nifi.apis.systemdiagnostics_api
+.. automodule:: nipyapi.nifi.apis.system_diagnostics_api
     :members:
     :undoc-members:
     :show-inheritance:

@@ -694,18 +694,18 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
     deployed.
 
     Args:
-    parent_id (str): The ID of the parent Process Group to create the
-        new process group in.
-    location (tuple[x, y]): the x,y coordinates to place the new Process
-        Group under the parent
-    bucket_id (str): ID of the bucket containing the versioned flow to deploy.
-    flow_id (str): ID of the versioned flow to deploy.
-    registry_id (str): ID of the Registry client configured in NiFi.
-    version (Optional [int]): version to deploy, if not provided latest version
-        will be deployed.
+        parent_id (str): The ID of the parent Process Group to create the
+            new process group in.
+        location (tuple[x, y]): the x,y coordinates to place the new Process
+            Group under the parent
+        bucket_id (str): ID of the bucket containing the versioned flow to deploy.
+        flow_id (str): ID of the versioned flow to deploy.
+        registry_id (str): ID of the Registry client configured in NiFi.
+        version (Optional [int]): version to deploy, if not provided latest version
+            will be deployed.
 
     Returns:
-    (ProcessGroupEntity) of the newly deployed Process Group
+        (ProcessGroupEntity) of the newly deployed Process Group
     """
     assert isinstance(location, tuple)
     try:

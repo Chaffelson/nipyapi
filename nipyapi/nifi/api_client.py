@@ -178,14 +178,16 @@ class ApiClient(object):
 
         If obj is None, return None.
         If obj is str, int, long, float, bool, return directly.
-        If obj is datetime.datetime, datetime.date
-            convert to string in iso8601 format.
+        If obj is datetime.datetime, datetime.date convert to string in iso8601 format.
         If obj is list, sanitize each element in the list.
         If obj is dict, return the dict.
         If obj is swagger model, return the properties dict.
 
-        :param obj: The data to serialize.
-        :return: The serialized form of data.
+        Args:
+            (obj) The data to serialize.
+
+        Returns:
+             The serialized form of data.
         """
         if obj is None:
             return None
@@ -628,6 +630,6 @@ class ApiClient(object):
                 value = data[klass.attribute_map[attr]]
                 kwargs[attr] = self.__deserialize(value, attr_type)
 
-        instance = klass(**kwargs)     
+        instance = klass(**kwargs)
 
         return instance

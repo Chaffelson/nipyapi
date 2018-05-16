@@ -2,6 +2,27 @@
 History
 =======
 
+0.9.0 (2018-05-16)
+------------------
+
+| Updated NiFi client to 1.6.0 release
+
+**Potentially Breaking Changes**
+
+*Users should check the updated documentation and ensure their tests pass as expected*
+
+* Several NiFi client API calls were inconsistently CamelCase'd and have been renamed in the upstream NiFi release, I have honoured those changes in this release. If you use them please check your function names if you get an error
+
+**New Features**
+
+* Added functionality to Deploy a versioned flow to the canvas. This was an oversight from the 0.8.0 release. Function is creatively named ./versioning/deploy_flow_version
+
+**Other Notes**
+
+* Updated the Issue Template to also ask how urgent the problem is so we can priortise work
+* Where possible we have switched to using the Apache maintained Docker containers rather than our own, there should be no impact to this unless you were relying on some edge part of our test compose files
+
+
 0.8.0 (2018-03-06)
 ------------------
 
