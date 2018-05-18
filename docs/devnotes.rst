@@ -19,12 +19,7 @@ Docker Test Environment
 
 There is an Apache NiFi image available on Dockerhub::
 
-    docker pull apache/nifi:1.5.0
-
-However this is released with the official Apache cadence; for development convenience I keep slightly upstream versions of the NiFi & NiFi-Registry docker images on::
-
-    docker pull chaffelson/nifi:latest
-    docker pull chaffelson/nifi-registry:latest
+    docker pull apache/nifi:latest
 
 There are a couple of configuration files for launching various Docker environment configurations in ./test_env_config for convenience.
 

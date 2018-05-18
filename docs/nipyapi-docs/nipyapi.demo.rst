@@ -1,3 +1,15 @@
+FDLC
+----
+
+Importing this module provides further instructions for it's use.
+It will guide you through the steps involved in flow promotion.
+
+Note that it makes extensive use of Docker Containers.
+
+Usage::
+
+    from nipyapi.demo.fdlc import *
+
 Console
 -------
 
@@ -21,6 +33,8 @@ TLS in NiFi-Registry's case, and public LDAP username/password for NiFi.
 This is intended to give the user an example of a secured environment.
 May be combined with the Console to produce a secured environment with demo
 objects.
+
+Note that this demo makes extensive use of Docker Containers.
 
 Usage::
 

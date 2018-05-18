@@ -2,6 +2,16 @@
 History
 =======
 
+0.9.1 (2018-05-18)
+------------------
+
+| Updated Demos for 0.9 release
+
+**New Features**
+
+* Added a new demo for Flow Development LifeCycle which illustrates the steps a user might automate to promote Versioned Flows between NiFi environments
+* Check out nipyapi.demo.fdlc to see more details
+
 0.9.0 (2018-05-16)
 ------------------
 

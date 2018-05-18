@@ -364,7 +364,7 @@ def step_c_promote_change_to_prod_reg():
           "\nRefresh your Prod NiFi tab to see that the Process Group has a "
           "red UpArrow(⬆︎) icon indicating a new version is available for "
           "deployment."
-          "\nPlease now call 'step_d_promote_change_to_prod_nifi()\n")
+          "\nPlease now call 'step_d_promote_change_to_prod_nifi()'\n")
 
 
 def step_d_promote_change_to_prod_nifi():
