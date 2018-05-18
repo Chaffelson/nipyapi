@@ -70,7 +70,7 @@ d_containers = [
     DockerContainer(
         name='secure-nifi',
         image_name='apache/nifi',
-        image_tag='1.5.0',
+        image_tag='latest',
         ports={'8443/tcp': 8443},
         env=ldap_env_vars,
         volumes={
@@ -79,8 +79,8 @@ d_containers = [
     ),
     DockerContainer(
         name='secure-registry',
-        image_name='chaffelson/nifi-registry',
-        image_tag='0.1.0',
+        image_name='apache/nifi-registry',
+        image_tag='latest',
         ports={'18443/tcp': 18443},
         env=tls_env_vars,
         volumes={

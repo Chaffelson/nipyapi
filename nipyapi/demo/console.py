@@ -72,6 +72,11 @@ reg_client_0 = nipyapi.versioning.get_registry_client(
     'nipyapi_secure_reg_client_0',
     'name'
 )
+try:
+    reg_client_0 = nipyapi.versioning.list_registry_clients().registries[0]
+except IndexError:
+    reg_client_0 = None
+
 if not reg_client_0:
     try:
         reg_client_0 = nipyapi.versioning.create_registry_client(
