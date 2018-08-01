@@ -8,7 +8,7 @@ from nipyapi import system, config, nifi
 from nipyapi.nifi import models
 
 
-def test_get_nifi_version_info(regress):
+def test_get_nifi_version_info(regress_nifi):
     r = system.get_nifi_version_info()
     assert isinstance(r, models.version_info_dto.VersionInfoDTO)
     assert "ni_fi_version" in r.to_dict().keys()

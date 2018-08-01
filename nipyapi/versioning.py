@@ -5,6 +5,7 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 from __future__ import absolute_import
+import logging
 import six
 import nipyapi
 # Due to line lengths, creating shortened names for these objects
@@ -22,6 +23,8 @@ __all__ = [
     'deploy_flow_version'
 ]
 
+log = logging.getLogger(__name__)
+
 
 def create_registry_client(name, uri, description):
     """
@@ -35,6 +38,9 @@ def create_registry_client(name, uri, description):
     Returns:
         (RegistryClientEntity): The new registry client object
     """
+    assert isinstance(uri, six.string_types) and uri is not False
+    assert isinstance(name, six.string_types) and name is not False
+    assert isinstance(description, six.string_types)
     try:
         return nipyapi.nifi.ControllerApi().create_registry_client(
             body={
@@ -52,20 +58,28 @@ def create_registry_client(name, uri, description):
         raise ValueError(e.body)
 
 
-def delete_registry_client(client):
+def delete_registry_client(client, refresh=True):
     """
     Deletes a Registry Client from the list of NiFI Controller Services
 
     Args:
         client (RegistryClientEntity): The client to delete
+        refresh (bool): Whether to refresh the object before action
 
     Returns:
         (RegistryClientEntity): The updated client object
     """
+    assert isinstance(client, nipyapi.nifi.RegistryClientEntity)
     try:
+        if refresh:
+            target = nipyapi.nifi.ControllerApi().get_registry_client(
+                client.id
+            )
+        else:
+            target = client
         return nipyapi.nifi.ControllerApi().delete_registry_client(
-            id=client.id,
-            version=client.revision.version
+            id=target.id,
+            version=target.revision.version
         )
     except (nipyapi.nifi.rest.ApiException, AttributeError) as e:
         raise ValueError(e)
@@ -127,11 +141,15 @@ def create_registry_bucket(name):
         (Bucket): The new Bucket object
     """
     try:
-        return nipyapi.registry.BucketsApi().create_bucket(
+        bucket = nipyapi.registry.BucketsApi().create_bucket(
             body={
                 'name': name
             }
         )
+        log.debug("Created bucket %s against registry connection at %s",
+                  bucket.identifier,
+                  nipyapi.config.registry_config.api_client.host)
+        return bucket
     except nipyapi.registry.rest.ApiException as e:
         raise ValueError(e.body)
 
@@ -221,9 +239,9 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
         registry_client (RegistryClient): The Client linked to the Registry
             which contains the Bucket to save to
         bucket (Bucket): the Bucket on the NiFi Registry to save to
+        flow_name (str): A name for the VersionedFlow in the Bucket
             Note you need either a name for a new VersionedFlow, or the ID of
             an existing one to save a new version
-        flow_name (str): A name for the VersionedFlow in the Bucket
         flow_id (Optional [str]): Identifier of an existing VersionedFlow in
             the bucket, if saving a new version to an existing flow
         comment (str): A comment for the version commit
@@ -698,11 +716,11 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
             new process group in.
         location (tuple[x, y]): the x,y coordinates to place the new Process
             Group under the parent
-        bucket_id (str): ID of the bucket containing the versioned flow to deploy.
+        bucket_id (str): ID of the bucket containing the versioned flow to
+            deploy.
         flow_id (str): ID of the versioned flow to deploy.
-        registry_id (str): ID of the Registry client configured in NiFi.
-        version (Optional [int]): version to deploy, if not provided latest version
-            will be deployed.
+        version (Optional [int]): version to deploy, if not provided latest
+            version will be deployed.
 
     Returns:
         (ProcessGroupEntity) of the newly deployed Process Group

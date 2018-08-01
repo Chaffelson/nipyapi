@@ -12,7 +12,7 @@ from deepdiff import DeepDiff
 from nipyapi import utils, nifi
 
 
-def test_dump(fix_flow_serde):
+def test_dump(regress_flow_reg, fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
     export_obj = json.loads(fix_flow_serde.raw)
@@ -41,7 +41,7 @@ def test_dump(fix_flow_serde):
     ) == {}
 
 
-def test_load(fix_flow_serde):
+def test_load(regress_flow_reg, fix_flow_serde):
     # Validating load testing again in case we break the 'dump' test
     r1 = utils.load(
         obj=fix_flow_serde.json,

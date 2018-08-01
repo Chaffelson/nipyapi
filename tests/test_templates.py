@@ -15,7 +15,7 @@ elif six.PY2:
     from StringIO import StringIO
 
 
-def test_upload_template(fix_templates, regress):
+def test_upload_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
     r0 = nipyapi.templates.upload_template(
         pg_id=pg.id,
@@ -55,7 +55,7 @@ def test_upload_template(fix_templates, regress):
         )
 
 
-def test_all_templates(fix_templates, regress):
+def test_all_templates(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
     _ = nipyapi.templates.upload_template(
         pg.id,
@@ -66,7 +66,7 @@ def test_all_templates(fix_templates, regress):
     assert len(r.templates) > 0
 
 
-def test_get_templates_by_name(fix_templates, regress):
+def test_get_templates_by_name(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
     _ = nipyapi.templates.upload_template(
         pg.id,
@@ -77,7 +77,7 @@ def test_get_templates_by_name(fix_templates, regress):
     assert isinstance(r, nipyapi.nifi.TemplateEntity)
 
 
-def test_deploy_template(fix_templates, regress):
+def test_deploy_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
     t1 = nipyapi.templates.upload_template(
         pg.id,
@@ -90,13 +90,13 @@ def test_deploy_template(fix_templates, regress):
     assert isinstance(r, nipyapi.nifi.FlowEntity)
 
 
-def test_get_snippet(fix_pg, regress):
+def test_get_snippet(regress_nifi, fix_pg):
     t_pg = fix_pg.generate()
     r = nipyapi.templates.create_pg_snippet(t_pg.id)
     assert isinstance(r, nipyapi.nifi.SnippetEntity)
 
 
-def test_create_template(fix_pg, regress):
+def test_create_template(regress_nifi, fix_pg):
     t_pg = fix_pg.generate()
     r = nipyapi.templates.create_template(
         pg_id=t_pg.id,
@@ -106,7 +106,7 @@ def test_create_template(fix_pg, regress):
     assert isinstance(r, nipyapi.nifi.TemplateEntity)
 
 
-def test_export_template(fix_templates, regress):
+def test_export_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
     t1 = nipyapi.templates.upload_template(
         pg.id,
@@ -135,7 +135,7 @@ def test_export_template(fix_templates, regress):
         )
 
 
-def test_delete_template(fix_templates, regress):
+def test_delete_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
     t1 = nipyapi.templates.upload_template(
         pg.id,

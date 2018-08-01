@@ -21,7 +21,7 @@ logging.basicConfig(level=logging.WARNING)
 # Note that changing the default hosts below will not
 # affect an API connection that's already running.
 # You'll need to change the .api_client.host for that, and there is a
-# convenience function for this in nipyapi.utils
+# convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
 nifi_config.host = 'http://localhost:8080/nifi-api'
