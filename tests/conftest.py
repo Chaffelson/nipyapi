@@ -45,7 +45,7 @@ if "TRAVIS" in environ and environ["TRAVIS"] == "true":
     nifi_test_endpoints = ['http://localhost:8080/nifi-api']
     registry_test_endpoints = [
         ('http://localhost:18080/nifi-registry-api',
-         'http://localhost:18080',
+         'http://registry:18080',
          'http://localhost:8080/nifi-api'
          )
     ]
