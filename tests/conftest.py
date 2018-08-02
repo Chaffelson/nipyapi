@@ -13,7 +13,7 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 # Test Configuration parameters
-test_docker_registry_endpoint = 'http://registry:18080'
+test_host = 'localhost'
 test_basename = "nipyapi_test"
 test_pg_name = test_basename + "_ProcessGroup"
 test_registry_client_name = test_basename + "_reg_client"
@@ -37,71 +37,159 @@ test_templates = {
     'complex': test_basename + 'Template_01'
 }
 
-
 # Determining test environment
 # Can't use skiptest with parametrize for Travis
 # Mostly because loading up all the environments takes too long
 if "TRAVIS" in environ and environ["TRAVIS"] == "true":
-    print("Running tests on TRAVIS, skipping regression suite")
-    nifi_test_endpoints = [nipyapi.config.nifi_config.host]
-    registry_test_endpoints = [nipyapi.config.registry_config.host]
+    log.info("Running tests on TRAVIS, skipping regression suite")
+    nifi_test_endpoints = ['http://localhost:8080/nifi-api']
+    registry_test_endpoints = [
+        ('http://localhost:18080/nifi-registry-api',
+         'http://registry:18080',
+         'http://localhost:8080/nifi-api'
+         )
+    ]
 else:
-    print("Running tests on NOT TRAVIS, enabling regression suite")
+    log.info("Running tests on NOT TRAVIS, enabling regression suite")
+    # Note that these endpoints are assumed to be available
+    # look in Nipyapi/test_env_config/docker_compose_full_test for
+    # convenient Docker configs and port mappings.
+
+    # NOTE: it is important that the latest version is the last in the list
+    # So that after a parametrized test we leave the single tests against
+    # The latest release without bulking the test suite ensuring they change
+    # back each time.
     nifi_test_endpoints = [
-                'http://localhost:10112/nifi-api',  # add earlier as required
-                'http://localhost:10120/nifi-api',
-                'http://localhost:10140/nifi-api',
-                'http://localhost:10150/nifi-api',
-                nipyapi.config.nifi_config.host  # reset to default
-            ]
-    registry_test_endpoints = [nipyapi.config.registry_config.host]
+        'http://' + test_host + ':10112/nifi-api',
+        'http://' + test_host + ':10120/nifi-api',
+        'http://' + test_host + ':10140/nifi-api',
+        'http://' + test_host + ':8080/nifi-api'  # Default to latest
+    ]
+    # These are paired into api & docker labels with a paired nifi instance
+    registry_test_endpoints = [
+        ('http://' + test_host + ':18010/nifi-registry-api',
+            'http://registry-010:18010',
+         'http://' + test_host + ':8080/nifi-api'
+         ),
+        ('http://' + test_host + ':18020/nifi-registry-api',
+            'http://registry-020:18020',
+         'http://' + test_host + ':8080/nifi-api'
+         )  # Default to latest version
+    ]
 
 
-# 'regress' generates tests against previous versions of NiFi
+# 'regress' generates tests against previous versions of NiFi or sub-projects.
 # If you are using regression, note that you have to create NiFi objects within
 # the Test itself. This is because the fixture is generated before the
 # PyTest parametrize call, making the order
 # new test_func > fixtures > parametrize > run_test_func > teardown > next
 def pytest_generate_tests(metafunc):
-    if 'regress' in metafunc.fixturenames:
-        # print("Regression testing requested for ({0})."
-        #       .format(metafunc.function.__name__))
+    log.info("Metafunc Fixturenames are %s", metafunc.fixturenames)
+    if 'regress_nifi' in metafunc.fixturenames:
+        log.info("NiFi Regression testing requested for ({0})."
+                 .format(metafunc.function.__name__))
         metafunc.parametrize(
-            argnames='regress',
+            argnames='regress_nifi',
             argvalues=nifi_test_endpoints,
+            indirect=True
+        )
+    elif 'regress_flow_reg' in metafunc.fixturenames:
+        log.info("NiFi Flow Registry Regression testing requested for ({0})."
+                 .format(metafunc.function.__name__))
+        metafunc.parametrize(
+            argnames='regress_flow_reg',
+            argvalues=registry_test_endpoints,
             indirect=True
         )
 
 
+# Note that it's important that the regress function is the first called if
+# you are stacking fixtures
 @pytest.fixture(scope="function")
-def regress(request):
-    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
-    nipyapi.config.nifi_config.api_client.host = request.param
+def regress_nifi(request):
+    log.info("NiFi Regression test setup called against endpoint %s",
+             request.param)
+    nipyapi.utils.set_endpoint(request.param)
+
+
+def remove_test_registry_client():
+    _ = [nipyapi.versioning.delete_registry_client(li) for
+         li in nipyapi.versioning.list_registry_clients().registries
+         if test_registry_client_name in li.component.name
+         ]
+
+
+def ensure_registry_client(uri):
+    client = nipyapi.versioning.create_registry_client(
+        name=test_registry_client_name + uri,
+        uri=uri,
+        description=uri
+    )
+    if isinstance(client, nipyapi.nifi.RegistryClientEntity):
+        return client
+    else:
+        raise ValueError("Could not create Registry Client")
+
+
+@pytest.fixture(scope="function")
+def regress_flow_reg(request):
+    log.info("NiFi-Registry regression test called against endpoints %s",
+             request.param)
+    # Set Registry connection
+    nipyapi.utils.set_endpoint(request.param[0])
+    # Set paired NiFi connection
+    nipyapi.utils.set_endpoint(request.param[2])
+    # because pytest won't let you eaily cascade parameters through fixtures
+    # we set the docker URI in the config for retrieval later on
+    nipyapi.config.registry_local_name = request.param[1]
 
 
 # Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
-    for url in nifi_test_endpoints + registry_test_endpoints:
+    log.info("Commencing test session setup")
+    for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
         nipyapi.utils.set_endpoint(url)
         target_url = url.replace('-api', '')
-        if not nipyapi.utils.wait_to_complete(nipyapi.utils.is_endpoint_up,
-                                              target_url,
-                                              nipyapi_delay=5,
-                                              nipyapi_max_wait=60):
+        if not nipyapi.utils.wait_to_complete(
+            nipyapi.utils.is_endpoint_up,
+            target_url,
+            nipyapi_delay=nipyapi.config.long_retry_delay,
+            nipyapi_max_wait=nipyapi.config.long_max_wait):
             pytest.exit(
                 "Expected Service endpoint ({0}) is not responding"
                 .format(target_url)
             )
-        # This cleans each environment at the start of the session
-        cleanup()
-    request.addfinalizer(cleanup)
+        else:
+            # Test API client connection
+            if 'nifi-api' in url:
+                if nipyapi.canvas.get_root_pg_id():
+                    log.info("Tested Nifi client connection for test suite to"
+                             "service endpoint at %s", url)
+                    cleanup()
+                    request.addfinalizer(cleanup)
+                else:
+                    raise ValueError("No Response from NiFi test call")
+            elif 'nifi-registry-api' in url:
+                if nipyapi.registry.FlowsApi().get_available_flow_fields():
+                    log.info("Tested NiFi-Registry client connection, got "
+                             "response from %s", url)
+                    cleanup_reg()
+                    request.addfinalizer(cleanup_reg)
+                else:
+                    raise ValueError("No Response from NiFi-Registry test call"
+                                     )
+            else:
+                raise ValueError("Bad API Endpoint")
+    log.info("Completing Test Session Setup")
 
 
 def remove_test_templates():
-    for this_template in nipyapi.templates.list_all_templates().templates:
-        if test_basename in this_template.template.name:
-            nipyapi.templates.delete_template(this_template.id)
+    all_templates = nipyapi.templates.list_all_templates().templates
+    if all_templates is not None:
+        for this_template in all_templates:
+            if test_basename in this_template.template.name:
+                nipyapi.templates.delete_template(this_template.id)
 
 
 def remove_test_pgs():
@@ -132,13 +220,6 @@ def remove_test_processors():
         nipyapi.canvas.delete_processor(target, force=True)
 
 
-def remove_test_registry_client():
-    _ = [nipyapi.versioning.delete_registry_client(li) for
-         li in nipyapi.versioning.list_registry_clients().registries
-         if test_registry_client_name in li.component.name
-         ]
-
-
 def remove_test_buckets():
     _ = [nipyapi.versioning.delete_registry_bucket(li) for li
          in nipyapi.versioning.list_registry_buckets() if
@@ -149,9 +230,18 @@ def cleanup():
     # Only bulk-cleanup universally compatible components
     # Ideally we would clean each test environment, but it's too slow to do it
     # per test, so we rely on individual fixture cleanup
+    log.info("Running bulk cleanup on %s",
+             nipyapi.config.nifi_config.api_client.host)
     remove_test_templates()
     remove_test_processors()
     remove_test_pgs()
+
+
+def cleanup_reg():
+    # Bulk cleanup for tests involving NiFi Registry
+    remove_test_pgs()
+    remove_test_buckets()
+    remove_test_registry_client()
 
 
 @pytest.fixture(name='fix_templates', scope='function')
@@ -187,12 +277,6 @@ def fixture_templates(request, fix_pg):
     return out
 
 
-@pytest.fixture()
-def regress(request):
-    # print("\nSetting nifi endpoint to ({0}).".format(request.param))
-    nipyapi.config.nifi_config.api_client.host = request.param
-
-
 @pytest.fixture(name='fix_pg')
 def fixture_pg(request):
     class Dummy:
@@ -214,17 +298,6 @@ def fixture_pg(request):
 
     request.addfinalizer(cleanup)
     return Dummy()
-
-
-@pytest.fixture(name='fix_reg_client')
-def fixture_reg_client(request):
-    request.addfinalizer(remove_test_registry_client)
-    remove_test_registry_client()
-    return nipyapi.versioning.create_registry_client(
-        name=test_registry_client_name,
-        uri=test_docker_registry_endpoint,
-        description='NiPyApi Test Wrapper'
-    )
 
 
 @pytest.fixture(name='fix_proc')
@@ -260,47 +333,54 @@ def fixture_proc(request):
     return Dummy()
 
 
-@pytest.fixture(name='fix_bucket')
-def fixture_bucket(request, fix_reg_client):
+@pytest.fixture(name='fix_bucket', scope='function')
+def fixture_bucket(request):
+    class Dummy:
+        def __init__(self):
+            pass
+
+        def __call__(self, name=test_bucket_name, suffix=''):
+            return nipyapi.versioning.create_registry_bucket(
+                test_bucket_name + suffix
+            )
     request.addfinalizer(remove_test_buckets)
-    remove_test_buckets()
-    FixtureBucket = namedtuple(
-        'FixtureBucket', ('client', 'bucket')
-    )
-    return FixtureBucket(
-        client=fix_reg_client,
-        bucket=nipyapi.versioning.create_registry_bucket(test_bucket_name)
-    )
+    return Dummy()
 
 
-@pytest.fixture(name='fix_ver_flow')
-def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
+@pytest.fixture(name='fix_ver_flow', scope='function')
+def fixture_ver_flow(request, fix_bucket, fix_pg, fix_proc):
+    log.info("Starting setup of Fixture fix_ver_flow")
     FixtureVerFlow = namedtuple(
-        'FixtureVerFlow', getattr(fix_bucket, '_fields') + (
-            'pg', 'proc', 'info', 'flow', 'snapshot', 'dto')
+        'FixtureVerFlow', ('client', 'bucket', 'pg', 'proc', 'info',
+                           'flow', 'snapshot', 'dto')
     )
+    f_reg_client = ensure_registry_client(nipyapi.config.registry_local_name)
     f_pg = fix_pg.generate()
+    f_bucket = fix_bucket()
     f_proc = fix_proc.generate(parent_pg=f_pg)
     f_info = nipyapi.versioning.save_flow_ver(
             process_group=f_pg,
-            registry_client=fix_bucket.client,
-            bucket=fix_bucket.bucket,
+            registry_client=f_reg_client,
+            bucket=f_bucket,
             flow_name=test_versioned_flow_name,
             comment='NiPyApi Test',
             desc='NiPyApi Test'
         )
     f_flow = nipyapi.versioning.get_flow_in_bucket(
-            bucket_id=fix_bucket.bucket.identifier,
+            bucket_id=f_bucket.identifier,
             identifier=f_info.version_control_information.flow_id,
             identifier_type='id'
         )
     f_snapshot = nipyapi.versioning.get_latest_flow_ver(
-        fix_bucket.bucket.identifier,
+        f_bucket.identifier,
         f_flow.identifier
     )
     f_dto = ('registry', 'VersionedFlowSnapshot')
+    request.addfinalizer(cleanup_reg)
+    log.info("Finished setting up Fixture fix_ver_flow")
     return FixtureVerFlow(
-        *fix_bucket,
+        client=f_reg_client,
+        bucket=f_bucket,
         pg=f_pg,
         proc=f_proc,
         info=f_info,
@@ -310,8 +390,8 @@ def fixture_ver_flow(fix_bucket, fix_pg, fix_proc):
     )
 
 
-@pytest.fixture(name='fix_flow_serde')
-def fixture_flow_serde(tmpdir, fix_ver_flow):
+@pytest.fixture(name='fix_flow_serde', scope='function')
+def fixture_flow_serde(request, tmpdir, fix_ver_flow):
     FixtureFlowSerde = namedtuple(
         'FixtureFlowSerde',
         getattr(fix_ver_flow, '_fields') + ('filepath', 'json', 'yaml', 'raw')
@@ -335,6 +415,7 @@ def fixture_flow_serde(tmpdir, fix_ver_flow):
         file_path=f_filepath + '.yaml',
         mode='yaml'
     )
+    request.addfinalizer(cleanup_reg)
     return FixtureFlowSerde(
         *fix_ver_flow,
         filepath=f_filepath,
@@ -344,8 +425,8 @@ def fixture_flow_serde(tmpdir, fix_ver_flow):
     )
 
 
-@pytest.fixture(name='fix_ctv')
-def fixture_complex_template_versioning(fix_ver_flow):
+@pytest.fixture(name='fix_ctv', scope='function')
+def fixture_complex_template_versioning(request, fix_ver_flow):
     FixtureCTV = namedtuple(
         'FixtureCTV', getattr(fix_ver_flow, '_fields') + (
             'template', 'info_w_template', 'snapshot_w_template'
@@ -380,6 +461,8 @@ def fixture_complex_template_versioning(fix_ver_flow):
         fix_ver_flow.bucket.identifier,
         fix_ver_flow.flow.identifier
     )
+    request.addfinalizer(cleanup)
+    request.addfinalizer(cleanup_reg)
     return FixtureCTV(
         *fix_ver_flow,
         template=f_template,

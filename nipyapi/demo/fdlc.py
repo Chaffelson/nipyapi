@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import logging
 import nipyapi
 from nipyapi.utils import DockerContainer
+from time import sleep
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -56,8 +57,8 @@ d_containers = [
     )
 ]
 
-dev_pg_name = 'dev_pg_0'
-dev_proc_name = 'dev_proc_0'
+dev_pg_name = 'my_pg_0'
+dev_proc_name = 'my_proc_0'
 dev_reg_client_name = 'dev_reg_client_0'
 dev_bucket_name = 'dev_bucket_0'
 dev_ver_flow_name = 'dev_ver_flow_0'
@@ -74,13 +75,13 @@ print("This python script demonstrates the steps to manage promotion of "
       "in hex (0,1,2,3,4,5,6,7,8,9,a,b,c,d) and should be called in order."
       "\nEach step will log activities to INFO, and you are encouraged to "
       "look at the code in this script to see how each step is completed."
-      "\nEach step will also issue instructions through print statements like"
+      "\nhttp://github.com/Chaffelson/nipyapi/blob/master/nipyapi/demo/fdlc.py"
+      "\nEach step will also issue instructions through print statements like "
       "this one, these instructions will vary so please read them as you go."
-      "\nNote that the first call will log a lot of information while it boots "
-      "the Docker containers, further instructions will follow."
+      "\nNote that the first call will log a lot of information while it boots"
+      " the Docker containers, further instructions will follow."
       "\nNote that you can reset it at any time by calling step_1 again.\n"
-      "\nPlease start by calling the function 'step_1_boot_demo_env()'."
-      )
+      "\nPlease start by calling the function 'step_1_boot_demo_env()'.")
 
 
 def step_1_boot_demo_env():
@@ -109,6 +110,8 @@ def step_1_boot_demo_env():
             nipyapi_delay=nipyapi.config.long_retry_delay,
             nipyapi_max_wait=nipyapi.config.long_max_wait
         )
+        # Sleeping to wait for all startups to return before printing guide
+        sleep(1)
     print("Your Docker containers should now be ready, please find them at the"
           "following URLs:"
           "\nnifi-dev   ", dev_nifi_url,
@@ -116,8 +119,7 @@ def step_1_boot_demo_env():
           "\nreg-prod   ", prod_reg_url,
           "\nnifi-prod  ", prod_nifi_url,
           "\nPlease open each of these in a browser tab."
-          "\nPlease then call the function 'step_2_create_reg_clients()'\n"
-          )
+          "\nPlease then call the function 'step_2_create_reg_clients()'\n")
 
 
 def step_2_create_reg_clients():
@@ -272,7 +274,7 @@ def step_9_deploy_prod_flow_to_nifi():
     reg_client = nipyapi.versioning.get_registry_client(prod_reg_client_name)
     nipyapi.versioning.deploy_flow_version(
         parent_id=nipyapi.canvas.get_root_pg_id(),
-        location=(0,0),
+        location=(0, 0),
         bucket_id=bucket.identifier,
         flow_id=flow.identifier,
         reg_client_id=reg_client.id,

@@ -5,6 +5,7 @@ For interactions with the NiFi Canvas.
 """
 
 from __future__ import absolute_import
+import logging
 import six
 import nipyapi
 
@@ -18,6 +19,8 @@ __all__ = [
     'get_connections', 'purge_connection', 'purge_process_group',
     'get_bulletins', 'get_bulletin_board'
 ]
+
+log = logging.getLogger(__name__)
 
 
 def get_root_pg_id():
@@ -516,6 +519,7 @@ def schedule_processor(processor, scheduled, refresh=True):
 
     Note that this doesn't guarantee that it will change state, merely that
     it will be instructed to try.
+    Some effort is made to wait and see if the processor starts
 
     Args:
         processor (ProcessorEntity): The Processor to target
@@ -531,10 +535,21 @@ def schedule_processor(processor, scheduled, refresh=True):
     assert isinstance(refresh, bool)
 
     def _running_schedule_processor(processor_):
-        test_obj = nipyapi.nifi.ProcessorsApi().get_processor(processor_.id)
+        test_obj = nipyapi.canvas.get_processor(processor_.id, 'id')
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
+        log.info("Processor not stopped, active thread count %s",
+                 test_obj.status.aggregate_snapshot.active_thread_count)
         return False
+
+    def _starting_schedule_processor(processor_):
+        test_obj = nipyapi.canvas.get_processor(processor_.id, 'id')
+        if test_obj.component.state == 'RUNNING':
+            return True
+        log.info("Processor not started, run_status %s",
+                 test_obj.component.state)
+        return False
+
     assert isinstance(scheduled, bool)
     if refresh:
         target = nipyapi.canvas.get_processor(processor.id, 'id')
@@ -559,8 +574,14 @@ def schedule_processor(processor, scheduled, refresh=True):
                 return result
             # Return False if we scheduled a stop, but it didn't stop
             return False
-    # Return the True or False result if we were trying to start the processor
-    return result
+        else:
+            # Test that the Processor started
+            start_test = nipyapi.utils.wait_to_complete(
+                _starting_schedule_processor, target
+            )
+            if start_test:
+                return result
+            return False
 
 
 def update_processor(processor, update):

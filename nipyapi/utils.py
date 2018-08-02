@@ -219,15 +219,15 @@ def wait_to_complete(test_function, *args, **kwargs):
     max_wait = kwargs.pop('nipyapi_max_wait', nipyapi.config.short_max_wait)
     timeout = time.time() + max_wait
     while time.time() < timeout:
-        log.debug("- Calling test_function")
+        log.debug("Calling test_function")
         test_result = test_function(*args, **kwargs)
-        log.debug("- Checking result")
+        log.debug("Checking result")
         if test_result:
-            log.info("- Function output evaluated to True, returning output")
+            log.info("Function output evaluated to True, returning output")
             return test_result
-        log.info("- Function output evaluated to False, sleeping...")
+        log.info("Function output evaluated to False, sleeping...")
         time.sleep(delay)
-    log.info("- Hit Timeout, raising TimeOut Error")
+    log.info("Hit Timeout, raising TimeOut Error")
     raise ValueError("Timed Out waiting for {0} to complete".format(
         test_function.__name__))
 
@@ -244,16 +244,15 @@ def is_endpoint_up(endpoint_url):
     """
     log.info("Called is_endpoint_up with args %s", locals())
     try:
-        log.debug("- Calling endpoint")
         response = requests.get(endpoint_url)
         if response.status_code == 200:
-            log.info("- Got 200, returning True")
+            log.info("Got 200 response from endpoint, returning True")
             return True
-        log.info("- Got status code %s, returning False",
+        log.info("Got status code %s from endpoint, returning False",
                  response.status_code)
         return False
     except requests.ConnectionError:
-        log.info("- Got ConnectionError, returning False")
+        log.info("Got ConnectionError, returning False")
         return False
 
 

@@ -16,7 +16,7 @@ def test_get_root_pg_id():
     assert isinstance(r, str)
 
 
-def test_get_process_group_status(regress):
+def test_get_process_group_status(regress_nifi):
     r = canvas.get_process_group_status(pg_id='root', detail='names')
     assert isinstance(r, dict)
     r = canvas.get_process_group_status('root', 'all')
@@ -35,7 +35,7 @@ def test_get_flow():
         _ = canvas.get_flow('definitelyNotAPG')
 
 
-def test_recurse_flow(fix_pg, regress):
+def test_recurse_flow(regress_nifi, fix_pg):
     _ = fix_pg.generate()
     r = canvas.recurse_flow('root')
     assert isinstance(r, ProcessGroupFlowEntity)
@@ -46,7 +46,7 @@ def test_recurse_flow(fix_pg, regress):
     )
 
 
-def test_list_all_process_groups(fix_pg, regress):
+def test_list_all_process_groups(regress_nifi, fix_pg):
     _ = fix_pg.generate()
     r = canvas.list_all_process_groups()
     assert isinstance(r, list)
@@ -54,7 +54,7 @@ def test_list_all_process_groups(fix_pg, regress):
         assert isinstance(pg, ProcessGroupEntity)
 
 
-def test_create_process_group(regress):
+def test_create_process_group(regress_nifi):
     r = canvas.create_process_group(
         parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
         new_pg_name=conftest.test_pg_name,
@@ -74,7 +74,7 @@ def test_create_process_group(regress):
         )
 
 
-def test_get_process_group(fix_pg, regress):
+def test_get_process_group(regress_nifi, fix_pg):
     with pytest.raises(AssertionError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
     f_pg = fix_pg.generate()
@@ -89,7 +89,7 @@ def test_get_process_group(fix_pg, regress):
     assert len(pg_list) == 3
 
 
-def test_delete_process_group(fix_pg, regress, fix_proc):
+def test_delete_process_group(regress_nifi, fix_pg, fix_proc):
     # Delete stopped PG
     f_pg1 = fix_pg.generate()
     r1 = canvas.delete_process_group(f_pg1)
@@ -134,13 +134,13 @@ def test_schedule_process_group(fix_proc, fix_pg):
         )
 
 
-def test_list_all_processor_types(regress):
+def test_list_all_processor_types(regress_nifi):
     r = canvas.list_all_processor_types()
     assert isinstance(r, ProcessorTypesEntity)
     assert len(r.processor_types) > 1
 
 
-def test_get_processor_type(regress):
+def test_get_processor_type(regress_nifi):
     r1 = canvas.get_processor_type('twitter')
     assert r1.type == 'org.apache.nifi.processors.twitter.GetTwitter'
     assert isinstance(r1, DocumentedTypeDTO)
@@ -151,7 +151,7 @@ def test_get_processor_type(regress):
     assert len(r3) > 10
 
 
-def test_create_processor(fix_pg, regress):
+def test_create_processor(regress_nifi, fix_pg):
     f_pg = fix_pg.generate()
     r1 = canvas.create_processor(
         parent_pg=f_pg,
@@ -163,7 +163,7 @@ def test_create_processor(fix_pg, regress):
     assert r1.status.name == conftest.test_processor_name
 
 
-def test_list_all_processors(fix_proc, regress):
+def test_list_all_processors(regress_nifi, fix_proc):
     _ = fix_proc.generate()
     _ = fix_proc.generate()
     r = canvas.list_all_processors()
@@ -171,7 +171,7 @@ def test_list_all_processors(fix_proc, regress):
     assert isinstance(r[0], nifi.ProcessorEntity)
 
 
-def test_get_processor(fix_proc, regress):
+def test_get_processor(regress_nifi, fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.get_processor(f_p1.status.name)
     assert isinstance(r1, nifi.ProcessorEntity)
@@ -185,21 +185,22 @@ def test_get_processor(fix_proc, regress):
     assert r4.id != r1.id
 
 
-def test_schedule_processor(fix_proc):
+def test_schedule_processor(regress_nifi, fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.schedule_processor(
         f_p1,
         True
     )
-    status = canvas.get_processor(f_p1.id, 'id')
+    processor_info = canvas.get_processor(f_p1.id, 'id')
     assert r1 is True
-    assert status.status.run_status == 'Running'
+    assert isinstance(processor_info, nifi.ProcessorEntity)
+    assert processor_info.component.state == 'RUNNING'
     r2 = canvas.schedule_processor(
         f_p1,
         False
     )
     status = canvas.get_processor(f_p1.id, 'id')
-    assert status.status.run_status == 'Stopped'
+    assert status.component.state == 'STOPPED'
     assert r2 is True
     with pytest.raises(AssertionError):
         _ = canvas.schedule_processor(
@@ -208,7 +209,7 @@ def test_schedule_processor(fix_proc):
         )
 
 
-def test_delete_processor(fix_proc, regress):
+def test_delete_processor(regress_nifi, fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.delete_processor(f_p1)
     assert r1.status is None
@@ -226,7 +227,7 @@ def test_delete_processor(fix_proc, regress):
     assert r2.status is None
 
 
-def test_update_processor(fix_proc, regress):
+def test_update_processor(regress_nifi, fix_proc):
     # TODO: Add way more tests to this
     f_p1 = fix_proc.generate()
     update = nifi.ProcessorConfigDTO(

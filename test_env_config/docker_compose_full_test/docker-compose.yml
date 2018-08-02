@@ -15,13 +15,6 @@ services:
     container_name: nifi-140
     ports:
       - "10140:8080"
-  nifi-150:
-    image: apache/nifi:1.5.0
-    container_name: nifi-150
-    ports:
-      - "10150:10150"
-    environment:
-      - NIFI_WEB_HTTP_PORT=10150
   nifi-160:
     image: apache/nifi:1.6.0
     container_name: nifi-160
@@ -29,6 +22,15 @@ services:
       - "8080:8080"
   registry-010:
     image: apache/nifi-registry:0.1.0
-    container_name: registry
+    container_name: registry-010
     ports:
-      - "18080:18080"
+      - "18010:18010"
+    environment:
+      - NIFI_REGISTRY_WEB_HTTP_PORT=18010
+  registry-020:
+    image: apache/nifi-registry:0.2.0
+    container_name: registry-020
+    ports:
+      - "18020:18020"
+    environment:
+      - NIFI_REGISTRY_WEB_HTTP_PORT=18020
