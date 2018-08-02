@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import pytest
 from deepdiff import DeepDiff
 from tests import conftest
-from nipyapi import registry, nifi, versioning, canvas, utils
+from nipyapi import registry, nifi, versioning, canvas, utils, config
 
 
 def test_create_registry_client(regress_flow_reg):
@@ -101,7 +101,9 @@ def test_get_registry_bucket(regress_flow_reg, fix_bucket):
 
 
 def test_save_flow_ver(regress_flow_reg, fix_bucket, fix_pg, fix_proc):
-    f_reg_client = conftest.ensure_registry_client()
+    f_reg_client = conftest.ensure_registry_client(
+        config.registry_local_name
+    )
     f_bucket = fix_bucket()
     f_pg = fix_pg.generate()
     test_bucket = versioning.get_registry_bucket(f_bucket.identifier, 'id')
@@ -148,6 +150,8 @@ def test_save_flow_ver(regress_flow_reg, fix_bucket, fix_pg, fix_proc):
             desc='a test description',
             refresh=False
         )
+    # shortcut to clean up the test objects when not using the fixture
+    conftest.cleanup_reg()
 
 
 def test_stop_flow_ver(regress_flow_reg, fix_ver_flow):

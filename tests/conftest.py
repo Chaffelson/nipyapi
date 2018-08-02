@@ -77,17 +77,12 @@ else:
          )  # Default to latest version
     ]
 
-# set default endpoints for test run
-# nipyapi.utils.set_endpoint(nifi_test_endpoints[0])
-# nipyapi.utils.set_endpoint(registry_test_endpoints[0][0])
 
 # 'regress' generates tests against previous versions of NiFi or sub-projects.
 # If you are using regression, note that you have to create NiFi objects within
 # the Test itself. This is because the fixture is generated before the
 # PyTest parametrize call, making the order
 # new test_func > fixtures > parametrize > run_test_func > teardown > next
-
-
 def pytest_generate_tests(metafunc):
     log.info("Metafunc Fixturenames are %s", metafunc.fixturenames)
     if 'regress_nifi' in metafunc.fixturenames:
@@ -124,24 +119,11 @@ def remove_test_registry_client():
          ]
 
 
-def ensure_registry_client(uri=None):
-    if uri is None:
-        if not nipyapi.config.registry_config.api_client:
-            target_uri = nipyapi.config.registry_config.host
-        else:
-            target_uri = nipyapi.config.registry_config.api_client.host
-    else:
-        target_uri = uri
-    client = nipyapi.versioning.get_registry_client(
-        test_registry_client_name + target_uri
-    )
-    if isinstance(client, nipyapi.nifi.RegistryClientEntity):
-        if target_uri in client.component.uri:
-            return client
+def ensure_registry_client(uri):
     client = nipyapi.versioning.create_registry_client(
-        name=test_registry_client_name + target_uri,
-        uri=target_uri,
-        description=target_uri
+        name=test_registry_client_name + uri,
+        uri=uri,
+        description=uri
     )
     if isinstance(client, nipyapi.nifi.RegistryClientEntity):
         return client
@@ -157,12 +139,9 @@ def regress_flow_reg(request):
     nipyapi.utils.set_endpoint(request.param[0])
     # Set paired NiFi connection
     nipyapi.utils.set_endpoint(request.param[2])
-    # because pytest won't let you cascade parameters through fixtures
-    # we move the creation of the registry client between the dockers up here
-    # it's not as elegant as doing it in a fixture, but it avoids trying
-    # to lookup and test that the current NiFi instance is pointing to the
-    # registry instance for each parametrized test
-    _ = ensure_registry_client(uri=request.param[1])
+    # because pytest won't let you eaily cascade parameters through fixtures
+    # we set the docker URI in the config for retrieval later on
+    nipyapi.config.registry_local_name = request.param[1]
 
 
 # Tests that the Docker test environment is available before running test suite
@@ -187,20 +166,21 @@ def session_setup(request):
                 if nipyapi.canvas.get_root_pg_id():
                     log.info("Tested Nifi client connection for test suite to"
                              "service endpoint at %s", url)
+                    cleanup()
+                    request.addfinalizer(cleanup)
                 else:
                     raise ValueError("No Response from NiFi test call")
             elif 'nifi-registry-api' in url:
                 if nipyapi.registry.FlowsApi().get_available_flow_fields():
                     log.info("Tested NiFi-Registry client connection, got "
                              "response from %s", url)
+                    cleanup_reg()
+                    request.addfinalizer(cleanup_reg)
                 else:
                     raise ValueError("No Response from NiFi-Registry test call"
                                      )
             else:
                 raise ValueError("Bad API Endpoint")
-        # This cleans each environment at the start of the session
-        cleanup()
-    request.addfinalizer(cleanup)
     log.info("Completing Test Session Setup")
 
 
@@ -374,7 +354,7 @@ def fixture_ver_flow(request, fix_bucket, fix_pg, fix_proc):
         'FixtureVerFlow', ('client', 'bucket', 'pg', 'proc', 'info',
                            'flow', 'snapshot', 'dto')
     )
-    f_reg_client = ensure_registry_client()
+    f_reg_client = ensure_registry_client(nipyapi.config.registry_local_name)
     f_pg = fix_pg.generate()
     f_bucket = fix_bucket()
     f_proc = fix_proc.generate(parent_pg=f_pg)
