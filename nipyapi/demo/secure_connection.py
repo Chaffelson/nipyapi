@@ -70,7 +70,7 @@ d_containers = [
     DockerContainer(
         name='secure-nifi',
         image_name='apache/nifi',
-        image_tag='latest',
+        image_tag='1.7.1',
         ports={'8443/tcp': 8443},
         env=ldap_env_vars,
         volumes={
@@ -80,14 +80,13 @@ d_containers = [
     DockerContainer(
         name='secure-registry',
         image_name='apache/nifi-registry',
-        image_tag='latest',
+        image_tag='0.2.0',
         ports={'18443/tcp': 18443},
         env=tls_env_vars,
         volumes={
             host_certs_path: {'bind': '/opt/certs', 'mode': 'ro'}
         },
     ),
-    # TODO update chaffelson/nifi-registry:0.1 image to fix LDAP configuration
     # TODO add ldap docker container.
     # For now this uses a publicly available LDAP test server
 ]

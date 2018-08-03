@@ -369,14 +369,12 @@ def update_flow_ver(process_group, target_version=None):
         )
         if not status.request.complete:
             return False
-        else:
-            if status.request.failure_reason is None:
-                return True
-            else:
-                raise ValueError(
-                    "Flow Version Update did not complete successfully. "
-                    "Error text {0}".format(status.request.failure_reason)
-                )
+        if status.request.failure_reason is None:
+            return True
+        raise ValueError(
+            "Flow Version Update did not complete successfully. "
+            "Error text {0}".format(status.request.failure_reason)
+        )
     try:
         vci = get_version_info(process_group)
         assert isinstance(vci, nipyapi.nifi.VersionControlInformationEntity)

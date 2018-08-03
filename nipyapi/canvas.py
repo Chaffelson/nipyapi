@@ -574,14 +574,13 @@ def schedule_processor(processor, scheduled, refresh=True):
                 return result
             # Return False if we scheduled a stop, but it didn't stop
             return False
-        else:
-            # Test that the Processor started
-            start_test = nipyapi.utils.wait_to_complete(
-                _starting_schedule_processor, target
-            )
-            if start_test:
-                return result
-            return False
+        # Test that the Processor started
+        start_test = nipyapi.utils.wait_to_complete(
+            _starting_schedule_processor, target
+        )
+        if start_test:
+            return result
+        return False
 
 
 def update_processor(processor, update):
@@ -738,16 +737,14 @@ def purge_connection(con_id):
         ).drop_request
         if not test_obj.finished:
             return False
-        elif test_obj.finished:
-            if test_obj.failure_reason:
-                raise ValueError(
-                    "Unable to complete drop request{0}, error was {1}"
-                    .format(
-                        test_obj, test_obj.drop_request.failure_reason
-                    )
+        if test_obj.failure_reason:
+            raise ValueError(
+                "Unable to complete drop request{0}, error was {1}"
+                .format(
+                    test_obj, test_obj.drop_request.failure_reason
                 )
-            else:
-                return True
+            )
+        return True
 
     try:
         drop_req = nipyapi.nifi.FlowfileQueuesApi().create_drop_request(con_id)

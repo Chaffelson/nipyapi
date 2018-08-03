@@ -28,6 +28,5 @@ cryptography>=2.1.2
 py>=1.4.31
 randomize>=0.13
 certifi>=2017.7.27.1
-pylint>=1.7.4
 virtualenvwrapper>=4.8
 deepdiff>=3.3.0

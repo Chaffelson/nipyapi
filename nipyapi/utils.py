@@ -46,13 +46,12 @@ def dump(obj, mode='json'):
         raise e
     if mode == 'json':
         return out
-    elif mode == 'yaml':
+    if mode == 'yaml':
         return ruamel.yaml.safe_dump(
             json.loads(out),
             default_flow_style=False
         )
-    else:
-        raise ValueError("Invalid dump Mode specified {0}".format(mode))
+    raise ValueError("Invalid dump Mode specified {0}".format(mode))
 
 
 def load(obj, dto=None):
@@ -190,7 +189,7 @@ def filter_obj(obj, value, key):
     # Manage our return contract
     if not out:
         return None
-    elif len(out) > 1:
+    if len(out) > 1:
         return out
     return out[0]
 
@@ -278,7 +277,7 @@ def set_endpoint(endpoint_url):
         if nipyapi.config.nifi_config.host == endpoint_url:
             return True
         return False
-    elif 'registry-api' in endpoint_url:
+    if 'registry-api' in endpoint_url:
         log.info("Setting Registry endpoint to %s", endpoint_url)
         if nipyapi.config.registry_config.api_client:
             nipyapi.config.registry_config.api_client.host = endpoint_url
@@ -286,8 +285,7 @@ def set_endpoint(endpoint_url):
         if nipyapi.config.registry_config.host == endpoint_url:
             return True
         return False
-    else:
-        raise ValueError("Unrecognised NiFi or subproject API Endpoint")
+    raise ValueError("Unrecognised NiFi or subproject API Endpoint")
 
 
 class DockerContainer(object):

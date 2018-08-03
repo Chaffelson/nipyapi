@@ -1,8 +1,15 @@
+# -*- coding: utf-8 -*-
+
+"""
+A self-paced walkthrough of version control using NiFi-Registry.
+See initial print statement for detailed explanation.
+"""
+
 from __future__ import absolute_import
 import logging
+from time import sleep
 import nipyapi
 from nipyapi.utils import DockerContainer
-from time import sleep
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -85,6 +92,7 @@ print("This python script demonstrates the steps to manage promotion of "
 
 
 def step_1_boot_demo_env():
+    """step_1_boot_demo_env"""
     log.info("Starting Dev and Prod NiFi and NiFi-Registry Docker Containers"
              "\nPlease wait, this may take a few minutes to download the "
              "Docker images and then start them.")
@@ -123,7 +131,7 @@ def step_1_boot_demo_env():
 
 
 def step_2_create_reg_clients():
-    # Set client connections between NiFi and Registry
+    """Set client connections between NiFi and Registry"""
     log.info("Creating Dev Environment Nifi to NiFi-Registry Client")
     nipyapi.utils.set_endpoint(dev_nifi_api_url)
     nipyapi.versioning.create_registry_client(
@@ -147,6 +155,7 @@ def step_2_create_reg_clients():
 
 
 def step_3_create_dev_flow():
+    """Connecting to Dev environment and creating some test objects"""
     log.info("Connecting to Dev environment and creating some test objects")
     nipyapi.utils.set_endpoint(dev_nifi_api_url)
     nipyapi.utils.set_endpoint(dev_reg_api_url)
@@ -179,6 +188,7 @@ def step_3_create_dev_flow():
 
 
 def step_4_create_dev_ver_bucket():
+    """Creating dev registry bucket"""
     log.info("Creating %s as new a Registry Bucket", dev_bucket_name)
     nipyapi.versioning.create_registry_bucket(dev_bucket_name)
     print("We have created a new Versioned Flow Bucket in the Dev "
@@ -189,6 +199,7 @@ def step_4_create_dev_ver_bucket():
 
 
 def step_5_save_flow_to_bucket():
+    """Saving the flow to the bucket as a new versioned flow"""
     log.info(
         "Saving %s to %s", dev_pg_name, dev_bucket_name)
     process_group = nipyapi.canvas.get_process_group(dev_pg_name)
@@ -213,6 +224,7 @@ def step_5_save_flow_to_bucket():
 
 
 def step_6_export_dev_flow():
+    """Exporting the versioned flow as a yaml definition"""
     log.info("Creating a sorted pretty Yaml export of %s",
              dev_flow_export_name)
     bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
@@ -236,6 +248,7 @@ def step_6_export_dev_flow():
 
 
 def step_7_create_prod_ver_bucket():
+    """Connecting to the Prod environment and creating a new bucket"""
     log.info("Connecting to Prod Environment")
     nipyapi.utils.set_endpoint(prod_nifi_api_url)
     nipyapi.utils.set_endpoint(prod_reg_api_url)
@@ -250,6 +263,7 @@ def step_7_create_prod_ver_bucket():
 
 
 def step_8_import_dev_flow_to_prod_reg(versioned_flow):
+    """Importing the yaml string into Prod"""
     log.info("Saving dev flow export to prod container")
     bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
     nipyapi.versioning.import_flow_version(
@@ -265,6 +279,7 @@ def step_8_import_dev_flow_to_prod_reg(versioned_flow):
 
 
 def step_9_deploy_prod_flow_to_nifi():
+    """Deploying the flow to the Prod environment"""
     log.info("Deploying promoted flow from Prod Registry to Prod Nifi")
     bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
     flow = nipyapi.versioning.get_flow_in_bucket(
@@ -290,6 +305,7 @@ def step_9_deploy_prod_flow_to_nifi():
 
 
 def step_a_change_dev_flow():
+    """Procedurally modifying the Dev flow"""
     log.info("Connecting to Dev Environment")
     nipyapi.utils.set_endpoint(dev_nifi_api_url)
     nipyapi.utils.set_endpoint(dev_reg_api_url)
@@ -310,6 +326,7 @@ def step_a_change_dev_flow():
 
 
 def step_b_update_dev_flow_ver():
+    """Committing the change to the dev flow version"""
     log.info("Saving changes in Dev Flow to Version Control")
     process_group = nipyapi.canvas.get_process_group(dev_pg_name)
     bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
@@ -335,6 +352,7 @@ def step_b_update_dev_flow_ver():
 
 
 def step_c_promote_change_to_prod_reg():
+    """Promoting the committed change across to the prod environment"""
     log.info("Exporting updated Dev Flow Version")
     dev_bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
     dev_ver_flow = nipyapi.versioning.get_flow_in_bucket(
@@ -370,6 +388,7 @@ def step_c_promote_change_to_prod_reg():
 
 
 def step_d_promote_change_to_prod_nifi():
+    """Pushing the change into the Prod flow and offering reset"""
     log.info("Moving deployed Prod Process Group to the latest version")
     prod_pg = nipyapi.canvas.get_process_group(dev_pg_name)
     nipyapi.versioning.update_flow_ver(
