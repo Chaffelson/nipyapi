@@ -2,6 +2,25 @@
 History
 =======
 
+0.10.0 (2018-08-03)
+-------------------
+
+| Updated NiFi client for 1.7.1 release
+| Updated NiFi-Registry client for 0.2.0 release
+
+**Key Changes**
+
+* Reworked NiFi-Registry pytest setup to support multiple versions
+* Changed schedule_processor to use component. rather than status. tests as they are more reliable
+* Swtiched Docker configs to use explicit versions instead of latest for more consistent behavior across environents
+
+**Version Changes**
+
+* Deprecated testing against NiFi-1.5.0 due to host headers issue - recommend users to upgrade to at least NiFi-1.6.0
+* Deprecated testing against NiFi-1.4.0 as superfluous
+* Added testing for NiFi-1.7.1 and NiFi-Registry-0.2.0
+
+
 0.9.1 (2018-05-18)
 ------------------
 
