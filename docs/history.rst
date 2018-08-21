@@ -2,6 +2,12 @@
 History
 =======
 
+0.10.1 (2018-08-21)
+-------------------
+
+| Minor bugfix for versioning/deploy_flow_version where version number should be a str instead of int
+
+
 0.10.0 (2018-08-03)
 -------------------
 
