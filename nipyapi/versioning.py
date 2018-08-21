@@ -564,6 +564,7 @@ def get_flow_version(bucket_id, flow_id, version=None, export=False):
     """
     assert isinstance(bucket_id, six.string_types)
     assert isinstance(flow_id, six.string_types)
+    # Version needs to be str type due to the way the api client handles regex
     assert version is None or isinstance(version, six.string_types)
     assert isinstance(export, bool)
     if version:
@@ -717,7 +718,7 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         bucket_id (str): ID of the bucket containing the versioned flow to
             deploy.
         flow_id (str): ID of the versioned flow to deploy.
-        version (Optional [int]): version to deploy, if not provided latest
+        version (Optional [int,str]): version to deploy, if not provided latest
             version will be deployed.
 
     Returns:
@@ -730,7 +731,7 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         target_flow = get_flow_version(
             bucket_id=bucket_id,
             flow_id=flow_id,
-            version=version
+            version=str(version)
         )
         # check reg client is valid
         target_reg_client = get_registry_client(reg_client_id, 'id')

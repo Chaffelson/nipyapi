@@ -473,7 +473,7 @@ def test_deploy_flow_version(regress_flow_reg, fix_ver_flow):
         bucket_id=fix_ver_flow.bucket.identifier,
         flow_id=fix_ver_flow.flow.identifier,
         reg_client_id=fix_ver_flow.client.id,
-        version=None
+        version=1
     )
     assert isinstance(r1, nifi.ProcessGroupEntity)
     with pytest.raises(ValueError):
