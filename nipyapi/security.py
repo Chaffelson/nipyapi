@@ -359,12 +359,12 @@ def get_access_policy_for_resource(resource,
 
     try:
         if service == 'nifi':
-            log.info("Getting NiFi policy for %s:%s/%s",
-                     action, resource, r_id)
-            return nipyapi.nifi.PoliciesApi().get_access_policy_for_resource(
+            log.info("Getting NiFi policy for %s:%s",
+                     action, resource)
+            pol_api = nipyapi.nifi.PoliciesApi()
+            return pol_api.get_access_policy_for_resource(
                 action=action,
-                resource=resource,
-                id=r_id
+                resource=resource
             )
         # if service == 'registry:
         log.info("Getting Registry policy for '%s:%s",
