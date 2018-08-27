@@ -2,6 +2,10 @@
 
 """
 An implementation helper for connecting to secure NiFi instances.
+
+Note: If running on OSX you may have certificate issues with Python which
+prevent the nobel user logging into NiFI due to SSL errors.
+See this StackOverflow for fixes: https://stackoverflow.com/a/42098127/4717963
 """
 
 from __future__ import absolute_import

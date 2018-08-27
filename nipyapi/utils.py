@@ -10,6 +10,7 @@ import logging
 import json
 import time
 import six
+from packaging import version
 import ruamel.yaml
 import docker
 import requests
@@ -384,3 +385,37 @@ def start_docker_containers(docker_containers, network_name='demo'):
             environment=c.env,
             volumes=c.volumes
         )
+
+
+def check_version(base, comparator=None, service='nifi'):
+    """
+    Compares version 'a' against either version 'b', or the version of the
+    currently connected service instance.
+
+    Args:
+        base (str): The base version for the comparison test
+        comparator (optional[str]): The version to compare against
+        service (str): The service to test the version against, currently
+            only supports NiFi
+
+    Returns (int): -1 if a is lower, 0 if equal, and 1 if newer
+
+    """
+    assert isinstance(base, six.string_types)
+    assert comparator is None or isinstance(comparator, six.string_types)
+    assert service == 'nifi'
+    # This call currently only supports NiFi
+    ver_a = version.parse(base)
+    if comparator:
+        # if b is set, we compare the passed versions
+        ver_b = version.parse(comparator)
+    else:
+        # if b not set, we compare a against the connected nifi instance
+        ver_b = version.parse(
+            nipyapi.system.get_nifi_version_info().ni_fi_version
+        )
+    if ver_b > ver_a:
+        return -1
+    if ver_b < ver_a:
+        return 1
+    return 0
