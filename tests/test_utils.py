@@ -9,7 +9,7 @@ import six
 from tests import conftest
 import json
 from deepdiff import DeepDiff
-from nipyapi import utils, nifi
+from nipyapi import utils, nifi, system
 
 
 def test_dump(regress_flow_reg, fix_flow_serde):
@@ -114,3 +114,23 @@ def test_filter_obj(fix_pg):
 def test_wait_to_complete():
     # TODO: Implement test
     pass
+
+
+def test_check_version(regress_nifi):
+    # We expect the passed version to be older than the system version, and
+    # the response to therefore be -1 (older/negative, newer/positive)
+
+    # minimum version test
+    assert utils.check_version('1.1.2') <= 0
+    # Check equivalence
+    assert utils.check_version('1.2.3', '1.2.3') == 0
+    # base is older than comp
+    assert utils.check_version('1.1.3', '1.2.3') == -1
+    # base is newer than comp
+    assert utils.check_version('1.2.3', '0.2.3') == 1
+    # Check RC
+    assert utils.check_version('1.0.0-rc1', '1.0.0') == -1
+    # Check current version
+    assert utils.check_version(
+        system.get_nifi_version_info().ni_fi_version
+    ) == 0

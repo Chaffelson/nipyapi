@@ -2,6 +2,11 @@
 History
 =======
 
+0.10.2 (2018-08-27)
+-------------------
+
+| BugFix for Issue #66 in security/get_access_policy_for_resource where NiFi Api is not expecting a resource_id to be submitted
+
 0.10.1 (2018-08-21)
 -------------------
 
