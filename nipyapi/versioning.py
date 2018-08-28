@@ -560,19 +560,21 @@ def get_flow_version(bucket_id, flow_id, version=None, export=False):
 
     WARNING: This call is impacted by
     https://issues.apache.org/jira/browse/NIFIREG-135
-    Which means you can't trust the version count
+    Which means you sometimes can't trust the version count
     """
     assert isinstance(bucket_id, six.string_types)
     assert isinstance(flow_id, six.string_types)
-    # Version needs to be str type due to the way the api client handles regex
-    assert version is None or isinstance(version, six.string_types)
+    # Version needs to be coerced to str pass API client regex test
+    # Even though the client specifies it as Int
+    assert version is None \
+           or isinstance(version, (six.string_types, six.integer_types))
     assert isinstance(export, bool)
     if version:
         try:
             out = nipyapi.registry.BucketFlowsApi().get_flow_version(
                 bucket_id=bucket_id,
                 flow_id=flow_id,
-                version_number=version,
+                version_number=str(version),
                 _preload_content=not export
             )
         except nipyapi.registry.rest.ApiException as e:
@@ -731,7 +733,7 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         target_flow = get_flow_version(
             bucket_id=bucket_id,
             flow_id=flow_id,
-            version=str(version)
+            version=version
         )
         # check reg client is valid
         target_reg_client = get_registry_client(reg_client_id, 'id')

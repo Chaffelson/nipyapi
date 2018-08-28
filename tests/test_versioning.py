@@ -315,8 +315,9 @@ def test_complex_template_versioning(regress_flow_reg, fix_ctv):
 
 def test_get_flow_version(regress_flow_reg, fix_ver_flow):
     r1 = versioning.get_flow_version(
-        fix_ver_flow.bucket.identifier,
-        fix_ver_flow.flow.identifier
+        bucket_id=fix_ver_flow.bucket.identifier,
+        flow_id=fix_ver_flow.flow.identifier,
+        version=None
     )
     assert isinstance(r1, registry.VersionedFlowSnapshot)
     assert r1.snapshot_metadata.version == 1
@@ -329,6 +330,7 @@ def test_get_flow_version(regress_flow_reg, fix_ver_flow):
     r2 = versioning.get_flow_version(
         bucket_id=test_vf_2.flow.bucket_identifier,
         flow_id=test_vf_2.flow.identifier,
+        version=None
     )
     assert r2.flow.version_count == 2
     assert r2.snapshot_metadata.version == 2
@@ -342,6 +344,7 @@ def test_get_flow_version(regress_flow_reg, fix_ver_flow):
     r4 = versioning.get_flow_version(
         bucket_id=test_vf_2.flow.bucket_identifier,
         flow_id=test_vf_2.flow.identifier,
+        version=None,
         export=True
     )
     assert isinstance(r4, bytes)

@@ -20,7 +20,8 @@ requirements = [
     'six',  # Required for managing Python version compatibility
     'ruamel.yaml==0.14.12',  # Required for parsing Json/Yaml consistently
     'docker',  # Used to deploy demo assemblies
-    'requests[security]'  # Used in utils functions, security extras for Py2
+    'requests[security]',  # Used in utils functions, security extras for Py2
+    'packaging'  # Comes in setuptools anyway, used to compare versions
 ]
 
 setup_requirements = [
