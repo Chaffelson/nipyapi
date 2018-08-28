@@ -2,6 +2,12 @@
 History
 =======
 
+0.10.3 (2018-08-28)
+-------------------
+
+| Minor bugfix for versioning/deploy_flow_version to resolve additional edge case for version number type
+
+
 0.10.2 (2018-08-27)
 -------------------
 
