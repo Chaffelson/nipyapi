@@ -32,51 +32,51 @@ class Link(object):
     """
     swagger_types = {
         'type': 'str',
-        'params': 'dict(str, str)',
-        'title': 'str',
         'rels': 'list[str]',
+        'title': 'str',
+        'params': 'dict(str, str)',
         'uri': 'str',
-        'rel': 'str',
-        'uri_builder': 'UriBuilder'
+        'uri_builder': 'UriBuilder',
+        'rel': 'str'
     }
 
     attribute_map = {
         'type': 'type',
-        'params': 'params',
-        'title': 'title',
         'rels': 'rels',
+        'title': 'title',
+        'params': 'params',
         'uri': 'uri',
-        'rel': 'rel',
-        'uri_builder': 'uriBuilder'
+        'uri_builder': 'uriBuilder',
+        'rel': 'rel'
     }
 
-    def __init__(self, type=None, params=None, title=None, rels=None, uri=None, rel=None, uri_builder=None):
+    def __init__(self, type=None, rels=None, title=None, params=None, uri=None, uri_builder=None, rel=None):
         """
         Link - a model defined in Swagger
         """
 
         self._type = None
-        self._params = None
-        self._title = None
         self._rels = None
+        self._title = None
+        self._params = None
         self._uri = None
-        self._rel = None
         self._uri_builder = None
+        self._rel = None
 
         if type is not None:
           self.type = type
-        if params is not None:
-          self.params = params
-        if title is not None:
-          self.title = title
         if rels is not None:
           self.rels = rels
+        if title is not None:
+          self.title = title
+        if params is not None:
+          self.params = params
         if uri is not None:
           self.uri = uri
-        if rel is not None:
-          self.rel = rel
         if uri_builder is not None:
           self.uri_builder = uri_builder
+        if rel is not None:
+          self.rel = rel
 
     @property
     def type(self):
@@ -100,25 +100,25 @@ class Link(object):
         self._type = type
 
     @property
-    def params(self):
+    def rels(self):
         """
-        Gets the params of this Link.
+        Gets the rels of this Link.
 
-        :return: The params of this Link.
-        :rtype: dict(str, str)
+        :return: The rels of this Link.
+        :rtype: list[str]
         """
-        return self._params
+        return self._rels
 
-    @params.setter
-    def params(self, params):
+    @rels.setter
+    def rels(self, rels):
         """
-        Sets the params of this Link.
+        Sets the rels of this Link.
 
-        :param params: The params of this Link.
-        :type: dict(str, str)
+        :param rels: The rels of this Link.
+        :type: list[str]
         """
 
-        self._params = params
+        self._rels = rels
 
     @property
     def title(self):
@@ -142,25 +142,25 @@ class Link(object):
         self._title = title
 
     @property
-    def rels(self):
+    def params(self):
         """
-        Gets the rels of this Link.
+        Gets the params of this Link.
 
-        :return: The rels of this Link.
-        :rtype: list[str]
+        :return: The params of this Link.
+        :rtype: dict(str, str)
         """
-        return self._rels
+        return self._params
 
-    @rels.setter
-    def rels(self, rels):
+    @params.setter
+    def params(self, params):
         """
-        Sets the rels of this Link.
+        Sets the params of this Link.
 
-        :param rels: The rels of this Link.
-        :type: list[str]
+        :param params: The params of this Link.
+        :type: dict(str, str)
         """
 
-        self._rels = rels
+        self._params = params
 
     @property
     def uri(self):
@@ -184,27 +184,6 @@ class Link(object):
         self._uri = uri
 
     @property
-    def rel(self):
-        """
-        Gets the rel of this Link.
-
-        :return: The rel of this Link.
-        :rtype: str
-        """
-        return self._rel
-
-    @rel.setter
-    def rel(self, rel):
-        """
-        Sets the rel of this Link.
-
-        :param rel: The rel of this Link.
-        :type: str
-        """
-
-        self._rel = rel
-
-    @property
     def uri_builder(self):
         """
         Gets the uri_builder of this Link.
@@ -224,6 +203,27 @@ class Link(object):
         """
 
         self._uri_builder = uri_builder
+
+    @property
+    def rel(self):
+        """
+        Gets the rel of this Link.
+
+        :return: The rel of this Link.
+        :rtype: str
+        """
+        return self._rel
+
+    @rel.setter
+    def rel(self, rel):
+        """
+        Sets the rel of this Link.
+
+        :param rel: The rel of this Link.
+        :type: str
+        """
+
+        self._rel = rel
 
     def to_dict(self):
         """

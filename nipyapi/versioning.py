@@ -492,13 +492,10 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
     Flow Version. Useful in migrating Flow Versions between environments.
 
     Args:
-        bucket_id (str): Deprecated, now pulled from the flow parameter
         flow (VersionedFlowObject): the VersionedFlow object to write to
         flow_snapshot (VersionedFlowSnapshot): the Snapshot to write into the
             VersionedFlow
         refresh (bool): Whether to refresh the object status before actioning
-        raw_snapshot (bool): Deprecated, as not using a full snapshot resulted
-            in inconsistent behavior
 
     Returns:
         The new (VersionedFlowSnapshot)
@@ -566,15 +563,16 @@ def get_flow_version(bucket_id, flow_id, version=None, export=False):
     assert isinstance(flow_id, six.string_types)
     # Version needs to be coerced to str pass API client regex test
     # Even though the client specifies it as Int
-    assert version is None \
-           or isinstance(version, (six.string_types, six.integer_types))
+    assert version is None or isinstance(
+        version, (six.string_types, six.integer_types)
+    )
     assert isinstance(export, bool)
     if version:
         try:
             out = nipyapi.registry.BucketFlowsApi().get_flow_version(
                 bucket_id=bucket_id,
                 flow_id=flow_id,
-                version_number=str(version),
+                version_number=str(version),  # This str coercion is intended
                 _preload_content=not export
             )
         except nipyapi.registry.rest.ApiException as e:

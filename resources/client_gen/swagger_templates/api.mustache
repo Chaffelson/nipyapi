@@ -208,7 +208,7 @@ class {{classname}}(object):
 
         {{/hasConsumes}}
         # Authentication setting
-        auth_settings = ['tokenAuth'{{#authMethods}}, '{{name}}{{/authMethods}}]
+        auth_settings = ['tokenAuth'{{#authMethods}}, '{{name}}'{{/authMethods}}]
 
         return self.api_client.call_api('{{{path}}}', '{{httpMethod}}',
                                         path_params,
