@@ -5,19 +5,14 @@ before_install:
   - docker-compose version
   - docker-compose -f test_env_config/docker_compose_latest/docker-compose.yml up -d
   - docker ps
-#deploy:
-#  true:
-#    python: 2.7
-#    repo: Chaffelson/nipyapi
-#    tags: true
-#  distributions: sdist bdist_wheel
-#  password:
-#    secure: kX1J0ABDPhU7MejrGTNO83TnKdSq9eW7BimI8pFYaN6EmQK8Uwh1omnHSk3afe9ulcoTGxUFSOT4cXQ656qjItcZv9vm4J1at49dxQx7GUpZmAp901+ZUcFupTJRu/PyhiyyLbB3rLOxVJySDxqrko9YHaWpLFbeviXTEuQTM28ShPdBI7RUPkCer4iojxiTRbNUjmPMpwtDmMBpreDcVO6TNsvVve8256PaFa8XYG3aiOsOdfYf0HkqCCGfgxnLQ022o7wRELIaVP9pHAjoh9iIZ0c4n81Z5cUXCaQTjYQzPmJAdivrE4ZrGJ53MXmfXpcKzod/PTi4D8q+RbYfmodzNwmmcw3N9lKigGA77twmkXL2G2iF/S7l+Lbx9nC6rTbG8/olgWbc79MMml3LAaYBg/pEhbeYRZ6ejaKv3njRQ9muZDmyYmtmdMOYOk+hpUX5re79TqIoKZGw53HXZPm+AFZDPZrnGjZQoGCb41sG5yAWappjI7EZokvJ+Bk3qCZFWr+sLqlEoSNBpUBMsdZMD57/UgR7sjJyuEvMdO7I1OX7OujivwSUDXZjgLRSOVhtO/P7Xv3m0k6KQ/qXVTCtvyqqY399D41PcYb3OgXsRK90LLtDwRoN2sBsd8z9vd/pAbQWte0B11MLIQ3wItjTEIJvcereQ6R5Y7Dbp3Y=
-#  provider: pypi
-#  user: Chaffelson
 install: pip install --trusted-host pypi.python.org -U tox-travis
 language: python
 python:
   - 3.6
   - 2.7
 script: tox
+git:
+    depth: 1
+branches:
+  only:
+  - master
