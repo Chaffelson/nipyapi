@@ -17,7 +17,8 @@ __all__ = [
     'delete_processor', 'get_processor', 'schedule_processor',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
     'get_connections', 'purge_connection', 'purge_process_group',
-    'get_bulletins', 'get_bulletin_board'
+    'get_bulletins', 'get_bulletin_board', 'list_invalid_processors',
+    'list_sensitive_processors'
 ]
 
 log = logging.getLogger(__name__)
@@ -101,8 +102,6 @@ def get_process_group_status(pg_id='root', detail='names'):
          (ProcessGroupEntity): The Process Group Entity including the status
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
-    assert detail in ['names', 'all'], "detail should be either 'names' or " \
-                                       "'all'"
     raw = nipyapi.nifi.ProcessGroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
         out = {
@@ -177,6 +176,48 @@ def list_all_process_groups():
     root_entity.__setattr__('nipyapi_extended', root_flow)
     out.append(root_entity)
     return out
+
+
+def list_invalid_processors():
+    """
+    Returns a flattened list of all Processors with Invalid Statuses
+
+    Returns:
+        list[ProcessorEntity]
+    """
+    proc_list = [x for x in list_all_processors()
+                 if x.component.validation_errors is not None]
+    return proc_list
+
+
+def list_sensitive_processors():
+    """
+    Returns a flattened list of all Processors on the canvas which have
+    sensitive properties that would need to be managed during deployment
+
+    Returns:
+        list[ProcessorEntity]
+    """
+    cache = nipyapi.config.cache.get('list_sensitive_processors')
+    if not cache:
+        cache = []
+    matches = []
+    proc_list = list_all_processors()
+    for proc in proc_list:
+        if proc.component.type in cache:
+            matches.append(proc)
+        else:
+            sensitive_test = False
+            for nom, detail in proc.component.config.descriptors.items():
+                if detail.sensitive is True:
+                    sensitive_test = True
+                    break
+            if sensitive_test:
+                matches.append(proc)
+                cache.append(str(proc.component.type))
+    if cache:
+        nipyapi.config.cache['list_sensitive_processors'] = cache
+    return matches
 
 
 def list_all_processors():

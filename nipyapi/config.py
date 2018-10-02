@@ -77,3 +77,10 @@ registered_filters = {
 # If False, then we believe we are incompatible
 nifi_config.version_check = None
 registry_config.version_check = None
+
+
+# --- Simple Cache
+# This is a simple session-wide insecure cache for certain slow calls to speed
+# up subsequent requests. It is very stupid, so do not expect session handling,
+# or on-demand refresh if not handled by the function itself
+cache = {}
