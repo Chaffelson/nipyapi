@@ -515,6 +515,7 @@ def step_i_promote_deploy_and_validate():
         process_group=prod_pg,
         target_version=None
     )
+    val_errors = nipyapi.canvas.list_invalid_processors()
     print("Here we have put all the steps in one place by taking the dev "
           "changes all the way through to prod deployment. If we check"
           " our Processor Validation again, we see that our regular "
@@ -522,8 +523,7 @@ def step_i_promote_deploy_and_validate():
           "Properties are unset in Production [{0}]"
           "\nThis is because NiFi will not break"
           " security by carrying them to a new environment. We leave setting"
-          " them again as an exercise for the user.".format(
-        nipyapi.canvas.list_invalid_processors()[0].component.validation_errors
-    ))
+          " them again as an exercise for the user."
+          .format(val_errors[0].component.validation_errors))
     print("\nThis is the end of the guide, you may restart at any time by "
           "calling 'step_1_boot_demo_env()'\n")

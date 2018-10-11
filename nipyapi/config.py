@@ -9,6 +9,7 @@ objects.
 from __future__ import absolute_import
 import logging
 import os
+import urllib3
 from nipyapi.nifi import configuration as nifi_config
 from nipyapi.registry import configuration as registry_config
 
@@ -27,6 +28,18 @@ logging.basicConfig(level=logging.WARNING)
 nifi_config.host = 'http://localhost:8080/nifi-api'
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://localhost:18080/nifi-registry-api'
+
+
+# Set SSL Handling
+# When operating with self signed certs, your log can fill up with
+# unnecessary warnings
+# Set to True by default, change to false if necessary
+global_ssl_verify = True
+
+nifi_config.verify_ssl = global_ssl_verify
+registry_config.verify_ssl = global_ssl_verify
+if not global_ssl_verify:
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # ---  Project Root ------

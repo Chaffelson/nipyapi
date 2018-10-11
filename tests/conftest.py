@@ -13,7 +13,7 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 # Test Configuration parameters
-test_host = 'localhost'
+test_host = 'ec2-35-178-249-234.eu-west-2.compute.amazonaws.com'
 test_basename = "nipyapi_test"
 test_pg_name = test_basename + "_ProcessGroup"
 test_registry_client_name = test_basename + "_reg_client"
@@ -234,8 +234,8 @@ def cleanup():
     # Only bulk-cleanup universally compatible components
     # Ideally we would clean each test environment, but it's too slow to do it
     # per test, so we rely on individual fixture cleanup
-    log.info("Running bulk cleanup on %s",
-             nipyapi.config.nifi_config.api_client.host)
+    log.info("Bulk cleanup called on host %s",
+             nipyapi.config.nifi_config.host)
     remove_test_templates()
     remove_test_processors()
     remove_test_pgs()
@@ -256,7 +256,7 @@ def cleanup_reg():
 @pytest.fixture(name='fix_templates', scope='function')
 def fixture_templates(request, fix_pg):
     log.info("Creating PyTest Fixture fix_templates on endpoint %s",
-             nipyapi.config.nifi_config.api_client.host)
+             nipyapi.config.nifi_config.host)
     FixtureTemplates = namedtuple(
         'FixtureTemplates', ('pg', 'b_file', 'b_name', 'c_file',
                              'c_name')
