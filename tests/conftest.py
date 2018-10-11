@@ -74,6 +74,10 @@ else:
         ('http://' + test_host + ':18020/nifi-registry-api',
             'http://registry-020:18020',
          'http://' + test_host + ':8080/nifi-api'
+         ),
+        ('http://' + test_host + ':18030/nifi-registry-api',
+            'http://registry-030:18030',
+         'http://' + test_host + ':8080/nifi-api'
          )  # Default to latest version
     ]
 
@@ -240,8 +244,13 @@ def cleanup():
 def cleanup_reg():
     # Bulk cleanup for tests involving NiFi Registry
     remove_test_pgs()
-    remove_test_buckets()
-    remove_test_registry_client()
+    # Case where test fails and cleanup attempting on NiFi version that
+    # doesn't support registry
+    try:
+        remove_test_buckets()
+        remove_test_registry_client()
+    except ValueError:
+        pass
 
 
 @pytest.fixture(name='fix_templates', scope='function')

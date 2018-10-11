@@ -102,6 +102,7 @@ def get_process_group_status(pg_id='root', detail='names'):
          (ProcessGroupEntity): The Process Group Entity including the status
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert detail in ['names', 'all']
     raw = nipyapi.nifi.ProcessGroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
         out = {

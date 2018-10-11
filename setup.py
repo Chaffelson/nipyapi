@@ -13,26 +13,6 @@ with open('docs/history.rst') as history_file:
 
 proj_version = '0.10.3'
 
-requirements = [
-    'urllib3',  # Required for timeouts during security tests
-    'lxml',  # Required for parsing NiFi Templates
-    'deepdiff',  # Required for comparing configurations
-    'six',  # Required for managing Python version compatibility
-    'ruamel.yaml==0.14.12',  # Required for parsing Json/Yaml consistently
-    'docker',  # Used to deploy demo assemblies
-    'requests[security]',  # Used in utils functions, security extras for Py2
-    'packaging'  # Comes in setuptools anyway, used to compare versions
-]
-
-setup_requirements = [
-    'pytest-runner'
-]
-
-test_requirements = [
-    'pytest',
-    'pylint'
-]
-
 setup(
     name='nipyapi',
     version=proj_version,
@@ -47,7 +27,6 @@ setup(
         exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']
     ),
     include_package_data=True,
-    install_requires=requirements,
     license="Apache Software License 2.0",
     zip_safe=False,
     keywords=['nipyapi', 'nifi', 'api', 'wrapper'],
@@ -67,7 +46,5 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: User Interfaces'
     ],
-    test_suite='tests',
-    tests_require=test_requirements,
-    setup_requires=setup_requirements,
+    test_suite='tests'
 )

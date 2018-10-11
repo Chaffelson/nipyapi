@@ -717,6 +717,7 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
             Group under the parent
         bucket_id (str): ID of the bucket containing the versioned flow to
             deploy.
+        reg_client_id (str): ID of the registry client connection to use.
         flow_id (str): ID of the versioned flow to deploy.
         version (Optional [int,str]): version to deploy, if not provided latest
             version will be deployed.
