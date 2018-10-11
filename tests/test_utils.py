@@ -15,7 +15,7 @@ from nipyapi import utils, nifi, system
 def test_dump(regress_flow_reg, fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
-    export_obj = json.loads(fix_flow_serde.raw)
+    export_obj = json.loads(fix_flow_serde.raw.decode('utf-8'))
     ss_json = utils.dump(
         obj=export_obj,
         mode='json'
