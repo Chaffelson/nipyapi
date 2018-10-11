@@ -7,16 +7,15 @@ before_install:
   - docker ps
 install: pip install --trusted-host pypi.python.org -U tox-travis
 language: python
-python:
-  - 3.7
-  - 3.6
-  - 2.7
-script: tox
-git:
-    depth: 1
-# Enable 3.7 without globally enabling sudo and dist: xenial for other build jobs
 matrix:
   include:
+    - python: 2.7
+    - python: 3.4
+    - python: 3.5
+    - python: 3.6
     - python: 3.7
       dist: xenial
       sudo: true
+script: tox
+git:
+    depth: 1
