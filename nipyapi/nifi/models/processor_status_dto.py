@@ -195,7 +195,10 @@ class ProcessorStatusDTO(object):
         :param run_status: The run_status of this ProcessorStatusDTO.
         :type: str
         """
-        allowed_values = ["Running", "Stopped", "Disabled", "Invalid"]
+        # allowed_values = ["Running", "Stopped", "Disabled", "Invalid"]
+        # bugfix for missing status property
+        allowed_values = ["Running", "Stopped", "Disabled", "Invalid",
+                          "validating"]
         if run_status not in allowed_values:
             raise ValueError(
                 "Invalid value for `run_status` ({0}), must be one of {1}"
