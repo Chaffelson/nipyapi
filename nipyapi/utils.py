@@ -15,6 +15,7 @@ import ruamel.yaml
 import docker
 import requests
 from requests.models import Response
+from docker.errors import ImageNotFound
 import nipyapi
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
@@ -340,11 +341,15 @@ def start_docker_containers(docker_containers, network_name='demo'):
         assert isinstance(target, DockerContainer)
 
     # Pull relevant Images
-    log.info("Pulling relevant Docker Images")
+    log.info("Pulling relevant Docker Images if needed")
     for image in set([(c.image_name + ':' + c.image_tag)
                       for c in docker_containers]):
-        log.info("Pulling %s", image)
-        d_client.images.pull(image)
+        log.info("Checking image %s", image)
+        try:
+            _ = d_client.images.get(image)
+        except ImageNotFound:
+            log.info("Pulling %s", image)
+            d_client.images.pull(image)
 
     # Clear previous containers
     log.info("Clearing previous containers for this demo")
