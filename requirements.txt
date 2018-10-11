@@ -12,7 +12,7 @@ urllib3>=1.22
 lxml>=4.1.1
 
 # Import Export and Utils implementation
-ruamel.yaml==0.14.12 # pyup: ignore
+ruamel.yaml<=0.15.72
 deepdiff>=3.3.0
 
 # Demo deployment automation
