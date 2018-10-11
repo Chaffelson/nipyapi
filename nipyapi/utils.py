@@ -357,6 +357,7 @@ def start_docker_containers(docker_containers, network_name='demo'):
         log.info("Checking image %s", image)
         try:
             d_client.images.get(image)
+            log.info("Using local image for %s", image)
         except ImageNotFound:
             log.info("Pulling %s", image)
             d_client.images.pull(image)
