@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('docs/history.rst') as history_file:
     history = history_file.read()
 
-proj_version = '0.10.3'
+proj_version = '0.11.0'
 
 setup(
     name='nipyapi',
