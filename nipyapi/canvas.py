@@ -350,6 +350,10 @@ def delete_process_group(process_group, force=False, refresh=True):
         for template in nipyapi.templates.list_all_templates().templates:
             if target.id == template.template.group_id:
                 nipyapi.templates.delete_template(template.id)
+        # have to refresh revision after changes
+        target = nipyapi.nifi.ProcessGroupsApi().get_process_group(
+            process_group.id
+        )
     try:
         return nipyapi.nifi.ProcessGroupsApi().remove_process_group(
             id=target.id,
