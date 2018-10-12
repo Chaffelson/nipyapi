@@ -47,10 +47,6 @@ Features
  - Docker Compose configurations for testing and deployment
  - A scripted deployment of an interactive environment, and a secured configuration, for testing and demonstration purposes
 
-**Coming soon:**
- - Support for edge cases during Versioning changes, such as Reverting a flow containing live data
- - Support for Mnemonic component naming and path resolution
- - Rich configuration differential support
 
 Please see the `issue <https://github.com/Chaffelson/nipyapi/issues>`_ register for more information on current development.
 
@@ -98,12 +94,12 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.7.1, and NiFi-Registry versions 0.1.0 - 0.2.0.
+| Currently we are testing against NiFi versions 1.1.2 - 1.7.1, and NiFi-Registry versions 0.1.0 - 0.3.0.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Python Requirements
 -------------------
 
-| N-2 releases of Python 2.7 or 3.6 supported, though other versions may work.
+| Python 2.7 or 3.4-7 supported, though other versions may work.
 | Tested on Ubuntu and OSX 10.13.x - Windows automated testing not attempted
 | Outside of the standard Python modules, we make use of lxml, DeepDiff and ruamel.yaml
