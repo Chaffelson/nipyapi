@@ -2,6 +2,33 @@
 History
 =======
 
+0.11.0 (2018-10-12)
+-------------------
+
+| Added steps to fdlc demo to show sensitive and invalid processor testing and behavior during deployment
+| Added list_sensitive_processors and list_invalid_processors to nipyapi.canvas
+| Added simple caching capability for certain calls to nipyapi.config
+| Added placeholder tests for new functionality against next refactoring and integration run
+| Missing assertion test in get_process_group_status
+| deprecated use of tests_require setup.py as current best-practice
+| Update ruamel.yaml to support Python 3.7 with passing tests
+| Added test for docker image already present to avoid excessive downloading
+| Added option to recurse from a given pg_id, rather than always from root, to several canvas functions
+| Added default verify_ssl and ssl error squashing to config for user convenience
+| Added filter option to specify whether exact or greedy matching should be used, still greedy by default
+| Added hard logout when changing endpoint to ensure tokens are refreshed
+| Updated tests
+| updating travis to build all branches
+| Fix travis for Python 3.7 testing support
+| Fix edge case in delete process group where templates stop the revision from being refreshed
+| Fixed test case to decode string correctly in old python versions
+| Fixed race condition in test where not all processors started before test executes
+| bugfix for missing status value in Processor DTO
+| Updating pylint to ignore import errors on standard packages
+| added logging to docker image control
+| Bump version: 0.10.3 → 0.11.0
+| Install requirements reset
+
 0.10.3 (2018-08-28)
 -------------------
 
