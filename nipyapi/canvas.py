@@ -17,7 +17,8 @@ __all__ = [
     'delete_processor', 'get_processor', 'schedule_processor',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
     'get_connections', 'purge_connection', 'purge_process_group',
-    'get_bulletins', 'get_bulletin_board'
+    'get_bulletins', 'get_bulletin_board', 'list_invalid_processors',
+    'list_sensitive_processors'
 ]
 
 log = logging.getLogger(__name__)
@@ -101,8 +102,7 @@ def get_process_group_status(pg_id='root', detail='names'):
          (ProcessGroupEntity): The Process Group Entity including the status
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
-    assert detail in ['names', 'all'], "detail should be either 'names' or " \
-                                       "'all'"
+    assert detail in ['names', 'all']
     raw = nipyapi.nifi.ProcessGroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
         out = {
@@ -141,7 +141,7 @@ def get_process_group(identifier, identifier_type='name'):
     return out
 
 
-def list_all_process_groups():
+def list_all_process_groups(pg_id='root'):
     """
     Returns a flattened list of all Process Groups on the canvas.
     Potentially slow if you have a large canvas.
@@ -149,10 +149,16 @@ def list_all_process_groups():
     Note that the ProcessGroupsApi().get_process_groups(pg_id) command only
     provides the first layer of pgs, whereas this trawls the entire canvas
 
+    Args:
+        pg_id (str): The UUID of the Process Group to start from, defaults to
+            the Canvas root
+
     Returns:
          list[ProcessGroupEntity]
 
     """
+    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+
     def flatten(parent_pg):
         """
         Recursively flattens the native datatypes into a generic list.
@@ -169,29 +175,96 @@ def list_all_process_groups():
                 yield sub
             yield child_pg
 
-    root_flow = recurse_flow('root')
+    root_flow = recurse_flow(pg_id)
     out = list(flatten(root_flow))
-    # This duplicates the nipyapi_extended structure to the root case
-    pga_handle = nipyapi.nifi.ProcessGroupsApi()
-    root_entity = pga_handle.get_process_group('root')
-    root_entity.__setattr__('nipyapi_extended', root_flow)
-    out.append(root_entity)
+    if pg_id == 'root':
+        # This duplicates the nipyapi_extended structure to the root case
+        pga_handle = nipyapi.nifi.ProcessGroupsApi()
+        root_entity = pga_handle.get_process_group('root')
+        root_entity.__setattr__('nipyapi_extended', root_flow)
+        out.append(root_entity)
     return out
 
 
-def list_all_processors():
+def list_invalid_processors(pg_id='root', detail='all'):
+    """
+    Returns a flattened list of all Processors with Invalid Statuses
+
+    Args:
+        pg_id (str): The UUID of the Process Group to start from, defaults to
+            the Canvas root
+        detail (str): where to return all details or just the summary of
+            invalid Properties
+
+    Returns:
+        list[ProcessorEntity]
+    """
+    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert detail in ['all', 'summary']
+    proc_list = [x for x in list_all_processors(pg_id)
+                 if x.component.validation_errors is not None]
+    if detail == 'summary':
+        out = [{'id': x.id, 'summary': x.component.validation_errors}
+               for x in proc_list]
+    else:
+        out = proc_list
+    return out
+
+
+def list_sensitive_processors(pg_id='root'):
+    """
+    Returns a flattened list of all Processors on the canvas which have
+    sensitive properties that would need to be managed during deployment
+
+    Args:
+        pg_id (str): The UUID of the Process Group to start from, defaults to
+            the Canvas root
+
+    Returns:
+        list[ProcessorEntity]
+    """
+    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    cache = nipyapi.config.cache.get('list_sensitive_processors')
+    if not cache:
+        cache = []
+    matches = []
+    proc_list = list_all_processors(pg_id)
+    for proc in proc_list:
+        if proc.component.type in cache:
+            matches.append(proc)
+        else:
+            sensitive_test = False
+            for nom, detail in proc.component.config.descriptors.items():
+                if detail.sensitive is True:
+                    sensitive_test = True
+                    break
+            if sensitive_test:
+                matches.append(proc)
+                cache.append(str(proc.component.type))
+    if cache:
+        nipyapi.config.cache['list_sensitive_processors'] = cache
+    return matches
+
+
+def list_all_processors(pg_id='root'):
     """
     Returns a flat list of all Processors anywhere on the canvas
+
+    Args:
+        pg_id (str): The UUID of the Process Group to start from, defaults to
+            the Canvas root
 
     Returns:
          list[ProcessorEntity]
     """
+    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+
     def flattener():
         """
         Memory efficient flattener, sort of.
         :return: yield's a ProcessEntity
         """
-        for pg in list_all_process_groups():
+        for pg in list_all_process_groups(pg_id):
             for proc in pg.nipyapi_extended.process_group_flow.flow.processors:
                 yield proc
 
@@ -277,6 +350,10 @@ def delete_process_group(process_group, force=False, refresh=True):
         for template in nipyapi.templates.list_all_templates().templates:
             if target.id == template.template.group_id:
                 nipyapi.templates.delete_template(template.id)
+        # have to refresh revision after changes
+        target = nipyapi.nifi.ProcessGroupsApi().get_process_group(
+            process_group.id
+        )
     try:
         return nipyapi.nifi.ProcessGroupsApi().remove_process_group(
             id=target.id,

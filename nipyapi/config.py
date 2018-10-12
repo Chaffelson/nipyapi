@@ -9,6 +9,7 @@ objects.
 from __future__ import absolute_import
 import logging
 import os
+import urllib3
 from nipyapi.nifi import configuration as nifi_config
 from nipyapi.registry import configuration as registry_config
 
@@ -24,9 +25,23 @@ logging.basicConfig(level=logging.WARNING)
 # convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
-nifi_config.host = 'http://localhost:8080/nifi-api'
+default_host = 'localhost'
+#
+nifi_config.host = 'http://' + default_host + ':8080/nifi-api'
 # Set Default Host for NiFi-Registry
-registry_config.host = 'http://localhost:18080/nifi-registry-api'
+registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'
+
+
+# Set SSL Handling
+# When operating with self signed certs, your log can fill up with
+# unnecessary warnings
+# Set to True by default, change to false if necessary
+global_ssl_verify = True
+
+nifi_config.verify_ssl = global_ssl_verify
+registry_config.verify_ssl = global_ssl_verify
+if not global_ssl_verify:
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # ---  Project Root ------
@@ -77,3 +92,10 @@ registered_filters = {
 # If False, then we believe we are incompatible
 nifi_config.version_check = None
 registry_config.version_check = None
+
+
+# --- Simple Cache
+# This is a simple session-wide insecure cache for certain slow calls to speed
+# up subsequent requests. It is very stupid, so do not expect session handling,
+# or on-demand refresh if not handled by the function itself
+cache = {}

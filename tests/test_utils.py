@@ -15,7 +15,7 @@ from nipyapi import utils, nifi, system
 def test_dump(regress_flow_reg, fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
-    export_obj = json.loads(fix_flow_serde.raw)
+    export_obj = json.loads(fix_flow_serde.raw.decode('utf-8'))
     ss_json = utils.dump(
         obj=export_obj,
         mode='json'
@@ -100,15 +100,20 @@ def test_filter_obj(fix_pg):
         _ = utils.filter_obj(t_1, '', '')
     with pytest.raises(ValueError):
         _ = utils.filter_obj([f_pg], '', 'pie')
-    r1 = utils.filter_obj([f_pg], 'nipyapi', 'name')
+    r1 = utils.filter_obj([f_pg], conftest.test_pg_name, 'name')
     assert isinstance(r1, nifi.ProcessGroupEntity)
     r2 = utils.filter_obj([f_pg], 'FakeNews', 'name')
     assert r2 is None
-    f_pg2 = fix_pg.generate()
-    r3 = utils.filter_obj([f_pg, f_pg2], 'nipyapi', 'name')
+    f_pg2 = fix_pg.generate(suffix='2')
+    # Test greedy
+    r3 = utils.filter_obj([f_pg, f_pg2], conftest.test_pg_name, 'name')
     assert isinstance(r3, list)
-    r4 = utils.filter_obj([], '', '')
-    assert r4 is None
+    # Test not greedy
+    r4 = utils.filter_obj([f_pg, f_pg2], conftest.test_pg_name, 'name',
+                          greedy=False)
+    assert isinstance(r4, nifi.ProcessGroupEntity)
+    r5 = utils.filter_obj([], '', '')
+    assert r5 is None
 
 
 def test_wait_to_complete():

@@ -15,6 +15,7 @@ import ruamel.yaml
 import docker
 import requests
 from requests.models import Response
+from docker.errors import ImageNotFound
 import nipyapi
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
@@ -135,7 +136,7 @@ def fs_read(file_path):
         raise e
 
 
-def filter_obj(obj, value, key):
+def filter_obj(obj, value, key, greedy=True):
     """
     Implements a custom filter method because native datatypes don't have
     consistently named or located fields.
@@ -147,6 +148,8 @@ def filter_obj(obj, value, key):
         obj (varies): the NiFi or NiFi-Registry object to filter on
         value (str): the String value to look for
         key (str): the object key to filter against
+        greedy (bool): If True, the value will be matched anywhere in the
+            string, if False it will require exact match
 
     Returns: None if 0 matches, list if > 1, single Object entity if ==1
 
@@ -183,10 +186,16 @@ def filter_obj(obj, value, key):
             "methods are {2}".format(key, obj_class_name, valid_keys)
         )
     # List comprehension using reduce to unpack the list of keys in the filter
-    out = [
-        i for i in obj if value in
-        reduce(operator.getitem, key_lookup, i.to_dict())
-    ]
+    if greedy:
+        out = [
+            i for i in obj if value in
+            reduce(operator.getitem, key_lookup, i.to_dict())
+        ]
+    else:
+        out = [
+            i for i in obj if value ==
+            reduce(operator.getitem, key_lookup, i.to_dict())
+        ]
     # Manage our return contract
     if not out:
         return None
@@ -273,7 +282,9 @@ def set_endpoint(endpoint_url):
     if 'nifi-api' in endpoint_url:
         log.info("Setting NiFi endpoint to %s", endpoint_url)
         if nipyapi.config.nifi_config.api_client:
-            nipyapi.config.nifi_config.api_client.host = endpoint_url
+            # Setting existing api_client to None to enforce reauth if it
+            # is a secured instance
+            nipyapi.config.nifi_config.api_client = None
         nipyapi.config.nifi_config.host = endpoint_url
         if nipyapi.config.nifi_config.host == endpoint_url:
             return True
@@ -281,7 +292,7 @@ def set_endpoint(endpoint_url):
     if 'registry-api' in endpoint_url:
         log.info("Setting Registry endpoint to %s", endpoint_url)
         if nipyapi.config.registry_config.api_client:
-            nipyapi.config.registry_config.api_client.host = endpoint_url
+            nipyapi.config.registry_config.api_client = None
         nipyapi.config.registry_config.host = endpoint_url
         if nipyapi.config.registry_config.host == endpoint_url:
             return True
@@ -340,11 +351,16 @@ def start_docker_containers(docker_containers, network_name='demo'):
         assert isinstance(target, DockerContainer)
 
     # Pull relevant Images
-    log.info("Pulling relevant Docker Images")
+    log.info("Pulling relevant Docker Images if needed")
     for image in set([(c.image_name + ':' + c.image_tag)
                       for c in docker_containers]):
-        log.info("Pulling %s", image)
-        d_client.images.pull(image)
+        log.info("Checking image %s", image)
+        try:
+            d_client.images.get(image)
+            log.info("Using local image for %s", image)
+        except ImageNotFound:
+            log.info("Pulling %s", image)
+            d_client.images.pull(image)
 
     # Clear previous containers
     log.info("Clearing previous containers for this demo")

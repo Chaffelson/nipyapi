@@ -11,27 +11,10 @@ with open('README.rst') as readme_file:
 with open('docs/history.rst') as history_file:
     history = history_file.read()
 
-proj_version = '0.10.3'
+proj_version = '0.11.0'
 
-requirements = [
-    'urllib3',  # Required for timeouts during security tests
-    'lxml',  # Required for parsing NiFi Templates
-    'deepdiff',  # Required for comparing configurations
-    'six',  # Required for managing Python version compatibility
-    'ruamel.yaml==0.15.42',  # Required for parsing Json/Yaml consistently
-    'docker',  # Used to deploy demo assemblies
-    'requests[security]',  # Used in utils functions, security extras for Py2
-    'packaging'  # Comes in setuptools anyway, used to compare versions
-]
-
-setup_requirements = [
-    'pytest-runner'
-]
-
-test_requirements = [
-    'pytest',
-    'pylint'
-]
+with open('requirements.txt') as reqs_file:
+    requirements = reqs_file.read().splitlines()
 
 setup(
     name='nipyapi',
@@ -67,7 +50,5 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: User Interfaces'
     ],
-    test_suite='tests',
-    tests_require=test_requirements,
-    setup_requires=setup_requirements,
+    test_suite='tests'
 )

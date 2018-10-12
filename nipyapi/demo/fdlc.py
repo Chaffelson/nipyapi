@@ -66,6 +66,7 @@ d_containers = [
 
 dev_pg_name = 'my_pg_0'
 dev_proc_name = 'my_proc_0'
+dev_proc2_name = 'my_s_proc_0'
 dev_reg_client_name = 'dev_reg_client_0'
 dev_bucket_name = 'dev_bucket_0'
 dev_ver_flow_name = 'dev_ver_flow_0'
@@ -388,7 +389,7 @@ def step_c_promote_change_to_prod_reg():
 
 
 def step_d_promote_change_to_prod_nifi():
-    """Pushing the change into the Prod flow and offering reset"""
+    """Pushing the change into the Prod flow"""
     log.info("Moving deployed Prod Process Group to the latest version")
     prod_pg = nipyapi.canvas.get_process_group(dev_pg_name)
     nipyapi.versioning.update_flow_ver(
@@ -399,5 +400,130 @@ def step_d_promote_change_to_prod_nifi():
           "of being up to date with its version control."
           "\nLook at the Processor scheduling to note that it now matches the "
           "dev environment as 3s."
-          "\nThis is the end of the demo, you may restart it by calling"
-          "'step_1_boot_demo_env() at any time.\n")
+          "\nNow we will examine some typical deployment tests."
+          "\nPlease now call 'step_e_check_sensitive_processors()'\n")
+
+
+def step_e_check_sensitive_processors():
+    log.info("Connecting to Dev Environment")
+    nipyapi.utils.set_endpoint(dev_nifi_api_url)
+    nipyapi.utils.set_endpoint(dev_reg_api_url)
+    log.info("Creating additional complex Processor")
+    nipyapi.canvas.create_processor(
+        parent_pg=nipyapi.canvas.get_process_group(dev_pg_name),
+        processor=nipyapi.canvas.get_processor_type('GetTwitter'),
+        location=(400.0, 600.0),
+        name=dev_proc2_name,
+    )
+    s_proc = nipyapi.canvas.list_sensitive_processors()
+    print("We have created a new Processor {0} which has security protected"
+          "properties, these will need to be completed in each environment "
+          "that this flow is used in. These properties are discoverable using "
+          "the API calls list 'canvas.list_sensitive_processors()'"
+          "\nFunction 'nipyapi.canvas.update_processor' as used in step_a is"
+          " intended for this purpose"
+          "\nPlease no call 'step_f_set_sensitive_values()'\n"
+          .format(s_proc[0].status.name, ))
+
+
+def step_f_set_sensitive_values():
+    log.info("Setting Sensitive Values on Processor")
+    nipyapi.canvas.update_processor(
+        processor=nipyapi.canvas.get_processor(dev_proc2_name),
+        update=nipyapi.nifi.ProcessorConfigDTO(
+            properties={
+                'Consumer Key': 'Some',
+                'Consumer Secret': 'Secret',
+                'Access Token': 'values',
+                'Access Token Secret': 'here'
+            }
+        )
+    )
+    print("Here we have set the Sensitive values, again using the Update"
+          " process. Typically these values will be looked up in a Config DB "
+          "or some other secured service."
+          "\nPlease now call 'step_g_check_invalid_processors()'\n")
+    # Todo: update sensitive to return properites list precreated
+
+
+def step_g_check_invalid_processors():
+    log.info("Retrieving Processors in Invalid States")
+    i_proc = nipyapi.canvas.list_invalid_processors()[0]
+    print("We now run a validity test against our flow to ensure that it can "
+          "be deployed. We can see that Processors [{0}] need further "
+          "attention."
+          "\nWe can also easily see the reasons for this [{1}]."
+          "\nPlease now call 'step_h_fix_validation_errors()'\n"
+          .format(i_proc.status.name, i_proc.component.validation_errors))
+
+
+def step_h_fix_validation_errors():
+    log.info("Autoterminating Success status")
+    nipyapi.canvas.update_processor(
+        processor=nipyapi.canvas.get_processor(dev_proc2_name),
+        update=nipyapi.nifi.ProcessorConfigDTO(
+            auto_terminated_relationships=['success']
+        )
+    )
+    print("We now see that our Processor is configured and Valid within this "
+          "environment, and is ready for Promotion to the next stage."
+          "\nPlease now call 'step_i_promote_deploy_and_validate()'\n")
+
+
+def step_i_promote_deploy_and_validate():
+    log.info("Saving changes in Dev Flow to Version Control")
+    dev_process_group = nipyapi.canvas.get_process_group(dev_pg_name)
+    dev_bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
+    dev_registry_client = nipyapi.versioning.get_registry_client(
+        dev_reg_client_name)
+    dev_flow = nipyapi.versioning.get_flow_in_bucket(
+        bucket_id=dev_bucket.identifier,
+        identifier=dev_ver_flow_name
+    )
+    nipyapi.versioning.save_flow_ver(
+        process_group=dev_process_group,
+        registry_client=dev_registry_client,
+        bucket=dev_bucket,
+        flow_id=dev_flow.identifier,
+        comment='A Flow update with a Complex Processor'
+    )
+    dev_ver_flow = nipyapi.versioning.get_flow_in_bucket(
+        dev_bucket.identifier,
+        identifier=dev_ver_flow_name
+    )
+    dev_export = nipyapi.versioning.export_flow_version(
+        bucket_id=dev_bucket.identifier,
+        flow_id=dev_ver_flow.identifier,
+        mode='yaml'
+    )
+    log.info("Connecting to Prod Environment")
+    nipyapi.utils.set_endpoint(prod_nifi_api_url)
+    nipyapi.utils.set_endpoint(prod_reg_api_url)
+    log.info("Pushing updated version into Prod Registry Flow")
+    prod_bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
+    prod_flow = nipyapi.versioning.get_flow_in_bucket(
+        bucket_id=prod_bucket.identifier,
+        identifier=prod_ver_flow_name
+    )
+    nipyapi.versioning.import_flow_version(
+        bucket_id=prod_bucket.identifier,
+        encoded_flow=dev_export,
+        flow_id=prod_flow.identifier
+    )
+    prod_pg = nipyapi.canvas.get_process_group(dev_pg_name)
+    nipyapi.versioning.update_flow_ver(
+        process_group=prod_pg,
+        target_version=None
+    )
+    val_errors = nipyapi.canvas.list_invalid_processors()
+    print("Here we have put all the steps in one place by taking the dev "
+          "changes all the way through to prod deployment. If we check"
+          " our Processor Validation again, we see that our regular "
+          "Properties have been carried through, but our Sensitive "
+          "Properties are unset in Production [{0}]"
+          "\nThis is because NiFi will not break"
+          " security by carrying them to a new environment. We leave setting"
+          " them again as an exercise for the user."
+          .format(val_errors[0].component.validation_errors))
+    print("\nThis is the end of the guide, you may restart at any time by "
+          "calling 'step_1_boot_demo_env()'\n")

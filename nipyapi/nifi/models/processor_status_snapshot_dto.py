@@ -265,7 +265,10 @@ class ProcessorStatusSnapshotDTO(object):
         :param run_status: The run_status of this ProcessorStatusSnapshotDTO.
         :type: str
         """
-        allowed_values = ["Running", "Stopped", "Disabled", "Invalid"]
+        # allowed_values = ["Running", "Stopped", "Disabled", "Invalid"]
+        # Overide for missing value
+        allowed_values = ["Running", "Stopped", "Disabled", "Invalid",
+                          "Validating"]
         if run_status not in allowed_values:
             raise ValueError(
                 "Invalid value for `run_status` ({0}), must be one of {1}"

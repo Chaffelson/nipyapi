@@ -283,3 +283,13 @@ def test_get_bulletins():
 def test_get_bulletin_board():
     r = canvas.get_bulletin_board()
     assert isinstance(r, nifi.BulletinBoardEntity)
+
+
+def test_list_invalid_processors():
+    # TODO: write test for new feature
+    pass
+
+
+def test_list_sensitive_processors():
+    # TODO: write test for new feature
+    pass
