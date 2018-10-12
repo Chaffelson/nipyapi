@@ -29,7 +29,7 @@ default_host = 'localhost'
 #
 nifi_config.host = 'http://' + default_host + ':8080/nifi-api'
 # Set Default Host for NiFi-Registry
-registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'twine upload dist/*
+registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'
 
 
 # Set SSL Handling
