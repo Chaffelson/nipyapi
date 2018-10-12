@@ -13,6 +13,9 @@ with open('docs/history.rst') as history_file:
 
 proj_version = '0.11.0'
 
+with open('requirements.txt') as reqs_file:
+    requirements = reqs_file.read().splitlines()
+
 setup(
     name='nipyapi',
     version=proj_version,
@@ -27,6 +30,7 @@ setup(
         exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']
     ),
     include_package_data=True,
+    install_requires=requirements,
     license="Apache Software License 2.0",
     zip_safe=False,
     keywords=['nipyapi', 'nifi', 'api', 'wrapper'],

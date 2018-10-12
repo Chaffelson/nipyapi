@@ -25,9 +25,11 @@ logging.basicConfig(level=logging.WARNING)
 # convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
-nifi_config.host = 'http://localhost:8080/nifi-api'
+default_host = 'localhost'
+#
+nifi_config.host = 'http://' + default_host + ':8080/nifi-api'
 # Set Default Host for NiFi-Registry
-registry_config.host = 'http://localhost:18080/nifi-registry-api'
+registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'twine upload dist/*
 
 
 # Set SSL Handling
