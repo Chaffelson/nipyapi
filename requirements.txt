@@ -2,14 +2,17 @@
 # If you need an older version of a dependency please open an Issue on Github
 # Basics
 setuptools>=38.5
-six==1.11.0
+six>=1.11.0
 
 # Version comparison
 packaging>=17.1
 
 # Templates management implementation
-urllib3>=1.22
 lxml>=4.1.1
+
+# Security and Connectivity
+requests[security]>=2.18
+# urllib3 is handled by requests
 
 # Import Export and Utils implementation
 ruamel.yaml<=0.15.72
@@ -17,4 +20,3 @@ deepdiff>=3.3.0
 
 # Demo deployment automation
 docker>=2.5.1
-requests[security]>=2.18
