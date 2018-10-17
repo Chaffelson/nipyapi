@@ -198,7 +198,7 @@ class ProcessorStatusDTO(object):
         # allowed_values = ["Running", "Stopped", "Disabled", "Invalid"]
         # bugfix for missing status property
         allowed_values = ["Running", "Stopped", "Disabled", "Invalid",
-                          "validating"]
+                          "Validating"]
         if run_status not in allowed_values:
             raise ValueError(
                 "Invalid value for `run_status` ({0}), must be one of {1}"
