@@ -323,7 +323,8 @@ def revert_flow_ver(process_group):
         raise ValueError(e)
 
 
-def list_flow_versions(bucket_id, flow_id):
+def list_flow_versions(bucket_id, flow_id, registry_id=None,
+                       service='registry'):
     """
     EXPERIMENTAL
     List all the versions of a given Flow in a given Bucket
@@ -331,17 +332,33 @@ def list_flow_versions(bucket_id, flow_id):
     Args:
         bucket_id (str): UUID of the bucket holding the flow to be enumerated
         flow_id (str): UUID of the flow in the bucket to be enumerated
+        registry_id (str): UUID of the registry client linking the bucket, only
+            required if requesting flows via NiFi instead of directly Registry
+        service (str): Accepts 'nifi' or 'registry', indicating which service
+            to query
 
     Returns:
-        list(VersionedFlowSnapshotMetadata)
+        list(VersionedFlowSnapshotMetadata) or
+            (VersionedFlowSnapshotMetadataSetEntity)
     """
-    try:
-        return nipyapi.registry.BucketFlowsApi().get_flow_versions(
-            bucket_id=bucket_id,
-            flow_id=flow_id
-        )
-    except nipyapi.registry.rest.ApiException as e:
-        raise ValueError(e.body)
+    assert service in ['nifi', 'registry']
+    if service == 'nifi':
+        try:
+            return nipyapi.nifi.FlowApi().get_versions(
+                registry_id=registry_id,
+                bucket_id=bucket_id,
+                flow_id=flow_id
+            )
+        except nipyapi.nifi.rest.ApiException as e:
+            raise ValueError(e.body)
+    else:
+        try:
+            return nipyapi.registry.BucketFlowsApi().get_flow_versions(
+                bucket_id=bucket_id,
+                flow_id=flow_id
+            )
+        except nipyapi.registry.rest.ApiException as e:
+            raise ValueError(e.body)
 
 
 def update_flow_ver(process_group, target_version=None):
@@ -726,17 +743,37 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         (ProcessGroupEntity) of the newly deployed Process Group
     """
     assert isinstance(location, tuple)
-    try:
-        # Being pedantic about checking this as API failure errors are terse
-        # Check flow details are valid
-        target_flow = get_flow_version(
-            bucket_id=bucket_id,
-            flow_id=flow_id,
-            version=version
+    # check reg client is valid
+    target_reg_client = get_registry_client(reg_client_id, 'id')
+    # Being pedantic about checking this as API failure errors are terse
+    # Using NiFi here to keep all calls within the same API client
+    flow_versions = list_flow_versions(
+        bucket_id=bucket_id,
+        flow_id=flow_id,
+        registry_id=reg_client_id,
+        service='nifi'
+    )
+    if not flow_versions:
+        raise ValueError("Could not find Flows matching Bucket ID %s and"
+                         "Flow ID %s on Registry Client %s",
+                         bucket_id, flow_id, reg_client_id)
+    if version is None:
+        target_flow = flow_versions.versioned_flow_snapshot_metadata_set
+    else:
+        target_flow = [x for x
+                       in flow_versions.versioned_flow_snapshot_metadata_set
+                       if x.versioned_flow_snapshot_metadata.version == version
+                       ]
+    if not target_flow:
+        raise ValueError(
+            "Could not find Version %s for Flow %s in Bucket %s on "
+            "Registry Client %s", str(version), flow_id, bucket_id,
+            reg_client_id
         )
-        # check reg client is valid
-        target_reg_client = get_registry_client(reg_client_id, 'id')
-        # Issue deploy statement
+    else:
+        target_flow = target_flow[0].versioned_flow_snapshot_metadata
+    # Issue deploy statement
+    try:
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
             id=parent_id,
             body=nipyapi.nifi.ProcessGroupEntity(
@@ -749,10 +786,10 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
                         y=float(location[1])
                     ),
                     version_control_information=VciDTO(
-                        bucket_id=target_flow.bucket.identifier,
-                        flow_id=target_flow.flow.identifier,
+                        bucket_id=target_flow.bucket_identifier,
+                        flow_id=target_flow.flow_identifier,
                         registry_id=target_reg_client.id,
-                        version=target_flow.snapshot_metadata.version
+                        version=target_flow.version
                     )
                 )
             )

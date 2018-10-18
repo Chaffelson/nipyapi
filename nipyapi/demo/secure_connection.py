@@ -84,7 +84,7 @@ d_containers = [
     DockerContainer(
         name='secure-registry',
         image_name='apache/nifi-registry',
-        image_tag='0.2.0',
+        image_tag='0.3.0',
         ports={'18443/tcp': 18443},
         env=tls_env_vars,
         volumes={
