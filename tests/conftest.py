@@ -62,17 +62,13 @@ else:
     nifi_test_endpoints = [
         'http://' + test_host + ':10112/nifi-api',
         'http://' + test_host + ':10120/nifi-api',
-        'http://' + test_host + ':10160/nifi-api',
+        'http://' + test_host + ':10171/nifi-api',
         'http://' + test_host + ':8080/nifi-api'  # Default to latest
     ]
     # These are paired into api & docker labels with a paired nifi instance
     registry_test_endpoints = [
         ('http://' + test_host + ':18010/nifi-registry-api',
             'http://registry-010:18010',
-         'http://' + test_host + ':8080/nifi-api'
-         ),
-        ('http://' + test_host + ':18020/nifi-registry-api',
-            'http://registry-020:18020',
          'http://' + test_host + ':8080/nifi-api'
          ),
         ('http://' + test_host + ':18030/nifi-registry-api',
