@@ -260,11 +260,6 @@ def test_update_variable_registry(fix_pg):
         _ = canvas.update_variable_registry(test_pg, '')
 
 
-def test_get_connections():
-    # TODO: Waiting for create_connection to generate fixture
-    pass
-
-
 def test_purge_connection():
     # TODO: Waiting for create_connection to generate fixture
     pass
@@ -293,3 +288,65 @@ def test_list_invalid_processors():
 def test_list_sensitive_processors():
     # TODO: write test for new feature
     pass
+
+
+def test_create_connection(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    # connect single relationship
+    r1 = canvas.create_connection(f_p1, f_p2, ['success'])
+    assert isinstance(r1, nifi.ConnectionEntity)
+    # connect all relationships by default
+    r2 = canvas.create_connection(f_p1, f_p2)
+    assert isinstance(r2, nifi.ConnectionEntity)
+    with pytest.raises(AssertionError):
+        _ = canvas.create_connection(f_p1, f_p2, ['not a connection'])
+
+
+def test_delete_connection(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    # connect single relationship
+    c1 = canvas.create_connection(f_p1, f_p2, ['success'])
+    r1 = canvas.delete_connection(c1)
+    assert isinstance(r1, nifi.ConnectionEntity)
+    assert r1.status is None
+
+
+def test_list_all_connections(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    r1 = canvas.list_all_connections()
+    assert not r1
+    # connect single relationship
+    c1 = canvas.create_connection(f_p1, f_p2, ['success'])
+    r2 = canvas.list_all_connections('root')
+    assert len(r2) == 1
+    assert isinstance(r2[0], nifi.ConnectionEntity)
+    c2 = canvas.create_connection(f_p1, f_p2)
+    r2 = canvas.list_all_connections()
+    assert len(r2) == 2
+    _ = canvas.delete_connection(c1)
+    _ = canvas.delete_connection(c2)
+    r3 = canvas.list_all_connections()
+    assert not r3
+
+
+def test_get_component_connections(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    f_p3 = canvas.create_processor(
+        parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
+        processor=canvas.get_processor_type('AttributesToJSON'),
+        location=(400.0, 425.0),
+        name=conftest.test_processor_name + '_inbound'
+    )
+    canvas.create_connection(f_p1, f_p3)
+    canvas.create_connection(f_p2, f_p3)
+    r1 = canvas.get_component_connections(f_p1)
+    assert len(r1) == 1
+    assert r1[0].source_id == f_p1.id
+    r2 = canvas.get_component_connections(f_p3)
+    assert len(r2) == 2
+    assert r2[0].destination_id == f_p3.id
+    assert r2[1].source_id in [f_p1.id, f_p2.id]

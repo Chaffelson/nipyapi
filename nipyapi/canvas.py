@@ -16,9 +16,10 @@ __all__ = [
     "list_all_processor_types", "get_processor_type", 'create_processor',
     'delete_processor', 'get_processor', 'schedule_processor',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
-    'get_connections', 'purge_connection', 'purge_process_group',
+    'purge_connection', 'purge_process_group',
     'get_bulletins', 'get_bulletin_board', 'list_invalid_processors',
-    'list_sensitive_processors'
+    'list_sensitive_processors', 'list_all_connections', 'create_connection',
+    'delete_connection'
 ]
 
 log = logging.getLogger(__name__)
@@ -517,8 +518,8 @@ def delete_processor(processor, refresh=True, force=False):
     Args:
         processor (ProcessorEntity): The processor to delete
         refresh (bool): Whether to refresh the Processor state before action
-        force (bool): Whether to stop the Processor before deletion. Behavior
-            may change in future releases. Experimental.
+        force (bool): Whether to stop, purge and remove connections to the
+            Processor before deletion. Behavior may change in future releases.
 
     Returns:
          (ProcessorEntity): The updated ProcessorEntity
@@ -536,6 +537,13 @@ def delete_processor(processor, refresh=True, force=False):
         if not schedule_processor(target, False):
             raise ("Could not prepare processor {0} for deletion"
                    .format(target.id))
+        inbound_cons = [
+            x for x in get_component_connections(processor)
+            if processor.id == x.destination_id
+        ]
+        for con in inbound_cons:
+            delete_connection(con, purge=True)
+        # refresh state before trying delete
         target = get_processor(processor.id, 'id')
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
     try:
@@ -764,29 +772,104 @@ def update_variable_registry(process_group, update):
         raise ValueError(e.body)
 
 
-def get_connections(pg_id):
-    """
-    EXPERIMENTAL
-    List all child connections within a given Process Group
+# def get_connections(pg_id):
+#     """
+#     EXPERIMENTAL
+#     List all child connections within a given Process Group
+#
+#     Args:
+#         pg_id (str): The UUID of the target Process Group
+#
+#     Returns:
+#         (ConnectionsEntity): A native datatype which contains the list of
+#         all Connections in the Process Group
+#
+#     """
+#     log.warning("This call get_connections will be deprecated, please use "
+#                 "list_all_connections")
+#     assert isinstance(
+#         get_process_group(pg_id, 'id'),
+#         nipyapi.nifi.ProcessGroupEntity
+#     )
+#     try:
+#         out = nipyapi.nifi.ProcessGroupsApi().get_connections(pg_id)
+#     except nipyapi.nifi.rest.ApiException as e:
+#         raise ValueError(e.body)
+#     assert isinstance(out, nipyapi.nifi.ConnectionsEntity)
+#     return out
 
-    Args:
-        pg_id (str): The UUID of the target Process Group
 
-    Returns:
-        (ConnectionsEntity): A native datatype which contains the list of
-        all Connections in the Process Group
+def create_connection(source, target, relationships=None):
+    source_rels = [x.name for x in source.component.relationships]
+    if relationships:
+        assert all(i in source_rels for i in relationships),\
+            "One or more relationships [{0}] not in list of valid Source " \
+            "Relationships [{1}]".format(str(relationships), str(source_rels))
+    else:
+        # if no relationships supplied, we connect them all
+        relationships = source_rels
+    # determine source and destination strings by class supplied
+    source_type = nipyapi.utils.infer_object_label_from_class(source)
+    target_type = nipyapi.utils.infer_object_label_from_class(target)
+    try:
+        return nipyapi.nifi.ProcessGroupsApi().create_connection(
+            id=source.component.parent_group_id,
+            body=nipyapi.nifi.ConnectionEntity(
+                revision=nipyapi.nifi.RevisionDTO(
+                    version=0
+                ),
+                source_type=source_type,
+                destination_type=target_type,
+                component=nipyapi.nifi.ConnectionDTO(
+                    source=nipyapi.nifi.ConnectableDTO(
+                        id=source.id,
+                        group_id=source.component.parent_group_id,
+                        type=source_type
+                    ),
+                    destination=nipyapi.nifi.ConnectableDTO(
+                        id=target.id,
+                        group_id=target.component.parent_group_id,
+                        type=target_type
+                    ),
+                    selected_relationships=relationships
+                )
+            )
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
 
-    """
-    assert isinstance(
-        get_process_group(pg_id, 'id'),
-        nipyapi.nifi.ProcessGroupEntity
-    )
+
+def delete_connection(connection, purge=False):
+    assert isinstance(connection, nipyapi.nifi.ConnectionEntity)
+    if purge:
+        purge_connection(connection.id)
+    try:
+        return nipyapi.nifi.ConnectionsApi().delete_connection(
+            id=connection.id,
+            version=connection.revision.version
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def list_all_connections(pg_id=None):
+    pg_id = pg_id if pg_id is not None else 'root'
     try:
         out = nipyapi.nifi.ProcessGroupsApi().get_connections(pg_id)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
     assert isinstance(out, nipyapi.nifi.ConnectionsEntity)
-    return out
+    return out.connections
+
+
+def get_component_connections(component):
+    # Support more components later
+    assert isinstance(component, nipyapi.nifi.ProcessorEntity)
+    return [
+        x for x
+        in list_all_connections(component.component.parent_group_id)
+        if component.id in [x.destination_id, x.source_id]
+    ]
 
 
 def purge_connection(con_id):
@@ -854,9 +937,9 @@ def purge_process_group(process_group, stop=False):
                 "Unable to stop Process Group {0} for purging"
                 .format(process_group.id)
             )
-    cons = get_connections(process_group.id)
+    cons = list_all_connections(process_group.id)
     result = []
-    for con in cons.connections:
+    for con in cons:
         result.append({con.id: str(purge_connection(con.id))})
     return result
 

@@ -20,7 +20,8 @@ import nipyapi
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
-           'start_docker_containers', 'DockerContainer']
+           'start_docker_containers', 'DockerContainer',
+           'infer_object_label_from_class']
 
 log = logging.getLogger(__name__)
 
@@ -435,3 +436,13 @@ def check_version(base, comparator=None, service='nifi'):
     if ver_b < ver_a:
         return 1
     return 0
+
+
+def infer_object_label_from_class(obj):
+    if isinstance(obj, nipyapi.nifi.ProcessorEntity):
+        return 'PROCESSOR'
+    else:
+        raise AssertionError("This function only supports Processors at "
+                             "this time")
+    # valid_sources = ["PROCESSOR", "REMOTE_INPUT_PORT", "REMOTE_OUTPUT_PORT",
+    #                  "INPUT_PORT", "OUTPUT_PORT", "FUNNEL"]
