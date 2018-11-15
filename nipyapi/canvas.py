@@ -348,8 +348,8 @@ def delete_process_group(process_group, force=False, refresh=True):
         # Stop, drop, and roll.
         purge_process_group(target, stop=True)
         # Stop all Controller Services
-        [delete_controller(x, True) for x in
-         list_all_controllers(process_group.id)]
+        for x in list_all_controllers(process_group.id):
+            delete_controller(x, True)
         # Remove templates
         for template in nipyapi.templates.list_all_templates(native=False):
             if target.id == template.template.group_id:
@@ -1017,6 +1017,20 @@ def get_bulletin_board():
 
 
 def create_controller(parent_pg, controller, name=None):
+    """
+    Creates a new Controller Service in a given Process Group of the given
+        Controller type, with the given Name
+
+    Args:
+        parent_pg (ProcessGroupEntity): Target Parent PG
+        controller (DocumentedTypeDTO): Type of Controller to create, found
+            via the list_all_controller_types method
+        name (str[Optional]): Name for the new Controller as a String
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
     assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert name is None or isinstance(name, six.string_types)
@@ -1044,6 +1058,17 @@ def create_controller(parent_pg, controller, name=None):
 
 
 def list_all_controllers(pg_id='root', descendants=True):
+    """
+    Lists all controllers under a given Process Group, defaults to Root
+        Optionally recurses all child Process Groups as well
+    Args:
+        pg_id (str): String of the ID of the Process Group to list from
+        descendants (bool): True to recurse child PGs, False to not
+
+    Returns:
+        None, ControllerServiceEntity, or list(ControllerServiceEntity)
+
+    """
     assert isinstance(pg_id, six.string_types)
     assert isinstance(descendants, bool)
     handle = nipyapi.nifi.FlowApi()
@@ -1066,6 +1091,17 @@ def list_all_controllers(pg_id='root', descendants=True):
 
 
 def delete_controller(controller, force=False):
+    """
+    Delete a Controller service, with optional prejudice
+
+    Args:
+        controller (ControllerServiceEntity): Target Controller to delete
+        force (bool): True to Disable the Controller before deletion
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(force, bool)
 
@@ -1097,6 +1133,18 @@ def delete_controller(controller, force=False):
 
 
 def update_controller(controller, update):
+    """
+    Updates the Configuration of a Controller Service
+
+    Args:
+        controller (ControllerServiceEntity): Target Controller to update
+        update (ControllerServiceDTO): Controller Service configuration object
+            containing the new config params and properties
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
     # Insert the ID into the update
@@ -1112,6 +1160,17 @@ def update_controller(controller, update):
 
 
 def schedule_controller(controller, scheduled):
+    """
+    Start/Enable or Stop/Disable a Controller Service
+
+    Args:
+        controller (ControllerServiceEntity): Target Controller to schedule
+        scheduled (bool): True to start, False to stop
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(scheduled, bool)
 
@@ -1151,6 +1210,18 @@ def schedule_controller(controller, scheduled):
 
 
 def get_controller(identifier, identifier_type='name', bool_response=False):
+    """
+    Retrieve a given Controller
+
+    Args:
+        identifier (str): ID or Name of a Controller to find
+        identifier_type (str): 'id' or 'name', defaults to name
+        bool_response (bool): If True, will return False if the Controller is
+            not found - useful when testing for deletion completion
+
+    Returns:
+
+    """
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
     handle = nipyapi.nifi.ControllerServicesApi()
@@ -1168,5 +1239,11 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
 
 
 def list_all_controller_types():
+    """
+    Lists all Controller Service types available on the environment
+
+    Returns:
+        list(DocumentedTypeDTO)
+    """
     handle = nipyapi.nifi.FlowApi()
     return handle.get_controller_service_types().controller_service_types

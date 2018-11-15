@@ -768,7 +768,7 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         raise ValueError(
             "Could not find Version %s for Flow %s in Bucket %s on "
             "Registry Client %s"
-                .format(str(version), flow_id, bucket_id, reg_client_id)
+            .format(str(version), flow_id, bucket_id, reg_client_id)
         )
     else:
         target_flow = target_flow[0].versioned_flow_snapshot_metadata

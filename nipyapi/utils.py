@@ -13,9 +13,9 @@ import six
 from packaging import version
 import ruamel.yaml
 import docker
+from docker.errors import ImageNotFound
 import requests
 from requests.models import Response
-from docker.errors import ImageNotFound
 import nipyapi
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
