@@ -37,7 +37,7 @@ def get_template_by_name(name):
     """
     out = [
         i for i in
-        list_all_templates().templates
+        list_all_templates(native=False)
         if
         name == i.template.name
     ]
@@ -63,7 +63,7 @@ def get_template(identifier, identifier_type='name'):
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
     try:
-        obj = nipyapi.templates.list_all_templates().templates
+        obj = nipyapi.templates.list_all_templates(native=False)
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
     if obj:
@@ -252,7 +252,7 @@ def export_template(t_id, output='string', file_path=None):
         return obj
 
 
-def list_all_templates():
+def list_all_templates(native=True):
     """
     Gets a list of all templates on the canvas
 
@@ -260,6 +260,11 @@ def list_all_templates():
         (list[TemplateEntity]): A list of TemplateEntity's
     """
     try:
-        return nipyapi.nifi.FlowApi().get_templates()
+        templates = nipyapi.nifi.FlowApi().get_templates()
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
+    if not native:
+        if templates:
+            return templates.templates
+        return None
+    return templates

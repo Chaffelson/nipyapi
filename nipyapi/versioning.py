@@ -755,8 +755,8 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
     )
     if not flow_versions:
         raise ValueError("Could not find Flows matching Bucket ID %s and"
-                         "Flow ID %s on Registry Client %s",
-                         bucket_id, flow_id, reg_client_id)
+                         "Flow ID %s on Registry Client %s"
+                         .format(bucket_id, flow_id, reg_client_id))
     if version is None:
         target_flow = flow_versions.versioned_flow_snapshot_metadata_set
     else:
@@ -767,8 +767,8 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
     if not target_flow:
         raise ValueError(
             "Could not find Version %s for Flow %s in Bucket %s on "
-            "Registry Client %s", str(version), flow_id, bucket_id,
-            reg_client_id
+            "Registry Client %s"
+                .format(str(version), flow_id, bucket_id, reg_client_id)
         )
     else:
         target_flow = target_flow[0].versioned_flow_snapshot_metadata

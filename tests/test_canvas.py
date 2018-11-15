@@ -350,3 +350,94 @@ def test_get_component_connections(regress_nifi, fix_proc):
     assert len(r2) == 2
     assert r2[0].destination_id == f_p3.id
     assert r2[1].source_id in [f_p1.id, f_p2.id]
+
+
+def test_list_all_controller_types(regress_nifi):
+    r1 = canvas.list_all_controller_types()
+    assert len(r1) > 5
+    assert isinstance(r1[0], nifi.DocumentedTypeDTO)
+
+
+def test_list_all_controllers(regress_nifi, fix_pg, fix_cont):
+    f_c1 = fix_cont(parent_pg=fix_pg.generate())
+    assert isinstance(f_c1, nifi.ControllerServiceEntity)
+    r1 = canvas.list_all_controllers()
+    assert f_c1.id in [x.id for x in r1]
+    r2 = canvas.list_all_controllers(
+        pg_id='root',
+        descendants=False)
+    r2 = [x for x in r2 if conftest.test_basename in x.component.name]
+    assert not r2
+    with pytest.raises(AssertionError):
+        _ = canvas.list_all_controllers(pg_id=['bob'])
+    with pytest.raises(AssertionError):
+        _ = canvas.list_all_controllers(descendants=['pie'])
+
+
+def test_create_controller(regress_nifi, fix_cont):
+    root_pg = canvas.get_process_group(canvas.get_root_pg_id(), 'id')
+    cont_type = canvas.list_all_controller_types()[0]
+    r1 = canvas.create_controller(
+        parent_pg=root_pg,
+        controller=cont_type
+    )
+    assert isinstance(r1, nifi.ControllerServiceEntity)
+    with pytest.raises(AssertionError):
+        _ = canvas.create_controller('pie', cont_type)
+    with pytest.raises(AssertionError):
+        _ = canvas.create_controller(root_pg, 'pie')
+
+
+def test_get_controller(regress_nifi, fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    r1 = canvas.get_controller(f_c1.id, 'id')
+    assert r1 is not None
+    assert isinstance(r1, nifi.ControllerServiceEntity)
+    r2 = canvas.get_controller(f_c1.component.name)
+    assert r2.component.name == f_c1.component.name
+    _ = fix_cont(parent_pg=f_pg, kind='DistributedMapCacheServer')
+    r3 = canvas.get_controller('DistributedMapCache')
+    assert len(r3) == 2
+
+
+def test_schedule_controller(regress_nifi, fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    f_c1 = canvas.update_controller(
+        f_c1, nifi.ControllerServiceDTO(properties={'Server Hostname': 'Bob'}))
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_controller('pie', False)
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_controller(f_c1, 'pie')
+    r1 = canvas.schedule_controller(f_c1, True)
+    assert r1.component.state == 'ENABLED'
+    r2 = canvas.schedule_controller(r1, False)
+    assert r2.component.state == 'DISABLED'
+
+
+def test_delete_controller(regress_nifi, fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    r1 = canvas.delete_controller(f_c1)
+    assert r1.revision is None
+    f_c2 = fix_cont(parent_pg=f_pg)
+    f_c2 = canvas.update_controller(
+        f_c2, nifi.ControllerServiceDTO(properties={'Server Hostname': 'Bob'}))
+    f_c2 = canvas.schedule_controller(f_c2, True)
+    with pytest.raises(AssertionError):
+        _ = canvas.delete_controller('pie')
+    with pytest.raises(AssertionError):
+        _ = canvas.delete_controller(f_c2, 'pie')
+    with pytest.raises(ValueError):
+        _ = canvas.delete_controller(f_c2)
+    assert f_c2.revision is not None
+    r2 = canvas.delete_controller(f_c2, True)
+    assert r2.revision is None
+
+
+def test_update_controller(regress_nifi, fix_pg, fix_cont):
+    f_c1 = fix_cont(parent_pg=fix_pg.generate())
+    r1 = canvas.update_controller(f_c1, nifi.ControllerServiceDTO(name='Bob'))
+    assert isinstance(r1, nifi.ControllerServiceEntity)
+    assert r1.component.name == 'Bob'

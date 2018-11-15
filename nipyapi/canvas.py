@@ -16,7 +16,7 @@ __all__ = [
     "list_all_processor_types", "get_processor_type", 'create_processor',
     'delete_processor', 'get_processor', 'schedule_processor',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
-    'purge_connection', 'purge_process_group',
+    'purge_connection', 'purge_process_group', 'schedule_components',
     'get_bulletins', 'get_bulletin_board', 'list_invalid_processors',
     'list_sensitive_processors', 'list_all_connections', 'create_connection',
     'delete_connection'
@@ -235,7 +235,7 @@ def list_sensitive_processors(pg_id='root'):
             matches.append(proc)
         else:
             sensitive_test = False
-            for nom, detail in proc.component.config.descriptors.items():
+            for _, detail in proc.component.config.descriptors.items():
                 if detail.sensitive is True:
                     sensitive_test = True
                     break
@@ -347,8 +347,11 @@ def delete_process_group(process_group, force=False, refresh=True):
     if force:
         # Stop, drop, and roll.
         purge_process_group(target, stop=True)
+        # Stop all Controller Services
+        [delete_controller(x, True) for x in
+         list_all_controllers(process_group.id)]
         # Remove templates
-        for template in nipyapi.templates.list_all_templates().templates:
+        for template in nipyapi.templates.list_all_templates(native=False):
             if target.id == template.template.group_id:
                 nipyapi.templates.delete_template(template.id)
         # have to refresh revision after changes
@@ -800,6 +803,19 @@ def update_variable_registry(process_group, update):
 
 
 def create_connection(source, target, relationships=None):
+    """
+    Creates a connection between two objects for the given relationships
+
+    Args:
+        source: Object to initiate the connection, e.g. ProcessorEntity
+        target: Object to terminate the connection, e.g. FunnelEntity
+        relationships (list): list of strings of relationships to connect, may
+            be collected from the object 'relationships' property
+
+    Returns:
+        (ConnectionEntity): for the created connection
+
+    """
     source_rels = [x.name for x in source.component.relationships]
     if relationships:
         assert all(i in source_rels for i in relationships),\
@@ -840,6 +856,17 @@ def create_connection(source, target, relationships=None):
 
 
 def delete_connection(connection, purge=False):
+    """
+    Deletes a connection, optionally purges it first
+
+    Args:
+        connection (ConnectionEntity): Connection to delete
+        purge (bool): True to Purge, Defaults to False
+
+    Returns:
+        (ConnectionEntity): the modified Connection
+
+    """
     assert isinstance(connection, nipyapi.nifi.ConnectionEntity)
     if purge:
         purge_connection(connection.id)
@@ -853,6 +880,16 @@ def delete_connection(connection, purge=False):
 
 
 def list_all_connections(pg_id=None):
+    """
+    Lists all connections for a given Process Group ID
+
+    Args:
+        pg_id (str): ID of the Process Group to retrieve Connections from
+
+    Returns:
+        (list): List of ConnectionEntity objects
+
+    """
     pg_id = pg_id if pg_id is not None else 'root'
     try:
         out = nipyapi.nifi.ProcessGroupsApi().get_connections(pg_id)
@@ -863,7 +900,15 @@ def list_all_connections(pg_id=None):
 
 
 def get_component_connections(component):
-    # Support more components later
+    """
+    Returns list of Connections related to a given Component, e.g. Processor
+
+    Args:
+        component: Component Object to filter by, e.g. a ProcessorEntity
+
+    Returns:
+        (list): List of ConnectionEntity Objects
+    """
     assert isinstance(component, nipyapi.nifi.ProcessorEntity)
     return [
         x for x
@@ -969,3 +1014,159 @@ def get_bulletin_board():
         return nipyapi.nifi.FlowApi().get_bulletin_board()
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
+
+
+def create_controller(parent_pg, controller, name=None):
+    assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)
+    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    assert name is None or isinstance(name, six.string_types)
+    try:
+        out = nipyapi.nifi.ProcessGroupsApi().create_controller_service(
+            id=parent_pg.id,
+            body=nipyapi.nifi.ControllerServiceEntity(
+                revision={'version': 0},
+                component=nipyapi.nifi.ControllerServiceDTO(
+                    bundle=controller.bundle,
+                    type=controller.type
+                )
+            ),
+        )
+        if name:
+            update_controller(
+                out,
+                nipyapi.nifi.ControllerServiceDTO(
+                    name=name
+                )
+            )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+    return out
+
+
+def list_all_controllers(pg_id='root', descendants=True):
+    assert isinstance(pg_id, six.string_types)
+    assert isinstance(descendants, bool)
+    handle = nipyapi.nifi.FlowApi()
+    # Testing shows that descendant doesn't work on NiFi-1.1.2
+    if nipyapi.utils.check_version('1.1.2') < 1:
+        out = []
+        if descendants:
+            pgs = list_all_process_groups(pg_id)
+        else:
+            pgs = [get_process_group(pg_id, 'id')]
+        for pg in pgs:
+            out += handle.get_controller_services_from_group(
+                pg.id).controller_services
+    else:
+        out = handle.get_controller_services_from_group(
+            pg_id,
+            include_descendant_groups=descendants
+        ).controller_services
+    return out
+
+
+def delete_controller(controller, force=False):
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    assert isinstance(force, bool)
+
+    def _del_cont(cont_id):
+        if not get_controller(cont_id, 'id', bool_response=True):
+            return True
+        return False
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    if force:
+        # Stop and refresh
+        controller = schedule_controller(controller, False)
+    try:
+        result = handle.remove_controller_service(
+            id=controller.id,
+            version=controller.revision.version
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+    del_test = nipyapi.utils.wait_to_complete(
+        _del_cont,
+        controller.id,
+        nipyapi_max_wait=15,
+        nipyapi_delay=1
+    )
+    if not del_test:
+        raise ValueError("Timed out waiting for Controller Deletion")
+    return result
+
+
+def update_controller(controller, update):
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
+    # Insert the ID into the update
+    update.id = controller.id
+    return nipyapi.nifi.ControllerServicesApi().update_controller_service(
+        id=controller.id,
+        body=nipyapi.nifi.ControllerServiceEntity(
+            component=update,
+            revision=controller.revision,
+            id=controller.id
+        )
+    )
+
+
+def schedule_controller(controller, scheduled):
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    assert isinstance(scheduled, bool)
+
+    def _schedule_controller_state(cont_id, target_state):
+        test_obj = get_controller(cont_id, 'id')
+        if test_obj.component.state == target_state:
+            return True
+        return False
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    target_state = 'ENABLED' if scheduled else 'DISABLED'
+    if nipyapi.utils.check_version('1.1.2') < 1:
+        result = update_controller(
+            controller=controller,
+            update=nipyapi.nifi.ControllerServiceDTO(
+                state=target_state
+            )
+        )
+    else:
+        result = handle.update_run_status(
+            id=controller.id,
+            body=nipyapi.nifi.ControllerServiceRunStatusEntity(
+                revision=controller.revision,
+                state=target_state
+            )
+        )
+    if not result:
+        raise ValueError("Scheduling request failed")
+    state_test = nipyapi.utils.wait_to_complete(
+        _schedule_controller_state,
+        controller.id,
+        target_state
+    )
+    if state_test:
+        return get_controller(controller.id, 'id')
+    raise ValueError("Scheduling request timed out")
+
+
+def get_controller(identifier, identifier_type='name', bool_response=False):
+    assert isinstance(identifier, six.string_types)
+    assert identifier_type in ['name', 'id']
+    handle = nipyapi.nifi.ControllerServicesApi()
+    try:
+        if identifier_type == 'id':
+            out = handle.get_controller_service(identifier)
+        else:
+            obj = list_all_controllers()
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    except nipyapi.nifi.rest.ApiException as e:
+        if bool_response:
+            return False
+        raise ValueError(e.body)
+    return out
+
+
+def list_all_controller_types():
+    handle = nipyapi.nifi.FlowApi()
+    return handle.get_controller_service_types().controller_service_types

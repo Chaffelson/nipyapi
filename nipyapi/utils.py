@@ -286,6 +286,8 @@ def set_endpoint(endpoint_url):
             # Setting existing api_client to None to enforce reauth if it
             # is a secured instance
             nipyapi.config.nifi_config.api_client = None
+        nipyapi.config.nifi_config.username = ''
+        nipyapi.config.nifi_config.password = ''
         nipyapi.config.nifi_config.host = endpoint_url
         if nipyapi.config.nifi_config.host == endpoint_url:
             return True
@@ -294,6 +296,8 @@ def set_endpoint(endpoint_url):
         log.info("Setting Registry endpoint to %s", endpoint_url)
         if nipyapi.config.registry_config.api_client:
             nipyapi.config.registry_config.api_client = None
+        nipyapi.config.registry_config.password = ''
+        nipyapi.config.registry_config.username = ''
         nipyapi.config.registry_config.host = endpoint_url
         if nipyapi.config.registry_config.host == endpoint_url:
             return True
@@ -301,7 +305,7 @@ def set_endpoint(endpoint_url):
     raise ValueError("Unrecognised NiFi or subproject API Endpoint")
 
 
-class DockerContainer(object):
+class DockerContainer():
     """
     Helper class for Docker container automation without using Ansible
     """
@@ -439,6 +443,17 @@ def check_version(base, comparator=None, service='nifi'):
 
 
 def infer_object_label_from_class(obj):
+    """
+    Returns the expected STRING label for an object class required by certain
+        functions.
+
+    Args:
+        obj: The object to infer the name of
+
+    Returns:
+        str of the relevant name, or raises an AssertionError
+
+    """
     if isinstance(obj, nipyapi.nifi.ProcessorEntity):
         return 'PROCESSOR'
     else:
