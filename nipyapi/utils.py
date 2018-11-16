@@ -281,28 +281,21 @@ def set_endpoint(endpoint_url):
     """
     log.info("Called set_endpoint with args %s", locals())
     if 'nifi-api' in endpoint_url:
-        log.info("Setting NiFi endpoint to %s", endpoint_url)
-        if nipyapi.config.nifi_config.api_client:
-            # Setting existing api_client to None to enforce reauth if it
-            # is a secured instance
-            nipyapi.config.nifi_config.api_client = None
-        nipyapi.config.nifi_config.username = ''
-        nipyapi.config.nifi_config.password = ''
-        nipyapi.config.nifi_config.host = endpoint_url
-        if nipyapi.config.nifi_config.host == endpoint_url:
-            return True
-        return False
-    if 'registry-api' in endpoint_url:
-        log.info("Setting Registry endpoint to %s", endpoint_url)
-        if nipyapi.config.registry_config.api_client:
-            nipyapi.config.registry_config.api_client = None
-        nipyapi.config.registry_config.password = ''
-        nipyapi.config.registry_config.username = ''
-        nipyapi.config.registry_config.host = endpoint_url
-        if nipyapi.config.registry_config.host == endpoint_url:
-            return True
-        return False
-    raise ValueError("Unrecognised NiFi or subproject API Endpoint")
+        configuration = nipyapi.config.nifi_config
+        service = 'nifi'
+    elif 'registry-api' in endpoint_url:
+        configuration = nipyapi.config.registry_config
+        service = 'registry'
+    else:
+        raise ValueError("Endpoint not recognised")
+    log.info("Setting NiFi endpoint to %s", endpoint_url)
+    if configuration.api_client:
+        # Running controlled logout proecedure
+        nipyapi.security.service_logout(service)
+        # Resetting API client so it recreates from config.host
+        configuration.api_client = None
+    configuration.host = endpoint_url
+    return True
 
 
 class DockerContainer():
@@ -456,8 +449,19 @@ def infer_object_label_from_class(obj):
     """
     if isinstance(obj, nipyapi.nifi.ProcessorEntity):
         return 'PROCESSOR'
+    elif isinstance(obj, nipyapi.nifi.FunnelEntity):
+        return 'FUNNEL'
+    elif isinstance(obj, nipyapi.nifi.PortEntity):
+        return obj.port_type
+    elif isinstance(obj, nipyapi.nifi.RemoteProcessGroupPortDTO):
+        # get RPG summary, find id of obj in input or output list
+        parent_rpg = nipyapi.canvas.get_remote_process_group(
+            obj.group_id, True)
+        if obj.id in [x.id for x in parent_rpg['input_ports']]:
+            return 'REMOTE_INPUT_PORT'
+        elif obj.id in [x.id for x in parent_rpg['output_ports']]:
+            return 'REMOTE_OUTPUT_PORT'
+        else:
+            raise ValueError("Remote Port not present as expected in RPG")
     else:
-        raise AssertionError("This function only supports Processors at "
-                             "this time")
-    # valid_sources = ["PROCESSOR", "REMOTE_INPUT_PORT", "REMOTE_OUTPUT_PORT",
-    #                  "INPUT_PORT", "OUTPUT_PORT", "FUNNEL"]
+        raise AssertionError("Object Class not recognised for this function")

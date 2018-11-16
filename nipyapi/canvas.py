@@ -19,7 +19,12 @@ __all__ = [
     'purge_connection', 'purge_process_group', 'schedule_components',
     'get_bulletins', 'get_bulletin_board', 'list_invalid_processors',
     'list_sensitive_processors', 'list_all_connections', 'create_connection',
-    'delete_connection'
+    'delete_connection', 'get_component_connections', 'create_controller',
+    'list_all_controllers', 'delete_controller', 'update_controller',
+    'schedule_controller', 'get_controller', 'list_all_controller_types',
+    'list_all_by_kind', 'list_all_input_ports', 'list_all_output_ports',
+    'list_all_funnels', 'list_all_remote_process_groups',
+    'get_remote_process_group'
 ]
 
 log = logging.getLogger(__name__)
@@ -187,24 +192,24 @@ def list_all_process_groups(pg_id='root'):
     return out
 
 
-def list_invalid_processors(pg_id='root', detail='all'):
+def list_invalid_processors(pg_id='root', summary=False):
     """
     Returns a flattened list of all Processors with Invalid Statuses
 
     Args:
         pg_id (str): The UUID of the Process Group to start from, defaults to
             the Canvas root
-        detail (str): where to return all details or just the summary of
-            invalid Properties
+        summary (bool): True to return just the list of relevant
+            properties per Processor, False for the full listing
 
     Returns:
         list[ProcessorEntity]
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
-    assert detail in ['all', 'summary']
+    assert isinstance(summary, bool)
     proc_list = [x for x in list_all_processors(pg_id)
                  if x.component.validation_errors is not None]
-    if detail == 'summary':
+    if summary:
         out = [{'id': x.id, 'summary': x.component.validation_errors}
                for x in proc_list]
     else:
@@ -212,7 +217,7 @@ def list_invalid_processors(pg_id='root', detail='all'):
     return out
 
 
-def list_sensitive_processors(pg_id='root'):
+def list_sensitive_processors(pg_id='root', summary=False):
     """
     Returns a flattened list of all Processors on the canvas which have
     sensitive properties that would need to be managed during deployment
@@ -220,11 +225,14 @@ def list_sensitive_processors(pg_id='root'):
     Args:
         pg_id (str): The UUID of the Process Group to start from, defaults to
             the Canvas root
+        summary (bool): True to return just the list of relevant
+            properties per Processor, False for the full listing
 
     Returns:
-        list[ProcessorEntity]
+        list[ProcessorEntity] or list(dict)
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(summary, bool)
     cache = nipyapi.config.cache.get('list_sensitive_processors')
     if not cache:
         cache = []
@@ -244,6 +252,13 @@ def list_sensitive_processors(pg_id='root'):
                 cache.append(str(proc.component.type))
     if cache:
         nipyapi.config.cache['list_sensitive_processors'] = cache
+    if summary:
+        return [
+            {x.id: [
+                p for p, q in x.component.config.descriptors.items()
+                if q.sensitive is True]}
+            for x in matches
+        ]
     return matches
 
 
@@ -775,33 +790,6 @@ def update_variable_registry(process_group, update):
         raise ValueError(e.body)
 
 
-# def get_connections(pg_id):
-#     """
-#     EXPERIMENTAL
-#     List all child connections within a given Process Group
-#
-#     Args:
-#         pg_id (str): The UUID of the target Process Group
-#
-#     Returns:
-#         (ConnectionsEntity): A native datatype which contains the list of
-#         all Connections in the Process Group
-#
-#     """
-#     log.warning("This call get_connections will be deprecated, please use "
-#                 "list_all_connections")
-#     assert isinstance(
-#         get_process_group(pg_id, 'id'),
-#         nipyapi.nifi.ProcessGroupEntity
-#     )
-#     try:
-#         out = nipyapi.nifi.ProcessGroupsApi().get_connections(pg_id)
-#     except nipyapi.nifi.rest.ApiException as e:
-#         raise ValueError(e.body)
-#     assert isinstance(out, nipyapi.nifi.ConnectionsEntity)
-#     return out
-
-
 def create_connection(source, target, relationships=None):
     """
     Creates a connection between two objects for the given relationships
@@ -879,24 +867,19 @@ def delete_connection(connection, purge=False):
         raise ValueError(e.body)
 
 
-def list_all_connections(pg_id=None):
+def list_all_connections(pg_id='root', descendants=False):
     """
     Lists all connections for a given Process Group ID
 
     Args:
         pg_id (str): ID of the Process Group to retrieve Connections from
+        descendants (bool): True to recurse child PGs, False to not
 
     Returns:
         (list): List of ConnectionEntity objects
 
     """
-    pg_id = pg_id if pg_id is not None else 'root'
-    try:
-        out = nipyapi.nifi.ProcessGroupsApi().get_connections(pg_id)
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
-    assert isinstance(out, nipyapi.nifi.ConnectionsEntity)
-    return out.connections
+    return list_all_by_kind('connections', pg_id, descendants)
 
 
 def get_component_connections(component):
@@ -1174,9 +1157,9 @@ def schedule_controller(controller, scheduled):
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(scheduled, bool)
 
-    def _schedule_controller_state(cont_id, target_state):
+    def _schedule_controller_state(cont_id, tgt_state):
         test_obj = get_controller(cont_id, 'id')
-        if test_obj.component.state == target_state:
+        if test_obj.component.state == tgt_state:
             return True
         return False
 
@@ -1247,3 +1230,53 @@ def list_all_controller_types():
     """
     handle = nipyapi.nifi.FlowApi()
     return handle.get_controller_service_types().controller_service_types
+
+
+def list_all_by_kind(kind, pg_id='root', descendants=True):
+    assert kind in [
+        'input_ports', 'output_ports', 'funnels', 'controllers', 'connections',
+        'remote_process_groups'
+    ]
+    if kind == 'controllers':
+        return list_all_controllers(pg_id, descendants)
+    handle = nipyapi.nifi.ProcessGroupsApi()
+    call_function = getattr(handle, 'get_' + kind)
+    out = []
+    if descendants:
+        pgs = list_all_process_groups(pg_id)
+    else:
+        pgs = [get_process_group(pg_id, 'id')]
+    for pg in pgs:
+        out += call_function(pg.id).__getattribute__(kind)
+    return out
+
+
+def list_all_input_ports(pg_id='root', descendants=True):
+    return list_all_by_kind('input_ports', pg_id, descendants)
+
+
+def list_all_output_ports(pg_id='root', descendants=True):
+    return list_all_by_kind('output_ports', pg_id, descendants)
+
+
+def list_all_funnels(pg_id='root', descendants=True):
+    return list_all_by_kind('funnels', pg_id, descendants)
+
+
+def list_all_remote_process_groups(pg_id='root', descendants=True):
+    return list_all_by_kind('remote_process_groups', pg_id, descendants)
+
+
+def get_remote_process_group(rpg_id, summary=False):
+    rpg = nipyapi.nifi.RemoteProcessGroupsApi().get_remote_process_group(
+        rpg_id
+    )
+    if not summary:
+        out = rpg
+    else:
+        out = {
+            'id': rpg.id,
+            'input_ports': rpg.component.contents.input_ports,
+            'output_ports': rpg.component.contents.output_ports
+        }
+    return out

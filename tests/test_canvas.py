@@ -24,7 +24,7 @@ def test_get_process_group_status(regress_nifi):
     # We rely on this int for testing if a PG is running or not
     assert isinstance(r.running_count, int)
     with pytest.raises(AssertionError):
-        _ = canvas.get_process_group_status('root','invalid')
+        _ = canvas.get_process_group_status('root', 'invalid')
 
 
 def test_get_flow():
@@ -58,7 +58,7 @@ def test_create_process_group(regress_nifi):
     r = canvas.create_process_group(
         parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
         new_pg_name=conftest.test_pg_name,
-        location=(400.0,400.0)
+        location=(400.0, 400.0)
     )
     assert r.component.name == conftest.test_pg_name
     assert r.position.x == r.position.y == 400
@@ -119,7 +119,7 @@ def test_schedule_process_group(fix_proc, fix_pg):
     status = canvas.get_process_group(f_pg.id, 'id')
     assert r1 is True
     assert status.running_count == 1
-    r2= canvas.schedule_process_group(
+    r2 = canvas.schedule_process_group(
         f_pg.id,
         False
     )

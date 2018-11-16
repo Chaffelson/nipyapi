@@ -160,29 +160,28 @@ def session_setup(request):
                 "Expected Service endpoint ({0}) is not responding"
                 .format(gui_url)
             )
-        else:
-            # Test API client connection
-            if 'nifi-api' in url:
-                if not nipyapi.canvas.get_root_pg_id():
-                    raise ValueError("No Response from NiFi test call")
-                # that should've created a new API client connection
-                api_host = nipyapi.config.nifi_config.api_client.host
-                if api_host != url:
-                    raise ValueError("Client expected %s, but got %s instead"
-                                     .format(url, api_host))
-                log.info("Tested NiFi client connection, got response from %s",
-                         url)
-                cleanup_nifi()
-            elif 'nifi-registry-api' in url:
-                if nipyapi.registry.FlowsApi().get_available_flow_fields():
-                    log.info("Tested NiFi-Registry client connection, got "
-                             "response from %s", url)
-                    cleanup_reg()
-                else:
-                    raise ValueError("No Response from NiFi-Registry test call"
-                                     )
+        # Test API client connection
+        if 'nifi-api' in url:
+            if not nipyapi.canvas.get_root_pg_id():
+                raise ValueError("No Response from NiFi test call")
+            # that should've created a new API client connection
+            api_host = nipyapi.config.nifi_config.api_client.host
+            if api_host != url:
+                raise ValueError("Client expected [{0}], but got [{1}] "
+                                 "instead".format(url, api_host))
+            log.info("Tested NiFi client connection, got response from %s",
+                     url)
+            cleanup_nifi()
+        elif 'nifi-registry-api' in url:
+            if nipyapi.registry.FlowsApi().get_available_flow_fields():
+                log.info("Tested NiFi-Registry client connection, got "
+                         "response from %s", url)
+                cleanup_reg()
             else:
-                raise ValueError("Bad API Endpoint")
+                raise ValueError("No Response from NiFi-Registry test call"
+                                 )
+        else:
+            raise ValueError("Bad API Endpoint")
     request.addfinalizer(final_cleanup)
     log.info("Completing Test Session Setup")
 
