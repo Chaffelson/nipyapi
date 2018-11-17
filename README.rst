@@ -1,6 +1,9 @@
-=======
-NiPyApi
-=======
+==============
+|nipy| NiPyApi
+==============
+
+.. |nipy| image:: https://image.ibb.co/f0FRs0/nipy.png
+    :height: 28px
 
 Nifi-Python-Api: A rich Apache NiFi Python Client SDK
 
