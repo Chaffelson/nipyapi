@@ -171,6 +171,29 @@ def test_list_all_processors(regress_nifi, fix_proc):
     assert isinstance(r[0], nifi.ProcessorEntity)
 
 
+def test_list_nested_processors(regress_nifi, fix_pg, fix_proc):
+    pg_1 = fix_pg.generate(
+        parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id')
+    )
+    pg_2 = fix_pg.generate(parent_pg=pg_1)
+    root_proc_1 = fix_proc.generate()
+    pg_1_proc_1 = fix_proc.generate(parent_pg=pg_1)
+    pg_1_proc_2 = fix_proc.generate(parent_pg=pg_1)
+    pg_2_proc_1 = fix_proc.generate(parent_pg=pg_2)
+    pg_2_proc_2 = fix_proc.generate(parent_pg=pg_2)
+    pg_2_proc_3 = fix_proc.generate(parent_pg=pg_2)
+    pg_2_proc_4 = fix_proc.generate(parent_pg=pg_2)
+    r1 = [x for x in canvas.list_all_processors('root')
+          if conftest.test_basename in x.status.name]
+    assert len(r1) == 7
+    r2 = [x for x in canvas.list_all_processors(pg_2.id)
+          if conftest.test_basename in x.status.name]
+    assert len(r2) == 4
+    r3 = [x for x in canvas.list_all_processors(pg_1.id)
+          if conftest.test_basename in x.status.name]
+    assert len(r3) == 6
+
+
 def test_get_processor(regress_nifi, fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.get_processor(f_p1.status.name)

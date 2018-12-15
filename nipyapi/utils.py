@@ -449,19 +449,17 @@ def infer_object_label_from_class(obj):
     """
     if isinstance(obj, nipyapi.nifi.ProcessorEntity):
         return 'PROCESSOR'
-    elif isinstance(obj, nipyapi.nifi.FunnelEntity):
+    if isinstance(obj, nipyapi.nifi.FunnelEntity):
         return 'FUNNEL'
-    elif isinstance(obj, nipyapi.nifi.PortEntity):
+    if isinstance(obj, nipyapi.nifi.PortEntity):
         return obj.port_type
-    elif isinstance(obj, nipyapi.nifi.RemoteProcessGroupPortDTO):
+    if isinstance(obj, nipyapi.nifi.RemoteProcessGroupPortDTO):
         # get RPG summary, find id of obj in input or output list
         parent_rpg = nipyapi.canvas.get_remote_process_group(
             obj.group_id, True)
         if obj.id in [x.id for x in parent_rpg['input_ports']]:
             return 'REMOTE_INPUT_PORT'
-        elif obj.id in [x.id for x in parent_rpg['output_ports']]:
+        if obj.id in [x.id for x in parent_rpg['output_ports']]:
             return 'REMOTE_OUTPUT_PORT'
-        else:
-            raise ValueError("Remote Port not present as expected in RPG")
-    else:
-        raise AssertionError("Object Class not recognised for this function")
+        raise ValueError("Remote Port not present as expected in RPG")
+    raise AssertionError("Object Class not recognised for this function")

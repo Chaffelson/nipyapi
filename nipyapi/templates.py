@@ -182,7 +182,6 @@ def upload_template(pg_id, template_file):
         (TemplateEntity): The new Template object
 
     """
-    # TODO: Consider reworking to allow import from string by using tmpfile
     log.info("Called upload_template against endpoint %s with args %s",
              nipyapi.config.nifi_config.api_client.host, locals())
     # Ensure we are receiving a valid file

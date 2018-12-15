@@ -264,7 +264,7 @@ def list_sensitive_processors(pg_id='root', summary=False):
 
 def list_all_processors(pg_id='root'):
     """
-    Returns a flat list of all Processors anywhere on the canvas
+    Returns a flat list of all Processors under the provided Process Group
 
     Args:
         pg_id (str): The UUID of the Process Group to start from, defaults to
@@ -275,16 +275,29 @@ def list_all_processors(pg_id='root'):
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
 
-    def flattener():
-        """
-        Memory efficient flattener, sort of.
-        :return: yield's a ProcessEntity
-        """
-        for pg in list_all_process_groups(pg_id):
-            for proc in pg.nipyapi_extended.process_group_flow.flow.processors:
-                yield proc
-
-    return list(flattener())
+    if nipyapi.utils.check_version('1.2.0') == -1:
+        targets = nipyapi.nifi.ProcessGroupsApi().get_processors(
+            id=pg_id,
+            include_descendant_groups=True
+        )
+        return targets.processors
+    # Handle older NiFi instances
+    out = []
+    # list of child process groups
+    pg_ids = [x.id for x in list_all_process_groups(pg_id)]
+    # if not root, include the parent pg in the target list
+    # root is a special case that is included if targeted by
+    # list_all_process_groups
+    if pg_id == 'root' or pg_id == get_root_pg_id():
+        pass
+    else:
+        pg_ids.append(pg_id)
+    # process target list
+    for this_pg_id in pg_ids:
+        procs = nipyapi.nifi.ProcessGroupsApi().get_processors(this_pg_id)
+        if procs.processors:
+            out += procs.processors
+    return out
 
 
 def schedule_process_group(process_group_id, scheduled):
@@ -406,7 +419,7 @@ def create_process_group(parent_pg, new_pg_name, location):
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
             id=parent_pg.id,
             body=nipyapi.nifi.ProcessGroupEntity(
-                revision=parent_pg.revision,
+                revision={'version': 0},
                 component=nipyapi.nifi.ProcessGroupDTO(
                     name=new_pg_name,
                     position=nipyapi.nifi.PositionDTO(
