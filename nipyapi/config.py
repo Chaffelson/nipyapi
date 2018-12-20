@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.WARNING)
 # convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
-default_host = 'localhost'
+default_host = 'ec2-54-171-88-237.eu-west-1.compute.amazonaws.com'
 #
 nifi_config.host = 'http://' + default_host + ':8080/nifi-api'
 # Set Default Host for NiFi-Registry

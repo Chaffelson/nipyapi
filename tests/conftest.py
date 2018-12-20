@@ -13,7 +13,7 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 # Test Configuration parameters
-test_host = 'localhost'
+test_host = 'ec2-54-171-88-237.eu-west-1.compute.amazonaws.com'
 test_basename = "nipyapi_test"
 test_pg_name = test_basename + "_ProcessGroup"
 test_registry_client_name = test_basename + "_reg_client"

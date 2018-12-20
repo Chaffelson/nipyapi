@@ -44,7 +44,7 @@ Features
  - Detailed documentation of the full SDK at all levels
  - CRUD wrappers for common task areas like Processor Groups, Processors, Templates, Registry Clients, Registry Buckets, Registry Flows, etc.
  - Convenience functions for inventory tasks, such as recursively retrieving the entire canvas, or a flat list of all Process Groups
- - Support for scheduling and purging flows
+ - Support for scheduling and purging flows, controller services, and connections
  - Support for fetching and updating Variable Registries
  - Support for import/export of Versioned Flows from NiFi-Registry
  - Docker Compose configurations for testing and deployment
@@ -97,7 +97,7 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.7.1, and NiFi-Registry versions 0.1.0 - 0.3.0.
+| Currently we are testing against NiFi versions 1.1.2 - 1.8.0, and NiFi-Registry versions 0.1.0 - 0.3.0.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Python Requirements

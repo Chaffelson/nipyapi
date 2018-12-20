@@ -2,7 +2,7 @@
   "swagger" : "2.0",
   "info" : {
     "description" : "The REST API provides an interface to a registry with operations for saving, versioning, reading NiFi flows and components.",
-    "version" : "0.2.0",
+    "version" : "0.3.0",
     "title" : "NiFi Registry REST API",
     "contact" : {
       "name" : "Apache NiFi Registry",
@@ -24,6 +24,9 @@
   }, {
     "name" : "buckets",
     "description" : "Create named buckets in the registry to store NiFi objects such flows and extensions. Search for and retrieve existing buckets."
+  }, {
+    "name" : "config",
+    "description" : "Retrieves the configuration for this NiFi Registry."
   }, {
     "name" : "flows",
     "description" : "Gets metadata about flows."
@@ -1069,6 +1072,34 @@
         } ],
         "x-access-policy" : {
           "resource" : "/buckets/{bucketId}",
+          "action" : "read"
+        }
+      }
+    },
+    "/config" : {
+      "get" : {
+        "tags" : [ "config" ],
+        "summary" : "Gets NiFi Registry configurations",
+        "description" : "",
+        "operationId" : "getConfiguration",
+        "consumes" : [ "*/*" ],
+        "produces" : [ "application/json" ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/registryConfiguration"
+            }
+          },
+          "401" : {
+            "description" : "Client could not be authenticated."
+          }
+        },
+        "security" : [ {
+          "Authorization" : [ ]
+        } ],
+        "x-access-policy" : {
+          "resource" : "/policies,/tenants",
           "action" : "read"
         }
       }
@@ -2363,20 +2394,14 @@
         "type" : {
           "type" : "string"
         },
-        "rels" : {
-          "type" : "array",
-          "items" : {
-            "type" : "string"
-          }
-        },
-        "title" : {
-          "type" : "string"
-        },
         "params" : {
           "type" : "object",
           "additionalProperties" : {
             "type" : "string"
           }
+        },
+        "title" : {
+          "type" : "string"
         },
         "uri" : {
           "type" : "string",
@@ -2387,6 +2412,12 @@
         },
         "rel" : {
           "type" : "string"
+        },
+        "rels" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
         }
       }
     },
@@ -2480,6 +2511,20 @@
           "items" : {
             "$ref" : "#/definitions/Position"
           }
+        },
+        "loadBalanceStrategy" : {
+          "type" : "string",
+          "description" : "The Strategy to use for load balancing data across the cluster, or null, if no Load Balance Strategy has been specified.",
+          "enum" : [ "DO_NOT_LOAD_BALANCE", "PARTITION_BY_ATTRIBUTE", "ROUND_ROBIN", "SINGLE_NODE" ]
+        },
+        "partitioningAttribute" : {
+          "type" : "string",
+          "description" : "The attribute to use for partitioning data as it is load balanced across the cluster. If the Load Balance Strategy is configured to use PARTITION_BY_ATTRIBUTE, the value returned by this method is the name of the FlowFile Attribute that will be used to determine which node in the cluster should receive a given FlowFile. If the Load Balance Strategy is unset or is set to any other value, the Partitioning Attribute has no effect."
+        },
+        "loadBalanceCompression" : {
+          "type" : "string",
+          "description" : "Whether or not compression should be used when transferring FlowFiles between nodes",
+          "enum" : [ "DO_NOT_COMPRESS", "COMPRESS_ATTRIBUTES_ONLY", "COMPRESS_ATTRIBUTES_AND_CONTENT" ]
         },
         "componentType" : {
           "type" : "string",
@@ -3035,11 +3080,11 @@
         },
         "targetUri" : {
           "type" : "string",
-          "description" : "The target URI of the remote process group. If target uri is not set, but uris are set, then returns the first url in the urls. If neither target uri nor uris are set, then returns null."
+          "description" : "[DEPRECATED] The target URI of the remote process group. If target uri is not set, but uris are set, then returns the first uri in the uris. If neither target uri nor uris are set, then returns null."
         },
         "targetUris" : {
           "type" : "string",
-          "description" : "The target URI of the remote process group. If target uris is not set but target uri is set, then returns the single target uri. If neither target uris nor target uri is set, then returns null."
+          "description" : "The target URIs of the remote process group. If target uris is not set but target uri is set, then returns the single target uri. If neither target uris nor target uri is set, then returns null."
         },
         "communicationsTimeout" : {
           "type" : "string",
@@ -3289,6 +3334,26 @@
         "canDelete" : {
           "type" : "boolean",
           "description" : "Indicates whether the user can delete a given resource.",
+          "readOnly" : true
+        }
+      }
+    },
+    "registryConfiguration" : {
+      "type" : "object",
+      "properties" : {
+        "supportsManagedAuthorizer" : {
+          "type" : "boolean",
+          "description" : "Whether this NiFi Registry supports a managed authorizer. Managed authorizers can visualize users, groups, and policies in the UI.",
+          "readOnly" : true
+        },
+        "supportsConfigurableAuthorizer" : {
+          "type" : "boolean",
+          "description" : "Whether this NiFi Registry supports a configurable authorizer.",
+          "readOnly" : true
+        },
+        "supportsConfigurableUsersAndGroups" : {
+          "type" : "boolean",
+          "description" : "Whether this NiFi Registry supports configurable users and groups.",
           "readOnly" : true
         }
       }
