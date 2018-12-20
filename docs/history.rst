@@ -2,6 +2,30 @@
 History
 =======
 
+0.12.0 (2018-12-20)
+-------------------
+
+| Updated NiFi client for 1.8.0
+| Updated NiFi-Registry client for 0.3.0
+| Added Controller Service Management (experimental)
+| Added Connections Management (experimental)
+| New Project Logo! Kindly provided by KDoran
+| Fixed several bugs around how the special root Process Group is handled when listing all Project Groups for various methods
+
+* Various backwards compatibility improvements for handling calls going back to NiFi-1.1.2
+* Various speedups for NiFi-1.7+ using descendants functionality to recurse the canvas
+* Ability for various methods to specify a Process Group to use as the parent instead of always using root
+* Better username/password handling in security.py and config.py
+* Support for global ssl_verify squashing in config.py
+* Added swagger for 1.8.0 to project resources against potential future validation requirements
+* Added versioned deployment convenience functions for finding sensitive and invalid processors, should make it easier to update properties when importing to a new canvas
+* Added summary options to several calls to return simple objects suitable for quick processing rather than full objects that need to be parsed
+* Added utils.infer_object_label_from_class to make it easier to create connections between objects
+* Updated compound methods like delete_process_group to also handle connections and controllers elegantly if requested
+* Various codestyle and testing improvements
+
+
+
 0.11.0 (2018-10-12)
 -------------------
 

@@ -13,14 +13,15 @@ import six
 from packaging import version
 import ruamel.yaml
 import docker
+from docker.errors import ImageNotFound
 import requests
 from requests.models import Response
-from docker.errors import ImageNotFound
 import nipyapi
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
-           'start_docker_containers', 'DockerContainer']
+           'start_docker_containers', 'DockerContainer',
+           'infer_object_label_from_class']
 
 log = logging.getLogger(__name__)
 
@@ -280,27 +281,24 @@ def set_endpoint(endpoint_url):
     """
     log.info("Called set_endpoint with args %s", locals())
     if 'nifi-api' in endpoint_url:
-        log.info("Setting NiFi endpoint to %s", endpoint_url)
-        if nipyapi.config.nifi_config.api_client:
-            # Setting existing api_client to None to enforce reauth if it
-            # is a secured instance
-            nipyapi.config.nifi_config.api_client = None
-        nipyapi.config.nifi_config.host = endpoint_url
-        if nipyapi.config.nifi_config.host == endpoint_url:
-            return True
-        return False
-    if 'registry-api' in endpoint_url:
-        log.info("Setting Registry endpoint to %s", endpoint_url)
-        if nipyapi.config.registry_config.api_client:
-            nipyapi.config.registry_config.api_client = None
-        nipyapi.config.registry_config.host = endpoint_url
-        if nipyapi.config.registry_config.host == endpoint_url:
-            return True
-        return False
-    raise ValueError("Unrecognised NiFi or subproject API Endpoint")
+        configuration = nipyapi.config.nifi_config
+        service = 'nifi'
+    elif 'registry-api' in endpoint_url:
+        configuration = nipyapi.config.registry_config
+        service = 'registry'
+    else:
+        raise ValueError("Endpoint not recognised")
+    log.info("Setting NiFi endpoint to %s", endpoint_url)
+    if configuration.api_client:
+        # Running controlled logout proecedure
+        nipyapi.security.service_logout(service)
+        # Resetting API client so it recreates from config.host
+        configuration.api_client = None
+    configuration.host = endpoint_url
+    return True
 
 
-class DockerContainer(object):
+class DockerContainer():
     """
     Helper class for Docker container automation without using Ansible
     """
@@ -435,3 +433,33 @@ def check_version(base, comparator=None, service='nifi'):
     if ver_b < ver_a:
         return 1
     return 0
+
+
+def infer_object_label_from_class(obj):
+    """
+    Returns the expected STRING label for an object class required by certain
+        functions.
+
+    Args:
+        obj: The object to infer the name of
+
+    Returns:
+        str of the relevant name, or raises an AssertionError
+
+    """
+    if isinstance(obj, nipyapi.nifi.ProcessorEntity):
+        return 'PROCESSOR'
+    if isinstance(obj, nipyapi.nifi.FunnelEntity):
+        return 'FUNNEL'
+    if isinstance(obj, nipyapi.nifi.PortEntity):
+        return obj.port_type
+    if isinstance(obj, nipyapi.nifi.RemoteProcessGroupPortDTO):
+        # get RPG summary, find id of obj in input or output list
+        parent_rpg = nipyapi.canvas.get_remote_process_group(
+            obj.group_id, True)
+        if obj.id in [x.id for x in parent_rpg['input_ports']]:
+            return 'REMOTE_INPUT_PORT'
+        if obj.id in [x.id for x in parent_rpg['output_ports']]:
+            return 'REMOTE_OUTPUT_PORT'
+        raise ValueError("Remote Port not present as expected in RPG")
+    raise AssertionError("Object Class not recognised for this function")

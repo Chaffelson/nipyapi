@@ -16,9 +16,15 @@ __all__ = [
     "list_all_processor_types", "get_processor_type", 'create_processor',
     'delete_processor', 'get_processor', 'schedule_processor',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
-    'get_connections', 'purge_connection', 'purge_process_group',
+    'purge_connection', 'purge_process_group', 'schedule_components',
     'get_bulletins', 'get_bulletin_board', 'list_invalid_processors',
-    'list_sensitive_processors'
+    'list_sensitive_processors', 'list_all_connections', 'create_connection',
+    'delete_connection', 'get_component_connections', 'create_controller',
+    'list_all_controllers', 'delete_controller', 'update_controller',
+    'schedule_controller', 'get_controller', 'list_all_controller_types',
+    'list_all_by_kind', 'list_all_input_ports', 'list_all_output_ports',
+    'list_all_funnels', 'list_all_remote_process_groups',
+    'get_remote_process_group'
 ]
 
 log = logging.getLogger(__name__)
@@ -30,7 +36,7 @@ def get_root_pg_id():
 
     Returns (str): The UUID of the root PG
     """
-    return nipyapi.nifi.FlowApi().get_process_group_status('root')\
+    return nipyapi.nifi.FlowApi().get_process_group_status('root') \
         .process_group_status.id
 
 
@@ -177,7 +183,7 @@ def list_all_process_groups(pg_id='root'):
 
     root_flow = recurse_flow(pg_id)
     out = list(flatten(root_flow))
-    if pg_id == 'root':
+    if pg_id == 'root' or pg_id == get_root_pg_id():
         # This duplicates the nipyapi_extended structure to the root case
         pga_handle = nipyapi.nifi.ProcessGroupsApi()
         root_entity = pga_handle.get_process_group('root')
@@ -186,24 +192,24 @@ def list_all_process_groups(pg_id='root'):
     return out
 
 
-def list_invalid_processors(pg_id='root', detail='all'):
+def list_invalid_processors(pg_id='root', summary=False):
     """
     Returns a flattened list of all Processors with Invalid Statuses
 
     Args:
         pg_id (str): The UUID of the Process Group to start from, defaults to
             the Canvas root
-        detail (str): where to return all details or just the summary of
-            invalid Properties
+        summary (bool): True to return just the list of relevant
+            properties per Processor, False for the full listing
 
     Returns:
         list[ProcessorEntity]
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
-    assert detail in ['all', 'summary']
+    assert isinstance(summary, bool)
     proc_list = [x for x in list_all_processors(pg_id)
                  if x.component.validation_errors is not None]
-    if detail == 'summary':
+    if summary:
         out = [{'id': x.id, 'summary': x.component.validation_errors}
                for x in proc_list]
     else:
@@ -211,7 +217,7 @@ def list_invalid_processors(pg_id='root', detail='all'):
     return out
 
 
-def list_sensitive_processors(pg_id='root'):
+def list_sensitive_processors(pg_id='root', summary=False):
     """
     Returns a flattened list of all Processors on the canvas which have
     sensitive properties that would need to be managed during deployment
@@ -219,11 +225,14 @@ def list_sensitive_processors(pg_id='root'):
     Args:
         pg_id (str): The UUID of the Process Group to start from, defaults to
             the Canvas root
+        summary (bool): True to return just the list of relevant
+            properties per Processor, False for the full listing
 
     Returns:
-        list[ProcessorEntity]
+        list[ProcessorEntity] or list(dict)
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(summary, bool)
     cache = nipyapi.config.cache.get('list_sensitive_processors')
     if not cache:
         cache = []
@@ -234,7 +243,7 @@ def list_sensitive_processors(pg_id='root'):
             matches.append(proc)
         else:
             sensitive_test = False
-            for nom, detail in proc.component.config.descriptors.items():
+            for _, detail in proc.component.config.descriptors.items():
                 if detail.sensitive is True:
                     sensitive_test = True
                     break
@@ -243,12 +252,19 @@ def list_sensitive_processors(pg_id='root'):
                 cache.append(str(proc.component.type))
     if cache:
         nipyapi.config.cache['list_sensitive_processors'] = cache
+    if summary:
+        return [
+            {x.id: [
+                p for p, q in x.component.config.descriptors.items()
+                if q.sensitive is True]}
+            for x in matches
+        ]
     return matches
 
 
 def list_all_processors(pg_id='root'):
     """
-    Returns a flat list of all Processors anywhere on the canvas
+    Returns a flat list of all Processors under the provided Process Group
 
     Args:
         pg_id (str): The UUID of the Process Group to start from, defaults to
@@ -259,16 +275,29 @@ def list_all_processors(pg_id='root'):
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
 
-    def flattener():
-        """
-        Memory efficient flattener, sort of.
-        :return: yield's a ProcessEntity
-        """
-        for pg in list_all_process_groups(pg_id):
-            for proc in pg.nipyapi_extended.process_group_flow.flow.processors:
-                yield proc
-
-    return list(flattener())
+    if nipyapi.utils.check_version('1.7.0') <= 0:
+        targets = nipyapi.nifi.ProcessGroupsApi().get_processors(
+            id=pg_id,
+            include_descendant_groups=True
+        )
+        return targets.processors
+    # Handle older NiFi instances
+    out = []
+    # list of child process groups
+    pg_ids = [x.id for x in list_all_process_groups(pg_id)]
+    # if not root, include the parent pg in the target list
+    # root is a special case that is included if targeted by
+    # list_all_process_groups
+    if pg_id == 'root' or pg_id == get_root_pg_id():
+        pass
+    else:
+        pg_ids.append(pg_id)
+    # process target list
+    for this_pg_id in pg_ids:
+        procs = nipyapi.nifi.ProcessGroupsApi().get_processors(this_pg_id)
+        if procs.processors:
+            out += procs.processors
+    return out
 
 
 def schedule_process_group(process_group_id, scheduled):
@@ -294,6 +323,7 @@ def schedule_process_group(process_group_id, scheduled):
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
         return False
+
     assert isinstance(
         get_process_group(process_group_id, 'id'),
         nipyapi.nifi.ProcessGroupEntity
@@ -346,8 +376,16 @@ def delete_process_group(process_group, force=False, refresh=True):
     if force:
         # Stop, drop, and roll.
         purge_process_group(target, stop=True)
+        # Remove inbound connections
+        for con in list_all_connections():
+            pg_id = process_group.id
+            if pg_id in [con.destination_group_id, con.source_group_id]:
+                delete_connection(con)
+        # Stop all Controller Services
+        for x in list_all_controllers(process_group.id):
+            delete_controller(x, True)
         # Remove templates
-        for template in nipyapi.templates.list_all_templates().templates:
+        for template in nipyapi.templates.list_all_templates(native=False):
             if target.id == template.template.group_id:
                 nipyapi.templates.delete_template(template.id)
         # have to refresh revision after changes
@@ -387,7 +425,7 @@ def create_process_group(parent_pg, new_pg_name, location):
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
             id=parent_pg.id,
             body=nipyapi.nifi.ProcessGroupEntity(
-                revision=parent_pg.revision,
+                revision={'version': 0},
                 component=nipyapi.nifi.ProcessGroupDTO(
                     name=new_pg_name,
                     position=nipyapi.nifi.PositionDTO(
@@ -517,8 +555,8 @@ def delete_processor(processor, refresh=True, force=False):
     Args:
         processor (ProcessorEntity): The processor to delete
         refresh (bool): Whether to refresh the Processor state before action
-        force (bool): Whether to stop the Processor before deletion. Behavior
-            may change in future releases. Experimental.
+        force (bool): Whether to stop, purge and remove connections to the
+            Processor before deletion. Behavior may change in future releases.
 
     Returns:
          (ProcessorEntity): The updated ProcessorEntity
@@ -536,6 +574,13 @@ def delete_processor(processor, refresh=True, force=False):
         if not schedule_processor(target, False):
             raise ("Could not prepare processor {0} for deletion"
                    .format(target.id))
+        inbound_cons = [
+            x for x in get_component_connections(processor)
+            if processor.id == x.destination_id
+        ]
+        for con in inbound_cons:
+            delete_connection(con, purge=True)
+        # refresh state before trying delete
         target = get_processor(processor.id, 'id')
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
     try:
@@ -764,29 +809,128 @@ def update_variable_registry(process_group, update):
         raise ValueError(e.body)
 
 
-def get_connections(pg_id):
+def create_connection(source, target, relationships=None, name=None):
     """
-    EXPERIMENTAL
-    List all child connections within a given Process Group
+    Creates a connection between two objects for the given relationships
 
     Args:
-        pg_id (str): The UUID of the target Process Group
+        source: Object to initiate the connection, e.g. ProcessorEntity
+        target: Object to terminate the connection, e.g. FunnelEntity
+        relationships (list): list of strings of relationships to connect, may
+            be collected from the object 'relationships' property (optional)
+        name (str): Defaults to None, String of Name for Connection (optional)
 
     Returns:
-        (ConnectionsEntity): A native datatype which contains the list of
-        all Connections in the Process Group
+        (ConnectionEntity): for the created connection
 
     """
-    assert isinstance(
-        get_process_group(pg_id, 'id'),
-        nipyapi.nifi.ProcessGroupEntity
-    )
+    # determine source and destination strings by class supplied
+    source_type = nipyapi.utils.infer_object_label_from_class(source)
+    target_type = nipyapi.utils.infer_object_label_from_class(target)
+    if source_type not in ['OUTPUT_PORT', 'INPUT_PORT']:
+        source_rels = [x.name for x in source.component.relationships]
+        if relationships:
+            assert all(i in source_rels for i in relationships), \
+                "One or more relationships [{0}] not in list of valid " \
+                "Source Relationships [{1}]" \
+                .format(str(relationships), str(source_rels))
+        else:
+            # if no relationships supplied, we connect them all
+            relationships = source_rels
+    if source_type == 'OUTPUT_PORT':
+        # the hosting process group for an Output port connection to another
+        # process group is the common parent process group
+        parent_pg = get_process_group(source.component.parent_group_id, 'id')
+        if parent_pg.id == get_root_pg_id():
+            parent_id = parent_pg.id
+        else:
+            parent_id = parent_pg.component.parent_group_id
+    else:
+        parent_id = source.component.parent_group_id
     try:
-        out = nipyapi.nifi.ProcessGroupsApi().get_connections(pg_id)
+        return nipyapi.nifi.ProcessGroupsApi().create_connection(
+            id=parent_id,
+            body=nipyapi.nifi.ConnectionEntity(
+                revision=nipyapi.nifi.RevisionDTO(
+                    version=0
+                ),
+                source_type=source_type,
+                destination_type=target_type,
+                component=nipyapi.nifi.ConnectionDTO(
+                    source=nipyapi.nifi.ConnectableDTO(
+                        id=source.id,
+                        group_id=source.component.parent_group_id,
+                        type=source_type
+                    ),
+                    name=name,
+                    destination=nipyapi.nifi.ConnectableDTO(
+                        id=target.id,
+                        group_id=target.component.parent_group_id,
+                        type=target_type
+                    ),
+                    selected_relationships=relationships
+                )
+            )
+        )
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
-    assert isinstance(out, nipyapi.nifi.ConnectionsEntity)
-    return out
+
+
+def delete_connection(connection, purge=False):
+    """
+    Deletes a connection, optionally purges it first
+
+    Args:
+        connection (ConnectionEntity): Connection to delete
+        purge (bool): True to Purge, Defaults to False
+
+    Returns:
+        (ConnectionEntity): the modified Connection
+
+    """
+    assert isinstance(connection, nipyapi.nifi.ConnectionEntity)
+    if purge:
+        purge_connection(connection.id)
+    try:
+        return nipyapi.nifi.ConnectionsApi().delete_connection(
+            id=connection.id,
+            version=connection.revision.version
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def list_all_connections(pg_id='root', descendants=True):
+    """
+    Lists all connections for a given Process Group ID
+
+    Args:
+        pg_id (str): ID of the Process Group to retrieve Connections from
+        descendants (bool): True to recurse child PGs, False to not
+
+    Returns:
+        (list): List of ConnectionEntity objects
+
+    """
+    return list_all_by_kind('connections', pg_id, descendants)
+
+
+def get_component_connections(component):
+    """
+    Returns list of Connections related to a given Component, e.g. Processor
+
+    Args:
+        component: Component Object to filter by, e.g. a ProcessorEntity
+
+    Returns:
+        (list): List of ConnectionEntity Objects
+    """
+    assert isinstance(component, nipyapi.nifi.ProcessorEntity)
+    return [
+        x for x
+        in list_all_connections(pg_id=component.component.parent_group_id)
+        if component.id in [x.destination_id, x.source_id]
+    ]
 
 
 def purge_connection(con_id):
@@ -806,6 +950,7 @@ def purge_connection(con_id):
         request.
 
     """
+
     # TODO: Reimplement to batched instead of single threaded
     def _autumn_leaves(con_id_, drop_request_):
         test_obj = nipyapi.nifi.FlowfileQueuesApi().get_drop_request(
@@ -817,9 +962,7 @@ def purge_connection(con_id):
         if test_obj.failure_reason:
             raise ValueError(
                 "Unable to complete drop request{0}, error was {1}"
-                .format(
-                    test_obj, test_obj.drop_request.failure_reason
-                )
+                .format(test_obj, test_obj.drop_request.failure_reason)
             )
         return True
 
@@ -854,9 +997,9 @@ def purge_process_group(process_group, stop=False):
                 "Unable to stop Process Group {0} for purging"
                 .format(process_group.id)
             )
-    cons = get_connections(process_group.id)
+    cons = list_all_connections(process_group.id)
     result = []
-    for con in cons.connections:
+    for con in cons:
         result.append({con.id: str(purge_connection(con.id))})
     return result
 
@@ -886,3 +1029,366 @@ def get_bulletin_board():
         return nipyapi.nifi.FlowApi().get_bulletin_board()
     except nipyapi.nifi.rest.ApiException as e:
         raise ValueError(e.body)
+
+
+def create_controller(parent_pg, controller, name=None):
+    """
+    Creates a new Controller Service in a given Process Group of the given
+        Controller type, with the given Name
+
+    Args:
+        parent_pg (ProcessGroupEntity): Target Parent PG
+        controller (DocumentedTypeDTO): Type of Controller to create, found
+            via the list_all_controller_types method
+        name (str[Optional]): Name for the new Controller as a String
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
+    assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)
+    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    assert name is None or isinstance(name, six.string_types)
+    try:
+        out = nipyapi.nifi.ProcessGroupsApi().create_controller_service(
+            id=parent_pg.id,
+            body=nipyapi.nifi.ControllerServiceEntity(
+                revision={'version': 0},
+                component=nipyapi.nifi.ControllerServiceDTO(
+                    bundle=controller.bundle,
+                    type=controller.type
+                )
+            ),
+        )
+        if name:
+            update_controller(
+                out,
+                nipyapi.nifi.ControllerServiceDTO(
+                    name=name
+                )
+            )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+    return out
+
+
+def list_all_controllers(pg_id='root', descendants=True):
+    """
+    Lists all controllers under a given Process Group, defaults to Root
+        Optionally recurses all child Process Groups as well
+    Args:
+        pg_id (str): String of the ID of the Process Group to list from
+        descendants (bool): True to recurse child PGs, False to not
+
+    Returns:
+        None, ControllerServiceEntity, or list(ControllerServiceEntity)
+
+    """
+    assert isinstance(pg_id, six.string_types)
+    assert isinstance(descendants, bool)
+    handle = nipyapi.nifi.FlowApi()
+    # Testing shows that descendant doesn't work on NiFi-1.1.2
+    if nipyapi.utils.check_version('1.1.2') < 1:
+        out = []
+        if descendants:
+            pgs = list_all_process_groups(pg_id)
+        else:
+            pgs = [get_process_group(pg_id, 'id')]
+        for pg in pgs:
+            out += handle.get_controller_services_from_group(
+                pg.id).controller_services
+    else:
+        out = handle.get_controller_services_from_group(
+            pg_id,
+            include_descendant_groups=descendants
+        ).controller_services
+    return out
+
+
+def delete_controller(controller, force=False):
+    """
+    Delete a Controller service, with optional prejudice
+
+    Args:
+        controller (ControllerServiceEntity): Target Controller to delete
+        force (bool): True to Disable the Controller before deletion
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    assert isinstance(force, bool)
+
+    def _del_cont(cont_id):
+        if not get_controller(cont_id, 'id', bool_response=True):
+            return True
+        return False
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    if force:
+        # Stop and refresh
+        controller = schedule_controller(controller, False)
+    try:
+        result = handle.remove_controller_service(
+            id=controller.id,
+            version=controller.revision.version
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+    del_test = nipyapi.utils.wait_to_complete(
+        _del_cont,
+        controller.id,
+        nipyapi_max_wait=15,
+        nipyapi_delay=1
+    )
+    if not del_test:
+        raise ValueError("Timed out waiting for Controller Deletion")
+    return result
+
+
+def update_controller(controller, update):
+    """
+    Updates the Configuration of a Controller Service
+
+    Args:
+        controller (ControllerServiceEntity): Target Controller to update
+        update (ControllerServiceDTO): Controller Service configuration object
+            containing the new config params and properties
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
+    # Insert the ID into the update
+    update.id = controller.id
+    return nipyapi.nifi.ControllerServicesApi().update_controller_service(
+        id=controller.id,
+        body=nipyapi.nifi.ControllerServiceEntity(
+            component=update,
+            revision=controller.revision,
+            id=controller.id
+        )
+    )
+
+
+def schedule_controller(controller, scheduled):
+    """
+    Start/Enable or Stop/Disable a Controller Service
+
+    Args:
+        controller (ControllerServiceEntity): Target Controller to schedule
+        scheduled (bool): True to start, False to stop
+
+    Returns:
+        (ControllerServiceEntity)
+
+    """
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    assert isinstance(scheduled, bool)
+
+    def _schedule_controller_state(cont_id, tgt_state):
+        test_obj = get_controller(cont_id, 'id')
+        if test_obj.component.state == tgt_state:
+            return True
+        return False
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    target_state = 'ENABLED' if scheduled else 'DISABLED'
+    if nipyapi.utils.check_version('1.1.2') < 1:
+        result = update_controller(
+            controller=controller,
+            update=nipyapi.nifi.ControllerServiceDTO(
+                state=target_state
+            )
+        )
+    else:
+        result = handle.update_run_status(
+            id=controller.id,
+            body=nipyapi.nifi.ControllerServiceRunStatusEntity(
+                revision=controller.revision,
+                state=target_state
+            )
+        )
+    if not result:
+        raise ValueError("Scheduling request failed")
+    state_test = nipyapi.utils.wait_to_complete(
+        _schedule_controller_state,
+        controller.id,
+        target_state
+    )
+    if state_test:
+        return get_controller(controller.id, 'id')
+    raise ValueError("Scheduling request timed out")
+
+
+def get_controller(identifier, identifier_type='name', bool_response=False):
+    """
+    Retrieve a given Controller
+
+    Args:
+        identifier (str): ID or Name of a Controller to find
+        identifier_type (str): 'id' or 'name', defaults to name
+        bool_response (bool): If True, will return False if the Controller is
+            not found - useful when testing for deletion completion
+
+    Returns:
+
+    """
+    assert isinstance(identifier, six.string_types)
+    assert identifier_type in ['name', 'id']
+    handle = nipyapi.nifi.ControllerServicesApi()
+    try:
+        if identifier_type == 'id':
+            out = handle.get_controller_service(identifier)
+        else:
+            obj = list_all_controllers()
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    except nipyapi.nifi.rest.ApiException as e:
+        if bool_response:
+            return False
+        raise ValueError(e.body)
+    return out
+
+
+def list_all_controller_types():
+    """
+    Lists all Controller Service types available on the environment
+
+    Returns:
+        list(DocumentedTypeDTO)
+    """
+    handle = nipyapi.nifi.FlowApi()
+    return handle.get_controller_service_types().controller_service_types
+
+
+def list_all_by_kind(kind, pg_id='root', descendants=True):
+    """
+    Retrieves a list of all instances of a supported object type
+
+    Args:
+        kind (str):  one of input_ports, output_ports, funnels, controllers,
+            connections, remote_process_groups
+        pg_id (str): optional, ID of the Process Group to use as search base
+        descendants (bool): optional, whether to collect child group info
+
+    Returns:
+        list of the Entity type of the kind, or single instance, or None
+
+    """
+    assert kind in [
+        'input_ports', 'output_ports', 'funnels', 'controllers', 'connections',
+        'remote_process_groups'
+    ]
+    if kind == 'controllers':
+        return list_all_controllers(pg_id, descendants)
+    handle = nipyapi.nifi.ProcessGroupsApi()
+    call_function = getattr(handle, 'get_' + kind)
+    out = []
+    if descendants:
+        pgs = list_all_process_groups(pg_id)
+    else:
+        pgs = [get_process_group(pg_id, 'id')]
+    for pg in pgs:
+        out += call_function(pg.id).__getattribute__(kind)
+    return out
+
+
+def list_all_input_ports(pg_id='root', descendants=True):
+    """Convenience wrapper for list_all_by_kind for input ports"""
+    return list_all_by_kind('input_ports', pg_id, descendants)
+
+
+def list_all_output_ports(pg_id='root', descendants=True):
+    """Convenience wrapper for list_all_by_kind for output ports"""
+    return list_all_by_kind('output_ports', pg_id, descendants)
+
+
+def list_all_funnels(pg_id='root', descendants=True):
+    """Convenience wrapper for list_all_by_kind for funnels"""
+    return list_all_by_kind('funnels', pg_id, descendants)
+
+
+def list_all_remote_process_groups(pg_id='root', descendants=True):
+    """Convenience wrapper for list_all_by_kind for remote process groups"""
+    return list_all_by_kind('remote_process_groups', pg_id, descendants)
+
+
+def get_remote_process_group(rpg_id, summary=False):
+    """
+    Fetch a remote process group object, with optional summary of just ports
+    """
+    rpg = nipyapi.nifi.RemoteProcessGroupsApi().get_remote_process_group(
+        rpg_id
+    )
+    if not summary:
+        out = rpg
+    else:
+        out = {
+            'id': rpg.id,
+            'input_ports': rpg.component.contents.input_ports,
+            'output_ports': rpg.component.contents.output_ports
+        }
+    return out
+
+
+def create_port(pg_id, port_type, name, state, position=None):
+    """
+    Creates a new input or output port of given characteristics
+
+    Args:
+        pg_id (str): ID of the parent Process Group
+        port_type (str): Either of INPUT_PORT or OUTPUT_PORT
+        name (str): optional, Name to assign to the port
+        state (str): One of RUNNING, STOPPED, DISABLED
+        position (tuple): optional, tuple of ints like (400, 400)
+
+    Returns:
+        (PortEntity) of the created port
+
+    """
+    assert state in ["RUNNING", "STOPPED", "DISABLED"]
+    assert port_type in ["INPUT_PORT", "OUTPUT_PORT"]
+    assert isinstance(pg_id, six.string_types)
+    position = position if position else (400, 400)
+    assert isinstance(position, tuple)
+    handle = nipyapi.nifi.ProcessGroupsApi()
+    port_generator = getattr(handle, 'create_' + port_type.lower())
+    try:
+        return port_generator(
+            id=pg_id,
+            body=nipyapi.nifi.PortEntity(
+                revision=nipyapi.nifi.RevisionDTO(version=0),
+                component=nipyapi.nifi.PortDTO(
+                    parent_group_id=pg_id,
+                    position=nipyapi.nifi.PositionDTO(
+                        x=float(position[0]),
+                        y=float(position[1])
+                    ),
+                    name=name
+                )
+            )
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def delete_port(port):
+    """Deletes a given port from the canvas if possible"""
+    assert isinstance(port, nipyapi.nifi.PortEntity)
+    if 'INPUT' in port.port_type:
+        try:
+            return nipyapi.nifi.InputPortsApi().remove_input_port(
+                id=port.id,
+                version=port.revision.version)
+        except nipyapi.nifi.rest.ApiException as e:
+            raise ValueError(e.body)
+    if 'OUTPUT' in port.port_type:
+        try:
+            return nipyapi.nifi.OutputPortsApi().remove_output_port(
+                id=port.id,
+                version=port.revision.version)
+        except nipyapi.nifi.rest.ApiException as e:
+            raise ValueError(e.body)

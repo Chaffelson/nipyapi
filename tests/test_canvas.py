@@ -24,7 +24,7 @@ def test_get_process_group_status(regress_nifi):
     # We rely on this int for testing if a PG is running or not
     assert isinstance(r.running_count, int)
     with pytest.raises(AssertionError):
-        _ = canvas.get_process_group_status('root','invalid')
+        _ = canvas.get_process_group_status('root', 'invalid')
 
 
 def test_get_flow():
@@ -58,7 +58,7 @@ def test_create_process_group(regress_nifi):
     r = canvas.create_process_group(
         parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
         new_pg_name=conftest.test_pg_name,
-        location=(400.0,400.0)
+        location=(400.0, 400.0)
     )
     assert r.component.name == conftest.test_pg_name
     assert r.position.x == r.position.y == 400
@@ -119,7 +119,7 @@ def test_schedule_process_group(fix_proc, fix_pg):
     status = canvas.get_process_group(f_pg.id, 'id')
     assert r1 is True
     assert status.running_count == 1
-    r2= canvas.schedule_process_group(
+    r2 = canvas.schedule_process_group(
         f_pg.id,
         False
     )
@@ -169,6 +169,29 @@ def test_list_all_processors(regress_nifi, fix_proc):
     r = canvas.list_all_processors()
     assert len(r) >= 2
     assert isinstance(r[0], nifi.ProcessorEntity)
+
+
+def test_list_nested_processors(regress_nifi, fix_pg, fix_proc):
+    pg_1 = fix_pg.generate(
+        parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id')
+    )
+    pg_2 = fix_pg.generate(parent_pg=pg_1)
+    root_proc_1 = fix_proc.generate()
+    pg_1_proc_1 = fix_proc.generate(parent_pg=pg_1)
+    pg_1_proc_2 = fix_proc.generate(parent_pg=pg_1)
+    pg_2_proc_1 = fix_proc.generate(parent_pg=pg_2)
+    pg_2_proc_2 = fix_proc.generate(parent_pg=pg_2)
+    pg_2_proc_3 = fix_proc.generate(parent_pg=pg_2)
+    pg_2_proc_4 = fix_proc.generate(parent_pg=pg_2)
+    r1 = [x for x in canvas.list_all_processors('root')
+          if conftest.test_basename in x.status.name]
+    assert len(r1) == 7
+    r2 = [x for x in canvas.list_all_processors(pg_2.id)
+          if conftest.test_basename in x.status.name]
+    assert len(r2) == 4
+    r3 = [x for x in canvas.list_all_processors(pg_1.id)
+          if conftest.test_basename in x.status.name]
+    assert len(r3) == 6
 
 
 def test_get_processor(regress_nifi, fix_proc):
@@ -260,11 +283,6 @@ def test_update_variable_registry(fix_pg):
         _ = canvas.update_variable_registry(test_pg, '')
 
 
-def test_get_connections():
-    # TODO: Waiting for create_connection to generate fixture
-    pass
-
-
 def test_purge_connection():
     # TODO: Waiting for create_connection to generate fixture
     pass
@@ -293,3 +311,236 @@ def test_list_invalid_processors():
 def test_list_sensitive_processors():
     # TODO: write test for new feature
     pass
+
+
+def test_create_connection_processors(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    # connect single relationship
+    r1 = canvas.create_connection(
+        f_p1, f_p2, ['success'], conftest.test_basename)
+    assert isinstance(r1, nifi.ConnectionEntity)
+    # connect all relationships by default
+    r2 = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+    assert isinstance(r2, nifi.ConnectionEntity)
+    with pytest.raises(AssertionError):
+        _ = canvas.create_connection(f_p1, f_p2, ['not a connection'])
+
+
+def test_delete_connection(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    # connect single relationship
+    c1 = canvas.create_connection(
+        f_p1, f_p2, ['success'], conftest.test_basename)
+    r1 = canvas.delete_connection(c1)
+    assert isinstance(r1, nifi.ConnectionEntity)
+    assert r1.status is None
+
+
+def test_list_all_connections(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    r1 = [x for x in canvas.list_all_connections()
+          if conftest.test_basename in x.component.name]
+    assert not r1
+    # connect single relationship
+    c1 = canvas.create_connection(
+        f_p1, f_p2, ['success'], conftest.test_basename)
+    r2 = [x for x in canvas.list_all_connections('root')
+          if conftest.test_basename in x.component.name]
+    assert len(r2) == 1
+    r3 = [x for x in canvas.list_all_connections(canvas.get_root_pg_id())
+          if conftest.test_basename in x.component.name]
+    assert len(r3) == 1
+    assert isinstance(r2[0], nifi.ConnectionEntity)
+    c2 = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+    r2 = [x for x in canvas.list_all_connections('root')
+          if conftest.test_basename in x.component.name]
+    assert len(r2) == 2
+    _ = canvas.delete_connection(c1)
+    _ = canvas.delete_connection(c2)
+    r3 = [x for x in canvas.list_all_connections('root')
+          if conftest.test_basename in x.component.name]
+    assert not r3
+
+
+def test_get_component_connections(regress_nifi, fix_proc):
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    f_p3 = canvas.create_processor(
+        parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
+        processor=canvas.get_processor_type('AttributesToJSON'),
+        location=(400.0, 425.0),
+        name=conftest.test_processor_name + '_inbound'
+    )
+    canvas.create_connection(f_p1, f_p3, name=conftest.test_basename)
+    canvas.create_connection(f_p2, f_p3, name=conftest.test_basename)
+    r1 = canvas.get_component_connections(f_p1)
+    assert len(r1) == 1
+    assert r1[0].source_id == f_p1.id
+    r2 = canvas.get_component_connections(f_p3)
+    assert len(r2) == 2
+    assert r2[0].destination_id == f_p3.id
+    assert r2[1].source_id in [f_p1.id, f_p2.id]
+
+
+def test_list_all_controller_types(regress_nifi):
+    r1 = canvas.list_all_controller_types()
+    assert len(r1) > 5
+    assert isinstance(r1[0], nifi.DocumentedTypeDTO)
+
+
+def test_list_all_controllers(regress_nifi, fix_pg, fix_cont):
+    f_c1 = fix_cont(parent_pg=fix_pg.generate())
+    assert isinstance(f_c1, nifi.ControllerServiceEntity)
+    r1 = canvas.list_all_controllers()
+    assert f_c1.id in [x.id for x in r1]
+    r2 = canvas.list_all_controllers(
+        pg_id='root',
+        descendants=False)
+    r2 = [x for x in r2 if conftest.test_basename in x.component.name]
+    assert not r2
+    with pytest.raises(AssertionError):
+        _ = canvas.list_all_controllers(pg_id=['bob'])
+    with pytest.raises(AssertionError):
+        _ = canvas.list_all_controllers(descendants=['pie'])
+
+
+def test_create_controller(regress_nifi, fix_cont):
+    root_pg = canvas.get_process_group(canvas.get_root_pg_id(), 'id')
+    cont_type = canvas.list_all_controller_types()[0]
+    r1 = canvas.create_controller(
+        parent_pg=root_pg,
+        controller=cont_type
+    )
+    assert isinstance(r1, nifi.ControllerServiceEntity)
+    with pytest.raises(AssertionError):
+        _ = canvas.create_controller('pie', cont_type)
+    with pytest.raises(AssertionError):
+        _ = canvas.create_controller(root_pg, 'pie')
+
+
+def test_get_controller(regress_nifi, fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    r1 = canvas.get_controller(f_c1.id, 'id')
+    assert r1 is not None
+    assert isinstance(r1, nifi.ControllerServiceEntity)
+    r2 = canvas.get_controller(f_c1.component.name)
+    assert r2.component.name == f_c1.component.name
+    _ = fix_cont(parent_pg=f_pg, kind='DistributedMapCacheServer')
+    r3 = canvas.get_controller('DistributedMapCache')
+    assert len(r3) == 2
+
+
+def test_schedule_controller(regress_nifi, fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    f_c1 = canvas.update_controller(
+        f_c1, nifi.ControllerServiceDTO(properties={'Server Hostname': 'Bob'}))
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_controller('pie', False)
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_controller(f_c1, 'pie')
+    r1 = canvas.schedule_controller(f_c1, True)
+    assert r1.component.state == 'ENABLED'
+    r2 = canvas.schedule_controller(r1, False)
+    assert r2.component.state == 'DISABLED'
+
+
+def test_delete_controller(regress_nifi, fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    r1 = canvas.delete_controller(f_c1)
+    assert r1.revision is None
+    f_c2 = fix_cont(parent_pg=f_pg)
+    f_c2 = canvas.update_controller(
+        f_c2, nifi.ControllerServiceDTO(properties={'Server Hostname': 'Bob'}))
+    f_c2 = canvas.schedule_controller(f_c2, True)
+    with pytest.raises(AssertionError):
+        _ = canvas.delete_controller('pie')
+    with pytest.raises(AssertionError):
+        _ = canvas.delete_controller(f_c2, 'pie')
+    with pytest.raises(ValueError):
+        _ = canvas.delete_controller(f_c2)
+    assert f_c2.revision is not None
+    r2 = canvas.delete_controller(f_c2, True)
+    assert r2.revision is None
+
+
+def test_update_controller(regress_nifi, fix_pg, fix_cont):
+    f_c1 = fix_cont(parent_pg=fix_pg.generate())
+    r1 = canvas.update_controller(f_c1, nifi.ControllerServiceDTO(name='Bob'))
+    assert isinstance(r1, nifi.ControllerServiceEntity)
+    assert r1.component.name == 'Bob'
+
+
+def test_input_output_ports(regress_nifi, fix_pg):
+    root_input_port = canvas.create_port(
+        pg_id=canvas.get_root_pg_id(),
+        port_type='INPUT_PORT',
+        name=conftest.test_basename + 'input_port',
+        state='STOPPED'
+    )
+    assert isinstance(root_input_port, nifi.PortEntity)
+    root_output_port = canvas.create_port(
+        pg_id=canvas.get_root_pg_id(),
+        port_type='OUTPUT_PORT',
+        name=conftest.test_basename + 'output_port',
+        state='STOPPED'
+    )
+    assert isinstance(root_output_port, nifi.PortEntity)
+    input_ports = [x for x in canvas.list_all_by_kind('input_ports')
+                   if conftest.test_basename in x.status.name]
+    assert len(input_ports) == 1
+    output_ports = [x for x in canvas.list_all_by_kind('output_ports')
+                    if conftest.test_basename in x.status.name]
+    assert len(output_ports) == 1
+    f_pg = fix_pg.generate()
+    f_pg_input_port = canvas.create_port(
+        pg_id=f_pg.id,
+        port_type='INPUT_PORT',
+        name=conftest.test_basename + 'input_port',
+        state='STOPPED'
+    )
+    assert isinstance(f_pg_input_port, nifi.PortEntity)
+    f_pg_output_port = canvas.create_port(
+        pg_id=f_pg.id,
+        port_type='OUTPUT_PORT',
+        name=conftest.test_basename + 'output_port',
+        state='STOPPED'
+    )
+    assert isinstance(f_pg_output_port, nifi.PortEntity)
+    input_ports = [x for x in canvas.list_all_by_kind('input_ports')
+                   if conftest.test_basename in x.status.name]
+    assert len(input_ports) == 2
+    output_ports = [x for x in canvas.list_all_by_kind('output_ports')
+                    if conftest.test_basename in x.status.name]
+    assert len(output_ports) == 2
+    d1 = canvas.delete_port(root_input_port)
+    assert isinstance(d1, nifi.PortEntity)
+    assert d1.status is None
+
+
+def test_connect_output_ports(regress_nifi, fix_pg):
+    f_pg_1 = fix_pg.generate()
+    f_pg_2 = fix_pg.generate()
+    f_pg_1_output = canvas.create_port(
+        f_pg_1.id,
+        'OUTPUT_PORT',
+        conftest.test_basename + 'output',
+        'STOPPED'
+    )
+    f_pg_2_input = canvas.create_port(
+        f_pg_2.id,
+        'INPUT_PORT',
+        conftest.test_basename + 'input',
+        'STOPPED'
+    )
+    r1 = canvas.create_connection(
+        source=f_pg_1_output,
+        target=f_pg_2_input,
+        name=conftest.test_basename
+    )
+    assert isinstance(r1, nifi.ConnectionEntity)

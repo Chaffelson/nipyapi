@@ -80,7 +80,8 @@ registered_filters = {
     'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
     'User': {'identity': ['identity'], 'id': ['identifier']},  # Registry User
     'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
-    'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']}
+    'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
+    'ControllerServiceEntity': {'is': ['id'], 'name': ['component', 'name']}
 }
 
 

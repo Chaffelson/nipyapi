@@ -134,6 +134,10 @@ def service_login(service='nifi', username=None, password=None,
             raise e
         except nipyapi.nifi.rest.ApiException as e:
             raise ConnectionError(e.body)
+        finally:
+            # clear username/password credentials from configuration
+            configuration.username = None
+            configuration.password = None
         set_service_auth_token(token=nifi_token, service='nifi')
         return True
 
@@ -215,6 +219,10 @@ def get_service_access_status(service='nifi', bool_response=False):
                       "True, returning False", e)
             return False
         log.debug("- bool_response is False, raising Exception")
+        raise e
+    except nipyapi.nifi.api_client.ApiException as e:
+        if 'only supported when running over HTTPS' in e.body:
+            return False
         raise e
 
 

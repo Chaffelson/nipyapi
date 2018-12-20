@@ -62,17 +62,13 @@ else:
     nifi_test_endpoints = [
         'http://' + test_host + ':10112/nifi-api',
         'http://' + test_host + ':10120/nifi-api',
-        'http://' + test_host + ':10160/nifi-api',
+        'http://' + test_host + ':10171/nifi-api',
         'http://' + test_host + ':8080/nifi-api'  # Default to latest
     ]
     # These are paired into api & docker labels with a paired nifi instance
     registry_test_endpoints = [
         ('http://' + test_host + ':18010/nifi-registry-api',
             'http://registry-010:18010',
-         'http://' + test_host + ':8080/nifi-api'
-         ),
-        ('http://' + test_host + ':18020/nifi-registry-api',
-            'http://registry-020:18020',
          'http://' + test_host + ':8080/nifi-api'
          ),
         ('http://' + test_host + ':18030/nifi-registry-api',
@@ -154,42 +150,44 @@ def session_setup(request):
     log.info("Commencing test session setup")
     for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
         nipyapi.utils.set_endpoint(url)
-        target_url = url.replace('-api', '')
+        gui_url = url.replace('-api', '')
         if not nipyapi.utils.wait_to_complete(
             nipyapi.utils.is_endpoint_up,
-            target_url,
+            gui_url,
             nipyapi_delay=nipyapi.config.long_retry_delay,
             nipyapi_max_wait=nipyapi.config.long_max_wait):
             pytest.exit(
                 "Expected Service endpoint ({0}) is not responding"
-                .format(target_url)
+                .format(gui_url)
             )
-        else:
-            # Test API client connection
-            if 'nifi-api' in url:
-                if nipyapi.canvas.get_root_pg_id():
-                    log.info("Tested Nifi client connection for test suite to"
-                             "service endpoint at %s", url)
-                    cleanup()
-                    request.addfinalizer(cleanup)
-                else:
-                    raise ValueError("No Response from NiFi test call")
-            elif 'nifi-registry-api' in url:
-                if nipyapi.registry.FlowsApi().get_available_flow_fields():
-                    log.info("Tested NiFi-Registry client connection, got "
-                             "response from %s", url)
-                    cleanup_reg()
-                    request.addfinalizer(cleanup_reg)
-                else:
-                    raise ValueError("No Response from NiFi-Registry test call"
-                                     )
+        # Test API client connection
+        if 'nifi-api' in url:
+            if not nipyapi.canvas.get_root_pg_id():
+                raise ValueError("No Response from NiFi test call")
+            # that should've created a new API client connection
+            api_host = nipyapi.config.nifi_config.api_client.host
+            if api_host != url:
+                raise ValueError("Client expected [{0}], but got [{1}] "
+                                 "instead".format(url, api_host))
+            log.info("Tested NiFi client connection, got response from %s",
+                     url)
+            cleanup_nifi()
+        elif 'nifi-registry-api' in url:
+            if nipyapi.registry.FlowsApi().get_available_flow_fields():
+                log.info("Tested NiFi-Registry client connection, got "
+                         "response from %s", url)
+                cleanup_reg()
             else:
-                raise ValueError("Bad API Endpoint")
+                raise ValueError("No Response from NiFi-Registry test call"
+                                 )
+        else:
+            raise ValueError("Bad API Endpoint")
+    request.addfinalizer(final_cleanup)
     log.info("Completing Test Session Setup")
 
 
 def remove_test_templates():
-    all_templates = nipyapi.templates.list_all_templates().templates
+    all_templates = nipyapi.templates.list_all_templates(native=False)
     if all_templates is not None:
         for this_template in all_templates:
             if test_basename in this_template.template.name:
@@ -198,21 +196,15 @@ def remove_test_templates():
 
 def remove_test_pgs():
     test_pgs = nipyapi.canvas.get_process_group(test_basename)
-    if isinstance(test_pgs, list):
+    if test_pgs:
+        if not isinstance(test_pgs, list):
+            test_pgs = [test_pgs]
         for this_test_pg in test_pgs:
             nipyapi.canvas.delete_process_group(
                 this_test_pg,
                 force=True,
                 refresh=True
             )
-    elif isinstance(test_pgs, nipyapi.nifi.ProcessGroupEntity):
-        nipyapi.canvas.delete_process_group(
-            test_pgs,
-            force=True,
-            refresh=True
-        )
-    else:
-        pass
 
 
 def remove_test_processors():
@@ -230,27 +222,61 @@ def remove_test_buckets():
          test_bucket_name in li.name]
 
 
-def cleanup():
+def final_cleanup():
+    for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
+        nipyapi.utils.set_endpoint(url)
+        if 'nifi-api' in url:
+            cleanup_nifi()
+        elif 'nifi-registry-api' in url:
+            cleanup_reg()
+
+
+def cleanup_nifi():
     # Only bulk-cleanup universally compatible components
     # Ideally we would clean each test environment, but it's too slow to do it
     # per test, so we rely on individual fixture cleanup
     log.info("Bulk cleanup called on host %s",
              nipyapi.config.nifi_config.host)
     remove_test_templates()
+    remove_test_connections()
+    remove_test_controllers()
     remove_test_processors()
+    remove_test_ports()
     remove_test_pgs()
+
+
+def remove_test_connections():
+    _ = [
+        nipyapi.canvas.delete_connection(x, True)
+        for x in nipyapi.canvas.list_all_connections()
+        if test_basename in x.component.name
+    ]
+
+
+def remove_test_ports():
+    _ = [
+        nipyapi.canvas.delete_port(x)
+        for x in nipyapi.canvas.list_all_by_kind('input_ports')
+        if test_basename in x.component.name
+    ]
+    _ = [
+        nipyapi.canvas.delete_port(x)
+        for x in nipyapi.canvas.list_all_by_kind('output_ports')
+        if test_basename in x.component.name
+    ]
+
+
+def remove_test_controllers():
+    _ = [nipyapi.canvas.delete_controller(li, True) for li
+         in nipyapi.canvas.list_all_controllers() if
+         test_basename in li.component.name]
 
 
 def cleanup_reg():
     # Bulk cleanup for tests involving NiFi Registry
     remove_test_pgs()
-    # Case where test fails and cleanup attempting on NiFi version that
-    # doesn't support registry
-    try:
-        remove_test_buckets()
-        remove_test_registry_client()
-    except ValueError:
-        pass
+    remove_test_buckets()
+    remove_test_registry_client()
 
 
 @pytest.fixture(name='fix_templates', scope='function')
@@ -281,7 +307,7 @@ def fixture_templates(request, fix_pg):
         b_file=f_b_file,
         c_file=f_c_file
     )
-    request.addfinalizer(cleanup)
+    request.addfinalizer(remove_test_templates)
     log.info("- Returning PyTest Fixture fix_templates")
     return out
 
@@ -305,7 +331,7 @@ def fixture_pg(request):
                     location=(400.0, 400.0)
                 )
 
-    request.addfinalizer(cleanup)
+    request.addfinalizer(remove_test_pgs)
     return Dummy()
 
 
@@ -315,21 +341,18 @@ def fixture_proc(request):
         def __init__(self):
             pass
 
-        def generate(self, parent_pg=None, suffix='', valid=True):
+        def generate(self, parent_pg=None, suffix='', kind=None, config=None):
             if parent_pg is None:
                 target_pg = nipyapi.canvas.get_process_group(
                     nipyapi.canvas.get_root_pg_id(), 'id'
                 )
             else:
                 target_pg = parent_pg
-            if valid:
-                proc_type = 'GenerateFlowFile'
-            else:
-                proc_type = 'ListenSyslog'
+            kind = kind if kind else 'GenerateFlowFile'
             return nipyapi.canvas.create_processor(
                 parent_pg=target_pg,
                 processor=nipyapi.canvas.get_processor_type(
-                    proc_type),
+                    kind),
                 location=(400.0, 400.0),
                 name=test_processor_name + suffix,
                 config=nipyapi.nifi.ProcessorConfigDTO(
@@ -434,47 +457,36 @@ def fixture_flow_serde(request, tmpdir, fix_ver_flow):
     )
 
 
-@pytest.fixture(name='fix_ctv', scope='function')
-def fixture_complex_template_versioning(request, fix_ver_flow):
-    FixtureCTV = namedtuple(
-        'FixtureCTV', getattr(fix_ver_flow, '_fields') + (
-            'template', 'info_w_template', 'snapshot_w_template'
-        )
-    )
-    f_t_type = 'complex'
-    f_t_name = test_templates[f_t_type]
-    f_t_filename = f_t_name + '.xml'
-    f_t_path = path.join(
-        path.dirname(__file__),
-        test_resource_dir,
-        f_t_filename
-    )
-    f_template = nipyapi.templates.get_template_by_name(f_t_name)
-    if not f_template:
-        nipyapi.templates.upload_template(
-            pg_id=fix_ver_flow.pg.id,
-            template_file=f_t_path
-        )
-        f_template = nipyapi.templates.get_template_by_name(f_t_name)
-    _ = nipyapi.templates.deploy_template(
-        fix_ver_flow.pg.id,
-        f_template.id
-    )
-    f_info_2 = nipyapi.versioning.save_flow_ver(
-        process_group=fix_ver_flow.pg,
-        registry_client=fix_ver_flow.client,
-        bucket=fix_ver_flow.bucket,
-        flow_id=fix_ver_flow.flow.identifier
-    )
-    f_snapshot_2 = nipyapi.versioning.get_latest_flow_ver(
-        fix_ver_flow.bucket.identifier,
-        fix_ver_flow.flow.identifier
-    )
-    request.addfinalizer(cleanup)
-    request.addfinalizer(cleanup_reg)
-    return FixtureCTV(
-        *fix_ver_flow,
-        template=f_template,
-        info_w_template=f_info_2,
-        snapshot_w_template=f_snapshot_2
-    )
+@pytest.fixture(name='fix_cont', scope='function')
+def fixture_controller(request):
+    class Dummy:
+        def __init__(self):
+            pass
+
+        def __call__(self, parent_pg=None, kind=None):
+            if parent_pg is None:
+                target_pg = nipyapi.canvas.get_process_group(
+                    nipyapi.canvas.get_root_pg_id(), 'id'
+                )
+            else:
+                target_pg = parent_pg
+            kind = kind if kind else 'DistributedMapCacheClientService'
+            cont_type = [
+                x for x in nipyapi.canvas.list_all_controller_types()
+                if kind in x.type
+            ][0]
+            c_1 = nipyapi.canvas.create_controller(
+                parent_pg=target_pg,
+                controller=cont_type
+            )
+            c_2 = nipyapi.canvas.update_controller(
+                c_1,
+                nipyapi.nifi.ControllerServiceDTO(
+                    name=test_basename + c_1.component.name
+                )
+            )
+            return c_2
+
+    request.addfinalizer(remove_test_controllers)
+    return Dummy()
+

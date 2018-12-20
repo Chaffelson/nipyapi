@@ -405,6 +405,7 @@ def step_d_promote_change_to_prod_nifi():
 
 
 def step_e_check_sensitive_processors():
+    """Create and test for Sensitive Properties to be set in the Canvas"""
     log.info("Connecting to Dev Environment")
     nipyapi.utils.set_endpoint(dev_nifi_api_url)
     nipyapi.utils.set_endpoint(dev_reg_api_url)
@@ -415,7 +416,7 @@ def step_e_check_sensitive_processors():
         location=(400.0, 600.0),
         name=dev_proc2_name,
     )
-    s_proc = nipyapi.canvas.list_sensitive_processors()
+    s_proc = nipyapi.canvas.list_sensitive_processors(summary=True)
     print("We have created a new Processor {0} which has security protected"
           "properties, these will need to be completed in each environment "
           "that this flow is used in. These properties are discoverable using "
@@ -427,6 +428,7 @@ def step_e_check_sensitive_processors():
 
 
 def step_f_set_sensitive_values():
+    """Set the Sensitive Properties to pass the deployment test"""
     log.info("Setting Sensitive Values on Processor")
     nipyapi.canvas.update_processor(
         processor=nipyapi.canvas.get_processor(dev_proc2_name),
@@ -447,6 +449,7 @@ def step_f_set_sensitive_values():
 
 
 def step_g_check_invalid_processors():
+    """Look for Processors with Invalid Properties to be remediated"""
     log.info("Retrieving Processors in Invalid States")
     i_proc = nipyapi.canvas.list_invalid_processors()[0]
     print("We now run a validity test against our flow to ensure that it can "
@@ -458,6 +461,7 @@ def step_g_check_invalid_processors():
 
 
 def step_h_fix_validation_errors():
+    """Update values for Invalid Processors to pass the deployment test"""
     log.info("Autoterminating Success status")
     nipyapi.canvas.update_processor(
         processor=nipyapi.canvas.get_processor(dev_proc2_name),
@@ -471,6 +475,7 @@ def step_h_fix_validation_errors():
 
 
 def step_i_promote_deploy_and_validate():
+    """Promotion and Deployment in a single method"""
     log.info("Saving changes in Dev Flow to Version Control")
     dev_process_group = nipyapi.canvas.get_process_group(dev_pg_name)
     dev_bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
@@ -491,6 +496,7 @@ def step_i_promote_deploy_and_validate():
         dev_bucket.identifier,
         identifier=dev_ver_flow_name
     )
+    log.info("Exporting the Dev flow to Yaml")
     dev_export = nipyapi.versioning.export_flow_version(
         bucket_id=dev_bucket.identifier,
         flow_id=dev_ver_flow.identifier,
@@ -499,7 +505,7 @@ def step_i_promote_deploy_and_validate():
     log.info("Connecting to Prod Environment")
     nipyapi.utils.set_endpoint(prod_nifi_api_url)
     nipyapi.utils.set_endpoint(prod_reg_api_url)
-    log.info("Pushing updated version into Prod Registry Flow")
+    log.info("Importing the Updated Dev Yaml to the Prod Bucket Flow")
     prod_bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
     prod_flow = nipyapi.versioning.get_flow_in_bucket(
         bucket_id=prod_bucket.identifier,
@@ -510,11 +516,13 @@ def step_i_promote_deploy_and_validate():
         encoded_flow=dev_export,
         flow_id=prod_flow.identifier
     )
+    log.info("Pushing the new Version into the Prod Flow")
     prod_pg = nipyapi.canvas.get_process_group(dev_pg_name)
     nipyapi.versioning.update_flow_ver(
         process_group=prod_pg,
         target_version=None
     )
+    log.info("Checking for Invalid Processors in the new flow")
     val_errors = nipyapi.canvas.list_invalid_processors()
     print("Here we have put all the steps in one place by taking the dev "
           "changes all the way through to prod deployment. If we check"
