@@ -238,9 +238,32 @@ def cleanup_nifi():
     log.info("Bulk cleanup called on host %s",
              nipyapi.config.nifi_config.host)
     remove_test_templates()
-    remove_test_processors()
+    remove_test_connections()
     remove_test_controllers()
+    remove_test_processors()
+    remove_test_ports()
     remove_test_pgs()
+
+
+def remove_test_connections():
+    _ = [
+        nipyapi.canvas.delete_connection(x, True)
+        for x in nipyapi.canvas.list_all_connections()
+        if test_basename in x.component.name
+    ]
+
+
+def remove_test_ports():
+    _ = [
+        nipyapi.canvas.delete_port(x)
+        for x in nipyapi.canvas.list_all_by_kind('input_ports')
+        if test_basename in x.component.name
+    ]
+    _ = [
+        nipyapi.canvas.delete_port(x)
+        for x in nipyapi.canvas.list_all_by_kind('output_ports')
+        if test_basename in x.component.name
+    ]
 
 
 def remove_test_controllers():
