@@ -64,13 +64,13 @@ def create_service_user(identity, service='nifi'):
 
 def create_service_user_group(identity, service='nifi', users=None):
     """
-    Attempts to create a user with the provided identity and member users in the
-    given service
+    Attempts to create a user with the provided identity and member users in
+    the given service
 
     Args:
         identity (str): Identiy string for the user group
         service (str): 'nifi' or 'registry'
-        users (list): A list of UserEntities that should be populated as members
+        users (list): A list of UserEntities belonging to the group
 
     Returns:
         The new (UserGroup) or (UserGroupEntity) object
@@ -97,7 +97,9 @@ def create_service_user_group(identity, service='nifi', users=None):
             )
         )
     try:
-        return getattr(nipyapi, service).TenantsApi().create_user_group(user_group_obj)
+        return getattr(nipyapi, service).TenantsApi().create_user_group(
+            user_group_obj
+        )
     except (
             nipyapi.nifi.rest.ApiException,
             nipyapi.registry.rest.ApiException) as e:
