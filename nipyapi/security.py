@@ -62,7 +62,7 @@ def create_service_user(identity, service='nifi'):
             nipyapi.registry.rest.ApiException) as e:
         raise ValueError(e.body)
 
-def create_service_user_group(identity, service='nifi', users=[]):
+def create_service_user_group(identity, service='nifi', users=None):
     """
     Attempts to create a user with the provided identity and member users in the
     given service
