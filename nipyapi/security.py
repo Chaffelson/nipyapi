@@ -47,6 +47,9 @@ def create_service_user(identity, service='nifi'):
     else:
         # must be nifi
         user_obj = nipyapi.nifi.UserEntity(
+            revision=nipyapi.nifi.RevisionDTO(
+                version=0
+            ),
             component=nipyapi.nifi.UserDTO(
                 identity=identity
             )
