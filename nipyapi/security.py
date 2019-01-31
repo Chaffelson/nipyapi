@@ -14,9 +14,10 @@ import nipyapi
 
 log = logging.getLogger(__name__)
 
+
 __all__ = ['create_service_user', 'create_service_user_group', 'service_login',
            'set_service_auth_token', 'service_logout',
-           'get_service_access_status', 'add_user_to_access_policy',
+           'get_service_access_status', 'add_user_to_access_policy', 'add_user_group_to_access_policy',
            'update_access_policy', 'get_access_policy_for_resource',
            'create_access_policy', 'list_service_users', 'get_service_user',
            'set_service_ssl_context']
@@ -297,6 +298,7 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
         nipyapi.registry.User if service == 'registry'
         else nipyapi.nifi.UserEntity
     )
+
     user_id = user.id if service == 'nifi' else user.identifier
     user_identity = user.component.identity if service == 'nifi'\
         else user.identity
@@ -307,51 +309,84 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
         )
     else:
         policy_tgt = policy
+
     assert isinstance(
         policy_tgt,
         nipyapi.registry.AccessPolicy if service == 'registry' else
         nipyapi.nifi.AccessPolicyEntity
     )
+
     policy_users = policy_tgt.users if service == 'registry' else\
         policy_tgt.component.users
     policy_user_ids = [
         i.identifier if service == 'registry' else i.id for i in policy_users
     ]
+
     assert user_id not in policy_user_ids
+
     if service == 'registry':
         policy_tgt.users.append(user)
-        return nipyapi.security.update_access_policy(policy_tgt, 'registry')
-    # else if service == 'nifi':
-    # This nifi endpoint caused me a lot of trouble, so have gone really
-    # overboard in exactly duplicating the typical API submission objects
-    user_obj = nipyapi.nifi.TenantEntity(
-        id=user_id,
-        permissions=nipyapi.nifi.PermissionsDTO(
-            can_write=True,
-            can_read=True
-        ),
-        revision=nipyapi.nifi.RevisionDTO(
-            version=0
-        ),
-        component=nipyapi.nifi.TenantDTO(
-            id=user_id,
-            configurable=True,
-            identity=user_identity
-        )
+    elif service == 'nifi':
+        policy_tgt.component.users.append({'id': user_id})
+
+    return nipyapi.security.update_access_policy(policy_tgt, service)
+
+
+def add_user_group_to_access_policy(user_group, policy, service='nifi', refresh=True):
+    """
+    Attempts to add the given user group object to the given access policy
+
+    Args:
+        user_group (UserGroup) or (UserGroupEntity): User group object to add
+        policy (AccessPolicyEntity) or (AccessPolicy): Access Policy object
+        service (str): 'nifi' or 'registry' to identify the target service
+        refresh (bool): Whether to refresh the policy object before submission
+
+    Returns:
+        Updated Policy object
+
+    """
+    assert service in _valid_services
+    assert isinstance(
+        policy,
+        nipyapi.registry.AccessPolicy if service == 'registry'
+        else nipyapi.nifi.AccessPolicyEntity
     )
-    policy_obj = nipyapi.nifi.AccessPolicyEntity(
-        revision=nipyapi.nifi.RevisionDTO(
-            version=policy_tgt.revision.version
-        ),
-        id=policy_tgt.id,
-        component=nipyapi.nifi.AccessPolicyDTO(
-            id=policy_tgt.id,
-            user_groups=policy_tgt.component.user_groups,
-            users=policy_tgt.component.users
-        )
+    assert isinstance(
+        user_group,
+        nipyapi.registry.UserGroup if service == 'registry'
+        else nipyapi.nifi.UserGroupEntity
     )
-    policy_obj.component.users.append(user_obj)
-    return nipyapi.security.update_access_policy(policy_obj, service)
+    user_group_id = user_group.id if service == 'nifi' else user_group.identifier
+
+    if refresh:
+        policy_tgt = getattr(nipyapi, service).PoliciesApi().get_access_policy(
+            policy.id if service == 'nifi' else policy.identifier
+        )
+    else:
+        policy_tgt = policy
+
+    assert isinstance(
+        policy_tgt,
+        nipyapi.registry.AccessPolicy if service == 'registry' else
+        nipyapi.nifi.AccessPolicyEntity
+    )
+
+    policy_user_groups = policy_tgt.users if service == 'registry' else\
+        policy_tgt.component.user_groups
+    policy_user_group_ids = [
+        i.identifier if service == 'registry' else i.id for i in\
+            policy_user_groups
+    ]
+
+    assert user_group_id not in policy_user_group_ids
+
+    if service == 'registry':
+        policy_tgt.user_groups.append(user_group)
+    elif service == 'nifi':
+        policy_tgt.component.user_groups.append({'id': user_group_id})
+
+    return nipyapi.security.update_access_policy(policy_tgt, service)
 
 
 def update_access_policy(policy, service='nifi'):

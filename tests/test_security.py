@@ -34,6 +34,63 @@ def test_get_access_policy_for_resource(regress_nifi):
     # "No applicable policies could be found"
 
 
+def test_add_user_to_access_policy_nifi():
+    pass
+    # ~ user = nipyapi.security.create_service_user(
+        # ~ identity='testuser',
+        # ~ service='nifi'
+    # ~ )
+
+    # ~ assert isinstance(user, nipyapi.nifi.UserEntity)
+    # ~ policy = nipyapi.security.add_user_to_access_policy(
+        # ~ user=user,
+        # ~ service='nifi'
+    # ~ )
+    # ~ assert isinstance(policy, nipyapi.nifi.AccessPolicyEntity)
+
+
+def test_add_user_to_access_policy_registry():
+    pass
+    # ~ user = nipyapi.security.create_service_user(
+        # ~ identity='testuser',
+        # ~ service='registry'
+    # ~ )
+    # ~ assert isinstance(user, nipyapi.registry.User)
+    # ~ policy = nipyapi.security.add_user_to_access_policy(
+        # ~ user=user,
+        # ~ service='registry'
+    # ~ )
+    # ~ assert isinstance(policy, nipyapi.registry.AccessPolicy)
+
+
+def test_add_user_group_to_access_policy_nifi():
+    pass
+    # ~ user_group = nipyapi.security.create_service_user_group(
+        # ~ identity='testuser_group',
+        # ~ service='nifi'
+    # ~ )
+    # ~ assert isinstance(user_group, nipyapi.nifi.UserGroupEntity)
+    # ~ policy = nipyapi.security.add_user_group_to_access_policy(
+        # ~ user_group=user_group,
+        # ~ service='nifi'
+    # ~ )
+    # ~ assert isinstance(policy, nipyapi.nifi.AccessPolicyEntity)
+
+
+def test_add_user_group_to_access_policy_registry():
+    pass
+    # ~ user_group = nipyapi.security.create_service_user_group(
+        # ~ identity='testuser_group',
+        # ~ service='registry'
+    # ~ )
+    # ~ assert isinstance(user_group, nipyapi.registry.UserGroup)
+    # ~ policy = nipyapi.security.add_user_group_to_access_policy(
+        # ~ user_group=user_group,
+        # ~ service='registry'
+    # ~ )
+    # ~ assert isinstance(policy, nipyapi.registry.AccessPolicy)
+
+
 def test_create_service_user_nifi():
     pass
     # ~ nifi_user = security.create_service_user(
