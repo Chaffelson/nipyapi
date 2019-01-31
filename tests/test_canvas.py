@@ -64,6 +64,16 @@ def test_create_process_group(regress_nifi):
     assert r.position.x == r.position.y == 400
     assert r.component.parent_group_id == canvas.get_root_pg_id()
     assert isinstance(r, nifi.ProcessGroupEntity)
+
+    # Test process group creation on other than root process group.
+    s = canvas.create_process_group(parent_pg=canvas.get_process_group(conftest.test_pg_name), location=(200.0, 200.0),
+                                    new_pg_name=conftest.test_another_pg_name)
+    assert s.component.name == conftest.test_another_pg_name
+    assert s.position.x == s.position.y == 200
+    assert s.component.parent_group_id == canvas.get_process_group(conftest.test_pg_name, "name").id
+    assert isinstance(s, nifi.ProcessGroupEntity)
+
+
     with pytest.raises(ApiException):
         parent_pg = canvas.get_process_group('NiFi Flow')
         parent_pg.id = 'invalid'
