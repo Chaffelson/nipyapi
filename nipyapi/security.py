@@ -14,9 +14,10 @@ import nipyapi
 
 log = logging.getLogger(__name__)
 
-__all__ = ['create_service_user', 'service_login', 'set_service_auth_token',
-           'service_logout', 'get_service_access_status',
-           'add_user_to_access_policy', 'add_user_group_to_access_policy',
+
+__all__ = ['create_service_user', 'create_service_user_group', 'service_login',
+           'set_service_auth_token', 'service_logout',
+           'get_service_access_status', 'add_user_to_access_policy', 'add_user_group_to_access_policy',
            'update_access_policy', 'get_access_policy_for_resource',
            'create_access_policy', 'list_service_users', 'get_service_user',
            'set_service_ssl_context']
@@ -48,6 +49,9 @@ def create_service_user(identity, service='nifi'):
     else:
         # must be nifi
         user_obj = nipyapi.nifi.UserEntity(
+            revision=nipyapi.nifi.RevisionDTO(
+                version=0
+            ),
             component=nipyapi.nifi.UserDTO(
                 identity=identity
             )
@@ -59,6 +63,48 @@ def create_service_user(identity, service='nifi'):
             nipyapi.registry.rest.ApiException) as e:
         raise ValueError(e.body)
 
+def create_service_user_group(identity, service='nifi', users=None):
+    """
+    Attempts to create a user with the provided identity and member users in
+    the given service
+
+    Args:
+        identity (str): Identiy string for the user group
+        service (str): 'nifi' or 'registry'
+        users (list): A list of UserEntities belonging to the group
+
+    Returns:
+        The new (UserGroup) or (UserGroupEntity) object
+
+    """
+    assert service in _valid_services
+    assert isinstance(identity, six.string_types)
+    assert all(isinstance(user, nipyapi.nifi.UserEntity) for user in users)
+    if service == 'registry':
+        pass
+        user_group_obj = nipyapi.registry.UserGroup(
+            identity=identity,
+            users=[{'id': user.id} for user in users]
+        )
+    else:
+        # must be nifi
+        user_group_obj = nipyapi.nifi.UserGroupEntity(
+            revision=nipyapi.nifi.RevisionDTO(
+                version=0
+            ),
+            component=nipyapi.nifi.UserGroupDTO(
+                identity=identity,
+                users=[{'id': user.id} for user in users]
+            )
+        )
+    try:
+        return getattr(nipyapi, service).TenantsApi().create_user_group(
+            user_group_obj
+        )
+    except (
+            nipyapi.nifi.rest.ApiException,
+            nipyapi.registry.rest.ApiException) as e:
+        raise ValueError(e.body)
 
 def service_login(service='nifi', username=None, password=None,
                   bool_response=False):

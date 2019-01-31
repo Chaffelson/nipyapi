@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 test_host = 'localhost'
 test_basename = "nipyapi_test"
 test_pg_name = test_basename + "_ProcessGroup"
+test_another_pg_name = test_basename + "_AnotherProcessGroup"
 test_registry_client_name = test_basename + "_reg_client"
 test_processor_name = test_basename + "_proc"
 test_bucket_name = test_basename + "_bucket"
