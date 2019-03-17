@@ -63,6 +63,7 @@ def create_service_user(identity, service='nifi'):
             nipyapi.registry.rest.ApiException) as e:
         raise ValueError(e.body)
 
+
 def create_service_user_group(identity, service='nifi', users=None):
     """
     Attempts to create a user with the provided identity and member users in
@@ -105,6 +106,7 @@ def create_service_user_group(identity, service='nifi', users=None):
             nipyapi.nifi.rest.ApiException,
             nipyapi.registry.rest.ApiException) as e:
         raise ValueError(e.body)
+
 
 def service_login(service='nifi', username=None, password=None,
                   bool_response=False):
@@ -427,7 +429,7 @@ def get_access_policy_for_resource(resource,
     if it doesn't already exist
 
     Args:
-        resource (str): A valid resource in the taret service
+        resource (str): A valid resource in the target service
         action (str): A valid action, typically 'read', 'write' or 'delete'
         r_id (Optional[str]): The UUID of the resource, valid only if targeting
             NiFi resources
@@ -505,7 +507,7 @@ def create_access_policy(resource, action, r_id=None, service='nifi'):
                     revision=nipyapi.nifi.RevisionDTO(version=0),
                     component=nipyapi.nifi.AccessPolicyDTO(
                         action=action,
-                        resource=resource + '/' + r_id
+                        resource=resource + '/' + r_id if r_id else resource
                     )
                 )
             )
