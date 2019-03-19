@@ -161,7 +161,7 @@ def connect_nifi_to_registry():
         )
 
 
-def bootstrap_nifi_access_policies():
+def bootstrap_nifi_access_policies(user='nobel'):
     """
     Grant the current nifi user access to the root process group
 
@@ -169,7 +169,7 @@ def bootstrap_nifi_access_policies():
           It may need to be tweaked to configure the ldap-user-group-provider.
     """
     rpg_id = nipyapi.canvas.get_root_pg_id()
-    nifi_user_identity = nipyapi.security.get_service_user('nobel')
+    nifi_user_identity = nipyapi.security.get_service_user(user)
 
     access_policies = [
         ('write', 'process-groups', rpg_id),
