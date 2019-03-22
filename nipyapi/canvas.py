@@ -1128,7 +1128,7 @@ def delete_controller(controller, force=False):
     handle = nipyapi.nifi.ControllerServicesApi()
     if force:
         # Stop and refresh
-        controller = schedule_controller(controller, False)
+        controller = schedule_controller(controller, False, True)
     try:
         result = handle.remove_controller_service(
             id=controller.id,
@@ -1174,13 +1174,14 @@ def update_controller(controller, update):
     )
 
 
-def schedule_controller(controller, scheduled):
+def schedule_controller(controller, scheduled, refresh=False):
     """
     Start/Enable or Stop/Disable a Controller Service
 
     Args:
         controller (ControllerServiceEntity): Target Controller to schedule
         scheduled (bool): True to start, False to stop
+        refresh (bool): Whether to refresh the component revision before execution
 
     Returns:
         (ControllerServiceEntity)
@@ -1197,6 +1198,9 @@ def schedule_controller(controller, scheduled):
 
     handle = nipyapi.nifi.ControllerServicesApi()
     target_state = 'ENABLED' if scheduled else 'DISABLED'
+    if refresh:
+        controller = nipyapi.canvas.get_controller(controller.id, 'id')
+        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     if nipyapi.utils.check_version('1.1.2') < 1:
         result = update_controller(
             controller=controller,
@@ -1217,7 +1221,9 @@ def schedule_controller(controller, scheduled):
     state_test = nipyapi.utils.wait_to_complete(
         _schedule_controller_state,
         controller.id,
-        target_state
+        target_state,
+        nipyapi_delay=nipyapi.config.long_retry_delay,
+        nipyapi_max_wait=nipyapi.config.long_max_wait
     )
     if state_test:
         return get_controller(controller.id, 'id')

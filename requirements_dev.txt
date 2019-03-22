@@ -29,4 +29,3 @@ py>=1.4.31
 randomize>=0.13
 certifi>=2017.7.27.1
 virtualenvwrapper>=4.8
-deepdiff>=3.3.0
