@@ -16,7 +16,7 @@ requests[security]>=2.18
 
 # Import Export and Utils implementation
 ruamel.yaml==0.15.87
-deepdiff>=3.3.0,<4.0
+deepdiff>=3.3.0,<4.0  # pyup: ignore
 
 # Demo deployment automation
 docker>=2.5.1
