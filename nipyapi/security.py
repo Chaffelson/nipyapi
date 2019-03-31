@@ -17,10 +17,10 @@ log = logging.getLogger(__name__)
 
 __all__ = ['create_service_user', 'create_service_user_group', 'service_login',
            'set_service_auth_token', 'service_logout',
-           'get_service_access_status', 'add_user_to_access_policy', 'add_user_group_to_access_policy',
+           'get_service_access_status', 'add_user_to_access_policy',
            'update_access_policy', 'get_access_policy_for_resource',
            'create_access_policy', 'list_service_users', 'get_service_user',
-           'set_service_ssl_context']
+           'set_service_ssl_context', 'add_user_group_to_access_policy']
 
 # These are the known-valid policy actions
 _valid_actions = ['read', 'write', 'delete']
@@ -82,7 +82,6 @@ def create_service_user_group(identity, service='nifi', users=None):
     assert isinstance(identity, six.string_types)
     assert all(isinstance(user, nipyapi.nifi.UserEntity) for user in users)
     if service == 'registry':
-        pass
         user_group_obj = nipyapi.registry.UserGroup(
             identity=identity,
             users=[{'id': user.id} for user in users]
@@ -302,8 +301,8 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
     )
 
     user_id = user.id if service == 'nifi' else user.identifier
-    user_identity = user.component.identity if service == 'nifi'\
-        else user.identity
+    # user_identity = user.component.identity if service == 'nifi'\
+    #     else user.identity
 
     if refresh:
         policy_tgt = getattr(nipyapi, service).PoliciesApi().get_access_policy(
@@ -334,7 +333,8 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
     return nipyapi.security.update_access_policy(policy_tgt, service)
 
 
-def add_user_group_to_access_policy(user_group, policy, service='nifi', refresh=True):
+def add_user_group_to_access_policy(user_group, policy, service='nifi',
+                                    refresh=True):
     """
     Attempts to add the given user group object to the given access policy
 
@@ -359,7 +359,8 @@ def add_user_group_to_access_policy(user_group, policy, service='nifi', refresh=
         nipyapi.registry.UserGroup if service == 'registry'
         else nipyapi.nifi.UserGroupEntity
     )
-    user_group_id = user_group.id if service == 'nifi' else user_group.identifier
+    user_group_id = user_group.id if service == 'nifi' else \
+        user_group.identifier
 
     if refresh:
         policy_tgt = getattr(nipyapi, service).PoliciesApi().get_access_policy(
@@ -377,8 +378,8 @@ def add_user_group_to_access_policy(user_group, policy, service='nifi', refresh=
     policy_user_groups = policy_tgt.users if service == 'registry' else\
         policy_tgt.component.user_groups
     policy_user_group_ids = [
-        i.identifier if service == 'registry' else i.id for i in\
-            policy_user_groups
+        i.identifier if service == 'registry' else i.id
+        for i in policy_user_groups
     ]
 
     assert user_group_id not in policy_user_group_ids

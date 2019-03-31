@@ -41,7 +41,7 @@ def get_template_by_name(name):
         if
         name == i.template.name
     ]
-    if len(out) is 1:
+    if len(out) == 1:
         return out[0]
     return None
 

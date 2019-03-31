@@ -1181,7 +1181,8 @@ def schedule_controller(controller, scheduled, refresh=False):
     Args:
         controller (ControllerServiceEntity): Target Controller to schedule
         scheduled (bool): True to start, False to stop
-        refresh (bool): Whether to refresh the component revision before execution
+        refresh (bool): Whether to refresh the component revision before
+          execution
 
     Returns:
         (ControllerServiceEntity)

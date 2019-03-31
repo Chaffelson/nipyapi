@@ -298,7 +298,8 @@ def set_endpoint(endpoint_url):
     return True
 
 
-class DockerContainer():
+# pylint: disable=R0913
+class DockerContainer:
     """
     Helper class for Docker container automation without using Ansible
     """

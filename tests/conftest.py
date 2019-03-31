@@ -13,7 +13,7 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 # Test Configuration parameters
-test_host = 'localhost'
+test_host = nipyapi.config.default_host
 test_basename = "nipyapi_test"
 test_pg_name = test_basename + "_ProcessGroup"
 test_another_pg_name = test_basename + "_AnotherProcessGroup"
