@@ -74,7 +74,7 @@ d_containers = [
     DockerContainer(
         name='secure-nifi',
         image_name='apache/nifi',
-        image_tag='1.7.1',
+        image_tag='1.9.1',
         ports={'8443/tcp': 8443},
         env=ldap_env_vars,
         volumes={

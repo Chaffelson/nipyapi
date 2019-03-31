@@ -10,14 +10,14 @@ services:
     container_name: nifi-120
     ports:
       - "10120:8080"
-  nifi-171:
-    image: apache/nifi:1.7.1
-    container_name: nifi-171
-    ports:
-      - "10171:8080"
   nifi-180:
     image: apache/nifi:1.8.0
     container_name: nifi-180
+    ports:
+      - "10180:8080"
+  nifi-191:
+    image: apache/nifi:1.9.1
+    container_name: nifi-191
     ports:
       - "8080:8080"
   registry-010:

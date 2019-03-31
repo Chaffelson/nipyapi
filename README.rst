@@ -97,12 +97,12 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.8.0, and NiFi-Registry versions 0.1.0 - 0.3.0.
+| Currently we are testing against NiFi versions 1.1.2 - 1.9.1, and NiFi-Registry versions 0.1.0 - 0.3.0.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Python Requirements
 -------------------
 
-| Python 2.7 or 3.4-7 supported, though other versions may work.
-| Tested on Ubuntu and OSX 10.13.x - Windows automated testing not attempted
-| Outside of the standard Python modules, we make use of lxml, DeepDiff and ruamel.yaml
+| Python 2.7 or 3.4-6 supported, though other versions may work.
+| Tested on Centos and OSX 10.14.x - Windows automated testing not attempted
+| Outside of the standard Python modules, we make use of lxml, DeepDiff and ruamel.yaml in processing, and Docker for demo/tests.

@@ -63,7 +63,7 @@ else:
     nifi_test_endpoints = [
         'http://' + test_host + ':10112/nifi-api',
         'http://' + test_host + ':10120/nifi-api',
-        'http://' + test_host + ':10171/nifi-api',
+        'http://' + test_host + ':10180/nifi-api',
         'http://' + test_host + ':8080/nifi-api'  # Default to latest
     ]
     # These are paired into api & docker labels with a paired nifi instance
