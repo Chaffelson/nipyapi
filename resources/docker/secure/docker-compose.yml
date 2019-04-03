@@ -6,7 +6,7 @@ services:
     ports:
       - "8443:8443"
     volumes:
-      - ../../nipyapi/demo/keys:/opt/certs:ro
+      - ../../../nipyapi/demo/keys:/opt/certs:ro
     environment:
       - AUTH=tls
       - KEYSTORE_PATH=/opt/certs/localhost-ks.jks
@@ -22,7 +22,7 @@ services:
     ports:
       - "18443:18443"
     volumes:
-      - ../../nipyapi/demo/keys:/opt/certs:ro
+      - ../../../nipyapi/demo/keys:/opt/certs:ro
     environment:
       - NIFI_REGISTRY_WEB_HTTPS_PORT=18443
       - AUTH=tls
