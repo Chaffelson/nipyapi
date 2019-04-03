@@ -38,7 +38,7 @@ secured_nifi_url = 'https://localhost:8443/nifi-api'
 
 host_certs_path = path.join(
     nipyapi.config.PROJECT_ROOT_DIR,
-    "demo/resources/keys"
+    "demo/keys"
 )
 
 tls_env_vars = {

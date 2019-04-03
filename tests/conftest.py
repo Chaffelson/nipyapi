@@ -38,6 +38,11 @@ test_templates = {
     'complex': test_basename + 'Template_01'
 }
 
+# Security Testing Parameters
+test_security = True
+certs_path = path.join(nipyapi.config.PROJECT_ROOT_DIR, 'resources/keys')
+
+
 # Determining test environment
 # Can't use skiptest with parametrize for Travis
 # Mostly because loading up all the environments takes too long
@@ -77,6 +82,16 @@ else:
          'http://' + test_host + ':8080/nifi-api'
          )  # Default to latest version
     ]
+    if test_security:
+        nifi_test_endpoints.append(
+            'https://' + test_host + ':8443/nifi-api'
+        )
+        registry_test_endpoints.append(
+            ('https://' + test_host + ':18443/nifi-registry-api',
+             'http://secure-registry:18443',
+             'https://' + test_host + ':8443/nifi-api'
+             )
+        )
 
 
 # 'regress' generates tests against previous versions of NiFi or sub-projects.
@@ -111,6 +126,14 @@ def regress_nifi(request):
     log.info("NiFi Regression test setup called against endpoint %s",
              request.param)
     nipyapi.utils.set_endpoint(request.param)
+    if 'https://' in request.param:
+        nipyapi.security.set_service_ssl_context(
+            service='nifi',
+            ca_file=path.join(certs_path, 'localhost-ts.pem'),
+            client_cert_file=path.join(certs_path, 'client-cert.pem'),
+            client_key_file=path.join(certs_path, 'client-key.pem'),
+            client_key_password='clientPassword'
+        )
 
 
 def remove_test_registry_client():
@@ -143,6 +166,15 @@ def regress_flow_reg(request):
     # because pytest won't let you eaily cascade parameters through fixtures
     # we set the docker URI in the config for retrieval later on
     nipyapi.config.registry_local_name = request.param[1]
+    if 'https://' in request.param:
+        for service in ['nifi', 'registry']:
+            nipyapi.security.set_service_ssl_context(
+                service=service,
+                ca_file=path.join(certs_path, 'localhost-ts.pem'),
+                client_cert_file=path.join(certs_path, 'client-cert.pem'),
+                client_key_file=path.join(certs_path, 'client-key.pem'),
+                client_key_password='clientPassword'
+            )
 
 
 # Tests that the Docker test environment is available before running test suite

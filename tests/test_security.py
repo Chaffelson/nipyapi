@@ -3,25 +3,48 @@
 
 """Tests for nipyapi security module."""
 
+from os import path
 import pytest
 from tests import conftest
 import nipyapi
 from nipyapi import security
 
-def test_bootstrap_secured_nifi():
+
+def test_create_service_user():
     pass
-    # u = nipyapi.security.get_service_user('nobel')
-    # p = nipyapi.security.create_access_policy(
-    #     resource='process-groups',
-    #     action='write',
-    #     r_id=nipyapi.canvas.get_root_pg_id(),
-    #     service='nifi'
-    # )
-    # nipyapi.security.add_user_to_access_policy(
-    #     user=u,
-    #     policy=p,
-    #     service='nifi'
-    # )
+    # ~ nifi_user = security.create_service_user(
+        # ~ identity='testuser',
+        # ~ service='nifi'
+    # ~ )
+    # ~ assert isinstance(nifi_user, nipyapi.nifi.UserEntity)
+
+
+def test_service_login():
+    pass
+
+
+def test_set_service_auth_token():
+    pass
+
+
+def test_service_logout():
+    pass
+
+
+def test_get_service_access_status():
+    pass
+
+
+def test_add_user_to_access_policy():
+    pass
+
+
+def test_add_user_group_to_access_policy():
+    pass
+
+
+def test_update_access_policy():
+    pass
 
 
 def test_get_access_policy_for_resource(regress_nifi):
@@ -32,6 +55,22 @@ def test_get_access_policy_for_resource(regress_nifi):
         _ = security.get_access_policy_for_resource('flow', 'read')
     # Note that on a secured NiFi with no valid policy you will get the error:
     # "No applicable policies could be found"
+
+
+def test_create_access_policy():
+    pass
+
+
+def test_list_service_users():
+    pass
+
+
+def test_get_service_user():
+    pass
+
+
+def test_set_service_ssl_context():
+    pass
 
 
 def test_add_user_to_access_policy_nifi():
@@ -89,24 +128,6 @@ def test_add_user_group_to_access_policy_registry():
         # ~ service='registry'
     # ~ )
     # ~ assert isinstance(policy, nipyapi.registry.AccessPolicy)
-
-
-def test_create_service_user_nifi():
-    pass
-    # ~ nifi_user = security.create_service_user(
-        # ~ identity='testuser',
-        # ~ service='nifi'
-    # ~ )
-    # ~ assert isinstance(nifi_user, nipyapi.nifi.UserEntity)
-
-
-def test_create_service_user_registry():
-    pass
-    # ~ registry_user = security.create_service_user(
-        # ~ identity='testuser',
-        # ~ service='registry'
-    # ~ )
-    # ~ assert isinstance(registry_user, nipyapi.registry.User)
 
 
 def test_create_service_user_group_nifi():
