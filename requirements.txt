@@ -15,7 +15,7 @@ requests[security]>=2.18
 # urllib3 is handled by requests
 
 # Import Export and Utils implementation
-ruamel.yaml==0.15.89
+ruamel.yaml==0.15.92
 deepdiff>=3.3.0,<4.0  # pyup: ignore
 
 # Demo deployment automation
