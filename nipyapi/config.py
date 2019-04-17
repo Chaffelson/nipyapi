@@ -27,7 +27,7 @@ logging.basicConfig(level=logging.WARNING)
 # Set Default Host for NiFi
 default_host = 'localhost'  # Default to localhost for release
 #
-nifi_config.host = 'http://' + default_host + ':8080/nifi-api'
+nifi_config.host = os.getenv('NIFI_API_ENDPOINT', 'http://' + default_host + ':8080/nifi-api')
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'
 
@@ -43,6 +43,10 @@ registry_config.verify_ssl = global_ssl_verify
 if not global_ssl_verify:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+if os.getenv('NIFI_CA_CERT') is not None:
+    nifi_config.ssl_ca_cert = os.getenv('NIFI_CA_CERT')
+    nifi_config.cert_file = os.getenv('NIFI_CLIENT_CERT')
+    nifi_config.key_file = os.getenv('NIFI_CLIENT_KEY')
 
 # ---  Project Root ------
 # Is is helpful to have a reference to the root directory of the project

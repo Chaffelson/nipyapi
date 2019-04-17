@@ -12,7 +12,6 @@ import six
 import urllib3
 import nipyapi
 
-
 log = logging.getLogger(__name__)
 
 
@@ -740,7 +739,7 @@ def set_service_ssl_context(
         except FileNotFoundError as e:
             raise FileNotFoundError(
                 "Unable to read keyfile {0} or certfile {1}, error was "
-                "{2}".format(client_cert_file, client_key_file, e))
+                "{2}".format(client_key_file, client_cert_file, e))
 
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)
@@ -750,14 +749,17 @@ def set_service_ssl_context(
     nipyapi.config.nifi_config.ssl_context = ssl_context
 
 
-def bootstrap_security_policies(service):
+def bootstrap_security_policies(service, user_identity=None):
     assert service in _valid_services
     if 'nifi' in service:
         rpg_id = nipyapi.canvas.get_root_pg_id()
-        nifi_user_identity = nipyapi.security.get_service_user(
-            nipyapi.config.default_nifi_username,
-            service='nifi'
-        )
+        if user_identity is None:
+            nifi_user_identity = nipyapi.security.get_service_user(
+                nipyapi.config.default_nifi_username,
+                service='nifi'
+            )
+        else:
+            nifi_user_identity = user_identity
         access_policies = [
             ('write', 'process-groups', rpg_id),
             ('read', 'process-groups', rpg_id),
@@ -780,10 +782,13 @@ def bootstrap_security_policies(service):
                 strict=False
             )
     else:
-        reg_user_identity = nipyapi.security.get_service_user(
-            nipyapi.config.default_registry_username,
-            service='registry'
-        )
+        if user_identity is None:
+            reg_user_identity = nipyapi.security.get_service_user(
+                nipyapi.config.default_registry_username,
+                service='registry'
+            )
+        else:
+            reg_user_identity = user_identity
         all_buckets_access_policies = [
             ("read", "/buckets"),
             ("write", "/buckets"),
