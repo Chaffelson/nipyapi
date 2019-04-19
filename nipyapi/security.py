@@ -9,18 +9,21 @@ import logging
 import ssl
 import six
 import urllib3
+from copy import copy
 import nipyapi
 
 
 log = logging.getLogger(__name__)
 
 
-__all__ = ['create_service_user', 'create_service_user_group', 'service_login',
+__all__ = ['create_service_user', 'create_service_user_group',
            'set_service_auth_token', 'service_logout',
            'get_service_access_status', 'add_user_to_access_policy',
            'update_access_policy', 'get_access_policy_for_resource',
            'create_access_policy', 'list_service_users', 'get_service_user',
-           'set_service_ssl_context', 'add_user_group_to_access_policy']
+           'set_service_ssl_context', 'add_user_group_to_access_policy',
+           'bootstrap_security_policies', 'service_login'
+           ]
 
 # These are the known-valid policy actions
 _valid_actions = ['read', 'write', 'delete']
@@ -28,13 +31,14 @@ _valid_actions = ['read', 'write', 'delete']
 _valid_services = ['nifi', 'registry']
 
 
-def create_service_user(identity, service='nifi'):
+def create_service_user(identity, service='nifi', strict=True):
     """
     Attempts to create a user with the provided identity in the given service
 
     Args:
         identity (str): Identity string for the user
         service (str): 'nifi' or 'registry'
+        strict (bool): If Strict, will error if user already exists
 
     Returns:
         The new (User) or (UserEntity) object
@@ -61,6 +65,8 @@ def create_service_user(identity, service='nifi'):
     except (
             nipyapi.nifi.rest.ApiException,
             nipyapi.registry.rest.ApiException) as e:
+        if 'already exists' in e.body and not strict:
+            return get_service_user(identity, service=service)
         raise ValueError(e.body)
 
 
@@ -274,7 +280,8 @@ def get_service_access_status(service='nifi', bool_response=False):
         raise e
 
 
-def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
+def add_user_to_access_policy(user, policy, service='nifi', refresh=True,
+                              strict=True):
     """
     Attempts to add the given user object to the given access policy
 
@@ -282,7 +289,9 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
         user (User) or (UserEntity): User object to add
         policy (AccessPolicyEntity) or (AccessPolicy): Access Policy object
         service (str): 'nifi' or 'registry' to identify the target service
-        refresh (bool): Whether to refresh the policy object before submission
+        refresh (bool): Whether to refresh the policy object before submit
+        strict (bool): If True, will return error if user already present,
+          if False will ignore the already exists
 
     Returns:
         Updated Policy object
@@ -322,15 +331,17 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True):
     policy_user_ids = [
         i.identifier if service == 'registry' else i.id for i in policy_users
     ]
+    if user_id not in policy_user_ids:
+        if service == 'registry':
+            policy_tgt.users.append(user)
+        elif service == 'nifi':
+            policy_tgt.component.users.append({'id': user_id})
 
-    assert user_id not in policy_user_ids
-
-    if service == 'registry':
-        policy_tgt.users.append(user)
-    elif service == 'nifi':
-        policy_tgt.component.users.append({'id': user_id})
-
-    return nipyapi.security.update_access_policy(policy_tgt, service)
+        return nipyapi.security.update_access_policy(policy_tgt, service)
+    else:
+        if strict:
+            assert user_id not in policy_user_ids, "Strict is True and user already " \
+                                               "in Policy"
 
 
 def add_user_group_to_access_policy(user_group, policy, service='nifi',
@@ -450,18 +461,25 @@ def get_access_policy_for_resource(resource,
     log.info("Called get_access_policy_for_resource with Args %s", locals())
 
     # Strip leading '/' from resource as lookup endpoint prepends a '/'
-    stripped_resource = resource[1:] if resource.startswith(
-        '/') else resource
-    log.info("Getting %s Policy for %s:%s:%s", service, action, resource, str(r_id))
+    resource = resource[1:] if resource.startswith('/') else resource
+    log.info("Getting %s Policy for %s:%s:%s", service, action,
+             resource, str(r_id))
     if service == 'nifi':
         pol_api = nipyapi.nifi.PoliciesApi()
+        config = nipyapi.config.nifi_config
     else:
         pol_api = nipyapi.registry.PoliciesApi()
+        config = nipyapi.config.registry_config
+    default_safe_chars = copy(config.safe_chars_for_path_param)
     try:
-        return pol_api.get_access_policy_for_resource(
+        if '/' not in config.safe_chars_for_path_param:
+            config.safe_chars_for_path_param += '/'
+        response = pol_api.get_access_policy_for_resource(
             action=action,
-            resource=stripped_resource
+            resource='/'.join([resource, r_id]) if r_id else resource
         )
+        config.safe_chars_for_path_param = copy(default_safe_chars)
+        return response
     except nipyapi.nifi.rest.ApiException as e:
         if 'Unable to find access policy' in e.body:
             log.info("Access policy not found")
@@ -472,6 +490,8 @@ def get_access_policy_for_resource(resource,
             )
         log.info("Unexpected Error, raising...")
         raise ValueError(e.body)
+    finally:
+        config.safe_chars_for_path_param = copy(default_safe_chars)
 
 
 def create_access_policy(resource, action, r_id=None, service='nifi'):
@@ -610,3 +630,81 @@ def set_service_ssl_context(
     if service == 'registry':
         nipyapi.config.registry_config.ssl_context = ssl_context
     nipyapi.config.nifi_config.ssl_context = ssl_context
+
+
+def bootstrap_security_policies(service, admin='CN=user1, OU=nifi',
+                                proxy='CN=localhost, OU=nifi'):
+    assert service in _valid_services
+    if 'nifi' in service:
+        rpg_id = nipyapi.canvas.get_root_pg_id()
+        nifi_user_identity = nipyapi.security.get_service_user(
+            admin,
+            service='nifi'
+        )
+        access_policies = [
+            ('write', 'process-groups', rpg_id),
+            ('read', 'process-groups', rpg_id),
+            ('write', 'data/process-groups', rpg_id),
+            ('read', 'data/process-groups', rpg_id),
+            ('read', 'system', None),
+        ]
+        for pol in access_policies:
+            ap = nipyapi.security.get_access_policy_for_resource(
+                action=pol[0],
+                resource=pol[1],
+                r_id=pol[2],
+                service='nifi',
+                auto_create=True
+            )
+            nipyapi.security.add_user_to_access_policy(
+                user=nifi_user_identity,
+                policy=ap,
+                service='nifi',
+                strict=False
+            )
+    else:
+        reg_user_identity = nipyapi.security.get_service_user(
+            admin,
+            service='registry'
+        )
+        all_buckets_access_policies = [
+            ("read", "/buckets"),
+            ("write", "/buckets"),
+            ("delete", "/buckets")
+        ]
+        for action, resource in all_buckets_access_policies:
+            pol = nipyapi.security.get_access_policy_for_resource(
+                resource=resource,
+                action=action,
+                service='registry',
+                auto_create=True
+            )
+            nipyapi.security.add_user_to_access_policy(
+                user=reg_user_identity,
+                policy=pol,
+                service='registry',
+                strict=False
+            )
+        # Setup Proxy Access
+        nifi_proxy = nipyapi.security.create_service_user(
+            identity=proxy,
+            service='registry',
+            strict=False
+        )
+        proxy_access_policies = [
+            ("write", "/proxy"),
+            ("read", "/buckets")
+        ]
+        for action, resource in proxy_access_policies:
+            pol = nipyapi.security.get_access_policy_for_resource(
+                resource=resource,
+                action=action,
+                service='registry',
+                auto_create=True
+            )
+            nipyapi.security.add_user_to_access_policy(
+                user=nifi_proxy,
+                policy=pol,
+                service='registry',
+                strict=False
+            )

@@ -112,7 +112,7 @@ def connect_nifi_to_registry():
     # Make NiFi server a trusted proxy in NiFi Registry
     proxy_access_policies = [
         ("write", "/proxy"),
-        ("read", "/buckets"),
+        ("read", "/buckets")
     ]
     for action, resource in proxy_access_policies:
         pol = nipyapi.security.get_access_policy_for_resource(

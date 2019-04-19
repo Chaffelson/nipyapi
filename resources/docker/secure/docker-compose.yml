@@ -1,12 +1,13 @@
 version: '2.1'
 services:
-  nifi-secure:
+  secure-nifi:
     image: apache/nifi:1.9.1
-    container_name: nifi-secure
+    container_name: secure-nifi
+    hostname: secure-nifi
     ports:
       - "8443:8443"
     volumes:
-      - ../../../nipyapi/demo/keys:/opt/certs:ro
+      - ../../../nipyapi/demo/keys:/opt/certs:ro  # Min docker version tested 18, does not work on old docker
     environment:
       - AUTH=tls
       - KEYSTORE_PATH=/opt/certs/localhost-ks.jks
@@ -16,9 +17,10 @@ services:
       - TRUSTSTORE_PASSWORD=localhostTruststorePassword
       - TRUSTSTORE_TYPE=JKS
       - INITIAL_ADMIN_IDENTITY=CN=user1, OU=nifi
-  registry-secure:
+  secure-registry:
     image: apache/nifi-registry:0.3.0
-    container_name: registry-secure
+    container_name: secure-registry
+    hostname: secure-registry
     ports:
       - "18443:18443"
     volumes:

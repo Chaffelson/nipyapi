@@ -68,7 +68,7 @@ regress_registry_endpoints = [
         ]
 secure_registry_endpoints = [
         ('https://' + test_host + ':18443/nifi-registry-api',
-         'http://secure-registry:18443',
+         'https://secure-registry:18443',
          'https://' + test_host + ':8443/nifi-api'
          )]
 
@@ -165,30 +165,6 @@ def regress_flow_reg(request):
     nipyapi.config.registry_local_name = request.param[1]
 
 
-def bootstrap_security_policies():
-    access_status = nipyapi.security.get_service_access_status('nifi')
-    rpg_id = nipyapi.canvas.get_root_pg_id()
-    nifi_user_identity = nipyapi.security.get_service_user(access_status.access_status.identity)
-    access_policies = [
-        ('write', 'process-groups', rpg_id),
-        ('read', 'process-groups', rpg_id),
-        ('read', 'system', None)
-    ]
-    for pol in access_policies:
-        ap = nipyapi.security.get_access_policy_for_resource(
-            action=pol[0],
-            resource=pol[1],
-            r_id=pol[2],
-            service='nifi',
-            auto_create=True
-        )
-        nipyapi.security.add_user_to_access_policy(
-            nifi_user_identity,
-            policy=ap,
-            service='nifi'
-        )
-
-
 # Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
@@ -217,12 +193,14 @@ def session_setup(request):
             log.info("Tested NiFi client connection, got response from %s",
                      url)
             if 'https://' in url:
-                bootstrap_security_policies()
+                nipyapi.security.bootstrap_security_policies(service='nifi')
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
             if nipyapi.registry.FlowsApi().get_available_flow_fields():
                 log.info("Tested NiFi-Registry client connection, got "
                          "response from %s", url)
+                if 'https://' in url:
+                    nipyapi.security.bootstrap_security_policies(service='registry')
                 cleanup_reg()
             else:
                 raise ValueError("No Response from NiFi-Registry test call"

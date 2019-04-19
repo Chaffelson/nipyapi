@@ -104,7 +104,7 @@ cache = {}
 
 # --- Security Context
 # This allows easy reference to a set of certificates for use in automation
-# By default it points to our demo certs, you should change it for your environment
+# By default it points to our demo certs, change it for your environment
 default_certs_path = os.path.join(PROJECT_ROOT_DIR, 'demo/keys')
 default_ssl_context = {
     'ca_file': os.path.join(default_certs_path, 'localhost-ts.pem'),

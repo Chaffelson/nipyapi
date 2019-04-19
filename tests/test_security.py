@@ -48,13 +48,7 @@ def test_update_access_policy():
 
 
 def test_get_access_policy_for_resource(regress_nifi):
-    # Test backwards compatibility issue on unsecured NiFi
-    # Returns an error stating the NiFi isn't set up for this, rather than
-    # the bad parameter error reported in issue #66
-    with pytest.raises(ValueError, match='This NiFi is not configured'):
-        _ = security.get_access_policy_for_resource('flow', 'read')
-    # Note that on a secured NiFi with no valid policy you will get the error:
-    # "No applicable policies could be found"
+    pass
 
 
 def test_create_access_policy():
