@@ -449,23 +449,18 @@ def get_access_policy_for_resource(resource,
     assert isinstance(auto_create, bool)
     log.info("Called get_access_policy_for_resource with Args %s", locals())
 
+    # Strip leading '/' from resource as lookup endpoint prepends a '/'
+    stripped_resource = resource[1:] if resource.startswith(
+        '/') else resource
+    log.info("Getting %s Policy for %s:%s:%s", service, action, resource, str(r_id))
+    if service == 'nifi':
+        pol_api = nipyapi.nifi.PoliciesApi()
+    else:
+        pol_api = nipyapi.registry.PoliciesApi()
     try:
-        if service == 'nifi':
-            log.info("Getting NiFi policy for %s:%s",
-                     action, resource)
-            pol_api = nipyapi.nifi.PoliciesApi()
-            return pol_api.get_access_policy_for_resource(
-                action=action,
-                resource=resource
-            )
-        # if service == 'registry:
-        log.info("Getting Registry policy for '%s:%s",
-                 action, resource)
-        # Strip leading '/' from resource as lookup endpoint prepends a '/'
-        stripped_resource = resource[1:] if resource.startswith(
-            '/') else resource
-        return nipyapi.registry.PoliciesApi().get_access_policy_for_resource(
-            action, stripped_resource
+        return pol_api.get_access_policy_for_resource(
+            action=action,
+            resource=stripped_resource
         )
     except nipyapi.nifi.rest.ApiException as e:
         if 'Unable to find access policy' in e.body:
@@ -508,7 +503,7 @@ def create_access_policy(resource, action, r_id=None, service='nifi'):
                     revision=nipyapi.nifi.RevisionDTO(version=0),
                     component=nipyapi.nifi.AccessPolicyDTO(
                         action=action,
-                        resource=resource + '/' + r_id if r_id else resource
+                        resource='/'.join([resource, r_id]) if r_id else resource
                     )
                 )
             )

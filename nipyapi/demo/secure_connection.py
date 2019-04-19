@@ -126,8 +126,6 @@ def connect_nifi_to_registry():
             policy=pol,
             service='registry'
         )
-    # add_registry_user_to_access_policies(nifi_proxy.identity,
-    #                                      proxy_access_policies)
 
     # Add current NiFi user (our NiFi admin) as user to NiFi Registry
     nifi_user_obj = nipyapi.security.get_service_user('nobel')
@@ -135,11 +133,6 @@ def connect_nifi_to_registry():
         identity=nifi_user_obj.component.identity,
         service='registry'
     )
-    # nifi_reg_user = nipyapi.registry.TenantsApi().create_user(
-    #     nipyapi.registry.User(
-    #         identity=nifi_user_obj.component.identity
-    #     )
-    # )
 
     # Make NiFi "nobel" user have access to all buckets in Registry
     all_buckets_access_policies = [

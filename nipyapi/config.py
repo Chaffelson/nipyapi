@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.WARNING)
 # convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
-default_host = '34.240.189.78'
+default_host = 'localhost'  # Default to localhost for release
 #
 nifi_config.host = 'http://' + default_host + ':8080/nifi-api'
 # Set Default Host for NiFi-Registry
@@ -100,3 +100,15 @@ registry_config.version_check = None
 # up subsequent requests. It is very stupid, so do not expect session handling,
 # or on-demand refresh if not handled by the function itself
 cache = {}
+
+
+# --- Security Context
+# This allows easy reference to a set of certificates for use in automation
+# By default it points to our demo certs, you should change it for your environment
+default_certs_path = os.path.join(PROJECT_ROOT_DIR, 'demo/keys')
+default_ssl_context = {
+    'ca_file': os.path.join(default_certs_path, 'localhost-ts.pem'),
+    'client_cert_file': os.path.join(default_certs_path, 'client-cert.pem'),
+    'client_key_file': os.path.join(default_certs_path, 'client-key.pem'),
+    'client_key_password': 'clientPassword'
+}

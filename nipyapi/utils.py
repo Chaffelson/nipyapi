@@ -261,12 +261,17 @@ def is_endpoint_up(endpoint_url):
         log.info("Got status code %s from endpoint, returning False",
                  response.status_code)
         return False
-    except requests.ConnectionError:
-        log.info("Got ConnectionError, returning False")
-        return False
+    except requests.ConnectionError or requests.exceptions.SSLError as e:
+        log.info("Got Error of type %s with details %s", type(e), str(e))
+        if 'SSLError' in str(type(e)):
+            log.info("Got OpenSSL error, port is probably up but needs Cert")
+            return True
+        else:
+            log.info("Got ConnectionError, returning False")
+            return False
 
 
-def set_endpoint(endpoint_url):
+def set_endpoint(endpoint_url, secure_login=False):
     """
     EXPERIMENTAL
 
@@ -275,7 +280,9 @@ def set_endpoint(endpoint_url):
 
     Args:
         endpoint_url (str): The URL to set as the endpoint. Autodetects the
-        relevant service e.g. 'http://localhost:18080/nifi-registry-api'
+          relevant service e.g. 'http://localhost:18080/nifi-registry-api'
+        secure_login (bool): Whether to use the default security context in
+          nipyapi.config to authenticate if a secure URL is detected
 
     Returns (bool): True for success, False for not
     """
@@ -295,6 +302,11 @@ def set_endpoint(endpoint_url):
         # Resetting API client so it recreates from config.host
         configuration.api_client = None
     configuration.host = endpoint_url
+    if 'https://' in endpoint_url and secure_login:
+        nipyapi.security.set_service_ssl_context(
+            service=service,
+            **nipyapi.config.default_ssl_context
+        )
     return True
 
 

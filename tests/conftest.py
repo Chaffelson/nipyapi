@@ -12,6 +12,11 @@ import nipyapi
 
 log = logging.getLogger(__name__)
 
+# Test Suite Controls
+test_default = False  # Default to True for release
+test_security = True  # Default to False for release
+test_regression = False  # Default to False for release
+
 # Test Configuration parameters
 test_host = nipyapi.config.default_host
 test_basename = "nipyapi_test"
@@ -38,23 +43,39 @@ test_templates = {
     'complex': test_basename + 'Template_01'
 }
 
-# Security Testing Parameters
-test_security = True
-certs_path = path.join(nipyapi.config.PROJECT_ROOT_DIR, 'resources/keys')
-
-
 # Determining test environment
 # Can't use skiptest with parametrize for Travis
 # Mostly because loading up all the environments takes too long
-if "TRAVIS" in environ and environ["TRAVIS"] == "true":
-    log.info("Running tests on TRAVIS, skipping regression suite")
-    nifi_test_endpoints = ['http://localhost:8080/nifi-api']
-    registry_test_endpoints = [
+
+default_nifi_endpoints = ['http://localhost:8080/nifi-api']
+regress_nifi_endpoints = [
+            'http://' + test_host + ':10112/nifi-api',
+            'http://' + test_host + ':10120/nifi-api',
+            'http://' + test_host + ':10180/nifi-api',
+        ]
+secure_nifi_endpoints = ['https://' + test_host + ':8443/nifi-api']
+default_registry_endpoints = [
         ('http://localhost:18080/nifi-registry-api',
          'http://registry:18080',
          'http://localhost:8080/nifi-api'
          )
     ]
+regress_registry_endpoints = [
+            ('http://' + test_host + ':18010/nifi-registry-api',
+                'http://registry-010:18010',
+             'http://' + test_host + ':8080/nifi-api'
+             )
+        ]
+secure_registry_endpoints = [
+        ('https://' + test_host + ':18443/nifi-registry-api',
+         'http://secure-registry:18443',
+         'https://' + test_host + ':8443/nifi-api'
+         )]
+
+if "TRAVIS" in environ and environ["TRAVIS"] == "true":
+    log.info("Running tests on TRAVIS, skipping regression suite")
+    nifi_test_endpoints = default_nifi_endpoints
+    registry_test_endpoints = default_registry_endpoints
 else:
     log.info("Running tests on NOT TRAVIS, enabling regression suite")
     # Note that these endpoints are assumed to be available
@@ -65,33 +86,17 @@ else:
     # So that after a parametrized test we leave the single tests against
     # The latest release without bulking the test suite ensuring they change
     # back each time.
-    nifi_test_endpoints = [
-        'http://' + test_host + ':10112/nifi-api',
-        'http://' + test_host + ':10120/nifi-api',
-        'http://' + test_host + ':10180/nifi-api',
-        'http://' + test_host + ':8080/nifi-api'  # Default to latest
-    ]
-    # These are paired into api & docker labels with a paired nifi instance
-    registry_test_endpoints = [
-        ('http://' + test_host + ':18010/nifi-registry-api',
-            'http://registry-010:18010',
-         'http://' + test_host + ':8080/nifi-api'
-         ),
-        ('http://' + test_host + ':18030/nifi-registry-api',
-            'http://registry-030:18030',
-         'http://' + test_host + ':8080/nifi-api'
-         )  # Default to latest version
-    ]
+    nifi_test_endpoints = []
+    registry_test_endpoints = []
+    if test_default:
+        nifi_test_endpoints += default_nifi_endpoints
+        registry_test_endpoints += default_registry_endpoints
+    if test_regression:
+        nifi_test_endpoints += regress_nifi_endpoints
+        registry_test_endpoints += regress_registry_endpoints
     if test_security:
-        nifi_test_endpoints.append(
-            'https://' + test_host + ':8443/nifi-api'
-        )
-        registry_test_endpoints.append(
-            ('https://' + test_host + ':18443/nifi-registry-api',
-             'http://secure-registry:18443',
-             'https://' + test_host + ':8443/nifi-api'
-             )
-        )
+        nifi_test_endpoints += secure_nifi_endpoints
+        registry_test_endpoints += secure_registry_endpoints
 
 
 # 'regress' generates tests against previous versions of NiFi or sub-projects.
@@ -125,15 +130,7 @@ def pytest_generate_tests(metafunc):
 def regress_nifi(request):
     log.info("NiFi Regression test setup called against endpoint %s",
              request.param)
-    nipyapi.utils.set_endpoint(request.param)
-    if 'https://' in request.param:
-        nipyapi.security.set_service_ssl_context(
-            service='nifi',
-            ca_file=path.join(certs_path, 'localhost-ts.pem'),
-            client_cert_file=path.join(certs_path, 'client-cert.pem'),
-            client_key_file=path.join(certs_path, 'client-key.pem'),
-            client_key_password='clientPassword'
-        )
+    nipyapi.utils.set_endpoint(request.param, True)
 
 
 def remove_test_registry_client():
@@ -160,21 +157,36 @@ def regress_flow_reg(request):
     log.info("NiFi-Registry regression test called against endpoints %s",
              request.param)
     # Set Registry connection
-    nipyapi.utils.set_endpoint(request.param[0])
+    nipyapi.utils.set_endpoint(request.param[0], True)
     # Set paired NiFi connection
-    nipyapi.utils.set_endpoint(request.param[2])
+    nipyapi.utils.set_endpoint(request.param[2], True)
     # because pytest won't let you eaily cascade parameters through fixtures
     # we set the docker URI in the config for retrieval later on
     nipyapi.config.registry_local_name = request.param[1]
-    if 'https://' in request.param:
-        for service in ['nifi', 'registry']:
-            nipyapi.security.set_service_ssl_context(
-                service=service,
-                ca_file=path.join(certs_path, 'localhost-ts.pem'),
-                client_cert_file=path.join(certs_path, 'client-cert.pem'),
-                client_key_file=path.join(certs_path, 'client-key.pem'),
-                client_key_password='clientPassword'
-            )
+
+
+def bootstrap_security_policies():
+    access_status = nipyapi.security.get_service_access_status('nifi')
+    rpg_id = nipyapi.canvas.get_root_pg_id()
+    nifi_user_identity = nipyapi.security.get_service_user(access_status.access_status.identity)
+    access_policies = [
+        ('write', 'process-groups', rpg_id),
+        ('read', 'process-groups', rpg_id),
+        ('read', 'system', None)
+    ]
+    for pol in access_policies:
+        ap = nipyapi.security.get_access_policy_for_resource(
+            action=pol[0],
+            resource=pol[1],
+            r_id=pol[2],
+            service='nifi',
+            auto_create=True
+        )
+        nipyapi.security.add_user_to_access_policy(
+            nifi_user_identity,
+            policy=ap,
+            service='nifi'
+        )
 
 
 # Tests that the Docker test environment is available before running test suite
@@ -182,7 +194,7 @@ def regress_flow_reg(request):
 def session_setup(request):
     log.info("Commencing test session setup")
     for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
-        nipyapi.utils.set_endpoint(url)
+        nipyapi.utils.set_endpoint(url, True)
         gui_url = url.replace('-api', '')
         if not nipyapi.utils.wait_to_complete(
             nipyapi.utils.is_endpoint_up,
@@ -204,6 +216,8 @@ def session_setup(request):
                                  "instead".format(url, api_host))
             log.info("Tested NiFi client connection, got response from %s",
                      url)
+            if 'https://' in url:
+                bootstrap_security_policies()
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
             if nipyapi.registry.FlowsApi().get_available_flow_fields():
@@ -257,7 +271,7 @@ def remove_test_buckets():
 
 def final_cleanup():
     for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
-        nipyapi.utils.set_endpoint(url)
+        nipyapi.utils.set_endpoint(url, True)
         if 'nifi-api' in url:
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
