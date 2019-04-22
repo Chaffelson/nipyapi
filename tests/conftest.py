@@ -13,8 +13,8 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 # Test Suite Controls
-test_default = False  # Default to True for release
-test_security = True  # Default to False for release
+test_default = True  # Default to True for release
+test_security = False  # Default to False for release
 test_regression = False  # Default to False for release
 
 # Test Configuration parameters
@@ -35,6 +35,9 @@ test_read_file_path = test_basename + '_fs_read_dir'
 test_write_file_name = test_basename + '_fs_write_file'
 test_ver_export_tmpdir = test_basename + '_ver_flow_dir'
 test_ver_export_filename = test_basename + "_ver_flow_export"
+
+test_user_name = test_basename + '_user'
+test_user_group_name = test_basename + '_user_group'
 
 test_resource_dir = 'resources'
 # Test template filenames should match the template PG name
@@ -130,7 +133,7 @@ def pytest_generate_tests(metafunc):
 def regress_nifi(request):
     log.info("NiFi Regression test setup called against endpoint %s",
              request.param)
-    nipyapi.utils.set_endpoint(request.param, True)
+    nipyapi.utils.set_endpoint(request.param, True, True)
 
 
 def remove_test_registry_client():
@@ -141,11 +144,19 @@ def remove_test_registry_client():
 
 
 def ensure_registry_client(uri):
-    client = nipyapi.versioning.create_registry_client(
-        name=test_registry_client_name + uri,
-        uri=uri,
-        description=uri
-    )
+    try:
+        client = nipyapi.versioning.create_registry_client(
+            name=test_registry_client_name + uri,
+            uri=uri,
+            description=uri
+        )
+    except ValueError as e:
+        if 'already exists with the name' in str(e):
+            client = nipyapi.versioning.get_registry_client(
+                identifier=test_registry_client_name + uri
+            )
+        else:
+            raise e
     if isinstance(client, nipyapi.nifi.RegistryClientEntity):
         return client
     else:
@@ -157,9 +168,9 @@ def regress_flow_reg(request):
     log.info("NiFi-Registry regression test called against endpoints %s",
              request.param)
     # Set Registry connection
-    nipyapi.utils.set_endpoint(request.param[0], True)
+    nipyapi.utils.set_endpoint(request.param[0], True, True)
     # Set paired NiFi connection
-    nipyapi.utils.set_endpoint(request.param[2], True)
+    nipyapi.utils.set_endpoint(request.param[2], True, True)
     # because pytest won't let you eaily cascade parameters through fixtures
     # we set the docker URI in the config for retrieval later on
     nipyapi.config.registry_local_name = request.param[1]
@@ -170,7 +181,8 @@ def regress_flow_reg(request):
 def session_setup(request):
     log.info("Commencing test session setup")
     for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
-        nipyapi.utils.set_endpoint(url, True)
+        nipyapi.utils.set_endpoint(url, ssl=True, login=True)
+        # ssl and login will only work if https is in the url, else will silently skip
         gui_url = url.replace('-api', '')
         if not nipyapi.utils.wait_to_complete(
             nipyapi.utils.is_endpoint_up,
@@ -249,11 +261,57 @@ def remove_test_buckets():
 
 def final_cleanup():
     for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
-        nipyapi.utils.set_endpoint(url, True)
+        nipyapi.utils.set_endpoint(url, True, True)
         if 'nifi-api' in url:
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
             cleanup_reg()
+
+
+def remove_test_service_users(service='both'):
+    nifi_test_users = [
+        x for x in
+        nipyapi.security.list_service_users('nifi')
+        if x.component.identity.startswith(test_basename)
+    ]
+    reg_test_users = [
+        x for x in
+        nipyapi.security.list_service_users('registry')
+        if x.identity.startswith(test_basename)
+    ]
+    if service != 'registry':
+        _ = [
+            nipyapi.security.remove_service_user(x, 'nifi')
+            for x in nifi_test_users
+        ]
+    if service != 'nifi':
+        _ = [
+            nipyapi.security.remove_service_user(x, 'registry')
+            for x in reg_test_users
+        ]
+
+
+def remove_test_service_user_groups(service='both'):
+    nifi_test_user_groups = [
+        x for x in
+        nipyapi.security.list_service_user_groups('nifi')
+        if x.component.identity.startswith(test_basename)
+    ]
+    reg_test_user_groups = [
+        x for x in
+        nipyapi.security.list_service_user_groups('registry')
+        if x.identity.startswith(test_basename)
+    ]
+    if service != 'registry':
+        _ = [
+            nipyapi.security.remove_service_user_group(x, 'nifi')
+            for x in nifi_test_user_groups
+        ]
+    if service != 'nifi':
+        _ = [
+            nipyapi.security.remove_service_user_group(x, 'registry')
+            for x in reg_test_user_groups
+        ]
 
 
 def cleanup_nifi():
@@ -268,6 +326,9 @@ def cleanup_nifi():
     remove_test_processors()
     remove_test_ports()
     remove_test_pgs()
+    if test_security and 'https' in nipyapi.nifi.configuration.host:
+        remove_test_service_user_groups('nifi')
+        remove_test_service_users('nifi')
 
 
 def remove_test_connections():
@@ -302,6 +363,9 @@ def cleanup_reg():
     remove_test_pgs()
     remove_test_buckets()
     remove_test_registry_client()
+    if test_security and 'https' in nipyapi.registry.configuration.host:
+        remove_test_service_user_groups('registry')
+        remove_test_service_users('registry')
 
 
 @pytest.fixture(name='fix_templates', scope='function')
@@ -398,7 +462,7 @@ def fixture_bucket(request):
 
         def __call__(self, name=test_bucket_name, suffix=''):
             return nipyapi.versioning.create_registry_bucket(
-                test_bucket_name + suffix
+                name + suffix
             )
     request.addfinalizer(remove_test_buckets)
     return Dummy()
@@ -515,3 +579,35 @@ def fixture_controller(request):
     request.addfinalizer(remove_test_controllers)
     return Dummy()
 
+
+@pytest.fixture(name='fix_users', scope='function')
+def fixture_users(request):
+    class Dummy:
+        def __init__(self):
+            pass
+
+        def __call__(self, name=test_user_name, suffix=''):
+            return (
+                nipyapi.security.create_service_user(name + suffix),
+                nipyapi.security.create_service_user(name + suffix, 'registry')
+            )
+    request.addfinalizer(remove_test_service_users)
+    return Dummy()
+
+
+@pytest.fixture(name='fix_user_groups', scope='function')
+def fixture_user_groups(request, fix_users):
+    class Dummy:
+        def __init__(self):
+            pass
+
+        def __call__(self, name=test_user_group_name, suffix=''):
+            n_user, r_user = fix_users()
+            return (
+                nipyapi.security.create_service_user_group(
+                    name + suffix, service='nifi', users=[n_user]),
+                nipyapi.security.create_service_user_group(
+                    name + suffix, service='registry', users=[r_user])
+            )
+    request.addfinalizer(remove_test_service_user_groups)
+    return Dummy()

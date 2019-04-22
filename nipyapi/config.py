@@ -78,7 +78,9 @@ registered_filters = {
                           'name': ['type'],
                           'tag': ['tags']},  # This is Processor Types
     'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'User': {'identity': ['identity'], 'id': ['identifier']},  # Registry User
+    'User': {'identity': ['identity'], 'id': ['identifier']},
+    'UserGroupEntity': {'identity': ['component', 'identity'], 'id': ['id']},
+    'UserGroup': {'identity': ['identity'], 'id': ['identifier']},
     'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
     'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
     'ControllerServiceEntity': {'is': ['id'], 'name': ['component', 'name']}
@@ -112,3 +114,15 @@ default_ssl_context = {
     'client_key_file': os.path.join(default_certs_path, 'client-key.pem'),
     'client_key_password': 'clientPassword'
 }
+# Identities and passwords to be used for service login if called for
+default_nifi_username = 'nobel'
+default_nifi_password = 'password'
+default_registry_username = 'nobel'
+default_registry_password = 'password'
+# Identity to be used in the Registry Client Proxy setup
+# If called for during policy setup, particularly bootstrap_policies
+default_proxy_user = 'CN=localhost, OU=nifi'
+
+
+# URL Encoding bypass characters will not be encoded during submission
+default_safe_chars = ''
