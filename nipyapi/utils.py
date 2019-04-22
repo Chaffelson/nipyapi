@@ -10,6 +10,7 @@ import logging
 import json
 import time
 import six
+from copy import copy
 from packaging import version
 import ruamel.yaml
 import docker
@@ -21,7 +22,7 @@ import nipyapi
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
            'start_docker_containers', 'DockerContainer',
-           'infer_object_label_from_class']
+           'infer_object_label_from_class', 'bypass_slash_encoding']
 
 log = logging.getLogger(__name__)
 
@@ -261,12 +262,17 @@ def is_endpoint_up(endpoint_url):
         log.info("Got status code %s from endpoint, returning False",
                  response.status_code)
         return False
-    except requests.ConnectionError:
-        log.info("Got ConnectionError, returning False")
-        return False
+    except requests.ConnectionError or requests.exceptions.SSLError as e:
+        log.info("Got Error of type %s with details %s", type(e), str(e))
+        if 'SSLError' in str(type(e)):
+            log.info("Got OpenSSL error, port is probably up but needs Cert")
+            return True
+        else:
+            log.info("Got ConnectionError, returning False")
+            return False
 
 
-def set_endpoint(endpoint_url):
+def set_endpoint(endpoint_url, ssl=False, login=False):
     """
     EXPERIMENTAL
 
@@ -274,8 +280,12 @@ def set_endpoint(endpoint_url):
     projects. Not tested extensively with secured instances.
 
     Args:
-        endpoint_url (str): The URL to set as the endpoint. Autodetects the
-        relevant service e.g. 'http://localhost:18080/nifi-registry-api'
+        endpoint_url (str): The URL to set as the endpoint. Auto-detects the
+          relevant service e.g. 'http://localhost:18080/nifi-registry-api'
+        ssl (bool): Whether to use the default security context in
+          nipyapi.config to authenticate if a secure URL is detected
+        login (bool): Whether to attempt login using default cred in config
+          requires ssl to be set
 
     Returns (bool): True for success, False for not
     """
@@ -288,17 +298,30 @@ def set_endpoint(endpoint_url):
         service = 'registry'
     else:
         raise ValueError("Endpoint not recognised")
-    log.info("Setting NiFi endpoint to %s", endpoint_url)
+    log.info("Setting %s endpoint to %s", service, endpoint_url)
     if configuration.api_client:
-        # Running controlled logout proecedure
+        # Running controlled logout procedure
         nipyapi.security.service_logout(service)
         # Resetting API client so it recreates from config.host
         configuration.api_client = None
     configuration.host = endpoint_url
+    if 'https://' in endpoint_url and ssl:
+        if not login:
+            nipyapi.security.set_service_ssl_context(
+                service=service,
+                **nipyapi.config.default_ssl_context
+            )
+        if login:
+            nipyapi.security.set_service_ssl_context(
+                service=service,
+                ca_file=nipyapi.config.default_ssl_context['ca_file']
+            )
+            nipyapi.security.service_login(service)
     return True
 
 
-class DockerContainer():
+# pylint: disable=R0913
+class DockerContainer:
     """
     Helper class for Docker container automation without using Ansible
     """
@@ -463,3 +486,26 @@ def infer_object_label_from_class(obj):
             return 'REMOTE_OUTPUT_PORT'
         raise ValueError("Remote Port not present as expected in RPG")
     raise AssertionError("Object Class not recognised for this function")
+
+
+def bypass_slash_encoding(service, bypass):
+    """
+    Instructs the API Client to bypass encoding the '/' character
+
+    Args:
+        service (str): 'nifi' or 'registry'
+        bypass (bool): True will not encode '/' in fields via API calls
+
+    Returns:
+        None
+
+    """
+    assert service in ['nifi', 'registry']
+    assert isinstance(bypass, bool)
+    current_config = getattr(nipyapi, service).configuration
+    if bypass:
+        if '/' not in current_config.safe_chars_for_path_param:
+            current_config.safe_chars_for_path_param += '/'
+    else:
+        current_config.safe_chars_for_path_param = \
+            copy(nipyapi.config.default_safe_chars)

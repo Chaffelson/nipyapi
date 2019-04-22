@@ -3,155 +3,256 @@
 
 """Tests for nipyapi security module."""
 
+from __future__ import absolute_import
 import pytest
 from tests import conftest
 import nipyapi
-from nipyapi import security
 
-def test_bootstrap_secured_nifi():
+# Tells pytest to skip this module of security testing is not enabled.
+pytestmark = pytest.mark.skipif(not conftest.test_security, reason='test_security disabled in Conftest')
+
+# Useful for manual testing
+if conftest.test_security:
+    test_host = nipyapi.config.default_host
+    nipyapi.utils.set_endpoint('https://' + test_host + ':18443/nifi-registry-api', True, True)
+    nipyapi.utils.set_endpoint('https://' + test_host + ':8443/nifi-api', True, True)
+
+
+def test_list_service_users():
+    # This test suite makes extensive use of this call in fixtures
     pass
-    # u = nipyapi.security.get_service_user('nobel')
-    # p = nipyapi.security.create_access_policy(
-    #     resource='process-groups',
-    #     action='write',
-    #     r_id=nipyapi.canvas.get_root_pg_id(),
-    #     service='nifi'
-    # )
-    # nipyapi.security.add_user_to_access_policy(
-    #     user=u,
-    #     policy=p,
-    #     service='nifi'
-    # )
 
 
-def test_get_access_policy_for_resource(regress_nifi):
-    # Test backwards compatibility issue on unsecured NiFi
-    # Returns an error stating the NiFi isn't set up for this, rather than
-    # the bad parameter error reported in issue #66
-    with pytest.raises(ValueError, match='This NiFi is not configured'):
-        _ = security.get_access_policy_for_resource('flow', 'read')
-    # Note that on a secured NiFi with no valid policy you will get the error:
-    # "No applicable policies could be found"
-
-
-def test_add_user_to_access_policy_nifi():
+def test_get_service_user():
+    # This test suite makes extensive use of this call in fixtures
     pass
+
+
+def test_create_service_user():
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_service_user(service='bob', identity='pie')
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_service_user(service='nifi', identity=dict())
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_service_user(service='nifi', identity='pie', strict=str())
+    r1 = nipyapi.security.create_service_user(conftest.test_basename)
+    assert isinstance(r1, nipyapi.nifi.UserEntity)
+    r2 = nipyapi.security.create_service_user(conftest.test_basename, 'registry')
+    assert isinstance(r2, nipyapi.registry.User)
+    with pytest.raises(ValueError):
+        nipyapi.security.create_service_user(conftest.test_basename, strict=True)
+    r3 = nipyapi.security.create_service_user(conftest.test_basename, strict=False)
+    assert isinstance(r3, nipyapi.nifi.UserEntity)
+    assert r3.component.identity == conftest.test_basename
+
+
+def test_remove_service_user(fix_users):
+    n_user, r_user = fix_users()
+    r1 = nipyapi.security.remove_service_user(n_user)
+    assert nipyapi.security.get_service_user(n_user.component.identity) is None
+    assert isinstance(r1, nipyapi.nifi.UserEntity)
+    r2 = nipyapi.security.remove_service_user(r_user, 'registry')
+    assert nipyapi.security.get_service_user(r_user.identity, service='registry') is None
+    assert isinstance(r2, nipyapi.registry.User)
+    with pytest.raises(ValueError):
+        nipyapi.security.remove_service_user(n_user)
+    with pytest.raises(ValueError):
+        nipyapi.security.remove_service_user(r_user, 'registry')
+    r3 = nipyapi.security.remove_service_user(n_user, strict=False)
+    assert r3 is None
+    r4 = nipyapi.security.remove_service_user(r_user, 'registry', strict=False)
+    assert r4 is None
+
+
+def test_create_service_user_group(fix_users, fix_user_groups):
+    # fix_user_groups provides the cleanup after testing
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_service_user_group(identity=dict())
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_service_user_group(
+            conftest.test_user_group_name,
+            service='bob'
+        )
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_service_user_group(
+            conftest.test_user_group_name,
+            service='nifi',
+            users=['bob']
+        )
+    n_user, r_user = fix_users()
+    r1 = nipyapi.security.create_service_user_group(
+        conftest.test_user_group_name,
+        service='nifi',
+        users=[n_user],
+        strict=True
+    )
+    assert isinstance(r1, nipyapi.nifi.UserGroupEntity)
+    r2 = nipyapi.security.create_service_user_group(
+        conftest.test_user_group_name,
+        service='registry',
+        users=[r_user],
+        strict=True
+    )
+    assert isinstance(r2, nipyapi.registry.UserGroup)
+    with pytest.raises(ValueError):
+        nipyapi.security.create_service_user_group(
+            conftest.test_user_group_name,
+            service='nifi',
+            users=[n_user],
+            strict=True
+        )
+    with pytest.raises(ValueError):
+        nipyapi.security.create_service_user_group(
+            conftest.test_user_group_name,
+            service='registry',
+            users=[r_user],
+            strict=True
+        )
+    r3 = nipyapi.security.create_service_user_group(
+        conftest.test_user_group_name,
+        service='nifi',
+        users=[n_user],
+        strict=False
+    )
+    assert isinstance(r3, nipyapi.nifi.UserGroupEntity)
+    r4 = nipyapi.security.create_service_user_group(
+        conftest.test_user_group_name,
+        service='registry',
+        users=[r_user],
+        strict=False
+    )
+    assert isinstance(r4, nipyapi.registry.UserGroup)
+
+
+def test_list_service_user_groups(fix_user_groups):
+    n_group, r_group = fix_user_groups()
+    with pytest.raises(AssertionError):
+        nipyapi.security.list_service_user_groups(service='bob')
+    r1 = nipyapi.security.list_service_user_groups()
+    assert isinstance(r1[0], nipyapi.nifi.UserGroupEntity)
+    assert n_group.id in [x.id for x in r1]
+    r2 = nipyapi.security.list_service_user_groups('registry')
+    assert isinstance(r2[0], nipyapi.registry.UserGroup)
+    assert r_group.identifier in [x.identifier for x in r2]
+
+
+def test_get_service_user_group(fix_user_groups):
+    n_group, r_group = fix_user_groups()
+    with pytest.raises(AssertionError):
+        nipyapi.security.get_service_user_group(identifier=dict())
+    with pytest.raises(AssertionError):
+        nipyapi.security.get_service_user_group(
+            identifier='bob',
+            identifier_type=dict())
+    with pytest.raises(AssertionError):
+        nipyapi.security.get_service_user_group(
+            identifier='bob',
+            identifier_type='id',
+            service='bob')
+    r1 = nipyapi.security.get_service_user_group(conftest.test_user_group_name)
+    assert isinstance(r1, nipyapi.nifi.UserGroupEntity)
+    assert r1.id == n_group.id
+    r2 = nipyapi.security.get_service_user_group(
+        identifier=conftest.test_user_group_name,
+        service='registry'
+    )
+    assert isinstance(r2, nipyapi.registry.UserGroup)
+    assert r2.identifier == r_group.identifier
+
+
+def test_remove_service_user_group(fix_user_groups):
+    n_group, r_group = fix_user_groups()
+    r1 = nipyapi.security.remove_service_user_group(n_group)
+    assert nipyapi.security.get_service_user_group(n_group.component.identity) is None
+    assert isinstance(r1, nipyapi.nifi.UserGroupEntity)
+    r2 = nipyapi.security.remove_service_user_group(r_group, 'registry')
+    assert nipyapi.security.get_service_user_group(r_group.identity, service='registry') is None
+    assert isinstance(r2, nipyapi.registry.UserGroup)
+    with pytest.raises(ValueError):
+        nipyapi.security.remove_service_user_group(n_group)
+    with pytest.raises(ValueError):
+        nipyapi.security.remove_service_user_group(r_group, 'registry')
+    r3 = nipyapi.security.remove_service_user_group(n_group, strict=False)
+    assert r3 is None
+    r4 = nipyapi.security.remove_service_user_group(r_group, 'registry', strict=False)
+    assert r4 is None
+
+
+def test_service_login():
+    with pytest.raises(AssertionError):
+        nipyapi.security.service_login(service='bob')
+    with pytest.raises(AssertionError):
+        nipyapi.security.service_login(username=dict())
+    with pytest.raises(AssertionError):
+        nipyapi.security.service_login(password=dict())
+    with pytest.raises(AssertionError):
+        nipyapi.security.service_login(bool_response='bob')
+    # This test suite makes extensive use of this call in fixtures
+
+
+def test_set_service_auth_token():
+    # This test suite makes extensive use of this call in fixtures
+    pass
+
+
+def test_service_logout():
+    # This test suite makes extensive use of this call in fixtures
+    pass
+
+
+def test_get_service_access_status():
+    # This test suite makes extensive use of this call in fixtures
+    pass
+
+
+def test_add_user_to_access_policy():
     # ~ user = nipyapi.security.create_service_user(
-        # ~ identity='testuser',
-        # ~ service='nifi'
+    # ~ identity='testuser',
+    # ~ service='nifi'
     # ~ )
 
     # ~ assert isinstance(user, nipyapi.nifi.UserEntity)
     # ~ policy = nipyapi.security.add_user_to_access_policy(
-        # ~ user=user,
-        # ~ service='nifi'
+    # ~ user=user,
+    # ~ service='nifi'
     # ~ )
     # ~ assert isinstance(policy, nipyapi.nifi.AccessPolicyEntity)
-
-
-def test_add_user_to_access_policy_registry():
     pass
-    # ~ user = nipyapi.security.create_service_user(
-        # ~ identity='testuser',
-        # ~ service='registry'
-    # ~ )
-    # ~ assert isinstance(user, nipyapi.registry.User)
-    # ~ policy = nipyapi.security.add_user_to_access_policy(
-        # ~ user=user,
-        # ~ service='registry'
-    # ~ )
-    # ~ assert isinstance(policy, nipyapi.registry.AccessPolicy)
 
 
-def test_add_user_group_to_access_policy_nifi():
-    pass
+def test_add_user_group_to_access_policy():
     # ~ user_group = nipyapi.security.create_service_user_group(
-        # ~ identity='testuser_group',
-        # ~ service='nifi'
+    # ~ identity='testuser_group',
+    # ~ service='nifi'
     # ~ )
     # ~ assert isinstance(user_group, nipyapi.nifi.UserGroupEntity)
     # ~ policy = nipyapi.security.add_user_group_to_access_policy(
-        # ~ user_group=user_group,
-        # ~ service='nifi'
+    # ~ user_group=user_group,
+    # ~ service='nifi'
     # ~ )
     # ~ assert isinstance(policy, nipyapi.nifi.AccessPolicyEntity)
-
-
-def test_add_user_group_to_access_policy_registry():
     pass
-    # ~ user_group = nipyapi.security.create_service_user_group(
-        # ~ identity='testuser_group',
-        # ~ service='registry'
-    # ~ )
-    # ~ assert isinstance(user_group, nipyapi.registry.UserGroup)
-    # ~ policy = nipyapi.security.add_user_group_to_access_policy(
-        # ~ user_group=user_group,
-        # ~ service='registry'
-    # ~ )
-    # ~ assert isinstance(policy, nipyapi.registry.AccessPolicy)
 
 
-def test_create_service_user_nifi():
+def test_update_access_policy():
     pass
-    # ~ nifi_user = security.create_service_user(
-        # ~ identity='testuser',
-        # ~ service='nifi'
-    # ~ )
-    # ~ assert isinstance(nifi_user, nipyapi.nifi.UserEntity)
 
 
-def test_create_service_user_registry():
+def test_get_access_policy_for_resource():
+    # This test suite makes extensive use of this call in fixtures
     pass
-    # ~ registry_user = security.create_service_user(
-        # ~ identity='testuser',
-        # ~ service='registry'
-    # ~ )
-    # ~ assert isinstance(registry_user, nipyapi.registry.User)
 
 
-def test_create_service_user_group_nifi():
+def test_create_access_policy():
+    # This test suite makes extensive use of this call in fixtures
     pass
-    # ~ nifi_user_group = security.create_service_user_group(
-        # ~ identity='testusergroup',
-        # ~ service='nifi'
-    # ~ )
-    # ~ assert isinstance(nifi_user_group, nipyapi.nifi.UserGroupEntity)
 
 
-def test_create_service_user_group_registry():
+def test_set_service_ssl_context():
+    # This test suite makes extensive use of this call in fixtures
     pass
-    # ~ registry_user_group = security.create_service_user_group(
-        # ~ identity='testusergroup',
-        # ~ service='registry'
-    # ~ )
-    # ~ assert isinstance(registry_user_group, nipyapi.registry.UserGroup)
 
 
-def test_create_service_user_group_with_users_nifi():
+def test_bootstrap_security_policies():
+    # This test suite makes extensive use of this call in fixtures
     pass
-    # ~ nifi_user = security.create_service_user_group(
-        # ~ identity='testuser',
-        # ~ service='nifi'
-    # ~ )
-    # ~ nifi_user_group = security.create_service_user_group(
-        # ~ identity='testusergroup',
-        # ~ service='nifi',
-        # ~ users=[nifi_user]
-    # ~ )
-    # ~ assert isinstance(nifi_user_group, nipyapi.nifi.UserGroupEntity)
-    # ~ assert nifi_user_group.users.len() == 1
-
-
-def test_create_service_user_group_with_users_registry():
-    pass
-    # ~ registry_user = security.create_service_user_group(
-        # ~ identity='testuser',
-        # ~ service='registry'
-    # ~ )
-    # ~ registry_user_group = security.create_service_user_group(
-        # ~ identity='testusergroup',
-        # ~ service='registry',
-        # ~ users=[registry_user]
-    # ~ )
-    # ~ assert isinstance(registry_user_group, nipyapi.registry.UserGroup)
-    # ~ assert nifi_user_group.users.len() == 1

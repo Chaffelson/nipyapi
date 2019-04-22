@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.WARNING)
 # convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
-default_host = 'localhost'
+default_host = 'localhost'  # Default to localhost for release
 #
 nifi_config.host = 'http://' + default_host + ':8080/nifi-api'
 # Set Default Host for NiFi-Registry
@@ -78,7 +78,9 @@ registered_filters = {
                           'name': ['type'],
                           'tag': ['tags']},  # This is Processor Types
     'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'User': {'identity': ['identity'], 'id': ['identifier']},  # Registry User
+    'User': {'identity': ['identity'], 'id': ['identifier']},
+    'UserGroupEntity': {'identity': ['component', 'identity'], 'id': ['id']},
+    'UserGroup': {'identity': ['identity'], 'id': ['identifier']},
     'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
     'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
     'ControllerServiceEntity': {'is': ['id'], 'name': ['component', 'name']}
@@ -100,3 +102,27 @@ registry_config.version_check = None
 # up subsequent requests. It is very stupid, so do not expect session handling,
 # or on-demand refresh if not handled by the function itself
 cache = {}
+
+
+# --- Security Context
+# This allows easy reference to a set of certificates for use in automation
+# By default it points to our demo certs, change it for your environment
+default_certs_path = os.path.join(PROJECT_ROOT_DIR, 'demo/keys')
+default_ssl_context = {
+    'ca_file': os.path.join(default_certs_path, 'localhost-ts.pem'),
+    'client_cert_file': os.path.join(default_certs_path, 'client-cert.pem'),
+    'client_key_file': os.path.join(default_certs_path, 'client-key.pem'),
+    'client_key_password': 'clientPassword'
+}
+# Identities and passwords to be used for service login if called for
+default_nifi_username = 'nobel'
+default_nifi_password = 'password'
+default_registry_username = 'nobel'
+default_registry_password = 'password'
+# Identity to be used in the Registry Client Proxy setup
+# If called for during policy setup, particularly bootstrap_policies
+default_proxy_user = 'CN=localhost, OU=nifi'
+
+
+# URL Encoding bypass characters will not be encoded during submission
+default_safe_chars = ''

@@ -38,7 +38,7 @@ secured_nifi_url = 'https://localhost:8443/nifi-api'
 
 host_certs_path = path.join(
     nipyapi.config.PROJECT_ROOT_DIR,
-    "demo/resources/keys"
+    "demo/keys"
 )
 
 tls_env_vars = {
@@ -74,7 +74,7 @@ d_containers = [
     DockerContainer(
         name='secure-nifi',
         image_name='apache/nifi',
-        image_tag='1.7.1',
+        image_tag='1.9.1',
         ports={'8443/tcp': 8443},
         env=ldap_env_vars,
         volumes={
@@ -112,7 +112,7 @@ def connect_nifi_to_registry():
     # Make NiFi server a trusted proxy in NiFi Registry
     proxy_access_policies = [
         ("write", "/proxy"),
-        ("read", "/buckets"),
+        ("read", "/buckets")
     ]
     for action, resource in proxy_access_policies:
         pol = nipyapi.security.get_access_policy_for_resource(
@@ -126,8 +126,6 @@ def connect_nifi_to_registry():
             policy=pol,
             service='registry'
         )
-    # add_registry_user_to_access_policies(nifi_proxy.identity,
-    #                                      proxy_access_policies)
 
     # Add current NiFi user (our NiFi admin) as user to NiFi Registry
     nifi_user_obj = nipyapi.security.get_service_user('nobel')
@@ -135,11 +133,6 @@ def connect_nifi_to_registry():
         identity=nifi_user_obj.component.identity,
         service='registry'
     )
-    # nifi_reg_user = nipyapi.registry.TenantsApi().create_user(
-    #     nipyapi.registry.User(
-    #         identity=nifi_user_obj.component.identity
-    #     )
-    # )
 
     # Make NiFi "nobel" user have access to all buckets in Registry
     all_buckets_access_policies = [

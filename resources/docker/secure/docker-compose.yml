@@ -1,0 +1,51 @@
+version: '2.1'
+services:
+  secure-nifi:
+    image: apache/nifi:1.9.1
+    container_name: secure-nifi
+    hostname: secure-nifi
+    ports:
+      - "8443:8443"
+    volumes:
+      - ../../../nipyapi/demo/keys:/opt/certs:ro  # Min docker version tested 18, does not work on old docker
+    environment:
+      - AUTH=ldap
+      - KEYSTORE_PATH=/opt/certs/localhost-ks.jks
+      - KEYSTORE_TYPE=JKS
+      - KEYSTORE_PASSWORD=localhostKeystorePassword
+      - TRUSTSTORE_PATH=/opt/certs/localhost-ts.jks
+      - TRUSTSTORE_PASSWORD=localhostTruststorePassword
+      - TRUSTSTORE_TYPE=JKS
+      - INITIAL_ADMIN_IDENTITY=nobel
+      - LDAP_AUTHENTICATION_STRATEGY=SIMPLE
+      - LDAP_MANAGER_DN=cn=read-only-admin,dc=example,dc=com
+      - LDAP_MANAGER_PASSWORD=password
+      - LDAP_USER_SEARCH_BASE=dc=example,dc=com
+      - LDAP_USER_SEARCH_FILTER=(uid={0})
+      - LDAP_IDENTITY_STRATEGY=USE_USERNAME
+      - LDAP_URL=ldap://ldap.forumsys.com:389
+  secure-registry:
+    image: apache/nifi-registry:0.3.0
+    container_name: secure-registry
+    hostname: secure-registry
+    ports:
+      - "18443:18443"
+    volumes:
+      - ../../../nipyapi/demo/keys:/opt/certs:ro
+    environment:
+      - NIFI_REGISTRY_WEB_HTTPS_PORT=18443
+      - AUTH=ldap
+      - KEYSTORE_PATH=/opt/certs/localhost-ks.jks
+      - KEYSTORE_TYPE=JKS
+      - KEYSTORE_PASSWORD=localhostKeystorePassword
+      - TRUSTSTORE_PATH=/opt/certs/localhost-ts.jks
+      - TRUSTSTORE_PASSWORD=localhostTruststorePassword
+      - TRUSTSTORE_TYPE=JKS
+      - INITIAL_ADMIN_IDENTITY=nobel
+      - LDAP_AUTHENTICATION_STRATEGY=SIMPLE
+      - LDAP_MANAGER_DN=cn=read-only-admin,dc=example,dc=com
+      - LDAP_MANAGER_PASSWORD=password
+      - LDAP_USER_SEARCH_BASE=dc=example,dc=com
+      - LDAP_USER_SEARCH_FILTER=(uid={0})
+      - LDAP_IDENTITY_STRATEGY=USE_USERNAME
+      - LDAP_URL=ldap://ldap.forumsys.com:389
