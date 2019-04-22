@@ -2,6 +2,23 @@
 History
 =======
 
+0.13.0 (2019-04-22)
+-------------------
+
+| Updated NiFi client for 1.9.1
+| Major rework of security.py to handle TLS and BasicAuth scenarios
+| Major rework for test_security.py to cover Issues and common use cases
+| Update 'set_endpoint' to easily handle TLS and BasicAuth scenarios if https is set
+
+* Add default BasicAuth params to config
+* Add default 'safe chars' to config for URL encoding bypass where '/' is in a string
+* Add 'bypass_slash_encoding' to utils.py to simplify conditionally allowing '/' in a string
+* Update Docker compose files for Secure and tox-full environments to latest NiFi versions
+* Add global test controls to top of conftest for default, security, and regression test modes
+* Add fixtures to conftest for user and usergroup testing in secure scenarios
+* Update fixtures to better handle mixed secure and insecure test environments
+
+
 0.12.0 (2018-12-20)
 -------------------
 
