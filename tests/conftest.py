@@ -245,12 +245,11 @@ def remove_test_pgs():
 
 
 def remove_test_processors():
-    target_list = [li for
-                   li in nipyapi.canvas.list_all_processors()
-                   if test_basename in li.status.name
-                   ]
-    for target in target_list:
-        nipyapi.canvas.delete_processor(target, force=True)
+    _ = [
+        nipyapi.canvas.delete_processor(x, force=True)
+        for x in nipyapi.canvas.list_all_processors()
+        if test_basename in x.status.name
+    ]
 
 
 def remove_test_buckets():

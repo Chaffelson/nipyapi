@@ -18,10 +18,10 @@ services:
     hostname: nifi-180
     ports:
       - "10180:8080"
-  nifi-191:
+  nifi:
     image: apache/nifi:1.9.1
-    container_name: nifi-191
-    hostname: nifi-191
+    container_name: nifi
+    hostname: nifi
     ports:
       - "8080:8080"
   registry-010:

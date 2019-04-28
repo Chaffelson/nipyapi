@@ -181,15 +181,22 @@ def list_all_process_groups(pg_id='root'):
                 yield sub
             yield child_pg
 
+    # Recurse children
     root_flow = recurse_flow(pg_id)
+    # Flatten list of children with extended detail
     out = list(flatten(root_flow))
-    if pg_id == 'root' or pg_id == get_root_pg_id():
-        # This duplicates the nipyapi_extended structure to the root case
-        pga_handle = nipyapi.nifi.ProcessGroupsApi()
-        root_entity = pga_handle.get_process_group('root')
-        root_entity.__setattr__('nipyapi_extended', root_flow)
-        out.append(root_entity)
+    # update parent with flattened list of extended child detail
+    root_entity = get_process_group(pg_id, 'id')
+    root_entity.__setattr__('nipyapi_extended', root_flow)
+    out.append(root_entity)
     return out
+    #
+    # if pg_id == 'root' or pg_id == get_root_pg_id():
+    #     # This duplicates the nipyapi_extended structure to the root case
+    #     root_entity = get_process_group('root', 'id')
+    #     root_entity.__setattr__('nipyapi_extended', root_flow)
+    #     out.append(root_entity)
+    # return out
 
 
 def list_invalid_processors(pg_id='root', summary=False):
@@ -285,13 +292,6 @@ def list_all_processors(pg_id='root'):
     out = []
     # list of child process groups
     pg_ids = [x.id for x in list_all_process_groups(pg_id)]
-    # if not root, include the parent pg in the target list
-    # root is a special case that is included if targeted by
-    # list_all_process_groups
-    if pg_id == 'root' or pg_id == get_root_pg_id():
-        pass
-    else:
-        pg_ids.append(pg_id)
     # process target list
     for this_pg_id in pg_ids:
         procs = nipyapi.nifi.ProcessGroupsApi().get_processors(this_pg_id)

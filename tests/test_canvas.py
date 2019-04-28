@@ -48,10 +48,16 @@ def test_recurse_flow(regress_nifi, fix_pg):
 
 def test_list_all_process_groups(regress_nifi, fix_pg):
     _ = fix_pg.generate()
-    r = canvas.list_all_process_groups()
-    assert isinstance(r, list)
-    for pg in r:
+    r1 = canvas.list_all_process_groups()
+    assert isinstance(r1, list)
+    for pg in r1:
         assert isinstance(pg, ProcessGroupEntity)
+    # Test for Issue #129 where nested process groups aren't being listed properly
+    pg_1 = fix_pg.generate()
+    pg_2 = fix_pg.generate(parent_pg=pg_1)
+    r2 = canvas.list_all_process_groups(pg_2.id)
+    assert len(r2) == 1
+    assert r2[0].id == pg_2.id
 
 
 def test_create_process_group(regress_nifi):
@@ -348,7 +354,7 @@ def test_delete_connection(regress_nifi, fix_proc):
     assert r1.status is None
 
 
-def test_list_all_connections(regress_nifi, fix_proc):
+def test_list_all_connections(regress_nifi, fix_pg, fix_proc):
     f_p1 = fix_proc.generate()
     f_p2 = fix_proc.generate()
     r1 = [x for x in canvas.list_all_connections()
@@ -370,9 +376,20 @@ def test_list_all_connections(regress_nifi, fix_proc):
     assert len(r2) == 2
     _ = canvas.delete_connection(c1)
     _ = canvas.delete_connection(c2)
-    r3 = [x for x in canvas.list_all_connections('root')
+    r4 = [x for x in canvas.list_all_connections('root')
           if conftest.test_basename in x.component.name]
-    assert not r3
+    assert not r4
+    # Test Issue #129 - nested PGs with descendents missing nested content
+    f_pg1 = fix_pg.generate()
+    f_pg2 = fix_pg.generate(parent_pg=f_pg1)
+    f_p3 = fix_proc.generate(parent_pg=f_pg2)
+    f_p4 = fix_proc.generate(parent_pg=f_pg2)
+    c2 = canvas.create_connection(
+        f_p3, f_p4, ['success'], conftest.test_basename)
+    r5 = [x for x in canvas.list_all_connections(f_pg2.id)
+          if conftest.test_basename in x.component.name]
+    assert len(r5) == 1
+    assert r5[0].id == c2.id
 
 
 def test_get_component_connections(regress_nifi, fix_proc):
