@@ -24,7 +24,7 @@ __all__ = [
     'schedule_controller', 'get_controller', 'list_all_controller_types',
     'list_all_by_kind', 'list_all_input_ports', 'list_all_output_ports',
     'list_all_funnels', 'list_all_remote_process_groups',
-    'get_remote_process_group'
+    'get_remote_process_group', 'update_process_group'
 ]
 
 log = logging.getLogger(__name__)
@@ -402,7 +402,7 @@ def delete_process_group(process_group, force=False, refresh=True):
         raise ValueError(e.body)
 
 
-def create_process_group(parent_pg, new_pg_name, location):
+def create_process_group(parent_pg, new_pg_name, location, comment=''):
     """
     Creates a new Process Group with the given name under the provided parent
     Process Group at the given Location
@@ -413,6 +413,7 @@ def create_process_group(parent_pg, new_pg_name, location):
         new_pg_name (str): The name of the new Process Group
         location (tuple[x, y]): the x,y coordinates to place the new Process
             Group under the parent
+        comment (str): Entry for the Comments field
 
     Returns:
          (ProcessGroupEntity): The new Process Group
@@ -431,7 +432,8 @@ def create_process_group(parent_pg, new_pg_name, location):
                     position=nipyapi.nifi.PositionDTO(
                         x=float(location[0]),
                         y=float(location[1])
-                    )
+                    ),
+                    comments=comment
                 )
             )
         )
@@ -703,6 +705,35 @@ def schedule_processor(processor, scheduled, refresh=True):
         if start_test:
             return result
         return False
+
+
+def update_process_group(pg, update):
+    """
+        Updates a given Process Group.
+
+        Args:
+            pg (ProcessGroupEntity): The Processor to target for update
+            update (dict): key:value pairs to update
+
+        Returns:
+            (ProcessGroupEntity): The updated ProcessorEntity
+
+        """
+    assert isinstance(pg, nipyapi.nifi.ProcessGroupEntity)
+    try:
+        return nipyapi.nifi.ProcessGroupsApi().update_process_group(
+            id=pg.id,
+            body=nipyapi.nifi.ProcessGroupEntity(
+                component=nipyapi.nifi.ProcessGroupDTO(
+                    id=pg.id,
+                    **update
+                ),
+                id=pg.id,
+                revision=pg.revision
+            )
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
 
 
 def update_processor(processor, update):

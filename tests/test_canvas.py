@@ -64,7 +64,8 @@ def test_create_process_group(regress_nifi):
     r = canvas.create_process_group(
         parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
         new_pg_name=conftest.test_pg_name,
-        location=(400.0, 400.0)
+        location=(400.0, 400.0),
+        comment='some comment'
     )
     assert r.component.name == conftest.test_pg_name
     assert r.position.x == r.position.y == 400
@@ -78,7 +79,6 @@ def test_create_process_group(regress_nifi):
     assert s.position.x == s.position.y == 200
     assert s.component.parent_group_id == canvas.get_process_group(conftest.test_pg_name, "name").id
     assert isinstance(s, nifi.ProcessGroupEntity)
-
 
     with pytest.raises(ApiException):
         parent_pg = canvas.get_process_group('NiFi Flow')
@@ -148,6 +148,18 @@ def test_schedule_process_group(fix_proc, fix_pg):
             f_pg.id,
             'BANANA'
         )
+
+
+def test_update_process_group(regress_nifi, fix_pg):
+    f_pg1 = fix_pg.generate()
+    r1 = canvas.update_process_group(
+        f_pg1,
+        {
+            'comments': 'test comment'
+        }
+    )
+    assert isinstance(r1, nifi.ProcessGroupEntity)
+    assert r1.component.comments == 'test comment'
 
 
 def test_list_all_processor_types(regress_nifi):
