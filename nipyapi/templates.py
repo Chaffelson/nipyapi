@@ -182,6 +182,11 @@ def upload_template(pg_id, template_file):
         (TemplateEntity): The new Template object
 
     """
+    try:
+        this_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
+        assert isinstance(this_pg, nipyapi.nifi.ProcessGroupEntity)
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
     log.info("Called upload_template against endpoint %s with args %s",
              nipyapi.config.nifi_config.api_client.host, locals())
     # Ensure we are receiving a valid file
@@ -198,8 +203,6 @@ def upload_template(pg_id, template_file):
         )
     t_name = tree.find('name').text
     try:
-        this_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
-        assert isinstance(this_pg, nipyapi.nifi.ProcessGroupEntity)
         # For some reason identical code that produces the duplicate error
         # in later versions is going through OK for NiFi-1.1.2
         # The error occurs as normal in Postman, so not sure what's going on
