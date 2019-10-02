@@ -749,11 +749,11 @@ def set_service_ssl_context(
     nipyapi.config.nifi_config.ssl_context = ssl_context
 
 
-def bootstrap_security_policies(service, user_identity=None):
+def bootstrap_security_policies(service, user_identity=None, group_identity=None):
     assert service in _valid_services
     if 'nifi' in service:
         rpg_id = nipyapi.canvas.get_root_pg_id()
-        if user_identity is None:
+        if user_identity is None and group_identity is None:
             nifi_user_identity = nipyapi.security.get_service_user(
                 nipyapi.config.default_nifi_username,
                 service='nifi'
@@ -775,14 +775,25 @@ def bootstrap_security_policies(service, user_identity=None):
                 service='nifi',
                 auto_create=True
             )
-            nipyapi.security.add_user_to_access_policy(
-                user=nifi_user_identity,
-                policy=ap,
-                service='nifi',
-                strict=False
-            )
+            if nifi_user_identity is None:
+                # I should not rely upon a try/catch there, but it's the simplest way (I just hope it won't break the server :-) )
+                try:
+                    nipyapi.security.add_user_group_to_access_policy(
+                        user_group=group_identity,
+                        policy=ap,
+                        service='nifi'
+                    )
+                except:
+                    pass
+            else:
+                nipyapi.security.add_user_to_access_policy(
+                    user=nifi_user_identity,
+                    policy=ap,
+                    service='nifi',
+                    strict=False
+                )
     else:
-        if user_identity is None:
+        if user_identity is None and group_identity is None:
             reg_user_identity = nipyapi.security.get_service_user(
                 nipyapi.config.default_registry_username,
                 service='registry'
@@ -801,12 +812,20 @@ def bootstrap_security_policies(service, user_identity=None):
                 service='registry',
                 auto_create=True
             )
-            nipyapi.security.add_user_to_access_policy(
-                user=reg_user_identity,
-                policy=pol,
-                service='registry',
-                strict=False
-            )
+            if reg_user_identity is None:
+                nipyapi.security.add_user_group_to_access_policy(
+                    user=group_identity,
+                    policy=pol,
+                    service='registry',
+                    strict=False
+                )
+            else:
+                nipyapi.security.add_user_to_access_policy(
+                    user=reg_user_identity,
+                    policy=pol,
+                    service='registry',
+                    strict=False
+                )
         # Setup Proxy Access
         nifi_proxy = nipyapi.security.create_service_user(
             identity=nipyapi.config.default_proxy_user,
