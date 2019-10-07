@@ -27,7 +27,10 @@ logging.basicConfig(level=logging.WARNING)
 # Set Default Host for NiFi
 default_host = 'localhost'  # Default to localhost for release
 #
-nifi_config.host = os.getenv('NIFI_API_ENDPOINT', 'http://' + default_host + ':8080/nifi-api')
+nifi_config.host = os.getenv(
+    'NIFI_API_ENDPOINT',
+    'http://' + default_host + ':8080/nifi-api'
+)
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'
 

@@ -299,7 +299,6 @@ def service_login(service='nifi', username=None, password=None,
     log_args = locals()
     log_args['password'] = 'REDACTED'
     log.info("Called service_login with args %s", log_args)
-    # TODO: Tidy up logging and automate sensitive value redaction
     assert service in _valid_services
     assert username is None or isinstance(username, six.string_types)
     assert password is None or isinstance(password, six.string_types)
@@ -425,16 +424,15 @@ def get_service_access_status(service='nifi', bool_response=False):
             return False
         log.debug("- bool_response is False, raising Exception")
         raise e
-    except nipyapi.nifi.api_client.ApiException as e:
-        if 'only supported when running over HTTPS' in e.body:
-            return False
-        raise e
     except getattr(nipyapi, service).rest.ApiException as e:
-        if 'Authentication object was not found' in e.body:
+        expected_errors = [
+            'Authentication object was not found',
+            'only supported when running over HTTPS'
+        ]
+        if any(x in e.body for x in expected_errors):
             if bool_response:
                 return False
-            else:
-                raise e
+            raise e
 
 
 def add_user_to_access_policy(user, policy, service='nifi', refresh=True,
@@ -493,9 +491,8 @@ def add_user_to_access_policy(user, policy, service='nifi', refresh=True,
             policy_tgt.component.users.append({'id': user_id})
 
         return nipyapi.security.update_access_policy(policy_tgt, service)
-    else:
-        if strict and user_id in policy_user_ids:
-            raise ValueError("Strict is True and User ID already in Policy")
+    if strict and user_id in policy_user_ids:
+        raise ValueError("Strict is True and User ID already in Policy")
 
 
 def add_user_group_to_access_policy(user_group, policy, service='nifi',
@@ -750,6 +747,16 @@ def set_service_ssl_context(
 
 
 def bootstrap_security_policies(service, user_identity=None):
+    """
+    Creates a default security context within NiFi or Nifi-Registry
+
+    Args:
+        service (str): 'nifi' or 'registry' to indicate which service
+        user_identity: a service user to establish in the security context
+
+    Returns:
+
+    """
     assert service in _valid_services
     if 'nifi' in service:
         rpg_id = nipyapi.canvas.get_root_pg_id()
