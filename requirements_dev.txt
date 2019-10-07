@@ -5,7 +5,7 @@ pip>=9.0.1
 # Project management and Deployment
 bumpversion>=0.5.3
 watchdog>=0.8.3
-twine>=1.9.1,<2.0.0
+twine==2.0.0
 virtualenvwrapper>=4.8
 
 # Testing
