@@ -8,7 +8,7 @@ six>=1.11.0
 packaging>=17.1
 
 # Templates management implementation
-lxml>=4.1.1
+lxml>=4.1.1,<4.4.0  # pyup: ignore
 
 # Security and Connectivity
 requests[security]>=2.18
