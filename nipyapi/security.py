@@ -663,6 +663,8 @@ def create_access_policy(resource, action, r_id=None, service='nifi'):
     assert service in _valid_services
     if resource[0] != '/':
         r = '/' + resource
+    else:
+        r = resource
     try:
         if service == 'nifi':
             return nipyapi.nifi.PoliciesApi().create_access_policy(
@@ -753,8 +755,10 @@ def bootstrap_security_policies(service, user_identity=None, group_identity=None
     Args:
         service (str): 'nifi' or 'registry' to indicate which service
         user_identity: a service user to establish in the security context
+        group_identity: a service group to establish in the security context
 
     Returns:
+        None
 
     """
     assert service in _valid_services
@@ -783,7 +787,8 @@ def bootstrap_security_policies(service, user_identity=None, group_identity=None
                 auto_create=True
             )
             if nifi_user_identity is None:
-                # I should not rely upon a try/catch there, but it's the simplest way (I just hope it won't break the server :-) )
+                # I should not rely upon a try/catch there
+                # but it's the simplest way (I just hope it won't break the server :-) )
                 try:
                     nipyapi.security.add_user_group_to_access_policy(
                         user_group=group_identity,
