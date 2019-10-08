@@ -305,10 +305,32 @@ def test_update_variable_registry(fix_pg):
         conftest.test_variable_registry_entry
     )
     assert isinstance(r1, nifi.VariableRegistryEntity)
+    with pytest.raises(ValueError, match='not the most up-to-date revision'):
+        _ = canvas.update_variable_registry(
+            test_pg,
+            conftest.test_variable_registry_entry,
+            refresh=False
+        )
+    r2 = canvas.update_variable_registry(
+        test_pg,
+        conftest.test_variable_registry_entry,
+        refresh=True
+    )
+    assert isinstance(r2, nifi.VariableRegistryEntity)
+    r3 = canvas.update_variable_registry(
+        test_pg,
+        [
+            ('key1', 'value1'),
+            ('key2', 'value2')
+        ],
+        refresh=True
+    )
+    assert isinstance(r3, nifi.VariableRegistryEntity)
     with pytest.raises(ValueError,
                        match='param update is not a valid list of'
                        ):
         _ = canvas.update_variable_registry(test_pg, '')
+
 
 
 def test_purge_connection():

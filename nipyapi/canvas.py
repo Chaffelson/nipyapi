@@ -793,14 +793,15 @@ def get_variable_registry(process_group, ancestors=True):
         raise ValueError(e.body)
 
 
-def update_variable_registry(process_group, update):
+def update_variable_registry(process_group, update, refresh=True):
     """
     Updates one or more key:value pairs in the variable registry
 
     Args:
         process_group (ProcessGroupEntity): The Process Group which has the
         Variable Registry to be updated
-        update (tuple[key, value]): The variables to write to the registry
+        update (list[tuple]): The variables to write to the registry
+        refresh (bool): Whether to refresh the object revision before updating
 
     Returns:
         (VariableRegistryEntity): The created or updated Variable Registry
@@ -826,6 +827,8 @@ def update_variable_registry(process_group, update):
         ) for li in update
     ]
     try:
+        if refresh:
+            process_group = get_process_group(process_group.id, 'id')
         return nipyapi.nifi.ProcessGroupsApi().update_variable_registry(
             id=process_group.id,
             body=nipyapi.nifi.VariableRegistryEntity(
