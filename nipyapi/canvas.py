@@ -1447,11 +1447,11 @@ def create_funnel(pg_id, position=None):
     """
 
     Args:
-        pg_id:
-        position:
+        pg_id (str): ID of the parent Process Group
+        position (tuple[int, int]): Position on canvas
 
     Returns:
-
+        (FunnelEntity) Created Funnel
     """
     position = position if position else (400, 400)
     assert isinstance(position, tuple)
@@ -1477,11 +1477,12 @@ def delete_funnel(funnel, refresh=True):
     """
 
     Args:
-        funnel:
-        refresh:
+        funnel (FunnelEntity): The Funnel to delete
+        refresh (bool): Whether to refresh the object state
+            before execution
 
     Returns:
-
+        (FunnelEntity) Deleted FunnelEntity reference
     """
     assert isinstance(funnel, nipyapi.nifi.FunnelEntity)
     try:
