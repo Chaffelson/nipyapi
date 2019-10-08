@@ -332,6 +332,7 @@ def test_update_variable_registry(fix_pg):
         _ = canvas.update_variable_registry(test_pg, '')
 
 
+
 def test_purge_connection():
     # TODO: Waiting for create_connection to generate fixture
     pass
