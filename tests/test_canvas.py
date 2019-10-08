@@ -332,7 +332,6 @@ def test_update_variable_registry(fix_pg):
         _ = canvas.update_variable_registry(test_pg, '')
 
 
-
 def test_purge_connection():
     # TODO: Waiting for create_connection to generate fixture
     pass
@@ -375,6 +374,22 @@ def test_create_connection_processors(regress_nifi, fix_proc):
     assert isinstance(r2, nifi.ConnectionEntity)
     with pytest.raises(AssertionError):
         _ = canvas.create_connection(f_p1, f_p2, ['not a connection'])
+
+
+def test_create_connection_funnels(regress_nifi, fix_proc, fix_funnel):
+    f_p1 = fix_proc.generate()
+    f_f1 = fix_funnel.generate()
+    r1 = canvas.create_connection(
+        source=f_p1,
+        target=f_f1
+    )
+    assert isinstance(r1, nifi.ConnectionEntity)
+    f_p2 = fix_proc.generate()
+    r2 = canvas.create_connection(
+        source=f_f1,
+        target=f_p2
+    )
+    assert isinstance(r2, nifi.ConnectionEntity)
 
 
 def test_delete_connection(regress_nifi, fix_proc):
@@ -605,3 +620,17 @@ def test_connect_output_ports(regress_nifi, fix_pg):
         name=conftest.test_basename
     )
     assert isinstance(r1, nifi.ConnectionEntity)
+
+
+def test_create_funnel(regress_nifi, fix_funnel):
+    f_f1 = fix_funnel.generate()
+    assert isinstance(f_f1, nifi.FunnelEntity)
+
+
+def test_delete_funnel(regress_nifi, fix_funnel):
+    f_f1 = fix_funnel.generate()
+    assert isinstance(f_f1, nifi.FunnelEntity)
+    r1 = canvas.delete_funnel(f_f1)
+    assert r1.revision is None
+    with pytest.raises(ValueError):
+        _ = canvas.delete_funnel(f_f1)

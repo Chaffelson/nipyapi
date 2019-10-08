@@ -14,7 +14,7 @@ __all__ = [
     "get_process_group", "list_all_process_groups", "delete_process_group",
     "schedule_process_group", "create_process_group", "list_all_processors",
     "list_all_processor_types", "get_processor_type", 'create_processor',
-    'delete_processor', 'get_processor', 'schedule_processor',
+    'delete_processor', 'get_processor', 'schedule_processor', 'get_funnel',
     'update_processor', 'get_variable_registry', 'update_variable_registry',
     'purge_connection', 'purge_process_group', 'schedule_components',
     'get_bulletins', 'get_bulletin_board', 'list_invalid_processors',
@@ -23,8 +23,8 @@ __all__ = [
     'list_all_controllers', 'delete_controller', 'update_controller',
     'schedule_controller', 'get_controller', 'list_all_controller_types',
     'list_all_by_kind', 'list_all_input_ports', 'list_all_output_ports',
-    'list_all_funnels', 'list_all_remote_process_groups',
-    'get_remote_process_group', 'update_process_group'
+    'list_all_funnels', 'list_all_remote_process_groups', 'delete_funnel',
+    'get_remote_process_group', 'update_process_group', 'create_funnel'
 ]
 
 log = logging.getLogger(__name__)
@@ -861,7 +861,7 @@ def create_connection(source, target, relationships=None, name=None):
     # determine source and destination strings by class supplied
     source_type = nipyapi.utils.infer_object_label_from_class(source)
     target_type = nipyapi.utils.infer_object_label_from_class(target)
-    if source_type not in ['OUTPUT_PORT', 'INPUT_PORT']:
+    if source_type not in ['OUTPUT_PORT', 'INPUT_PORT', 'FUNNEL']:
         source_rels = [x.name for x in source.component.relationships]
         if relationships:
             assert all(i in source_rels for i in relationships), \
@@ -1433,3 +1433,63 @@ def delete_port(port):
                 version=port.revision.version)
         except nipyapi.nifi.rest.ApiException as e:
             raise ValueError(e.body)
+
+
+def get_funnel(funnel_id):
+    """Gets a given Funnel by ID"""
+    try:
+        return nipyapi.nifi.FunnelApi().get_funnel(funnel_id)
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def create_funnel(pg_id, position=None):
+    """
+
+    Args:
+        pg_id:
+        position:
+
+    Returns:
+
+    """
+    position = position if position else (400, 400)
+    assert isinstance(position, tuple)
+    try:
+        return nipyapi.nifi.ProcessGroupsApi().create_funnel(
+            id=pg_id,
+            body=nipyapi.nifi.FunnelEntity(
+                position=nipyapi.nifi.PositionDTO(
+                    x=float(position[0]),
+                    y=float(position[1])
+                ),
+                revision=nipyapi.nifi.RevisionDTO(version=0),
+                component=nipyapi.nifi.FunnelDTO(
+                    parent_group_id=pg_id
+                )
+            )
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)
+
+
+def delete_funnel(funnel, refresh=True):
+    """
+
+    Args:
+        funnel:
+        refresh:
+
+    Returns:
+
+    """
+    assert isinstance(funnel, nipyapi.nifi.FunnelEntity)
+    try:
+        if refresh:
+            funnel = get_funnel(funnel.id)
+        return nipyapi.nifi.FunnelApi().remove_funnel(
+            id=funnel.id,
+            version=funnel.revision.version
+        )
+    except nipyapi.nifi.rest.ApiException as e:
+        raise ValueError(e.body)

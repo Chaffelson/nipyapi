@@ -252,6 +252,15 @@ def remove_test_processors():
     ]
 
 
+def remove_test_funnels():
+    # Note that Funnels cannot be given labels so scoping is by PG only
+    remove_test_connections()
+    _ = [
+        nipyapi.canvas.delete_funnel(x)
+        for x in nipyapi.canvas.list_all_funnels()
+    ]
+
+
 def remove_test_buckets():
     _ = [nipyapi.versioning.delete_registry_bucket(li) for li
          in nipyapi.versioning.list_registry_buckets() if
@@ -324,6 +333,7 @@ def cleanup_nifi():
     remove_test_controllers()
     remove_test_processors()
     remove_test_ports()
+    remove_test_funnels()
     remove_test_pgs()
     if test_security and 'https' in nipyapi.nifi.configuration.host:
         remove_test_service_user_groups('nifi')
@@ -331,10 +341,13 @@ def cleanup_nifi():
 
 
 def remove_test_connections():
+    # Funnels don't have a name, have to go by type
     _ = [
         nipyapi.canvas.delete_connection(x, True)
         for x in nipyapi.canvas.list_all_connections()
-        if test_basename in x.component.name
+        if x.destination_type == 'FUNNEL'
+        or x.source_type == 'FUNNEL'
+        or test_basename in x.component.name
     ]
 
 
@@ -450,6 +463,25 @@ def fixture_proc(request):
             )
 
     request.addfinalizer(remove_test_processors)
+    return Dummy()
+
+
+@pytest.fixture(name='fix_funnel')
+def fixture_funnel(request):
+    class Dummy:
+        def __init__(self):
+            pass
+
+        def generate(self, parent_pg=None, position=(400, 400)):
+            if parent_pg is None:
+                target_pg = nipyapi.canvas.get_process_group(
+                    nipyapi.canvas.get_root_pg_id(), 'id'
+                )
+            else:
+                target_pg = parent_pg
+            return nipyapi.canvas.create_funnel(target_pg.id, position)
+
+    request.addfinalizer(remove_test_funnels)
     return Dummy()
 
 
