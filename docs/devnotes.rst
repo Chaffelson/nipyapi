@@ -119,7 +119,7 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     python setup.py build_sphinx
     # check docs in build/sphinx/html/index.html
     python setup.py sdist bdist_wheel
-    mktmpenv
+    mktmpenv  # or pyenv virtualenvwrapper mktmpenv if using pyenv
     pip install path/to/nipyapi-0.3.1-py2.py3-none-any.whl  # for example
     # Run appropriate tests, such as usage tests etc.
     deactivate
