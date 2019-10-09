@@ -835,8 +835,9 @@ def bootstrap_security_policies(service, user_identity=None,
             strict=False
         )
         proxy_access_policies = [
+            ("read", "/proxy"),
             ("write", "/proxy"),
-            ("read", "/buckets")
+            ("delete", "/proxy"),
         ]
         for action, resource in proxy_access_policies:
             pol = nipyapi.security.get_access_policy_for_resource(
