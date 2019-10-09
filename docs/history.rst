@@ -2,6 +2,14 @@
 History
 =======
 
+0.13.3 (2019-10-09)
+-------------------
+
+| Updated NiFi-Registry client for 0.5.0
+| Several Issues closed as bugfixes
+| Many canvas operations sped-up through refactoring of recursive code to fast iterators
+
+
 0.13.0 (2019-04-22)
 -------------------
 

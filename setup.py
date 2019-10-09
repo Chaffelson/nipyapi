@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('docs/history.rst') as history_file:
     history = history_file.read()
 
-proj_version = '0.13.2'
+proj_version = '0.13.3'
 
 with open('requirements.txt') as reqs_file:
     requirements = reqs_file.read().splitlines()
@@ -47,7 +47,7 @@ setup(
         "Programming Language :: Python :: 2",
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
         'Topic :: Software Development :: User Interfaces'
     ],
     test_suite='tests'
