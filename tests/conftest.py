@@ -232,16 +232,11 @@ def remove_test_templates():
 
 
 def remove_test_pgs():
-    test_pgs = nipyapi.canvas.get_process_group(test_basename)
-    if test_pgs:
-        if not isinstance(test_pgs, list):
-            test_pgs = [test_pgs]
-        for this_test_pg in test_pgs:
-            nipyapi.canvas.delete_process_group(
-                this_test_pg,
-                force=True,
-                refresh=True
-            )
+    _ = [
+        nipyapi.canvas.delete_process_group(x, True, True)
+        for x in nipyapi.nifi.ProcessGroupsApi().get_process_groups('root').process_groups
+        if test_basename in x.status.name
+    ]
 
 
 def remove_test_processors():
@@ -329,12 +324,12 @@ def cleanup_nifi():
     log.info("Bulk cleanup called on host %s",
              nipyapi.config.nifi_config.host)
     remove_test_templates()
+    remove_test_pgs()
     remove_test_connections()
     remove_test_controllers()
     remove_test_processors()
     remove_test_ports()
     remove_test_funnels()
-    remove_test_pgs()
     if test_security and 'https' in nipyapi.nifi.configuration.host:
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')

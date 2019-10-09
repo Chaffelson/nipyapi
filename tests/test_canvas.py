@@ -4,6 +4,7 @@
 """Tests for `nipyapi` package."""
 
 import pytest
+import time
 from tests import conftest
 from nipyapi import canvas, nifi
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
@@ -634,3 +635,19 @@ def test_delete_funnel(regress_nifi, fix_funnel):
     assert r1.revision is None
     with pytest.raises(ValueError):
         _ = canvas.delete_funnel(f_f1)
+
+
+@pytest.mark.skip
+def test_client_recursion_limit(fix_pg, fix_funnel, target=450):
+    # https://github.com/Chaffelson/nipyapi/issues/147
+    parent_pg = canvas.get_process_group('root')
+    for i in range(0, target):
+        parent_pg = fix_pg.generate(parent_pg, str(i))
+        fix_funnel.generate(parent_pg)
+    start = time.time()
+    r1 = canvas.list_all_process_groups(canvas.get_root_pg_id())
+    end = time.time()
+    assert len(r1) == target + 1  # +1 to allow for root PG
+    print("Len {0}  Set {1}".format(len(r1), len(set([x.id for x in r1]))))
+    print("Elapsed r1: {0}".format((end - start)))
+

@@ -45,6 +45,8 @@ def recurse_flow(pg_id='root'):
     Returns information about a Process Group and all its Child Flows.
     Recurses the child flows by appending each process group with a
     'nipyapi_extended' parameter which contains the child process groups, etc.
+    Note: This previously used actual recursion which broke on large NiFi
+        environments, we now use a task/list update approach
 
     Args:
         pg_id (str): The Process Group UUID
@@ -54,20 +56,17 @@ def recurse_flow(pg_id='root'):
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
 
-    def _walk_flow(node):
-        """This recursively extends the ProcessGroupEntity to contain the
-        ProcessGroupFlowEntity of each of it's child process groups.
-        So you can have the entire canvas in a single object.
-        """
-        if isinstance(node, nipyapi.nifi.ProcessGroupFlowEntity):
-            for pg in node.process_group_flow.flow.process_groups:
-                pg.__setattr__(
-                    'nipyapi_extended',
-                    recurse_flow(pg.id)
-                )
-            return node
-
-    return _walk_flow(get_flow(pg_id))
+    out = get_flow(pg_id)
+    tasks = [(x.id, x) for x in out.process_group_flow.flow.process_groups]
+    while tasks:
+        this_pg_id, this_parent_obj = tasks.pop()
+        this_flow = get_flow(this_pg_id)
+        this_parent_obj.__setattr__(
+            'nipyapi_extended',
+            this_flow
+        )
+        tasks += [(x.id, x) for x in this_flow.process_group_flow.flow.process_groups]
+    return out
 
 
 def get_flow(pg_id='root'):
@@ -367,31 +366,11 @@ def delete_process_group(process_group, force=False, refresh=True):
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
     assert isinstance(force, bool)
     assert isinstance(refresh, bool)
+    pg_id = process_group.id
     if refresh or force:
-        target = nipyapi.nifi.ProcessGroupsApi().get_process_group(
-            process_group.id
-        )
+        target = nipyapi.nifi.ProcessGroupsApi().get_process_group(pg_id)
     else:
         target = process_group
-    if force:
-        # Stop, drop, and roll.
-        purge_process_group(target, stop=True)
-        # Remove inbound connections
-        for con in list_all_connections():
-            pg_id = process_group.id
-            if pg_id in [con.destination_group_id, con.source_group_id]:
-                delete_connection(con)
-        # Stop all Controller Services
-        for x in list_all_controllers(process_group.id):
-            delete_controller(x, True)
-        # Remove templates
-        for template in nipyapi.templates.list_all_templates(native=False):
-            if target.id == template.template.group_id:
-                nipyapi.templates.delete_template(template.id)
-        # have to refresh revision after changes
-        target = nipyapi.nifi.ProcessGroupsApi().get_process_group(
-            process_group.id
-        )
     try:
         return nipyapi.nifi.ProcessGroupsApi().remove_process_group(
             id=target.id,
@@ -399,6 +378,27 @@ def delete_process_group(process_group, force=False, refresh=True):
             client_id=target.revision.client_id
         )
     except nipyapi.nifi.rest.ApiException as e:
+        if force:
+            # Stop, drop, and roll.
+            purge_process_group(target, stop=True)
+            # Remove inbound connections
+            for con in list_all_connections():
+                if pg_id in [con.destination_group_id, con.source_group_id]:
+                    delete_connection(con)
+            # Stop all Controller Services
+            for x in list_all_controllers(process_group.id):
+                delete_controller(x, True)
+            # Remove templates
+            for template in nipyapi.templates.list_all_templates(native=False):
+                if target.id == template.template.group_id:
+                    nipyapi.templates.delete_template(template.id)
+            # have to refresh revision after changes
+            target = nipyapi.nifi.ProcessGroupsApi().get_process_group(pg_id)
+            return nipyapi.nifi.ProcessGroupsApi().remove_process_group(
+                id=target.id,
+                version=target.revision.version,
+                client_id=target.revision.client_id
+            )
         raise ValueError(e.body)
 
 
