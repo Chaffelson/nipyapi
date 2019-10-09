@@ -60,8 +60,8 @@ processor_0 = nipyapi.canvas.create_processor(
     location=(400.0, 400.0),
     name=_proc0,
     config=nipyapi.nifi.ProcessorConfigDTO(
-        scheduling_period='1s',
-        auto_terminated_relationships=['success']
+        scheduling_period='5s',
+        auto_terminated_relationships=['failure']
     )
 )
 

@@ -21,7 +21,8 @@ def get_system_diagnostics():
 
     Returns (json):
     """
-    return nipyapi.nifi.SystemDiagnosticsApi().get_system_diagnostics()
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.SystemDiagnosticsApi().get_system_diagnostics()
 
 
 def get_cluster():
@@ -31,7 +32,8 @@ def get_cluster():
 
     Returns (json):
     """
-    return nipyapi.nifi.ControllerApi().get_cluster()
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ControllerApi().get_cluster()
 
 
 def get_node(nid):
@@ -44,7 +46,8 @@ def get_node(nid):
     Returns:
 
     """
-    return nipyapi.nifi.ControllerApi().get_node(nid)
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ControllerApi().get_node(nid)
 
 
 def get_nifi_version_info():

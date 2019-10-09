@@ -169,7 +169,7 @@ def test_revert_flow_ver(regress_flow_reg, fix_ver_flow):
     r1 = versioning.revert_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionedFlowUpdateRequestEntity)
     # TODO: Add Tests for flows with data loss on reversion
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         _ = versioning.revert_flow_ver('NotAPg')
 
 
@@ -221,7 +221,7 @@ def test_list_flow_versions():
 def test_get_version_info(regress_flow_reg, fix_ver_flow):
     r1 = versioning.get_version_info(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionControlInformationEntity)
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         _ = versioning.get_version_info('NotAPG')
 
 

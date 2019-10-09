@@ -9,9 +9,12 @@ from __future__ import absolute_import, unicode_literals
 import logging
 import json
 import time
-import six
 from copy import copy
+from functools import reduce
+import operator
+from contextlib import contextmanager
 from packaging import version
+import six
 import ruamel.yaml
 import docker
 from docker.errors import ImageNotFound
@@ -156,8 +159,6 @@ def filter_obj(obj, value, key, greedy=True):
     Returns: None if 0 matches, list if > 1, single Object entity if ==1
 
     """
-    from functools import reduce
-    import operator
     # Using the object class name as a lookup as they are unique within the
     # NiFi DTOs
     if isinstance(obj, list) and not obj:
@@ -195,8 +196,8 @@ def filter_obj(obj, value, key, greedy=True):
         ]
     else:
         out = [
-            i for i in obj if value ==
-            reduce(operator.getitem, key_lookup, i.to_dict())
+            i for i in obj if
+            value == reduce(operator.getitem, key_lookup, i.to_dict())
         ]
     # Manage our return contract
     if not out:
@@ -262,14 +263,13 @@ def is_endpoint_up(endpoint_url):
         log.info("Got status code %s from endpoint, returning False",
                  response.status_code)
         return False
-    except requests.ConnectionError or requests.exceptions.SSLError as e:
+    except (requests.ConnectionError, requests.exceptions.SSLError) as e:
         log.info("Got Error of type %s with details %s", type(e), str(e))
         if 'SSLError' in str(type(e)):
             log.info("Got OpenSSL error, port is probably up but needs Cert")
             return True
-        else:
-            log.info("Got ConnectionError, returning False")
-            return False
+        log.info("Got ConnectionError, returning False")
+        return False
 
 
 def set_endpoint(endpoint_url, ssl=False, login=False):
@@ -509,3 +509,12 @@ def bypass_slash_encoding(service, bypass):
     else:
         current_config.safe_chars_for_path_param = \
             copy(nipyapi.config.default_safe_chars)
+
+
+@contextmanager
+def rest_exceptions():
+    try:
+        yield
+    except (nipyapi.nifi.rest.ApiException,
+            nipyapi.registry.rest.ApiException) as e:
+        raise ValueError(e.body)

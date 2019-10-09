@@ -4,11 +4,11 @@
 """Tests for `nipyapi` package."""
 
 import pytest
+import time
 from tests import conftest
 from nipyapi import canvas, nifi
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
 from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
-from nipyapi.nifi.rest import ApiException
 
 
 def test_get_root_pg_id():
@@ -80,7 +80,7 @@ def test_create_process_group(regress_nifi):
     assert s.component.parent_group_id == canvas.get_process_group(conftest.test_pg_name, "name").id
     assert isinstance(s, nifi.ProcessGroupEntity)
 
-    with pytest.raises(ApiException):
+    with pytest.raises(ValueError):
         parent_pg = canvas.get_process_group('NiFi Flow')
         parent_pg.id = 'invalid'
         _ = canvas.create_process_group(
@@ -305,6 +305,27 @@ def test_update_variable_registry(fix_pg):
         conftest.test_variable_registry_entry
     )
     assert isinstance(r1, nifi.VariableRegistryEntity)
+    with pytest.raises(ValueError, match='not the most up-to-date revision'):
+        _ = canvas.update_variable_registry(
+            test_pg,
+            conftest.test_variable_registry_entry,
+            refresh=False
+        )
+    r2 = canvas.update_variable_registry(
+        test_pg,
+        conftest.test_variable_registry_entry,
+        refresh=True
+    )
+    assert isinstance(r2, nifi.VariableRegistryEntity)
+    r3 = canvas.update_variable_registry(
+        test_pg,
+        [
+            ('key1', 'value1'),
+            ('key2', 'value2')
+        ],
+        refresh=True
+    )
+    assert isinstance(r3, nifi.VariableRegistryEntity)
     with pytest.raises(ValueError,
                        match='param update is not a valid list of'
                        ):
@@ -353,6 +374,22 @@ def test_create_connection_processors(regress_nifi, fix_proc):
     assert isinstance(r2, nifi.ConnectionEntity)
     with pytest.raises(AssertionError):
         _ = canvas.create_connection(f_p1, f_p2, ['not a connection'])
+
+
+def test_create_connection_funnels(regress_nifi, fix_proc, fix_funnel):
+    f_p1 = fix_proc.generate()
+    f_f1 = fix_funnel.generate()
+    r1 = canvas.create_connection(
+        source=f_p1,
+        target=f_f1
+    )
+    assert isinstance(r1, nifi.ConnectionEntity)
+    f_p2 = fix_proc.generate()
+    r2 = canvas.create_connection(
+        source=f_f1,
+        target=f_p2
+    )
+    assert isinstance(r2, nifi.ConnectionEntity)
 
 
 def test_delete_connection(regress_nifi, fix_proc):
@@ -583,3 +620,33 @@ def test_connect_output_ports(regress_nifi, fix_pg):
         name=conftest.test_basename
     )
     assert isinstance(r1, nifi.ConnectionEntity)
+
+
+def test_create_funnel(regress_nifi, fix_funnel):
+    f_f1 = fix_funnel.generate()
+    assert isinstance(f_f1, nifi.FunnelEntity)
+
+
+def test_delete_funnel(regress_nifi, fix_funnel):
+    f_f1 = fix_funnel.generate()
+    assert isinstance(f_f1, nifi.FunnelEntity)
+    r1 = canvas.delete_funnel(f_f1)
+    assert r1.revision is None
+    with pytest.raises(ValueError):
+        _ = canvas.delete_funnel(f_f1)
+
+
+@pytest.mark.skip
+def test_client_recursion_limit(fix_pg, fix_funnel, target=450):
+    # https://github.com/Chaffelson/nipyapi/issues/147
+    parent_pg = canvas.get_process_group('root')
+    for i in range(0, target):
+        parent_pg = fix_pg.generate(parent_pg, str(i))
+        fix_funnel.generate(parent_pg)
+    start = time.time()
+    r1 = canvas.list_all_process_groups(canvas.get_root_pg_id())
+    end = time.time()
+    assert len(r1) == target + 1  # +1 to allow for root PG
+    print("Len {0}  Set {1}".format(len(r1), len(set([x.id for x in r1]))))
+    print("Elapsed r1: {0}".format((end - start)))
+
