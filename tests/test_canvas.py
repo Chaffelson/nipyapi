@@ -9,7 +9,6 @@ from tests import conftest
 from nipyapi import canvas, nifi
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
 from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
-from nipyapi.nifi.rest import ApiException
 
 
 def test_get_root_pg_id():
@@ -81,7 +80,7 @@ def test_create_process_group(regress_nifi):
     assert s.component.parent_group_id == canvas.get_process_group(conftest.test_pg_name, "name").id
     assert isinstance(s, nifi.ProcessGroupEntity)
 
-    with pytest.raises(ApiException):
+    with pytest.raises(ValueError):
         parent_pg = canvas.get_process_group('NiFi Flow')
         parent_pg.id = 'invalid'
         _ = canvas.create_process_group(

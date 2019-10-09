@@ -65,7 +65,8 @@ def recurse_flow(pg_id='root'):
             'nipyapi_extended',
             this_flow
         )
-        tasks += [(x.id, x) for x in this_flow.process_group_flow.flow.process_groups]
+        tasks += [(x.id, x) for x in
+                  this_flow.process_group_flow.flow.process_groups]
     return out
 
 
@@ -84,10 +85,8 @@ def get_flow(pg_id='root'):
          (ProcessGroupFlowEntity): The Process Group object
     """
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.FlowApi().get_flow(pg_id)
-    except nipyapi.nifi.rest.ApiException as err:
-        raise ValueError(err.body)
 
 
 def get_process_group_status(pg_id='root', detail='names'):
@@ -133,7 +132,7 @@ def get_process_group(identifier, identifier_type='name'):
     """
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
-    try:
+    with nipyapi.utils.rest_exceptions():
         if identifier_type == 'id':
             # assuming unique fetch of pg id
             # implementing separately to avoid recursing entire canvas
@@ -141,8 +140,6 @@ def get_process_group(identifier, identifier_type='name'):
         else:
             obj = list_all_process_groups()
             out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     return out
 
 
@@ -422,7 +419,7 @@ def create_process_group(parent_pg, new_pg_name, location, comment=''):
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert isinstance(new_pg_name, six.string_types)
     assert isinstance(location, tuple)
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
             id=parent_pg.id,
             body=nipyapi.nifi.ProcessGroupEntity(
@@ -437,8 +434,6 @@ def create_process_group(parent_pg, new_pg_name, location, comment=''):
                 )
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise e
 
 
 def list_all_processor_types():
@@ -450,10 +445,8 @@ def list_all_processor_types():
          processors list
 
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.FlowApi().get_processor_types()
-    except nipyapi.nifi.rest.ApiException as e:
-        raise e
 
 
 def get_processor_type(identifier, identifier_type='name'):
@@ -469,10 +462,8 @@ def get_processor_type(identifier, identifier_type='name'):
         list(Objects) for multiple matches
 
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         obj = list_all_processor_types().processor_types
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     if obj:
         return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     return obj
@@ -503,7 +494,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
         target_config = nipyapi.nifi.ProcessorConfigDTO()
     else:
         target_config = config
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_processor(
             id=parent_pg.id,
             body=nipyapi.nifi.ProcessorEntity(
@@ -519,8 +510,6 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
                 )
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def get_processor(identifier, identifier_type='name'):
@@ -539,14 +528,12 @@ def get_processor(identifier, identifier_type='name'):
     """
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
-    try:
+    with nipyapi.utils.rest_exceptions():
         if identifier_type == 'id':
             out = nipyapi.nifi.ProcessorsApi().get_processor(identifier)
         else:
             obj = list_all_processors()
             out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     return out
 
 
@@ -585,13 +572,11 @@ def delete_processor(processor, refresh=True, force=False):
         # refresh state before trying delete
         target = get_processor(processor.id, 'id')
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessorsApi().delete_processor(
             id=target.id,
             version=target.revision.version
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def schedule_components(pg_id, scheduled, components=None):
@@ -625,13 +610,11 @@ def schedule_components(pg_id, scheduled, components=None):
     )
     if components:
         body.components = {i.id: i.revision for i in components}
-    try:
+    with nipyapi.utils.rest_exceptions():
         result = nipyapi.nifi.FlowApi().schedule_components(
             id=pg_id,
             body=body
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     if result.state == target_state:
         return True
     return False
@@ -720,7 +703,7 @@ def update_process_group(pg, update):
 
         """
     assert isinstance(pg, nipyapi.nifi.ProcessGroupEntity)
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().update_process_group(
             id=pg.id,
             body=nipyapi.nifi.ProcessGroupEntity(
@@ -732,8 +715,6 @@ def update_process_group(pg, update):
                 revision=pg.revision
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def update_processor(processor, update):
@@ -755,7 +736,7 @@ def update_processor(processor, update):
         raise ValueError(
             "update param is not an instance of nifi.ProcessorConfigDTO"
         )
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessorsApi().update_processor(
             id=processor.id,
             body=nipyapi.nifi.ProcessorEntity(
@@ -766,8 +747,6 @@ def update_processor(processor, update):
                 revision=processor.revision,
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def get_variable_registry(process_group, ancestors=True):
@@ -784,13 +763,11 @@ def get_variable_registry(process_group, ancestors=True):
         (VariableRegistryEntity): The Variable Registry
 
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().get_variable_registry(
             process_group.id,
             include_ancestor_groups=ancestors
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def update_variable_registry(process_group, update, refresh=True):
@@ -826,7 +803,7 @@ def update_variable_registry(process_group, update, refresh=True):
             )
         ) for li in update
     ]
-    try:
+    with nipyapi.utils.rest_exceptions():
         if refresh:
             process_group = get_process_group(process_group.id, 'id')
         return nipyapi.nifi.ProcessGroupsApi().update_variable_registry(
@@ -839,8 +816,6 @@ def update_variable_registry(process_group, update, refresh=True):
                 )
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def create_connection(source, target, relationships=None, name=None):
@@ -881,7 +856,7 @@ def create_connection(source, target, relationships=None, name=None):
             parent_id = parent_pg.component.parent_group_id
     else:
         parent_id = source.component.parent_group_id
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_connection(
             id=parent_id,
             body=nipyapi.nifi.ConnectionEntity(
@@ -906,8 +881,6 @@ def create_connection(source, target, relationships=None, name=None):
                 )
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def delete_connection(connection, purge=False):
@@ -925,13 +898,11 @@ def delete_connection(connection, purge=False):
     assert isinstance(connection, nipyapi.nifi.ConnectionEntity)
     if purge:
         purge_connection(connection.id)
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ConnectionsApi().delete_connection(
             id=connection.id,
             version=connection.revision.version
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def list_all_connections(pg_id='root', descendants=True):
@@ -1000,10 +971,8 @@ def purge_connection(con_id):
             )
         return True
 
-    try:
+    with nipyapi.utils.rest_exceptions():
         drop_req = nipyapi.nifi.FlowfileQueuesApi().create_drop_request(con_id)
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     assert isinstance(drop_req, nipyapi.nifi.DropRequestEntity)
     return nipyapi.utils.wait_to_complete(_autumn_leaves, con_id, drop_req)
 
@@ -1046,10 +1015,8 @@ def get_bulletins():
         (ControllerBulletinsEntity): The native datatype containing a list
     of bulletins
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.FlowApi().get_bulletins()
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def get_bulletin_board():
@@ -1059,10 +1026,8 @@ def get_bulletin_board():
     Returns:
         (BulletinBoardEntity): The native datatype BulletinBoard object
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.FlowApi().get_bulletin_board()
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def create_controller(parent_pg, controller, name=None):
@@ -1083,7 +1048,7 @@ def create_controller(parent_pg, controller, name=None):
     assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert name is None or isinstance(name, six.string_types)
-    try:
+    with nipyapi.utils.rest_exceptions():
         out = nipyapi.nifi.ProcessGroupsApi().create_controller_service(
             id=parent_pg.id,
             body=nipyapi.nifi.ControllerServiceEntity(
@@ -1101,8 +1066,6 @@ def create_controller(parent_pg, controller, name=None):
                     name=name
                 )
             )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     return out
 
 
@@ -1163,13 +1126,11 @@ def delete_controller(controller, force=False):
     if force:
         # Stop and refresh
         controller = schedule_controller(controller, False, True)
-    try:
+    with nipyapi.utils.rest_exceptions():
         result = handle.remove_controller_service(
             id=controller.id,
             version=controller.revision.version
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     del_test = nipyapi.utils.wait_to_complete(
         _del_cont,
         controller.id,
@@ -1397,7 +1358,7 @@ def create_port(pg_id, port_type, name, state, position=None):
     assert isinstance(position, tuple)
     handle = nipyapi.nifi.ProcessGroupsApi()
     port_generator = getattr(handle, 'create_' + port_type.lower())
-    try:
+    with nipyapi.utils.rest_exceptions():
         return port_generator(
             id=pg_id,
             body=nipyapi.nifi.PortEntity(
@@ -1412,35 +1373,27 @@ def create_port(pg_id, port_type, name, state, position=None):
                 )
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def delete_port(port):
     """Deletes a given port from the canvas if possible"""
     assert isinstance(port, nipyapi.nifi.PortEntity)
     if 'INPUT' in port.port_type:
-        try:
+        with nipyapi.utils.rest_exceptions():
             return nipyapi.nifi.InputPortsApi().remove_input_port(
                 id=port.id,
                 version=port.revision.version)
-        except nipyapi.nifi.rest.ApiException as e:
-            raise ValueError(e.body)
     if 'OUTPUT' in port.port_type:
-        try:
+        with nipyapi.utils.rest_exceptions():
             return nipyapi.nifi.OutputPortsApi().remove_output_port(
                 id=port.id,
                 version=port.revision.version)
-        except nipyapi.nifi.rest.ApiException as e:
-            raise ValueError(e.body)
 
 
 def get_funnel(funnel_id):
     """Gets a given Funnel by ID"""
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.FunnelApi().get_funnel(funnel_id)
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def create_funnel(pg_id, position=None):
@@ -1455,7 +1408,7 @@ def create_funnel(pg_id, position=None):
     """
     position = position if position else (400, 400)
     assert isinstance(position, tuple)
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_funnel(
             id=pg_id,
             body=nipyapi.nifi.FunnelEntity(
@@ -1469,8 +1422,6 @@ def create_funnel(pg_id, position=None):
                 )
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def delete_funnel(funnel, refresh=True):
@@ -1485,12 +1436,10 @@ def delete_funnel(funnel, refresh=True):
         (FunnelEntity) Deleted FunnelEntity reference
     """
     assert isinstance(funnel, nipyapi.nifi.FunnelEntity)
-    try:
+    with nipyapi.utils.rest_exceptions():
         if refresh:
             funnel = get_funnel(funnel.id)
         return nipyapi.nifi.FunnelApi().remove_funnel(
             id=funnel.id,
             version=funnel.revision.version
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)

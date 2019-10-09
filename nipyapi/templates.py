@@ -62,10 +62,8 @@ def get_template(identifier, identifier_type='name'):
     """
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
-    try:
+    with nipyapi.utils.rest_exceptions():
         obj = nipyapi.templates.list_all_templates(native=False)
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     if obj:
         return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     return obj
@@ -88,7 +86,7 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
             template
 
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().instantiate_template(
             id=pg_id,
             body=nipyapi.nifi.InstantiateTemplateRequestEntity(
@@ -97,8 +95,6 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
                 template_id=template_id
             )
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def create_pg_snippet(pg_id):
@@ -122,9 +118,10 @@ def create_pg_snippet(pg_id):
                 target_pg.component.parent_group_id
         }
     )
-    snippet_resp = nipyapi.nifi.SnippetsApi().create_snippet(
-        new_snippet_req
-    )
+    with nipyapi.utils.rest_exceptions():
+        snippet_resp = nipyapi.nifi.SnippetsApi().create_snippet(
+            new_snippet_req
+        )
     return snippet_resp
 
 
@@ -142,15 +139,16 @@ def create_template(pg_id, name, desc=''):
 
     """
     snippet = create_pg_snippet(pg_id)
-    new_template = nipyapi.nifi.CreateTemplateRequestEntity(
-        name=str(name),
-        description=str(desc),
-        snippet_id=snippet.snippet.id
-    )
-    return nipyapi.nifi.ProcessGroupsApi().create_template(
-        id=snippet.snippet.parent_group_id,
-        body=new_template
-    )
+    with nipyapi.utils.rest_exceptions():
+        new_template = nipyapi.nifi.CreateTemplateRequestEntity(
+            name=str(name),
+            description=str(desc),
+            snippet_id=snippet.snippet.id
+        )
+        return nipyapi.nifi.ProcessGroupsApi().create_template(
+            id=snippet.snippet.parent_group_id,
+            body=new_template
+        )
 
 
 def delete_template(t_id):
@@ -163,10 +161,8 @@ def delete_template(t_id):
     Returns:
         The updated Template object
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.TemplatesApi().remove_template(id=t_id)
-    except nipyapi.nifi.rest.ApiException as err:
-        raise ValueError(err.body)
 
 
 def upload_template(pg_id, template_file):
@@ -182,11 +178,9 @@ def upload_template(pg_id, template_file):
         (TemplateEntity): The new Template object
 
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         this_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
         assert isinstance(this_pg, nipyapi.nifi.ProcessGroupEntity)
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     log.info("Called upload_template against endpoint %s with args %s",
              nipyapi.config.nifi_config.api_client.host, locals())
     # Ensure we are receiving a valid file
@@ -202,7 +196,7 @@ def upload_template(pg_id, template_file):
             .format(root_tag)
         )
     t_name = tree.find('name').text
-    try:
+    with nipyapi.utils.rest_exceptions():
         # For some reason identical code that produces the duplicate error
         # in later versions is going through OK for NiFi-1.1.2
         # The error occurs as normal in Postman, so not sure what's going on
@@ -217,8 +211,6 @@ def upload_template(pg_id, template_file):
         return nipyapi.templates.get_template(
             tree.find('name').text
         )
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
 
 
 def export_template(t_id, output='string', file_path=None):
@@ -261,10 +253,8 @@ def list_all_templates(native=True):
     Returns:
         (list[TemplateEntity]): A list of TemplateEntity's
     """
-    try:
+    with nipyapi.utils.rest_exceptions():
         templates = nipyapi.nifi.FlowApi().get_templates()
-    except nipyapi.nifi.rest.ApiException as e:
-        raise ValueError(e.body)
     if not native:
         if templates:
             return templates.templates
