@@ -75,7 +75,7 @@ NiFi Swagger Client
 NiFi Registry Swagger Client
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. build relevant version of NiFi Registry from source
+1. Fetch the definition from a running Registry instance at URI: /nifi-registry-api/swagger/swagger.json
 2. use swagger-codegen to generate the Python client::
 
 
