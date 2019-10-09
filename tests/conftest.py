@@ -14,8 +14,8 @@ log = logging.getLogger(__name__)
 
 # Test Suite Controls
 test_default = True  # Default to True for release
-test_security = True  # Default to False for release
-test_regression = True  # Default to False for release
+test_security = False  # Default to False for release
+test_regression = False  # Default to False for release
 
 # Test Configuration parameters
 test_host = nipyapi.config.default_host
