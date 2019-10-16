@@ -24,7 +24,9 @@ __all__ = [
     'schedule_controller', 'get_controller', 'list_all_controller_types',
     'list_all_by_kind', 'list_all_input_ports', 'list_all_output_ports',
     'list_all_funnels', 'list_all_remote_process_groups', 'delete_funnel',
-    'get_remote_process_group', 'update_process_group', 'create_funnel'
+    'get_remote_process_group', 'update_process_group', 'create_funnel',
+    'create_remote_process_group', 'delete_remote_process_group',
+    'set_remote_process_group_transmission'
 ]
 
 log = logging.getLogger(__name__)
@@ -1334,6 +1336,88 @@ def get_remote_process_group(rpg_id, summary=False):
             'output_ports': rpg.component.contents.output_ports
         }
     return out
+
+
+def create_remote_process_group(target_uris, transport='RAW', pg_id='root', position=None):
+    """
+    Creates a new Remote Process Group with given parameters
+
+    Args:
+        target_uris (str): Comma separated list of target URIs
+        transport (str): optional, RAW or HTTP
+        pg_id (str): optional, UUID of parent Process Group for remote process group
+        position (tuple): optional, tuple of location ints
+
+    Returns:
+        (RemoteProcessGroupEntity)
+    """
+    assert isinstance(target_uris, str)
+    assert transport in ['RAW', 'HTTP']
+    assert isinstance(pg_id, str)
+    pg_id = pg_id if not 'root' else get_root_pg_id()
+    position = position if position else (400, 400)
+    assert isinstance(position, tuple)
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ProcessGroupsApi().create_remote_process_group(
+            id=pg_id,
+            body=nipyapi.nifi.RemoteProcessGroupEntity(
+                component=nipyapi.nifi.RemoteProcessGroupDTO(
+                    position=nipyapi.nifi.PositionDTO(
+                        x=float(position[0]),
+                        y=float(position[1])
+                    ),
+                    target_uris=target_uris,
+                    transport_protocol=transport
+                ),
+                revision=nipyapi.nifi.RevisionDTO(version=0),
+            )
+        )
+
+
+def delete_remote_process_group(rpg, refresh=True):
+    """
+    Deletes a given remote process group
+
+    Args:
+        rpg (RemoteProcessGroupEntity): Remote Process Group to remove
+        refresh (bool): Whether to refresh the object before action
+
+    Returns:
+        (RemoteProcessGroupEntity)
+    """
+    assert isinstance(rpg, nipyapi.nifi.RemoteProcessGroupEntity)
+    if refresh:
+        rpg = get_remote_process_group(rpg.id)
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.RemoteProcessGroupsApi().remove_remote_process_group(
+            id=rpg.id,
+            version=rpg.revision.version
+        )
+
+
+def set_remote_process_group_transmission(rpg, enable=True, refresh=True):
+    """
+
+    Args:
+        rpg (RemoteProcessGroupEntity): The ID of the remote process group to modify
+        enable (bool): True to enable, False to disable
+        refresh (bool): Whether to refresh the object before action
+
+    Returns:
+
+    """
+    assert isinstance(rpg, nipyapi.nifi.RemoteProcessGroupEntity)
+    assert isinstance(enable, bool)
+    if refresh:
+        rpg = get_remote_process_group(rpg.id)
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.RemoteProcessGroupsApi().update_remote_process_group_run_status(
+            id=rpg.id,
+            body=nipyapi.nifi.RemotePortRunStatusEntity(
+                state='TRANSMITTING' if enable else 'STOPPED',
+                revision=rpg.revision
+            )
+        )
 
 
 def create_port(pg_id, port_type, name, state, position=None):
