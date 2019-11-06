@@ -332,6 +332,7 @@ def test_update_variable_registry(fix_pg):
         _ = canvas.update_variable_registry(test_pg, '')
 
 
+
 def test_purge_connection():
     # TODO: Waiting for create_connection to generate fixture
     pass
@@ -650,3 +651,17 @@ def test_client_recursion_limit(fix_pg, fix_funnel, target=450):
     print("Len {0}  Set {1}".format(len(r1), len(set([x.id for x in r1]))))
     print("Elapsed r1: {0}".format((end - start)))
 
+
+def test_remote_process_group_controls():
+    rpg1 = canvas.create_remote_process_group('http://localhost:8080/nifi')
+    assert isinstance(rpg1, nifi.RemoteProcessGroupEntity)
+    assert rpg1.revision is not None
+    r1 = canvas.set_remote_process_group_transmission(rpg1)
+    assert isinstance(r1, nifi.RemoteProcessGroupEntity)
+    assert r1.status.transmission_status == 'Transmitting'
+    r2 = canvas.set_remote_process_group_transmission(rpg1, False)
+    assert isinstance(r2, nifi.RemoteProcessGroupEntity)
+    assert r2.status.transmission_status == 'NotTransmitting'
+    r3 = canvas.delete_remote_process_group(rpg1)
+    assert isinstance(r3, nifi.RemoteProcessGroupEntity)
+    assert r3.revision is None

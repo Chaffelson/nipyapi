@@ -330,9 +330,17 @@ def cleanup_nifi():
     remove_test_processors()
     remove_test_ports()
     remove_test_funnels()
+    remove_test_rpgs()
     if test_security and 'https' in nipyapi.nifi.configuration.host:
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')
+
+
+def remove_test_rpgs():
+    _ = [
+        nipyapi.canvas.delete_remote_process_group(x)
+        for x in nipyapi.canvas.list_all_remote_process_groups()
+    ]
 
 
 def remove_test_connections():

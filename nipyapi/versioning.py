@@ -248,7 +248,8 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
                     description=desc,
                     flow_name=flow_name,
                     flow_id=flow_id,
-                    registry_id=registry_client.id
+                    registry_id=registry_client.id,
+                    action='COMMIT'
                 )
             )
         )

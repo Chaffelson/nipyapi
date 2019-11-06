@@ -8,7 +8,7 @@
 
 # Params
 echo Exporting Params
-export wv_client_name=${wv_client_name:-registry}
+export wv_client_name=${wv_client_name:-nifi}
 
 export wv_codegen_filename=${wv_codegen_filename:-swagger-codegen-cli-2.3.1.jar}
 export wv_tmp_dir=${wv_tmp_dir:-${HOME}/Projects/tmp}

@@ -13,6 +13,7 @@ from .funnel_api import FunnelApi
 from .input_ports_api import InputPortsApi
 from .labels_api import LabelsApi
 from .output_ports_api import OutputPortsApi
+from .parameter_contexts_api import ParameterContextsApi
 from .policies_api import PoliciesApi
 from .process_groups_api import ProcessGroupsApi
 from .processors_api import ProcessorsApi
