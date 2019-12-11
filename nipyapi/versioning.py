@@ -210,7 +210,8 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
 
 
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
-                  flow_id=None, comment='', desc='', refresh=True, force=False):
+                  flow_id=None, comment='', desc='', refresh=True,
+                  force=False):
     """
     Adds a Process Group into NiFi Registry Version Control, or saves a new
     version to an existing VersionedFlow with a new version
@@ -252,7 +253,7 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
             )
         )
     else:
-        # Prior versions of NiFi do not have the 'action' property and will fail
+        # no 'action' property in versions < 1.10
         body = nipyapi.nifi.StartVersionControlRequestEntity(
             process_group_revision=target_pg.revision,
             versioned_flow={

@@ -513,6 +513,7 @@ def bypass_slash_encoding(service, bypass):
 
 @contextmanager
 def rest_exceptions():
+    """Simple exception wrapper for Rest Exceptions"""
     try:
         yield
     except (nipyapi.nifi.rest.ApiException,
