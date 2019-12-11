@@ -55,6 +55,7 @@ regress_nifi_endpoints = [
             'http://' + test_host + ':10112/nifi-api',
             'http://' + test_host + ':10120/nifi-api',
             'http://' + test_host + ':10180/nifi-api',
+            'http://' + test_host + ':10192/nifi-api',
         ]
 secure_nifi_endpoints = ['https://' + test_host + ':8443/nifi-api']
 default_registry_endpoints = [
@@ -67,6 +68,10 @@ regress_registry_endpoints = [
             ('http://' + test_host + ':18010/nifi-registry-api',
                 'http://registry-010:18010',
              'http://' + test_host + ':8080/nifi-api'
+             ),
+            ('http://' + test_host + ':18030/nifi-registry-api',
+                'http://registry-030:18030',
+             'http://' + test_host + ':10192/nifi-api'
              )
         ]
 secure_registry_endpoints = [
