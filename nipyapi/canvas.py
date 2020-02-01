@@ -1338,14 +1338,16 @@ def get_remote_process_group(rpg_id, summary=False):
     return out
 
 
-def create_remote_process_group(target_uris, transport='RAW', pg_id='root', position=None):
+def create_remote_process_group(target_uris, transport='RAW', pg_id='root',
+                                position=None):
     """
     Creates a new Remote Process Group with given parameters
 
     Args:
         target_uris (str): Comma separated list of target URIs
         transport (str): optional, RAW or HTTP
-        pg_id (str): optional, UUID of parent Process Group for remote process group
+        pg_id (str): optional, UUID of parent Process Group for remote
+          process group
         position (tuple): optional, tuple of location ints
 
     Returns:
@@ -1388,8 +1390,9 @@ def delete_remote_process_group(rpg, refresh=True):
     assert isinstance(rpg, nipyapi.nifi.RemoteProcessGroupEntity)
     if refresh:
         rpg = get_remote_process_group(rpg.id)
+    handle = nipyapi.nifi.RemoteProcessGroupsApi()
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.RemoteProcessGroupsApi().remove_remote_process_group(
+        return handle.remove_remote_process_group(
             id=rpg.id,
             version=rpg.revision.version
         )
@@ -1397,9 +1400,11 @@ def delete_remote_process_group(rpg, refresh=True):
 
 def set_remote_process_group_transmission(rpg, enable=True, refresh=True):
     """
+    Enable or Disable Transmission for an RPG
 
     Args:
-        rpg (RemoteProcessGroupEntity): The ID of the remote process group to modify
+        rpg (RemoteProcessGroupEntity): The ID of the remote process group
+          to modify
         enable (bool): True to enable, False to disable
         refresh (bool): Whether to refresh the object before action
 
@@ -1410,8 +1415,9 @@ def set_remote_process_group_transmission(rpg, enable=True, refresh=True):
     assert isinstance(enable, bool)
     if refresh:
         rpg = get_remote_process_group(rpg.id)
+    handle = nipyapi.nifi.RemoteProcessGroupsApi()
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.RemoteProcessGroupsApi().update_remote_process_group_run_status(
+        return handle.update_remote_process_group_run_status(
             id=rpg.id,
             body=nipyapi.nifi.RemotePortRunStatusEntity(
                 state='TRANSMITTING' if enable else 'STOPPED',
@@ -1482,6 +1488,7 @@ def get_funnel(funnel_id):
 
 def create_funnel(pg_id, position=None):
     """
+    Creates a Funnel Object
 
     Args:
         pg_id (str): ID of the parent Process Group
@@ -1510,6 +1517,7 @@ def create_funnel(pg_id, position=None):
 
 def delete_funnel(funnel, refresh=True):
     """
+    Deletes a Funnel Object
 
     Args:
         funnel (FunnelEntity): The Funnel to delete
