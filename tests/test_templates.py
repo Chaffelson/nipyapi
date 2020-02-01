@@ -77,6 +77,32 @@ def test_get_templates_by_name(regress_nifi, fix_templates):
     assert isinstance(r, nipyapi.nifi.TemplateEntity)
 
 
+def test_get_template(regress_nifi, fix_templates):
+    pg = fix_templates.pg.generate()
+    _ = nipyapi.templates.upload_template(
+        pg.id,
+        fix_templates.b_file
+    )
+    r0 = nipyapi.templates.get_template(fix_templates.b_name)
+    assert r0 is not None
+    assert isinstance(r0, nipyapi.nifi.TemplateEntity)
+    r1 = nipyapi.templates.get_template(fix_templates.b_name, greedy=True)
+    assert r1 is not None
+    assert isinstance(r1, nipyapi.nifi.TemplateEntity)
+    _ = nipyapi.templates.upload_template(
+        pg.id,
+        fix_templates.g_file
+    )
+    r3 = nipyapi.templates.get_template(fix_templates.b_name)
+    assert r3 is not None
+    assert isinstance(r3, nipyapi.nifi.TemplateEntity)
+    r4 = nipyapi.templates.get_template(fix_templates.b_name, greedy=True)
+    assert r4 is not None
+    assert isinstance(r4, list)
+    assert isinstance(r4[0], nipyapi.nifi.TemplateEntity)
+    assert len(r4) == 2
+
+
 def test_deploy_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
     t1 = nipyapi.templates.upload_template(

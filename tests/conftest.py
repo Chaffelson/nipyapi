@@ -43,6 +43,7 @@ test_resource_dir = 'resources'
 # Test template filenames should match the template PG name
 test_templates = {
     'basic': test_basename + 'Template_00',
+    'greedy': test_basename + 'Template_00_greedy',
     'complex': test_basename + 'Template_01'
 }
 
@@ -55,6 +56,7 @@ regress_nifi_endpoints = [
             'http://' + test_host + ':10112/nifi-api',
             'http://' + test_host + ':10120/nifi-api',
             'http://' + test_host + ':10180/nifi-api',
+            'http://' + test_host + ':10192/nifi-api',
         ]
 secure_nifi_endpoints = ['https://' + test_host + ':8443/nifi-api']
 default_registry_endpoints = [
@@ -67,6 +69,10 @@ regress_registry_endpoints = [
             ('http://' + test_host + ':18010/nifi-registry-api',
                 'http://registry-010:18010',
              'http://' + test_host + ':8080/nifi-api'
+             ),
+            ('http://' + test_host + ':18030/nifi-registry-api',
+                'http://registry-030:18030',
+             'http://' + test_host + ':10192/nifi-api'
              )
         ]
 secure_registry_endpoints = [
@@ -389,7 +395,7 @@ def fixture_templates(request, fix_pg):
              nipyapi.config.nifi_config.host)
     FixtureTemplates = namedtuple(
         'FixtureTemplates', ('pg', 'b_file', 'b_name', 'c_file',
-                             'c_name')
+                             'c_name', 'g_name', 'g_file')
     )
     f_pg = fix_pg
     f_b_file = path.join(
@@ -404,11 +410,19 @@ def fixture_templates(request, fix_pg):
             test_templates['complex'] + '.xml'
         )
     f_c_name = 'nipyapi_testTemplate_01'
+    f_g_file = path.join(
+        path.dirname(__file__),
+        test_resource_dir,
+        test_templates['greedy'] + '.xml'
+    )
+    f_g_name = 'nipyapi_testTemplate_00_greedy'
     out = FixtureTemplates(
         pg=f_pg,
         b_name=f_b_name,
         c_name=f_c_name,
+        g_name=f_g_name,
         b_file=f_b_file,
+        g_file=f_g_file,
         c_file=f_c_file
     )
     request.addfinalizer(remove_test_templates)

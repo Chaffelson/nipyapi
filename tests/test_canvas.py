@@ -652,7 +652,7 @@ def test_client_recursion_limit(fix_pg, fix_funnel, target=450):
     print("Elapsed r1: {0}".format((end - start)))
 
 
-def test_remote_process_group_controls():
+def test_remote_process_group_controls(fix_proc):
     rpg1 = canvas.create_remote_process_group('http://localhost:8080/nifi')
     assert isinstance(rpg1, nifi.RemoteProcessGroupEntity)
     assert rpg1.revision is not None
@@ -662,6 +662,23 @@ def test_remote_process_group_controls():
     r2 = canvas.set_remote_process_group_transmission(rpg1, False)
     assert isinstance(r2, nifi.RemoteProcessGroupEntity)
     assert r2.status.transmission_status == 'NotTransmitting'
+    # Handle connecting to an RPG
+    # p1 = fix_proc.generate()
+    # ip = canvas.create_port(
+    #     pg_id=canvas.get_root_pg_id(),
+    #     port_type='INPUT_PORT',
+    #     name=conftest.test_basename + 'input_port',
+    #     state='STOPPED'
+    # )
+    # op = canvas.create_port(
+    #     pg_id=canvas.get_root_pg_id(),
+    #     port_type='OUTPUT_PORT',
+    #     name=conftest.test_basename + 'input_port',
+    #     state='STOPPED'
+    # )
+    # c1 = canvas.create_connection(p1, rpg1)
+    # c2 = canvas.create_connection(rpg1, op)
+    # TODO: Need to test connecting to remote environment, not just loopback
     r3 = canvas.delete_remote_process_group(rpg1)
     assert isinstance(r3, nifi.RemoteProcessGroupEntity)
     assert r3.revision is None

@@ -210,7 +210,8 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
 
 
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
-                  flow_id=None, comment='', desc='', refresh=True):
+                  flow_id=None, comment='', desc='', refresh=True,
+                  force=False):
     """
     Adds a Process Group into NiFi Registry Version Control, or saves a new
     version to an existing VersionedFlow with a new version
@@ -228,7 +229,8 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
             the bucket, if saving a new version to an existing flow
         comment (str): A comment for the version commit
         desc (str): A description of the VersionedFlow
-        refresh (bool): whether to refresh the object revisions before action
+        refresh (bool): Whether to refresh the object revisions before action
+        force (bool): Whether to Force Commit, or just regular Commit
 
     Returns:
         (VersionControlInformationEntity)
@@ -237,21 +239,36 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
         target_pg = nipyapi.canvas.get_process_group(process_group.id, 'id')
     else:
         target_pg = process_group
+    if nipyapi.utils.check_version('1.10.0') <= 0:
+        body = nipyapi.nifi.StartVersionControlRequestEntity(
+            process_group_revision=target_pg.revision,
+            versioned_flow=nipyapi.nifi.VersionedFlowDTO(
+                bucket_id=bucket.identifier,
+                comments=comment,
+                description=desc,
+                flow_name=flow_name,
+                flow_id=flow_id,
+                registry_id=registry_client.id,
+                action='FORCE_COMMIT' if force else 'COMMIT'
+            )
+        )
+    else:
+        # no 'action' property in versions < 1.10
+        body = nipyapi.nifi.StartVersionControlRequestEntity(
+            process_group_revision=target_pg.revision,
+            versioned_flow={
+                'bucketId': bucket.identifier,
+                'comments': comment,
+                'description': desc,
+                'flowName': flow_name,
+                'flowId': flow_id,
+                'registryId': registry_client.id
+            }
+        )
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.VersionsApi().save_to_flow_registry(
             id=target_pg.id,
-            body=nipyapi.nifi.StartVersionControlRequestEntity(
-                process_group_revision=target_pg.revision,
-                versioned_flow=nipyapi.nifi.VersionedFlowDTO(
-                    bucket_id=bucket.identifier,
-                    comments=comment,
-                    description=desc,
-                    flow_name=flow_name,
-                    flow_id=flow_id,
-                    registry_id=registry_client.id,
-                    action='COMMIT'
-                )
-            )
+            body=body
         )
 
 

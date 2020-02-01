@@ -7,6 +7,7 @@ bumpversion>=0.5.3
 watchdog>=0.8.3
 twine>=1.9.1,<2.0.0  # pyup: ignore
 virtualenvwrapper>=4.8
+virtualenv>=16.0.0  # required for tox 3.14.2 but not forced
 
 # Testing
 tox>=2.9.1
@@ -28,4 +29,3 @@ cryptography>=2.1.2
 py>=1.4.31
 randomize>=0.13
 certifi>=2017.7.27.1
-virtualenvwrapper>=4.8

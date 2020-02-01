@@ -46,7 +46,7 @@ def get_template_by_name(name):
     return None
 
 
-def get_template(identifier, identifier_type='name'):
+def get_template(identifier, identifier_type='name', greedy=False):
     """
     Filters the list of all Templates for a given string in a given field.
     Note that filters are configured in config.py
@@ -54,6 +54,7 @@ def get_template(identifier, identifier_type='name'):
     Args:
         identifier (str): The string to filter on
         identifier_type (str): The identifier of the field to filter on
+        greedy (bool): True for greedy match, False for exact match
 
     Returns:
         None for no matches, Single Object for unique match,
@@ -65,7 +66,8 @@ def get_template(identifier, identifier_type='name'):
     with nipyapi.utils.rest_exceptions():
         obj = nipyapi.templates.list_all_templates(native=False)
     if obj:
-        return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+        return nipyapi.utils.filter_obj(obj, identifier, identifier_type,
+                                        greedy)
     return obj
 
 
