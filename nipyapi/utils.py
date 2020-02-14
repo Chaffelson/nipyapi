@@ -476,6 +476,8 @@ def infer_object_label_from_class(obj):
         return 'FUNNEL'
     if isinstance(obj, nipyapi.nifi.PortEntity):
         return obj.port_type
+    if isinstance(obj, nipyapi.nifi.RemoteProcessGroupDTO):
+        return 'REMOTEPROCESSGROUP'
     if isinstance(obj, nipyapi.nifi.RemoteProcessGroupPortDTO):
         # get RPG summary, find id of obj in input or output list
         parent_rpg = nipyapi.canvas.get_remote_process_group(

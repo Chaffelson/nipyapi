@@ -14,6 +14,13 @@ Decision Points
 * We use Google style Docstrings to better enable Sphinx to produce nicely readable documentation
 
 
+Testing Notes
+-------------
+
+When running tests on new code, you are advised to run 'test_default' first, then 'test_regression', then finally 'test_security'.
+Because of the way errors are propagated you may have code failures which cause a teardown which then fails because of security controls, which can then obscure the original error.
+
+
 Docker Test Environment
 -----------------------
 
@@ -22,6 +29,30 @@ There is an Apache NiFi image available on Dockerhub::
     docker pull apache/nifi:latest
 
 There are a couple of configuration files for launching various Docker environment configurations in ./test_env_config for convenience.
+
+Remote Testing on Centos7
+-------------------------
+
+Deploy a 4x16 or better on EC2 running Centos 7.5 or better, ssh in as root::
+
+    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+    yum update -y
+    yum install -y centos-release-scl yum-utils device-mapper-persistent-data lvm2
+    yum install -y rh-python36 docker
+    systemctl start docker
+    scl enable rh-python36 bash
+    sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+    sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+Set up remote execution environment to this server from your IDE, such as PyCharm.
+Python3 will be in a path like /opt/rh/rh-python36/root/usr/bin/python
+These commands are conveniently presented in /resources/test_setup/setup_centos7.sh
+
+You will then want to open up /home/centos/tmp/<pycharmprojectname>/resources/docker/tox-full and run::
+
+    docker-compose pull
+    docker-compose up -d
 
 Testing on OSX
 --------------
