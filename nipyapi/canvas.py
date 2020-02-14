@@ -26,7 +26,7 @@ __all__ = [
     'list_all_funnels', 'list_all_remote_process_groups', 'delete_funnel',
     'get_remote_process_group', 'update_process_group', 'create_funnel',
     'create_remote_process_group', 'delete_remote_process_group',
-    'set_remote_process_group_transmission'
+    'set_remote_process_group_transmission', 'get_pg_parents_ids'
 ]
 
 log = logging.getLogger(__name__)
@@ -378,15 +378,24 @@ def delete_process_group(process_group, force=False, refresh=True):
         )
     except nipyapi.nifi.rest.ApiException as e:
         if force:
+            # Retrieve parent process group
+            parent_pg_id = nipyapi.canvas.get_process_group(pg_id, 'id').component.parent_group_id
             # Stop, drop, and roll.
             purge_process_group(target, stop=True)
             # Remove inbound connections
-            for con in list_all_connections():
+            for con in list_all_connections(parent_pg_id):
                 if pg_id in [con.destination_group_id, con.source_group_id]:
                     delete_connection(con)
-            # Stop all Controller Services
-            for x in list_all_controllers(process_group.id):
-                delete_controller(x, True)
+            # Stop all Controller Services inside the PG ignoring the ones outside
+            controllers_list = list_all_controllers(pg_id)
+            removed_controllers_id = []
+            parent_pgs_id = get_pg_parents_ids(pg_id)
+            for x in controllers_list:
+                if not x.component.id in removed_controllers_id:
+                    if not x.component.parent_group_id in parent_pgs_id:
+                        delete_controller(x, True)
+                        removed_controllers_id.append(x.component.id)
+
             # Remove templates
             for template in nipyapi.templates.list_all_templates(native=False):
                 if target.id == template.template.group_id:
@@ -1535,3 +1544,22 @@ def delete_funnel(funnel, refresh=True):
             id=funnel.id,
             version=funnel.revision.version
         )
+
+def get_pg_parents_ids(pg_id):
+    """
+    Retrieve the ids of the parent Process Groups.
+
+    Args:
+        pg_id (str): Process group id
+
+    Returns:
+        (list) List of ids of the input PG parents
+    """
+    parent_groups = []
+    while pg_id:
+        pg_id = nipyapi.canvas.get_process_group(pg_id, 'id') \
+            .component.parent_group_id
+        parent_groups.append(pg_id)
+    # Removing the None value
+    parent_groups.pop()
+    return parent_groups
