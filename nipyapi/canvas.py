@@ -281,6 +281,7 @@ def list_all_processors(pg_id='root'):
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
 
     if nipyapi.utils.check_version('1.7.0') <= 0:
+        # Case where NiFi > 1.7.0
         targets = nipyapi.nifi.ProcessGroupsApi().get_processors(
             id=pg_id,
             include_descendant_groups=True
@@ -1087,7 +1088,8 @@ def list_all_controllers(pg_id='root', descendants=True):
     assert isinstance(descendants, bool)
     handle = nipyapi.nifi.FlowApi()
     # Testing shows that descendant doesn't work on NiFi-1.1.2
-    if nipyapi.utils.check_version('1.1.2') < 1:
+    if nipyapi.utils.check_version('1.1.2') >= 0:
+        # Case where NiFi <= 1.1.2
         out = []
         if descendants:
             pgs = list_all_process_groups(pg_id)
@@ -1097,6 +1099,7 @@ def list_all_controllers(pg_id='root', descendants=True):
             out += handle.get_controller_services_from_group(
                 pg.id).controller_services
     else:
+        # Case where NiFi > 1.1.2
         out = handle.get_controller_services_from_group(
             pg_id,
             include_descendant_groups=descendants
@@ -1199,7 +1202,8 @@ def schedule_controller(controller, scheduled, refresh=False):
     if refresh:
         controller = nipyapi.canvas.get_controller(controller.id, 'id')
         assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
-    if nipyapi.utils.check_version('1.1.2') < 1:
+    if nipyapi.utils.check_version('1.1.2') >= 0:
+        # Case where NiFi <= 1.1.2
         result = update_controller(
             controller=controller,
             update=nipyapi.nifi.ControllerServiceDTO(
@@ -1207,6 +1211,7 @@ def schedule_controller(controller, scheduled, refresh=False):
             )
         )
     else:
+        # Case where NiFi > 1.1.2
         result = handle.update_run_status(
             id=controller.id,
             body=nipyapi.nifi.ControllerServiceRunStatusEntity(
