@@ -121,7 +121,7 @@ def get_process_group_status(pg_id='root', detail='names'):
 def get_process_group(identifier, identifier_type='name'):
     """
     Filters the list of all process groups against a given identifier string
-    occuring in a given identifier_type field.
+    occurring in a given identifier_type field.
 
     Args:
         identifier (str): the string to filter the list for
