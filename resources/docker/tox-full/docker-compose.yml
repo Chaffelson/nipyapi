@@ -25,7 +25,7 @@ services:
     ports:
       - "10192:8080"
   nifi:
-    image: apache/nifi:1.10.0
+    image: apache/nifi:1.11.3
     container_name: nifi
     hostname: nifi
     ports:
