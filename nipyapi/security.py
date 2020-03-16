@@ -145,8 +145,8 @@ def create_service_user_group(identity, service='nifi',
     Args:
         identity (str): Identity string for the user group
         service (str): 'nifi' or 'registry'
-        users (list): A list of nifi.UserEntity or
-          registry.User belonging to the group
+        users (list): A list of nifi.UserEntity or registry.User
+          belonging to the group
         strict (bool): Whether to throw an error on already exists
 
     Returns:
@@ -753,10 +753,9 @@ def bootstrap_security_policies(service, user_identity=None,
 
     """
     assert service in _valid_services, "service not in %s" % _valid_services
+    valid_ident_obj = [nipyapi.nifi.UserEntity, nipyapi.registry.User]
     if user_identity is not None:
-        assert user_identity in [
-            nipyapi.nifi.UserEntity, nipyapi.registry.User
-        ]
+        assert user_identity in valid_ident_obj
     if 'nifi' in service:
         rpg_id = nipyapi.canvas.get_root_pg_id()
         if user_identity is None and group_identity is None:

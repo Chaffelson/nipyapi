@@ -177,7 +177,7 @@ def regress_flow_reg(request):
     nipyapi.utils.set_endpoint(request.param[0], True, True)
     # Set paired NiFi connection
     nipyapi.utils.set_endpoint(request.param[2], True, True)
-    # because pytest won't let you eaily cascade parameters through fixtures
+    # because pytest won't let you easily cascade parameters through fixtures
     # we set the docker URI in the config for retrieval later on
     nipyapi.config.registry_local_name = request.param[1]
 

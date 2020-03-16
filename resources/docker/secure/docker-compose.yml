@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   secure-nifi:
-    image: apache/nifi:1.11.0
+    image: apache/nifi:1.11.3
     container_name: secure-nifi
     hostname: secure-nifi
     ports:

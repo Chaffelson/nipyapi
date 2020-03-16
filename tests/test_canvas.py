@@ -332,7 +332,6 @@ def test_update_variable_registry(fix_pg):
         _ = canvas.update_variable_registry(test_pg, '')
 
 
-
 def test_purge_connection():
     # TODO: Waiting for create_connection to generate fixture
     pass
@@ -469,15 +468,40 @@ def test_list_all_controller_types(regress_nifi):
 
 
 def test_list_all_controllers(regress_nifi, fix_pg, fix_cont):
-    f_c1 = fix_cont(parent_pg=fix_pg.generate())
+    f_pg_1 = fix_pg.generate()
+    f_pg_2 = fix_pg.generate(parent_pg=f_pg_1)
+    f_c1 = fix_cont()
+    f_c2 = fix_cont(parent_pg=f_pg_1)
+    f_c3 = fix_cont(parent_pg=f_pg_2)
     assert isinstance(f_c1, nifi.ControllerServiceEntity)
+    assert isinstance(f_c2, nifi.ControllerServiceEntity)
+    assert isinstance(f_c3, nifi.ControllerServiceEntity)
+    # Find all and l0 l1 and l2
     r1 = canvas.list_all_controllers()
-    assert f_c1.id in [x.id for x in r1]
+    assert all(y.id in [x.id for x in r1] for y in [f_c1, f_c2, f_c3])
+    # find just l0
     r2 = canvas.list_all_controllers(
         pg_id='root',
         descendants=False)
     r2 = [x for x in r2 if conftest.test_basename in x.component.name]
-    assert not r2
+    assert len(r2) == 1
+    assert f_c1.id in [x.id for x in r2]
+    # find just l1
+    r3 = canvas.list_all_controllers(
+        pg_id=f_pg_1.id,
+        descendants=False)
+    r3 = [x for x in r3 if conftest.test_basename in x.component.name]
+    assert len(r3) == 2
+    assert all(y.id in [x.id for x in r3] for y in [f_c1, f_c2])
+    # Find l1 and l2
+    # This will fail if duplicates are introduced in the listing
+    r4 = canvas.list_all_controllers(
+        pg_id=f_pg_1.id,
+        descendants=True)
+    r4 = [x for x in r4 if conftest.test_basename in x.component.name]
+    assert len(r4) == 3
+    assert all(y.id in [x.id for x in r4] for y in [f_c1, f_c2, f_c3])
+    # test errors
     with pytest.raises(AssertionError):
         _ = canvas.list_all_controllers(pg_id=['bob'])
     with pytest.raises(AssertionError):
@@ -544,6 +568,13 @@ def test_delete_controller(regress_nifi, fix_pg, fix_cont):
     assert f_c2.revision is not None
     r2 = canvas.delete_controller(f_c2, True)
     assert r2.revision is None
+    # Test for only delete within a PG
+    f_c_root = fix_cont()
+    f_c_pg = fix_cont(parent_pg=f_pg)
+    r3 = canvas.delete_process_group(f_pg)
+    assert r3.revision is None
+    r4 = canvas.get_controller(identifier=f_c_root.id, identifier_type='id')
+    assert r4.revision is not None
 
 
 def test_update_controller(regress_nifi, fix_pg, fix_cont):
