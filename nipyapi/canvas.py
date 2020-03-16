@@ -380,20 +380,21 @@ def delete_process_group(process_group, force=False, refresh=True):
     except nipyapi.nifi.rest.ApiException as e:
         if force:
             # Retrieve parent process group
-            parent_pg_id = nipyapi.canvas.get_process_group(pg_id, 'id').component.parent_group_id
+            parent_pg_id = nipyapi.canvas.get_process_group(pg_id, 'id')\
+                .component.parent_group_id
             # Stop, drop, and roll.
             purge_process_group(target, stop=True)
             # Remove inbound connections
             for con in list_all_connections(parent_pg_id):
                 if pg_id in [con.destination_group_id, con.source_group_id]:
                     delete_connection(con)
-            # Stop all Controller Services inside the PG ignoring the ones outside
+            # Stop all Controller Services ONLY inside the PG
             controllers_list = list_all_controllers(pg_id)
             removed_controllers_id = []
             parent_pgs_id = get_pg_parents_ids(pg_id)
             for x in controllers_list:
-                if not x.component.id in removed_controllers_id:
-                    if not x.component.parent_group_id in parent_pgs_id:
+                if x.component.id not in removed_controllers_id:
+                    if x.component.parent_group_id not in parent_pgs_id:
                         delete_controller(x, True)
                         removed_controllers_id.append(x.component.id)
 
@@ -1097,18 +1098,25 @@ def list_all_controllers(pg_id='root', descendants=True):
     assert isinstance(descendants, bool)
     handle = nipyapi.nifi.FlowApi()
     # Testing shows that descendant doesn't work on NiFi-1.1.2
-    if nipyapi.utils.check_version('1.1.2') >= 0:
-        # Case where NiFi <= 1.1.2
+    # Or 1.2.0, despite the descendants option being available
+    if nipyapi.utils.check_version('1.2.0') >= 0:
+        # Case where NiFi <= 1.2.0
         out = []
         if descendants:
             pgs = list_all_process_groups(pg_id)
         else:
             pgs = [get_process_group(pg_id, 'id')]
         for pg in pgs:
-            out += handle.get_controller_services_from_group(
+            new_conts = handle.get_controller_services_from_group(
                 pg.id).controller_services
+            # trim duplicates from inheritance
+            out += [
+                x for x in new_conts
+                if x.id not in [y.id for y in out]
+            ]
     else:
-        # Case where NiFi > 1.1.2
+        # Case where NiFi > 1.2.0
+        # duplicate trim already handled by server
         out = handle.get_controller_services_from_group(
             pg_id,
             include_descendant_groups=descendants
@@ -1122,7 +1130,7 @@ def delete_controller(controller, force=False):
 
     Args:
         controller (ControllerServiceEntity): Target Controller to delete
-        force (bool): True to Disable the Controller before deletion
+        force (bool): True to attempt Disable the Controller before deletion
 
     Returns:
         (ControllerServiceEntity)
@@ -1211,8 +1219,8 @@ def schedule_controller(controller, scheduled, refresh=False):
     if refresh:
         controller = nipyapi.canvas.get_controller(controller.id, 'id')
         assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
-    if nipyapi.utils.check_version('1.1.2') >= 0:
-        # Case where NiFi <= 1.1.2
+    if nipyapi.utils.check_version('1.2.0') >= 0:
+        # Case where NiFi <= 1.2.0
         result = update_controller(
             controller=controller,
             update=nipyapi.nifi.ControllerServiceDTO(
@@ -1220,7 +1228,7 @@ def schedule_controller(controller, scheduled, refresh=False):
             )
         )
     else:
-        # Case where NiFi > 1.1.2
+        # Case where NiFi > 1.2.0
         result = handle.update_run_status(
             id=controller.id,
             body=nipyapi.nifi.ControllerServiceRunStatusEntity(
