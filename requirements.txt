@@ -12,11 +12,10 @@ lxml>=4.1.1,<4.4.0  # pyup: ignore
 
 # Security and Connectivity
 requests[security]>=2.18
-# urllib3 is handled by requests
+# urllib3, cryptography are handled by requests
 
 # Import Export and Utils implementation
 ruamel.yaml==0.16.10
-deepdiff>=3.3.0,<4.0  # pyup: ignore
 
 # Demo deployment automation
 docker>=2.5.1
