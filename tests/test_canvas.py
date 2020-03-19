@@ -285,8 +285,23 @@ def test_update_processor(regress_nifi, fix_proc):
         scheduling_period='3s'
     )
     r1 = canvas.update_processor(f_p1, update)
+    assert r1.component.config.scheduling_period == '3s'
     with pytest.raises(ValueError, match='update param is not an instance'):
         _ = canvas.update_processor(f_p1, 'FakeNews')
+    # Test adding a custom Property
+    test_prop = {conftest.test_basename: 'test'}
+    _ = r1.component.config.properties.update(test_prop)
+    r2 = canvas.update_processor(
+        r1,
+        nifi.ProcessorConfigDTO(properties=r1.component.config.properties)
+    )
+    assert conftest.test_basename in r2.component.config.properties.keys()
+    # Test removing a property
+    r3 = canvas.update_processor(
+        r2,
+        nifi.ProcessorConfigDTO(properties={conftest.test_basename: None})
+    )
+    assert conftest.test_basename not in r3.component.config.properties.keys()
 
 
 def test_get_variable_registry(fix_pg):
