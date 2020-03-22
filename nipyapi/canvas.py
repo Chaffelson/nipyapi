@@ -1169,7 +1169,7 @@ def delete_controller(controller, force=False):
     return result
 
 
-def update_controller(controller, update, refresh=True):
+def update_controller(controller, update):
     """
     Updates the Configuration of a Controller Service
 
@@ -1177,7 +1177,6 @@ def update_controller(controller, update, refresh=True):
         controller (ControllerServiceEntity): Target Controller to update
         update (ControllerServiceDTO): Controller Service configuration object
             containing the new config params and properties
-        refresh (bool): True to refresh before applying
 
     Returns:
         (ControllerServiceEntity)
@@ -1186,8 +1185,6 @@ def update_controller(controller, update, refresh=True):
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
     # Insert the ID into the update
-    if refresh:
-        controller = get_controller(controller.id, 'id')
     update.id = controller.id
     return nipyapi.nifi.ControllerServicesApi().update_controller_service(
         id=controller.id,
@@ -1258,8 +1255,7 @@ def schedule_controller(controller, scheduled, refresh=False):
     raise ValueError("Scheduling request timed out")
 
 
-def get_controller(identifier, identifier_type='name',
-                   bool_response=False, greedy=True):
+def get_controller(identifier, identifier_type='name', bool_response=False):
     """
     Retrieve a given Controller
 
@@ -1268,7 +1264,6 @@ def get_controller(identifier, identifier_type='name',
         identifier_type (str): 'id' or 'name', defaults to name
         bool_response (bool): If True, will return False if the Controller is
             not found - useful when testing for deletion completion
-        greedy (bool): True for partial match, False for exact match
 
     Returns:
 
@@ -1281,8 +1276,7 @@ def get_controller(identifier, identifier_type='name',
             out = handle.get_controller_service(identifier)
         else:
             obj = list_all_controllers()
-            out = nipyapi.utils.filter_obj(
-                obj, identifier, identifier_type, greedy=greedy)
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:
             return False
