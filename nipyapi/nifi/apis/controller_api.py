@@ -129,7 +129,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/bulletin', 'POST',
                                         path_params,
@@ -235,7 +235,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/controller-services', 'POST',
                                         path_params,
@@ -341,7 +341,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/registry-clients', 'POST',
                                         path_params,
@@ -447,7 +447,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/reporting-tasks', 'POST',
                                         path_params,
@@ -553,7 +553,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/history', 'DELETE',
                                         path_params,
@@ -659,7 +659,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'DELETE',
                                         path_params,
@@ -777,7 +777,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'DELETE',
                                         path_params,
@@ -875,7 +875,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/cluster', 'GET',
                                         path_params,
@@ -973,7 +973,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/config', 'GET',
                                         path_params,
@@ -1079,7 +1079,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'GET',
                                         path_params,
@@ -1185,7 +1185,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'GET',
                                         path_params,
@@ -1283,7 +1283,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/registry-clients', 'GET',
                                         path_params,
@@ -1389,7 +1389,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/config', 'PUT',
                                         path_params,
@@ -1502,7 +1502,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'PUT',
                                         path_params,
@@ -1615,7 +1615,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'PUT',
                                         path_params,

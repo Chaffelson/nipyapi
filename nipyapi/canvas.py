@@ -525,7 +525,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
         )
 
 
-def get_processor(identifier, identifier_type='name'):
+def get_processor(identifier, identifier_type='name', greedy=True):
     """
     Filters the list of all Processors against the given identifier string in
     the given identifier_type field
@@ -534,6 +534,7 @@ def get_processor(identifier, identifier_type='name'):
         identifier (str): The String to filter against
         identifier_type (str): The field to apply the filter to. Set in
             config.py
+        greedy (bool): Whether to exact match (False) or partial match (True)
 
     Returns:
         None for no matches, Single Object for unique match,
@@ -546,7 +547,7 @@ def get_processor(identifier, identifier_type='name'):
             out = nipyapi.nifi.ProcessorsApi().get_processor(identifier)
         else:
             obj = list_all_processors()
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
     return out
 
 

@@ -216,6 +216,13 @@ class Configuration(object):
                     'key': 'Authorization',
                     'value': self.get_api_key_with_prefix('tokenAuth')
                 },
+            'basicAuth':
+                {
+                    'type': 'basic',
+                    'in': 'header',
+                    'key': 'Authorization',
+                    'value': self.get_basic_auth_token()
+                },
 
         }
 

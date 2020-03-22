@@ -136,7 +136,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'PUT',
                                         path_params,
@@ -234,7 +234,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/client-id', 'GET',
                                         path_params,
@@ -332,7 +332,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/about', 'GET',
                                         path_params,
@@ -438,7 +438,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/history/{id}', 'GET',
                                         path_params,
@@ -536,7 +536,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/banners', 'GET',
                                         path_params,
@@ -642,7 +642,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/registries/{id}/buckets', 'GET',
                                         path_params,
@@ -765,7 +765,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/bulletin-board', 'GET',
                                         path_params,
@@ -863,7 +863,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/controller/bulletins', 'GET',
                                         path_params,
@@ -961,7 +961,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/cluster/summary', 'GET',
                                         path_params,
@@ -1067,7 +1067,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/history/components/{componentId}', 'GET',
                                         path_params,
@@ -1181,7 +1181,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/connections/{id}/statistics', 'GET',
                                         path_params,
@@ -1295,7 +1295,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/connections/{id}/status', 'GET',
                                         path_params,
@@ -1401,7 +1401,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/connections/{id}/status/history', 'GET',
                                         path_params,
@@ -1528,7 +1528,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/controller-service-types', 'GET',
                                         path_params,
@@ -1626,7 +1626,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/controller/controller-services', 'GET',
                                         path_params,
@@ -1740,7 +1740,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'GET',
                                         path_params,
@@ -1838,7 +1838,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/status', 'GET',
                                         path_params,
@@ -1936,7 +1936,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/current-user', 'GET',
                                         path_params,
@@ -2042,7 +2042,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'GET',
                                         path_params,
@@ -2140,7 +2140,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/config', 'GET',
                                         path_params,
@@ -2253,7 +2253,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows', 'GET',
                                         path_params,
@@ -2367,7 +2367,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/input-ports/{id}/status', 'GET',
                                         path_params,
@@ -2481,7 +2481,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/output-ports/{id}/status', 'GET',
                                         path_params,
@@ -2579,7 +2579,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/parameter-contexts', 'GET',
                                         path_params,
@@ -2677,7 +2677,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/prioritizers', 'GET',
                                         path_params,
@@ -2795,7 +2795,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/status', 'GET',
                                         path_params,
@@ -2901,7 +2901,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -3015,7 +3015,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/processors/{id}/status', 'GET',
                                         path_params,
@@ -3121,7 +3121,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/processors/{id}/status/history', 'GET',
                                         path_params,
@@ -3232,7 +3232,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/processor-types', 'GET',
                                         path_params,
@@ -3330,7 +3330,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/registries', 'GET',
                                         path_params,
@@ -3444,7 +3444,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status', 'GET',
                                         path_params,
@@ -3550,7 +3550,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -3661,7 +3661,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/reporting-task-types', 'GET',
                                         path_params,
@@ -3759,7 +3759,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/reporting-tasks', 'GET',
                                         path_params,
@@ -3857,7 +3857,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/templates', 'GET',
                                         path_params,
@@ -3977,7 +3977,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows/{flow-id}/versions', 'GET',
                                         path_params,
@@ -4114,7 +4114,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/history', 'GET',
                                         path_params,
@@ -4227,7 +4227,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'PUT',
                                         path_params,
@@ -4333,7 +4333,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/cluster/search-results', 'GET',
                                         path_params,
@@ -4436,7 +4436,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/flow/search-results', 'GET',
                                         path_params,

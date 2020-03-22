@@ -129,7 +129,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts', 'POST',
                                         path_params,
@@ -247,7 +247,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'DELETE',
                                         path_params,
@@ -364,7 +364,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -481,7 +481,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'DELETE',
                                         path_params,
@@ -587,7 +587,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'GET',
                                         path_params,
@@ -700,7 +700,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'GET',
                                         path_params,
@@ -813,7 +813,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'GET',
                                         path_params,
@@ -926,7 +926,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests', 'POST',
                                         path_params,
@@ -1039,7 +1039,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests', 'POST',
                                         path_params,
@@ -1152,7 +1152,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'PUT',
                                         path_params,

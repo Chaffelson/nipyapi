@@ -130,7 +130,7 @@ class AccessApi(object):
             select_header_content_type(['application/x-www-form-urlencoded'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/token', 'POST',
                                         path_params,
@@ -228,7 +228,7 @@ class AccessApi(object):
             select_header_content_type(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/kerberos', 'POST',
                                         path_params,
@@ -326,7 +326,7 @@ class AccessApi(object):
             select_header_content_type(['application/x-www-form-urlencoded'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/download-token', 'POST',
                                         path_params,
@@ -424,7 +424,7 @@ class AccessApi(object):
             select_header_content_type(['application/x-www-form-urlencoded'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/ui-extension-token', 'POST',
                                         path_params,
@@ -522,7 +522,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access', 'GET',
                                         path_params,
@@ -620,7 +620,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/config', 'GET',
                                         path_params,
@@ -718,7 +718,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/knox/callback', 'GET',
                                         path_params,
@@ -816,7 +816,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/knox/logout', 'GET',
                                         path_params,
@@ -914,7 +914,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/knox/request', 'GET',
                                         path_params,
@@ -1012,7 +1012,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/logout', 'DELETE',
                                         path_params,
@@ -1110,7 +1110,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/oidc/callback', 'GET',
                                         path_params,
@@ -1208,7 +1208,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/oidc/exchange', 'POST',
                                         path_params,
@@ -1306,7 +1306,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/oidc/logout', 'GET',
                                         path_params,
@@ -1404,7 +1404,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/access/oidc/request', 'GET',
                                         path_params,
