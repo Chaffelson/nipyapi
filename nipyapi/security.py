@@ -390,14 +390,7 @@ def service_logout(service='nifi'):
     """
     assert service in _valid_services
     set_service_auth_token(token=None, service=service)
-    try:
-        status = get_service_access_status(service, bool_response=True)
-    except ValueError as e:
-        if 'Cannot set verify_mode to CERT_NONE' in str(e):
-            status = None
-            # Logout throws error with incorrect ssl setup
-        else:
-            raise e
+    status = get_service_access_status(service, bool_response=True)
     # Set to empty string and not None as basic auth setup will still
     # run even if not used
     getattr(nipyapi, service).configuration.password = ''
