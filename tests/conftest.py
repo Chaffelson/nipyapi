@@ -187,6 +187,7 @@ def regress_flow_reg(request):
 def session_setup(request):
     log.info("Commencing test session setup")
     for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
+        log.debug("Now Checking URL [{0}]".format(url))
         nipyapi.utils.set_endpoint(url, ssl=True, login=True)
         # ssl and login will only work if https is in the url, else will silently skip
         gui_url = url.replace('-api', '')

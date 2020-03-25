@@ -130,7 +130,7 @@ class CountersApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/counters', 'GET',
                                         path_params,
@@ -236,7 +236,7 @@ class CountersApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/counters/{id}', 'PUT',
                                         path_params,
