@@ -118,7 +118,7 @@ def get_process_group_status(pg_id='root', detail='names'):
     return raw
 
 
-def get_process_group(identifier, identifier_type='name'):
+def get_process_group(identifier, identifier_type='name', greedy=True):
     """
     Filters the list of all process groups against a given identifier string
     occurring in a given identifier_type field.
@@ -126,6 +126,7 @@ def get_process_group(identifier, identifier_type='name'):
     Args:
         identifier (str): the string to filter the list for
         identifier_type (str): the field to filter on, set in config.py
+        greedy (bool): True for partial match, False for exact match
 
     Returns:
         None for no matches, Single Object for unique match,
@@ -135,13 +136,13 @@ def get_process_group(identifier, identifier_type='name'):
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
     with nipyapi.utils.rest_exceptions():
-        if identifier_type == 'id':
-            # assuming unique fetch of pg id
+        if identifier_type == 'id' or identifier == 'root':
+            # assuming unique fetch of pg id, 'root' is special case
             # implementing separately to avoid recursing entire canvas
             out = nipyapi.nifi.ProcessGroupsApi().get_process_group(identifier)
         else:
             obj = list_all_process_groups()
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
     return out
 
 
@@ -213,7 +214,7 @@ def list_invalid_processors(pg_id='root', summary=False):
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
     assert isinstance(summary, bool)
     proc_list = [x for x in list_all_processors(pg_id)
-                 if x.component.validation_errors is not None]
+                 if x.component.validation_errors ]
     if summary:
         out = [{'id': x.id, 'summary': x.component.validation_errors}
                for x in proc_list]
@@ -547,7 +548,9 @@ def get_processor(identifier, identifier_type='name', greedy=True):
             out = nipyapi.nifi.ProcessorsApi().get_processor(identifier)
         else:
             obj = list_all_processors()
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
+            out = nipyapi.utils.filter_obj(
+                obj, identifier, identifier_type, greedy=greedy
+            )
     return out
 
 
@@ -1165,7 +1168,7 @@ def delete_controller(controller, force=False):
     return result
 
 
-def update_controller(controller, update):
+def update_controller(controller, update, refresh=True):
     """
     Updates the Configuration of a Controller Service
 
@@ -1173,6 +1176,7 @@ def update_controller(controller, update):
         controller (ControllerServiceEntity): Target Controller to update
         update (ControllerServiceDTO): Controller Service configuration object
             containing the new config params and properties
+        refresh (bool): True to refresh before applying
 
     Returns:
         (ControllerServiceEntity)
@@ -1181,6 +1185,8 @@ def update_controller(controller, update):
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
     # Insert the ID into the update
+    if refresh:
+        controller = get_controller(controller.id, 'id')
     update.id = controller.id
     return nipyapi.nifi.ControllerServicesApi().update_controller_service(
         id=controller.id,
@@ -1251,7 +1257,7 @@ def schedule_controller(controller, scheduled, refresh=False):
     raise ValueError("Scheduling request timed out")
 
 
-def get_controller(identifier, identifier_type='name', bool_response=False):
+def get_controller(identifier, identifier_type='name', bool_response=False, greedy=True):
     """
     Retrieve a given Controller
 
@@ -1260,6 +1266,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
         identifier_type (str): 'id' or 'name', defaults to name
         bool_response (bool): If True, will return False if the Controller is
             not found - useful when testing for deletion completion
+        greedy (bool): True for partial match, False for exact match
 
     Returns:
 
@@ -1272,7 +1279,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
             out = handle.get_controller_service(identifier)
         else:
             obj = list_all_controllers()
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:
             return False
