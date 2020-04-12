@@ -71,7 +71,7 @@ def get_template(identifier, identifier_type='name', greedy=False):
     return obj
 
 
-def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
+def deploy_template(pg_id, template_id, loc_x=0.0, loc_y=0.0):
     """
     Instantiates a given template request in a given process group
 
@@ -80,8 +80,8 @@ def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):
         template_id (str): The UUID of the Template to deploy. Note that the
             Template must already be uploaded and available to the target
             Process Group
-        loc_x (int): The X coordinate to deploy the Template at. Default(0)
-        loc_y (int): The X coordinate to deploy the Template at. Default(0)
+        loc_x (float): The X coordinate to deploy the Template at. Default(0.0)
+        loc_y (float): The X coordinate to deploy the Template at. Default(0.0)
 
     Returns:
         (FlowEntity): The FlowEntity of the Process Group with the deployed
