@@ -38,7 +38,7 @@ Deploy a 4x16 or better on EC2 running Centos 7.5 or better, ssh in as root::
     yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
     yum update -y
     yum install -y centos-release-scl yum-utils device-mapper-persistent-data lvm2
-    yum install -y rh-python36 docker
+    yum install -y rh-python36 docker-ce docker-ce-cli containerd.io
     systemctl start docker
     scl enable rh-python36 bash
     sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose

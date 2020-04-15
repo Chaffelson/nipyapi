@@ -141,7 +141,7 @@ class ConnectionsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/connections/{id}', 'DELETE',
                                         path_params,
@@ -247,7 +247,7 @@ class ConnectionsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/connections/{id}', 'GET',
                                         path_params,
@@ -360,7 +360,7 @@ class ConnectionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/connections/{id}', 'PUT',
                                         path_params,

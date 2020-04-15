@@ -35,6 +35,15 @@ nifi_config.host = os.getenv(
 registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'
 
 
+# Set Default Auth Types
+# Set list to the Auth type you want to use
+# Currently basicAuth trumps tokenAuth if both are enabled
+default_auth = ['tokenAuth']
+# NiFi valid options: ['tokenAuth', 'basicAuth']
+# Registry valid options: ['tokenAuth', 'basicAuth', 'Authorization']
+nifi_config.enabled_auth = default_auth  # tokenAuth was default before 0.14.2
+
+
 # Set SSL Handling
 # When operating with self signed certs, your log can fill up with
 # unnecessary warnings

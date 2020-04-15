@@ -129,7 +129,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -247,7 +247,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}', 'DELETE',
                                         path_params,
@@ -353,7 +353,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}', 'GET',
                                         path_params,
@@ -459,7 +459,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}/diagnostics', 'GET',
                                         path_params,
@@ -576,7 +576,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}/descriptors', 'GET',
                                         path_params,
@@ -682,7 +682,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}/state', 'GET',
                                         path_params,
@@ -788,7 +788,7 @@ class ProcessorsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}/threads', 'DELETE',
                                         path_params,
@@ -901,7 +901,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}', 'PUT',
                                         path_params,
@@ -1014,7 +1014,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/processors/{id}/run-status', 'PUT',
                                         path_params,

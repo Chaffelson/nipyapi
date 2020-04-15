@@ -256,12 +256,16 @@ def is_endpoint_up(endpoint_url):
     """
     log.info("Called is_endpoint_up with args %s", locals())
     try:
-        response = requests.get(endpoint_url)
-        if response.status_code == 200:
-            log.info("Got 200 response from endpoint, returning True")
-            return True
-        log.info("Got status code %s from endpoint, returning False",
-                 response.status_code)
+        response = requests.get(
+            endpoint_url,
+            timeout=nipyapi.config.short_max_wait
+        )
+        if response.status_code:
+            if response.status_code == 200:
+                log.info("Got 200 response from endpoint, returning True")
+                return True
+            log.info("Got status code %s from endpoint, returning False",
+                     response.status_code)
         return False
     except (requests.ConnectionError, requests.exceptions.SSLError) as e:
         log.info("Got Error of type %s with details %s", type(e), str(e))
@@ -304,7 +308,8 @@ def set_endpoint(endpoint_url, ssl=False, login=False):
         nipyapi.security.service_logout(service)
         # Resetting API client so it recreates from config.host
         configuration.api_client = None
-    configuration.host = endpoint_url
+    # remove any trailing slash to avoid hard to spot errors
+    configuration.host = endpoint_url.rstrip('/')
     if 'https://' in endpoint_url and ssl:
         if not login:
             nipyapi.security.set_service_ssl_context(

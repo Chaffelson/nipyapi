@@ -154,3 +154,6 @@ crashlytics-build.properties
 fabric.properties
 
 /{envtmpdir}/
+
+# Stupid OSX exclusions
+/.vscode

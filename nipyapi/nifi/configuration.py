@@ -52,6 +52,8 @@ class Configuration(object):
         self.temp_folder_path = None
 
         # Authentication Settings
+        # Auth types to enable, use tokenAuth or basicAuth
+        self.enabled_auth = ['tokenAuth']
         # dict to store API key(s)
         self.api_key = {}
         # dict to store API prefix (e.g. Bearer)
@@ -188,10 +190,12 @@ class Configuration(object):
         :param identifier: The identifier of apiKey.
         :return: The token for api key authentication.
         """
-        if self.api_key.get(identifier) and self.api_key_prefix.get(identifier):
-            return self.api_key_prefix[identifier] + ' ' + self.api_key[identifier]
-        elif self.api_key.get(identifier):
-            return self.api_key[identifier]
+        if identifier in self.enabled_auth:
+            if self.api_key.get(identifier) and self.api_key_prefix.get(identifier):
+                return self.api_key_prefix[identifier] + ' ' + self.api_key[identifier]
+            elif self.api_key.get(identifier):
+                return self.api_key[identifier]
+        return None
 
     def get_basic_auth_token(self):
         """
@@ -199,8 +203,10 @@ class Configuration(object):
 
         :return: The token for basic HTTP authentication.
         """
-        return urllib3.util.make_headers(basic_auth=self.username + ':' + self.password)\
-                           .get('authorization')
+        if 'basicAuth' in self.enabled_auth:
+            return urllib3.util.make_headers(basic_auth=self.username + ':' + self.password)\
+                               .get('authorization')
+        return None
 
     def auth_settings(self):
         """
@@ -215,6 +221,13 @@ class Configuration(object):
                     'in': 'header',
                     'key': 'Authorization',
                     'value': self.get_api_key_with_prefix('tokenAuth')
+                },
+            'basicAuth':
+                {
+                    'type': 'basic',
+                    'in': 'header',
+                    'key': 'Authorization',
+                    'value': self.get_basic_auth_token()
                 },
 
         }

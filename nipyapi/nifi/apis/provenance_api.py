@@ -133,7 +133,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'DELETE',
                                         path_params,
@@ -243,7 +243,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/provenance/{id}', 'DELETE',
                                         path_params,
@@ -353,7 +353,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'GET',
                                         path_params,
@@ -471,7 +471,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/provenance/{id}', 'GET',
                                         path_params,
@@ -569,7 +569,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/provenance/search-options', 'GET',
                                         path_params,
@@ -675,7 +675,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/provenance/lineage', 'POST',
                                         path_params,
@@ -781,7 +781,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/provenance', 'POST',
                                         path_params,

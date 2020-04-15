@@ -136,7 +136,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/snippet-instance', 'POST',
                                         path_params,
@@ -249,7 +249,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/connections', 'POST',
                                         path_params,
@@ -362,7 +362,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/controller-services', 'POST',
                                         path_params,
@@ -475,7 +475,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/funnels', 'POST',
                                         path_params,
@@ -588,7 +588,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/input-ports', 'POST',
                                         path_params,
@@ -701,7 +701,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/labels', 'POST',
                                         path_params,
@@ -814,7 +814,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/output-ports', 'POST',
                                         path_params,
@@ -927,7 +927,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups', 'POST',
                                         path_params,
@@ -1040,7 +1040,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/processors', 'POST',
                                         path_params,
@@ -1153,7 +1153,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/remote-process-groups', 'POST',
                                         path_params,
@@ -1266,7 +1266,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/templates', 'POST',
                                         path_params,
@@ -1383,7 +1383,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{groupId}/variable-registry/update-requests/{updateId}', 'DELETE',
                                         path_params,
@@ -1489,7 +1489,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/download', 'GET',
                                         path_params,
@@ -1595,7 +1595,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/connections', 'GET',
                                         path_params,
@@ -1701,7 +1701,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/funnels', 'GET',
                                         path_params,
@@ -1807,7 +1807,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/input-ports', 'GET',
                                         path_params,
@@ -1913,7 +1913,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/labels', 'GET',
                                         path_params,
@@ -2019,7 +2019,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/local-modifications', 'GET',
                                         path_params,
@@ -2125,7 +2125,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/output-ports', 'GET',
                                         path_params,
@@ -2231,7 +2231,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'GET',
                                         path_params,
@@ -2337,7 +2337,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups', 'GET',
                                         path_params,
@@ -2447,7 +2447,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/processors', 'GET',
                                         path_params,
@@ -2553,7 +2553,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/remote-process-groups', 'GET',
                                         path_params,
@@ -2663,7 +2663,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/variable-registry', 'GET',
                                         path_params,
@@ -2776,7 +2776,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{groupId}/variable-registry/update-requests/{updateId}', 'GET',
                                         path_params,
@@ -2882,7 +2882,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/xml'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/templates/import', 'POST',
                                         path_params,
@@ -2995,7 +2995,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/template-instance', 'POST',
                                         path_params,
@@ -3113,7 +3113,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'DELETE',
                                         path_params,
@@ -3226,7 +3226,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/variable-registry/update-requests', 'POST',
                                         path_params,
@@ -3339,7 +3339,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'PUT',
                                         path_params,
@@ -3452,7 +3452,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/variable-registry', 'PUT',
                                         path_params,
@@ -3569,7 +3569,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['multipart/form-data'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/process-groups/{id}/templates/upload', 'POST',
                                         path_params,

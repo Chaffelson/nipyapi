@@ -68,7 +68,7 @@ def get_template(identifier, identifier_type='name', greedy=False):
     if obj:
         return nipyapi.utils.filter_obj(obj, identifier, identifier_type,
                                         greedy)
-    return obj
+    return None
 
 
 def deploy_template(pg_id, template_id, loc_x=0, loc_y=0):

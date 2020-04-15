@@ -129,7 +129,7 @@ class TemplatesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/templates/{id}/download', 'GET',
                                         path_params,
@@ -239,7 +239,7 @@ class TemplatesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth']
+        auth_settings = ['tokenAuth', 'basicAuth']
 
         return self.api_client.call_api('/templates/{id}', 'DELETE',
                                         path_params,
