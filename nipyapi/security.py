@@ -316,7 +316,7 @@ def service_login(service='nifi', username=None, password=None,
     configuration.username = uname
     configuration.password = pword
     if auth_type == 'token':
-        log.info("Attempting login with user identity [%s]",
+        log.info("Attempting tokenAuth login with user identity [%s]",
                  configuration.username)
         try:
             if service == 'nifi':
@@ -331,7 +331,7 @@ def service_login(service='nifi', username=None, password=None,
             raise ValueError(e.body)
         set_service_auth_token(token=token, service=service)
     elif auth_type == 'basic':
-        pass
+        log.info("basicAuth set, skipping token retrieval")
     return True
 
 
@@ -379,7 +379,14 @@ def service_logout(service='nifi'):
     """
     assert service in _valid_services
     set_service_auth_token(token=None, service=service)
-    status = get_service_access_status(service, bool_response=True)
+    try:
+        status = get_service_access_status(service, bool_response=True)
+    except ValueError as e:
+        if 'Cannot set verify_mode to CERT_NONE' in str(e):
+            status = None
+            # Logout throws error with incorrect ssl setup
+        else:
+            raise e
     # Set to empty string and not None as basic auth setup will still
     # run even if not used
     getattr(nipyapi, service).configuration.password = ''

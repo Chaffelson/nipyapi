@@ -142,7 +142,8 @@ def get_process_group(identifier, identifier_type='name', greedy=True):
             out = nipyapi.nifi.ProcessGroupsApi().get_process_group(identifier)
         else:
             obj = list_all_process_groups()
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
+            out = nipyapi.utils.filter_obj(
+                obj, identifier, identifier_type, greedy=greedy)
     return out
 
 
@@ -214,7 +215,7 @@ def list_invalid_processors(pg_id='root', summary=False):
     assert isinstance(pg_id, six.string_types), "pg_id should be a string"
     assert isinstance(summary, bool)
     proc_list = [x for x in list_all_processors(pg_id)
-                 if x.component.validation_errors ]
+                 if x.component.validation_errors]
     if summary:
         out = [{'id': x.id, 'summary': x.component.validation_errors}
                for x in proc_list]
@@ -1257,7 +1258,8 @@ def schedule_controller(controller, scheduled, refresh=False):
     raise ValueError("Scheduling request timed out")
 
 
-def get_controller(identifier, identifier_type='name', bool_response=False, greedy=True):
+def get_controller(identifier, identifier_type='name',
+                   bool_response=False, greedy=True):
     """
     Retrieve a given Controller
 
@@ -1279,7 +1281,8 @@ def get_controller(identifier, identifier_type='name', bool_response=False, gree
             out = handle.get_controller_service(identifier)
         else:
             obj = list_all_controllers()
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
+            out = nipyapi.utils.filter_obj(
+                obj, identifier, identifier_type, greedy=greedy)
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:
             return False
