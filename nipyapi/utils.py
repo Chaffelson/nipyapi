@@ -340,6 +340,7 @@ class DockerContainer:
         self.volumes = volumes
         self.test_url = test_url
         self.endpoint = endpoint
+        self.container = None
 
     def get_test_url_status(self):
         """
@@ -350,6 +351,14 @@ class DockerContainer:
             return requests.get(self.test_url).status_code
         except requests.ConnectionError:
             return 'ConnectionError'
+
+    def set_container(self, container):
+        self.container = container
+
+
+    def get_container(self):
+        return self.container
+
 
 
 def start_docker_containers(docker_containers, network_name='demo'):
@@ -414,10 +423,9 @@ def start_docker_containers(docker_containers, network_name='demo'):
 
     # Deploy Containers
     log.info("Starting relevant Docker Containers")
-    c_hooks = {}
     for c in docker_containers:
         log.info("Starting Container %s", c.name)
-        c_hooks[c.name] = d_client.containers.run(
+        c.set_container(d_client.containers.run(
             image=c.image_name + ':' + c.image_tag,
             detach=True,
             network=network_name,
@@ -425,8 +433,9 @@ def start_docker_containers(docker_containers, network_name='demo'):
             name=c.name,
             ports=c.ports,
             environment=c.env,
-            volumes=c.volumes
-        )
+            volumes=c.volumes,
+            auto_remove=True
+        ))
 
 
 def check_version(base, comparator=None, service='nifi'):

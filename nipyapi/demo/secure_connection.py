@@ -248,4 +248,9 @@ try:
 except ValueError:
     reg_client_0 = nipyapi.versioning.get_registry_client(_rc0)
 
+log.info("killing the running containers")
+
+for docker_container in d_containers:
+    docker_container.get_container().kill()
+
 pprint("All Done!")
