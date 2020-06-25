@@ -137,7 +137,7 @@ def create_service_user(identity, service='nifi', strict=True):
 
 
 def create_service_user_group(identity, service='nifi',
-                              users=None, strict=True):
+                              users=[], strict=True):
     """
     Attempts to create a user with the provided identity and member users in
     the given service
