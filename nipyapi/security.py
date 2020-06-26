@@ -44,7 +44,7 @@ def list_service_users(service='nifi'):
 
 def get_service_user(identifier, identifier_type='identity', service='nifi'):
     """
-    Gets the unique user mathcing to the given identifier and type.
+    Gets the unique user matching to the given identifier and type.
 
     Args:
         identifier (str): the string to search for
