@@ -44,7 +44,7 @@ def list_service_users(service='nifi'):
 
 def get_service_user(identifier, identifier_type='identity', service='nifi'):
     """
-    Filters the all users list for a given identifier and type
+    Gets the unique user matching to the given identifier and type.
 
     Args:
         identifier (str): the string to search for
@@ -52,14 +52,14 @@ def get_service_user(identifier, identifier_type='identity', service='nifi'):
         service (str): the name of the service
 
     Returns:
-        None if no match, list of multiple matches, else single object
+        None if no match, else single object
 
     """
     assert service in _valid_services
     assert isinstance(identifier, six.string_types)
     assert isinstance(identifier_type, six.string_types)
     obj = list_service_users(service)
-    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=False)
     return out
 
 
@@ -212,7 +212,7 @@ def list_service_user_groups(service='nifi'):
 def get_service_user_group(identifier, identifier_type='identity',
                            service='nifi'):
     """
-    Filters the all groups list for a given identifier and type
+    Gets the unique group matching to the given identifier and type.
 
     Args:
         identifier (str): the string to search for
@@ -220,14 +220,14 @@ def get_service_user_group(identifier, identifier_type='identity',
         service (str): the name of the service
 
     Returns:
-        None if no match, list of multiple matches, else single object
+        None if no match, else single object
 
     """
     assert service in _valid_services
     assert isinstance(identifier, six.string_types)
     assert isinstance(identifier_type, six.string_types)
     obj = list_service_user_groups(service)
-    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=False)
     return out
 
 
