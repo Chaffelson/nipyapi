@@ -155,25 +155,29 @@ def create_service_user_group(identity, service='nifi',
     """
     assert service in _valid_services
     assert isinstance(identity, six.string_types)
+
+    users_ids = None
+
     if service == 'nifi':
-        assert all(isinstance(user, nipyapi.nifi.UserEntity) for user in users)
-    else:
-        assert all(isinstance(user, nipyapi.registry.User) for user in users)
-    if service == 'registry':
-        user_group_obj = nipyapi.registry.UserGroup(
-            identity=identity,
-            users=[{'identifier': user.identifier} for user in users]
-        )
-    else:
-        # must be nifi
+        if users:
+            assert all(isinstance(user, nipyapi.nifi.UserEntity) for user in users)
+            users_ids = [{'id': user.id} for user in users]
         user_group_obj = nipyapi.nifi.UserGroupEntity(
             revision=nipyapi.nifi.RevisionDTO(
                 version=0
             ),
             component=nipyapi.nifi.UserGroupDTO(
                 identity=identity,
-                users=[{'id': user.id} for user in users]
+                users=users_ids
             )
+        )
+    else:
+        if users:
+            assert all(isinstance(user, nipyapi.registry.User) for user in users)
+            users_ids = [{'identifier': user.identifier} for user in users]
+        user_group_obj = nipyapi.registry.UserGroup(
+            identity=identity,
+            users=users_ids
         )
     try:
         return getattr(nipyapi, service).TenantsApi().create_user_group(
