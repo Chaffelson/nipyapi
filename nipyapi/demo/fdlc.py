@@ -423,8 +423,8 @@ def step_e_check_sensitive_processors():
           "the API calls list 'canvas.list_sensitive_processors()'"
           "\nFunction 'nipyapi.canvas.update_processor' as used in step_a is"
           " intended for this purpose"
-          "\nPlease no call 'step_f_set_sensitive_values()'\n"
-          .format(s_proc[0].status.name, ))
+          "\nPlease now call 'step_f_set_sensitive_values()'\n"
+          .format(s_proc[0]))
 
 
 def step_f_set_sensitive_values():
