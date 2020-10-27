@@ -5,10 +5,13 @@ For managing flow deployments
 """
 
 from __future__ import absolute_import
+
+import json
 from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 import logging
 import six
+import xmltodict as xmltodict
 from lxml import etree
 import nipyapi
 
@@ -17,7 +20,9 @@ log = logging.getLogger(__name__)
 __all__ = [
     "list_all_templates", "get_template_by_name", "deploy_template",
     "upload_template", "create_pg_snippet", "create_template",
-    "delete_template", "export_template", 'get_template'
+    "delete_template", "export_template", 'get_template',
+    "load_template_from_xml_file_path", "load_template_from_xml_file_stream",
+    "load_template_from_xml_string"
 ]
 
 
@@ -262,3 +267,60 @@ def list_all_templates(native=True):
             return templates.templates
         return None
     return templates
+
+
+def load_template_from_xml_file_path(file_path):
+    """
+    Loads a TemplateEntity from an xml file for a
+    given path
+
+
+    Args:
+        file_path (str): path to the xml file
+
+    Returns:
+        TemplateEntity
+    """
+    assert isfile(file_path) and access(file_path, R_OK), \
+        SystemError("File {0} invalid or unreadable".format(file_path))
+    with open(file_path, "r") as template_file:
+        return load_template_from_xml_file_stream(template_file)
+
+
+def load_template_from_xml_file_stream(file_stream):
+    """
+    Loads a TemplateEntity from a template xml file
+
+    Args:
+        file_stream (io stream): the xml file stream as returned by open
+
+    Returns:
+        TemplateEntity
+    """
+    return load_template_from_xml_string(file_stream.read())
+
+
+def load_template_from_xml_string(xml_string):
+    """
+    Loads a TemplateEntity from xml string, as if
+    you had read in the xml file to string
+
+    Args:
+        xml_string (str): string of xml
+
+    Returns:
+        TemplateEntity
+    """
+    assert isinstance(xml_string, six.string_types)
+
+    json_string = json.dumps(xmltodict.parse(xml_string))
+    unset = False
+    if nipyapi.config.nifi_config.api_client is None:
+        unset = True
+        nipyapi.config.nifi_config.api_client = nipyapi.nifi.ApiClient()
+
+    template_entity = nipyapi.utils.load(json_string,
+                                         ('nifi', 'TemplateEntity'))
+    if unset:
+        nipyapi.config.nifi_config.api_client = None
+    return template_entity

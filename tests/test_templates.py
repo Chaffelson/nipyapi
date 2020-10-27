@@ -171,3 +171,48 @@ def test_delete_template(regress_nifi, fix_templates):
     assert isinstance(r, nipyapi.nifi.TemplateEntity)
     with pytest.raises(ValueError):
         _ = nipyapi.templates.delete_template('invalid')
+
+
+def test_load_template_from_file_path(fix_templates):
+    template_entity = nipyapi.templates.load_template_from_xml_file_path(fix_templates.c_file)
+    assert isinstance(template_entity, nipyapi.nifi.TemplateEntity)
+    # we should be able to DeepDiff these
+    # but the template _from_ NIFI does not have the inner
+    # snipit
+    # pg = fix_templates.pg.generate()
+    # _ = nipyapi.templates.upload_template(
+    #    pg.id,
+    #    fix_templates.c_file
+    # )
+    # nifi_template = nipyapi.templates.get_template(fix_templates.c_name)
+    # assert nifi_template is not None
+    # assert isinstance(nifi_template, nipyapi.nifi.TemplateEntity)
+    # from deepdiff import DeepDiff
+    # diff_output = DeepDiff(template_entity, nifi_template, ignore_order=True)
+    # assert len(diff_output['type_changes']) == 6
+
+
+def test_load_template_from_file_path_bad_path():
+    with pytest.raises(AssertionError):
+        nipyapi.templates.load_template_from_xml_file_path('nothing-to-see-here.nope')
+    with pytest.raises(TypeError):
+        nipyapi.templates.load_template_from_xml_file_path(None)
+
+
+def test_load_template_from_xml_file(fix_templates):
+    with open(fix_templates.c_file, "r") as template_file:
+        template_entity = nipyapi.templates.load_template_from_xml_file_stream(template_file)
+        assert isinstance(template_entity, nipyapi.nifi.TemplateEntity)
+
+
+def test_load_template_from_xml_string(fix_templates):
+    with open(fix_templates.c_file, "r") as template_file:
+        data = template_file.read()
+        template_entity = nipyapi.templates.load_template_from_xml_string(data)
+        assert isinstance(template_entity, nipyapi.nifi.TemplateEntity)
+
+
+def test_load_template_from_xml_really_json_string():
+    from pyexpat import ExpatError
+    with pytest.raises(ExpatError):
+        nipyapi.templates.load_template_from_xml_string("{'foo':'bar'}")

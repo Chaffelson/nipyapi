@@ -79,7 +79,15 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
 5. You may want to leverage the provided Docker configuration for testing and development
 
  - Install the latest version of Docker
- - Use the provided Docker Compose configuration in ./test_env_config/docker_compose_full_test
+ - Use the provided Docker Compose configuration in ./resources/docker/latest and run the tests::
+
+    $ cd resources/docker/latest
+    $ docker-compose up -d
+    $ cd ../../../
+    $ tox
+    $ cd resources/docker/latest
+    $ docker-compose stop
+
 
 6. You may also want to interactively test your code leveraging the convenience console in the demo package::
 

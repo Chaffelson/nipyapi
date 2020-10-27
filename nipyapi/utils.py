@@ -192,7 +192,7 @@ def filter_obj(obj, value, key, greedy=True):
     if greedy:
         out = [
             i for i in obj if value in
-            reduce(operator.getitem, key_lookup, i.to_dict())
+                              reduce(operator.getitem, key_lookup, i.to_dict())
         ]
     else:
         out = [
@@ -330,6 +330,7 @@ class DockerContainer:
     """
     Helper class for Docker container automation without using Ansible
     """
+
     def __init__(self, name=None, image_name=None, image_tag=None, ports=None,
                  env=None, volumes=None, test_url=None, endpoint=None):
         self.name = name
@@ -355,10 +356,8 @@ class DockerContainer:
     def set_container(self, container):
         self.container = container
 
-
     def get_container(self):
         return self.container
-
 
 
 def start_docker_containers(docker_containers, network_name='demo'):
