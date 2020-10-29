@@ -657,6 +657,8 @@ def test_connect_output_ports(regress_nifi, fix_pg):
 def test_create_funnel(regress_nifi, fix_funnel):
     f_f1 = fix_funnel.generate()
     assert isinstance(f_f1, nifi.FunnelEntity)
+    assert f_f1.component.position.x == 400
+    assert f_f1.component.position.y == 400
 
 
 def test_delete_funnel(regress_nifi, fix_funnel):
