@@ -1536,13 +1536,13 @@ def create_funnel(pg_id, position=None):
         return nipyapi.nifi.ProcessGroupsApi().create_funnel(
             id=pg_id,
             body=nipyapi.nifi.FunnelEntity(
-                position=nipyapi.nifi.PositionDTO(
-                    x=float(position[0]),
-                    y=float(position[1])
-                ),
                 revision=nipyapi.nifi.RevisionDTO(version=0),
                 component=nipyapi.nifi.FunnelDTO(
-                    parent_group_id=pg_id
+                    parent_group_id=pg_id,
+                    position=nipyapi.nifi.PositionDTO(
+                        x=float(position[0]),
+                        y=float(position[1])
+                    ),
                 )
             )
         )
