@@ -195,8 +195,9 @@ def test_load_template_from_file_path(fix_templates):
 def test_load_template_from_file_path_bad_path():
     with pytest.raises(AssertionError):
         nipyapi.templates.load_template_from_xml_file_path('nothing-to-see-here.nope')
-    with pytest.raises(TypeError):
-        nipyapi.templates.load_template_from_xml_file_path(None)
+    with pytest.raises(AssertionError):
+        # TODO: fix so that we can test None as well
+        nipyapi.templates.load_template_from_xml_file_path("")
 
 
 def test_load_template_from_xml_file(fix_templates):
