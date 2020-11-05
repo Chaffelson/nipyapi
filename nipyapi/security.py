@@ -59,7 +59,9 @@ def get_service_user(identifier, identifier_type='identity', service='nifi'):
     assert isinstance(identifier, six.string_types)
     assert isinstance(identifier_type, six.string_types)
     obj = list_service_users(service)
-    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=False)
+    out = nipyapi.utils.filter_obj(
+        obj, identifier, identifier_type, greedy=False
+    )
     return out
 
 
@@ -160,7 +162,9 @@ def create_service_user_group(identity, service='nifi',
 
     if service == 'nifi':
         if users:
-            assert all(isinstance(user, nipyapi.nifi.UserEntity) for user in users)
+            assert all(
+                isinstance(user, nipyapi.nifi.UserEntity) for user in users
+            )
             users_ids = [{'id': user.id} for user in users]
         user_group_obj = nipyapi.nifi.UserGroupEntity(
             revision=nipyapi.nifi.RevisionDTO(
@@ -173,7 +177,9 @@ def create_service_user_group(identity, service='nifi',
         )
     else:
         if users:
-            assert all(isinstance(user, nipyapi.registry.User) for user in users)
+            assert all(
+                isinstance(user, nipyapi.registry.User) for user in users
+            )
             users_ids = [{'identifier': user.identifier} for user in users]
         user_group_obj = nipyapi.registry.UserGroup(
             identity=identity,
@@ -227,7 +233,8 @@ def get_service_user_group(identifier, identifier_type='identity',
     assert isinstance(identifier, six.string_types)
     assert isinstance(identifier_type, six.string_types)
     obj = list_service_user_groups(service)
-    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=False)
+    out = nipyapi.utils.filter_obj(
+        obj, identifier, identifier_type, greedy=False)
     return out
 
 

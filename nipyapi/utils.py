@@ -355,10 +355,8 @@ class DockerContainer:
     def set_container(self, container):
         self.container = container
 
-
     def get_container(self):
         return self.container
-
 
 
 def start_docker_containers(docker_containers, network_name='demo'):

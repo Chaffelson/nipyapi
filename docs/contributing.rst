@@ -118,3 +118,4 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The pull request should work for Python 2.7 and 3.6, and for PyPy. Check
    https://travis-ci.org/Chaffelson/nipyapi/pull_requests
    and make sure that the tests pass for all supported Python versions.
+4. Pull requests should be created against the 'next' branch for new features, or 'master' for critical patches to current functionality.
