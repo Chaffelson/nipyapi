@@ -11,7 +11,7 @@ from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 import logging
 import six
-import xmltodict as xmltodict
+import xmltodict
 from lxml import etree
 import nipyapi
 
