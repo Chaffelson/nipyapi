@@ -900,14 +900,6 @@ nipyapi.nifi.models.lineage\_results\_dto module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.models.link module
--------------------------------
-
-.. automodule:: nipyapi.nifi.models.link
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 nipyapi.nifi.models.listing\_request\_dto module
 ------------------------------------------------
 
@@ -1756,14 +1748,6 @@ nipyapi.nifi.models.tenants\_entity module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.models.the\_position\_of\_a\_component\_on\_the\_graph module
---------------------------------------------------------------------------
-
-.. automodule:: nipyapi.nifi.models.the_position_of_a_component_on_the_graph
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 nipyapi.nifi.models.transaction\_result\_entity module
 ------------------------------------------------------
 
@@ -1776,14 +1760,6 @@ nipyapi.nifi.models.update\_controller\_service\_reference\_request\_entity modu
 ----------------------------------------------------------------------------------
 
 .. automodule:: nipyapi.nifi.models.update_controller_service_reference_request_entity
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.models.uri\_builder module
----------------------------------------
-
-.. automodule:: nipyapi.nifi.models.uri_builder
     :members:
     :undoc-members:
     :show-inheritance:

@@ -101,13 +101,13 @@ nipyapi.nifi.apis.output\_ports\_api module
     :show-inheritance:
 
 nipyapi.nifi.apis.parameter\_contexts\_api module
---------------------------------------
+-------------------------------------------------
 
 .. automodule:: nipyapi.nifi.apis.parameter_contexts_api
     :members:
     :undoc-members:
     :show-inheritance:
-    
+
 nipyapi.nifi.apis.policies\_api module
 --------------------------------------
 
