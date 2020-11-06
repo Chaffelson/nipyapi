@@ -8,6 +8,7 @@ import logging
 import pytest
 from os import environ, path
 from collections import namedtuple
+from time import sleep
 import nipyapi
 
 log = logging.getLogger(__name__)
@@ -536,6 +537,7 @@ def fixture_ver_flow(request, fix_bucket, fix_pg, fix_proc):
             comment='NiPyApi Test',
             desc='NiPyApi Test'
         )
+    sleep(0.5)
     f_flow = nipyapi.versioning.get_flow_in_bucket(
             bucket_id=f_bucket.identifier,
             identifier=f_info.version_control_information.flow_id,
