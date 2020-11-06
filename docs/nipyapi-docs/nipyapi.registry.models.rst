@@ -84,14 +84,6 @@ nipyapi.registry.models.fields module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.registry.models.link module
------------------------------------
-
-.. automodule:: nipyapi.registry.models.link
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 nipyapi.registry.models.permissions module
 ------------------------------------------
 
@@ -120,22 +112,6 @@ nipyapi.registry.models.tenant module
 -------------------------------------
 
 .. automodule:: nipyapi.registry.models.tenant
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.registry.models.the\_position\_of\_a\_component\_on\_the\_graph module
-------------------------------------------------------------------------------
-
-.. automodule:: nipyapi.registry.models.the_position_of_a_component_on_the_graph
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.registry.models.uri\_builder module
--------------------------------------------
-
-.. automodule:: nipyapi.registry.models.uri_builder
     :members:
     :undoc-members:
     :show-inheritance:

@@ -2,13 +2,13 @@ version: '2'
 # the latest tag is not pulling the latest image on Travis, so setting explicit
 services:
   nifi:
-    image: apache/nifi:1.11.4
+    image: apache/nifi:1.12.1
     container_name: nifi
     hostname: nifi
     ports:
       - "8080:8080"
   registry:
-    image: apache/nifi-registry:0.5.0
+    image: apache/nifi-registry:0.7.0
     container_name: registry
     hostname: registry
     ports:

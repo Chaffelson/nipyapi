@@ -2,6 +2,19 @@
 History
 =======
 
+0.15.0 (2020-11-06)
+-------------------
+
+| Updated NiFi client and helpers to 1.12.1, Registry client to 0.7.0
+| Release to include new fixes and features in baseline, work continues on improving different Authentication methods
+
+
+* Added new Parameter contexts API to docs
+* Resolved bug where funnel position did not honour requested location (thanks @geocali)
+* Fixed issue where users expected exact search by default but some functions were silently using greedy search (thanks @razdob15)
+* Change deploy_template to use floats for deployment instead of int (thanks @bgeisberger)
+* Fixed creation of empty user groups (thanks @razdob15)
+
 0.14.0 (2019-11-06)
 -------------------
 
