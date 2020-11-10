@@ -7,6 +7,7 @@ For interactions with the NiFi Registry Service and related functions
 from __future__ import absolute_import
 import logging
 import six
+from future.utils import raise_from as _raise
 import nipyapi
 # Due to line lengths, creating shortened names for these objects
 from nipyapi.nifi import VersionControlInformationDTO as VciDTO
@@ -157,7 +158,7 @@ def delete_registry_bucket(bucket):
             bucket_id=bucket.identifier
         )
     except (nipyapi.registry.rest.ApiException, AttributeError) as e:
-        raise ValueError(e)
+        _raise(ValueError(e), e)
 
 
 def get_registry_bucket(identifier, identifier_type='name'):

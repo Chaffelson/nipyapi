@@ -11,7 +11,7 @@ import json
 import re
 import time
 from copy import copy
-from functools import reduce
+from functools import reduce, wraps
 import operator
 from contextlib import contextmanager
 from packaging import version
@@ -21,12 +21,15 @@ import docker
 from docker.errors import ImageNotFound
 import requests
 from requests.models import Response
+from future.utils import raise_from as _raise
 import nipyapi
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
            'start_docker_containers', 'DockerContainer',
-           'infer_object_label_from_class', 'bypass_slash_encoding']
+           'infer_object_label_from_class', 'bypass_slash_encoding',
+           'exception_handler', 'enforce_min_ver', 'check_version'
+           ]
 
 log = logging.getLogger(__name__)
 
@@ -174,9 +177,11 @@ def filter_obj(obj, value, key, greedy=True):
         return None
     try:
         obj_class_name = obj[0].__class__.__name__
-    except (TypeError, IndexError):
-        raise TypeError("The passed object {0} is not a known filterable"
-                        " nipyapi object".format(obj.__class__.__name__))
+    except (TypeError, IndexError) as e:
+        _raise(
+            TypeError(
+                "The passed object {0} is not a filterable nipyapi object"
+                .format(obj.__class__.__name__)), e)
     # Check if this class has a registered filter in Nipyapi.config
     this_filter = nipyapi.config.registered_filters.get(obj_class_name, False)
     if not this_filter:
@@ -362,9 +367,11 @@ class DockerContainer:
             return 'ConnectionError'
 
     def set_container(self, container):
+        """Set the container object"""
         self.container = container
 
     def get_container(self):
+        """Fetch the container object"""
         return self.container
 
 
@@ -386,8 +393,8 @@ def start_docker_containers(docker_containers, network_name='demo'):
     # Test if Docker Service is available
     try:
         d_client.version()
-    except Exception:
-        raise EnvironmentError("Docker Service not found")
+    except Exception as e:
+        _raise(EnvironmentError("Docker Service not found"), e)
 
     for target in docker_containers:
         assert isinstance(target, DockerContainer)
@@ -493,6 +500,26 @@ def check_version(base, comparator=None, service='nifi'):
     return 0
 
 
+def enforce_min_ver(min_version, bool_response=False):
+    """
+    Raises an error if target NiFi environment is not minimum version
+    Args:
+        min_version (str): Version to check against
+        bool_response (bool): If True, will return True instead of
+         raising error
+
+    Returns:
+        (bool) or (NotImplementedError)
+    """
+    if check_version(min_version) == 1:
+        if not bool_response:
+            raise NotImplementedError(
+                "This function is not available "
+                "before NiFi version " + str(min_version))
+        return True
+    return False
+
+
 def infer_object_label_from_class(obj):
     """
     Returns the expected STRING label for an object class required by certain
@@ -555,4 +582,21 @@ def rest_exceptions():
         yield
     except (nipyapi.nifi.rest.ApiException,
             nipyapi.registry.rest.ApiException) as e:
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
+
+
+def exception_handler(status_code=None, response=None):
+    """Simple Function wrapper to handle HTTP Status Exceptions"""
+    def func_wrapper(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except (nipyapi.nifi.rest.ApiException,
+                    nipyapi.registry.rest.ApiException) as e:
+                if status_code is not None and e.status == int(status_code):
+                    return response
+                else:
+                    _raise(ValueError(e.body), e)
+        return wrapper
+    return func_wrapper

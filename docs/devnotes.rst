@@ -156,6 +156,7 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     deactivate
     Push changes to Github
     Check build on TravisCI
+    Check dockerhub automated build
     # You may have to reactivate your original virtualenv
     twine upload dist/*
     # You may get a file exists error, check you're not trying to reupload an existing version

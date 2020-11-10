@@ -36,6 +36,7 @@ test_read_file_path = test_basename + '_fs_read_dir'
 test_write_file_name = test_basename + '_fs_write_file'
 test_ver_export_tmpdir = test_basename + '_ver_flow_dir'
 test_ver_export_filename = test_basename + "_ver_flow_export"
+test_parameter_context_name = test_basename + "_parameter_context"
 
 test_user_name = test_basename + '_user'
 test_user_group_name = test_basename + '_user_group'
@@ -264,6 +265,17 @@ def remove_test_funnels():
     ]
 
 
+def remove_test_parameter_contexts():
+    if nipyapi.utils.check_version('1.10.0') < 1:
+        _ = [
+            nipyapi.parameters.delete_parameter_context(li) for li
+            in nipyapi.parameters.list_all_parameter_contexts() if
+            test_basename in li.component.name
+        ]
+    else:
+        log.info("NiFi version is older than 1.10, skipping Parameter Context cleanup")
+
+
 def remove_test_buckets():
     _ = [nipyapi.versioning.delete_registry_bucket(li) for li
          in nipyapi.versioning.list_registry_buckets() if
@@ -339,6 +351,7 @@ def cleanup_nifi():
     remove_test_ports()
     remove_test_funnels()
     remove_test_rpgs()
+    remove_test_parameter_contexts()
     if test_security and 'https' in nipyapi.nifi.configuration.host:
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')
@@ -482,6 +495,19 @@ def fixture_proc(request):
             )
 
     request.addfinalizer(remove_test_processors)
+    return Dummy()
+
+
+@pytest.fixture(name='fix_context')
+def fixture_context(request):
+    class Dummy:
+        def __init__(self):
+            pass
+
+        def generate(self, name=test_parameter_context_name):
+            return nipyapi.parameters.create_parameter_context(name)
+
+    request.addfinalizer(remove_test_parameter_contexts)
     return Dummy()
 
 

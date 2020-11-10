@@ -3,6 +3,7 @@
 # Basics
 setuptools>=38.5
 six>=1.11.0
+future
 
 # Version comparison
 packaging>=17.1
