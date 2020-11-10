@@ -25,7 +25,7 @@ logging.basicConfig(level=logging.WARNING)
 # convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
-default_host = 'localhost'  # Default to localhost for release
+default_host = '34.244.104.232'  # Default to localhost for release
 #
 nifi_config.host = os.getenv(
     'NIFI_API_ENDPOINT',
