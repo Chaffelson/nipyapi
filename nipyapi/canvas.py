@@ -751,7 +751,7 @@ def update_process_group(pg, update, refresh=True):
         )
 
 
-def update_processor(processor, update):
+def update_processor(processor, update, refresh=True):
     """
     Updates configuration parameters for a given Processor.
 
@@ -761,6 +761,8 @@ def update_processor(processor, update):
     Args:
         processor (ProcessorEntity): The Processor to target for update
         update (ProcessorConfigDTO): The new configuration parameters
+        refresh (bool): Whether to refresh the Processor object state
+          before applying the update
 
     Returns:
         (ProcessorEntity): The updated ProcessorEntity
@@ -771,6 +773,8 @@ def update_processor(processor, update):
             "update param is not an instance of nifi.ProcessorConfigDTO"
         )
     with nipyapi.utils.rest_exceptions():
+        if refresh:
+            processor = get_processor(processor.id, 'id')
         return nipyapi.nifi.ProcessorsApi().update_processor(
             id=processor.id,
             body=nipyapi.nifi.ProcessorEntity(
