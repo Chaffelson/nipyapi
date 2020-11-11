@@ -18,7 +18,9 @@ __all__ = [
     "list_all_parameter_contexts", "create_parameter_context",
     "delete_parameter_context", "get_parameter_context",
     "update_parameter_context", "prepare_parameter",
-    "delete_parameter_from_context"
+    "delete_parameter_from_context", "upsert_parameter_to_context",
+    "assign_context_to_process_group",
+    "remove_context_from_process_group"
 ]
 
 
@@ -217,3 +219,45 @@ def upsert_parameter_to_context(context, parameter):
     enforce_min_ver('1.10.0')
     context.component.parameters = [parameter]
     return update_parameter_context(context=context)
+
+
+def assign_context_to_process_group(pg, context_id):
+    """
+    Assigns a given Parameter Context to a specific Process Group
+
+    Args:
+        pg (ProcessGroupEntity): The Process Group to target
+        context_id (str): The ID of the Parameter Context
+
+    Returns:
+        (ProcessGroupEntity) The updated Process Group
+    """
+    assert isinstance(context_id, str)
+    return nipyapi.canvas.update_process_group(
+        pg=pg,
+        update={
+            'parameter_context': {
+                'id': context_id
+            }
+        }
+    )
+
+
+def remove_context_from_process_group(pg):
+    """
+    Clears any Parameter Context from the given Process Group
+
+    Args:
+        pg (ProcessGroupEntity): The Process Group to target
+
+    Returns:
+        (ProcessGroupEntity) The updated Process Group
+    """
+    return nipyapi.canvas.update_process_group(
+        pg=pg,
+        update={
+            'parameter_context': {
+                'id': None
+            }
+        }
+    )

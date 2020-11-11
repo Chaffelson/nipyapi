@@ -111,3 +111,23 @@ def test_upsert_parameter_to_context(regress_nifi, fix_context):
         parameters.prepare_parameter('Black', 'Lives', 'Matter', True)
     )
     assert r1.component.parameters[0].parameter.description == 'Matter'
+
+
+def test_assign_context_to_process_group(regress_nifi, fix_pg, fix_context):
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+    c1 = fix_context.generate()
+    pg1 = fix_pg.generate()
+    r1 = parameters.assign_context_to_process_group(pg1, c1.id)
+    assert r1.component.parameter_context.id == c1.id
+
+
+def test_remove_context_from_process_group(regress_nifi, fix_pg, fix_context):
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+    c1 = fix_context.generate()
+    pg1 = fix_pg.generate()
+    r1 = parameters.assign_context_to_process_group(pg1, c1.id)
+    assert r1.component.parameter_context.id == c1.id
+    r2 = parameters.remove_context_from_process_group(pg1)
+    assert r2.component.parameter_context is None

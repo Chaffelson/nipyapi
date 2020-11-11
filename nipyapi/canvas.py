@@ -719,13 +719,16 @@ def schedule_processor(processor, scheduled, refresh=True):
         return False
 
 
-def update_process_group(pg, update):
+def update_process_group(pg, update, refresh=True):
     """
         Updates a given Process Group.
 
         Args:
-            pg (ProcessGroupEntity): The Processor to target for update
+            pg (ProcessGroupEntity): The Process Group to
+              target for update
             update (dict): key:value pairs to update
+            refresh (bool): Whether to refresh the Process Group before
+              applying the update
 
         Returns:
             (ProcessGroupEntity): The updated ProcessorEntity
@@ -733,6 +736,8 @@ def update_process_group(pg, update):
         """
     assert isinstance(pg, nipyapi.nifi.ProcessGroupEntity)
     with nipyapi.utils.rest_exceptions():
+        if refresh:
+            pg = get_process_group(pg.id, 'id')
         return nipyapi.nifi.ProcessGroupsApi().update_process_group(
             id=pg.id,
             body=nipyapi.nifi.ProcessGroupEntity(
@@ -1282,6 +1287,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
     handle = nipyapi.nifi.ControllerServicesApi()
+    out = None
     try:
         if identifier_type == 'id':
             out = handle.get_controller_service(identifier)

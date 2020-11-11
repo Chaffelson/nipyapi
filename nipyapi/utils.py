@@ -596,7 +596,6 @@ def exception_handler(status_code=None, response=None):
                     nipyapi.registry.rest.ApiException) as e:
                 if status_code is not None and e.status == int(status_code):
                     return response
-                else:
-                    _raise(ValueError(e.body), e)
+                _raise(ValueError(e.body), e)
         return wrapper
     return func_wrapper
