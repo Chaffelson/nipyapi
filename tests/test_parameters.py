@@ -13,10 +13,14 @@ from nipyapi.utils import check_version
 
 
 def test_create_parameter_context(regress_nifi, fix_context):
-    if check_version('1.10.0') > 0:
+    if check_version('1.10.0') >= 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate(name=conftest.test_parameter_context_name)
     assert isinstance(c1, ParameterContextEntity)
+    with pytest.raises(AssertionError):
+        _ = parameters.create_parameter_context(name={})
+    with pytest.raises(AssertionError):
+        _ = parameters.create_parameter_context(name=conftest.test_basename, description={})
     with pytest.raises(ApiException):
         # Attempt to generate duplicate Parameter Context
         _ = fix_context.generate(name=conftest.test_parameter_context_name)

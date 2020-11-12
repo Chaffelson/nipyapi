@@ -39,7 +39,7 @@ def list_all_parameter_contexts():
 @exception_handler(404, None)
 def get_parameter_context(identifier, identifier_type='name', greedy=True):
     """
-    Gets one or more Parameter Contexts matching a given idenitifier
+    Gets one or more Parameter Contexts matching a given identifier
 
     Args:
         identifier (str): The Name or ID matching Parameter Context(s)
@@ -80,7 +80,8 @@ def create_parameter_context(name, description=None, parameters=None):
 
     """
     enforce_min_ver('1.10.0')
-    assert all(x is None or isinstance(x, str) for x in [name, description])
+    assert isinstance(name, str)
+    assert description is None or isinstance(description, str)
     handle = nipyapi.nifi.ParameterContextsApi()
     out = handle.create_parameter_context(
         body=ParameterContextEntity(
@@ -88,21 +89,21 @@ def create_parameter_context(name, description=None, parameters=None):
             component=ParameterContextDTO(
                 name=name,
                 description=description,
-                parameters=parameters if parameters else list()
+                parameters=parameters if parameters else list()  # list() per NiFi Jira 7995
             )
-
         )
     )
     return out
 
 
-def update_parameter_context(context):
+def update_parameter_context(context, refresh=True):
     """
     Update an already existing Parameter Context
 
     Args:
         context (ParameterContextEntity): Parameter Context updated
           to be applied
+        refresh (bool): Whether to refresh the object before Updating
 
     Returns:
         (ParameterContextEntity) The updated Parameter Context
@@ -133,15 +134,20 @@ def update_parameter_context(context):
         _update_complete, target.id, update_request.request.request_id,
         nipyapi_delay=1, nipyapi_max_wait=10
     )
+    _ = handle.delete_update_request(
+        context_id=target.id,
+        request_id=update_request.request.request_id
+    )
     return get_parameter_context(context.id, identifier_type='id')
 
 
-def delete_parameter_context(context):
+def delete_parameter_context(context, refresh=True):
     """
     Removes a Parameter Context
 
     Args:
         context (ParameterContextEntity): Parameter Context to be deleted
+        refresh (bool): Whether to refresh the Context before Deletion
 
     Returns:
         (ParameterContextEntity) The removed Parameter Context
@@ -149,10 +155,11 @@ def delete_parameter_context(context):
     enforce_min_ver('1.10.0')
     assert isinstance(context, nipyapi.nifi.ParameterContextEntity)
     handle = nipyapi.nifi.ParameterContextsApi()
-    target = handle.get_parameter_context(context.id)
+    if refresh:
+        context = handle.get_parameter_context(context.id)
     return handle.delete_parameter_context(
-        id=target.id,
-        version=target.revision.version
+        id=context.id,
+        version=context.revision.version
     )
 
 
