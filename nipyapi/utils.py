@@ -8,6 +8,7 @@ Convenience utility functions for NiPyApi, not really intended for external use
 from __future__ import absolute_import, unicode_literals
 import logging
 import json
+import re
 import time
 from copy import copy
 from functools import reduce
@@ -436,10 +437,25 @@ def start_docker_containers(docker_containers, network_name='demo'):
         ))
 
 
+def strip_snapshot(java_version):
+    """
+    Strips the -SNAPSHOT suffix from a version string
+
+    Args:
+        java_version (str): the version string
+    """
+    assert isinstance(java_version, six.string_types)
+    return re.sub("-SNAPSHOT", "", java_version)
+
+
 def check_version(base, comparator=None, service='nifi'):
     """
     Compares version 'a' against either version 'b', or the version of the
     currently connected service instance.
+
+    Since NiFi is java, it may return a version with -SNAPSHOT as part of it.
+    As such, that will be stripped from either the comparator version or
+    the version returned from NiFi
 
     Args:
         base (str): The base version for the comparison test
@@ -457,12 +473,11 @@ def check_version(base, comparator=None, service='nifi'):
     ver_a = version.parse(base)
     if comparator:
         # if b is set, we compare the passed versions
+        comparator = strip_snapshot(comparator)
         ver_b = version.parse(comparator)
     else:
         # if b not set, we compare a against the connected nifi instance
-        ver_b = version.parse(
-            nipyapi.system.get_nifi_version_info().ni_fi_version
-        )
+        ver_b = version.parse(strip_snapshot(nipyapi.system.get_nifi_version_info().ni_fi_version))
     if ver_b > ver_a:
         return -1
     if ver_b < ver_a:

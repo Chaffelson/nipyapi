@@ -135,6 +135,10 @@ def test_check_version(regress_nifi):
     assert utils.check_version('1.2.3', '0.2.3') == 1
     # Check RC
     assert utils.check_version('1.0.0-rc1', '1.0.0') == -1
+    # Check that snapshots are disregarded
+    assert utils.check_version('1.11.0', '1.13.0-SNAPSHOT') == -1
+    assert utils.check_version('1.11.0', "1.11.0-SNAPSHOT") == 0
+    assert utils.check_version('1.11.0', "1.10.0-SNAPSHOT") == 1
     # Check current version
     assert utils.check_version(
         system.get_nifi_version_info().ni_fi_version
