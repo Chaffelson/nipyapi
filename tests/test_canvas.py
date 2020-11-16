@@ -6,7 +6,7 @@
 import pytest
 import time
 from tests import conftest
-from nipyapi import canvas, nifi
+from nipyapi import canvas, nifi, utils, config
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
 from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
 
@@ -33,6 +33,14 @@ def test_get_flow():
     assert r.process_group_flow.breadcrumb.breadcrumb.name == 'NiFi Flow'
     with pytest.raises(ValueError):
         _ = canvas.get_flow('definitelyNotAPG')
+
+
+def test_deser_flow():
+    r = canvas.get_flow('root')
+    assert isinstance(r, ProcessGroupFlowEntity)
+    s = utils.dump(r, 'json')
+    f = utils.load(s, ('nifi', 'ProcessGroupFlowEntity'))
+    assert isinstance(f, ProcessGroupFlowEntity)
 
 
 def test_recurse_flow(regress_nifi, fix_pg):

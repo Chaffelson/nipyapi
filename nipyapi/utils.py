@@ -33,19 +33,27 @@ log = logging.getLogger(__name__)
 
 def dump(obj, mode='json'):
     """
-    Dumps a native datatype object to json or yaml, defaults to json
+    Dumps a native datatype object or swagger entity to json or yaml, defaults to json
 
     Args:
-        obj (varies): The native datatype object to serialise
+        obj (varies): The native datatype object or swagger type to serialise
         mode (str): 'json' or 'yaml', the supported export modes
 
     Returns (str): The serialised object
 
     """
     assert mode in ['json', 'yaml']
+    unset = False
+    if nipyapi.config.nifi_config.api_client is None:
+        unset = True
+        nipyapi.config.nifi_config.api_client = nipyapi.nifi.ApiClient()
+
+    prepared_obj = nipyapi.config.nifi_config.api_client.sanitize_for_serialization(obj)
+    if unset:
+        nipyapi.config.nifi_config.api_client = None
     try:
         out = json.dumps(
-            obj=obj,
+            obj=prepared_obj,
             sort_keys=True,
             indent=4
             # default=_json_default
