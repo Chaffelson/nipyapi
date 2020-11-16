@@ -4,15 +4,16 @@
 """Tests for `nipyapi` package."""
 
 import pytest
-from tests import conftest
 import six
 from lxml import etree
+
 import nipyapi
+from tests import conftest
 
 if six.PY3:
-    from io import StringIO
+    pass
 elif six.PY2:
-    from StringIO import StringIO
+    pass
 
 
 def test_upload_template(regress_nifi, fix_templates):
@@ -181,15 +182,15 @@ def test_load_template_from_file_path(fix_templates):
     # snipit
     # pg = fix_templates.pg.generate()
     # _ = nipyapi.templates.upload_template(
-    #    pg.id,
-    #    fix_templates.c_file
+    #     pg.id,
+    #     fix_templates.c_file
     # )
     # nifi_template = nipyapi.templates.get_template(fix_templates.c_name)
     # assert nifi_template is not None
     # assert isinstance(nifi_template, nipyapi.nifi.TemplateEntity)
     # from deepdiff import DeepDiff
     # diff_output = DeepDiff(template_entity, nifi_template, ignore_order=True)
-    # assert len(diff_output['type_changes']) == 6
+    # assert not diff_output.get('type_changes')
 
 
 def test_load_template_from_file_path_bad_path():
@@ -217,3 +218,17 @@ def test_load_template_from_xml_really_json_string():
     from pyexpat import ExpatError
     with pytest.raises(ExpatError):
         nipyapi.templates.load_template_from_xml_string("{'foo':'bar'}")
+
+
+def test_load_template_from_file_to_dict_and_back(fix_templates):
+    with open(fix_templates.c_file, "r") as template_file:
+        template_entity = nipyapi.templates.load_template_from_xml_file_stream(template_file)
+        assert isinstance(template_entity, nipyapi.nifi.TemplateEntity)
+        json_string = nipyapi.utils.dump(template_entity, 'json')
+        assert json_string
+        new_template_entity = nipyapi.utils.load(json_string,('nifi', 'TemplateEntity'))
+        assert new_template_entity
+        assert isinstance(new_template_entity, nipyapi.nifi.TemplateEntity)
+        from deepdiff import DeepDiff
+        diff_output = DeepDiff(template_entity, new_template_entity, ignore_order=True)
+        assert not diff_output.get('type_changes')
