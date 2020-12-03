@@ -7,7 +7,9 @@ For interactions with the NiFi Canvas.
 from __future__ import absolute_import
 import logging
 import six
+from future.utils import raise_from as _raise
 import nipyapi
+from nipyapi.utils import exception_handler
 
 __all__ = [
     "get_root_pg_id", "recurse_flow", "get_flow", "get_process_group_status",
@@ -119,6 +121,7 @@ def get_process_group_status(pg_id='root', detail='names'):
     return raw
 
 
+@exception_handler(404, None)
 def get_process_group(identifier, identifier_type='name', greedy=True):
     """
     Filters the list of all process groups against a given identifier string
@@ -412,7 +415,7 @@ def delete_process_group(process_group, force=False, refresh=True):
                 version=target.revision.version,
                 client_id=target.revision.client_id
             )
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
 
 
 def create_process_group(parent_pg, new_pg_name, location, comment=''):
@@ -465,13 +468,14 @@ def list_all_processor_types():
         return nipyapi.nifi.FlowApi().get_processor_types()
 
 
-def get_processor_type(identifier, identifier_type='name'):
+def get_processor_type(identifier, identifier_type='name', greedy=True):
     """
     Gets the abstract object describing a Processor, or list thereof
 
     Args:
         identifier (str): the string to filter the list for
         identifier_type (str): the field to filter on, set in config.py
+        greedy (bool): False for exact match, True for greedy match
 
     Returns:
         None for no matches, Single Object for unique match,
@@ -481,7 +485,9 @@ def get_processor_type(identifier, identifier_type='name'):
     with nipyapi.utils.rest_exceptions():
         obj = list_all_processor_types().processor_types
     if obj:
-        return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+        return nipyapi.utils.filter_obj(
+            obj, identifier, identifier_type, greedy=greedy
+        )
     return obj
 
 
@@ -502,6 +508,8 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
          (ProcessorEntity): The new Processor
 
     """
+    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    assert isinstance(processor, nipyapi.nifi.DocumentedTypeDTO)
     if name is None:
         processor_name = processor.type.split('.')[-1]
     else:
@@ -528,6 +536,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
         )
 
 
+@exception_handler(404, None)
 def get_processor(identifier, identifier_type='name', greedy=True):
     """
     Filters the list of all Processors against the given identifier string in
@@ -545,14 +554,13 @@ def get_processor(identifier, identifier_type='name', greedy=True):
     """
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
-    with nipyapi.utils.rest_exceptions():
-        if identifier_type == 'id':
-            out = nipyapi.nifi.ProcessorsApi().get_processor(identifier)
-        else:
-            obj = list_all_processors()
-            out = nipyapi.utils.filter_obj(
-                obj, identifier, identifier_type, greedy=greedy
-            )
+    if identifier_type == 'id':
+        out = nipyapi.nifi.ProcessorsApi().get_processor(identifier)
+    else:
+        obj = list_all_processors()
+        out = nipyapi.utils.filter_obj(
+            obj, identifier, identifier_type, greedy=greedy
+        )
     return out
 
 
@@ -575,6 +583,8 @@ def delete_processor(processor, refresh=True, force=False):
     assert isinstance(force, bool)
     if refresh or force:
         target = get_processor(processor.id, 'id')
+        if target is None:
+            return None  # Processor does not exist
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
     else:
         target = processor
@@ -709,13 +719,16 @@ def schedule_processor(processor, scheduled, refresh=True):
         return False
 
 
-def update_process_group(pg, update):
+def update_process_group(pg, update, refresh=True):
     """
         Updates a given Process Group.
 
         Args:
-            pg (ProcessGroupEntity): The Processor to target for update
+            pg (ProcessGroupEntity): The Process Group to
+              target for update
             update (dict): key:value pairs to update
+            refresh (bool): Whether to refresh the Process Group before
+              applying the update
 
         Returns:
             (ProcessGroupEntity): The updated ProcessorEntity
@@ -723,6 +736,8 @@ def update_process_group(pg, update):
         """
     assert isinstance(pg, nipyapi.nifi.ProcessGroupEntity)
     with nipyapi.utils.rest_exceptions():
+        if refresh:
+            pg = get_process_group(pg.id, 'id')
         return nipyapi.nifi.ProcessGroupsApi().update_process_group(
             id=pg.id,
             body=nipyapi.nifi.ProcessGroupEntity(
@@ -736,7 +751,7 @@ def update_process_group(pg, update):
         )
 
 
-def update_processor(processor, update):
+def update_processor(processor, update, refresh=True):
     """
     Updates configuration parameters for a given Processor.
 
@@ -746,6 +761,8 @@ def update_processor(processor, update):
     Args:
         processor (ProcessorEntity): The Processor to target for update
         update (ProcessorConfigDTO): The new configuration parameters
+        refresh (bool): Whether to refresh the Processor object state
+          before applying the update
 
     Returns:
         (ProcessorEntity): The updated ProcessorEntity
@@ -756,6 +773,8 @@ def update_processor(processor, update):
             "update param is not an instance of nifi.ProcessorConfigDTO"
         )
     with nipyapi.utils.rest_exceptions():
+        if refresh:
+            processor = get_processor(processor.id, 'id')
         return nipyapi.nifi.ProcessorsApi().update_processor(
             id=processor.id,
             body=nipyapi.nifi.ProcessorEntity(
@@ -1272,6 +1291,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
     assert isinstance(identifier, six.string_types)
     assert identifier_type in ['name', 'id']
     handle = nipyapi.nifi.ControllerServicesApi()
+    out = None
     try:
         if identifier_type == 'id':
             out = handle.get_controller_service(identifier)
@@ -1281,7 +1301,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:
             return False
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
     return out
 
 
@@ -1294,6 +1314,29 @@ def list_all_controller_types():
     """
     handle = nipyapi.nifi.FlowApi()
     return handle.get_controller_service_types().controller_service_types
+
+
+def get_controller_type(identifier, identifier_type='name', greedy=True):
+    """
+    Gets the abstract object describing a controller, or list thereof
+
+    Args:
+        identifier (str): the string to filter the list for
+        identifier_type (str): the field to filter on, set in config.py
+        greedy (bool): False for exact match, True for greedy match
+
+    Returns:
+        None for no matches, Single Object for unique match,
+        list(Objects) for multiple matches
+
+    """
+    with nipyapi.utils.rest_exceptions():
+        obj = list_all_controller_types()
+    if obj:
+        return nipyapi.utils.filter_obj(
+            obj, identifier, identifier_type, greedy=greedy
+        )
+    return obj
 
 
 def list_all_by_kind(kind, pg_id='root', descendants=True):

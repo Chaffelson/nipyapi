@@ -10,6 +10,7 @@ import ssl
 from copy import copy
 import six
 import urllib3
+from future.utils import raise_from as _raise
 import nipyapi
 
 log = logging.getLogger(__name__)
@@ -96,7 +97,7 @@ def remove_service_user(user, service='nifi', strict=True):
         if 'Unable to find user' in e.body or 'does not exist' in e.body:
             if not strict:
                 return None
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
 
 
 def create_service_user(identity, service='nifi', strict=True):
@@ -135,7 +136,7 @@ def create_service_user(identity, service='nifi', strict=True):
             nipyapi.registry.rest.ApiException) as e:
         if 'already exists' in e.body and not strict:
             return get_service_user(identity, service=service)
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
 
 
 def create_service_user_group(identity, service='nifi',
@@ -194,7 +195,7 @@ def create_service_user_group(identity, service='nifi',
         if 'already exists' in e.body:
             if not strict:
                 return get_service_user_group(identity, service=service)
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
 
 
 def list_service_user_groups(service='nifi'):
@@ -271,7 +272,7 @@ def remove_service_user_group(group, service='nifi', strict=True):
         if 'Unable to find user' in e.body or 'does not exist' in e.body:
             if not strict:
                 return None
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
 
 
 def service_login(service='nifi', username=None, password=None,
@@ -339,7 +340,7 @@ def service_login(service='nifi', username=None, password=None,
         except getattr(nipyapi, service).rest.ApiException as e:
             if bool_response:
                 return False
-            raise ValueError(e.body)
+            _raise(ValueError(e.body), e)
         set_service_auth_token(token=token, service=service)
     elif auth_type == 'basic':
         log.info("basicAuth set, skipping token retrieval")
@@ -651,7 +652,7 @@ def get_access_policy_for_resource(resource,
                 resource, action, r_id, service
             )
         log.info("Unexpected Error, raising...")
-        raise ValueError(e.body)
+        _raise(ValueError(e.body), e)
     finally:
         nipyapi.utils.bypass_slash_encoding(service, False)
 
@@ -748,9 +749,10 @@ def set_service_ssl_context(
                 password=client_key_password
             )
         except FileNotFoundError as e:
-            raise FileNotFoundError(
-                "Unable to read keyfile {0} or certfile {1}, error was "
-                "{2}".format(client_key_file, client_cert_file, e))
+            _raise(
+                FileNotFoundError(
+                    "Unable to read keyfile {0} or certfile {1}"
+                    .format(client_key_file, client_cert_file)), e)
 
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)

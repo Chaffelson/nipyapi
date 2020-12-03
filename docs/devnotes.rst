@@ -154,6 +154,9 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     pip install path/to/nipyapi-0.3.1-py2.py3-none-any.whl  # for example
     # Run appropriate tests, such as usage tests etc.
     deactivate
+    Push changes to Github
+    Check build on TravisCI
+    Check dockerhub automated build
     # You may have to reactivate your original virtualenv
     twine upload dist/*
     # You may get a file exists error, check you're not trying to reupload an existing version

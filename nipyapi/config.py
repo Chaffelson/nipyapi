@@ -92,14 +92,15 @@ registered_filters = {
     'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
     'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
                           'name': ['type'],
-                          'tag': ['tags']},  # This is Processor Types
+                          'tag': ['tags']},
     'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
     'User': {'identity': ['identity'], 'id': ['identifier']},
     'UserGroupEntity': {'identity': ['component', 'identity'], 'id': ['id']},
     'UserGroup': {'identity': ['identity'], 'id': ['identifier']},
     'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
     'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
-    'ControllerServiceEntity': {'is': ['id'], 'name': ['component', 'name']}
+    'ControllerServiceEntity': {'id': ['id'], 'name': ['component', 'name']},
+    'ParameterContextEntity': {'id': ['id'], 'name': ['component', 'name']}
 }
 
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-For managing flow deployments
+For Managing NiFi Templates
 """
 
 from __future__ import absolute_import

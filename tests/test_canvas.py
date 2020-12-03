@@ -5,6 +5,7 @@
 
 import pytest
 import time
+import uuid
 from tests import conftest
 from nipyapi import canvas, nifi, utils, config
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
@@ -193,7 +194,8 @@ def test_create_processor(regress_nifi, fix_pg):
         parent_pg=f_pg,
         processor=canvas.get_processor_type('GenerateFlowFile'),
         location=(400.0, 400.0),
-        name=conftest.test_processor_name
+        name=conftest.test_processor_name,
+        config=nifi.ProcessorConfigDTO(scheduling_period='3s')
     )
     assert isinstance(r1, nifi.ProcessorEntity)
     assert r1.status.name == conftest.test_processor_name
@@ -242,7 +244,8 @@ def test_get_processor(regress_nifi, fix_proc):
     r4 = canvas.get_processor(f_p2.id, 'id')
     assert isinstance(r4, nifi.ProcessorEntity)
     assert r4.id != r1.id
-
+    r5 = canvas.get_processor(str(uuid.uuid4()), 'id')
+    assert r5 is None
 
 def test_schedule_processor(regress_nifi, fix_proc):
     f_p1 = fix_proc.generate()
@@ -273,17 +276,17 @@ def test_delete_processor(regress_nifi, fix_proc):
     r1 = canvas.delete_processor(f_p1)
     assert r1.status is None
     assert isinstance(r1, nifi.ProcessorEntity)
-    # try to delete processor twice
-    with pytest.raises(ValueError):
-        _ = canvas.delete_processor(f_p1)
+    # try to delete processor twice, should get None as it won't be found
+    r2 = canvas.delete_processor(f_p1)
+    assert r2 is None
     # try to delete running processor
     f_p2 = fix_proc.generate()
     canvas.schedule_processor(f_p2, True)
     with pytest.raises(ValueError):
         _ = canvas.delete_processor(f_p2)
     # and once more with feeling, er, force
-    r2 = canvas.delete_processor(f_p2, force=True)
-    assert r2.status is None
+    r3 = canvas.delete_processor(f_p2, force=True)
+    assert r3.status is None
 
 
 def test_update_processor(regress_nifi, fix_proc):

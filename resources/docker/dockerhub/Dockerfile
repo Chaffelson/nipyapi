@@ -16,7 +16,7 @@
 # under the License.
 #
 
-FROM python:3.6-alpine
+FROM python:3.8-alpine
 
 LABEL maintainer="Dan Chaffelson <chaffelson@gmail.com>"
 LABEL site="https://github.com/Chaffelson/nipyapi"
@@ -32,9 +32,9 @@ RUN apk update && apk upgrade \
     && cp /usr/share/zoneinfo/${TZ} /etc/localtime && echo ${TZ} > /etc/timezone \
     && git clone -b ${BRANCH} --depth 1 https://github.com/Chaffelson/nipyapi.git /nipyapi \
     && cd /nipyapi \
-    && pip install --no-cache --no-use-pep517 -r requirements.txt \
+    && pip install --no-cache -r requirements.txt \
     && apk del .build-deps
-    
+
 
 WORKDIR /nipyapi
 ENV PYTHONPATH=/nipyapi
