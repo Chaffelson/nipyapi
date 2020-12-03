@@ -51,7 +51,7 @@ test_templates = {
 # Can't use skiptest with parametrize for Travis
 # Mostly because loading up all the environments takes too long
 
-default_nifi_endpoints = ['http://localhost:8080/nifi-api']
+default_nifi_endpoints = ['http://' + test_host + ':8080/nifi-api']
 regress_nifi_endpoints = [
             'http://' + test_host + ':10112/nifi-api',
             'http://' + test_host + ':10120/nifi-api',
@@ -60,9 +60,9 @@ regress_nifi_endpoints = [
         ]
 secure_nifi_endpoints = ['https://' + test_host + ':8443/nifi-api']
 default_registry_endpoints = [
-        ('http://localhost:18080/nifi-registry-api',
+        ('http://' + test_host + ':18080/nifi-registry-api',
          'http://registry:18080',
-         'http://localhost:8080/nifi-api'
+         'http://' + test_host + ':8080/nifi-api'
          )
     ]
 regress_registry_endpoints = [

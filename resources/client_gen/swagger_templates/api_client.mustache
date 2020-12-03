@@ -185,6 +185,9 @@ class ApiClient(object):
         elif isinstance(obj, list):
             return [self.sanitize_for_serialization(sub_obj)
                     for sub_obj in obj]
+        elif isinstance(obj, set):
+            return {self.sanitize_for_serialization(sub_obj)
+                    for sub_obj in obj}
         elif isinstance(obj, tuple):
             return tuple(self.sanitize_for_serialization(sub_obj)
                          for sub_obj in obj)
@@ -244,6 +247,9 @@ class ApiClient(object):
         if type(klass) == str:
             if klass.startswith('list['):
                 sub_kls = re.match('list\[(.*)\]', klass).group(1)
+                if isinstance(data, dict):
+                    # ok, we got a single instance when we may have gotten a list
+                    return self.__deserialize(data, sub_kls)
                 return [self.__deserialize(sub_data, sub_kls)
                         for sub_data in data]
 
@@ -600,6 +606,16 @@ class ApiClient(object):
                 )
             )
 
+    def deserialize_model(self, data, klass):
+        """
+        Deserializes list or dict to model.
+
+        :param data: dict, list.
+        :param klass: class literal.
+        :return: model object.
+        """
+        return self.__deserialize_model(data, klass)
+
     def __deserialize_model(self, data, klass):
         """
         Deserializes list or dict to model.
@@ -617,8 +633,22 @@ class ApiClient(object):
                and klass.attribute_map[attr] in data \
                and isinstance(data, (list, dict)):
                 value = data[klass.attribute_map[attr]]
-                kwargs[attr] = self.__deserialize(value, attr_type)
+                if attr_type.startswith('list['):
+                    # if this is a list, we may get back a single item
+                    # or a list
+                    # create the list object if it doesn't exist
+                    # append the return
+                    if not kwargs.get(attr):
+                        kwargs[attr] = []
+                    deserialized_value = self.__deserialize(value, attr_type)
+                    if deserialized_value:
+                        if isinstance(deserialized_value, list):
+                            kwargs[attr].extend(deserialized_value)
+                        else:
+                            kwargs[attr].append(deserialized_value)
+                else:
+                    kwargs[attr] = self.__deserialize(value, attr_type)
 
-        instance = klass(**kwargs)     
+        instance = klass(**kwargs)
 
         return instance
