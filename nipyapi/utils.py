@@ -28,7 +28,8 @@ __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
            'start_docker_containers', 'DockerContainer',
            'infer_object_label_from_class', 'bypass_slash_encoding',
-           'exception_handler', 'enforce_min_ver', 'check_version'
+           'exception_handler', 'enforce_min_ver', 'check_version',
+           'validate_parameters_versioning_support'
            ]
 
 log = logging.getLogger(__name__)
@@ -465,7 +466,7 @@ def strip_snapshot(java_version):
 
 def check_version(base, comparator=None, service='nifi'):
     """
-    Compares version 'a' against either version 'b', or the version of the
+    Compares version base against either version comparator, or the version of the
     currently connected service instance.
 
     Since NiFi is java, it may return a version with -SNAPSHOT as part of it.
@@ -478,20 +479,34 @@ def check_version(base, comparator=None, service='nifi'):
         service (str): The service to test the version against, currently
             only supports NiFi
 
-    Returns (int): -1 if a is lower, 0 if equal, and 1 if newer
+    Returns (int): -1 if base is lower, 0 if equal, and 1 if newer than comparator
 
     """
     assert isinstance(base, six.string_types)
     assert comparator is None or isinstance(comparator, six.string_types)
-    assert service == 'nifi'
+    assert service in ['nifi', 'registry']
     # This call currently only supports NiFi
     ver_a = version.parse(base)
     if comparator:
         # if b is set, we compare the passed versions
         comparator = strip_snapshot(comparator)
         ver_b = version.parse(comparator)
+    elif service == 'registry':
+        try:
+            reg_swagger_def = nipyapi.registry.ApiClient().call_api(
+                '/swagger/swagger.json', 'GET', _preload_content=False,
+                auth_settings=nipyapi.config.registry_config.enabled_auth
+            )
+            reg_json = load(reg_swagger_def[0].data)
+            ver_b = version.parse(reg_json['info']['version'])
+        except nipyapi.registry.rest.ApiException as e:
+            if e.status == 404:
+                log.warning("Unable to retrieve swagger.json from registry to check version, assuming older than 0.3")
+                ver_b = version.parse('0.2.0')
+            else:
+                raise
     else:
-        # if b not set, we compare a against the connected nifi instance
+        # Working with NiFi
         ver_b = version.parse(strip_snapshot(nipyapi.system.get_nifi_version_info().ni_fi_version))
     if ver_b > ver_a:
         return -1
@@ -500,18 +515,25 @@ def check_version(base, comparator=None, service='nifi'):
     return 0
 
 
-def enforce_min_ver(min_version, bool_response=False):
+def validate_parameters_versioning_support():
+    if enforce_min_ver('1.10', bool_response=True) or enforce_min_ver('0.6', service='registry', bool_response=True):
+        log.warning("Connected NiFi Registry does not support Parameter Contexts and they will be lost in "
+                    "Version Control".format())
+
+
+def enforce_min_ver(min_version, bool_response=False, service='nifi'):
     """
     Raises an error if target NiFi environment is not minimum version
     Args:
         min_version (str): Version to check against
         bool_response (bool): If True, will return True instead of
          raising error
+     service: nifi or registry
 
     Returns:
         (bool) or (NotImplementedError)
     """
-    if check_version(min_version) == 1:
+    if check_version(min_version, service=service) == 1:
         if not bool_response:
             raise NotImplementedError(
                 "This function is not available "

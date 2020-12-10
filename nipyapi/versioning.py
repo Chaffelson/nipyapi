@@ -240,36 +240,25 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
         target_pg = nipyapi.canvas.get_process_group(process_group.id, 'id')
     else:
         target_pg = process_group
-    if nipyapi.utils.check_version('1.10.0') <= 0:
-        body = nipyapi.nifi.StartVersionControlRequestEntity(
-            process_group_revision=target_pg.revision,
-            versioned_flow=nipyapi.nifi.VersionedFlowDTO(
+    flow_dto = nipyapi.nifi.VersionedFlowDTO(
                 bucket_id=bucket.identifier,
                 comments=comment,
                 description=desc,
                 flow_name=flow_name,
                 flow_id=flow_id,
-                registry_id=registry_client.id,
-                action='FORCE_COMMIT' if force else 'COMMIT'
+                registry_id=registry_client.id
             )
-        )
-    else:
+    if nipyapi.utils.check_version('1.10.0') <= 0:
         # no 'action' property in versions < 1.10
-        body = nipyapi.nifi.StartVersionControlRequestEntity(
-            process_group_revision=target_pg.revision,
-            versioned_flow={
-                'bucketId': bucket.identifier,
-                'comments': comment,
-                'description': desc,
-                'flowName': flow_name,
-                'flowId': flow_id,
-                'registryId': registry_client.id
-            }
-        )
+        flow_dto.action = 'FORCE_COMMIT' if force else 'COMMIT'
     with nipyapi.utils.rest_exceptions():
+        nipyapi.utils.validate_parameters_versioning_support()
         return nipyapi.nifi.VersionsApi().save_to_flow_registry(
             id=target_pg.id,
-            body=body
+            body=nipyapi.nifi.StartVersionControlRequestEntity(
+                process_group_revision=target_pg.revision,
+                versioned_flow=flow_dto
+            )
         )
 
 
@@ -523,6 +512,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
         for obj in [target_bucket, target_flow]:
             for p in bad_params:
                 obj.__setattr__(p, None)
+        nipyapi.utils.validate_parameters_versioning_support()
         return nipyapi.registry.BucketFlowsApi().create_flow_version(
             bucket_id=target_bucket.identifier,
             flow_id=target_flow.identifier,
@@ -530,6 +520,8 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
                 flow=target_flow,
                 bucket=target_bucket,
                 flow_contents=flow_snapshot.flow_contents,
+                parameter_contexts=flow_snapshot.parameter_contexts,
+                external_controller_services=flow_snapshot.external_controller_services,
                 snapshot_metadata=VfsMd(
                     version=target_flow.version_count + 1,
                     comments=flow_snapshot.snapshot_metadata.comments,
@@ -689,6 +681,7 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
                          " add this version to, or flow_name must be a unique "
                          "name for a flow in this bucket, but not both")
     # Now write the new version
+    nipyapi.utils.validate_parameters_versioning_support()
     return create_flow_version(
         flow=ver_flow,
         flow_snapshot=imported_flow,
