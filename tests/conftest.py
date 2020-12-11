@@ -594,8 +594,8 @@ def fixture_flow_serde(request, tmpdir, fix_ver_flow):
         'FixtureFlowSerde',
         getattr(fix_ver_flow, '_fields') + ('filepath', 'json', 'yaml', 'raw')
     )
-    f_filepath = str(tmpdir.mkdir(test_ver_export_tmpdir)\
-        .join(test_ver_export_filename))
+    f_filepath = str(tmpdir.mkdir(test_ver_export_tmpdir)
+                     .join(test_ver_export_filename))
     f_raw = nipyapi.versioning.get_flow_version(
         bucket_id=fix_ver_flow.bucket.identifier,
         flow_id=fix_ver_flow.flow.identifier,

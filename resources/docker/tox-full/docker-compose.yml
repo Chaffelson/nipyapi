@@ -30,6 +30,12 @@ services:
     hostname: nifi
     ports:
       - "8080:8080"
+  nifidev:
+    image: apache/nifi:1.12.1
+    container_name: nifidev
+    hostname: nifidev
+    ports:
+      - "8081:8080"
   registry-010:
     image: apache/nifi-registry:0.1.0
     container_name: registry-010
@@ -54,3 +60,11 @@ services:
       - "18080:18080"
     environment:
       - NIFI_REGISTRY_WEB_HTTP_PORT=18080
+  registrydev:
+    image: apache/nifi-registry:0.7.0
+    container_name: registrydev
+    hostname: registrydev
+    ports:
+      - "18081:18081"
+    environment:
+      - NIFI_REGISTRY_WEB_HTTP_PORT=18081

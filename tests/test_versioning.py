@@ -7,7 +7,7 @@ from __future__ import absolute_import
 import pytest
 from deepdiff import DeepDiff
 from tests import conftest
-from nipyapi import registry, nifi, versioning, canvas, utils, config
+from nipyapi import registry, nifi, versioning, canvas, utils, config, parameters
 
 
 def test_create_registry_client(regress_flow_reg):
@@ -139,7 +139,7 @@ def test_save_flow_ver(regress_flow_reg, fix_bucket, fix_pg, fix_proc):
     )
     assert isinstance(r2, nifi.VersionControlInformationEntity)
     assert r2.version_control_information.version > \
-        r1.version_control_information.version
+           r1.version_control_information.version
     with pytest.raises(ValueError):
         _ = versioning.save_flow_ver(
             process_group=f_pg,
@@ -188,7 +188,7 @@ def test_get_flow_in_bucket(regress_flow_reg, fix_ver_flow):
         'id'
     )
     assert isinstance(r1, registry.VersionedFlow)
-    assert r1.identifier == fix_ver_flow.info.version_control_information.\
+    assert r1.identifier == fix_ver_flow.info.version_control_information. \
         flow_id
     r2 = versioning.get_flow_in_bucket(fix_ver_flow.bucket.identifier,
                                        'fakenews', 'id')
@@ -394,10 +394,53 @@ def test_import_flow_version(regress_flow_reg, fix_flow_serde):
     ) == {}
 
 
+def test_issue_229(regress_flow_reg, fix_bucket, fix_pg, fix_context):
+    # test we can deploy and imported flow, issue 229
+    if utils.enforce_min_ver('1.10.0', bool_response=True) or utils.enforce_min_ver('0.6.0', service='registry',
+                                                                                    bool_response=True):
+        pass
+    else:
+        reg_client = conftest.ensure_registry_client(config.registry_local_name)
+        bucket = fix_bucket()
+        pg = fix_pg.generate()
+        context = fix_context.generate()
+        parameters.assign_context_to_process_group(pg, context.id)
+        save_flow_ver = versioning.save_flow_ver(
+            process_group=pg,
+            registry_client=reg_client,
+            bucket=bucket,
+            flow_name=conftest.test_versioned_flow_name,
+            comment='NiPyApi Test',
+            desc='NiPyApi Test'
+        )
+        flow_raw = versioning.get_flow_version(
+            bucket_id=bucket.identifier,
+            flow_id=save_flow_ver.version_control_information.flow_id,
+            export=True
+        )
+        # Check that it is being exported correctly
+        # Older versions of Registry will drop unsupported parameterContext information
+        if 'parameterContexts' in utils.load(flow_raw).keys():
+            imported_flow = versioning.import_flow_version(
+                bucket_id=bucket.identifier,
+                encoded_flow=flow_raw,
+                flow_name=conftest.test_versioned_flow_name + '_229'
+            )
+            deployed_flow = versioning.deploy_flow_version(
+                parent_id=canvas.get_root_pg_id(),
+                location=(0, 0),
+                bucket_id=bucket.identifier,
+                flow_id=imported_flow.flow.identifier,
+                reg_client_id=reg_client.id,
+                version=None
+            )
+            assert isinstance(deployed_flow, nifi.ProcessGroupEntity)
+
+
 def test_deploy_flow_version(regress_flow_reg, fix_ver_flow):
     r1 = versioning.deploy_flow_version(
         parent_id=canvas.get_root_pg_id(),
-        location=(0,0),
+        location=(0, 0),
         bucket_id=fix_ver_flow.bucket.identifier,
         flow_id=fix_ver_flow.flow.identifier,
         reg_client_id=fix_ver_flow.client.id,
