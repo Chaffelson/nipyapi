@@ -4,7 +4,7 @@ pip>=9.0.1
 
 # Project management and Deployment
 bumpversion>=0.5.3
-watchdog>=0.8.3
+watchdog>=0.8.3,<1.0.0
 twine>=1.9.1,<2.0.0  # pyup: ignore
 virtualenvwrapper>=4.8
 virtualenv>=16.0.0  # required for tox 3.14.2 but not forced
