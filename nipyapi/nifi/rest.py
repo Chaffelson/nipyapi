@@ -92,8 +92,19 @@ class RESTClientObject(object):
         proxy = Configuration().proxy
 
         # https pool manager
-        if proxy:
+        if proxy and "socks" not in str(proxy):
             self.pool_manager = urllib3.ProxyManager(
+                num_pools=pools_size,
+                maxsize=maxsize,
+                cert_reqs=cert_reqs,
+                ca_certs=ca_certs,
+                cert_file=cert_file,
+                key_file=key_file,
+                ssl_context=ssl_context,
+                proxy_url=proxy
+            )
+        elif proxy and "socks" in str(proxy):
+            self.pool_manager = urllib3.contrib.socks.SOCKSProxyManager(
                 num_pools=pools_size,
                 maxsize=maxsize,
                 cert_reqs=cert_reqs,
