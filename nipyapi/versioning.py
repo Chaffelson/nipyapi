@@ -241,13 +241,13 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
     else:
         target_pg = process_group
     flow_dto = nipyapi.nifi.VersionedFlowDTO(
-                bucket_id=bucket.identifier,
-                comments=comment,
-                description=desc,
-                flow_name=flow_name,
-                flow_id=flow_id,
-                registry_id=registry_client.id
-            )
+        bucket_id=bucket.identifier,
+        comments=comment,
+        description=desc,
+        flow_name=flow_name,
+        flow_id=flow_id,
+        registry_id=registry_client.id
+    )
     if nipyapi.utils.check_version('1.10.0') <= 0:
         # no 'action' property in versions < 1.10
         flow_dto.action = 'FORCE_COMMIT' if force else 'COMMIT'
@@ -513,6 +513,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
             for p in bad_params:
                 obj.__setattr__(p, None)
         nipyapi.utils.validate_parameters_versioning_support()
+        ecs = flow_snapshot.external_controller_services
         return nipyapi.registry.BucketFlowsApi().create_flow_version(
             bucket_id=target_bucket.identifier,
             flow_id=target_flow.identifier,
@@ -521,7 +522,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
                 bucket=target_bucket,
                 flow_contents=flow_snapshot.flow_contents,
                 parameter_contexts=flow_snapshot.parameter_contexts,
-                external_controller_services=flow_snapshot.external_controller_services,
+                external_controller_services=ecs,
                 snapshot_metadata=VfsMd(
                     version=target_flow.version_count + 1,
                     comments=flow_snapshot.snapshot_metadata.comments,

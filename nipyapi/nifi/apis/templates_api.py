@@ -43,7 +43,7 @@ class TemplatesApi(object):
     def export_template(self, id, **kwargs):
         """
         Exports a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class TemplatesApi(object):
     def export_template_with_http_info(self, id, **kwargs):
         """
         Exports a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class TemplatesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/templates/{id}/download', 'GET',
                                         path_params,
@@ -149,7 +149,7 @@ class TemplatesApi(object):
     def remove_template(self, id, **kwargs):
         """
         Deletes a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -176,7 +176,7 @@ class TemplatesApi(object):
     def remove_template_with_http_info(self, id, **kwargs):
         """
         Deletes a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -239,7 +239,7 @@ class TemplatesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/templates/{id}', 'DELETE',
                                         path_params,

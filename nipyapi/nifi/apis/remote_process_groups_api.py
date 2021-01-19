@@ -43,7 +43,7 @@ class RemoteProcessGroupsApi(object):
     def get_remote_process_group(self, id, **kwargs):
         """
         Gets a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class RemoteProcessGroupsApi(object):
     def get_remote_process_group_with_http_info(self, id, **kwargs):
         """
         Gets a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'GET',
                                         path_params,
@@ -149,7 +149,7 @@ class RemoteProcessGroupsApi(object):
     def get_state(self, id, **kwargs):
         """
         Gets the state for a RemoteProcessGroup
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class RemoteProcessGroupsApi(object):
     def get_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a RemoteProcessGroup
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -235,7 +235,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/state', 'GET',
                                         path_params,
@@ -255,7 +255,7 @@ class RemoteProcessGroupsApi(object):
     def remove_remote_process_group(self, id, **kwargs):
         """
         Deletes a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -284,7 +284,7 @@ class RemoteProcessGroupsApi(object):
     def remove_remote_process_group_with_http_info(self, id, **kwargs):
         """
         Deletes a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -353,7 +353,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'DELETE',
                                         path_params,
@@ -373,7 +373,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group(self, id, body, **kwargs):
         """
         Updates a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -400,7 +400,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_with_http_info(self, id, body, **kwargs):
         """
         Updates a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -466,7 +466,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'PUT',
                                         path_params,
@@ -586,7 +586,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/input-ports/{port-id}', 'PUT',
                                         path_params,
@@ -706,7 +706,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/input-ports/{port-id}/run-status', 'PUT',
                                         path_params,
@@ -826,7 +826,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/output-ports/{port-id}', 'PUT',
                                         path_params,
@@ -946,7 +946,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/output-ports/{port-id}/run-status', 'PUT',
                                         path_params,
@@ -966,7 +966,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_run_status(self, id, body, **kwargs):
         """
         Updates run status of a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -993,7 +993,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_run_status_with_http_info(self, id, body, **kwargs):
         """
         Updates run status of a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1059,7 +1059,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/run-status', 'PUT',
                                         path_params,

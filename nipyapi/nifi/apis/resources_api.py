@@ -43,7 +43,7 @@ class ResourcesApi(object):
     def get_resources(self, **kwargs):
         """
         Gets the available resources that support access/authorization policies
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -68,7 +68,7 @@ class ResourcesApi(object):
     def get_resources_with_http_info(self, **kwargs):
         """
         Gets the available resources that support access/authorization policies
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -121,7 +121,7 @@ class ResourcesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/resources', 'GET',
                                         path_params,

@@ -89,14 +89,15 @@ def create_parameter_context(name, description=None, parameters=None):
             component=ParameterContextDTO(
                 name=name,
                 description=description,
-                parameters=parameters if parameters else list()  # list() per NiFi Jira 7995
+                parameters=parameters if parameters else list()
+                # list() per NiFi Jira 7995
             )
         )
     )
     return out
 
 
-def update_parameter_context(context, refresh=True):
+def update_parameter_context(context):
     """
     Update an already existing Parameter Context
 

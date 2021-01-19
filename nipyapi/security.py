@@ -276,7 +276,7 @@ def remove_service_user_group(group, service='nifi', strict=True):
 
 
 def service_login(service='nifi', username=None, password=None,
-                  bool_response=False, auth_type='token'):
+                  bool_response=False):
     """
     Login to the currently configured NiFi or NiFi-Registry server.
 
@@ -298,7 +298,6 @@ def service_login(service='nifi', username=None, password=None,
         password (str): The password to use
         bool_response (bool): If True, the function will return False instead
             of an error. Useful for connection testing.
-        auth_type (str): token (default) or basic
 
     Returns:
         (bool): True if successful, False or an Error if not. See bool_response
@@ -327,24 +326,21 @@ def service_login(service='nifi', username=None, password=None,
     # Registry pulls from config, NiFi allows submission
     configuration.username = uname
     configuration.password = pword
-    if auth_type == 'token':
-        log.info("Attempting tokenAuth login with user identity [%s]",
-                 configuration.username)
-        try:
-            if service == 'nifi':
-                token = nipyapi.nifi.AccessApi().create_access_token(
-                    username=uname, password=pword)
-            else:
-                token = nipyapi.registry.AccessApi() \
-                    .create_access_token_using_basic_auth_credentials()
-        except getattr(nipyapi, service).rest.ApiException as e:
-            if bool_response:
-                return False
-            _raise(ValueError(e.body), e)
+    log.info("Attempting tokenAuth login with user identity [%s]",
+             configuration.username)
+    try:
+        if service == 'nifi':
+            token = nipyapi.nifi.AccessApi().create_access_token(
+                username=uname, password=pword)
+        else:
+            token = nipyapi.registry.AccessApi() \
+                .create_access_token_using_basic_auth_credentials()
         set_service_auth_token(token=token, service=service)
-    elif auth_type == 'basic':
-        log.info("basicAuth set, skipping token retrieval")
-    return True
+        return True
+    except getattr(nipyapi, service).rest.ApiException as e:
+        if bool_response:
+            return False
+        _raise(ValueError(e.body), e)
 
 
 def set_service_auth_token(token=None, token_name='tokenAuth', service='nifi'):
@@ -706,7 +702,8 @@ def set_service_ssl_context(
         ca_file=None,
         client_cert_file=None,
         client_key_file=None,
-        client_key_password=None):
+        client_key_password=None,
+        check_hostname=None):
     """
     Create an SSLContext for connecting over https to a secured NiFi or
     NiFi-Registry instance.
@@ -733,6 +730,7 @@ def set_service_ssl_context(
         client_key_file (str): An encrypted (password-protected) PEM file
             containing the client's secret key
         client_key_password (str): The password to decrypt the client_key_file
+        check_hostname (bool): Enable or Disable hostname checking
 
     Returns:
         (None)
@@ -757,9 +755,15 @@ def set_service_ssl_context(
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)
 
+    if check_hostname is not None:
+        ssl_context.check_hostname = check_hostname
+    else:
+        ssl_context.check_hostname = nipyapi.config.global_ssl_host_check
+
     if service == 'registry':
         nipyapi.config.registry_config.ssl_context = ssl_context
-    nipyapi.config.nifi_config.ssl_context = ssl_context
+    elif service == 'nifi':
+        nipyapi.config.nifi_config.ssl_context = ssl_context
 
 
 def bootstrap_security_policies(service, user_identity=None,

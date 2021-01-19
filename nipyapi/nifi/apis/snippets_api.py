@@ -43,7 +43,7 @@ class SnippetsApi(object):
     def create_snippet(self, body, **kwargs):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class SnippetsApi(object):
     def create_snippet_with_http_info(self, body, **kwargs):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class SnippetsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/snippets', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class SnippetsApi(object):
     def delete_snippet(self, id, **kwargs):
         """
         Deletes the components in a snippet and discards the snippet
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -176,7 +176,7 @@ class SnippetsApi(object):
     def delete_snippet_with_http_info(self, id, **kwargs):
         """
         Deletes the components in a snippet and discards the snippet
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -239,7 +239,7 @@ class SnippetsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/snippets/{id}', 'DELETE',
                                         path_params,
@@ -259,7 +259,7 @@ class SnippetsApi(object):
     def update_snippet(self, id, body, **kwargs):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -286,7 +286,7 @@ class SnippetsApi(object):
     def update_snippet_with_http_info(self, id, body, **kwargs):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -352,7 +352,7 @@ class SnippetsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/snippets/{id}', 'PUT',
                                         path_params,

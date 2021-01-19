@@ -43,7 +43,7 @@ class ProvenanceEventsApi(object):
     def get_input_content(self, id, **kwargs):
         """
         Gets the input content for a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -70,7 +70,7 @@ class ProvenanceEventsApi(object):
     def get_input_content_with_http_info(self, id, **kwargs):
         """
         Gets the input content for a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -133,7 +133,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/{id}/content/input', 'GET',
                                         path_params,
@@ -153,7 +153,7 @@ class ProvenanceEventsApi(object):
     def get_output_content(self, id, **kwargs):
         """
         Gets the output content for a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -180,7 +180,7 @@ class ProvenanceEventsApi(object):
     def get_output_content_with_http_info(self, id, **kwargs):
         """
         Gets the output content for a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -243,7 +243,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/{id}/content/output', 'GET',
                                         path_params,
@@ -263,7 +263,7 @@ class ProvenanceEventsApi(object):
     def get_provenance_event(self, id, **kwargs):
         """
         Gets a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -290,7 +290,7 @@ class ProvenanceEventsApi(object):
     def get_provenance_event_with_http_info(self, id, **kwargs):
         """
         Gets a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -353,7 +353,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/{id}', 'GET',
                                         path_params,
@@ -373,7 +373,7 @@ class ProvenanceEventsApi(object):
     def submit_replay(self, body, **kwargs):
         """
         Replays content from a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -399,7 +399,7 @@ class ProvenanceEventsApi(object):
     def submit_replay_with_http_info(self, body, **kwargs):
         """
         Replays content from a provenance event
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -459,7 +459,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance-events/replays', 'POST',
                                         path_params,

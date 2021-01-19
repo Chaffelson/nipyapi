@@ -43,7 +43,7 @@ class FlowApi(object):
     def activate_controller_services(self, id, body, **kwargs):
         """
         Enable or disable Controller Services in the specified Process Group.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -70,7 +70,7 @@ class FlowApi(object):
     def activate_controller_services_with_http_info(self, id, body, **kwargs):
         """
         Enable or disable Controller Services in the specified Process Group.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -136,7 +136,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'PUT',
                                         path_params,
@@ -156,7 +156,7 @@ class FlowApi(object):
     def generate_client_id(self, **kwargs):
         """
         Generates a client id.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -181,7 +181,7 @@ class FlowApi(object):
     def generate_client_id_with_http_info(self, **kwargs):
         """
         Generates a client id.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -234,7 +234,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/client-id', 'GET',
                                         path_params,
@@ -254,7 +254,7 @@ class FlowApi(object):
     def get_about_info(self, **kwargs):
         """
         Retrieves details about this NiFi to put in the About dialog
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -279,7 +279,7 @@ class FlowApi(object):
     def get_about_info_with_http_info(self, **kwargs):
         """
         Retrieves details about this NiFi to put in the About dialog
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -332,7 +332,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/about', 'GET',
                                         path_params,
@@ -438,7 +438,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/history/{id}', 'GET',
                                         path_params,
@@ -458,7 +458,7 @@ class FlowApi(object):
     def get_banners(self, **kwargs):
         """
         Retrieves the banners for this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -483,7 +483,7 @@ class FlowApi(object):
     def get_banners_with_http_info(self, **kwargs):
         """
         Retrieves the banners for this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -536,7 +536,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/banners', 'GET',
                                         path_params,
@@ -556,7 +556,7 @@ class FlowApi(object):
     def get_buckets(self, id, **kwargs):
         """
         Gets the buckets from the specified registry for the current user
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -582,7 +582,7 @@ class FlowApi(object):
     def get_buckets_with_http_info(self, id, **kwargs):
         """
         Gets the buckets from the specified registry for the current user
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -642,7 +642,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/registries/{id}/buckets', 'GET',
                                         path_params,
@@ -662,7 +662,7 @@ class FlowApi(object):
     def get_bulletin_board(self, **kwargs):
         """
         Gets current bulletins
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -693,7 +693,7 @@ class FlowApi(object):
     def get_bulletin_board_with_http_info(self, **kwargs):
         """
         Gets current bulletins
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -765,7 +765,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/bulletin-board', 'GET',
                                         path_params,
@@ -785,7 +785,7 @@ class FlowApi(object):
     def get_bulletins(self, **kwargs):
         """
         Retrieves Controller level bulletins
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -810,7 +810,7 @@ class FlowApi(object):
     def get_bulletins_with_http_info(self, **kwargs):
         """
         Retrieves Controller level bulletins
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -863,7 +863,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/controller/bulletins', 'GET',
                                         path_params,
@@ -883,7 +883,7 @@ class FlowApi(object):
     def get_cluster_summary(self, **kwargs):
         """
         The cluster summary for this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -908,7 +908,7 @@ class FlowApi(object):
     def get_cluster_summary_with_http_info(self, **kwargs):
         """
         The cluster summary for this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -961,7 +961,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/cluster/summary', 'GET',
                                         path_params,
@@ -1067,7 +1067,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/history/components/{componentId}', 'GET',
                                         path_params,
@@ -1087,7 +1087,7 @@ class FlowApi(object):
     def get_connection_statistics(self, id, **kwargs):
         """
         Gets statistics for a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1115,7 +1115,7 @@ class FlowApi(object):
     def get_connection_statistics_with_http_info(self, id, **kwargs):
         """
         Gets statistics for a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1181,7 +1181,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/connections/{id}/statistics', 'GET',
                                         path_params,
@@ -1201,7 +1201,7 @@ class FlowApi(object):
     def get_connection_status(self, id, **kwargs):
         """
         Gets status for a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1229,7 +1229,7 @@ class FlowApi(object):
     def get_connection_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1295,7 +1295,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/connections/{id}/status', 'GET',
                                         path_params,
@@ -1315,7 +1315,7 @@ class FlowApi(object):
     def get_connection_status_history(self, id, **kwargs):
         """
         Gets the status history for a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1341,7 +1341,7 @@ class FlowApi(object):
     def get_connection_status_history_with_http_info(self, id, **kwargs):
         """
         Gets the status history for a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1401,7 +1401,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/connections/{id}/status/history', 'GET',
                                         path_params,
@@ -1528,7 +1528,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/controller-service-types', 'GET',
                                         path_params,
@@ -1548,7 +1548,7 @@ class FlowApi(object):
     def get_controller_services_from_controller(self, **kwargs):
         """
         Gets controller services for reporting tasks
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1573,7 +1573,7 @@ class FlowApi(object):
     def get_controller_services_from_controller_with_http_info(self, **kwargs):
         """
         Gets controller services for reporting tasks
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1626,7 +1626,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/controller/controller-services', 'GET',
                                         path_params,
@@ -1646,7 +1646,7 @@ class FlowApi(object):
     def get_controller_services_from_group(self, id, **kwargs):
         """
         Gets all controller services
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1674,7 +1674,7 @@ class FlowApi(object):
     def get_controller_services_from_group_with_http_info(self, id, **kwargs):
         """
         Gets all controller services
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1740,7 +1740,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'GET',
                                         path_params,
@@ -1760,7 +1760,7 @@ class FlowApi(object):
     def get_controller_status(self, **kwargs):
         """
         Gets the current status of this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1785,7 +1785,7 @@ class FlowApi(object):
     def get_controller_status_with_http_info(self, **kwargs):
         """
         Gets the current status of this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1838,7 +1838,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/status', 'GET',
                                         path_params,
@@ -1858,7 +1858,7 @@ class FlowApi(object):
     def get_current_user(self, **kwargs):
         """
         Retrieves the user identity of the user making the request
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1883,7 +1883,7 @@ class FlowApi(object):
     def get_current_user_with_http_info(self, **kwargs):
         """
         Retrieves the user identity of the user making the request
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1936,7 +1936,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/current-user', 'GET',
                                         path_params,
@@ -1956,7 +1956,7 @@ class FlowApi(object):
     def get_flow(self, id, **kwargs):
         """
         Gets a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1982,7 +1982,7 @@ class FlowApi(object):
     def get_flow_with_http_info(self, id, **kwargs):
         """
         Gets a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2042,7 +2042,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'GET',
                                         path_params,
@@ -2062,7 +2062,7 @@ class FlowApi(object):
     def get_flow_config(self, **kwargs):
         """
         Retrieves the configuration for this NiFi flow
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2087,7 +2087,7 @@ class FlowApi(object):
     def get_flow_config_with_http_info(self, **kwargs):
         """
         Retrieves the configuration for this NiFi flow
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2140,7 +2140,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/config', 'GET',
                                         path_params,
@@ -2160,7 +2160,7 @@ class FlowApi(object):
     def get_flow_metrics(self, producer, **kwargs):
         """
         Gets all metrics for the flow from a particular node
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2186,7 +2186,7 @@ class FlowApi(object):
     def get_flow_metrics_with_http_info(self, producer, **kwargs):
         """
         Gets all metrics for the flow from a particular node
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2246,7 +2246,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/metrics/{producer}', 'GET',
                                         path_params,
@@ -2266,7 +2266,7 @@ class FlowApi(object):
     def get_flows(self, registry_id, bucket_id, **kwargs):
         """
         Gets the flows from the specified registry and bucket for the current user
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2293,7 +2293,7 @@ class FlowApi(object):
     def get_flows_with_http_info(self, registry_id, bucket_id, **kwargs):
         """
         Gets the flows from the specified registry and bucket for the current user
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2359,7 +2359,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows', 'GET',
                                         path_params,
@@ -2379,7 +2379,7 @@ class FlowApi(object):
     def get_input_port_status(self, id, **kwargs):
         """
         Gets status for an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2407,7 +2407,7 @@ class FlowApi(object):
     def get_input_port_status_with_http_info(self, id, **kwargs):
         """
         Gets status for an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2473,7 +2473,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/input-ports/{id}/status', 'GET',
                                         path_params,
@@ -2493,7 +2493,7 @@ class FlowApi(object):
     def get_output_port_status(self, id, **kwargs):
         """
         Gets status for an output port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2521,7 +2521,7 @@ class FlowApi(object):
     def get_output_port_status_with_http_info(self, id, **kwargs):
         """
         Gets status for an output port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2587,7 +2587,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/output-ports/{id}/status', 'GET',
                                         path_params,
@@ -2607,7 +2607,7 @@ class FlowApi(object):
     def get_parameter_contexts(self, **kwargs):
         """
         Gets all Parameter Contexts
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2632,7 +2632,7 @@ class FlowApi(object):
     def get_parameter_contexts_with_http_info(self, **kwargs):
         """
         Gets all Parameter Contexts
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2685,7 +2685,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/parameter-contexts', 'GET',
                                         path_params,
@@ -2783,7 +2783,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/prioritizers', 'GET',
                                         path_params,
@@ -2901,7 +2901,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/status', 'GET',
                                         path_params,
@@ -2921,7 +2921,7 @@ class FlowApi(object):
     def get_process_group_status_history(self, id, **kwargs):
         """
         Gets status history for a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2947,7 +2947,7 @@ class FlowApi(object):
     def get_process_group_status_history_with_http_info(self, id, **kwargs):
         """
         Gets status history for a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3007,7 +3007,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -3027,7 +3027,7 @@ class FlowApi(object):
     def get_processor_status(self, id, **kwargs):
         """
         Gets status for a processor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3055,7 +3055,7 @@ class FlowApi(object):
     def get_processor_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a processor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3121,7 +3121,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/processors/{id}/status', 'GET',
                                         path_params,
@@ -3141,7 +3141,7 @@ class FlowApi(object):
     def get_processor_status_history(self, id, **kwargs):
         """
         Gets status history for a processor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3167,7 +3167,7 @@ class FlowApi(object):
     def get_processor_status_history_with_http_info(self, id, **kwargs):
         """
         Gets status history for a processor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3227,7 +3227,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/processors/{id}/status/history', 'GET',
                                         path_params,
@@ -3338,7 +3338,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/processor-types', 'GET',
                                         path_params,
@@ -3358,7 +3358,7 @@ class FlowApi(object):
     def get_registries(self, **kwargs):
         """
         Gets the listing of available registries
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3383,7 +3383,7 @@ class FlowApi(object):
     def get_registries_with_http_info(self, **kwargs):
         """
         Gets the listing of available registries
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3436,7 +3436,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/registries', 'GET',
                                         path_params,
@@ -3456,7 +3456,7 @@ class FlowApi(object):
     def get_remote_process_group_status(self, id, **kwargs):
         """
         Gets status for a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3484,7 +3484,7 @@ class FlowApi(object):
     def get_remote_process_group_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a remote process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3550,7 +3550,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status', 'GET',
                                         path_params,
@@ -3570,7 +3570,7 @@ class FlowApi(object):
     def get_remote_process_group_status_history(self, id, **kwargs):
         """
         Gets the status history
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3596,7 +3596,7 @@ class FlowApi(object):
     def get_remote_process_group_status_history_with_http_info(self, id, **kwargs):
         """
         Gets the status history
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3656,7 +3656,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -3767,7 +3767,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/reporting-task-types', 'GET',
                                         path_params,
@@ -3787,7 +3787,7 @@ class FlowApi(object):
     def get_reporting_tasks(self, **kwargs):
         """
         Gets all reporting tasks
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3812,7 +3812,7 @@ class FlowApi(object):
     def get_reporting_tasks_with_http_info(self, **kwargs):
         """
         Gets all reporting tasks
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3865,7 +3865,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/reporting-tasks', 'GET',
                                         path_params,
@@ -3885,7 +3885,7 @@ class FlowApi(object):
     def get_templates(self, **kwargs):
         """
         Gets all templates
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3910,7 +3910,7 @@ class FlowApi(object):
     def get_templates_with_http_info(self, **kwargs):
         """
         Gets all templates
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3963,7 +3963,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/templates', 'GET',
                                         path_params,
@@ -3983,7 +3983,7 @@ class FlowApi(object):
     def get_versions(self, registry_id, bucket_id, flow_id, **kwargs):
         """
         Gets the flow versions from the specified registry and bucket for the specified flow for the current user
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4011,7 +4011,7 @@ class FlowApi(object):
     def get_versions_with_http_info(self, registry_id, bucket_id, flow_id, **kwargs):
         """
         Gets the flow versions from the specified registry and bucket for the specified flow for the current user
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4083,7 +4083,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows/{flow-id}/versions', 'GET',
                                         path_params,
@@ -4220,7 +4220,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/history', 'GET',
                                         path_params,
@@ -4240,7 +4240,7 @@ class FlowApi(object):
     def schedule_components(self, id, body, **kwargs):
         """
         Schedule or unschedule components in the specified Process Group.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4267,7 +4267,7 @@ class FlowApi(object):
     def schedule_components_with_http_info(self, id, body, **kwargs):
         """
         Schedule or unschedule components in the specified Process Group.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4333,7 +4333,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'PUT',
                                         path_params,
@@ -4439,7 +4439,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/cluster/search-results', 'GET',
                                         path_params,
@@ -4546,7 +4546,7 @@ class FlowApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flow/search-results', 'GET',
                                         path_params,

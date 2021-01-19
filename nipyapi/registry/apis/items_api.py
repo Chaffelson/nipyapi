@@ -121,7 +121,7 @@ class ItemsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/items/fields', 'GET',
                                         path_params,
@@ -219,7 +219,7 @@ class ItemsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/items', 'GET',
                                         path_params,
@@ -325,7 +325,7 @@ class ItemsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/items/{bucketId}', 'GET',
                                         path_params,

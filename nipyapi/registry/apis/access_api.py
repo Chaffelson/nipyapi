@@ -121,7 +121,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/access/token', 'POST',
                                         path_params,
@@ -219,7 +219,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'BasicAuth']
+        auth_settings = ['tokenAuth', 'BasicAuth']
 
         return self.api_client.call_api('/access/token/login', 'POST',
                                         path_params,
@@ -317,7 +317,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/access/token/identity-provider', 'POST',
                                         path_params,
@@ -415,7 +415,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/access/token/kerberos', 'POST',
                                         path_params,
@@ -513,7 +513,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/access', 'GET',
                                         path_params,
@@ -611,7 +611,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/access/token/identity-provider/usage', 'GET',
                                         path_params,
@@ -709,7 +709,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/access/logout', 'DELETE',
                                         path_params,
@@ -807,7 +807,7 @@ class AccessApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/access/token/identity-provider/test', 'POST',
                                         path_params,

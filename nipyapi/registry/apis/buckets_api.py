@@ -129,7 +129,7 @@ class BucketsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/buckets', 'POST',
                                         path_params,
@@ -243,7 +243,7 @@ class BucketsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/buckets/{bucketId}', 'DELETE',
                                         path_params,
@@ -341,7 +341,7 @@ class BucketsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/buckets/fields', 'GET',
                                         path_params,
@@ -447,7 +447,7 @@ class BucketsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/buckets/{bucketId}', 'GET',
                                         path_params,
@@ -545,7 +545,7 @@ class BucketsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/buckets', 'GET',
                                         path_params,
@@ -658,7 +658,7 @@ class BucketsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/buckets/{bucketId}', 'PUT',
                                         path_params,

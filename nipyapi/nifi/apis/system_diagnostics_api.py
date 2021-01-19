@@ -43,7 +43,7 @@ class SystemDiagnosticsApi(object):
     def get_system_diagnostics(self, **kwargs):
         """
         Gets the diagnostics for the system NiFi is running on
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -70,7 +70,7 @@ class SystemDiagnosticsApi(object):
     def get_system_diagnostics_with_http_info(self, **kwargs):
         """
         Gets the diagnostics for the system NiFi is running on
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -130,7 +130,7 @@ class SystemDiagnosticsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/system-diagnostics', 'GET',
                                         path_params,

@@ -43,7 +43,7 @@ class ControllerServicesApi(object):
     def clear_state(self, id, **kwargs):
         """
         Clears the state for a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class ControllerServicesApi(object):
     def clear_state_with_http_info(self, id, **kwargs):
         """
         Clears the state for a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class ControllerServicesApi(object):
     def get_controller_service(self, id, **kwargs):
         """
         Gets a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class ControllerServicesApi(object):
     def get_controller_service_with_http_info(self, id, **kwargs):
         """
         Gets a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -235,7 +235,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}', 'GET',
                                         path_params,
@@ -255,7 +255,7 @@ class ControllerServicesApi(object):
     def get_controller_service_references(self, id, **kwargs):
         """
         Gets a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -281,7 +281,7 @@ class ControllerServicesApi(object):
     def get_controller_service_references_with_http_info(self, id, **kwargs):
         """
         Gets a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -341,7 +341,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/references', 'GET',
                                         path_params,
@@ -361,7 +361,7 @@ class ControllerServicesApi(object):
     def get_property_descriptor(self, id, property_name, **kwargs):
         """
         Gets a controller service property descriptor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -388,7 +388,7 @@ class ControllerServicesApi(object):
     def get_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a controller service property descriptor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -454,7 +454,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/descriptors', 'GET',
                                         path_params,
@@ -474,7 +474,7 @@ class ControllerServicesApi(object):
     def get_state(self, id, **kwargs):
         """
         Gets the state for a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -500,7 +500,7 @@ class ControllerServicesApi(object):
     def get_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -560,7 +560,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/state', 'GET',
                                         path_params,
@@ -580,7 +580,7 @@ class ControllerServicesApi(object):
     def remove_controller_service(self, id, **kwargs):
         """
         Deletes a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -609,7 +609,7 @@ class ControllerServicesApi(object):
     def remove_controller_service_with_http_info(self, id, **kwargs):
         """
         Deletes a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -678,7 +678,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}', 'DELETE',
                                         path_params,
@@ -698,7 +698,7 @@ class ControllerServicesApi(object):
     def update_controller_service(self, id, body, **kwargs):
         """
         Updates a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -725,7 +725,7 @@ class ControllerServicesApi(object):
     def update_controller_service_with_http_info(self, id, body, **kwargs):
         """
         Updates a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -791,7 +791,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}', 'PUT',
                                         path_params,
@@ -811,7 +811,7 @@ class ControllerServicesApi(object):
     def update_controller_service_references(self, id, body, **kwargs):
         """
         Updates a controller services references
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -838,7 +838,7 @@ class ControllerServicesApi(object):
     def update_controller_service_references_with_http_info(self, id, body, **kwargs):
         """
         Updates a controller services references
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -904,7 +904,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/references', 'PUT',
                                         path_params,
@@ -924,7 +924,7 @@ class ControllerServicesApi(object):
     def update_run_status(self, id, body, **kwargs):
         """
         Updates run status of a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -951,7 +951,7 @@ class ControllerServicesApi(object):
     def update_run_status_with_http_info(self, id, body, **kwargs):
         """
         Updates run status of a controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1017,7 +1017,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller-services/{id}/run-status', 'PUT',
                                         path_params,

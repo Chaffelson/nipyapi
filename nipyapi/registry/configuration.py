@@ -52,8 +52,7 @@ class Configuration(object):
         self.temp_folder_path = None
 
         # Authentication Settings
-        # Auth types to enable
-        self.enabled_auth = ['tokenAuth', 'basicAuth']
+        self.force_basic_auth = False
         # dict to store API key(s)
         self.api_key = {}
         # dict to store API prefix (e.g. Bearer)
@@ -190,12 +189,10 @@ class Configuration(object):
         :param identifier: The identifier of apiKey.
         :return: The token for api key authentication.
         """
-        if identifier in self.enabled_auth:
-            if self.api_key.get(identifier) and self.api_key_prefix.get(identifier):
-                return self.api_key_prefix[identifier] + ' ' + self.api_key[identifier]
-            elif self.api_key.get(identifier):
-                return self.api_key[identifier]
-        return None
+        if self.api_key.get(identifier) and self.api_key_prefix.get(identifier):
+            return self.api_key_prefix[identifier] + ' ' + self.api_key[identifier]
+        elif self.api_key.get(identifier):
+            return self.api_key[identifier]
 
     def get_basic_auth_token(self):
         """
@@ -203,10 +200,8 @@ class Configuration(object):
 
         :return: The token for basic HTTP authentication.
         """
-        if 'basicAuth' in self.enabled_auth:
-            return urllib3.util.make_headers(basic_auth=self.username + ':' + self.password)\
-                               .get('authorization')
-        return None
+        return urllib3.util.make_headers(basic_auth=self.username + ':' + self.password)\
+                           .get('authorization')
 
     def auth_settings(self):
         """

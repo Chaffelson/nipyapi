@@ -43,7 +43,7 @@ class PoliciesApi(object):
     def create_access_policy(self, body, **kwargs):
         """
         Creates an access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class PoliciesApi(object):
     def create_access_policy_with_http_info(self, body, **kwargs):
         """
         Creates an access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class PoliciesApi(object):
     def get_access_policy(self, id, **kwargs):
         """
         Gets an access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class PoliciesApi(object):
     def get_access_policy_with_http_info(self, id, **kwargs):
         """
         Gets an access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -235,7 +235,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies/{id}', 'GET',
                                         path_params,
@@ -350,7 +350,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies/{action}/{resource}', 'GET',
                                         path_params,
@@ -370,7 +370,7 @@ class PoliciesApi(object):
     def remove_access_policy(self, id, **kwargs):
         """
         Deletes an access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -399,7 +399,7 @@ class PoliciesApi(object):
     def remove_access_policy_with_http_info(self, id, **kwargs):
         """
         Deletes an access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -468,7 +468,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies/{id}', 'DELETE',
                                         path_params,
@@ -488,7 +488,7 @@ class PoliciesApi(object):
     def update_access_policy(self, id, body, **kwargs):
         """
         Updates a access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -515,7 +515,7 @@ class PoliciesApi(object):
     def update_access_policy_with_http_info(self, id, body, **kwargs):
         """
         Updates a access policy
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -581,7 +581,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/policies/{id}', 'PUT',
                                         path_params,

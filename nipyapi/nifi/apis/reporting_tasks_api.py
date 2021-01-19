@@ -43,7 +43,7 @@ class ReportingTasksApi(object):
     def clear_state(self, id, **kwargs):
         """
         Clears the state for a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class ReportingTasksApi(object):
     def clear_state_with_http_info(self, id, **kwargs):
         """
         Clears the state for a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class ReportingTasksApi(object):
     def get_property_descriptor(self, id, property_name, **kwargs):
         """
         Gets a reporting task property descriptor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -176,7 +176,7 @@ class ReportingTasksApi(object):
     def get_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a reporting task property descriptor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -242,7 +242,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}/descriptors', 'GET',
                                         path_params,
@@ -262,7 +262,7 @@ class ReportingTasksApi(object):
     def get_reporting_task(self, id, **kwargs):
         """
         Gets a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -288,7 +288,7 @@ class ReportingTasksApi(object):
     def get_reporting_task_with_http_info(self, id, **kwargs):
         """
         Gets a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -348,7 +348,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'GET',
                                         path_params,
@@ -368,7 +368,7 @@ class ReportingTasksApi(object):
     def get_state(self, id, **kwargs):
         """
         Gets the state for a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -394,7 +394,7 @@ class ReportingTasksApi(object):
     def get_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -454,7 +454,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}/state', 'GET',
                                         path_params,
@@ -474,7 +474,7 @@ class ReportingTasksApi(object):
     def remove_reporting_task(self, id, **kwargs):
         """
         Deletes a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -503,7 +503,7 @@ class ReportingTasksApi(object):
     def remove_reporting_task_with_http_info(self, id, **kwargs):
         """
         Deletes a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -572,7 +572,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'DELETE',
                                         path_params,
@@ -592,7 +592,7 @@ class ReportingTasksApi(object):
     def update_reporting_task(self, id, body, **kwargs):
         """
         Updates a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -619,7 +619,7 @@ class ReportingTasksApi(object):
     def update_reporting_task_with_http_info(self, id, body, **kwargs):
         """
         Updates a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -685,7 +685,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'PUT',
                                         path_params,
@@ -705,7 +705,7 @@ class ReportingTasksApi(object):
     def update_run_status(self, id, body, **kwargs):
         """
         Updates run status of a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -732,7 +732,7 @@ class ReportingTasksApi(object):
     def update_run_status_with_http_info(self, id, body, **kwargs):
         """
         Updates run status of a reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -798,7 +798,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/reporting-tasks/{id}/run-status', 'PUT',
                                         path_params,

@@ -136,7 +136,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}', 'GET',
                                         path_params,
@@ -234,7 +234,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository', 'GET',
                                         path_params,
@@ -340,7 +340,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}', 'GET',
                                         path_params,
@@ -467,7 +467,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}/{version}', 'GET',
                                         path_params,
@@ -594,7 +594,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}/{version}/content', 'GET',
                                         path_params,
@@ -728,7 +728,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}/{version}/extensions/{name}', 'GET',
                                         path_params,
@@ -862,7 +862,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}/{version}/extensions/{name}/docs/additional-details', 'GET',
                                         path_params,
@@ -996,7 +996,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}/{version}/extensions/{name}/docs', 'GET',
                                         path_params,
@@ -1123,7 +1123,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}/{version}/extensions', 'GET',
                                         path_params,
@@ -1250,7 +1250,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}/{version}/sha256', 'GET',
                                         path_params,
@@ -1370,7 +1370,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{bucketName}/{groupId}/{artifactId}', 'GET',
                                         path_params,
@@ -1490,7 +1490,7 @@ class ExtensionRepositoryApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/extension-repository/{groupId}/{artifactId}/{version}/sha256', 'GET',
                                         path_params,

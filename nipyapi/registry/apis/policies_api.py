@@ -129,7 +129,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/policies', 'POST',
                                         path_params,
@@ -227,7 +227,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/policies', 'GET',
                                         path_params,
@@ -333,7 +333,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/policies/{id}', 'GET',
                                         path_params,
@@ -448,7 +448,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/policies/{action}/{resource}', 'GET',
                                         path_params,
@@ -546,7 +546,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/policies/resources', 'GET',
                                         path_params,
@@ -660,7 +660,7 @@ class PoliciesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/policies/{id}', 'DELETE',
                                         path_params,
@@ -773,7 +773,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/policies/{id}', 'PUT',
                                         path_params,
