@@ -490,7 +490,7 @@ def check_version(base, comparator=None, service='nifi'):
         try:
             config = nipyapi.config.registry_config
             if config.api_client is None:
-                raise ValueError("Not connected to NiFi Registry")
+                config = nipyapi.registry.ApiClient()
             reg_swagger_def = config.api_client.call_api(
                 resource_path='/swagger/swagger.json', method='GET', _preload_content=False,
                 auth_settings=['tokenAuth', 'Authorization']
