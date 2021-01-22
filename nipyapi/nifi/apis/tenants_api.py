@@ -129,7 +129,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/users', 'POST',
                                         path_params,
@@ -235,7 +235,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/user-groups', 'POST',
                                         path_params,
@@ -341,7 +341,7 @@ class TenantsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/users/{id}', 'GET',
                                         path_params,
@@ -447,7 +447,7 @@ class TenantsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/user-groups/{id}', 'GET',
                                         path_params,
@@ -545,7 +545,7 @@ class TenantsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/user-groups', 'GET',
                                         path_params,
@@ -643,7 +643,7 @@ class TenantsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/users', 'GET',
                                         path_params,
@@ -761,7 +761,7 @@ class TenantsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/users/{id}', 'DELETE',
                                         path_params,
@@ -879,7 +879,7 @@ class TenantsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/user-groups/{id}', 'DELETE',
                                         path_params,
@@ -985,7 +985,7 @@ class TenantsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/search-results', 'GET',
                                         path_params,
@@ -1098,7 +1098,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/users/{id}', 'PUT',
                                         path_params,
@@ -1211,7 +1211,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/tenants/user-groups/{id}', 'PUT',
                                         path_params,

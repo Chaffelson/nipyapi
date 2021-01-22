@@ -43,7 +43,7 @@ class InputPortsApi(object):
     def get_input_port(self, id, **kwargs):
         """
         Gets an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class InputPortsApi(object):
     def get_input_port_with_http_info(self, id, **kwargs):
         """
         Gets an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class InputPortsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'GET',
                                         path_params,
@@ -149,7 +149,7 @@ class InputPortsApi(object):
     def remove_input_port(self, id, **kwargs):
         """
         Deletes an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -178,7 +178,7 @@ class InputPortsApi(object):
     def remove_input_port_with_http_info(self, id, **kwargs):
         """
         Deletes an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -247,7 +247,7 @@ class InputPortsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'DELETE',
                                         path_params,
@@ -267,7 +267,7 @@ class InputPortsApi(object):
     def update_input_port(self, id, body, **kwargs):
         """
         Updates an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -294,7 +294,7 @@ class InputPortsApi(object):
     def update_input_port_with_http_info(self, id, body, **kwargs):
         """
         Updates an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -360,7 +360,7 @@ class InputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'PUT',
                                         path_params,
@@ -380,7 +380,7 @@ class InputPortsApi(object):
     def update_run_status(self, id, body, **kwargs):
         """
         Updates run status of an input-port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -407,7 +407,7 @@ class InputPortsApi(object):
     def update_run_status_with_http_info(self, id, body, **kwargs):
         """
         Updates run status of an input-port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -473,7 +473,7 @@ class InputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/input-ports/{id}/run-status', 'PUT',
                                         path_params,

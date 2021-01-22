@@ -43,7 +43,7 @@ class ParameterContextsApi(object):
     def create_parameter_context(self, body, **kwargs):
         """
         Create a Parameter Context
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class ParameterContextsApi(object):
     def create_parameter_context_with_http_info(self, body, **kwargs):
         """
         Create a Parameter Context
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts', 'POST',
                                         path_params,
@@ -247,7 +247,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'DELETE',
                                         path_params,
@@ -364,7 +364,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -481,7 +481,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'DELETE',
                                         path_params,
@@ -587,7 +587,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'GET',
                                         path_params,
@@ -607,7 +607,7 @@ class ParameterContextsApi(object):
     def get_parameter_context_update(self, context_id, request_id, **kwargs):
         """
         Returns the Update Request with the given ID
-        Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures.
+        Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -634,7 +634,7 @@ class ParameterContextsApi(object):
     def get_parameter_context_update_with_http_info(self, context_id, request_id, **kwargs):
         """
         Returns the Update Request with the given ID
-        Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures.
+        Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -700,7 +700,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'GET',
                                         path_params,
@@ -720,7 +720,7 @@ class ParameterContextsApi(object):
     def get_validation_request(self, context_id, id, **kwargs):
         """
         Returns the Validation Request with the given ID
-        Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures.
+        Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -747,7 +747,7 @@ class ParameterContextsApi(object):
     def get_validation_request_with_http_info(self, context_id, id, **kwargs):
         """
         Returns the Validation Request with the given ID
-        Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures.
+        Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -813,7 +813,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'GET',
                                         path_params,
@@ -926,7 +926,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests', 'POST',
                                         path_params,
@@ -1039,7 +1039,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests', 'POST',
                                         path_params,
@@ -1152,7 +1152,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'PUT',
                                         path_params,

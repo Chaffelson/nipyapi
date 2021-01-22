@@ -43,7 +43,7 @@ class SiteToSiteApi(object):
     def get_peers(self, **kwargs):
         """
         Returns the available Peers and its status of this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -68,7 +68,7 @@ class SiteToSiteApi(object):
     def get_peers_with_http_info(self, **kwargs):
         """
         Returns the available Peers and its status of this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -121,7 +121,7 @@ class SiteToSiteApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/site-to-site/peers', 'GET',
                                         path_params,
@@ -141,7 +141,7 @@ class SiteToSiteApi(object):
     def get_site_to_site_details(self, **kwargs):
         """
         Returns the details about this NiFi necessary to communicate via site to site
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -166,7 +166,7 @@ class SiteToSiteApi(object):
     def get_site_to_site_details_with_http_info(self, **kwargs):
         """
         Returns the details about this NiFi necessary to communicate via site to site
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -219,7 +219,7 @@ class SiteToSiteApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/site-to-site', 'GET',
                                         path_params,

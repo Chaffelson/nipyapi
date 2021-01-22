@@ -43,7 +43,7 @@ class ConnectionsApi(object):
     def delete_connection(self, id, **kwargs):
         """
         Deletes a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -72,7 +72,7 @@ class ConnectionsApi(object):
     def delete_connection_with_http_info(self, id, **kwargs):
         """
         Deletes a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -141,7 +141,7 @@ class ConnectionsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/connections/{id}', 'DELETE',
                                         path_params,
@@ -161,7 +161,7 @@ class ConnectionsApi(object):
     def get_connection(self, id, **kwargs):
         """
         Gets a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -187,7 +187,7 @@ class ConnectionsApi(object):
     def get_connection_with_http_info(self, id, **kwargs):
         """
         Gets a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -247,7 +247,7 @@ class ConnectionsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/connections/{id}', 'GET',
                                         path_params,
@@ -267,7 +267,7 @@ class ConnectionsApi(object):
     def update_connection(self, id, body, **kwargs):
         """
         Updates a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -294,7 +294,7 @@ class ConnectionsApi(object):
     def update_connection_with_http_info(self, id, body, **kwargs):
         """
         Updates a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -360,7 +360,7 @@ class ConnectionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/connections/{id}', 'PUT',
                                         path_params,

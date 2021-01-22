@@ -31,11 +31,11 @@ class StreamingOutput(object):
                             and the value is json key in definition.
     """
     swagger_types = {
-
+        
     }
 
     attribute_map = {
-
+        
     }
 
     def __init__(self):

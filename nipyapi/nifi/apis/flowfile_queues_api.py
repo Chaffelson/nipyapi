@@ -43,7 +43,7 @@ class FlowfileQueuesApi(object):
     def create_drop_request(self, id, **kwargs):
         """
         Creates a request to drop the contents of the queue in this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class FlowfileQueuesApi(object):
     def create_drop_request_with_http_info(self, id, **kwargs):
         """
         Creates a request to drop the contents of the queue in this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class FlowfileQueuesApi(object):
     def create_flow_file_listing(self, id, **kwargs):
         """
         Lists the contents of the queue in this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class FlowfileQueuesApi(object):
     def create_flow_file_listing_with_http_info(self, id, **kwargs):
         """
         Lists the contents of the queue in this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -235,7 +235,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests', 'POST',
                                         path_params,
@@ -255,7 +255,7 @@ class FlowfileQueuesApi(object):
     def delete_listing_request(self, id, listing_request_id, **kwargs):
         """
         Cancels and/or removes a request to list the contents of this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -282,7 +282,7 @@ class FlowfileQueuesApi(object):
     def delete_listing_request_with_http_info(self, id, listing_request_id, **kwargs):
         """
         Cancels and/or removes a request to list the contents of this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -348,7 +348,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'DELETE',
                                         path_params,
@@ -368,7 +368,7 @@ class FlowfileQueuesApi(object):
     def download_flow_file_content(self, id, flowfile_uuid, **kwargs):
         """
         Gets the content for a FlowFile in a Connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -397,7 +397,7 @@ class FlowfileQueuesApi(object):
     def download_flow_file_content_with_http_info(self, id, flowfile_uuid, **kwargs):
         """
         Gets the content for a FlowFile in a Connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -469,7 +469,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}/content', 'GET',
                                         path_params,
@@ -489,7 +489,7 @@ class FlowfileQueuesApi(object):
     def get_drop_request(self, id, drop_request_id, **kwargs):
         """
         Gets the current status of a drop request for the specified connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -516,7 +516,7 @@ class FlowfileQueuesApi(object):
     def get_drop_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
         Gets the current status of a drop request for the specified connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -582,7 +582,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'GET',
                                         path_params,
@@ -602,7 +602,7 @@ class FlowfileQueuesApi(object):
     def get_flow_file(self, id, flowfile_uuid, **kwargs):
         """
         Gets a FlowFile from a Connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -630,7 +630,7 @@ class FlowfileQueuesApi(object):
     def get_flow_file_with_http_info(self, id, flowfile_uuid, **kwargs):
         """
         Gets a FlowFile from a Connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -699,7 +699,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}', 'GET',
                                         path_params,
@@ -719,7 +719,7 @@ class FlowfileQueuesApi(object):
     def get_listing_request(self, id, listing_request_id, **kwargs):
         """
         Gets the current status of a listing request for the specified connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -746,7 +746,7 @@ class FlowfileQueuesApi(object):
     def get_listing_request_with_http_info(self, id, listing_request_id, **kwargs):
         """
         Gets the current status of a listing request for the specified connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -812,7 +812,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'GET',
                                         path_params,
@@ -832,7 +832,7 @@ class FlowfileQueuesApi(object):
     def remove_drop_request(self, id, drop_request_id, **kwargs):
         """
         Cancels and/or removes a request to drop the contents of this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -859,7 +859,7 @@ class FlowfileQueuesApi(object):
     def remove_drop_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
         Cancels and/or removes a request to drop the contents of this connection.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -925,7 +925,7 @@ class FlowfileQueuesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'DELETE',
                                         path_params,

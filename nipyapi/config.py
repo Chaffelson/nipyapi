@@ -9,6 +9,7 @@ objects.
 from __future__ import absolute_import
 import logging
 import os
+import ssl
 import urllib3
 from nipyapi.nifi import configuration as nifi_config
 from nipyapi.registry import configuration as registry_config
@@ -33,32 +34,6 @@ nifi_config.host = os.getenv(
 )
 # Set Default Host for NiFi-Registry
 registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'
-
-
-# Set Default Auth Types
-# Set list to the Auth type you want to use
-# Currently basicAuth trumps tokenAuth if both are enabled
-default_auth = ['tokenAuth']
-# NiFi valid options: ['tokenAuth', 'basicAuth']
-# Registry valid options: ['tokenAuth', 'basicAuth', 'Authorization']
-nifi_config.enabled_auth = default_auth  # tokenAuth was default before 0.14.2
-
-
-# Set SSL Handling
-# When operating with self signed certs, your log can fill up with
-# unnecessary warnings
-# Set to True by default, change to false if necessary
-global_ssl_verify = True
-
-nifi_config.verify_ssl = global_ssl_verify
-registry_config.verify_ssl = global_ssl_verify
-if not global_ssl_verify:
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-if os.getenv('NIFI_CA_CERT') is not None:
-    nifi_config.ssl_ca_cert = os.getenv('NIFI_CA_CERT')
-    nifi_config.cert_file = os.getenv('NIFI_CLIENT_CERT')
-    nifi_config.key_file = os.getenv('NIFI_CLIENT_KEY')
 
 # ---  Project Root ------
 # Is is helpful to have a reference to the root directory of the project
@@ -140,6 +115,43 @@ default_registry_password = 'password'
 # If called for during policy setup, particularly bootstrap_policies
 default_proxy_user = 'CN=localhost, OU=nifi'
 
+# Auth handling
+# If set, NiPyAPI will always include the Basic Authorization header
+global_force_basic_auth = False
+nifi_config.username = default_nifi_username
+nifi_config.password = default_nifi_password
+nifi_config.force_basic_auth = global_force_basic_auth
+registry_config.username = default_registry_username
+registry_config.password = default_registry_password
+registry_config.force_basic_auth = global_force_basic_auth
 
+# Set SSL Handling
+# When operating with self signed certs, your log can fill up with
+# unnecessary warnings
+# Set to True by default, change to false if necessary
+global_ssl_verify = True
+
+nifi_config.verify_ssl = global_ssl_verify
+registry_config.verify_ssl = global_ssl_verify
+if not global_ssl_verify:
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Enforce no host checking when SSL context is disabled
+global_ssl_host_check = False
+if not global_ssl_host_check:
+    nifi_config.ssl_context = ssl.create_default_context()
+    nifi_config.ssl_context.check_hostname = False
+    nifi_config.ssl_context.verify_mode = ssl.CERT_NONE
+
+    registry_config.ssl_context = ssl.create_default_context()
+    registry_config.ssl_context.check_hostname = False
+    registry_config.ssl_context.verify_mode = ssl.CERT_NONE
+
+if os.getenv('NIFI_CA_CERT') is not None:
+    nifi_config.ssl_ca_cert = os.getenv('NIFI_CA_CERT')
+    nifi_config.cert_file = os.getenv('NIFI_CLIENT_CERT')
+    nifi_config.key_file = os.getenv('NIFI_CLIENT_KEY')
+
+# --- URL Encoding
 # URL Encoding bypass characters will not be encoded during submission
 default_safe_chars = ''

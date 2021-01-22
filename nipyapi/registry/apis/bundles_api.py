@@ -143,7 +143,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions/{name}/docs/additional-details', 'GET',
                                         path_params,
@@ -263,7 +263,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions/{name}/docs', 'GET',
                                         path_params,
@@ -374,7 +374,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/versions', 'GET',
                                         path_params,
@@ -485,7 +485,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles', 'GET',
                                         path_params,
@@ -598,7 +598,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}', 'DELETE',
                                         path_params,
@@ -704,7 +704,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}', 'DELETE',
                                         path_params,
@@ -817,7 +817,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}', 'GET',
                                         path_params,
@@ -930,7 +930,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/content', 'GET',
                                         path_params,
@@ -1050,7 +1050,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions/{name}', 'GET',
                                         path_params,
@@ -1163,7 +1163,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions', 'GET',
                                         path_params,
@@ -1269,7 +1269,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions', 'GET',
                                         path_params,
@@ -1375,7 +1375,7 @@ class BundlesApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth', 'Authorization']
+        auth_settings = ['tokenAuth', 'Authorization']
 
         return self.api_client.call_api('/bundles/{bundleId}', 'GET',
                                         path_params,

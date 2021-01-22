@@ -43,7 +43,7 @@ class DataTransferApi(object):
     def commit_input_port_transaction(self, response_code, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -71,7 +71,7 @@ class DataTransferApi(object):
     def commit_input_port_transaction_with_http_info(self, response_code, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -143,7 +143,7 @@ class DataTransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}', 'DELETE',
                                         path_params,
@@ -163,7 +163,7 @@ class DataTransferApi(object):
     def commit_output_port_transaction(self, response_code, checksum, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -192,7 +192,7 @@ class DataTransferApi(object):
     def commit_output_port_transaction_with_http_info(self, response_code, checksum, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -270,7 +270,7 @@ class DataTransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}', 'DELETE',
                                         path_params,
@@ -290,7 +290,7 @@ class DataTransferApi(object):
     def create_port_transaction(self, port_type, port_id, **kwargs):
         """
         Create a transaction to the specified output port or input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -317,7 +317,7 @@ class DataTransferApi(object):
     def create_port_transaction_with_http_info(self, port_type, port_id, **kwargs):
         """
         Create a transaction to the specified output port or input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -379,7 +379,7 @@ class DataTransferApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/{portType}/{portId}/transactions', 'POST',
                                         path_params,
@@ -399,7 +399,7 @@ class DataTransferApi(object):
     def extend_input_port_transaction_ttl(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -426,7 +426,7 @@ class DataTransferApi(object):
     def extend_input_port_transaction_ttl_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -492,7 +492,7 @@ class DataTransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}', 'PUT',
                                         path_params,
@@ -512,7 +512,7 @@ class DataTransferApi(object):
     def extend_output_port_transaction_ttl(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -539,7 +539,7 @@ class DataTransferApi(object):
     def extend_output_port_transaction_ttl_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -605,7 +605,7 @@ class DataTransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}', 'PUT',
                                         path_params,
@@ -625,7 +625,7 @@ class DataTransferApi(object):
     def receive_flow_files(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files to the input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -652,7 +652,7 @@ class DataTransferApi(object):
     def receive_flow_files_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files to the input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -718,7 +718,7 @@ class DataTransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}/flow-files', 'POST',
                                         path_params,
@@ -738,7 +738,7 @@ class DataTransferApi(object):
     def transfer_flow_files(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files from the output port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -765,7 +765,7 @@ class DataTransferApi(object):
     def transfer_flow_files_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files from the output port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -831,7 +831,7 @@ class DataTransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}/flow-files', 'GET',
                                         path_params,

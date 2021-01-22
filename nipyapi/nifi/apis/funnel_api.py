@@ -43,7 +43,7 @@ class FunnelApi(object):
     def get_funnel(self, id, **kwargs):
         """
         Gets a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class FunnelApi(object):
     def get_funnel_with_http_info(self, id, **kwargs):
         """
         Gets a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class FunnelApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/funnels/{id}', 'GET',
                                         path_params,
@@ -149,7 +149,7 @@ class FunnelApi(object):
     def remove_funnel(self, id, **kwargs):
         """
         Deletes a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -178,7 +178,7 @@ class FunnelApi(object):
     def remove_funnel_with_http_info(self, id, **kwargs):
         """
         Deletes a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -247,7 +247,7 @@ class FunnelApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/funnels/{id}', 'DELETE',
                                         path_params,
@@ -267,7 +267,7 @@ class FunnelApi(object):
     def update_funnel(self, id, body, **kwargs):
         """
         Updates a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -294,7 +294,7 @@ class FunnelApi(object):
     def update_funnel_with_http_info(self, id, body, **kwargs):
         """
         Updates a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -360,7 +360,7 @@ class FunnelApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/funnels/{id}', 'PUT',
                                         path_params,

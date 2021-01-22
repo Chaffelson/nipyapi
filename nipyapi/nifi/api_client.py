@@ -523,6 +523,8 @@ class ApiClient(object):
                     raise ValueError(
                         'Authentication token must be in `query` or `header`'
                     )
+        if config.force_basic_auth:
+            headers['Authorization'] = config.get_basic_auth_token()
 
     def __deserialize_file(self, response):
         """

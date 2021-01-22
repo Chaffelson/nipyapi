@@ -43,7 +43,7 @@ class ControllerApi(object):
     def create_bulletin(self, body, **kwargs):
         """
         Creates a new bulletin
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -69,7 +69,7 @@ class ControllerApi(object):
     def create_bulletin_with_http_info(self, body, **kwargs):
         """
         Creates a new bulletin
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -129,7 +129,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/bulletin', 'POST',
                                         path_params,
@@ -149,7 +149,7 @@ class ControllerApi(object):
     def create_controller_service(self, body, **kwargs):
         """
         Creates a new controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -175,7 +175,7 @@ class ControllerApi(object):
     def create_controller_service_with_http_info(self, body, **kwargs):
         """
         Creates a new controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -235,7 +235,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/controller-services', 'POST',
                                         path_params,
@@ -255,7 +255,7 @@ class ControllerApi(object):
     def create_registry_client(self, body, **kwargs):
         """
         Creates a new registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -281,7 +281,7 @@ class ControllerApi(object):
     def create_registry_client_with_http_info(self, body, **kwargs):
         """
         Creates a new registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -341,7 +341,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/registry-clients', 'POST',
                                         path_params,
@@ -361,7 +361,7 @@ class ControllerApi(object):
     def create_reporting_task(self, body, **kwargs):
         """
         Creates a new reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -387,7 +387,7 @@ class ControllerApi(object):
     def create_reporting_task_with_http_info(self, body, **kwargs):
         """
         Creates a new reporting task
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -447,7 +447,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/reporting-tasks', 'POST',
                                         path_params,
@@ -467,7 +467,7 @@ class ControllerApi(object):
     def delete_history(self, end_date, **kwargs):
         """
         Purges history
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -493,7 +493,7 @@ class ControllerApi(object):
     def delete_history_with_http_info(self, end_date, **kwargs):
         """
         Purges history
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -553,7 +553,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/history', 'DELETE',
                                         path_params,
@@ -573,7 +573,7 @@ class ControllerApi(object):
     def delete_node(self, id, **kwargs):
         """
         Removes a node from the cluster
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -599,7 +599,7 @@ class ControllerApi(object):
     def delete_node_with_http_info(self, id, **kwargs):
         """
         Removes a node from the cluster
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -659,7 +659,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'DELETE',
                                         path_params,
@@ -679,7 +679,7 @@ class ControllerApi(object):
     def delete_registry_client(self, id, **kwargs):
         """
         Deletes a registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -708,7 +708,7 @@ class ControllerApi(object):
     def delete_registry_client_with_http_info(self, id, **kwargs):
         """
         Deletes a registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -777,7 +777,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'DELETE',
                                         path_params,
@@ -875,7 +875,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/cluster', 'GET',
                                         path_params,
@@ -895,7 +895,7 @@ class ControllerApi(object):
     def get_controller_config(self, **kwargs):
         """
         Retrieves the configuration for this NiFi Controller
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -920,7 +920,7 @@ class ControllerApi(object):
     def get_controller_config_with_http_info(self, **kwargs):
         """
         Retrieves the configuration for this NiFi Controller
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -973,7 +973,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/config', 'GET',
                                         path_params,
@@ -993,7 +993,7 @@ class ControllerApi(object):
     def get_node(self, id, **kwargs):
         """
         Gets a node in the cluster
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1019,7 +1019,7 @@ class ControllerApi(object):
     def get_node_with_http_info(self, id, **kwargs):
         """
         Gets a node in the cluster
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1079,7 +1079,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'GET',
                                         path_params,
@@ -1099,7 +1099,7 @@ class ControllerApi(object):
     def get_registry_client(self, id, **kwargs):
         """
         Gets a registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1125,7 +1125,7 @@ class ControllerApi(object):
     def get_registry_client_with_http_info(self, id, **kwargs):
         """
         Gets a registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1185,7 +1185,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'GET',
                                         path_params,
@@ -1205,7 +1205,7 @@ class ControllerApi(object):
     def get_registry_clients(self, **kwargs):
         """
         Gets the listing of available registry clients
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1230,7 +1230,7 @@ class ControllerApi(object):
     def get_registry_clients_with_http_info(self, **kwargs):
         """
         Gets the listing of available registry clients
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1283,7 +1283,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/registry-clients', 'GET',
                                         path_params,
@@ -1303,7 +1303,7 @@ class ControllerApi(object):
     def update_controller_config(self, body, **kwargs):
         """
         Retrieves the configuration for this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1329,7 +1329,7 @@ class ControllerApi(object):
     def update_controller_config_with_http_info(self, body, **kwargs):
         """
         Retrieves the configuration for this NiFi
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1389,7 +1389,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/config', 'PUT',
                                         path_params,
@@ -1409,7 +1409,7 @@ class ControllerApi(object):
     def update_node(self, id, body, **kwargs):
         """
         Updates a node in the cluster
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1436,7 +1436,7 @@ class ControllerApi(object):
     def update_node_with_http_info(self, id, body, **kwargs):
         """
         Updates a node in the cluster
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1502,7 +1502,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'PUT',
                                         path_params,
@@ -1522,7 +1522,7 @@ class ControllerApi(object):
     def update_registry_client(self, id, body, **kwargs):
         """
         Updates a registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1549,7 +1549,7 @@ class ControllerApi(object):
     def update_registry_client_with_http_info(self, id, body, **kwargs):
         """
         Updates a registry client
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1615,7 +1615,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'PUT',
                                         path_params,

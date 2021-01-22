@@ -43,7 +43,7 @@ class ProcessGroupsApi(object):
     def copy_snippet(self, id, body, **kwargs):
         """
         Copies a snippet and discards it.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -70,7 +70,7 @@ class ProcessGroupsApi(object):
     def copy_snippet_with_http_info(self, id, body, **kwargs):
         """
         Copies a snippet and discards it.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -136,7 +136,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/snippet-instance', 'POST',
                                         path_params,
@@ -156,7 +156,7 @@ class ProcessGroupsApi(object):
     def create_connection(self, id, body, **kwargs):
         """
         Creates a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -183,7 +183,7 @@ class ProcessGroupsApi(object):
     def create_connection_with_http_info(self, id, body, **kwargs):
         """
         Creates a connection
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -249,7 +249,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/connections', 'POST',
                                         path_params,
@@ -269,7 +269,7 @@ class ProcessGroupsApi(object):
     def create_controller_service(self, id, body, **kwargs):
         """
         Creates a new controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -296,7 +296,7 @@ class ProcessGroupsApi(object):
     def create_controller_service_with_http_info(self, id, body, **kwargs):
         """
         Creates a new controller service
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -362,7 +362,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/controller-services', 'POST',
                                         path_params,
@@ -382,7 +382,7 @@ class ProcessGroupsApi(object):
     def create_empty_all_connections_request(self, id, **kwargs):
         """
         Creates a request to drop all flowfiles of all connection queues in this process group.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -408,7 +408,7 @@ class ProcessGroupsApi(object):
     def create_empty_all_connections_request_with_http_info(self, id, **kwargs):
         """
         Creates a request to drop all flowfiles of all connection queues in this process group.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -468,7 +468,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/empty-all-connections-requests', 'POST',
                                         path_params,
@@ -488,7 +488,7 @@ class ProcessGroupsApi(object):
     def create_funnel(self, id, body, **kwargs):
         """
         Creates a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -515,7 +515,7 @@ class ProcessGroupsApi(object):
     def create_funnel_with_http_info(self, id, body, **kwargs):
         """
         Creates a funnel
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -581,7 +581,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/funnels', 'POST',
                                         path_params,
@@ -601,7 +601,7 @@ class ProcessGroupsApi(object):
     def create_input_port(self, id, body, **kwargs):
         """
         Creates an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -628,7 +628,7 @@ class ProcessGroupsApi(object):
     def create_input_port_with_http_info(self, id, body, **kwargs):
         """
         Creates an input port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -694,7 +694,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/input-ports', 'POST',
                                         path_params,
@@ -714,7 +714,7 @@ class ProcessGroupsApi(object):
     def create_label(self, id, body, **kwargs):
         """
         Creates a label
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -741,7 +741,7 @@ class ProcessGroupsApi(object):
     def create_label_with_http_info(self, id, body, **kwargs):
         """
         Creates a label
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -807,7 +807,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/labels', 'POST',
                                         path_params,
@@ -827,7 +827,7 @@ class ProcessGroupsApi(object):
     def create_output_port(self, id, body, **kwargs):
         """
         Creates an output port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -854,7 +854,7 @@ class ProcessGroupsApi(object):
     def create_output_port_with_http_info(self, id, body, **kwargs):
         """
         Creates an output port
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -920,7 +920,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/output-ports', 'POST',
                                         path_params,
@@ -940,7 +940,7 @@ class ProcessGroupsApi(object):
     def create_process_group(self, id, body, **kwargs):
         """
         Creates a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -967,7 +967,7 @@ class ProcessGroupsApi(object):
     def create_process_group_with_http_info(self, id, body, **kwargs):
         """
         Creates a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1033,7 +1033,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups', 'POST',
                                         path_params,
@@ -1053,7 +1053,7 @@ class ProcessGroupsApi(object):
     def create_processor(self, id, body, **kwargs):
         """
         Creates a new processor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1080,7 +1080,7 @@ class ProcessGroupsApi(object):
     def create_processor_with_http_info(self, id, body, **kwargs):
         """
         Creates a new processor
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1146,7 +1146,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/processors', 'POST',
                                         path_params,
@@ -1166,7 +1166,7 @@ class ProcessGroupsApi(object):
     def create_remote_process_group(self, id, body, **kwargs):
         """
         Creates a new process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1193,7 +1193,7 @@ class ProcessGroupsApi(object):
     def create_remote_process_group_with_http_info(self, id, body, **kwargs):
         """
         Creates a new process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1259,7 +1259,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/remote-process-groups', 'POST',
                                         path_params,
@@ -1279,7 +1279,7 @@ class ProcessGroupsApi(object):
     def create_template(self, id, body, **kwargs):
         """
         Creates a template and discards the specified snippet.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1306,7 +1306,7 @@ class ProcessGroupsApi(object):
     def create_template_with_http_info(self, id, body, **kwargs):
         """
         Creates a template and discards the specified snippet.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1372,7 +1372,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/templates', 'POST',
                                         path_params,
@@ -1482,7 +1482,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/replace-requests/{id}', 'DELETE',
                                         path_params,
@@ -1599,7 +1599,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{groupId}/variable-registry/update-requests/{updateId}', 'DELETE',
                                         path_params,
@@ -1619,7 +1619,7 @@ class ProcessGroupsApi(object):
     def export_process_group(self, id, **kwargs):
         """
         Gets a process group for download
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1645,7 +1645,7 @@ class ProcessGroupsApi(object):
     def export_process_group_with_http_info(self, id, **kwargs):
         """
         Gets a process group for download
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1705,7 +1705,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/download', 'GET',
                                         path_params,
@@ -1725,7 +1725,7 @@ class ProcessGroupsApi(object):
     def get_connections(self, id, **kwargs):
         """
         Gets all connections
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1751,7 +1751,7 @@ class ProcessGroupsApi(object):
     def get_connections_with_http_info(self, id, **kwargs):
         """
         Gets all connections
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1811,7 +1811,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/connections', 'GET',
                                         path_params,
@@ -1831,7 +1831,7 @@ class ProcessGroupsApi(object):
     def get_drop_all_flowfiles_request(self, id, drop_request_id, **kwargs):
         """
         Gets the current status of a drop all flowfiles request.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1858,7 +1858,7 @@ class ProcessGroupsApi(object):
     def get_drop_all_flowfiles_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
         Gets the current status of a drop all flowfiles request.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1924,7 +1924,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/empty-all-connections-requests/{drop-request-id}', 'GET',
                                         path_params,
@@ -1944,7 +1944,7 @@ class ProcessGroupsApi(object):
     def get_funnels(self, id, **kwargs):
         """
         Gets all funnels
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1970,7 +1970,7 @@ class ProcessGroupsApi(object):
     def get_funnels_with_http_info(self, id, **kwargs):
         """
         Gets all funnels
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2030,7 +2030,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/funnels', 'GET',
                                         path_params,
@@ -2050,7 +2050,7 @@ class ProcessGroupsApi(object):
     def get_input_ports(self, id, **kwargs):
         """
         Gets all input ports
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2076,7 +2076,7 @@ class ProcessGroupsApi(object):
     def get_input_ports_with_http_info(self, id, **kwargs):
         """
         Gets all input ports
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2136,7 +2136,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/input-ports', 'GET',
                                         path_params,
@@ -2156,7 +2156,7 @@ class ProcessGroupsApi(object):
     def get_labels(self, id, **kwargs):
         """
         Gets all labels
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2182,7 +2182,7 @@ class ProcessGroupsApi(object):
     def get_labels_with_http_info(self, id, **kwargs):
         """
         Gets all labels
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2242,7 +2242,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/labels', 'GET',
                                         path_params,
@@ -2262,7 +2262,7 @@ class ProcessGroupsApi(object):
     def get_local_modifications(self, id, **kwargs):
         """
         Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2288,7 +2288,7 @@ class ProcessGroupsApi(object):
     def get_local_modifications_with_http_info(self, id, **kwargs):
         """
         Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2348,7 +2348,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/local-modifications', 'GET',
                                         path_params,
@@ -2368,7 +2368,7 @@ class ProcessGroupsApi(object):
     def get_output_ports(self, id, **kwargs):
         """
         Gets all output ports
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2394,7 +2394,7 @@ class ProcessGroupsApi(object):
     def get_output_ports_with_http_info(self, id, **kwargs):
         """
         Gets all output ports
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2454,7 +2454,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/output-ports', 'GET',
                                         path_params,
@@ -2474,7 +2474,7 @@ class ProcessGroupsApi(object):
     def get_process_group(self, id, **kwargs):
         """
         Gets a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2500,7 +2500,7 @@ class ProcessGroupsApi(object):
     def get_process_group_with_http_info(self, id, **kwargs):
         """
         Gets a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2560,7 +2560,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'GET',
                                         path_params,
@@ -2580,7 +2580,7 @@ class ProcessGroupsApi(object):
     def get_process_groups(self, id, **kwargs):
         """
         Gets all process groups
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2606,7 +2606,7 @@ class ProcessGroupsApi(object):
     def get_process_groups_with_http_info(self, id, **kwargs):
         """
         Gets all process groups
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2666,7 +2666,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups', 'GET',
                                         path_params,
@@ -2686,7 +2686,7 @@ class ProcessGroupsApi(object):
     def get_processors(self, id, **kwargs):
         """
         Gets all processors
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2713,7 +2713,7 @@ class ProcessGroupsApi(object):
     def get_processors_with_http_info(self, id, **kwargs):
         """
         Gets all processors
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2776,7 +2776,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/processors', 'GET',
                                         path_params,
@@ -2796,7 +2796,7 @@ class ProcessGroupsApi(object):
     def get_remote_process_groups(self, id, **kwargs):
         """
         Gets all remote process groups
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2822,7 +2822,7 @@ class ProcessGroupsApi(object):
     def get_remote_process_groups_with_http_info(self, id, **kwargs):
         """
         Gets all remote process groups
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -2882,7 +2882,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/remote-process-groups', 'GET',
                                         path_params,
@@ -2988,7 +2988,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/replace-requests/{id}', 'GET',
                                         path_params,
@@ -3098,7 +3098,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/variable-registry', 'GET',
                                         path_params,
@@ -3211,7 +3211,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{groupId}/variable-registry/update-requests/{updateId}', 'GET',
                                         path_params,
@@ -3231,7 +3231,7 @@ class ProcessGroupsApi(object):
     def import_template(self, id, **kwargs):
         """
         Imports a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3257,7 +3257,7 @@ class ProcessGroupsApi(object):
     def import_template_with_http_info(self, id, **kwargs):
         """
         Imports a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3317,7 +3317,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/xml'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/templates/import', 'POST',
                                         path_params,
@@ -3430,7 +3430,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/replace-requests', 'POST',
                                         path_params,
@@ -3450,7 +3450,7 @@ class ProcessGroupsApi(object):
     def instantiate_template(self, id, body, **kwargs):
         """
         Instantiates a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3477,7 +3477,7 @@ class ProcessGroupsApi(object):
     def instantiate_template_with_http_info(self, id, body, **kwargs):
         """
         Instantiates a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3543,7 +3543,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/template-instance', 'POST',
                                         path_params,
@@ -3563,7 +3563,7 @@ class ProcessGroupsApi(object):
     def remove_drop_request(self, id, drop_request_id, **kwargs):
         """
         Cancels and/or removes a request to drop all flowfiles.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3590,7 +3590,7 @@ class ProcessGroupsApi(object):
     def remove_drop_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
         Cancels and/or removes a request to drop all flowfiles.
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3656,7 +3656,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/empty-all-connections-requests/{drop-request-id}', 'DELETE',
                                         path_params,
@@ -3676,7 +3676,7 @@ class ProcessGroupsApi(object):
     def remove_process_group(self, id, **kwargs):
         """
         Deletes a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3705,7 +3705,7 @@ class ProcessGroupsApi(object):
     def remove_process_group_with_http_info(self, id, **kwargs):
         """
         Deletes a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -3774,7 +3774,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'DELETE',
                                         path_params,
@@ -3887,7 +3887,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/flow-contents', 'PUT',
                                         path_params,
@@ -4000,7 +4000,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/variable-registry/update-requests', 'POST',
                                         path_params,
@@ -4020,7 +4020,7 @@ class ProcessGroupsApi(object):
     def update_process_group(self, id, body, **kwargs):
         """
         Updates a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4047,7 +4047,7 @@ class ProcessGroupsApi(object):
     def update_process_group_with_http_info(self, id, body, **kwargs):
         """
         Updates a process group
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4113,7 +4113,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'PUT',
                                         path_params,
@@ -4226,7 +4226,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/variable-registry', 'PUT',
                                         path_params,
@@ -4246,7 +4246,7 @@ class ProcessGroupsApi(object):
     def upload_template(self, id, template, **kwargs):
         """
         Uploads a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4274,7 +4274,7 @@ class ProcessGroupsApi(object):
     def upload_template_with_http_info(self, id, template, **kwargs):
         """
         Uploads a template
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -4343,7 +4343,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['multipart/form-data'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/process-groups/{id}/templates/upload', 'POST',
                                         path_params,

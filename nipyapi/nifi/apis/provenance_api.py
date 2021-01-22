@@ -43,7 +43,7 @@ class ProvenanceApi(object):
     def delete_lineage(self, id, **kwargs):
         """
         Deletes a lineage query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -70,7 +70,7 @@ class ProvenanceApi(object):
     def delete_lineage_with_http_info(self, id, **kwargs):
         """
         Deletes a lineage query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -133,7 +133,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'DELETE',
                                         path_params,
@@ -153,7 +153,7 @@ class ProvenanceApi(object):
     def delete_provenance(self, id, **kwargs):
         """
         Deletes a provenance query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -180,7 +180,7 @@ class ProvenanceApi(object):
     def delete_provenance_with_http_info(self, id, **kwargs):
         """
         Deletes a provenance query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -243,7 +243,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance/{id}', 'DELETE',
                                         path_params,
@@ -263,7 +263,7 @@ class ProvenanceApi(object):
     def get_lineage(self, id, **kwargs):
         """
         Gets a lineage query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -290,7 +290,7 @@ class ProvenanceApi(object):
     def get_lineage_with_http_info(self, id, **kwargs):
         """
         Gets a lineage query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -353,7 +353,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'GET',
                                         path_params,
@@ -373,7 +373,7 @@ class ProvenanceApi(object):
     def get_provenance(self, id, **kwargs):
         """
         Gets a provenance query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -402,7 +402,7 @@ class ProvenanceApi(object):
     def get_provenance_with_http_info(self, id, **kwargs):
         """
         Gets a provenance query
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -471,7 +471,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance/{id}', 'GET',
                                         path_params,
@@ -491,7 +491,7 @@ class ProvenanceApi(object):
     def get_search_options(self, **kwargs):
         """
         Gets the searchable attributes for provenance events
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -516,7 +516,7 @@ class ProvenanceApi(object):
     def get_search_options_with_http_info(self, **kwargs):
         """
         Gets the searchable attributes for provenance events
-
+        
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -569,7 +569,7 @@ class ProvenanceApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance/search-options', 'GET',
                                         path_params,
@@ -675,7 +675,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance/lineage', 'POST',
                                         path_params,
@@ -781,7 +781,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['tokenAuth', 'basicAuth']
+        auth_settings = ['tokenAuth']
 
         return self.api_client.call_api('/provenance', 'POST',
                                         path_params,
