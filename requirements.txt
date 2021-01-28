@@ -15,6 +15,9 @@ lxml>=4.6.2
 requests[security]>=2.18
 # urllib3, cryptography are handled by requests
 
+# Socks Proxy
+pysocks>=1.7.1
+
 # Import Export and Utils implementation
 ruamel.yaml==0.16.12
 
