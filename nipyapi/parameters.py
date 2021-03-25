@@ -6,6 +6,7 @@ For Managing NiFi Parameter Contexts
 
 from __future__ import absolute_import
 import logging
+from pprint import pprint
 import six
 import nipyapi
 from nipyapi.utils import exception_handler, enforce_min_ver
@@ -244,8 +245,8 @@ def assign_context_to_process_group(pg, context_id, cascade=False):
     """
     assert isinstance(context_id, str)
     if cascade:
-        # Update the specified Process Group's direct child Process Groups
-        child_pgs=nipyapi.nifi.ProcessGroupsApi().get_process_groups(pg.id).process_groups
+        # Update the specified Process Group & all children
+        child_pgs=nipyapi.canvas.list_all_process_groups(pg_id=pg.id)
         for child_pg in child_pgs:
             nipyapi.canvas.update_process_group(
                 pg=child_pg,
