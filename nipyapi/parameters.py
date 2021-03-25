@@ -6,7 +6,6 @@ For Managing NiFi Parameter Contexts
 
 from __future__ import absolute_import
 import logging
-from pprint import pprint
 import six
 import nipyapi
 from nipyapi.utils import exception_handler, enforce_min_ver
