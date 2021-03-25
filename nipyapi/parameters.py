@@ -229,18 +229,32 @@ def upsert_parameter_to_context(context, parameter):
     return update_parameter_context(context=context)
 
 
-def assign_context_to_process_group(pg, context_id):
+def assign_context_to_process_group(pg, context_id, cascade=False):
     """
     Assigns a given Parameter Context to a specific Process Group
+    Optionally cascades down to direct children Process Groups
 
     Args:
         pg (ProcessGroupEntity): The Process Group to target
         context_id (str): The ID of the Parameter Context
+        cascade (bool): Cascade Parameter Context down to child Process Groups?
 
     Returns:
         (ProcessGroupEntity) The updated Process Group
     """
     assert isinstance(context_id, str)
+    if cascade:
+        # Update the specified Process Group's direct child Process Groups
+        child_pgs=nipyapi.nifi.ProcessGroupsApi().get_process_groups(pg.id).process_groups
+        for child_pg in child_pgs:
+            nipyapi.canvas.update_process_group(
+                pg=child_pg,
+                update={
+                    'parameter_context': {
+                        'id': context_id
+                    }
+                }
+            )
     return nipyapi.canvas.update_process_group(
         pg=pg,
         update={
