@@ -19,7 +19,7 @@ requests[security]>=2.18
 pysocks>=1.7.1
 
 # Import Export and Utils implementation
-ruamel.yaml==0.16.12
+ruamel.yaml==0.17.14
 
 # Demo deployment automation
 docker>=2.5.1
