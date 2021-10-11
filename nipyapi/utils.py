@@ -525,8 +525,8 @@ def validate_parameters_versioning_support():
     registry_check = enforce_min_ver(
         '0.6', service='registry', bool_response=True)
     if nifi_check or registry_check:
-        log.warning("Connected NiFi Registry does not support "
-                    "Parameter Contexts and they will be lost in "
+        log.warning("Connected NiFi Registry may not support "
+                    "Parameter Contexts and they may be lost in "
                     "Version Control".format())
 
 
