@@ -395,10 +395,6 @@ def service_logout(service='nifi'):
             # Logout throws error with incorrect ssl setup
         else:
             raise e
-    # Set to empty string and not None as basic auth setup will still
-    # run even if not used
-    getattr(nipyapi, service).configuration.password = ''
-    getattr(nipyapi, service).configuration.username = ''
     if not status:
         return True
     return False

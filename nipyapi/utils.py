@@ -492,7 +492,8 @@ def check_version(base, comparator=None, service='nifi'):
             if config.api_client is None:
                 config.api_client = nipyapi.registry.ApiClient()
             reg_swagger_def = config.api_client.call_api(
-                resource_path='/swagger/swagger.json', method='GET', _preload_content=False,
+                resource_path='/swagger/swagger.json',
+                method='GET', _preload_content=False,
                 auth_settings=['tokenAuth', 'Authorization']
             )
             reg_json = load(reg_swagger_def[0].data)

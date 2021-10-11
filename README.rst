@@ -11,7 +11,7 @@ Nifi-Python-Api: A rich Apache NiFi Python Client SDK
         :target: https://pypi.python.org/pypi/nipyapi
         :alt: Release Status
 
-.. image:: https://img.shields.io/travis/Chaffelson/nipyapi.svg
+.. image:: https://img.shields.io/travis/Chaffelson/nipyapi/main.svg
         :target: https://travis-ci.org/Chaffelson/nipyapi
         :alt: Build Status
 
@@ -23,8 +23,8 @@ Nifi-Python-Api: A rich Apache NiFi Python Client SDK
      :target: https://pyup.io/repos/github/Chaffelson/nipyapi/
      :alt: Python Updates
 
-.. image:: https://coveralls.io/repos/github/Chaffelson/nipyapi/badge.svg?branch=master
-    :target: https://coveralls.io/github/Chaffelson/nipyapi?branch=master&service=github
+.. image:: https://coveralls.io/repos/github/Chaffelson/nipyapi/badge.svg?branch=main
+    :target: https://coveralls.io/github/Chaffelson/nipyapi?branch=main&service=github
     :alt: test coverage
 
 .. image:: https://img.shields.io/badge/License-Apache%202.0-blue.svg
