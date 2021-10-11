@@ -161,13 +161,14 @@ def delete_registry_bucket(bucket):
         _raise(ValueError(e), e)
 
 
-def get_registry_bucket(identifier, identifier_type='name'):
+def get_registry_bucket(identifier, identifier_type='name', greedy=True):
     """
     Filters the Bucket list to a particular identifier
 
     Args:
         identifier (str): the filter string
         identifier_type (str): the param to filter on
+        greedy (bool): False for exact match, True for greedy match
 
     Returns:
         None for no matches, Single Object for unique match,
@@ -175,7 +176,8 @@ def get_registry_bucket(identifier, identifier_type='name'):
     """
     with nipyapi.utils.rest_exceptions():
         obj = list_registry_buckets()
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(
+        obj, identifier, identifier_type, greedy=greedy)
 
 
 def list_flows_in_bucket(bucket_id):
@@ -192,7 +194,7 @@ def list_flows_in_bucket(bucket_id):
         return nipyapi.registry.BucketFlowsApi().get_flows(bucket_id)
 
 
-def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
+def get_flow_in_bucket(bucket_id, identifier, identifier_type='name', greedy=True):
     """
     Filters the Flows in a Bucket against a particular identifier
 
@@ -200,6 +202,7 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
         bucket_id (str): UUID of the Bucket to filter against
         identifier (str): The string to filter on
         identifier_type (str): The param to check
+        greedy (bool): False for exact match, True for greedy match
 
     Returns:
         None for no matches, Single Object for unique match,
@@ -207,7 +210,8 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name'):
     """
     with nipyapi.utils.rest_exceptions():
         obj = list_flows_in_bucket(bucket_id)
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(
+        obj, identifier, identifier_type, greedy=greedy)
 
 
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
