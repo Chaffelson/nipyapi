@@ -581,7 +581,7 @@ def update_access_policy(policy, service='nifi'):
         policy,
         nipyapi.registry.AccessPolicy if service == 'registry'
         else nipyapi.nifi.AccessPolicyEntity
-    ), "Policy type {0} not vaid.".format(type(policy))
+    ), "Policy type {0} not valid.".format(type(policy))
     with nipyapi.utils.rest_exceptions():
         return getattr(nipyapi, service).PoliciesApi().update_access_policy(
             id=policy.id if service == 'nifi' else policy.identifier,
