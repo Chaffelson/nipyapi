@@ -11,10 +11,6 @@ Nifi-Python-Api: A rich Apache NiFi Python Client SDK
         :target: https://pypi.python.org/pypi/nipyapi
         :alt: Release Status
 
-.. image:: https://img.shields.io/travis/Chaffelson/nipyapi/main.svg
-        :target: https://travis-ci.org/Chaffelson/nipyapi
-        :alt: Build Status
-
 .. image:: https://readthedocs.org/projects/nipyapi/badge/?version=latest
         :target: https://nipyapi.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
@@ -97,12 +93,12 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.10, and NiFi-Registry versions 0.1.0 - 0.5.0.
+| Currently we are testing against NiFi versions 1.1.2 - 1.13.2, and NiFi-Registry versions 0.1.0 - 0.8.0.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Python Requirements
 -------------------
 
-| Python 2.7 or 3.5-7 supported, though other versions may work. *We will shortly stop supporting Python2*
+| Python 2.7 or 3.5-8 supported, though other versions may work. *We will shortly stop supporting Python2*
 | Tested on AL2 and OSX 10.14.x - Windows automated testing not attempted
 | Outside of the standard Python modules, we make use of lxml, DeepDiff, ruamel.yaml and xmltodict in processing, and Docker for demo/tests.
