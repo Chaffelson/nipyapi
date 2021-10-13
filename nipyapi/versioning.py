@@ -194,7 +194,8 @@ def list_flows_in_bucket(bucket_id):
         return nipyapi.registry.BucketFlowsApi().get_flows(bucket_id)
 
 
-def get_flow_in_bucket(bucket_id, identifier, identifier_type='name', greedy=True):
+def get_flow_in_bucket(bucket_id, identifier, identifier_type='name',
+                       greedy=True):
     """
     Filters the Flows in a Bucket against a particular identifier
 
