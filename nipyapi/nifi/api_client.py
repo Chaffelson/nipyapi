@@ -65,6 +65,7 @@ class ApiClient(object):
         """
         self.rest_client = RESTClientObject()
         self.default_headers = {}
+        self.default_headers["Accept-Encoding"] = 'gzip, deflate'
         if header_name is not None:
             self.default_headers[header_name] = header_value
         if host is None:
