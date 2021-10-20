@@ -89,7 +89,7 @@ def create_parameter_context(name, description=None, parameters=None):
             component=ParameterContextDTO(
                 name=name,
                 description=description,
-                parameters=parameters if parameters else list()
+                parameters=parameters if parameters else []
                 # list() per NiFi Jira 7995
             )
         )

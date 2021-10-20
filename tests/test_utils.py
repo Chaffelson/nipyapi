@@ -4,18 +4,20 @@
 """Tests for `nipyapi` _utils package."""
 
 from __future__ import absolute_import
+import sys
 import pytest
 import six
 from tests import conftest
 import json
 from deepdiff import DeepDiff
 from nipyapi import utils, nifi, system
+from nipyapi.config import default_string_encoding as DEF_ENCODING
 
 
 def test_dump(regress_flow_reg, fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
-    export_obj = json.loads(fix_flow_serde.raw.decode('utf-8'))
+    export_obj = json.loads(fix_flow_serde.raw.decode(DEF_ENCODING))
     ss_json = utils.dump(
         obj=export_obj,
         mode='json'
@@ -68,13 +70,20 @@ def test_fs_write(tmpdir):
     )
     assert r1 == test_obj
     # Test writing to an invalid location
-    with pytest.raises(IOError):
-        _ = utils.fs_write(
-            obj=test_obj,
-            file_path='/dev/AlmostCertainlyNotAValidDevice'
-        )
+    if sys.version_info >= (3,3):
+        with pytest.raises((OSError, IOError, PermissionError)):
+            _ = utils.fs_write(
+                obj=test_obj,
+                file_path='/dev/AlmostCertainlyNotAValidDevice'
+            )
+    else:
+        with pytest.raises((OSError, IOError)):
+            _ = utils.fs_write(
+                obj=test_obj,
+                file_path='/dev/AlmostCertainlyNotAValidDevice'
+            )
     # Test writing an invalid object
-    with pytest.raises(TypeError):
+    with pytest.raises((TypeError,AttributeError)):
         _ = utils.fs_write(
             obj={},
             file_path=f_fpath
@@ -87,10 +96,16 @@ def test_fs_read(fix_flow_serde):
     )
     assert r1 == fix_flow_serde.json
     # Test reading from unreachable file
-    with pytest.raises(IOError):
-        _ = utils.fs_read(
-            file_path='/dev/AlmostCertainlyNotAValidDevice'
-        )
+    if sys.version_info >= (3,3):
+        with pytest.raises((OSError, IOError, FileNotFoundError, PermissionError)):
+            _ = utils.fs_read(
+                file_path='/dev/AlmostCertainlyNotAValidDevice'
+            )
+    else:
+        with pytest.raises((OSError, IOError)):
+            _ = utils.fs_read(
+                file_path='/dev/AlmostCertainlyNotAValidDevice'
+            )
 
 
 def test_filter_obj(fix_pg):

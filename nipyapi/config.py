@@ -152,6 +152,9 @@ if os.getenv('NIFI_CA_CERT') is not None:
     nifi_config.cert_file = os.getenv('NIFI_CLIENT_CERT')
     nifi_config.key_file = os.getenv('NIFI_CLIENT_KEY')
 
-# --- URL Encoding
+# --- Encoding
 # URL Encoding bypass characters will not be encoded during submission
 default_safe_chars = ''
+
+# Default String Encoding
+default_string_encoding = 'utf8'

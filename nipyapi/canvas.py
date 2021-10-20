@@ -590,8 +590,8 @@ def delete_processor(processor, refresh=True, force=False):
         target = processor
     if force:
         if not schedule_processor(target, False):
-            raise ("Could not prepare processor {0} for deletion"
-                   .format(target.id))
+            raise ValueError("Could not prepare processor {0} for deletion"
+                             .format(target.id))
         inbound_cons = [
             x for x in get_component_connections(processor)
             if processor.id == x.destination_id

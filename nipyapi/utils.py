@@ -9,6 +9,7 @@ from __future__ import absolute_import, unicode_literals
 import logging
 import json
 import re
+import io
 import time
 from copy import copy
 from functools import reduce, wraps
@@ -23,6 +24,7 @@ import requests
 from requests.models import Response
 from future.utils import raise_from as _raise
 import nipyapi
+from nipyapi.config import default_string_encoding as DEF_ENCODING
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
@@ -126,8 +128,12 @@ def fs_write(obj, file_path):
     Returns: The object that was written
     """
     try:
-        with open(str(file_path), 'w') as f:
-            f.write(obj)
+        with io.open(str(file_path), 'w', encoding=DEF_ENCODING) as f:
+            if isinstance(obj, bytes):
+                obj_str = obj.decode(DEF_ENCODING)
+            else:
+                obj_str = obj
+            f.write(obj_str)
         return obj
     except TypeError as e:
         raise e
@@ -143,7 +149,7 @@ def fs_read(file_path):
     Returns: The object that was read
     """
     try:
-        with open(str(file_path), 'r') as f:
+        with io.open(str(file_path), 'r', encoding=DEF_ENCODING) as f:
             return f.read()
     except IOError as e:
         raise e
@@ -527,7 +533,7 @@ def validate_parameters_versioning_support():
     if nifi_check or registry_check:
         log.warning("Connected NiFi Registry may not support "
                     "Parameter Contexts and they may be lost in "
-                    "Version Control".format())
+                    "Version Control")
 
 
 def enforce_min_ver(min_version, bool_response=False, service='nifi'):
