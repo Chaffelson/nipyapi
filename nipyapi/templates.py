@@ -7,6 +7,7 @@ For Managing NiFi Templates
 from __future__ import absolute_import
 
 import json
+import io
 from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 import logging
@@ -283,7 +284,7 @@ def load_template_from_xml_file_path(file_path):
     """
     assert isfile(file_path) and access(file_path, R_OK), \
         SystemError("File {0} invalid or unreadable".format(file_path))
-    with open(file_path, "r") as template_file:
+    with io.open(file_path, "r", encoding='utf8') as template_file:
         return load_template_from_xml_file_stream(template_file)
 
 
