@@ -2,6 +2,15 @@
 History
 =======
 
+0.17.1 (2021-10-21)
+-------------------
+
+| Added gzip as default request header (PR from rsaggino)
+| Update ruamel.yaml to 0.17.16
+| Update file read/write to explicitly handle encoding, default to UTF8, configurable in nipyapi.config
+| Linting and style changes to update to Python 3.9 standards, except where it would break backwards compatibility to Python 2.7
+| Test support for Amazon Linux 2, mostly better error handling for filesystem responses
+
 0.17.0 (2021-10-13)
 -------------------
 
@@ -15,6 +24,7 @@ History
 
 | Removed force reset of configuration.password and configuration.username to empty string. This was not increasing security, and was causing unexpected errors for users connecting to multiple services in a single script.
 | Add greedy control to versioning.get_registry_bucket and versioning.get_flow_in_bucket to avoid undesirable partial string match.
+
 * Update readme to reflect switch from 'master' branch naming to 'main'.
 * Update tox to pin testing to Python 3.8, as Python 3.9 is producing unexpected and unrelated SSL failures
 * Minor lint formatting improvements
