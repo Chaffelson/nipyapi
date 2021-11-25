@@ -82,7 +82,8 @@ def remove_service_user(user, service='nifi', strict=True):
     if service == 'registry':
         assert isinstance(user, nipyapi.registry.User)
         submit = {
-            'id': user.identifier
+            'id': user.identifier,
+            'version': user.revision.version
         }
     else:
         assert isinstance(user, nipyapi.nifi.UserEntity)
@@ -255,7 +256,8 @@ def remove_service_user_group(group, service='nifi', strict=True):
     if service == 'registry':
         assert isinstance(group, nipyapi.registry.UserGroup)
         submit = {
-            'id': group.identifier
+            'id': group.identifier,
+            'version': group.revision.version
         }
     else:
         assert isinstance(group, nipyapi.nifi.UserGroupEntity)

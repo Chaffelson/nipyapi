@@ -486,7 +486,6 @@ def check_version(base, comparator=None, service='nifi'):
     assert isinstance(base, six.string_types)
     assert comparator is None or isinstance(comparator, six.string_types)
     assert service in ['nifi', 'registry']
-    # This call currently only supports NiFi
     ver_a = version.parse(base)
     if comparator:
         # if b is set, we compare the passed versions
@@ -515,6 +514,7 @@ def check_version(base, comparator=None, service='nifi'):
         # Working with NiFi
         ver_b = version.parse(
             strip_snapshot(
+                # This call currently only supports NiFi
                 nipyapi.system.get_nifi_version_info().ni_fi_version
             )
         )
