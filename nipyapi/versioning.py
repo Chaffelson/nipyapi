@@ -155,6 +155,7 @@ def delete_registry_bucket(bucket):
     """
     try:
         return nipyapi.registry.BucketsApi().delete_bucket(
+            version=bucket.revision.version,
             bucket_id=bucket.identifier
         )
     except (nipyapi.registry.rest.ApiException, AttributeError) as e:
