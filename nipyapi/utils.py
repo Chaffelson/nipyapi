@@ -292,7 +292,8 @@ def is_endpoint_up(endpoint_url):
         return False
 
 
-def set_endpoint(endpoint_url, ssl=False, login=False):
+def set_endpoint(endpoint_url, ssl=False, login=False,
+                 username=None, password=None):
     """
     EXPERIMENTAL
 
@@ -306,6 +307,8 @@ def set_endpoint(endpoint_url, ssl=False, login=False):
           nipyapi.config to authenticate if a secure URL is detected
         login (bool): Whether to attempt login using default cred in config
           requires ssl to be set
+        username (str): The username to use for login, if specified
+        password (str): The password to use for login, if specified
 
     Returns (bool): True for success, False for not
     """
@@ -337,7 +340,9 @@ def set_endpoint(endpoint_url, ssl=False, login=False):
                 service=service,
                 ca_file=nipyapi.config.default_ssl_context['ca_file']
             )
-            nipyapi.security.service_login(service)
+            nipyapi.security.service_login(
+                service, username=username, password=password
+            )
     return True
 
 
@@ -486,7 +491,6 @@ def check_version(base, comparator=None, service='nifi'):
     assert isinstance(base, six.string_types)
     assert comparator is None or isinstance(comparator, six.string_types)
     assert service in ['nifi', 'registry']
-    # This call currently only supports NiFi
     ver_a = version.parse(base)
     if comparator:
         # if b is set, we compare the passed versions
@@ -515,6 +519,7 @@ def check_version(base, comparator=None, service='nifi'):
         # Working with NiFi
         ver_b = version.parse(
             strip_snapshot(
+                # This call currently only supports NiFi
                 nipyapi.system.get_nifi_version_info().ni_fi_version
             )
         )

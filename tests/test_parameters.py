@@ -82,9 +82,9 @@ def test_update_parameter_context(regress_nifi, fix_context):
     )
     assert isinstance(r1, ParameterContextEntity)
     assert 1 == len([x for x in r1.component.parameters if 'Black' in x.parameter.name])
-    r1.component.parameters.append(
+    r1.component.parameters = [
         parameters.prepare_parameter('Black', 'Votes', 'Matter', True)
-    )
+    ]
     r2 = parameters.update_parameter_context(
         r1
     )

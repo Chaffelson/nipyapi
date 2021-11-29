@@ -220,7 +220,7 @@ nipyapi.utils.wait_to_complete(
     test_function=nipyapi.security.service_login,
     service='nifi',
     username='nobel',
-    password='password',
+    password='supersecret1!',
     bool_response=True,
     nipyapi_delay=nipyapi.config.long_retry_delay,
     nipyapi_max_wait=nipyapi.config.long_max_wait

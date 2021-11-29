@@ -18,7 +18,7 @@ def test_create_registry_client(regress_flow_reg):
      ]
     r = versioning.create_registry_client(
         name=conftest.test_registry_client_name,
-        uri=conftest.registry_test_endpoints[0][0],
+        uri=conftest.registry_test_endpoints[0][0][0],
         description='a test connection'
     )
     assert isinstance(r, nifi.RegistryClientEntity)
@@ -26,7 +26,7 @@ def test_create_registry_client(regress_flow_reg):
     with pytest.raises(ValueError):
         _ = versioning.create_registry_client(
             name=conftest.test_registry_client_name,
-            uri=conftest.registry_test_endpoints[0][0],
+            uri=conftest.registry_test_endpoints[0][0][0],
             description='who cares?'
         )
 
