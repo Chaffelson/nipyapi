@@ -2,6 +2,17 @@
 History
 =======
 
+0.18.0 (2021-11-29)
+-------------------
+
+| Updated client for NiFi & Registry 1.15.0 release
+
+* Moved testing to secured single user by default for NiFi
+* Consolidated clients to the 1.15.0 release version for both NiFi and Registry
+* Updated logic to support changed working modes in tests
+* Corrected minor functional issues for 1.15 in login handling, SSL certs, Parameter Updates and Testing
+* Backwards compatibility and Regression tested as requiring no breaking changes
+
 0.17.1 (2021-10-21)
 -------------------
 
