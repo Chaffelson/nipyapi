@@ -9,6 +9,7 @@ import pytest
 from os import environ, path
 from collections import namedtuple
 from time import sleep
+
 import nipyapi
 
 log = logging.getLogger(__name__)
@@ -53,34 +54,34 @@ test_templates = {
 # Can't use skiptest with parametrize for Travis
 # Mostly because loading up all the environments takes too long
 
-default_nifi_endpoints = ['http://' + test_host + ':8080/nifi-api']
+default_nifi_endpoints = [('https://' + test_host + ':8443/nifi-api', True, True, 'nobel', 'supersecret1!')]
 regress_nifi_endpoints = [
-            'http://' + test_host + ':10112/nifi-api',
-            'http://' + test_host + ':10120/nifi-api',
-            'http://' + test_host + ':10180/nifi-api',
-            'http://' + test_host + ':10192/nifi-api',
-        ]
-secure_nifi_endpoints = ['https://' + test_host + ':8443/nifi-api']
+    ('http://' + test_host + ':10112/nifi-api', True, True, None, None),
+    ('http://' + test_host + ':10120/nifi-api', True, True, None, None),
+    ('http://' + test_host + ':10180/nifi-api', True, True, None, None),
+    ('http://' + test_host + ':10192/nifi-api', True, True, None, None),
+]
+secure_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')]
 default_registry_endpoints = [
-        ('http://' + test_host + ':18080/nifi-registry-api',
-         'http://registry:18080',
-         'http://' + test_host + ':8080/nifi-api'
-         )
-    ]
+    (('http://' + test_host + ':18080/nifi-registry-api', True, True, None, None),
+     'http://registry:18080',
+     ('https://' + test_host + ':8443/nifi-api', True, True, 'nobel', 'supersecret1!')
+     )
+]
 regress_registry_endpoints = [
-            ('http://' + test_host + ':18010/nifi-registry-api',
+            (('http://' + test_host + ':18010/nifi-registry-api', True, True, None, None),
                 'http://registry-010:18010',
-             'http://' + test_host + ':8080/nifi-api'
+             ('https://' + test_host + ':8443/nifi-api', True, True, 'nobel', 'supersecret1!')
              ),
-            ('http://' + test_host + ':18030/nifi-registry-api',
+            (('http://' + test_host + ':18030/nifi-registry-api', True, True, None, None),
                 'http://registry-030:18030',
-             'http://' + test_host + ':10192/nifi-api'
+             ('http://' + test_host + ':10192/nifi-api', True, True, None, None)
              )
         ]
 secure_registry_endpoints = [
-        ('https://' + test_host + ':18443/nifi-registry-api',
+        (('https://' + test_host + ':18443/nifi-registry-api', True, True, None, None),
          'https://secure-registry:18443',
-         'https://' + test_host + ':8443/nifi-api'
+         ('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')
          )]
 
 if "TRAVIS" in environ and environ["TRAVIS"] == "true":
@@ -99,6 +100,10 @@ else:
     # back each time.
     nifi_test_endpoints = []
     registry_test_endpoints = []
+    if test_default or test_regression:
+        # Added because nifi-1.15+ automatically self-signs certificates for single user mode
+        nipyapi.config.nifi_config.verify_ssl = False
+        nipyapi.config.disable_insecure_request_warnings = True
     if test_default:
         nifi_test_endpoints += default_nifi_endpoints
         registry_test_endpoints += default_registry_endpoints
@@ -140,8 +145,8 @@ def pytest_generate_tests(metafunc):
 @pytest.fixture(scope="function")
 def regress_nifi(request):
     log.info("NiFi Regression test setup called against endpoint %s",
-             request.param)
-    nipyapi.utils.set_endpoint(request.param, True, True)
+             request.param[0])
+    nipyapi.utils.set_endpoint(*request.param)
 
 
 def remove_test_registry_client():
@@ -174,23 +179,23 @@ def ensure_registry_client(uri):
 @pytest.fixture(scope="function")
 def regress_flow_reg(request):
     log.info("NiFi-Registry regression test called against endpoints %s",
-             request.param)
+             request.param[0][0])
     # Set Registry connection
-    nipyapi.utils.set_endpoint(request.param[0], True, True)
+    nipyapi.utils.set_endpoint(*request.param[0])
     # Set paired NiFi connection
-    nipyapi.utils.set_endpoint(request.param[2], True, True)
+    nipyapi.utils.set_endpoint(*request.param[2])
     # because pytest won't let you easily cascade parameters through fixtures
     # we set the docker URI in the config for retrieval later on
     nipyapi.config.registry_local_name = request.param[1]
-
 
 # Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
     log.info("Commencing test session setup")
-    for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
+    for this_endpoint in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
+        url = this_endpoint[0]
         log.debug("Now Checking URL [{0}]".format(url))
-        nipyapi.utils.set_endpoint(url, ssl=True, login=True)
+        nipyapi.utils.set_endpoint(*this_endpoint)
         # ssl and login will only work if https is in the url, else will silently skip
         gui_url = url.replace('-api', '')
         if not nipyapi.utils.wait_to_complete(
@@ -213,7 +218,7 @@ def session_setup(request):
                                  "instead".format(url, api_host))
             log.info("Tested NiFi client connection, got response from %s",
                      url)
-            if 'https://' in url:
+            if url in [x[0] for x in secure_nifi_endpoints]:
                 nipyapi.security.bootstrap_security_policies(service='nifi')
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
@@ -224,8 +229,7 @@ def session_setup(request):
                     nipyapi.security.bootstrap_security_policies(service='registry')
                 cleanup_reg()
             else:
-                raise ValueError("No Response from NiFi-Registry test call"
-                                 )
+                raise ValueError("No Response from NiFi-Registry test call")
         else:
             raise ValueError("Bad API Endpoint")
     request.addfinalizer(final_cleanup)
@@ -283,8 +287,9 @@ def remove_test_buckets():
 
 
 def final_cleanup():
-    for url in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
-        nipyapi.utils.set_endpoint(url, True, True)
+    for this_endpoint in nifi_test_endpoints + [x[0] for x in registry_test_endpoints]:
+        url = this_endpoint[0]
+        nipyapi.utils.set_endpoint(*this_endpoint)
         if 'nifi-api' in url:
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
@@ -292,48 +297,34 @@ def final_cleanup():
 
 
 def remove_test_service_users(service='both'):
-    nifi_test_users = [
-        x for x in
-        nipyapi.security.list_service_users('nifi')
-        if x.component.identity.startswith(test_basename)
-    ]
-    reg_test_users = [
-        x for x in
-        nipyapi.security.list_service_users('registry')
-        if x.identity.startswith(test_basename)
-    ]
-    if service != 'registry':
+    if service == 'nifi' or service == 'both':
         _ = [
             nipyapi.security.remove_service_user(x, 'nifi')
-            for x in nifi_test_users
+            for x in
+            nipyapi.security.list_service_users('nifi')
+            if x.component.identity.startswith(test_basename)
         ]
-    if service != 'nifi':
+    if service == 'registry' or service == 'both':
         _ = [
             nipyapi.security.remove_service_user(x, 'registry')
-            for x in reg_test_users
+            for x in
+            nipyapi.security.list_service_users('registry')
+            if x.identity.startswith(test_basename)
         ]
 
 
 def remove_test_service_user_groups(service='both'):
-    nifi_test_user_groups = [
-        x for x in
-        nipyapi.security.list_service_user_groups('nifi')
-        if x.component.identity.startswith(test_basename)
-    ]
-    reg_test_user_groups = [
-        x for x in
-        nipyapi.security.list_service_user_groups('registry')
-        if x.identity.startswith(test_basename)
-    ]
-    if service != 'registry':
+    if service == 'nifi' or service == 'both':
         _ = [
-            nipyapi.security.remove_service_user_group(x, 'nifi')
-            for x in nifi_test_user_groups
+            nipyapi.security.remove_service_user_group(x, 'nifi') for x in
+            nipyapi.security.list_service_user_groups('nifi')
+            if x.component.identity.startswith(test_basename)
         ]
-    if service != 'nifi':
+    if service == 'registry' or service == 'both':
         _ = [
-            nipyapi.security.remove_service_user_group(x, 'registry')
-            for x in reg_test_user_groups
+            nipyapi.security.remove_service_user_group(x, 'registry') for x in
+            nipyapi.security.list_service_user_groups('registry')
+            if x.identity.startswith(test_basename)
         ]
 
 

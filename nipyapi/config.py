@@ -130,10 +130,11 @@ registry_config.force_basic_auth = global_force_basic_auth
 # unnecessary warnings
 # Set to True by default, change to false if necessary
 global_ssl_verify = True
+disable_insecure_request_warnings = False
 
 nifi_config.verify_ssl = global_ssl_verify
 registry_config.verify_ssl = global_ssl_verify
-if not global_ssl_verify:
+if not global_ssl_verify or disable_insecure_request_warnings:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # Enforce no host checking when SSL context is disabled

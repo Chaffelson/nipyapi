@@ -12,10 +12,10 @@ import nipyapi
 pytestmark = pytest.mark.skipif(not conftest.test_security, reason='test_security disabled in Conftest')
 
 # Useful for manual testing
-if conftest.test_security:
-    test_host = nipyapi.config.default_host
-    nipyapi.utils.set_endpoint('https://' + test_host + ':18443/nifi-registry-api', True, True)
-    nipyapi.utils.set_endpoint('https://' + test_host + ':8443/nifi-api', True, True)
+# if conftest.test_security:
+#     test_host = nipyapi.config.default_host
+#     nipyapi.utils.set_endpoint('https://' + test_host + ':18443/nifi-registry-api', True, True)
+#     nipyapi.utils.set_endpoint('https://' + test_host + ':9443/nifi-api', True, True)
 
 
 def test_list_service_users():

@@ -320,8 +320,8 @@ def service_login(service='nifi', username=None, password=None,
     default_pword = getattr(nipyapi.config, 'default_' + service + '_password')
     default_uname = getattr(nipyapi.config, 'default_' + service + '_username')
     # We use copy so we don't clobber the default by mistake
-    pword = password if password else copy(default_pword)
-    uname = username if username else copy(default_uname)
+    pword = password if password is not None else copy(default_pword)
+    uname = username if username is not None else copy(default_uname)
     assert pword, "Password must be set or in default config"
     assert uname, "Username must be set or in default config"
     # set username/password in configuration for initial login
