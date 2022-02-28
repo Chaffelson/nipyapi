@@ -30,6 +30,14 @@ Config
     :undoc-members:
     :show-inheritance:
 
+Parameters
+----------
+
+.. automodule:: nipyapi.parameters
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Security
 --------
 
