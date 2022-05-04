@@ -519,7 +519,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
         for obj in [target_bucket, target_flow]:
             for p in bad_params:
                 obj.__setattr__(p, None)
-        nipyapi.utils.validate_parameters_versioning_support()
+        nipyapi.utils.validate_parameters_versioning_support(verify_nifi=False)
         ecs = flow_snapshot.external_controller_services
         return nipyapi.registry.BucketFlowsApi().create_flow_version(
             bucket_id=target_bucket.identifier,
@@ -689,7 +689,7 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
                          " add this version to, or flow_name must be a unique "
                          "name for a flow in this bucket, but not both")
     # Now write the new version
-    nipyapi.utils.validate_parameters_versioning_support()
+    nipyapi.utils.validate_parameters_versioning_support(verify_nifi=False)
     return create_flow_version(
         flow=ver_flow,
         flow_snapshot=imported_flow,
