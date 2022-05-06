@@ -537,9 +537,16 @@ def validate_parameters_versioning_support(verify_nifi=True, verify_registry=Tru
         verify_nifi (bool): If True, check NiFi meets the min version
         verify_registry (bool): If True, check Registry meets the min version
     """
-    nifi_check = enforce_min_ver('1.10', bool_response=True) if verify_nifi else False
-    registry_check = enforce_min_ver(
-        '0.6', service='registry', bool_response=True) if verify_registry else False
+    if verify_nifi:
+        nifi_check = enforce_min_ver('1.10', bool_response=True)
+    else:
+        nifi_check = False
+
+    if verify_registry:
+        registry_check = enforce_min_ver('0.6', service='registry', bool_response=True)
+    else:
+        registry_check = False
+
     if nifi_check or registry_check:
         log.warning("Connected NiFi Registry may not support "
                     "Parameter Contexts and they may be lost in "
