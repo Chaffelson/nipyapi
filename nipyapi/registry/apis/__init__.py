@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 
 # import apis into api package
+from .about_api import AboutApi
 from .access_api import AccessApi
 from .bucket_bundles_api import BucketBundlesApi
 from .bucket_flows_api import BucketFlowsApi

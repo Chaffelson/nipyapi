@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   secure-nifi:
-    image: apache/nifi:1.13.2
+    image: apache/nifi:1.16.1
     container_name: secure-nifi
     hostname: secure-nifi
     ports:
@@ -26,7 +26,7 @@ services:
       - LDAP_URL=ldap://ldap.forumsys.com:389
       - NIFI_WEB_PROXY_HOST=localhost:9443,localhost:8443
   secure-registry:
-    image: apache/nifi-registry:0.8.0
+    image: apache/nifi-registry:1.16.1
     container_name: secure-registry
     hostname: secure-registry
     ports:

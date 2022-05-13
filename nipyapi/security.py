@@ -764,6 +764,7 @@ def set_service_ssl_context(
         nipyapi.config.nifi_config.ssl_context = ssl_context
 
 
+# pylint: disable=W0702,R0912
 def bootstrap_security_policies(service, user_identity=None,
                                 group_identity=None):
     """
