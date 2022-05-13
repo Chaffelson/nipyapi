@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=R0801
 
 """
 A self-paced walkthrough of version control using NiFi-Registry.

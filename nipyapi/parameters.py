@@ -65,7 +65,8 @@ def get_parameter_context(identifier, identifier_type='name', greedy=True):
     return out
 
 
-def create_parameter_context(name, description=None, parameters=None):
+def create_parameter_context(name, description=None, parameters=None,
+                             inherited_contexts=None):
     """
     Create a new Parameter Context with optional description and
         initial Parameters
@@ -74,6 +75,8 @@ def create_parameter_context(name, description=None, parameters=None):
         name (str): The Name for the new Context
         description (str): An optional description
         parameters (list[ParameterEntity]): A list of prepared Parameters
+        inherited_contexts (list[ParameterContextEntity]): A list of
+            inherited Parameter Contexts
 
     Returns:
         (ParameterContextEntity) The New Parameter Context
@@ -83,14 +86,17 @@ def create_parameter_context(name, description=None, parameters=None):
     assert isinstance(name, str)
     assert description is None or isinstance(description, str)
     handle = nipyapi.nifi.ParameterContextsApi()
+    inherited = inherited_contexts if inherited_contexts else []
     out = handle.create_parameter_context(
         body=ParameterContextEntity(
             revision=nipyapi.nifi.RevisionDTO(version=0),
             component=ParameterContextDTO(
                 name=name,
                 description=description,
-                parameters=parameters if parameters else []
+                parameters=parameters if parameters else [],
                 # list() per NiFi Jira 7995
+                inherited_parameter_contexts=inherited
+                # requires empty list per NiFi Jira 9470
             )
         )
     )
@@ -245,7 +251,7 @@ def assign_context_to_process_group(pg, context_id, cascade=False):
     assert isinstance(context_id, str)
     if cascade:
         # Update the specified Process Group & all children
-        child_pgs=nipyapi.canvas.list_all_process_groups(pg_id=pg.id)
+        child_pgs = nipyapi.canvas.list_all_process_groups(pg_id=pg.id)
         for child_pg in child_pgs:
             nipyapi.canvas.update_process_group(
                 pg=child_pg,

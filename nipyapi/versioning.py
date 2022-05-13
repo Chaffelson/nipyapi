@@ -217,6 +217,7 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name',
         obj, identifier, identifier_type, greedy=greedy)
 
 
+# pylint: disable=R0913
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
                   flow_id=None, comment='', desc='', refresh=True,
                   force=False):

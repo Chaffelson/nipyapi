@@ -346,7 +346,7 @@ def set_endpoint(endpoint_url, ssl=False, login=False,
     return True
 
 
-# pylint: disable=R0913
+# pylint: disable=R0913,R0902
 class DockerContainer:
     """
     Helper class for Docker container automation without using Ansible
@@ -382,6 +382,7 @@ class DockerContainer:
         return self.container
 
 
+# pylint: disable=W0703,R1718
 def start_docker_containers(docker_containers, network_name='demo'):
     """
     Deploys a list of DockerContainer's on a given network
@@ -470,7 +471,8 @@ def strip_snapshot(java_version):
     return re.sub("-SNAPSHOT", "", java_version)
 
 
-def check_version(base, comparator=None, service='nifi', default_version='0.2.0'):
+def check_version(base, comparator=None, service='nifi',
+                  default_version='0.2.0'):
     """
     Compares version base against either version comparator, or the version
     of the currently connected service instance.
@@ -511,8 +513,9 @@ def check_version(base, comparator=None, service='nifi', default_version='0.2.0'
             reg_json = load(reg_swagger_def[0].data)
             ver_b = version.parse(reg_json['info']['version'])
         except nipyapi.registry.rest.ApiException:
-            log.warning("Unable to retrieve swagger.json from registry "
-                        "to check version, assuming version %s" % default_version)
+            log.warning(
+                "Unable to retrieve registry swagger.json, assuming version %s"
+                % default_version)
             ver_b = version.parse(default_version)
     else:
         # Working with NiFi
@@ -529,7 +532,8 @@ def check_version(base, comparator=None, service='nifi', default_version='0.2.0'
     return 0
 
 
-def validate_parameters_versioning_support(verify_nifi=True, verify_registry=True):
+def validate_parameters_versioning_support(verify_nifi=True,
+                                           verify_registry=True):
     """
     Convenience method to check if Parameters are supported
     Args:
@@ -542,7 +546,8 @@ def validate_parameters_versioning_support(verify_nifi=True, verify_registry=Tru
         nifi_check = False
 
     if verify_registry:
-        registry_check = enforce_min_ver('0.6', service='registry', bool_response=True)
+        registry_check = enforce_min_ver('0.6', service='registry',
+                                         bool_response=True)
     else:
         registry_check = False
 
