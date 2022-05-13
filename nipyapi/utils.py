@@ -470,7 +470,7 @@ def strip_snapshot(java_version):
     return re.sub("-SNAPSHOT", "", java_version)
 
 
-def check_version(base, comparator=None, service='nifi'):
+def check_version(base, comparator=None, service='nifi', default_version='0.2.0'):
     """
     Compares version base against either version comparator, or the version
     of the currently connected service instance.
@@ -482,6 +482,8 @@ def check_version(base, comparator=None, service='nifi'):
     Args:
         base (str): The base version for the comparison test
         comparator (optional[str]): The version to compare against
+        default_version (optional[str]): The version to assume the service is
+            if the check cannot be completed
         service (str): The service to test the version against, currently
             only supports NiFi
 
@@ -508,13 +510,10 @@ def check_version(base, comparator=None, service='nifi'):
             )
             reg_json = load(reg_swagger_def[0].data)
             ver_b = version.parse(reg_json['info']['version'])
-        except nipyapi.registry.rest.ApiException as e:
-            if e.status == 404:
-                log.warning("Unable to retrieve swagger.json from registry "
-                            "to check version, assuming older than 0.3")
-                ver_b = version.parse('0.2.0')
-            else:
-                raise
+        except nipyapi.registry.rest.ApiException:
+            log.warning("Unable to retrieve swagger.json from registry "
+                        "to check version, assuming version %s" % default_version)
+            ver_b = version.parse(default_version)
     else:
         # Working with NiFi
         ver_b = version.parse(

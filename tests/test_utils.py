@@ -74,13 +74,13 @@ def test_fs_write(tmpdir):
         with pytest.raises((OSError, IOError, PermissionError)):
             _ = utils.fs_write(
                 obj=test_obj,
-                file_path='/dev/AlmostCertainlyNotAValidDevice'
+                file_path='/dev/AlmostCertainlyNotAValidWriteDevice'
             )
     else:
         with pytest.raises((OSError, IOError)):
             _ = utils.fs_write(
                 obj=test_obj,
-                file_path='/dev/AlmostCertainlyNotAValidDevice'
+                file_path='/dev/AlmostCertainlyNotAValidWriteDevice'
             )
     # Test writing an invalid object
     with pytest.raises((TypeError,AttributeError)):
@@ -99,12 +99,12 @@ def test_fs_read(fix_flow_serde):
     if sys.version_info >= (3,3):
         with pytest.raises((OSError, IOError, FileNotFoundError, PermissionError)):
             _ = utils.fs_read(
-                file_path='/dev/AlmostCertainlyNotAValidDevice'
+                file_path='/dev/AlmostCertainlyNotAValidReadDevice'
             )
     else:
         with pytest.raises((OSError, IOError)):
             _ = utils.fs_read(
-                file_path='/dev/AlmostCertainlyNotAValidDevice'
+                file_path='/dev/AlmostCertainlyNotAValidReadDevice'
             )
 
 
