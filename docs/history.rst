@@ -2,6 +2,28 @@
 History
 =======
 
+0.19.1 (2022-08-08)
+-------------------
+
+| Updated client for NiFi & Registry 1.17.0 release
+
+* Update docker resources to the latest 1.17 container image
+* Fix issue in docker volume mounts where certificates were not readable in new versions of Docker
+* Fix issue in test_get_processor_type where new Twitter processor broke existing logic assumptions
+* Update readme to note issues with Python 3.10 and removing reference to python 3.5 testing
+
+0.19.0 (2022-05-13)
+-------------------
+
+| Updated client for NiFi & Registry 1.16.0 release
+
+* Modify utils.check_version to accept a default version to check against, and remove nested error when version check fails as it is overzealous
+* Update test file paths in test_utils in case someone runs tests as root which actually can write to fake devices and therefore break the tests
+* Added pylint exclusions for known but unimportant complaints
+* Added workaround for NiFi 9470 by providing default inherited_parameter_contexts per advice from Chris Sampson in NiPyAPI Issue #305
+* Updated NiFi and Registry versions in Docker compose configs to use latest 1.16.1 builds
+
+
 0.18.0 (2021-11-29)
 -------------------
 
