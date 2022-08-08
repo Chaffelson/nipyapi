@@ -178,7 +178,7 @@ def test_list_all_processor_types(regress_nifi):
 
 
 def test_get_processor_type(regress_nifi):
-    r1 = canvas.get_processor_type('twitter')
+    r1 = canvas.get_processor_type('GetTwitter')
     assert r1.type == 'org.apache.nifi.processors.twitter.GetTwitter'
     assert isinstance(r1, DocumentedTypeDTO)
     r2 = canvas.get_processor_type("syslog", 'tag')

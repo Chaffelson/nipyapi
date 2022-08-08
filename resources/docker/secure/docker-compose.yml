@@ -1,13 +1,13 @@
 version: '2.1'
 services:
   secure-nifi:
-    image: apache/nifi:1.16.1
+    image: apache/nifi:1.17.0
     container_name: secure-nifi
     hostname: secure-nifi
     ports:
       - "9443:8443"
     volumes:
-      - ../../../nipyapi/demo/keys:/opt/certs:ro  # Min docker version tested 18, does not work on old docker
+      - ../../../nipyapi/demo/keys:/opt/certs:z  # Min docker version tested 18, does not work on old docker
     environment:
       - AUTH=ldap
       - KEYSTORE_PATH=/opt/certs/localhost-ks.jks
@@ -26,13 +26,13 @@ services:
       - LDAP_URL=ldap://ldap.forumsys.com:389
       - NIFI_WEB_PROXY_HOST=localhost:9443,localhost:8443
   secure-registry:
-    image: apache/nifi-registry:1.16.1
+    image: apache/nifi-registry:1.17.0
     container_name: secure-registry
     hostname: secure-registry
     ports:
       - "18443:18443"
     volumes:
-      - ../../../nipyapi/demo/keys:/opt/certs:ro
+      - ../../../nipyapi/demo/keys:/opt/certs:z
     environment:
       - NIFI_REGISTRY_WEB_HTTPS_PORT=18443
       - AUTH=ldap

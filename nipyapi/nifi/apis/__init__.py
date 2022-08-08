@@ -3,7 +3,6 @@ from __future__ import absolute_import
 # import apis into api package
 from .access_api import AccessApi
 from .accessoidc_api import AccessoidcApi
-from .accesssaml_api import AccesssamlApi
 from .connections_api import ConnectionsApi
 from .controller_api import ControllerApi
 from .controller_services_api import ControllerServicesApi
