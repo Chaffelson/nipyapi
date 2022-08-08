@@ -782,7 +782,7 @@ def bootstrap_security_policies(service, user_identity=None,
     assert service in _valid_services, "service not in %s" % _valid_services
     valid_ident_obj = [nipyapi.nifi.UserEntity, nipyapi.registry.User]
     if user_identity is not None:
-        assert user_identity in valid_ident_obj
+        assert type(user_identity) in valid_ident_obj
     if 'nifi' in service:
         rpg_id = nipyapi.canvas.get_root_pg_id()
         if user_identity is None and group_identity is None:
