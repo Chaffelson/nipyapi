@@ -99,6 +99,6 @@ NiFi Version Support
 Python Requirements
 -------------------
 
-| Python 2.7 or 3.5-8 supported, though other versions may work. *We will shortly stop supporting Python2*
+| Python 2.7 or 3.6-9 supported, though other versions may work. *We will shortly stop supporting Python2* *There are known issues on Python 3.10*
 | Tested on AL2 and OSX 10.14.x - Windows automated testing not attempted
 | Outside of the standard Python modules, we make use of lxml, DeepDiff, ruamel.yaml and xmltodict in processing, and Docker for demo/tests.
