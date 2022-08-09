@@ -93,7 +93,7 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.15.0, and NiFi-Registry versions 0.1.0 - 1.15.0.
+| Currently we are testing against NiFi versions 1.1.2 - 1.17.0, and NiFi-Registry versions 0.1.0 - 1.17.0.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Python Requirements
