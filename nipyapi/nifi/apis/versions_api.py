@@ -479,7 +479,7 @@ class VersionsApi(object):
     def export_flow_version(self, id, **kwargs):
         """
         Gets the latest version of a Process Group for download
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -505,7 +505,7 @@ class VersionsApi(object):
     def export_flow_version_with_http_info(self, id, **kwargs):
         """
         Gets the latest version of a Process Group for download
-        
+
         This method makes a synchronous HTTP request by default. To make an
         asynchronous HTTP request, please define a `callback` function
         to be invoked when receiving the response.
@@ -1455,7 +1455,7 @@ class VersionsApi(object):
         # Authentication setting
         auth_settings = ['tokenAuth']
 
-        return self.api_client.call_api('/versions/process-groups/{id}', 'PUT',
+        return self.api_client.call_api('/versions/process-groups/{id}', 'POST',
                                         path_params,
                                         query_params,
                                         header_params,
