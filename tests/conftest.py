@@ -170,7 +170,7 @@ def ensure_registry_client(uri):
             )
         else:
             raise e
-    if isinstance(client, nipyapi.nifi.RegistryClientEntity):
+    if isinstance(client, nipyapi.nifi.FlowRegistryClientEntity):
         return client
     else:
         raise ValueError("Could not create Registry Client")

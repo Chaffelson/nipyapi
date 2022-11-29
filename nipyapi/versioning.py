@@ -37,13 +37,13 @@ def create_registry_client(name, uri, description):
         description (str): A description for the Client
 
     Returns:
-        (RegistryClientEntity): The new registry client object
+        (FlowRegistryClientEntity): The new registry client object
     """
     assert isinstance(uri, six.string_types) and uri is not False
     assert isinstance(name, six.string_types) and name is not False
     assert isinstance(description, six.string_types)
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.ControllerApi().create_registry_client(
+        return nipyapi.nifi.ControllerApi().create_flow_registry_client(
             body={
                 'component': {
                     'uri': uri,
@@ -62,21 +62,21 @@ def delete_registry_client(client, refresh=True):
     Deletes a Registry Client from the list of NiFI Controller Services
 
     Args:
-        client (RegistryClientEntity): The client to delete
+        client (FlowRegistryClientEntity): The client to delete
         refresh (bool): Whether to refresh the object before action
 
     Returns:
-        (RegistryClientEntity): The updated client object
+        (FlowRegistryClientEntity): The updated client object
     """
-    assert isinstance(client, nipyapi.nifi.RegistryClientEntity)
+    assert isinstance(client, nipyapi.nifi.FlowRegistryClientEntity)
     with nipyapi.utils.rest_exceptions():
         if refresh:
-            target = nipyapi.nifi.ControllerApi().get_registry_client(
+            target = nipyapi.nifi.ControllerApi().get_flow_registry_client(
                 client.id
             )
         else:
             target = client
-        return nipyapi.nifi.ControllerApi().delete_registry_client(
+        return nipyapi.nifi.ControllerApi().delete_flow_registry_client(
             id=target.id,
             version=target.revision.version
         )
@@ -87,10 +87,10 @@ def list_registry_clients():
     Lists the available Registry Clients in the NiFi Controller Services
 
     Returns:
-        (list[RegistryClientEntity]) objects
+        (list[FlowRegistryClientEntity]) objects
     """
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.ControllerApi().get_registry_clients()
+        return nipyapi.nifi.ControllerApi().get_flow_registry_clients()
 
 
 def get_registry_client(identifier, identifier_type='name'):

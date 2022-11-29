@@ -38,7 +38,7 @@ class RESTResponse(io.IOBase):
         """
         Returns a dictionary of the response headers.
         """
-        return self.urllib3_response.getheaders()
+        return self.urllib3_response.headers
 
     def getheader(self, name, default=None):
         """
@@ -297,7 +297,7 @@ class ApiException(Exception):
             self.status = http_resp.status
             self.reason = http_resp.reason
             self.body = http_resp.data
-            self.headers = http_resp.getheaders()
+            self.headers = http_resp.headers
         else:
             self.status = status
             self.reason = reason
