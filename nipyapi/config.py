@@ -63,7 +63,7 @@ long_max_wait = 120
 registered_filters = {
     'Bucket': {'id': ['identifier'], 'name': ['name']},
     'VersionedFlow': {'id': ['identifier'], 'name': ['name']},
-    'RegistryClientEntity': {'id': ['id'], 'name': ['component', 'name']},
+    'FlowRegistryClientEntity': {'id': ['id'], 'name': ['component', 'name']},
     'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
     'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
                           'name': ['type'],

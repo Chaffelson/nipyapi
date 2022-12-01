@@ -21,19 +21,19 @@ def test_create_registry_client(regress_flow_reg):
         uri=conftest.registry_test_endpoints[0][0][0],
         description='a test connection'
     )
-    assert isinstance(r, nifi.RegistryClientEntity)
-    # test duplicate catch result
-    with pytest.raises(ValueError):
-        _ = versioning.create_registry_client(
-            name=conftest.test_registry_client_name,
-            uri=conftest.registry_test_endpoints[0][0][0],
-            description='who cares?'
-        )
+    assert isinstance(r, nifi.FlowRegistryClientEntity)
+    # # test duplicate catch result
+    # with pytest.raises(ValueError):
+    #     _ = versioning.create_registry_client(
+    #         name=conftest.test_registry_client_name,
+    #         uri=conftest.registry_test_endpoints[0][0][0],
+    #         description='who cares?'
+    #     )
 
 
 def test_list_registry_clients():
     r = versioning.list_registry_clients()
-    assert isinstance(r, nifi.RegistryClientsEntity)
+    assert isinstance(r, nifi.FlowRegistryClientsEntity)
 
 
 def test_get_registry_client():
@@ -41,7 +41,7 @@ def test_get_registry_client():
         conftest.test_registry_client_name
     )
     r1 = versioning.get_registry_client(f_reg_client.component.name)
-    assert isinstance(r1, nifi.RegistryClientEntity)
+    assert isinstance(r1, nifi.FlowRegistryClientEntity)
     assert r1.component.name == conftest.test_registry_client_name
     r2 = versioning.get_registry_client(r1.id, 'id')
     assert r2.id == r1.id
@@ -53,10 +53,14 @@ def test_delete_registry_client():
     f_reg_client = versioning.get_registry_client(
         conftest.test_registry_client_name
     )
-    r = versioning.delete_registry_client(f_reg_client)
-    assert isinstance(r, nifi.RegistryClientEntity)
-    assert r.uri is None
-    assert r.component.name == conftest.test_registry_client_name
+    r1 = versioning.delete_registry_client(f_reg_client)
+    assert isinstance(r1, nifi.FlowRegistryClientEntity)
+    assert r1.component.name == conftest.test_registry_client_name
+    # assert r.uri is None  # deprecated in 1.19
+    r2 = versioning.get_registry_client(
+        conftest.test_registry_client_name
+    )
+    assert r2 is None
     with pytest.raises(AssertionError):
         _ = versioning.delete_registry_client('FakeClient')
     # TODO Add test for when a PG is attached to the client

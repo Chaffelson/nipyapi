@@ -638,7 +638,10 @@ def get_access_policy_for_resource(resource,
         nipyapi.utils.bypass_slash_encoding(service, False)
         return response
     except nipyapi.nifi.rest.ApiException as e:
-        if any(pol_string in e.body for pol_string in ['Unable to find access policy', 'No policy found']):
+        if any(
+            pol_string in e.body for pol_string in
+            ['Unable to find access policy', 'No policy found']
+        ):
             log.info("Access policy not found")
             if not auto_create:
                 return None
