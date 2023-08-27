@@ -3,13 +3,13 @@
 # Basics
 setuptools>=38.5
 six>=1.11.0
-future>=0.18.2
+future>=0.18.3
 
 # Version comparison
 packaging>=17.1
 
 # Templates management implementation
-lxml>=4.6.2
+lxml>=4.9.3
 
 # Security and Connectivity
 requests[security]>=2.18
