@@ -75,7 +75,8 @@ registered_filters = {
     'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
     'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
     'ControllerServiceEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ParameterContextEntity': {'id': ['id'], 'name': ['component', 'name']}
+    'ParameterContextEntity': {'id': ['id'], 'name': ['component', 'name']},
+    'ReportingTaskEntity': {'id': ['id'], 'name': ['component', 'name']}
 }
 
 
