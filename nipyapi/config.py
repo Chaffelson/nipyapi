@@ -7,16 +7,11 @@ objects.
 """
 
 from __future__ import absolute_import
-import logging
 import os
 import ssl
 import urllib3
 from nipyapi.nifi import configuration as nifi_config
 from nipyapi.registry import configuration as registry_config
-
-
-# --- Logging ------
-logging.basicConfig(level=logging.WARNING)
 
 
 # --- Default Host URLs -----
@@ -26,14 +21,13 @@ logging.basicConfig(level=logging.WARNING)
 # convenience function for this in nipyapi.utils.set_endpoint
 
 # Set Default Host for NiFi
-default_host = 'localhost'  # Default to localhost for release
+default_host = "localhost"  # Default to localhost for release
 #
 nifi_config.host = os.getenv(
-    'NIFI_API_ENDPOINT',
-    'http://' + default_host + ':8080/nifi-api'
+    "NIFI_API_ENDPOINT", "http://" + default_host + ":8080/nifi-api"
 )
 # Set Default Host for NiFi-Registry
-registry_config.host = 'http://' + default_host + ':18080/nifi-registry-api'
+registry_config.host = "http://" + default_host + ":18080/nifi-registry-api"
 
 # ---  Project Root ------
 # Is is helpful to have a reference to the root directory of the project
@@ -61,21 +55,23 @@ long_max_wait = 120
 # Note that 'id' is used for UUID by convention, but should not be confused
 # with 'identity' in security contexts.
 registered_filters = {
-    'Bucket': {'id': ['identifier'], 'name': ['name']},
-    'VersionedFlow': {'id': ['identifier'], 'name': ['name']},
-    'FlowRegistryClientEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
-                          'name': ['type'],
-                          'tag': ['tags']},
-    'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'User': {'identity': ['identity'], 'id': ['identifier']},
-    'UserGroupEntity': {'identity': ['component', 'identity'], 'id': ['id']},
-    'UserGroup': {'identity': ['identity'], 'id': ['identifier']},
-    'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
-    'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
-    'ControllerServiceEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ParameterContextEntity': {'id': ['id'], 'name': ['component', 'name']}
+    "Bucket": {"id": ["identifier"], "name": ["name"]},
+    "VersionedFlow": {"id": ["identifier"], "name": ["name"]},
+    "FlowRegistryClientEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ProcessGroupEntity": {"id": ["id"], "name": ["status", "name"]},
+    "DocumentedTypeDTO": {
+        "bundle": ["bundle", "artifact"],
+        "name": ["type"],
+        "tag": ["tags"],
+    },
+    "ProcessorEntity": {"id": ["id"], "name": ["status", "name"]},
+    "User": {"identity": ["identity"], "id": ["identifier"]},
+    "UserGroupEntity": {"identity": ["component", "identity"], "id": ["id"]},
+    "UserGroup": {"identity": ["identity"], "id": ["identifier"]},
+    "UserEntity": {"identity": ["component", "identity"], "id": ["id"]},
+    "TemplateEntity": {"id": ["id"], "name": ["template", "name"]},
+    "ControllerServiceEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ParameterContextEntity": {"id": ["id"], "name": ["component", "name"]},
 }
 
 
@@ -99,21 +95,21 @@ cache = {}
 # --- Security Context
 # This allows easy reference to a set of certificates for use in automation
 # By default it points to our demo certs, change it for your environment
-default_certs_path = os.path.join(PROJECT_ROOT_DIR, 'demo/keys')
+default_certs_path = os.path.join(PROJECT_ROOT_DIR, "demo/keys")
 default_ssl_context = {
-    'ca_file': os.path.join(default_certs_path, 'localhost-ts.pem'),
-    'client_cert_file': os.path.join(default_certs_path, 'client-cert.pem'),
-    'client_key_file': os.path.join(default_certs_path, 'client-key.pem'),
-    'client_key_password': 'clientPassword'
+    "ca_file": os.path.join(default_certs_path, "localhost-ts.pem"),
+    "client_cert_file": os.path.join(default_certs_path, "client-cert.pem"),
+    "client_key_file": os.path.join(default_certs_path, "client-key.pem"),
+    "client_key_password": "clientPassword",
 }
 # Identities and passwords to be used for service login if called for
-default_nifi_username = 'nobel'
-default_nifi_password = 'password'
-default_registry_username = 'nobel'
-default_registry_password = 'password'
+default_nifi_username = "nobel"
+default_nifi_password = "password"
+default_registry_username = "nobel"
+default_registry_password = "password"
 # Identity to be used in the Registry Client Proxy setup
 # If called for during policy setup, particularly bootstrap_policies
-default_proxy_user = 'CN=localhost, OU=nifi'
+default_proxy_user = "CN=localhost, OU=nifi"
 
 # Auth handling
 # If set, NiPyAPI will always include the Basic Authorization header
@@ -148,14 +144,14 @@ if not global_ssl_host_check:
     registry_config.ssl_context.check_hostname = False
     registry_config.ssl_context.verify_mode = ssl.CERT_NONE
 
-if os.getenv('NIFI_CA_CERT') is not None:
-    nifi_config.ssl_ca_cert = os.getenv('NIFI_CA_CERT')
-    nifi_config.cert_file = os.getenv('NIFI_CLIENT_CERT')
-    nifi_config.key_file = os.getenv('NIFI_CLIENT_KEY')
+if os.getenv("NIFI_CA_CERT") is not None:
+    nifi_config.ssl_ca_cert = os.getenv("NIFI_CA_CERT")
+    nifi_config.cert_file = os.getenv("NIFI_CLIENT_CERT")
+    nifi_config.key_file = os.getenv("NIFI_CLIENT_KEY")
 
 # --- Encoding
 # URL Encoding bypass characters will not be encoded during submission
-default_safe_chars = ''
+default_safe_chars = ""
 
 # Default String Encoding
-default_string_encoding = 'utf8'
+default_string_encoding = "utf8"
