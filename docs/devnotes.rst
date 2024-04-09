@@ -28,10 +28,49 @@ There is an Apache NiFi image available on Dockerhub::
 
     docker pull apache/nifi:latest
 
-There are a couple of configuration files for launching various Docker environment configurations in ./test_env_config for convenience.
+There are a couple of configuration files for launching various Docker environment configurations in resources/docker for convenience.
+
+Remote testing on AWS:AL3 with Visual Studio Code on OSX
+--------------------------------------------------------
+
+Instructions::
+
+    Deploy a t2.xlarge on EC2, preferably with an elastic IP
+    Add the machine as a remote on Visual Studio Code and Connect
+    Open up the console and install git so VSCode can clone the repo `sudo dnf install -y git`
+    Use the VSCode Source Control plugin to clone nipyapi https://github.com/Chaffelson/nipyapi.git
+    You can then open these notes in VSCode with the terminal for easy execution
+    Now install dependencies `sudo dnf install -y docker && sudo dnf groupinstall "Development Tools" -y`
+    Now ensure docker starts with the OS and gives your user access `sudo systemctl start docker && sudo systemctl enable docker && sudo usermod -a -G docker $USER`
+    Restart your terminal, or run `newgrp docker` to get Docker access permissions active
+    Install Pip `sudo dnf install python3-pip -y`
+    Instal docker compose `sudo curl -L "https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
+    I recommend you install PyEnv to manage Python versions `sudo curl https://pyenv.run | bash`
+    Follow the instructions to set up your .bashrc
+    To build various versions of Python for testing you may also need `sudo dnf install bzip2-devel openssl-devel libffi-devel zlib-devel readline-devel sqlite-devel -y`
+    Install the latest supported version of Python for your main dev environment `pyenv install 3.9 2.7`
+    Set these versions as global in pyenv so tox can see them. Use the actual versions with the command `pyenv global 3.9.16 2.7.62`
+    You'll want to stand up the two sets of NiFi containers for testing. resources/docker/tox-full for default and regression tests, and resources/docker/secure for tests under auth.
+    You can switch between the tests by changing flags in tests/conftest.py around line 17.
+
+Setup Code Signing
+------------------
+
+If you want to sign and push code from your EC2 instance, you'll need to set up code signing. 
+Ensuring security of your keys is important, so please protect them with a good secret passphrase
+
+Instructions::
+
+    On your AL2023 instance, replace the default minimal gnupg package with the full one `sudo dnf install --allowerasing gnupg2-full`
+    Generate signing keys `gpg --full-generate-key`
+    Use the long key ID as your signingkey `git config --global user.signingkey <key here>`
+    git config --global commit.gpgsign true
+    Add the tty setting for gpg to your ~/.bashrc `export GPG_TTY=$(tty)`
 
 Remote Testing on Centos7
 -------------------------
+
+**Deprecated. Instructions kept for legacy reference.**
 
 Deploy a 4x16 or better on EC2 running Centos 7.5 or better, ssh in as root::
 
@@ -147,7 +186,7 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     python setup.py develop
     tox
     python setup.py test
-    python setup.py build_sphinx
+    Run `make html` in the docs subdir
     # check docs in build/sphinx/html/index.html
     python setup.py sdist bdist_wheel
     mktmpenv  # or pyenv virtualenvwrapper mktmpenv if using pyenv
