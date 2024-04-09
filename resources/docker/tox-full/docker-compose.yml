@@ -1,4 +1,3 @@
-version: '2.1'
 services:
   nifi-112:
     image: chaffelson/nifi:1.1.2

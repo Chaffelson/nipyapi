@@ -1,4 +1,3 @@
-version: '2.1'
 services:
   secure-nifi:
     image: apache/nifi:1.23.2
