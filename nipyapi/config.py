@@ -55,23 +55,22 @@ long_max_wait = 120
 # Note that 'id' is used for UUID by convention, but should not be confused
 # with 'identity' in security contexts.
 registered_filters = {
-    "Bucket": {"id": ["identifier"], "name": ["name"]},
-    "VersionedFlow": {"id": ["identifier"], "name": ["name"]},
-    "FlowRegistryClientEntity": {"id": ["id"], "name": ["component", "name"]},
-    "ProcessGroupEntity": {"id": ["id"], "name": ["status", "name"]},
-    "DocumentedTypeDTO": {
-        "bundle": ["bundle", "artifact"],
-        "name": ["type"],
-        "tag": ["tags"],
-    },
-    "ProcessorEntity": {"id": ["id"], "name": ["status", "name"]},
-    "User": {"identity": ["identity"], "id": ["identifier"]},
-    "UserGroupEntity": {"identity": ["component", "identity"], "id": ["id"]},
-    "UserGroup": {"identity": ["identity"], "id": ["identifier"]},
-    "UserEntity": {"identity": ["component", "identity"], "id": ["id"]},
-    "TemplateEntity": {"id": ["id"], "name": ["template", "name"]},
-    "ControllerServiceEntity": {"id": ["id"], "name": ["component", "name"]},
-    "ParameterContextEntity": {"id": ["id"], "name": ["component", "name"]},
+    'Bucket': {'id': ['identifier'], 'name': ['name']},
+    'VersionedFlow': {'id': ['identifier'], 'name': ['name']},
+    'FlowRegistryClientEntity': {'id': ['id'], 'name': ['component', 'name']},
+    'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
+    'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
+                          'name': ['type'],
+                          'tag': ['tags']},
+    'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
+    'User': {'identity': ['identity'], 'id': ['identifier']},
+    'UserGroupEntity': {'identity': ['component', 'identity'], 'id': ['id']},
+    'UserGroup': {'identity': ['identity'], 'id': ['identifier']},
+    'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
+    'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
+    'ControllerServiceEntity': {'id': ['id'], 'name': ['component', 'name']},
+    'ParameterContextEntity': {'id': ['id'], 'name': ['component', 'name']},
+    'ReportingTaskEntity': {'id': ['id'], 'name': ['component', 'name']}
 }
 
 
