@@ -2,6 +2,16 @@
 History
 =======
 
+0.20.0 (2024-04-14)
+-------------------
+
+| Updated client for NiFi & Registry 1.23.2 release
+
+* Fix ruamel.yaml finally deprecating safe_loader
+* Hexoplon added ReportingTaskEntity to registered filters
+* ottobackwards fixed the root logger being setup by the libary
+* Generally updated test setup and several updated libraries complaining since last release
+
 0.19.1 (2022-08-08)
 -------------------
 
