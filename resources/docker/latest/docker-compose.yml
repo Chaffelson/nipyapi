@@ -1,5 +1,3 @@
-version: '3'
-# the latest tag is not pulling the latest image on Travis, so setting explicit
 services:
   nifi:
     image: apache/nifi:1.23.2
