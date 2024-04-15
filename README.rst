@@ -99,7 +99,7 @@ NiFi Version Support
 Python Support
 --------------
 
-| Python 2.7 or 3.6-12 supported, though other versions may work. 
+| Python 2.7 or 3.7-12 supported, though other versions may work. 
 | We will shortly stop supporting Python2.
 | OSX M1 chips have various issues with Requests and Certificates.
 
