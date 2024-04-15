@@ -93,12 +93,15 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.17.0, and NiFi-Registry versions 0.1.0 - 1.17.0.
+| Currently we are testing against NiFi versions 1.1.2 - 1.23.2, and NiFi-Registry versions 0.1.0 - 1.23.2.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
-Python Requirements
--------------------
+Python Support
+--------------
 
-| Python 2.7 or 3.6-9 supported, though other versions may work. *We will shortly stop supporting Python2* *There are known issues on Python 3.10*
-| Tested on AL2 and OSX 10.14.x - Windows automated testing not attempted
+| Python 2.7 or 3.7-12 supported, though other versions may work. 
+| We will shortly stop supporting Python2.
+| OSX M1 chips have various issues with Requests and Certificates.
+
+| Tested on AL2023, developed on OSX 14.2 - Windows testing not attempted.
 | Outside of the standard Python modules, we make use of lxml, DeepDiff, ruamel.yaml and xmltodict in processing, and Docker for demo/tests.
