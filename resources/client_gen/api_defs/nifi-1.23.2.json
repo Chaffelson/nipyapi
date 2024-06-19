@@ -7752,7 +7752,7 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "type" : "string"
+              "type" : "object"
             }
           },
           "400" : {

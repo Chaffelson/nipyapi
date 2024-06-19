@@ -1636,7 +1636,7 @@ class ProcessGroupsApi(object):
             for asynchronous request. (optional)
         :param str id: The process group id. (required)
         :param bool include_referenced_services: If referenced services from outside the target group should be included
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1663,7 +1663,7 @@ class ProcessGroupsApi(object):
             for asynchronous request. (optional)
         :param str id: The process group id. (required)
         :param bool include_referenced_services: If referenced services from outside the target group should be included
-        :return: str
+        :return: object
                  If the method is called asynchronously,
                  returns the request thread.
         """
@@ -1722,7 +1722,7 @@ class ProcessGroupsApi(object):
                                         body=body_params,
                                         post_params=form_params,
                                         files=local_var_files,
-                                        response_type='str',
+                                        response_type='object',
                                         auth_settings=auth_settings,
                                         callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
