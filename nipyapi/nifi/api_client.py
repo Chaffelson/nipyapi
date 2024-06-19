@@ -235,6 +235,10 @@ class ApiClient(object):
         if response_type == "file":
             return self.__deserialize_file(response)
 
+        # handle plain text response
+        if response_type == "str":
+            return response.data
+
         # fetch data from response object
         try:
             data = json.loads(response.data)
