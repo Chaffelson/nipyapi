@@ -85,6 +85,9 @@ class RESTClientObject(object):
         # key file
         key_file = Configuration().key_file
 
+        # key password
+        key_password = Configuration().key_password
+
         # ssl_context
         ssl_context = Configuration().ssl_context
 
@@ -100,6 +103,7 @@ class RESTClientObject(object):
                 ca_certs=ca_certs,
                 cert_file=cert_file,
                 key_file=key_file,
+                key_password=key_password,
                 ssl_context=ssl_context,
                 proxy_url=proxy
             )
@@ -111,6 +115,7 @@ class RESTClientObject(object):
                 ca_certs=ca_certs,
                 cert_file=cert_file,
                 key_file=key_file,
+                key_password=key_password,
                 ssl_context=ssl_context,
                 proxy_url=proxy
             )
@@ -122,6 +127,7 @@ class RESTClientObject(object):
                 ca_certs=ca_certs,
                 cert_file=cert_file,
                 key_file=key_file,
+                key_password=key_password,
                 ssl_context=ssl_context
             )
 

@@ -86,6 +86,8 @@ class Configuration(object):
         self.cert_file = None
         # client key file
         self.key_file = None
+        # client key password
+        self.key_password = None
         # Alternative TLS configuration: set this to an instance of ssl.SSLContext or urllib3.util.ssl_.SSLContext
         self.ssl_context = None
 
