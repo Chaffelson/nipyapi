@@ -718,6 +718,8 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
     Returns:
         (ProcessGroupEntity) of the newly deployed Process Group
     """
+    # Default location to (0, 0) if not provided per Issue #342
+    location = location or (0, 0)
     assert isinstance(location, tuple)
     # check reg client is valid
     target_reg_client = get_registry_client(reg_client_id, 'id')
