@@ -305,7 +305,6 @@ def revert_flow_ver(process_group):
     Returns:
         (VersionedFlowUpdateRequestEntity)
     """
-    # ToDo: Add handling for flows with live data
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.VersionsApi().initiate_revert_flow_version(
@@ -519,7 +518,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
         bad_params = ['link']
         for obj in [target_bucket, target_flow]:
             for p in bad_params:
-                obj.__setattr__(p, None)
+                setattr(obj, p, None)
         nipyapi.utils.validate_parameters_versioning_support(verify_nifi=False)
         ecs = flow_snapshot.external_controller_services
         return nipyapi.registry.BucketFlowsApi().create_flow_version(

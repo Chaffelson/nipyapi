@@ -17,7 +17,7 @@ import operator
 from contextlib import contextmanager
 from packaging import version
 import six
-import ruamel.yaml
+from ruamel.yaml import YAML
 import docker
 from docker.errors import ImageNotFound
 import requests
@@ -57,17 +57,19 @@ def dump(obj, mode='json'):
             obj=prepared_obj,
             sort_keys=True,
             indent=4
-            # default=_json_default
         )
     except TypeError as e:
         raise e
     if mode == 'json':
         return out
     if mode == 'yaml':
-        return ruamel.yaml.safe_dump(
-            json.loads(out),
-            default_flow_style=False
-        )
+        yaml = YAML(typ='safe', pure=True)
+        # Create a StringIO object to act as the stream
+        stream = io.StringIO()
+        # Dump to the StringIO stream
+        yaml.dump(json.loads(out), stream)
+        # Return the contents of the stream as a string
+        return stream.getvalue()
     raise ValueError("Invalid dump Mode specified {0}".format(mode))
 
 
@@ -93,12 +95,8 @@ def load(obj, dto=None):
     """
     assert isinstance(obj, (six.string_types, bytes))
     assert dto is None or isinstance(dto, tuple)
-    # ensure object is standard json before reusing the api_client deserializer
-    # safe_load from ruamel.yaml as it doesn't accidentally convert str
-    # to unicode in py2. It also manages both json and yaml equally well
-    # Good explanation: https://stackoverflow.com/a/16373377/4717963
-    # Safe Load also helps prevent code injection
-    loaded_obj = ruamel.yaml.safe_load(obj)
+    yaml = YAML(typ='safe', pure=True)
+    loaded_obj = yaml.load(obj)
     if dto:
         assert dto[0] in ['nifi', 'registry']
         assert isinstance(dto[1], six.string_types)
@@ -369,9 +367,11 @@ class DockerContainer:
         :return: status code if available, String 'ConnectionError' if not
         """
         try:
-            return requests.get(self.test_url).status_code
+            return requests.get(self.test_url, timeout=10).status_code
         except requests.ConnectionError:
             return 'ConnectionError'
+        except requests.Timeout:
+            return 'Timeout'
 
     def set_container(self, container):
         """Set the container object"""
@@ -514,8 +514,8 @@ def check_version(base, comparator=None, service='nifi',
             ver_b = version.parse(reg_json['info']['version'])
         except nipyapi.registry.rest.ApiException:
             log.warning(
-                "Unable to retrieve registry swagger.json, assuming version %s"
-                % default_version)
+                "Unable to get registry swagger.json, assuming version %s",
+                default_version)
             ver_b = version.parse(default_version)
     else:
         # Working with NiFi

@@ -9,7 +9,7 @@ import logging
 import six
 import nipyapi
 from nipyapi.utils import exception_handler, enforce_min_ver
-from nipyapi.nifi import ParameterContextEntity, ParameterDTO,\
+from nipyapi.nifi import ParameterContextEntity, ParameterDTO, \
     ParameterEntity, ParameterContextDTO
 
 log = logging.getLogger(__name__)

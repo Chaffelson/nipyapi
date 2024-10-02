@@ -446,7 +446,6 @@ def step_f_set_sensitive_values():
           " process. Typically these values will be looked up in a Config DB "
           "or some other secured service."
           "\nPlease now call 'step_g_check_invalid_processors()'\n")
-    # Todo: update sensitive to return properites list precreated
 
 
 def step_g_check_invalid_processors():
