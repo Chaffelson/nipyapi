@@ -732,21 +732,26 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         service='nifi'
     )
     if not flow_versions:
-        raise ValueError("Could not find Flows matching Bucket ID [{0}] and"
+        raise ValueError("Could not find Flows matching Bucket ID [{0}] and "
                          "Flow ID [{1}] on Registry Client [{2}]"
                          .format(bucket_id, flow_id, reg_client_id))
     if version is None:
         target_flow = flow_versions.versioned_flow_snapshot_metadata_set
     else:
-        target_flow = [x for x
-                       in flow_versions.versioned_flow_snapshot_metadata_set
-                       if x.versioned_flow_snapshot_metadata.version == version
-                       ]
+        target_flow = [
+            x for x in flow_versions.versioned_flow_snapshot_metadata_set
+            if str(x.versioned_flow_snapshot_metadata.version) == str(version)
+        ]
     if not target_flow:
+        available_versions = [
+            str(x.versioned_flow_snapshot_metadata.version)
+            for x in flow_versions.versioned_flow_snapshot_metadata_set
+        ]
         raise ValueError(
             "Could not find Version [{0}] for Flow [{1}] in Bucket [{2}] on "
-            "Registry Client [{3}]"
-            .format(str(version), flow_id, bucket_id, reg_client_id)
+            "Registry Client [{3}]. Available versions are: {4}"
+            .format(str(version), flow_id, bucket_id, reg_client_id,
+                    ", ".join(available_versions))
         )
     target_flow = sorted(
         target_flow,

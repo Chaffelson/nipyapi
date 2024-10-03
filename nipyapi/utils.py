@@ -63,7 +63,7 @@ def dump(obj, mode='json'):
     if mode == 'json':
         return out
     if mode == 'yaml':
-        # Use 'safe' loading to prevent arbitrary code execution when loading YAML
+        # Use 'safe' loading to prevent arbitrary code execution
         yaml = YAML(typ='safe', pure=True)
         # Create a StringIO object to act as the stream
         stream = io.StringIO()
