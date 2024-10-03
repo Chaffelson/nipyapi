@@ -305,7 +305,6 @@ def revert_flow_ver(process_group):
     Returns:
         (VersionedFlowUpdateRequestEntity)
     """
-    # ToDo: Add handling for flows with live data
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.VersionsApi().initiate_revert_flow_version(
@@ -519,7 +518,7 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
         bad_params = ['link']
         for obj in [target_bucket, target_flow]:
             for p in bad_params:
-                obj.__setattr__(p, None)
+                setattr(obj, p, None)
         nipyapi.utils.validate_parameters_versioning_support(verify_nifi=False)
         ecs = flow_snapshot.external_controller_services
         return nipyapi.registry.BucketFlowsApi().create_flow_version(
@@ -719,6 +718,8 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
     Returns:
         (ProcessGroupEntity) of the newly deployed Process Group
     """
+    # Default location to (0, 0) if not provided per Issue #342
+    location = location or (0, 0)
     assert isinstance(location, tuple)
     # check reg client is valid
     target_reg_client = get_registry_client(reg_client_id, 'id')
@@ -731,23 +732,32 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         service='nifi'
     )
     if not flow_versions:
-        raise ValueError("Could not find Flows matching Bucket ID [{0}] and"
+        raise ValueError("Could not find Flows matching Bucket ID [{0}] and "
                          "Flow ID [{1}] on Registry Client [{2}]"
                          .format(bucket_id, flow_id, reg_client_id))
     if version is None:
         target_flow = flow_versions.versioned_flow_snapshot_metadata_set
     else:
-        target_flow = [x for x
-                       in flow_versions.versioned_flow_snapshot_metadata_set
-                       if x.versioned_flow_snapshot_metadata.version == version
-                       ]
+        target_flow = [
+            x for x in flow_versions.versioned_flow_snapshot_metadata_set
+            if str(x.versioned_flow_snapshot_metadata.version) == str(version)
+        ]
     if not target_flow:
+        available_versions = [
+            str(x.versioned_flow_snapshot_metadata.version)
+            for x in flow_versions.versioned_flow_snapshot_metadata_set
+        ]
         raise ValueError(
             "Could not find Version [{0}] for Flow [{1}] in Bucket [{2}] on "
-            "Registry Client [{3}]"
-            .format(str(version), flow_id, bucket_id, reg_client_id)
+            "Registry Client [{3}]. Available versions are: {4}"
+            .format(str(version), flow_id, bucket_id, reg_client_id,
+                    ", ".join(available_versions))
         )
-    target_flow = target_flow[0].versioned_flow_snapshot_metadata
+    target_flow = sorted(
+        target_flow,
+        key=lambda x: x.versioned_flow_snapshot_metadata.version,
+        reverse=True
+    )[0].versioned_flow_snapshot_metadata
     # Issue deploy statement
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(

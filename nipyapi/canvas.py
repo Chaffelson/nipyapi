@@ -67,10 +67,7 @@ def recurse_flow(pg_id='root'):
     while tasks:
         this_pg_id, this_parent_obj = tasks.pop()
         this_flow = get_flow(this_pg_id)
-        this_parent_obj.__setattr__(
-            'nipyapi_extended',
-            this_flow
-        )
+        setattr(this_parent_obj, 'nipyapi_extended', this_flow)
         tasks += [(x.id, x) for x in
                   this_flow.process_group_flow.flow.process_groups]
     return out
@@ -182,8 +179,7 @@ def list_all_process_groups(pg_id='root'):
             Generator for all ProcessGroupEntities, eventually
         """
         for child_pg in parent_pg.process_group_flow.flow.process_groups:
-            for sub in flatten(child_pg.nipyapi_extended):
-                yield sub
+            yield from flatten(child_pg.nipyapi_extended)
             yield child_pg
 
     # Recurse children
@@ -192,7 +188,7 @@ def list_all_process_groups(pg_id='root'):
     out = list(flatten(root_flow))
     # update parent with flattened list of extended child detail
     root_entity = get_process_group(pg_id, 'id')
-    root_entity.__setattr__('nipyapi_extended', root_flow)
+    setattr(root_entity, 'nipyapi_extended', root_flow)
     out.append(root_entity)
     return out
     #
@@ -995,7 +991,6 @@ def purge_connection(con_id):
 
     """
 
-    # TODO: Reimplement to batched instead of single threaded
     def _autumn_leaves(con_id_, drop_request_):
         test_obj = nipyapi.nifi.FlowfileQueuesApi().get_drop_request(
             con_id_,
@@ -1368,7 +1363,7 @@ def list_all_by_kind(kind, pg_id='root', descendants=True):
     else:
         pgs = [get_process_group(pg_id, 'id')]
     for pg in pgs:
-        out += call_function(pg.id).__getattribute__(kind)
+        out += getattr(call_function(pg.id), kind)
     return out
 
 

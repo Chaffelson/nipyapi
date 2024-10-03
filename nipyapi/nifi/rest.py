@@ -66,30 +66,29 @@ class RESTClientObject(object):
         # ca_certs vs cert_file vs key_file
         # http://stackoverflow.com/a/23957365/2985775
 
+        config = Configuration()
+
         # cert_reqs
-        if Configuration().verify_ssl:
-            cert_reqs = ssl.CERT_REQUIRED
-        else:
-            cert_reqs = ssl.CERT_NONE
+        cert_reqs = ssl.CERT_REQUIRED if config.verify_ssl else ssl.CERT_NONE
 
         # ca_certs
-        if Configuration().ssl_ca_cert:
-            ca_certs = Configuration().ssl_ca_cert
-        else:
-            # if not set certificate file, use Mozilla's root certificates.
-            ca_certs = certifi.where()
+        ca_certs = (config.ssl_ca_cert if config.ssl_ca_cert 
+                    else certifi.where())
 
         # cert_file
-        cert_file = Configuration().cert_file
+        cert_file = config.cert_file
 
         # key file
-        key_file = Configuration().key_file
+        key_file = config.key_file
+
+        # key password
+        key_password = config.key_password
 
         # ssl_context
-        ssl_context = Configuration().ssl_context
+        ssl_context = config.ssl_context
 
         # proxy
-        proxy = Configuration().proxy
+        proxy = config.proxy
 
         # https pool manager
         if proxy and "socks" not in str(proxy):
@@ -100,6 +99,7 @@ class RESTClientObject(object):
                 ca_certs=ca_certs,
                 cert_file=cert_file,
                 key_file=key_file,
+                key_password=key_password,
                 ssl_context=ssl_context,
                 proxy_url=proxy
             )
@@ -111,6 +111,7 @@ class RESTClientObject(object):
                 ca_certs=ca_certs,
                 cert_file=cert_file,
                 key_file=key_file,
+                key_password=key_password,
                 ssl_context=ssl_context,
                 proxy_url=proxy
             )
@@ -122,6 +123,7 @@ class RESTClientObject(object):
                 ca_certs=ca_certs,
                 cert_file=cert_file,
                 key_file=key_file,
+                key_password=key_password,
                 ssl_context=ssl_context
             )
 
@@ -306,7 +308,8 @@ class ApiException(Exception):
             self.status = http_resp.status
             self.reason = http_resp.reason
             self.body = http_resp.data
-            self.headers = http_resp.getheaders()
+            self.headers = (http_resp.headers if hasattr(http_resp, 'headers') 
+                            else http_resp.getheaders())
         else:
             self.status = status
             self.reason = reason

@@ -91,7 +91,6 @@ d_containers = [
             host_certs_path: {'bind': '/opt/certs', 'mode': 'ro'}
         },
     ),
-    # TODO add ldap docker container.
     # For now this uses a publicly available LDAP test server
 ]
 
