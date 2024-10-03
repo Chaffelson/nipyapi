@@ -748,7 +748,11 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
             "Registry Client [{3}]"
             .format(str(version), flow_id, bucket_id, reg_client_id)
         )
-    target_flow = target_flow[0].versioned_flow_snapshot_metadata
+    target_flow = sorted(
+        target_flow,
+        key=lambda x: x.versioned_flow_snapshot_metadata.version,
+        reverse=True
+    )[0].versioned_flow_snapshot_metadata
     # Issue deploy statement
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
