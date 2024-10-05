@@ -217,7 +217,7 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name',
         obj, identifier, identifier_type, greedy=greedy)
 
 
-# pylint: disable=R0913
+# pylint: disable=R0913,R0917
 def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
                   flow_id=None, comment='', desc='', refresh=True,
                   force=False):
@@ -696,6 +696,7 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
     )
 
 
+# pylint: disable=R0913,R0917
 def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
                         version=None):
     """
