@@ -9,11 +9,22 @@ See this StackOverflow for fixes: https://stackoverflow.com/a/42098127/4717963
 """
 
 from __future__ import absolute_import
+from __future__ import print_function  # For Python 2 and 3 compatibility
 import logging
 from pprint import pprint
 from os import path
+import sys
 import nipyapi
-from nipyapi.utils import DockerContainer
+
+try:
+    from nipyapi.utils import DockerContainer
+    DOCKER_AVAILABLE = True
+except ImportError:
+    DOCKER_AVAILABLE = False
+    print("The 'docker' package is required for this demo. "
+          "Please install nipyapi with the 'demo' extra: "
+          "pip install nipyapi[demo]")
+    sys.exit(1)
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -74,7 +85,7 @@ d_containers = [
     DockerContainer(
         name='secure-nifi',
         image_name='apache/nifi',
-        image_tag='1.9.1',
+        image_tag='1.27.0',
         ports={'8443/tcp': 8443},
         env=ldap_env_vars,
         volumes={
@@ -84,7 +95,7 @@ d_containers = [
     DockerContainer(
         name='secure-registry',
         image_name='apache/nifi-registry',
-        image_tag='0.3.0',
+        image_tag='1.27.0',
         ports={'18443/tcp': 18443},
         env=tls_env_vars,
         volumes={

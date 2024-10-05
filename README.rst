@@ -61,6 +61,9 @@ The easiest way to install NiPyApi is with pip::
     # in bash
     pip install nipyapi
 
+    # or with docker support for demos
+    pip install nipyapi[demo]
+
 You can set the config for your endpoints in the central config file::
 
     # in python

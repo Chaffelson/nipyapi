@@ -18,8 +18,6 @@ from contextlib import contextmanager
 from packaging import version
 import six
 from ruamel.yaml import YAML
-import docker
-from docker.errors import ImageNotFound
 import requests
 from requests.models import Response
 from future.utils import raise_from as _raise
@@ -35,6 +33,13 @@ __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            ]
 
 log = logging.getLogger(__name__)
+
+try:
+    import docker
+    from docker.errors import ImageNotFound
+    DOCKER_AVAILABLE = True
+except ImportError:
+    DOCKER_AVAILABLE = False
 
 
 def dump(obj, mode='json'):
@@ -352,6 +357,12 @@ class DockerContainer:
     """
     def __init__(self, name=None, image_name=None, image_tag=None, ports=None,
                  env=None, volumes=None, test_url=None, endpoint=None):
+        if not DOCKER_AVAILABLE:
+            raise ImportError(
+                "The 'docker' package is required for this class. "
+                "Please install nipyapi with the 'demo' extra: "
+                "pip install nipyapi[demo]"
+            )
         self.name = name
         self.image_name = image_name
         self.image_tag = image_tag
@@ -396,6 +407,13 @@ def start_docker_containers(docker_containers, network_name='demo'):
     Returns: Nothing
 
     """
+    if not DOCKER_AVAILABLE:
+        raise ImportError(
+            "The 'docker' package is required for this function. "
+            "Please install nipyapi with the 'demo' extra: "
+            "pip install nipyapi[demo]"
+        )
+
     log.info("Creating Docker client using Environment Variables")
     d_client = docker.from_env()
 

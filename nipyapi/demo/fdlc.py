@@ -7,10 +7,19 @@ See initial print statement for detailed explanation.
 """
 
 from __future__ import absolute_import
+from __future__ import print_function  # For Python 2 and 3 compatibility
 import logging
 from time import sleep
 import nipyapi
-from nipyapi.utils import DockerContainer
+
+try:
+    from nipyapi.utils import DockerContainer
+except ImportError:
+    print("The 'docker' package is required for this demo. "
+          "Please install nipyapi with the 'demo' extra: "
+          "pip install nipyapi[demo]")
+    import sys
+    sys.exit(1)
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
@@ -38,14 +47,14 @@ d_containers = [
     DockerContainer(
         name='nifi-dev',
         image_name='apache/nifi',
-        image_tag='latest',
+        image_tag='1.27.0',
         ports={str(dev_nifi_port) + '/tcp': dev_nifi_port},
         env={'NIFI_WEB_HTTP_PORT': str(dev_nifi_port)}
     ),
     DockerContainer(
         name='nifi-prod',
         image_name='apache/nifi',
-        image_tag='latest',
+        image_tag='1.27.0',
         ports={str(prod_nifi_port) + '/tcp': prod_nifi_port},
         env={'NIFI_WEB_HTTP_PORT': str(prod_nifi_port)}
     ),
@@ -289,7 +298,7 @@ def step_9_deploy_prod_flow_to_nifi():
         identifier=prod_ver_flow_name
     )
     reg_client = nipyapi.versioning.get_registry_client(prod_reg_client_name)
-    nipyapi.versioning.deploy_flow_version(
+    nipyapi.versioning.deploy_flow_ver(
         parent_id=nipyapi.canvas.get_root_pg_id(),
         location=(0, 0),
         bucket_id=bucket.identifier,
