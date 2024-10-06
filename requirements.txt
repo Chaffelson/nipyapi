@@ -19,10 +19,8 @@ requests[security]>=2.18
 pysocks>=1.7.1
 
 # Import Export and Utils implementation
-ruamel.yaml<0.18
-
-# Demo deployment automation
-docker>=2.5.1; extra == "demo"
+ruamel.yaml<0.18; python_version < '3'
+ruamel.yaml; python_version >= '3'
 
 # xml to json parsing
 xmltodict>=0.12.0

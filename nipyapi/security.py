@@ -721,7 +721,7 @@ def create_access_policy(resource, action, r_id=None, service="nifi"):
         )
 
 
-# pylint: disable=R0913,R0917
+# pylint: disable=R0913
 def set_service_ssl_context(
     service="nifi",
     ca_file=None,

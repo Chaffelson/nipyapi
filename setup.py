@@ -16,6 +16,15 @@ proj_version = '0.21.0'
 with open('requirements.txt') as reqs_file:
     requirements = reqs_file.read().splitlines()
 
+tests_require=[
+    'pytest>=7.2.0;python_version>="3"',
+    'pytest>=6,<4;python_version<"3"',
+]
+
+extras_require={
+    'demo': ['docker>=2.5.1']
+}
+
 setup(
     name='nipyapi',
     version=proj_version,
@@ -31,9 +40,8 @@ setup(
     ),
     include_package_data=True,
     install_requires=requirements,
-    extras_require={
-        'demo': ['docker>=2.5.1']
-    },
+    tests_require=tests_require,
+    extras_require=extras_require,
     license="Apache Software License 2.0",
     zip_safe=False,
     keywords=['nipyapi', 'nifi', 'api', 'wrapper'],
