@@ -26,6 +26,5 @@ sphinx_rtd_theme>=0.2.5b1
 
 # Code Deps
 cryptography>=2.1.2
-py>=1.11.0
 randomize>=0.13
 certifi>=2017.7.27.1

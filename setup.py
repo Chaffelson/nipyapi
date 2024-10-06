@@ -31,6 +31,9 @@ setup(
     ),
     include_package_data=True,
     install_requires=requirements,
+    extras_require={
+        'demo': ['docker>=2.5.1']
+    },
     license="Apache Software License 2.0",
     zip_safe=False,
     keywords=['nipyapi', 'nifi', 'api', 'wrapper'],
