@@ -19,8 +19,8 @@ requests[security]>=2.18
 pysocks>=1.7.1
 
 # Import Export and Utils implementation
-ruamel.yaml<0.18; python_version < '3'
-ruamel.yaml; python_version >= '3'
+ruamel.yaml>=0.16.3,<0.18; python_version < '3'
+ruamel.yaml>=0.16.3; python_version >= '3'
 
 # xml to json parsing
 xmltodict>=0.12.0

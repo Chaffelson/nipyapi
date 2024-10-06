@@ -188,38 +188,6 @@ nipyapi.nifi.models.batch\_size module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.models.bucket module
----------------------------------
-
-.. automodule:: nipyapi.nifi.models.bucket
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.models.bucket\_dto module
---------------------------------------
-
-.. automodule:: nipyapi.nifi.models.bucket_dto
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.models.bucket\_entity module
------------------------------------------
-
-.. automodule:: nipyapi.nifi.models.bucket_entity
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.models.buckets\_entity module
-------------------------------------------
-
-.. automodule:: nipyapi.nifi.models.buckets_entity
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 nipyapi.nifi.models.bulletin\_board\_dto module
 -----------------------------------------------
 
@@ -1036,14 +1004,6 @@ nipyapi.nifi.models.peers\_entity module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.models.permissions module
---------------------------------------
-
-.. automodule:: nipyapi.nifi.models.permissions
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 nipyapi.nifi.models.permissions\_dto module
 -------------------------------------------
 
@@ -1384,30 +1344,6 @@ nipyapi.nifi.models.queue\_size\_dto module
 -------------------------------------------
 
 .. automodule:: nipyapi.nifi.models.queue_size_dto
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.models.registry\_client\_entity module
----------------------------------------------------
-
-.. automodule:: nipyapi.nifi.models.registry_client_entity
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.models.registry\_clients\_entity module
-----------------------------------------------------
-
-.. automodule:: nipyapi.nifi.models.registry_clients_entity
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-nipyapi.nifi.models.registry\_dto module
-----------------------------------------
-
-.. automodule:: nipyapi.nifi.models.registry_dto
     :members:
     :undoc-members:
     :show-inheritance:
@@ -1916,14 +1852,6 @@ nipyapi.nifi.models.versioned\_controller\_service module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.models.versioned\_flow module
-------------------------------------------
-
-.. automodule:: nipyapi.nifi.models.versioned_flow
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 nipyapi.nifi.models.versioned\_flow\_coordinates module
 -------------------------------------------------------
 
@@ -1948,13 +1876,6 @@ nipyapi.nifi.models.versioned\_flow\_entity module
     :undoc-members:
     :show-inheritance:
 
-nipyapi.nifi.models.versioned\_flow\_snapshot module
-----------------------------------------------------
-
-.. automodule:: nipyapi.nifi.models.versioned_flow_snapshot
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 nipyapi.nifi.models.versioned\_flow\_snapshot\_entity module
 ------------------------------------------------------------
