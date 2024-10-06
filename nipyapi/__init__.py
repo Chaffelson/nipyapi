@@ -9,7 +9,7 @@ import importlib
 
 __author__ = """Daniel Chaffelson"""
 __email__ = 'chaffelson@gmail.com'
-__version__ = '0.19.1'
+__version__ = '0.20.0'
 __all__ = ['canvas', 'system', 'templates', 'config', 'nifi', 'registry',
            'versioning', 'demo', 'utils', 'security', 'parameters']
 
