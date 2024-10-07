@@ -15,6 +15,11 @@ if six.PY3:
 elif six.PY2:
     pass
 
+@pytest.fixture(scope="module", autouse=True)
+def skip_if_nifi_version_2():
+    if nipyapi.utils.check_version('2', service='nifi') >= 0:
+        pytest.skip("Skipping tests for NiFi version 2 and above")
+
 
 def test_upload_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()

@@ -149,7 +149,7 @@ def test_check_version(regress_nifi):
     # base is newer than comp
     assert utils.check_version('1.2.3', '0.2.3') == 1
     # Check RC
-    assert utils.check_version('1.0.0-rc1', '1.0.0') == -1
+    assert utils.check_version('1.0.0-rc1', '1.0.0') == 0
     # Check that snapshots are disregarded
     assert utils.check_version('1.11.0', '1.13.0-SNAPSHOT') == -1
     assert utils.check_version('1.11.0', "1.11.0-SNAPSHOT") == 0
@@ -158,3 +158,9 @@ def test_check_version(regress_nifi):
     assert utils.check_version(
         system.get_nifi_version_info().ni_fi_version
     ) == 0
+    # Check 2.0.0-M4
+    assert utils.check_version('2.0.0-M4', '2', service='nifi') == 0
+    assert utils.check_version('2', '2.0.0-M4') == 0
+    # Check 2.x vs 1.x
+    assert utils.check_version('2.0.0-M4', '1.13.0') == 1
+    assert utils.check_version('1.13.0', '2.0.0-M4') == -1

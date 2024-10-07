@@ -8,7 +8,6 @@ Convenience utility functions for NiPyApi, not really intended for external use
 from __future__ import absolute_import, unicode_literals
 import logging
 import json
-import re
 import io
 import time
 from copy import copy
@@ -479,17 +478,6 @@ def start_docker_containers(docker_containers, network_name='demo'):
         ))
 
 
-def strip_snapshot(java_version):
-    """
-    Strips the -SNAPSHOT suffix from a version string
-
-    Args:
-        java_version (str): the version string
-    """
-    assert isinstance(java_version, six.string_types)
-    return re.sub("-SNAPSHOT", "", java_version)
-
-
 def check_version(base, comparator=None, service='nifi',
                   default_version='0.2.0'):
     """
@@ -511,36 +499,43 @@ def check_version(base, comparator=None, service='nifi',
     Returns (int): -1/0/1 if base is lower/equal/newer than comparator
 
     """
+
+    def strip_version_string(version_string):
+        # Reduces the string to only the major.minor.patch version
+        return '.'.join(version_string.split('-')[0].split('.')[:3])
+
     assert isinstance(base, six.string_types)
     assert comparator is None or isinstance(comparator, six.string_types)
     assert service in ['nifi', 'registry']
-    ver_a = version.parse(base)
+    ver_a = version.parse(strip_version_string(base))
     if comparator:
-        # if b is set, we compare the passed versions
-        comparator = strip_snapshot(comparator)
-        ver_b = version.parse(comparator)
+        ver_b = version.parse(strip_version_string(comparator))
     elif service == 'registry':
         try:
-            config = nipyapi.config.registry_config
-            if config.api_client is None:
-                config.api_client = nipyapi.registry.ApiClient()
-            reg_swagger_def = config.api_client.call_api(
-                resource_path='/swagger/swagger.json',
-                method='GET', _preload_content=False,
-                auth_settings=['tokenAuth', 'Authorization']
-            )
-            reg_json = load(reg_swagger_def[0].data)
-            ver_b = version.parse(reg_json['info']['version'])
+            reg_ver = nipyapi.system.get_registry_version_info()
+            ver_b = version.parse(strip_version_string(reg_ver))
         except nipyapi.registry.rest.ApiException:
             log.warning(
-                "Unable to get registry swagger.json, assuming version %s",
-                default_version)
-            ver_b = version.parse(default_version)
+                "Unable to get registry version, trying swagger.json")
+            try:
+                config = nipyapi.config.registry_config
+                if config.api_client is None:
+                    config.api_client = nipyapi.registry.ApiClient()
+                reg_swagger_def = config.api_client.call_api(
+                    resource_path='/swagger/swagger.json',
+                    method='GET', _preload_content=False,
+                    auth_settings=['tokenAuth', 'Authorization']
+                )
+                reg_json = load(reg_swagger_def[0].data)
+                ver_b = version.parse(reg_json['info']['version'])
+            except nipyapi.registry.rest.ApiException:
+                log.warning(
+                    "Can't get registry swagger.json, assuming version %s",
+                    default_version)
+                ver_b = version.parse(default_version)
     else:
-        # Working with NiFi
         ver_b = version.parse(
-            strip_snapshot(
-                # This call currently only supports NiFi
+            strip_version_string(
                 nipyapi.system.get_nifi_version_info().ni_fi_version
             )
         )

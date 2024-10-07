@@ -402,10 +402,11 @@ def delete_process_group(process_group, force=False, refresh=True):
                         delete_controller(x, True)
                         removed_controllers_id.append(x.component.id)
 
-            # Remove templates
-            for template in nipyapi.templates.list_all_templates(native=False):
-                if target.id == template.template.group_id:
-                    nipyapi.templates.delete_template(template.id)
+            # Templates are not supported in NiFi 2.x
+            if nipyapi.utils.check_version('2', service='nifi') < 0:
+                for template in nipyapi.templates.list_all_templates(native=False):
+                    if target.id == template.template.group_id:
+                        nipyapi.templates.delete_template(template.id)
             # have to refresh revision after changes
             target = nipyapi.nifi.ProcessGroupsApi().get_process_group(pg_id)
             return nipyapi.nifi.ProcessGroupsApi().remove_process_group(

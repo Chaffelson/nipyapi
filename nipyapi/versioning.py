@@ -27,7 +27,7 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 
-def create_registry_client(name, uri, description):
+def create_registry_client(name, uri, description, reg_type=None):
     """
     Creates a Registry Client in the NiFi Controller Services
 
@@ -42,14 +42,28 @@ def create_registry_client(name, uri, description):
     assert isinstance(uri, six.string_types) and uri is not False
     assert isinstance(name, six.string_types) and name is not False
     assert isinstance(description, six.string_types)
+    if nipyapi.utils.check_version('2', service='nifi') > 0:
+        component = {
+            'uri': uri,
+            'name': name,
+            'description': description
+        }
+    else:
+        component = {
+            'name': name,
+            'description': description,
+            'type': (
+                reg_type or
+                'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'),
+            'properties': {
+                'url': uri
+            }
+        }
+
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ControllerApi().create_flow_registry_client(
             body={
-                'component': {
-                    'uri': uri,
-                    'name': name,
-                    'description': description
-                },
+                'component': component,
                 'revision': {
                     'version': 0
                 }

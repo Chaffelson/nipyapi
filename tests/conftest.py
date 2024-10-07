@@ -56,10 +56,8 @@ test_templates = {
 
 default_nifi_endpoints = [('https://' + test_host + ':8443/nifi-api', True, True, 'nobel', 'supersecret1!')]
 regress_nifi_endpoints = [
-    ('http://' + test_host + ':10112/nifi-api', True, True, None, None),
-    ('http://' + test_host + ':10120/nifi-api', True, True, None, None),
-    ('http://' + test_host + ':10180/nifi-api', True, True, None, None),
     ('http://' + test_host + ':10192/nifi-api', True, True, None, None),
+    ('https://' + test_host + ':10127/nifi-api', True, True, 'nobel', 'supersecret1!'),
 ]
 secure_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')]
 default_registry_endpoints = [
@@ -69,13 +67,13 @@ default_registry_endpoints = [
      )
 ]
 regress_registry_endpoints = [
-            (('http://' + test_host + ':18010/nifi-registry-api', True, True, None, None),
-                'http://registry-010:18010',
-             ('https://' + test_host + ':8443/nifi-api', True, True, 'nobel', 'supersecret1!')
-             ),
             (('http://' + test_host + ':18030/nifi-registry-api', True, True, None, None),
                 'http://registry-030:18030',
              ('http://' + test_host + ':10192/nifi-api', True, True, None, None)
+             ),
+            (('http://' + test_host + ':18127/nifi-registry-api', True, True, None, None),
+                'http://registry-127:18127',
+             ('https://' + test_host + ':10127/nifi-api', True, True, 'nobel', 'supersecret1!')
              )
         ]
 secure_registry_endpoints = [
@@ -334,7 +332,9 @@ def cleanup_nifi():
     # per test, so we rely on individual fixture cleanup
     log.info("Bulk cleanup called on host %s",
              nipyapi.config.nifi_config.host)
-    remove_test_templates()
+    # Check if NiFi version is 2 or newer
+    if nipyapi.utils.check_version('2', service='nifi') < 0:
+        remove_test_templates()
     remove_test_pgs()
     remove_test_connections()
     remove_test_controllers()

@@ -178,8 +178,8 @@ def test_list_all_processor_types(regress_nifi):
 
 
 def test_get_processor_type(regress_nifi):
-    r1 = canvas.get_processor_type('GetTwitter')
-    assert r1.type == 'org.apache.nifi.processors.twitter.GetTwitter'
+    r1 = canvas.get_processor_type('GenerateFlowFile')
+    assert r1.type == 'org.apache.nifi.processors.standard.GenerateFlowFile'
     assert isinstance(r1, DocumentedTypeDTO)
     r2 = canvas.get_processor_type("syslog", 'tag')
     assert isinstance(r2, list)
@@ -301,6 +301,8 @@ def test_update_processor(regress_nifi, fix_proc):
 
 
 def test_get_variable_registry(fix_pg):
+    if utils.check_version('2', service='nifi') <= 0:
+        pytest.skip("Not supported in NiFi 2.x")
     test_pg = fix_pg.generate()
     r1 = canvas.get_variable_registry(test_pg)
     assert isinstance(r1, nifi.VariableRegistryEntity)
@@ -310,6 +312,8 @@ def test_get_variable_registry(fix_pg):
 
 
 def test_update_variable_registry(fix_pg):
+    if utils.check_version('2', service='nifi') <= 0:
+        pytest.skip("Not supported in NiFi 2.x")
     test_pg = fix_pg.generate()
     r1 = canvas.update_variable_registry(
         test_pg,
