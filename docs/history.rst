@@ -2,6 +2,27 @@
 History
 =======
 
+0.21.0 (2024-07-14)
+-------------------
+
+| Updated client for NiFi & Registry 1.27.0 release
+
+* Fix API model generator by @michaelarnauts in https://github.com/Chaffelson/nipyapi/pull/356
+* issue-360: handle -9 error messages better by @ottobackwards in https://github.com/Chaffelson/nipyapi/pull/361
+* Handle plain text response types so json values are correctly returned by @michaelarnauts in https://github.com/Chaffelson/nipyapi/pull/358
+* update clients to 1.27.0 by @Chaffelson in https://github.com/Chaffelson/nipyapi/pull/365
+* Simplified the use of setattr in recurse_flow, flatten, and list_all_by_kind methods in nipyapi/canvas.py. 
+* Added support for key_password in the Configuration class and its usage in nipyapi/nifi/rest.py and nipyapi/registry/rest.py. 
+* Fixed the method to retrieve HTTP headers in nipyapi/nifi/rest.py and nipyapi/registry/rest.py. 
+* Fixed issue #326 where the latest flow version was not being deployed by default
+* Updated pylintrc to match more modern python standards
+* Fixes nipyapi.nifi.ProcessGroupsApi.upload_process_group_with_http_info() incomplete #310
+* VersionedReportingTask added with appropriate functions
+* Move docker requirement to extras to avoid dependency install during standard usage
+* Set latest python3 version to 3.12
+* Deprecate usage of py.test in favour of newer pytest.
+* Update readme
+
 0.20.0 (2024-04-14)
 -------------------
 

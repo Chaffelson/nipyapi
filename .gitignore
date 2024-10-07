@@ -157,3 +157,9 @@ fabric.properties
 
 # Stupid OSX exclusions
 /.vscode
+
+.DS_Store
+# Coverage reports
+coverage*
+.coverage
+htmlcov/

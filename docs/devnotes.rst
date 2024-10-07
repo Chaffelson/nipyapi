@@ -48,10 +48,16 @@ Instructions::
     I recommend you install PyEnv to manage Python versions `sudo curl https://pyenv.run | bash`
     Follow the instructions to set up your .bashrc
     To build various versions of Python for testing you may also need `sudo dnf install bzip2-devel openssl-devel libffi-devel zlib-devel readline-devel sqlite-devel -y`
-    Install the latest supported version of Python for your main dev environment `pyenv install 3.9 2.7`
-    Set these versions as global in pyenv so tox can see them. Use the actual versions with the command `pyenv global 3.9.16 2.7.62`
+    Install the latest supported version of Python for your main dev environment `pyenv install 3.9 2.7 3.12`
+    Set these versions as global in pyenv so tox can see them. Use the actual versions with the command `pyenv global 3.9.16 2.7.18 3.12.2`
     You'll want to stand up the two sets of NiFi containers for testing. resources/docker/tox-full for default and regression tests, and resources/docker/secure for tests under auth.
     You can switch between the tests by changing flags in tests/conftest.py around line 17.
+    Python3 can be tested automatically using Tox.
+    Python2 can be tested using the following steps within a Python2 virtualenv:
+    1. Install requirements: pip install -r requirements.txt
+    2. Install dev requirements: `pip install -r requirements_dev.txt`
+    3. Install package in editable mode with test support: `pip install -e .[test]`
+    4. Run tests: `pytest -v -s tests --tb=long -W ignore::urllib3.exceptions.InsecureRequestWarning`
 
 Setup Code Signing
 ------------------
@@ -194,7 +200,6 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     # Run appropriate tests, such as usage tests etc.
     deactivate
     Push changes to Github
-    Check build on TravisCI
     Check dockerhub automated build
     # You may have to reactivate your original virtualenv
     twine upload dist/*

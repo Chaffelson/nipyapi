@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from packaging import version
 import six
 from ruamel.yaml import YAML
+from ruamel.yaml.compat import StringIO
 import requests
 from requests.models import Response
 from future.utils import raise_from as _raise
@@ -57,23 +58,22 @@ def dump(obj, mode='json'):
     assert mode in ['json', 'yaml']
     api_client = nipyapi.nifi.ApiClient()
     prepared_obj = api_client.sanitize_for_serialization(obj)
-    try:
-        out = json.dumps(
-            obj=prepared_obj,
-            sort_keys=True,
-            indent=4
-        )
-    except TypeError as e:
-        raise e
     if mode == 'json':
-        return out
+        try:
+            return json.dumps(
+                obj=prepared_obj,
+                sort_keys=True,
+                indent=4
+            )
+        except TypeError as e:
+            raise e
     if mode == 'yaml':
         # Use 'safe' loading to prevent arbitrary code execution
         yaml = YAML(typ='safe', pure=True)
         # Create a StringIO object to act as the stream
-        stream = io.StringIO()
+        stream = StringIO()
         # Dump to the StringIO stream
-        yaml.dump(json.loads(out), stream)
+        yaml.dump(prepared_obj, stream)
         # Return the contents of the stream as a string
         return stream.getvalue()
     raise ValueError("Invalid dump Mode specified {0}".format(mode))
@@ -350,7 +350,7 @@ def set_endpoint(endpoint_url, ssl=False, login=False,
     return True
 
 
-# pylint: disable=R0913,R0902,R0917
+# pylint: disable=R0913,R0902
 class DockerContainer():
     """
     Helper class for Docker container automation without using Ansible

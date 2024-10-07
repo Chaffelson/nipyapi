@@ -179,7 +179,8 @@ def list_all_process_groups(pg_id='root'):
             Generator for all ProcessGroupEntities, eventually
         """
         for child_pg in parent_pg.process_group_flow.flow.process_groups:
-            yield from flatten(child_pg.nipyapi_extended)
+            for item in flatten(child_pg.nipyapi_extended):
+                yield item
             yield child_pg
 
     # Recurse children
