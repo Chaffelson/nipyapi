@@ -96,7 +96,9 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.1.2 - 1.27.0, and NiFi-Registry versions 0.1.0 - 1.27.0.
+| Currently we are testing against NiFi versions 1.9.2 - 1.27.0, and NiFi-Registry versions 0.3.0 - 1.27.0.
+| We have also tested against the latest 2.0.0-M4 release candidates using the 1.x SDK and have found that most things work as expected.
+| In future we will look at creating NiFi 2.x native SDKs, but for now the latest NiPyAPI release should be used with the NiFi 2.0.0-Mx releases.
 | If you find a version compatibility problem please raise an `issue <https://github.com/Chaffelson/nipyapi/issues>`_
 
 Python Support

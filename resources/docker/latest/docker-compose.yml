@@ -1,6 +1,6 @@
 services:
   nifi:
-    image: apache/nifi:2.0.0-M4
+    image: apache/nifi:latest
     container_name: nifi
     hostname: nifi
     ports:
@@ -9,7 +9,7 @@ services:
       - SINGLE_USER_CREDENTIALS_USERNAME=nobel
       - SINGLE_USER_CREDENTIALS_PASSWORD=supersecret1!
   registry:
-    image: apache/nifi-registry:2.0.0-M4
+    image: apache/nifi-registry:latest
     container_name: registry
     hostname: registry
     ports:
