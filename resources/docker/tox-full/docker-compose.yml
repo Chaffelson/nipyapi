@@ -1,30 +1,22 @@
 services:
-  nifi-112:
-    image: chaffelson/nifi:1.1.2
-    container_name: nifi-112
-    hostname: nifi-112
-    ports:
-      - "10112:8080"
-  nifi-120:
-    image: apache/nifi:1.2.0
-    container_name: nifi-120
-    hostname: nifi-120
-    ports:
-      - "10120:8080"
-  nifi-180:
-    image: apache/nifi:1.8.0
-    container_name: nifi-180
-    hostname: nifi-180
-    ports:
-      - "10180:8080"
   nifi-192:
     image: apache/nifi:1.9.2
     container_name: nifi-192
     hostname: nifi-192
     ports:
       - "10192:8080"
-  nifi:
+  nifi-127:
     image: apache/nifi:1.27.0
+    container_name: nifi-127
+    hostname: nifi-127
+    ports:
+      - "10127:10127"
+    environment:
+      - SINGLE_USER_CREDENTIALS_USERNAME=nobel
+      - SINGLE_USER_CREDENTIALS_PASSWORD=supersecret1!
+      - NIFI_WEB_HTTPS_PORT=10127
+  nifi:
+    image: apache/nifi:2.0.0-M4
     container_name: nifi
     hostname: nifi
     ports:
@@ -32,14 +24,6 @@ services:
     environment:
       - SINGLE_USER_CREDENTIALS_USERNAME=nobel
       - SINGLE_USER_CREDENTIALS_PASSWORD=supersecret1!
-  registry-010:
-    image: apache/nifi-registry:0.1.0
-    container_name: registry-010
-    hostname: registry-010
-    ports:
-      - "18010:18010"
-    environment:
-      - NIFI_REGISTRY_WEB_HTTP_PORT=18010
   registry-030:
     image: apache/nifi-registry:0.3.0
     container_name: registry-030
@@ -48,8 +32,16 @@ services:
       - "18030:18030"
     environment:
       - NIFI_REGISTRY_WEB_HTTP_PORT=18030
-  registry:
+  registry-127:
     image: apache/nifi-registry:1.27.0
+    container_name: registry-127
+    hostname: registry-127
+    ports:
+      - "18127:18127"
+    environment:
+      - NIFI_REGISTRY_WEB_HTTP_PORT=18127
+  registry:
+    image: apache/nifi-registry:2.0.0-M4
     container_name: registry
     hostname: registry
     ports:

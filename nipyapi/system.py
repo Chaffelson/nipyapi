@@ -58,3 +58,13 @@ def get_nifi_version_info():
     """
     diags = get_system_diagnostics()
     return diags.system_diagnostics.aggregate_snapshot.version_info
+
+
+def get_registry_version_info():
+    """
+    Returns the version information of the connected NiFi Registry instance
+
+    Returns (VersionInfoDTO):
+    """
+    details = nipyapi.registry.AboutApi().get_version()
+    return details.registry_about_version
