@@ -129,11 +129,12 @@ class ParameterGroupConfigurationEntity(object):
         :param parameter_sensitivities: The parameter_sensitivities of this ParameterGroupConfigurationEntity.
         :type: dict(str, str)
         """
-        allowed_values = ["SENSITIVE", "NON_SENSITIVE"]
-        if not set(parameter_sensitivities.keys()).issubset(set(allowed_values)):
+        # Added None, since that's what NiFi returns when the value is not yet set
+        allowed_values = ["SENSITIVE", "NON_SENSITIVE", None]
+        if not set(parameter_sensitivities.values()).issubset(set(allowed_values)):
             raise ValueError(
-                "Invalid keys in `parameter_sensitivities` [{0}], must be a subset of [{1}]"
-                .format(", ".join(map(str, set(parameter_sensitivities.keys())-set(allowed_values))),
+                "Invalid values in `parameter_sensitivities` [{0}], must be a subset of [{1}]"
+                .format(", ".join(map(str, set(parameter_sensitivities.values())-set(allowed_values))),
                         ", ".join(map(str, allowed_values)))
             )
 
