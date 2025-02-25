@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-For Managing NiFi Templates
+For Managing NiFi Templates in NiFi 1.x
 """
 
 from __future__ import absolute_import
@@ -94,6 +94,7 @@ def deploy_template(pg_id, template_id, loc_x=0.0, loc_y=0.0):
             template
 
     """
+    nipyapi.utils.validate_templates_version_support()
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().instantiate_template(
             id=pg_id,
@@ -146,6 +147,7 @@ def create_template(pg_id, name, desc=''):
         (TemplateEntity): The newly created Template
 
     """
+    nipyapi.utils.validate_templates_version_support()
     snippet = create_pg_snippet(pg_id)
     with nipyapi.utils.rest_exceptions():
         new_template = nipyapi.nifi.CreateTemplateRequestEntity(
@@ -169,6 +171,7 @@ def delete_template(t_id):
     Returns:
         The updated Template object
     """
+    nipyapi.utils.validate_templates_version_support()
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.TemplatesApi().remove_template(id=t_id)
 
@@ -186,6 +189,7 @@ def upload_template(pg_id, template_file):
         (TemplateEntity): The new Template object
 
     """
+    nipyapi.utils.validate_templates_version_support()
     with nipyapi.utils.rest_exceptions():
         this_pg = nipyapi.canvas.get_process_group(pg_id, 'id')
         assert isinstance(this_pg, nipyapi.nifi.ProcessGroupEntity)
@@ -238,6 +242,7 @@ def export_template(t_id, output='string', file_path=None):
             that this may not be utf-8 encoded.
 
     """
+    nipyapi.utils.validate_templates_version_support()
     assert output in ['string', 'file']
     assert file_path is None or isinstance(file_path, six.string_types)
     template = nipyapi.templates.get_template(t_id, 'id')
@@ -261,6 +266,7 @@ def list_all_templates(native=True):
     Returns:
         (list[TemplateEntity]): A list of TemplateEntity's
     """
+    nipyapi.utils.validate_templates_version_support()
     with nipyapi.utils.rest_exceptions():
         templates = nipyapi.nifi.FlowApi().get_templates()
     if not native:

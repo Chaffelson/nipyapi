@@ -235,11 +235,15 @@ def session_setup(request):
 
 
 def remove_test_templates():
-    all_templates = nipyapi.templates.list_all_templates(native=False)
-    if all_templates is not None:
-        for this_template in all_templates:
-            if test_basename in this_template.template.name:
-                nipyapi.templates.delete_template(this_template.id)
+    if nipyapi.utils.enforce_max_ver('2', True):
+        pass
+        # Templates are not supported in NiFi 2
+    else:
+        all_templates = nipyapi.templates.list_all_templates(native=False)
+        if all_templates is not None:
+            for this_template in all_templates:
+                if test_basename in this_template.template.name:
+                    nipyapi.templates.delete_template(this_template.id)
 
 
 def remove_test_pgs():
@@ -292,6 +296,9 @@ def final_cleanup():
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
             cleanup_reg()
+        if test_security and 'https' in url:
+            remove_test_service_user_groups('nifi')
+            remove_test_service_users('nifi')
 
 
 def remove_test_service_users(service='both'):
@@ -333,7 +340,7 @@ def cleanup_nifi():
     log.info("Bulk cleanup called on host %s",
              nipyapi.config.nifi_config.host)
     # Check if NiFi version is 2 or newer
-    if nipyapi.utils.check_version('2', service='nifi') < 0:
+    if nipyapi.utils.check_version('2', service='nifi') == 1:  # We're on an older version
         remove_test_templates()
     remove_test_pgs()
     remove_test_connections()
@@ -343,10 +350,6 @@ def cleanup_nifi():
     remove_test_funnels()
     remove_test_rpgs()
     remove_test_parameter_contexts()
-    if test_security and 'https' in nipyapi.nifi.configuration.host:
-        remove_test_service_user_groups('nifi')
-        remove_test_service_users('nifi')
-
 
 def remove_test_rpgs():
     _ = [
@@ -627,7 +630,7 @@ def fixture_controller(request):
                 )
             else:
                 target_pg = parent_pg
-            kind = kind if kind else 'DistributedMapCacheClientService'
+            kind = kind if kind else 'CSVReader'
             cont_type = [
                 x for x in nipyapi.canvas.list_all_controller_types()
                 if kind in x.type
