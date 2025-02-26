@@ -96,9 +96,9 @@ Background and Documentation
 NiFi Version Support
 --------------------
 
-| Currently we are testing against NiFi versions 1.9.2 - 1.27.0, and NiFi-Registry versions 0.3.0 - 1.27.0.
+| Currently we are testing against NiFi versions 1.9.2 - 1.28.1, and NiFi-Registry versions 0.3.0 - 1.28.1.
 
-| We have also tested against the latest 2.0.0-M4 release candidates using the 1.x SDK and have found that basic functionality works as expected.
+| We have also tested against the latest NiFi-2.2.0 release using the 1.x SDK and have found that basic functionality works as expected.
 | Apache NiFi offers no compatibility guarantees between major versions, and while many functions may work the same, you should test carefully for your specific use case.
 | In future we will create a specific branch of NiPyAPI for NiFi 2.x SDKs, and maintain separate NiFi 1.x and NiFi 2.x clients.
 
@@ -107,9 +107,9 @@ NiFi Version Support
 Python Support
 --------------
 
-| Python 2.7 or 3.7-12 supported, though other versions may work. 
+| Python 2.7 or 3.9-12 supported, though other versions may work. 
 | We will shortly stop supporting Python2.
-| OSX M1 chips have various issues with Requests and Certificates.
+| OSX M1 chips have had various issues with Requests and Certificates.
 
-| Tested on AL2023, developed on OSX 14.2 - Windows testing not attempted.
+| Tested on AL2023, developed on OSX 14+ and Windows 10 with Docker Desktop.
 | Outside of the standard Python modules, we make use of lxml, DeepDiff, ruamel.yaml and xmltodict in processing, and Docker for demo/tests.

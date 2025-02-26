@@ -15,111 +15,141 @@ if six.PY3:
 elif six.PY2:
     pass
 
-@pytest.fixture(scope="module", autouse=True)
-def skip_if_nifi_version_2():
-    if nipyapi.utils.check_version('2', service='nifi') >= 0:
-        pytest.skip("Skipping tests for NiFi version 2 and above")
 
-
-def test_upload_template(regress_nifi, fix_templates):
+def test_upload_template(regress_nifi, fix_templates, tmpdir):
     pg = fix_templates.pg.generate()
-    r0 = nipyapi.templates.upload_template(
-        pg_id=pg.id,
-        template_file=fix_templates.c_file
-    )
-    assert isinstance(r0, nipyapi.nifi.TemplateEntity)
-    # Check it's not an empty object
-    assert isinstance(r0.template.uri, six.string_types)
-    # Export it again and check it's good
-    r1 = nipyapi.templates.export_template(
-        r0.id,
-        output='file',
-        file_path='/tmp/nipyapi_test_template_001.xml'
-    )
-    # This test needs to be hand run, as it's difficult to test for the changed
-    # UUIDs and timestamps and unimportant information.
-    # t1 = etree.parse('/tmp/nipyapi_test_template_001.xml')
-    # t2 = etree.parse(fix_templates.c_file)
-    # DeepDiff(t1.getroot().itertext(), t2.getroot().itertext(), ignore_order=True)
-    # Try to upload a nonexistant file
-    with pytest.raises(AssertionError):
-        _ = nipyapi.templates.upload_template(
-            pg_id=pg.id,
-            template_file='/tmp/haha/definitelynotafile.jpg'
-        )
-    # Try to upload an unopenable file
-    with pytest.raises(AssertionError):
-        _ = nipyapi.templates.upload_template(
-            pg_id=pg.id,
-            template_file='/dev/null'
-        )
-    # Try to upload an already existing template
-    with pytest.raises(ValueError):
-        _ = nipyapi.templates.upload_template(
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            r0 = nipyapi.templates.upload_template(
+                pg_id=pg.id,
+                template_file=fix_templates.c_file
+            )
+    else:
+        r0 = nipyapi.templates.upload_template(
             pg_id=pg.id,
             template_file=fix_templates.c_file
+            )
+        assert isinstance(r0, nipyapi.nifi.TemplateEntity)
+        # Check it's not an empty object
+        assert isinstance(r0.template.uri, six.string_types)
+        # Export it again and check it's good
+        r1 = nipyapi.templates.export_template(
+            r0.id,
+            output='file',
+            file_path=str(tmpdir.join('nipyapi_test_template_001.xml'))
         )
+        # This test needs to be hand run, as it's difficult to test for the changed
+        # UUIDs and timestamps and unimportant information.
+        # t1 = etree.parse('/tmp/nipyapi_test_template_001.xml')
+        # t2 = etree.parse(fix_templates.c_file)
+        # DeepDiff(t1.getroot().itertext(), t2.getroot().itertext(), ignore_order=True)
+        # Try to upload a nonexistant file
+        with pytest.raises(AssertionError):
+            _ = nipyapi.templates.upload_template(
+                pg_id=pg.id,
+                template_file=str(tmpdir.join('definitelynotafile.jpg'))
+            )
+        # Try to upload an unopenable file
+        with pytest.raises(AssertionError):
+            _ = nipyapi.templates.upload_template(
+                pg_id=pg.id,
+                template_file='/dev/null'  # This might need platform-specific handling
+            )
+        # Try to upload an already existing template
+        with pytest.raises(ValueError):
+            _ = nipyapi.templates.upload_template(
+                pg_id=pg.id,
+                template_file=fix_templates.c_file
+            )
 
 
 def test_all_templates(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
-    _ = nipyapi.templates.upload_template(
-        pg.id,
-        fix_templates.b_file
-    )
-    r = nipyapi.templates.list_all_templates()
-    assert (isinstance(r, nipyapi.nifi.TemplatesEntity))
-    assert len(r.templates) > 0
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            _ = nipyapi.templates.upload_template(
+                pg.id,
+                fix_templates.b_file
+            )
+    else:
+        _ = nipyapi.templates.upload_template(
+            pg.id,
+            fix_templates.b_file
+        )
+        r = nipyapi.templates.list_all_templates()
+        assert (isinstance(r, nipyapi.nifi.TemplatesEntity))
+        assert len(r.templates) > 0
 
 
 def test_get_templates_by_name(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
-    _ = nipyapi.templates.upload_template(
-        pg.id,
-        fix_templates.b_file
-    )
-    r = nipyapi.templates.get_template_by_name(fix_templates.b_name)
-    assert r is not None
-    assert isinstance(r, nipyapi.nifi.TemplateEntity)
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            _ = nipyapi.templates.upload_template(
+                pg.id,
+                fix_templates.b_file
+            )
+    else:
+        _ = nipyapi.templates.upload_template(
+            pg.id,
+            fix_templates.b_file
+        )
+        r = nipyapi.templates.get_template_by_name(fix_templates.b_name)
+        assert r is not None
+        assert isinstance(r, nipyapi.nifi.TemplateEntity)
 
 
 def test_get_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
-    _ = nipyapi.templates.upload_template(
-        pg.id,
-        fix_templates.b_file
-    )
-    r0 = nipyapi.templates.get_template(fix_templates.b_name)
-    assert r0 is not None
-    assert isinstance(r0, nipyapi.nifi.TemplateEntity)
-    r1 = nipyapi.templates.get_template(fix_templates.b_name, greedy=True)
-    assert r1 is not None
-    assert isinstance(r1, nipyapi.nifi.TemplateEntity)
-    _ = nipyapi.templates.upload_template(
-        pg.id,
-        fix_templates.g_file
-    )
-    r3 = nipyapi.templates.get_template(fix_templates.b_name)
-    assert r3 is not None
-    assert isinstance(r3, nipyapi.nifi.TemplateEntity)
-    r4 = nipyapi.templates.get_template(fix_templates.b_name, greedy=True)
-    assert r4 is not None
-    assert isinstance(r4, list)
-    assert isinstance(r4[0], nipyapi.nifi.TemplateEntity)
-    assert len(r4) == 2
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            _ = nipyapi.templates.upload_template(
+                pg.id,
+                fix_templates.b_file
+            )
+    else:
+        _ = nipyapi.templates.upload_template(
+            pg.id,
+            fix_templates.b_file
+        )
+        r0 = nipyapi.templates.get_template(fix_templates.b_name)
+        assert r0 is not None
+        assert isinstance(r0, nipyapi.nifi.TemplateEntity)
+        r1 = nipyapi.templates.get_template(fix_templates.b_name, greedy=True)
+        assert r1 is not None
+        assert isinstance(r1, nipyapi.nifi.TemplateEntity)
+        _ = nipyapi.templates.upload_template(
+            pg.id,
+            fix_templates.g_file
+        )
+        r3 = nipyapi.templates.get_template(fix_templates.b_name)
+        assert r3 is not None
+        assert isinstance(r3, nipyapi.nifi.TemplateEntity)
+        r4 = nipyapi.templates.get_template(fix_templates.b_name, greedy=True)
+        assert r4 is not None
+        assert isinstance(r4, list)
+        assert isinstance(r4[0], nipyapi.nifi.TemplateEntity)
+        assert len(r4) == 2
 
 
 def test_deploy_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
-    t1 = nipyapi.templates.upload_template(
-        pg.id,
-        fix_templates.b_file
-    )
-    r = nipyapi.templates.deploy_template(
-        pg.id,
-        t1.id
-    )
-    assert isinstance(r, nipyapi.nifi.FlowEntity)
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            t1 = nipyapi.templates.upload_template(
+                pg.id,
+                fix_templates.b_file
+            )
+    else:
+        t1 = nipyapi.templates.upload_template(
+            pg.id,
+            fix_templates.b_file
+        )
+        r = nipyapi.templates.deploy_template(
+            pg.id,
+            t1.id
+        )
+        assert isinstance(r, nipyapi.nifi.FlowEntity)
 
 
 def test_get_snippet(regress_nifi, fix_pg):
@@ -130,53 +160,73 @@ def test_get_snippet(regress_nifi, fix_pg):
 
 def test_create_template(regress_nifi, fix_pg):
     t_pg = fix_pg.generate()
-    r = nipyapi.templates.create_template(
-        pg_id=t_pg.id,
-        name=conftest.test_basename + 'Template_99',
-        desc='Nothing Here'
-    )
-    assert isinstance(r, nipyapi.nifi.TemplateEntity)
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            r = nipyapi.templates.create_template(
+                pg_id=t_pg.id,
+                name=conftest.test_basename + 'Template_99',
+                desc='Nothing Here'
+            )
+    else:
+        r = nipyapi.templates.create_template(
+            pg_id=t_pg.id,
+            name=conftest.test_basename + 'Template_99',
+            desc='Nothing Here'
+        )
+        assert isinstance(r, nipyapi.nifi.TemplateEntity)
 
 
-def test_export_template(regress_nifi, fix_templates):
+def test_export_template(regress_nifi, fix_templates, tmpdir):
     pg = fix_templates.pg.generate()
-    t1 = nipyapi.templates.upload_template(
-        pg.id,
-        fix_templates.b_file
-    )
-    assert isinstance(t1, nipyapi.nifi.TemplateEntity)
-    r0 = nipyapi.templates.export_template(t1.id)
-    assert r0[0] == '<'
-    r1 = nipyapi.templates.export_template(
-        t1.id,
-        output='file',
-        file_path='/tmp/nifi_template_test.xml'
-    )
-    assert r1[0] == '<'
-    _ = etree.parse('/tmp/nifi_template_test.xml')
-    with pytest.raises(AssertionError):
-        _ = nipyapi.templates.export_template(
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            t1 = nipyapi.templates.upload_template(
+                pg.id,
+                fix_templates.b_file
+            )
+    else:
+        t1 = nipyapi.templates.upload_template(
+            pg.id,
+            fix_templates.b_file
+        )
+        assert isinstance(t1, nipyapi.nifi.TemplateEntity)
+        r1 = nipyapi.templates.export_template(
             t1.id,
             output='file',
-            file_path='/definitelynotapath/to/anythingthatshould/exist_'
+            file_path=str(tmpdir.join('nifi_template_test.xml'))
         )
-    with pytest.raises(AssertionError):
-        _ = nipyapi.templates.export_template(
-            t_id=t1.id,
-            output='invalid'
-        )
+        assert r1[0] == '<'
+        _ = etree.parse(str(tmpdir.join('nifi_template_test.xml')))
+        with pytest.raises(AssertionError):
+            _ = nipyapi.templates.export_template(
+                t1.id,
+                output='file',
+                file_path=str(tmpdir.join('definitelynotapath/to/anythingthatshould/exist_'))
+            )
+        with pytest.raises(AssertionError):
+            _ = nipyapi.templates.export_template(
+                t_id=t1.id,
+                output='invalid'
+            )
 
 
 def test_delete_template(regress_nifi, fix_templates):
     pg = fix_templates.pg.generate()
-    t1 = nipyapi.templates.upload_template(
-        pg.id,
-        fix_templates.b_file
-    )
-    r = nipyapi.templates.delete_template(t1.id)
-    assert isinstance(r, nipyapi.nifi.TemplateEntity)
-    with pytest.raises(ValueError):
-        _ = nipyapi.templates.delete_template('invalid')
+    if nipyapi.utils.enforce_max_ver('2', True):
+        with pytest.raises(nipyapi.utils.VersionError):
+            t1 = nipyapi.templates.upload_template(
+                pg.id,
+                fix_templates.b_file
+            )
+    else:
+        t1 = nipyapi.templates.upload_template(
+            pg.id,
+            fix_templates.b_file
+        )
+        r = nipyapi.templates.delete_template(t1.id)
+        assert isinstance(r, nipyapi.nifi.TemplateEntity)
+        with pytest.raises(ValueError):
+            _ = nipyapi.templates.delete_template('invalid')
 
 
 def test_load_template_from_file_path(fix_templates):

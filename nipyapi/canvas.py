@@ -149,6 +149,7 @@ def get_process_group(identifier, identifier_type='name', greedy=True):
     return out
 
 
+# pylint: disable=R1737
 def list_all_process_groups(pg_id='root'):
     """
     Returns a flattened list of all Process Groups on the canvas.
@@ -403,7 +404,7 @@ def delete_process_group(process_group, force=False, refresh=True):
                         removed_controllers_id.append(x.component.id)
 
             # Templates are not supported in NiFi 2.x
-            if nipyapi.utils.check_version('2', service='nifi') < 0:
+            if nipyapi.utils.check_version('2', service='nifi') == 1:
                 for template in nipyapi.templates.list_all_templates(native=False):
                     if target.id == template.template.group_id:
                         nipyapi.templates.delete_template(template.id)

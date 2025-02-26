@@ -545,16 +545,14 @@ def test_get_controller(regress_nifi, fix_pg, fix_cont):
     assert isinstance(r1, nifi.ControllerServiceEntity)
     r2 = canvas.get_controller(f_c1.component.name)
     assert r2.component.name == f_c1.component.name
-    _ = fix_cont(parent_pg=f_pg, kind='DistributedMapCacheServer')
-    r3 = canvas.get_controller('DistributedMapCache')
+    _ = fix_cont(parent_pg=f_pg, kind='CSVReader')
+    r3 = canvas.get_controller('CSVReader')
     assert len(r3) == 2
 
 
 def test_schedule_controller(regress_nifi, fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
-    f_c1 = canvas.update_controller(
-        f_c1, nifi.ControllerServiceDTO(properties={'Server Hostname': 'Bob'}))
     with pytest.raises(AssertionError):
         _ = canvas.schedule_controller('pie', False)
     with pytest.raises(AssertionError):
@@ -571,8 +569,6 @@ def test_delete_controller(regress_nifi, fix_pg, fix_cont):
     r1 = canvas.delete_controller(f_c1)
     assert r1.revision is None
     f_c2 = fix_cont(parent_pg=f_pg)
-    f_c2 = canvas.update_controller(
-        f_c2, nifi.ControllerServiceDTO(properties={'Server Hostname': 'Bob'}))
     f_c2 = canvas.schedule_controller(f_c2, True)
     with pytest.raises(AssertionError):
         _ = canvas.delete_controller('pie')

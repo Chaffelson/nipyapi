@@ -349,7 +349,7 @@ def set_endpoint(endpoint_url, ssl=False, login=False,
     return True
 
 
-# pylint: disable=R0913,R0902
+# pylint: disable=R0913,R0902,R0917
 class DockerContainer():
     """
     Helper class for Docker container automation without using Ansible
@@ -478,6 +478,10 @@ def start_docker_containers(docker_containers, network_name='demo'):
         ))
 
 
+class VersionError(Exception):
+    """Error raised when a feature is not supported in the current version"""
+
+
 def check_version(base, comparator=None, service='nifi',
                   default_version='0.2.0'):
     """
@@ -498,6 +502,8 @@ def check_version(base, comparator=None, service='nifi',
 
     Returns (int): -1/0/1 if base is lower/equal/newer than comparator
 
+    Raises:
+        VersionError: When a feature is not supported in the current version
     """
 
     def strip_version_string(version_string):
@@ -571,6 +577,25 @@ def validate_parameters_versioning_support(verify_nifi=True,
                     "Version Control")
 
 
+def validate_templates_version_support():
+    """
+    Validate that the current version of NiFi supports Templates API
+    """
+    enforce_max_ver('2', service='nifi', error_message="Templates are deprecated in NiFi 2.x")
+
+
+def enforce_max_ver(max_version, bool_response=False, service='nifi', error_message=None):
+    """
+    Raises an error if target NiFi environment is at or above the max version
+    """
+    if check_version(max_version, service=service) == -1:
+        if not bool_response:
+            raise VersionError(error_message or "This function is not available "
+                               "in NiFi {} or above".format(max_version))
+        return True
+    return False
+
+
 def enforce_min_ver(min_version, bool_response=False, service='nifi'):
     """
     Raises an error if target NiFi environment is not minimum version
@@ -585,7 +610,7 @@ def enforce_min_ver(min_version, bool_response=False, service='nifi'):
     """
     if check_version(min_version, service=service) == 1:
         if not bool_response:
-            raise NotImplementedError(
+            raise VersionError(
                 "This function is not available "
                 "before NiFi version " + str(min_version))
         return True
