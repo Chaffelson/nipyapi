@@ -1106,13 +1106,14 @@ def create_controller(parent_pg, controller, name=None):
     return out
 
 
-def list_all_controllers(pg_id='root', descendants=True):
+def list_all_controllers(pg_id='root', descendants=True, include_reporting_tasks=False):
     """
     Lists all controllers under a given Process Group, defaults to Root
         Optionally recurses all child Process Groups as well
     Args:
         pg_id (str): String of the ID of the Process Group to list from
         descendants (bool): True to recurse child PGs, False to not
+        include_reporting_tasks (bool): True to include Reporting Tasks, False to not
 
     Returns:
         None, ControllerServiceEntity, or list(ControllerServiceEntity)
@@ -1145,6 +1146,9 @@ def list_all_controllers(pg_id='root', descendants=True):
             pg_id,
             include_descendant_groups=descendants
         ).controller_services
+    if include_reporting_tasks:
+        mgmt_handle = nipyapi.nifi.FlowApi()
+        out += mgmt_handle.get_controller_services_from_controller().controller_services
     return out
 
 
@@ -1295,7 +1299,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
         if identifier_type == 'id':
             out = handle.get_controller_service(identifier)
         else:
-            obj = list_all_controllers()
+            obj = list_all_controllers(include_reporting_tasks=True)
             out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:

@@ -1,0 +1,59 @@
+services:
+  secure-nifi:
+    image: apache/nifi:1.28.1
+    container_name: secure-nifi
+    hostname: secure-nifi
+    ports:
+      - "9443:8443"
+    volumes:
+      - ../../../nipyapi/demo/keys:/opt/certs:z
+    environment:
+      - AUTH=tls
+      - KEYSTORE_PATH=/opt/certs/localhost-ks.jks
+      - KEYSTORE_TYPE=JKS
+      - KEYSTORE_PASSWORD=localhostKeystorePassword
+      - TRUSTSTORE_PATH=/opt/certs/localhost-ts.jks
+      - TRUSTSTORE_PASSWORD=localhostTruststorePassword
+      - TRUSTSTORE_TYPE=JKS
+      - INITIAL_ADMIN_IDENTITY=CN=user1, OU=nifi
+      - NIFI_WEB_PROXY_HOST=localhost:9443,localhost:8443
+      - NIFI_WEB_HTTPS_PORT=8443
+      - NIFI_WEB_HTTPS_HOST=0.0.0.0
+      - NIFI_SECURITY_NEEDCLIENTAUTH=true
+      - NIFI_SECURITY_USER_AUTHORIZER=managed-authorizer
+      - NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER=
+      - NIFI_SECURITY_ALLOW_ANONYMOUS_AUTHENTICATION=false
+      - SINGLE_USER_CREDENTIALS_USERNAME=
+      - SINGLE_USER_CREDENTIALS_PASSWORD=
+    networks:
+      - nifi-net
+
+  secure-registry:
+    image: apache/nifi-registry:1.28.1
+    container_name: secure-registry
+    hostname: secure-registry
+    ports:
+      - "18443:18443"
+    volumes:
+      - ../../../nipyapi/demo/keys:/opt/certs:z
+    environment:
+      - AUTH=tls
+      - KEYSTORE_PATH=/opt/certs/localhost-ks.jks
+      - KEYSTORE_TYPE=JKS
+      - KEYSTORE_PASSWORD=localhostKeystorePassword
+      - TRUSTSTORE_PATH=/opt/certs/localhost-ts.jks
+      - TRUSTSTORE_PASSWORD=localhostTruststorePassword
+      - TRUSTSTORE_TYPE=JKS
+      - INITIAL_ADMIN_IDENTITY=CN=user1, OU=nifi
+      - NIFI_REGISTRY_WEB_HTTPS_PORT=18443
+      - NIFI_REGISTRY_WEB_HTTPS_HOST=0.0.0.0
+      - NIFI_REGISTRY_SECURITY_NEEDCLIENTAUTH=true
+      - NIFI_REGISTRY_SECURITY_USER_AUTHORIZER=managed-authorizer
+      - NIFI_REGISTRY_SECURITY_IDENTITY_PROVIDER=
+      - NIFI_REGISTRY_SECURITY_ALLOW_ANONYMOUS_AUTHENTICATION=false
+    networks:
+      - nifi-net
+
+networks:
+  nifi-net:
+    driver: bridge

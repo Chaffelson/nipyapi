@@ -16,7 +16,7 @@ services:
       - SINGLE_USER_CREDENTIALS_PASSWORD=supersecret1!
       - NIFI_WEB_HTTPS_PORT=10127
   nifi:
-    image: apache/nifi:2.2.0
+    image: apache/nifi:1.28.1
     container_name: nifi
     hostname: nifi
     ports:
@@ -41,7 +41,7 @@ services:
     environment:
       - NIFI_REGISTRY_WEB_HTTP_PORT=18127
   registry:
-    image: apache/nifi-registry:2.2.0
+    image: apache/nifi-registry:1.28.1
     container_name: registry
     hostname: registry
     ports:
