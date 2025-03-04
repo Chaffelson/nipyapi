@@ -949,7 +949,7 @@ def bootstrap_security_policies(service, user_identity=None, group_identity=None
 
 def create_ssl_context_controller_service(
         parent_pg, name, keystore_file, keystore_password, truststore_file, truststore_password, 
-        key_password=None, keystore_type=None, truststore_type=None, ssl_protocol=None):
+        key_password=None, keystore_type=None, truststore_type=None, ssl_protocol=None, ssl_service_type=None):
     """
     Creates and configures an SSL Context Service for secure client connections.
     Note that once created it can be listed and deleted using the standard canvas functions.
@@ -964,8 +964,9 @@ def create_ssl_context_controller_service(
         key_password (Optional[str]): Password for the key, defaults to keystore_password if not set
         keystore_type (Optional[str]): Type of keystore (JKS, PKCS12), defaults to JKS
         truststore_type (Optional[str]): Type of truststore (JKS, PKCS12), defaults to JKS
-        ssl_protocol (Optional[str]): SSL protocol version, defaults to SSL
-    
+        ssl_protocol (Optional[str]): SSL protocol version, defaults to TLS
+        ssl_service_type (Optional[str]): SSL service type, defaults to StandardRestrictedSSLContextService
+
     Returns:
         (ControllerServiceEntity): The configured SSL Context Service
     """
@@ -987,7 +988,7 @@ def create_ssl_context_controller_service(
                     version=0
                 ),
                 component=nipyapi.nifi.ControllerServiceDTO(
-                    type='org.apache.nifi.ssl.StandardSSLContextService',
+                    type= ssl_service_type or 'org.apache.nifi.ssl.StandardRestrictedSSLContextService',
                     name=name,
                     properties={
                         'Keystore Filename': keystore_file,
@@ -997,7 +998,7 @@ def create_ssl_context_controller_service(
                         'Truststore Filename': truststore_file,
                         'Truststore Password': truststore_password,
                         'Truststore Type': truststore_type or 'JKS',
-                        'SSL Protocol': ssl_protocol or 'SSL'
+                        'SSL Protocol': ssl_protocol or 'TLS'
                     }
                 )
             )
