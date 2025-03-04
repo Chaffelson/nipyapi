@@ -1106,13 +1106,14 @@ def create_controller(parent_pg, controller, name=None):
     return out
 
 
-def list_all_controllers(pg_id='root', descendants=True):
+def list_all_controllers(pg_id='root', descendants=True, include_reporting_tasks=False):
     """
     Lists all controllers under a given Process Group, defaults to Root
         Optionally recurses all child Process Groups as well
     Args:
         pg_id (str): String of the ID of the Process Group to list from
         descendants (bool): True to recurse child PGs, False to not
+        include_reporting_tasks (bool): True to include Reporting Tasks, False to not
 
     Returns:
         None, ControllerServiceEntity, or list(ControllerServiceEntity)
@@ -1145,6 +1146,9 @@ def list_all_controllers(pg_id='root', descendants=True):
             pg_id,
             include_descendant_groups=descendants
         ).controller_services
+    if include_reporting_tasks:
+        mgmt_handle = nipyapi.nifi.FlowApi()
+        out += mgmt_handle.get_controller_services_from_controller().controller_services
     return out
 
 
@@ -1274,7 +1278,7 @@ def schedule_controller(controller, scheduled, refresh=False):
     raise ValueError("Scheduling request timed out")
 
 
-def get_controller(identifier, identifier_type='name', bool_response=False):
+def get_controller(identifier, identifier_type='name', bool_response=False, include_reporting_tasks=True):
     """
     Retrieve a given Controller
 
@@ -1283,6 +1287,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
         identifier_type (str): 'id' or 'name', defaults to name
         bool_response (bool): If True, will return False if the Controller is
             not found - useful when testing for deletion completion
+        include_reporting_tasks (bool): If True, will include Reporting Tasks in the search
 
     Returns:
 
@@ -1295,7 +1300,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
         if identifier_type == 'id':
             out = handle.get_controller_service(identifier)
         else:
-            obj = list_all_controllers()
+            obj = list_all_controllers(include_reporting_tasks=include_reporting_tasks)
             out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:

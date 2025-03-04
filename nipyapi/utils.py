@@ -295,25 +295,17 @@ def is_endpoint_up(endpoint_url):
         return False
 
 
-def set_endpoint(endpoint_url, ssl=False, login=False,
-                 username=None, password=None):
-    """
-    EXPERIMENTAL
-
-    Sets the endpoint when switching between instances of NiFi or other
-    projects. Not tested extensively with secured instances.
+def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=None):
+    """Sets the endpoint when switching between instances of NiFi or other projects.
 
     Args:
-        endpoint_url (str): The URL to set as the endpoint. Auto-detects the
-          relevant service e.g. 'http://localhost:18080/nifi-registry-api'
-        ssl (bool): Whether to use the default security context in
-          nipyapi.config to authenticate if a secure URL is detected
-        login (bool): Whether to attempt login using default cred in config
-          requires ssl to be set
-        username (str): The username to use for login, if specified
-        password (str): The password to use for login, if specified
+        endpoint_url (str): The URL to set as the endpoint
+        ssl (bool): Whether to use SSL context for HTTPS connections
+        login (bool): Whether to attempt token-based login
+        username (str): The username to use for login
+        password (str): The password to use for login
 
-    Returns (bool): True for success, False for not
+    Returns (bool): True for success
     """
     log.info("Called set_endpoint with args %s", locals())
     if 'nifi-api' in endpoint_url:
@@ -324,21 +316,21 @@ def set_endpoint(endpoint_url, ssl=False, login=False,
         service = 'registry'
     else:
         raise ValueError("Endpoint not recognised")
+
     log.info("Setting %s endpoint to %s", service, endpoint_url)
     if configuration.api_client:
         # Running controlled logout procedure
         nipyapi.security.service_logout(service)
         # Resetting API client so it recreates from config.host
         configuration.api_client = None
+    
     # remove any trailing slash to avoid hard to spot errors
     configuration.host = endpoint_url.rstrip('/')
-    if 'https://' in endpoint_url and ssl:
-        if not login:
-            nipyapi.security.set_service_ssl_context(
-                service=service,
-                **nipyapi.config.default_ssl_context
-            )
+
+    # Set up SSL context if using HTTPS
+    if ssl and 'https://' in endpoint_url:
         if login:
+            # Username/password auth with basic SSL
             nipyapi.security.set_service_ssl_context(
                 service=service,
                 ca_file=nipyapi.config.default_ssl_context['ca_file']
@@ -346,6 +338,16 @@ def set_endpoint(endpoint_url, ssl=False, login=False,
             nipyapi.security.service_login(
                 service, username=username, password=password
             )
+        else:
+            # mTLS auth with client certificates
+            nipyapi.security.set_service_ssl_context(
+                service=service,
+                ca_file=nipyapi.config.default_ssl_context['ca_file'],
+                client_cert_file=nipyapi.config.default_ssl_context['client_cert_file'],
+                client_key_file=nipyapi.config.default_ssl_context['client_key_file'],
+                client_key_password=nipyapi.config.default_ssl_context['client_key_password']
+            )
+    
     return True
 
 

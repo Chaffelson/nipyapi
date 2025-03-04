@@ -16,7 +16,8 @@ log = logging.getLogger(__name__)
 
 # Test Suite Controls
 test_default = True  # Default to True for release
-test_security = False  # Default to False for release
+test_ldap = False  # Default to False for release
+test_mtls = False  # Default to False for release
 test_regression = False  # Default to False for release
 
 # Test Configuration parameters
@@ -38,6 +39,7 @@ test_write_file_name = test_basename + '_fs_write_file'
 test_ver_export_tmpdir = test_basename + '_ver_flow_dir'
 test_ver_export_filename = test_basename + "_ver_flow_export"
 test_parameter_context_name = test_basename + "_parameter_context"
+test_ssl_controller_name = test_basename + "_ssl_controller"
 
 test_user_name = test_basename + '_user'
 test_user_group_name = test_basename + '_user_group'
@@ -59,7 +61,8 @@ regress_nifi_endpoints = [
     ('http://' + test_host + ':10192/nifi-api', True, True, None, None),
     ('https://' + test_host + ':10127/nifi-api', True, True, 'nobel', 'supersecret1!'),
 ]
-secure_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')]
+ldap_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')]
+mtls_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, False, None, None)]
 default_registry_endpoints = [
     (('http://' + test_host + ':18080/nifi-registry-api', True, True, None, None),
      'http://registry:18080',
@@ -76,10 +79,15 @@ regress_registry_endpoints = [
              ('https://' + test_host + ':10127/nifi-api', True, True, 'nobel', 'supersecret1!')
              )
         ]
-secure_registry_endpoints = [
+ldap_registry_endpoints = [
         (('https://' + test_host + ':18443/nifi-registry-api', True, True, None, None),
          'https://secure-registry:18443',
          ('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')
+         )]
+mtls_registry_endpoints = [
+        (('https://' + test_host + ':18443/nifi-registry-api', True, False, None, None),
+         'https://secure-registry:18443',
+         ('https://' + test_host + ':9443/nifi-api', True, False, None, None)
          )]
 
 if "TRAVIS" in environ and environ["TRAVIS"] == "true":
@@ -98,7 +106,7 @@ else:
     # back each time.
     nifi_test_endpoints = []
     registry_test_endpoints = []
-    if test_default or test_regression:
+    if test_default or test_regression or test_ldap:
         # Added because nifi-1.15+ automatically self-signs certificates for single user mode
         nipyapi.config.nifi_config.verify_ssl = False
         nipyapi.config.disable_insecure_request_warnings = True
@@ -108,9 +116,12 @@ else:
     if test_regression:
         nifi_test_endpoints += regress_nifi_endpoints
         registry_test_endpoints += regress_registry_endpoints
-    if test_security:
-        nifi_test_endpoints += secure_nifi_endpoints
-        registry_test_endpoints += secure_registry_endpoints
+    if test_ldap:
+        nifi_test_endpoints += ldap_nifi_endpoints
+        registry_test_endpoints += ldap_registry_endpoints
+    if test_mtls:
+        nifi_test_endpoints += mtls_nifi_endpoints
+        registry_test_endpoints += mtls_registry_endpoints
 
 
 # 'regress' generates tests against previous versions of NiFi or sub-projects.
@@ -155,11 +166,26 @@ def remove_test_registry_client():
 
 
 def ensure_registry_client(uri):
+    # Fetch the ssl context from the controller service if it exists
+    print('generating registry client for url {}'.format(uri))
+    ssl_context = nipyapi.canvas.get_controller(test_ssl_controller_name, 'name')
+    if 'https' in uri:
+        if ssl_context is None:
+            ssl_context = nipyapi.security.create_ssl_context_controller_service(
+                    parent_pg=nipyapi.canvas.get_process_group(nipyapi.canvas.get_root_pg_id(), 'id'),
+                    name=test_ssl_controller_name,
+                    keystore_file='/opt/certs/localhost-ks.jks',
+                    keystore_password='localhostKeystorePassword',
+                    truststore_file='/opt/certs/localhost-ts.jks',
+                    truststore_password='localhostTruststorePassword'
+                )
+        nipyapi.canvas.schedule_controller(ssl_context, scheduled=True, refresh=True)
     try:
         client = nipyapi.versioning.create_registry_client(
             name=test_registry_client_name + uri,
             uri=uri,
-            description=uri
+            description=uri,
+            ssl_context_service=ssl_context
         )
     except ValueError as e:
         if 'already exists with the name' in str(e):
@@ -185,6 +211,7 @@ def regress_flow_reg(request):
     # because pytest won't let you easily cascade parameters through fixtures
     # we set the docker URI in the config for retrieval later on
     nipyapi.config.registry_local_name = request.param[1]
+
 
 # Tests that the Docker test environment is available before running test suite
 @pytest.fixture(scope="session", autouse=True)
@@ -216,7 +243,7 @@ def session_setup(request):
                                  "instead".format(url, api_host))
             log.info("Tested NiFi client connection, got response from %s",
                      url)
-            if url in [x[0] for x in secure_nifi_endpoints]:
+            if url in [x[0] for x in ldap_nifi_endpoints + mtls_nifi_endpoints]:
                 nipyapi.security.bootstrap_security_policies(service='nifi')
             cleanup_nifi()
         elif 'nifi-registry-api' in url:
@@ -224,12 +251,23 @@ def session_setup(request):
                 log.info("Tested NiFi-Registry client connection, got "
                          "response from %s", url)
                 if 'https://' in url:
-                    nipyapi.security.bootstrap_security_policies(service='registry')
+                    # Create user first
+                    nifi_cert_user = nipyapi.security.create_service_user(
+                        identity="CN=localhost, OU=nifi",
+                        service="registry",
+                        strict=False
+                    )
+                    # Then bootstrap policies with that user
+                    nipyapi.security.bootstrap_security_policies(service='registry', user_identity=nifi_cert_user)
                 cleanup_reg()
             else:
                 raise ValueError("No Response from NiFi-Registry test call")
         else:
             raise ValueError("Bad API Endpoint")
+    for reg_service in registry_test_endpoints:
+        # needs to run after policy bootstrap
+        if 'https' in reg_service[1]:
+            _ = ensure_registry_client(reg_service[1])
     request.addfinalizer(final_cleanup)
     log.info("Completing Test Session Setup")
 
@@ -294,11 +332,16 @@ def final_cleanup():
         nipyapi.utils.set_endpoint(*this_endpoint)
         if 'nifi-api' in url:
             cleanup_nifi()
+            if (test_ldap or test_mtls) and 'https' in url:
+                remove_test_service_user_groups('nifi')
+                remove_test_service_users('nifi')
+                # removes secure registry client and ssl context service
+                remove_test_controllers(include_reporting_tasks=True)
         elif 'nifi-registry-api' in url:
             cleanup_reg()
-        if test_security and 'https' in url:
-            remove_test_service_user_groups('nifi')
-            remove_test_service_users('nifi')
+            if (test_ldap or test_mtls) and 'https' in url:
+                remove_test_service_user_groups('registry')
+                remove_test_service_users('registry')
 
 
 def remove_test_service_users(service='both'):
@@ -382,9 +425,9 @@ def remove_test_ports():
     ]
 
 
-def remove_test_controllers():
+def remove_test_controllers(include_reporting_tasks=False):
     _ = [nipyapi.canvas.delete_controller(li, True) for li
-         in nipyapi.canvas.list_all_controllers() if
+         in nipyapi.canvas.list_all_controllers(include_reporting_tasks=include_reporting_tasks) if
          test_basename in li.component.name]
 
 
@@ -392,8 +435,7 @@ def cleanup_reg():
     # Bulk cleanup for tests involving NiFi Registry
     remove_test_pgs()
     remove_test_buckets()
-    remove_test_registry_client()
-    if test_security and 'https' in nipyapi.registry.configuration.host:
+    if (test_ldap or test_mtls) and 'https' in nipyapi.registry.configuration.host:
         remove_test_service_user_groups('registry')
         remove_test_service_users('registry')
 
@@ -546,6 +588,7 @@ def fixture_ver_flow(request, fix_bucket, fix_pg, fix_proc):
                            'flow', 'snapshot', 'dto')
     )
     f_reg_client = ensure_registry_client(nipyapi.config.registry_local_name)
+    assert f_reg_client is not None
     f_pg = fix_pg.generate()
     f_bucket = fix_bucket()
     f_proc = fix_proc.generate(parent_pg=f_pg)

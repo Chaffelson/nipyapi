@@ -27,14 +27,16 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 
-def create_registry_client(name, uri, description, reg_type=None):
+def create_registry_client(name, uri, description, reg_type=None, ssl_context_service=None):
     """
     Creates a Registry Client in the NiFi Controller Services
 
     Args:
         name (str): The name of the new Client
-        uri (str): The URI for the connection, such as 'http://registry:18080'
+        uri (str): The URI for the connection
         description (str): A description for the Client
+        reg_type (str): The type of registry client to create
+        ssl_context_service (ControllerServiceEntity): Optional SSL Context Service for secure connections
 
     Returns:
         (FlowRegistryClientEntity): The new registry client object
@@ -42,6 +44,7 @@ def create_registry_client(name, uri, description, reg_type=None):
     assert isinstance(uri, six.string_types) and uri is not False
     assert isinstance(name, six.string_types) and name is not False
     assert isinstance(description, six.string_types)
+
     if nipyapi.utils.check_version('2', service='nifi') == 1:
         component = {
             'uri': uri,
@@ -52,16 +55,14 @@ def create_registry_client(name, uri, description, reg_type=None):
         component = {
             'name': name,
             'description': description,
-            'type': (
-                reg_type or
-                'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'),
+            'type': reg_type or 'org.apache.nifi.registry.flow.NiFiRegistryFlowRegistryClient',
             'properties': {
                 'url': uri
             }
         }
 
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.ControllerApi().create_flow_registry_client(
+        controller = nipyapi.nifi.ControllerApi().create_flow_registry_client(
             body={
                 'component': component,
                 'revision': {
@@ -70,6 +71,27 @@ def create_registry_client(name, uri, description, reg_type=None):
             }
         )
 
+    # Update with SSL context if provided
+    # Will be ignored in 1.x if set in original creation request
+    if ssl_context_service:
+        update_component = dict(controller.component.to_dict())
+        update_component['properties'] = {
+            'url': uri,
+            'ssl-context-service': ssl_context_service.id
+        }
+        
+        with nipyapi.utils.rest_exceptions():
+            controller = nipyapi.nifi.ControllerApi().update_flow_registry_client(
+                id=controller.id,
+                body={
+                    'component': update_component,
+                    'revision': {
+                        'version': controller.revision.version
+                    }
+                }
+            )
+
+    return controller
 
 def delete_registry_client(client, refresh=True):
     """

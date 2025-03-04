@@ -106,9 +106,11 @@ default_nifi_username = "nobel"
 default_nifi_password = "password"
 default_registry_username = "nobel"
 default_registry_password = "password"
+# Identity to be used for mTLS authentication
+default_mtls_identity = "CN=user1, OU=nifi"
 # Identity to be used in the Registry Client Proxy setup
 # If called for during policy setup, particularly bootstrap_policies
-default_proxy_user = "CN=localhost, OU=nifi"
+default_proxy_user = "CN=user1, OU=nifi"
 
 # Auth handling
 # If set, NiPyAPI will always include the Basic Authorization header

@@ -8,11 +8,11 @@ import pytest
 from tests import conftest
 import nipyapi
 
-# Tells pytest to skip this module of security testing is not enabled.
-pytestmark = pytest.mark.skipif(not conftest.test_security, reason='test_security disabled in Conftest')
+# Tells pytest to skip this module of security testing if not enabled.
+pytestmark = pytest.mark.skipif(not conftest.test_ldap, reason='test_ldap disabled in Conftest')
 
 # Useful for manual testing
-# if conftest.test_security:
+# if conftest.test_ldap:
 #     test_host = nipyapi.config.default_host
 #     nipyapi.utils.set_endpoint('https://' + test_host + ':18443/nifi-registry-api', True, True)
 #     nipyapi.utils.set_endpoint('https://' + test_host + ':9443/nifi-api', True, True)
@@ -249,8 +249,39 @@ def test_create_access_policy():
 
 
 def test_set_service_ssl_context():
-    # This test suite makes extensive use of this call in fixtures
-    pass
+    """Test setting SSL context with different purposes"""
+    import ssl
+    from nipyapi import config
+
+    # Test default behavior (no purpose specified)
+    nipyapi.security.set_service_ssl_context(
+        service='nifi',
+        ca_file=config.default_ssl_context['ca_file']
+    )
+    assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
+
+    # Test with explicit SERVER_AUTH purpose
+    nipyapi.security.set_service_ssl_context(
+        service='nifi',
+        ca_file=config.default_ssl_context['ca_file'],
+        purpose=ssl.Purpose.SERVER_AUTH
+    )
+    assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
+
+    # Test with CLIENT_AUTH purpose
+    nipyapi.security.set_service_ssl_context(
+        service='nifi',
+        ca_file=config.default_ssl_context['ca_file'],
+        purpose=ssl.Purpose.CLIENT_AUTH
+    )
+    assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
+
+    # Test with full client cert configuration
+    nipyapi.security.set_service_ssl_context(
+        service='nifi',
+        **config.default_ssl_context
+    )
+    assert nipyapi.config.nifi_config.ssl_context.get_ca_certs() is not None
 
 
 def test_bootstrap_security_policies():

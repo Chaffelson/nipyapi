@@ -17,7 +17,7 @@ Decision Points
 Testing Notes
 -------------
 
-When running tests on new code, you are advised to run 'test_default' first, then 'test_regression', then finally 'test_security'.
+When running tests on new code, you are advised to run 'test_default' first, then 'test_regression', then finally 'test_ldap' and/or 'test_mtls'.
 Because of the way errors are propagated you may have code failures which cause a teardown which then fails because of security controls, which can then obscure the original error.
 
 
