@@ -1278,7 +1278,7 @@ def schedule_controller(controller, scheduled, refresh=False):
     raise ValueError("Scheduling request timed out")
 
 
-def get_controller(identifier, identifier_type='name', bool_response=False):
+def get_controller(identifier, identifier_type='name', bool_response=False, include_reporting_tasks=True):
     """
     Retrieve a given Controller
 
@@ -1287,6 +1287,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
         identifier_type (str): 'id' or 'name', defaults to name
         bool_response (bool): If True, will return False if the Controller is
             not found - useful when testing for deletion completion
+        include_reporting_tasks (bool): If True, will include Reporting Tasks in the search
 
     Returns:
 
@@ -1299,7 +1300,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False):
         if identifier_type == 'id':
             out = handle.get_controller_service(identifier)
         else:
-            obj = list_all_controllers(include_reporting_tasks=True)
+            obj = list_all_controllers(include_reporting_tasks=include_reporting_tasks)
             out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:
