@@ -1278,7 +1278,8 @@ def schedule_controller(controller, scheduled, refresh=False):
     raise ValueError("Scheduling request timed out")
 
 
-def get_controller(identifier, identifier_type='name', bool_response=False, include_reporting_tasks=True):
+def get_controller(identifier, identifier_type='name', bool_response=False,
+                   include_reporting_tasks=True):
     """
     Retrieve a given Controller
 

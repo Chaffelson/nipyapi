@@ -323,7 +323,7 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
         nipyapi.security.service_logout(service)
         # Resetting API client so it recreates from config.host
         configuration.api_client = None
-    
+
     # remove any trailing slash to avoid hard to spot errors
     configuration.host = endpoint_url.rstrip('/')
 
@@ -347,7 +347,7 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
                 client_key_file=nipyapi.config.default_ssl_context['client_key_file'],
                 client_key_password=nipyapi.config.default_ssl_context['client_key_password']
             )
-    
+
     return True
 
 
