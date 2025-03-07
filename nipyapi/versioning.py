@@ -36,7 +36,7 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
         uri (str): The URI for the connection
         description (str): A description for the Client
         reg_type (str): The type of registry client to create
-        ssl_context_service (ControllerServiceEntity): Optional SSL Context Service for secure connections
+        ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
 
     Returns:
         (FlowRegistryClientEntity): The new registry client object
@@ -79,7 +79,7 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
             'url': uri,
             'ssl-context-service': ssl_context_service.id
         }
-        
+
         with nipyapi.utils.rest_exceptions():
             controller = nipyapi.nifi.ControllerApi().update_flow_registry_client(
                 id=controller.id,
@@ -92,6 +92,7 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
             )
 
     return controller
+
 
 def delete_registry_client(client, refresh=True):
     """

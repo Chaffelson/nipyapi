@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# pylint: disable=C0302
 
 """
 Secure connectivity management for NiPyApi
@@ -807,14 +808,16 @@ def set_service_ssl_context(
         nipyapi.config.nifi_config.ssl_context = ssl_context
 
 
-# pylint: disable=W0702,R0912
+# pylint: disable=W0702,R0912,r0914
 def bootstrap_security_policies(service, user_identity=None, group_identity=None):
     """Creates a default security context within NiFi or Nifi-Registry.
 
     Args:
         service (str): The service to configure security for ('nifi' or 'registry')
-        user_identity (nipyapi.nifi.UserEntity or nipyapi.registry.User, optional): User identity to apply policies to
-        group_identity (nipyapi.nifi.UserGroupEntity or nipyapi.registry.UserGroup, optional): Group identity to apply policies to
+        user_identity (nipyapi.nifi.UserEntity or nipyapi.registry.User, optional):
+            User identity to apply policies to
+        group_identity (nipyapi.nifi.UserGroupEntity or nipyapi.registry.UserGroup, optional):
+            Group identity to apply policies to
 
     Returns:
         None
@@ -823,7 +826,7 @@ def bootstrap_security_policies(service, user_identity=None, group_identity=None
     valid_ident_obj = [nipyapi.nifi.UserEntity, nipyapi.registry.User]
     if user_identity is not None:
         assert type(user_identity) in valid_ident_obj
-    
+
     if "nifi" in service:
         rpg_id = nipyapi.canvas.get_root_pg_id()
         if user_identity is None and group_identity is None:
@@ -948,12 +951,13 @@ def bootstrap_security_policies(service, user_identity=None, group_identity=None
 
 
 def create_ssl_context_controller_service(
-        parent_pg, name, keystore_file, keystore_password, truststore_file, truststore_password, 
-        key_password=None, keystore_type=None, truststore_type=None, ssl_protocol=None, ssl_service_type=None):
+        parent_pg, name, keystore_file, keystore_password, truststore_file, truststore_password,
+        key_password=None, keystore_type=None, truststore_type=None, ssl_protocol=None,
+        ssl_service_type=None):
     """
     Creates and configures an SSL Context Service for secure client connections.
     Note that once created it can be listed and deleted using the standard canvas functions.
-    
+
     Args:
         parent_pg (ProcessGroupEntity): The Process Group to create the service in
         name (str): Name for the SSL Context Service
@@ -965,7 +969,8 @@ def create_ssl_context_controller_service(
         keystore_type (Optional[str]): Type of keystore (JKS, PKCS12), defaults to JKS
         truststore_type (Optional[str]): Type of truststore (JKS, PKCS12), defaults to JKS
         ssl_protocol (Optional[str]): SSL protocol version, defaults to TLS
-        ssl_service_type (Optional[str]): SSL service type, defaults to StandardRestrictedSSLContextService
+        ssl_service_type (Optional[str]): SSL service type, defaults to
+            StandardRestrictedSSLContextService
 
     Returns:
         (ControllerServiceEntity): The configured SSL Context Service
@@ -981,6 +986,7 @@ def create_ssl_context_controller_service(
     assert truststore_type is None or isinstance(truststore_type, six.string_types)
     assert ssl_protocol is None or isinstance(ssl_protocol, six.string_types)
 
+    default_ssl_service_type = 'org.apache.nifi.ssl.StandardRestrictedSSLContextService'
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ControllerApi().create_controller_service(
             body=nipyapi.nifi.ControllerServiceEntity(
@@ -988,7 +994,7 @@ def create_ssl_context_controller_service(
                     version=0
                 ),
                 component=nipyapi.nifi.ControllerServiceDTO(
-                    type= ssl_service_type or 'org.apache.nifi.ssl.StandardRestrictedSSLContextService',
+                    type=ssl_service_type or default_ssl_service_type,
                     name=name,
                     properties={
                         'Keystore Filename': keystore_file,
