@@ -2,6 +2,13 @@
 History
 =======
 
+0.22.0 (2025-03-25)
+--------------------
+
+| Updated low level clients for NiFi & Registry 1.28.1 release
+| Updates to supported Python versions, handing Template deprecation in NiFi-2.x, and Windows development support
+| Add support for mTLS for Nifi and Registry
+
 0.21.0 (2024-07-14)
 -------------------
 
