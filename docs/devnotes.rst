@@ -206,6 +206,5 @@ This assumes you have virtualenvwrapper, git, and appropriate python versions in
     # You may get a file exists error, check you're not trying to reupload an existing version
     git push --tags
 
-- check build in TravisCI
 - check docs on ReadTheDocs
 - check release published on Github and PyPi

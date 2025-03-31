@@ -6,7 +6,7 @@
 from __future__ import absolute_import
 import logging
 import pytest
-from os import environ, path
+from os import path
 from collections import namedtuple
 from time import sleep
 
@@ -53,7 +53,6 @@ test_templates = {
 }
 
 # Determining test environment
-# Can't use skiptest with parametrize for Travis
 # Mostly because loading up all the environments takes too long
 
 default_nifi_endpoints = [('https://' + test_host + ':8443/nifi-api', True, True, 'nobel', 'supersecret1!')]
@@ -90,38 +89,33 @@ mtls_registry_endpoints = [
          ('https://' + test_host + ':9443/nifi-api', True, False, None, None)
          )]
 
-if "TRAVIS" in environ and environ["TRAVIS"] == "true":
-    log.info("Running tests on TRAVIS, skipping regression suite")
-    nifi_test_endpoints = default_nifi_endpoints
-    registry_test_endpoints = default_registry_endpoints
-else:
-    log.info("Running tests on NOT TRAVIS, enabling regression suite")
-    # Note that these endpoints are assumed to be available
-    # look in Nipyapi/test_env_config/docker_compose_full_test for
-    # convenient Docker configs and port mappings.
+log.info("Setting up Test Endpoints")
+# Note that these endpoints are assumed to be available
+# look in Nipyapi/test_env_config/docker_compose_full_test for
+# convenient Docker configs and port mappings.
 
-    # NOTE: it is important that the latest version is the last in the list
-    # So that after a parametrized test we leave the single tests against
-    # The latest release without bulking the test suite ensuring they change
-    # back each time.
-    nifi_test_endpoints = []
-    registry_test_endpoints = []
-    if test_default or test_regression or test_ldap:
-        # Added because nifi-1.15+ automatically self-signs certificates for single user mode
-        nipyapi.config.nifi_config.verify_ssl = False
-        nipyapi.config.disable_insecure_request_warnings = True
-    if test_default:
-        nifi_test_endpoints += default_nifi_endpoints
-        registry_test_endpoints += default_registry_endpoints
-    if test_regression:
-        nifi_test_endpoints += regress_nifi_endpoints
-        registry_test_endpoints += regress_registry_endpoints
-    if test_ldap:
-        nifi_test_endpoints += ldap_nifi_endpoints
-        registry_test_endpoints += ldap_registry_endpoints
-    if test_mtls:
-        nifi_test_endpoints += mtls_nifi_endpoints
-        registry_test_endpoints += mtls_registry_endpoints
+# NOTE: it is important that the latest version is the last in the list
+# So that after a parametrized test we leave the single tests against
+# The latest release without bulking the test suite ensuring they change
+# back each time.
+nifi_test_endpoints = []
+registry_test_endpoints = []
+if test_default or test_regression or test_ldap:
+    # Added because nifi-1.15+ automatically self-signs certificates for single user mode
+    nipyapi.config.nifi_config.verify_ssl = False
+    nipyapi.config.disable_insecure_request_warnings = True
+if test_default:
+    nifi_test_endpoints += default_nifi_endpoints
+    registry_test_endpoints += default_registry_endpoints
+if test_regression:
+    nifi_test_endpoints += regress_nifi_endpoints
+    registry_test_endpoints += regress_registry_endpoints
+if test_ldap:
+    nifi_test_endpoints += ldap_nifi_endpoints
+    registry_test_endpoints += ldap_registry_endpoints
+if test_mtls:
+    nifi_test_endpoints += mtls_nifi_endpoints
+    registry_test_endpoints += mtls_registry_endpoints
 
 
 # 'regress' generates tests against previous versions of NiFi or sub-projects.
