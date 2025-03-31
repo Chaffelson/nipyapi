@@ -2,8 +2,6 @@
 # If you need an older version of a dependency please open an Issue on Github
 # Basics
 setuptools>=38.5
-six>=1.11.0
-future>=0.18.3
 
 # Version comparison
 packaging>=17.1
@@ -19,8 +17,7 @@ requests[security]>=2.18
 pysocks>=1.7.1
 
 # Import Export and Utils implementation
-ruamel.yaml>=0.16.3,<0.18; python_version < '3'
-ruamel.yaml>=0.16.3; python_version >= '3'
+ruamel.yaml>=0.16.3
 
 # xml to json parsing
 xmltodict>=0.12.0

@@ -1,8 +1,5 @@
-# coding: utf-8
-
 {{>partial_header}}
 
-from __future__ import absolute_import
 
 # import models into sdk package
 {{#models}}{{#model}}from .models.{{classFilename}} import {{classname}}

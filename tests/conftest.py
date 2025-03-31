@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Configuration fixtures for pytest for `nipyapi` package."""
 
-from __future__ import absolute_import
 import logging
 import pytest
 from os import environ, path

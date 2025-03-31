@@ -1,13 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """
 For interactions with the NiFi Registry Service and related functions
 """
 
-from __future__ import absolute_import
 import logging
-import six
-from future.utils import raise_from as _raise
 import nipyapi
 # Due to line lengths, creating shortened names for these objects
 from nipyapi.nifi import VersionControlInformationDTO as VciDTO
@@ -41,9 +36,9 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
     Returns:
         (FlowRegistryClientEntity): The new registry client object
     """
-    assert isinstance(uri, six.string_types) and uri is not False
-    assert isinstance(name, six.string_types) and name is not False
-    assert isinstance(description, six.string_types)
+    assert isinstance(uri, str) and uri is not False
+    assert isinstance(name, str) and name is not False
+    assert isinstance(description, str)
 
     if nipyapi.utils.check_version('2', service='nifi') == 1:
         component = {
@@ -197,7 +192,7 @@ def delete_registry_bucket(bucket):
             bucket_id=bucket.identifier
         )
     except (nipyapi.registry.rest.ApiException, AttributeError) as e:
-        _raise(ValueError(e), e)
+        raise ValueError(e) from e
 
 
 def get_registry_bucket(identifier, identifier_type='name', greedy=True):
@@ -596,12 +591,12 @@ def get_flow_version(bucket_id, flow_id, version=None, export=False):
     https://issues.apache.org/jira/browse/NIFIREG-135
     Which means you sometimes can't trust the version count
     """
-    assert isinstance(bucket_id, six.string_types)
-    assert isinstance(flow_id, six.string_types)
+    assert isinstance(bucket_id, str)
+    assert isinstance(flow_id, str)
     # Version needs to be coerced to str pass API client regex test
     # Even though the client specifies it as Int
     assert version is None or isinstance(
-        version, (six.string_types, six.integer_types)
+        version, (str, int)
     )
     assert isinstance(export, bool)
     if version:
@@ -642,10 +637,10 @@ def export_flow_version(bucket_id, flow_id, version=None, file_path=None,
     Returns:
         (str) of the encoded Snapshot
     """
-    assert isinstance(bucket_id, six.string_types)
-    assert isinstance(flow_id, six.string_types)
-    assert file_path is None or isinstance(file_path, six.string_types)
-    assert version is None or isinstance(version, six.string_types)
+    assert isinstance(bucket_id, str)
+    assert isinstance(flow_id, str)
+    assert file_path is None or isinstance(file_path, str)
+    assert version is None or isinstance(version, str)
     assert mode in ['yaml', 'json']
     raw_obj = get_flow_version(bucket_id, flow_id, version, export=True)
     export_obj = nipyapi.utils.dump(nipyapi.utils.load(raw_obj), mode)
@@ -693,7 +688,7 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
             file_in = nipyapi.utils.fs_read(
                 file_path=file_path
             )
-            assert isinstance(file_in, (six.string_types, bytes))
+            assert isinstance(file_in, (str, bytes))
             imported_flow = nipyapi.utils.load(
                 obj=file_in,
                 dto=dto

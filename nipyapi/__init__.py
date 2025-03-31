@@ -1,10 +1,7 @@
-# coding: utf-8
-
 """
 NiPyAPI: A convenient Python wrapper for the Apache NiFi Rest API
 """
 
-from __future__ import absolute_import
 import importlib
 
 __author__ = """Daniel Chaffelson"""

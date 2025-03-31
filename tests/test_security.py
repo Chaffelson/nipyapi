@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Tests for nipyapi security module."""
 
-from __future__ import absolute_import
 import pytest
 from tests import conftest
 import nipyapi

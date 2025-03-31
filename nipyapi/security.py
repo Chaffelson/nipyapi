@@ -1,17 +1,11 @@
-# -*- coding: utf-8 -*-
-# pylint: disable=C0302
-
 """
 Secure connectivity management for NiPyApi
 """
 
-from __future__ import absolute_import
 import logging
 import ssl
 from copy import copy
-import six
 import urllib3
-from future.utils import raise_from as _raise
 import nipyapi
 
 log = logging.getLogger(__name__)
@@ -69,8 +63,8 @@ def get_service_user(identifier, identifier_type="identity", service="nifi"):
 
     """
     assert service in _valid_services
-    assert isinstance(identifier, six.string_types)
-    assert isinstance(identifier_type, six.string_types)
+    assert isinstance(identifier, str)
+    assert isinstance(identifier_type, str)
     obj = list_service_users(service)
     out = nipyapi.utils.filter_obj(obj, identifier, identifier_type,
                                    greedy=False)
@@ -103,7 +97,7 @@ def remove_service_user(user, service="nifi", strict=True):
         if "Unable to find user" in e.body or "does not exist" in e.body:
             if not strict:
                 return None
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
 
 
 def create_service_user(identity, service="nifi", strict=True):
@@ -120,7 +114,7 @@ def create_service_user(identity, service="nifi", strict=True):
 
     """
     assert service in _valid_services
-    assert isinstance(identity, six.string_types)
+    assert isinstance(identity, str)
     assert isinstance(strict, bool)
     if service == "registry":
         user_obj = nipyapi.registry.User(identity=identity)
@@ -136,7 +130,7 @@ def create_service_user(identity, service="nifi", strict=True):
             nipyapi.registry.rest.ApiException) as e:
         if "already exists" in e.body and not strict:
             return get_service_user(identity, service=service)
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
 
 
 def create_service_user_group(identity, service="nifi", users=None,
@@ -157,7 +151,7 @@ def create_service_user_group(identity, service="nifi", users=None,
 
     """
     assert service in _valid_services
-    assert isinstance(identity, six.string_types)
+    assert isinstance(identity, str)
 
     users_ids = None
 
@@ -186,7 +180,7 @@ def create_service_user_group(identity, service="nifi", users=None,
         if "already exists" in e.body:
             if not strict:
                 return get_service_user_group(identity, service=service)
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
 
 
 def list_service_user_groups(service="nifi"):
@@ -222,8 +216,8 @@ def get_service_user_group(identifier, identifier_type="identity",
 
     """
     assert service in _valid_services
-    assert isinstance(identifier, six.string_types)
-    assert isinstance(identifier_type, six.string_types)
+    assert isinstance(identifier, str)
+    assert isinstance(identifier_type, str)
     obj = list_service_user_groups(service)
     out = nipyapi.utils.filter_obj(obj, identifier, identifier_type,
                                    greedy=False)
@@ -257,7 +251,7 @@ def remove_service_user_group(group, service="nifi", strict=True):
         if "Unable to find user" in e.body or "does not exist" in e.body:
             if not strict:
                 return None
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
 
 
 def service_login(service="nifi", username=None, password=None,
@@ -292,8 +286,8 @@ def service_login(service="nifi", username=None, password=None,
     log_args["password"] = "REDACTED"
     log.info("Called service_login with args %s", log_args)
     assert service in _valid_services
-    assert username is None or isinstance(username, six.string_types)
-    assert password is None or isinstance(password, six.string_types)
+    assert username is None or isinstance(username, str)
+    assert password is None or isinstance(password, str)
     assert isinstance(bool_response, bool)
 
     configuration = getattr(nipyapi, service).configuration
@@ -331,7 +325,7 @@ def service_login(service="nifi", username=None, password=None,
     except getattr(nipyapi, service).rest.ApiException as e:
         if bool_response:
             return False
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
 
 
 def set_service_auth_token(token=None, token_name="tokenAuth", service="nifi"):
@@ -348,8 +342,8 @@ def set_service_auth_token(token=None, token_name="tokenAuth", service="nifi"):
         (bool): True on success, False if token not set
     """
     assert service in _valid_services
-    assert isinstance(token_name, six.string_types)
-    assert token is None or isinstance(token, six.string_types)
+    assert isinstance(token_name, str)
+    assert token is None or isinstance(token, str)
     if service == "registry":
         configuration = nipyapi.config.registry_config
     else:
@@ -639,8 +633,8 @@ def get_access_policy_for_resource(
     """
     assert service in _valid_services
     assert action in _valid_actions
-    assert r_id is None or isinstance(r_id, six.string_types)
-    assert isinstance(resource, six.string_types)
+    assert r_id is None or isinstance(r_id, str)
+    assert isinstance(resource, str)
     assert isinstance(auto_create, bool)
     log.info("Called get_access_policy_for_resource with Args %s", locals())
 
@@ -676,7 +670,7 @@ def get_access_policy_for_resource(
                 resource, action, r_id, service
             )
         log.info("Unexpected Error, raising...")
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
     finally:
         nipyapi.utils.bypass_slash_encoding(service, False)
 
@@ -697,9 +691,9 @@ def create_access_policy(resource, action, r_id=None, service="nifi"):
         An access policy object for that service
 
     """
-    assert isinstance(resource, six.string_types)
+    assert isinstance(resource, str)
     assert action in _valid_actions
-    assert r_id is None or isinstance(r_id, six.string_types)
+    assert r_id is None or isinstance(r_id, str)
     assert service in _valid_services
     if resource[0] != "/":
         r = "/" + resource
@@ -776,23 +770,17 @@ def set_service_ssl_context(
                 password=client_key_password,
             )
         except FileNotFoundError as e:
-            _raise(
-                FileNotFoundError(
-                    "Unable to read keyfile {0} or certfile {1}".format(
-                        client_key_file, client_cert_file
-                    )
-                ),
-                e,
-            )
+            raise FileNotFoundError(
+                "Unable to read keyfile {0} or certfile {1}".format(
+                    client_key_file, client_cert_file
+                )
+            ) from e
         except ssl.SSLError as e:
             if e.errno == 9:
-                _raise(
-                    ssl.SSLError(
-                        "This error possibly pertains to a mis-typed or "
-                        "incorrect key password"
-                    ),
-                    e,
-                )
+                raise ssl.SSLError(
+                    "This error possibly pertains to a mis-typed or "
+                    "incorrect key password"
+                ) from e
 
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)
@@ -976,15 +964,15 @@ def create_ssl_context_controller_service(
         (ControllerServiceEntity): The configured SSL Context Service
     """
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
-    assert isinstance(name, six.string_types)
-    assert isinstance(keystore_file, six.string_types)
-    assert isinstance(keystore_password, six.string_types)
-    assert isinstance(truststore_file, six.string_types)
-    assert isinstance(truststore_password, six.string_types)
-    assert key_password is None or isinstance(key_password, six.string_types)
-    assert keystore_type is None or isinstance(keystore_type, six.string_types)
-    assert truststore_type is None or isinstance(truststore_type, six.string_types)
-    assert ssl_protocol is None or isinstance(ssl_protocol, six.string_types)
+    assert isinstance(name, str)
+    assert isinstance(keystore_file, str)
+    assert isinstance(keystore_password, str)
+    assert isinstance(truststore_file, str)
+    assert isinstance(truststore_password, str)
+    assert key_password is None or isinstance(key_password, str)
+    assert keystore_type is None or isinstance(keystore_type, str)
+    assert truststore_type is None or isinstance(truststore_type, str)
+    assert ssl_protocol is None or isinstance(ssl_protocol, str)
 
     default_ssl_service_type = 'org.apache.nifi.ssl.StandardRestrictedSSLContextService'
     with nipyapi.utils.rest_exceptions():
@@ -1005,7 +993,4 @@ def create_ssl_context_controller_service(
                         'Truststore Password': truststore_password,
                         'Truststore Type': truststore_type or 'JKS',
                         'SSL Protocol': ssl_protocol or 'TLS'
-                    }
-                )
-            )
-        )
+                    })))

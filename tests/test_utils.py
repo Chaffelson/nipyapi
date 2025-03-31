@@ -1,12 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Tests for `nipyapi` _utils package."""
 
-from __future__ import absolute_import
 import sys
 import pytest
-import six
 from tests import conftest
 import json
 from deepdiff import DeepDiff
@@ -22,7 +17,7 @@ def test_dump(regress_flow_reg, fix_flow_serde):
         obj=export_obj,
         mode='json'
     )
-    assert isinstance(ss_json, six.string_types)
+    assert isinstance(ss_json, str)
     round_trip_json = utils.load(ss_json)
     with pytest.raises(AssertionError):
         _ = utils.dump('', 'FakeNews')
@@ -33,7 +28,7 @@ def test_dump(regress_flow_reg, fix_flow_serde):
         obj=export_obj,
         mode='yaml'
     )
-    assert isinstance(ss_yaml, six.string_types)
+    assert isinstance(ss_yaml, str)
     round_trip_yaml = utils.load(ss_yaml)
     assert DeepDiff(
         round_trip_json,

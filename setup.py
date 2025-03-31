@@ -17,8 +17,7 @@ with open('requirements.txt') as reqs_file:
     requirements = reqs_file.read().splitlines()
 
 tests_require=[
-    'pytest>=7.2.0;python_version>="3"',
-    'pytest>=6,<4;python_version<"3"',
+    'pytest>=7.2.0'
 ]
 
 extras_require={
@@ -55,8 +54,6 @@ setup(
         'Operating System :: MacOS',
         'Operating System :: Microsoft :: Windows',
         'Operating System :: POSIX :: Linux',
-        "Programming Language :: Python :: 2",
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',

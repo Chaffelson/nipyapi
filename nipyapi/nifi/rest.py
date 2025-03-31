@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     NiFi Rest API
 
@@ -11,18 +9,13 @@
 """
 
 
-from __future__ import absolute_import
-
 import io
 import json
 import ssl
 import certifi
 import logging
 import re
-
-# python 2 and python 3 compatibility library
-from six import PY3
-from six.moves.urllib.parse import urlencode
+from urllib.parse import urlencode
 
 from .configuration import Configuration
 
@@ -157,7 +150,7 @@ class RESTClientObject(object):
 
         timeout = None
         if _request_timeout:
-            if isinstance(_request_timeout, (int, ) if PY3 else (int, long)):
+            if isinstance(_request_timeout, int):
                 timeout = urllib3.Timeout(total=_request_timeout)
             elif isinstance(_request_timeout, tuple) and len(_request_timeout) == 2:
                 timeout = urllib3.Timeout(connect=_request_timeout[0], read=_request_timeout[1])
@@ -225,10 +218,9 @@ class RESTClientObject(object):
         if _preload_content:
             r = RESTResponse(r)
 
-            # In the python 3, the response.data is bytes.
+            # In python 3 the response.data is bytes.
             # we need to decode it to string.
-            if PY3:
-                r.data = r.data.decode('utf8')
+            r.data = r.data.decode('utf8')
 
             # log response body
             logger.debug("response body: %s", r.data)

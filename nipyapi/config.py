@@ -1,12 +1,9 @@
-# coding: utf-8
-
 """
 A set of defaults and parameters used elsewhere in the project.
 Also provides a handy link to the low-level client SDK configuration singleton
 objects.
 """
 
-from __future__ import absolute_import
 import os
 import ssl
 import urllib3

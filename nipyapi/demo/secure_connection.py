@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
 An implementation helper for connecting to secure NiFi instances.
 
@@ -8,8 +6,6 @@ prevent the nobel user logging into NiFI due to SSL errors.
 See this StackOverflow for fixes: https://stackoverflow.com/a/42098127/4717963
 """
 
-from __future__ import absolute_import
-from __future__ import print_function  # For Python 2 and 3 compatibility
 import logging
 from pprint import pprint
 from os import path
