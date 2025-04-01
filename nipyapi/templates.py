@@ -1,17 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """
 For Managing NiFi Templates in NiFi 1.x
 """
-
-from __future__ import absolute_import
 
 import json
 import io
 from os import access, R_OK, W_OK
 from os.path import isfile, dirname
 import logging
-import six
 import xmltodict
 from lxml import etree
 import nipyapi
@@ -67,7 +62,7 @@ def get_template(identifier, identifier_type='name', greedy=False):
         list(Objects) for multiple matches
 
     """
-    assert isinstance(identifier, six.string_types)
+    assert isinstance(identifier, str)
     assert identifier_type in ['name', 'id']
     with nipyapi.utils.rest_exceptions():
         obj = nipyapi.templates.list_all_templates(native=False)
@@ -244,11 +239,11 @@ def export_template(t_id, output='string', file_path=None):
     """
     nipyapi.utils.validate_templates_version_support()
     assert output in ['string', 'file']
-    assert file_path is None or isinstance(file_path, six.string_types)
+    assert file_path is None or isinstance(file_path, str)
     template = nipyapi.templates.get_template(t_id, 'id')
     assert isinstance(template, nipyapi.nifi.TemplateEntity)
     obj = nipyapi.nifi.TemplatesApi().export_template(t_id)
-    assert isinstance(obj, six.string_types)
+    assert isinstance(obj, str)
     assert obj[0] == '<'
     if output == 'string':
         return obj
@@ -318,7 +313,7 @@ def load_template_from_xml_string(xml_string):
     Returns:
         TemplateEntity
     """
-    assert isinstance(xml_string, six.string_types)
+    assert isinstance(xml_string, str)
 
     json_string = json.dumps(xmltodict.parse(xml_string))
     unset = False

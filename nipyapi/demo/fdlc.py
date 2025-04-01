@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=R0801
 
 """
@@ -6,8 +5,6 @@ A self-paced walkthrough of version control using NiFi-Registry.
 See initial print statement for detailed explanation.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function  # For Python 2 and 3 compatibility
 import logging
 from time import sleep
 import nipyapi

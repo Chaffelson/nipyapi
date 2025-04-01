@@ -1,14 +1,10 @@
-# -*- coding: utf-8 -*-
 # pylint: disable=C0302
 
 """
 For interactions with the NiFi Canvas.
 """
 
-from __future__ import absolute_import
 import logging
-import six
-from future.utils import raise_from as _raise
 import nipyapi
 from nipyapi.utils import exception_handler
 
@@ -60,7 +56,7 @@ def recurse_flow(pg_id='root'):
     Returns:
          (ProcessGroupFlowEntity): enriched NiFi Flow object
     """
-    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(pg_id, str), "pg_id should be a string"
 
     out = get_flow(pg_id)
     tasks = [(x.id, x) for x in out.process_group_flow.flow.process_groups]
@@ -87,7 +83,7 @@ def get_flow(pg_id='root'):
     Returns:
          (ProcessGroupFlowEntity): The Process Group object
     """
-    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(pg_id, str), "pg_id should be a string"
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.FlowApi().get_flow(pg_id)
 
@@ -108,7 +104,7 @@ def get_process_group_status(pg_id='root', detail='names'):
     Returns:
          (ProcessGroupEntity): The Process Group Entity including the status
     """
-    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(pg_id, str), "pg_id should be a string"
     assert detail in ['names', 'all']
     raw = nipyapi.nifi.ProcessGroupsApi().get_process_group(id=pg_id)
     if detail == 'names':
@@ -135,7 +131,7 @@ def get_process_group(identifier, identifier_type='name', greedy=True):
         list(Objects) for multiple matches
 
     """
-    assert isinstance(identifier, six.string_types)
+    assert isinstance(identifier, str)
     assert identifier_type in ['name', 'id']
     with nipyapi.utils.rest_exceptions():
         if identifier_type == 'id' or identifier == 'root':
@@ -166,7 +162,7 @@ def list_all_process_groups(pg_id='root'):
          list[ProcessGroupEntity]
 
     """
-    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(pg_id, str), "pg_id should be a string"
 
     def flatten(parent_pg):
         """
@@ -215,7 +211,7 @@ def list_invalid_processors(pg_id='root', summary=False):
     Returns:
         list[ProcessorEntity]
     """
-    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(pg_id, str), "pg_id should be a string"
     assert isinstance(summary, bool)
     proc_list = [x for x in list_all_processors(pg_id)
                  if x.component.validation_errors]
@@ -241,7 +237,7 @@ def list_sensitive_processors(pg_id='root', summary=False):
     Returns:
         list[ProcessorEntity] or list(dict)
     """
-    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(pg_id, str), "pg_id should be a string"
     assert isinstance(summary, bool)
     cache = nipyapi.config.cache.get('list_sensitive_processors')
     if not cache:
@@ -283,7 +279,7 @@ def list_all_processors(pg_id='root'):
     Returns:
          list[ProcessorEntity]
     """
-    assert isinstance(pg_id, six.string_types), "pg_id should be a string"
+    assert isinstance(pg_id, str), "pg_id should be a string"
 
     if nipyapi.utils.check_version('1.7.0') <= 0:
         # Case where NiFi > 1.7.0
@@ -319,7 +315,7 @@ def schedule_process_group(process_group_id, scheduled):
          (bool): True of successfully scheduled, False if not
 
     """
-    assert isinstance(process_group_id, six.string_types)
+    assert isinstance(process_group_id, str)
     assert isinstance(scheduled, bool)
 
     def _running_schedule_process_group(pg_id_):
@@ -415,7 +411,7 @@ def delete_process_group(process_group, force=False, refresh=True):
                 version=target.revision.version,
                 client_id=target.revision.client_id
             )
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
 
 
 def create_process_group(parent_pg, new_pg_name, location, comment=''):
@@ -436,7 +432,7 @@ def create_process_group(parent_pg, new_pg_name, location, comment=''):
 
     """
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
-    assert isinstance(new_pg_name, six.string_types)
+    assert isinstance(new_pg_name, str)
     assert isinstance(location, tuple)
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
@@ -552,7 +548,7 @@ def get_processor(identifier, identifier_type='name', greedy=True):
         None for no matches, Single Object for unique match,
         list(Objects) for multiple matches
     """
-    assert isinstance(identifier, six.string_types)
+    assert isinstance(identifier, str)
     assert identifier_type in ['name', 'id']
     if identifier_type == 'id':
         out = nipyapi.nifi.ProcessorsApi().get_processor(identifier)
@@ -1084,7 +1080,7 @@ def create_controller(parent_pg, controller, name=None):
     """
     assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
-    assert name is None or isinstance(name, six.string_types)
+    assert name is None or isinstance(name, str)
     with nipyapi.utils.rest_exceptions():
         out = nipyapi.nifi.ProcessGroupsApi().create_controller_service(
             id=parent_pg.id,
@@ -1119,7 +1115,7 @@ def list_all_controllers(pg_id='root', descendants=True, include_reporting_tasks
         None, ControllerServiceEntity, or list(ControllerServiceEntity)
 
     """
-    assert isinstance(pg_id, six.string_types)
+    assert isinstance(pg_id, str)
     assert isinstance(descendants, bool)
     handle = nipyapi.nifi.FlowApi()
     # Testing shows that descendant doesn't work on NiFi-1.1.2
@@ -1293,7 +1289,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False,
     Returns:
 
     """
-    assert isinstance(identifier, six.string_types)
+    assert isinstance(identifier, str)
     assert identifier_type in ['name', 'id']
     handle = nipyapi.nifi.ControllerServicesApi()
     out = None
@@ -1306,7 +1302,7 @@ def get_controller(identifier, identifier_type='name', bool_response=False,
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:
             return False
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
     return out
 
 
@@ -1519,7 +1515,7 @@ def create_port(pg_id, port_type, name, state, position=None):
     """
     assert state in ["RUNNING", "STOPPED", "DISABLED"]
     assert port_type in ["INPUT_PORT", "OUTPUT_PORT"]
-    assert isinstance(pg_id, six.string_types)
+    assert isinstance(pg_id, str)
     position = position if position else (400, 400)
     assert isinstance(position, tuple)
     handle = nipyapi.nifi.ProcessGroupsApi()

@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     NiFi Rest API
 
@@ -11,15 +9,12 @@
 """
 
 
-from __future__ import absolute_import
-
 import urllib3
 
 import sys
 import logging
 
-from six import iteritems
-from six.moves import http_client as httplib
+from http import client as httplib
 
 
 def singleton(cls, *args, **kw):
@@ -120,7 +115,7 @@ class Configuration(object):
             # then add file handler and remove stream handler.
             self.logger_file_handler = logging.FileHandler(self.__logger_file)
             self.logger_file_handler.setFormatter(self.logger_formatter)
-            for _, logger in iteritems(self.logger):
+            for _, logger in self.logger.items():
                 logger.addHandler(self.logger_file_handler)
                 if self.logger_stream_handler:
                     logger.removeHandler(self.logger_stream_handler)
@@ -129,7 +124,7 @@ class Configuration(object):
             # then add stream handler and remove file handler.
             self.logger_stream_handler = logging.StreamHandler()
             self.logger_stream_handler.setFormatter(self.logger_formatter)
-            for _, logger in iteritems(self.logger):
+            for _, logger in self.logger.items():
                 logger.addHandler(self.logger_stream_handler)
                 if self.logger_file_handler:
                     logger.removeHandler(self.logger_file_handler)
@@ -152,14 +147,14 @@ class Configuration(object):
         self.__debug = value
         if self.__debug:
             # if debug status is True, turn on debug logging
-            for _, logger in iteritems(self.logger):
+            for _, logger in self.logger.items():
                 logger.setLevel(logging.DEBUG)
             # turn on httplib debug
             httplib.HTTPConnection.debuglevel = 1
         else:
             # if debug status is False, turn off debug logging,
             # setting log level to default `logging.WARNING`
-            for _, logger in iteritems(self.logger):
+            for _, logger in self.logger.items():
                 logger.setLevel(logging.WARNING)
             # turn off httplib debug
             httplib.HTTPConnection.debuglevel = 0

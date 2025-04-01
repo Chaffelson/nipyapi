@@ -1,12 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """
 For Managing NiFi Parameter Contexts
 """
 
-from __future__ import absolute_import
 import logging
-import six
 import nipyapi
 from nipyapi.utils import exception_handler, enforce_min_ver
 from nipyapi.nifi import ParameterContextEntity, ParameterDTO, \
@@ -52,7 +48,7 @@ def get_parameter_context(identifier, identifier_type='name', greedy=True):
 
     """
     enforce_min_ver('1.10.0')
-    assert isinstance(identifier, six.string_types)
+    assert isinstance(identifier, str)
     assert identifier_type in ['name', 'id']
     if identifier_type == 'id':
         handle = nipyapi.nifi.ParameterContextsApi()

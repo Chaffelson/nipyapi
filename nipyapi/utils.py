@@ -1,11 +1,7 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """
 Convenience utility functions for NiPyApi, not really intended for external use
 """
 
-from __future__ import absolute_import, unicode_literals
 import logging
 import json
 import io
@@ -15,12 +11,10 @@ from functools import reduce, wraps
 import operator
 from contextlib import contextmanager
 from packaging import version
-import six
 from ruamel.yaml import YAML
 from ruamel.yaml.compat import StringIO
 import requests
 from requests.models import Response
-from future.utils import raise_from as _raise
 import nipyapi
 from nipyapi.config import default_string_encoding as DEF_ENCODING
 
@@ -98,13 +92,13 @@ def load(obj, dto=None):
         constructed native datatype object
 
     """
-    assert isinstance(obj, (six.string_types, bytes))
+    assert isinstance(obj, (str, bytes))
     assert dto is None or isinstance(dto, tuple)
     yaml = YAML(typ='safe', pure=True)
     loaded_obj = yaml.load(obj)
     if dto:
         assert dto[0] in ['nifi', 'registry']
-        assert isinstance(dto[1], six.string_types)
+        assert isinstance(dto[1], str)
         obj_as_json = dump(loaded_obj)
         response = Response()
         response.data = obj_as_json
@@ -183,10 +177,9 @@ def filter_obj(obj, value, key, greedy=True):
     try:
         obj_class_name = obj[0].__class__.__name__
     except (TypeError, IndexError) as e:
-        _raise(
-            TypeError(
-                "The passed object {0} is not a filterable nipyapi object"
-                .format(obj.__class__.__name__)), e)
+        raise TypeError(
+            "The passed object {0} is not a filterable nipyapi object"
+            .format(obj.__class__.__name__)) from e
     # Check if this class has a registered filter in Nipyapi.config
     this_filter = nipyapi.config.registered_filters.get(obj_class_name, False)
     if not this_filter:
@@ -422,7 +415,7 @@ def start_docker_containers(docker_containers, network_name='demo'):
     try:
         d_client.version()
     except Exception as e:
-        _raise(EnvironmentError("Docker Service not found"), e)
+        raise EnvironmentError("Docker Service not found") from e
 
     for target in docker_containers:
         assert isinstance(target, DockerContainer)
@@ -512,8 +505,8 @@ def check_version(base, comparator=None, service='nifi',
         # Reduces the string to only the major.minor.patch version
         return '.'.join(version_string.split('-')[0].split('.')[:3])
 
-    assert isinstance(base, six.string_types)
-    assert comparator is None or isinstance(comparator, six.string_types)
+    assert isinstance(base, str)
+    assert comparator is None or isinstance(comparator, str)
     assert service in ['nifi', 'registry']
     ver_a = version.parse(strip_version_string(base))
     if comparator:
@@ -681,7 +674,7 @@ def rest_exceptions():
         yield
     except (nipyapi.nifi.rest.ApiException,
             nipyapi.registry.rest.ApiException) as e:
-        _raise(ValueError(e.body), e)
+        raise ValueError(e.body) from e
 
 
 def exception_handler(status_code=None, response=None):
@@ -695,6 +688,6 @@ def exception_handler(status_code=None, response=None):
                     nipyapi.registry.rest.ApiException) as e:
                 if status_code is not None and e.status == int(status_code):
                     return response
-                _raise(ValueError(e.body), e)
+                raise ValueError(e.body) from e
         return wrapper
     return func_wrapper

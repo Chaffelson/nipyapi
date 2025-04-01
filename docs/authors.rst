@@ -11,6 +11,7 @@ Contributors
 ------------
 
 Kevin Doran <kdoran@apache.org>
+Otto Fowler <ottobackwards@gmail.com>
 
 Shout Outs
 ----------

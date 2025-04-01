@@ -1,11 +1,8 @@
-# -*- coding: utf-8 -*-
-
 """
 For system and cluster level functions interacting with the underlying NiFi
 Services
 """
 
-from __future__ import absolute_import
 import nipyapi
 
 

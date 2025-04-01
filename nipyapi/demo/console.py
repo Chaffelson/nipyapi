@@ -1,10 +1,7 @@
-# -*- coding: utf-8 -*-
-
 """
 A convenience script for generating an interactive test environment.
 """
 
-from __future__ import absolute_import
 import logging
 import nipyapi
 

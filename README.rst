@@ -68,7 +68,7 @@ You can set the config for your endpoints in the central config file::
 
     # in python
     import nipyapi
-    nipyapi.config.nifi_config.host = 'http://localhost:8080/nifi-api'
+    nipyapi.config.nifi_config.host = 'https://localhost:8080/nifi-api'
     nipyapi.config.registry_config.host = 'http://localhost:18080/nifi-registry-api'
 
 Then import a module and execute tasks::
@@ -107,8 +107,8 @@ NiFi Version Support
 Python Support
 --------------
 
-| Python 2.7 or 3.9-12 supported, though other versions may work. 
-| We will shortly stop supporting Python2.
+| Python 3.9-12 supported, though other versions may work. 
+| Python2 is no longer supported as of the 1.0 release, please use the 0.x branch for Python2 projects.
 | OSX M1 chips have had various issues with Requests and Certificates.
 
 | Tested on AL2023, developed on OSX 14+ and Windows 10 with Docker Desktop.

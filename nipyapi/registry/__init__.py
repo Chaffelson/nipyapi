@@ -1,5 +1,3 @@
-# coding: utf-8
-
 """
     Apache NiFi Registry REST API
 
@@ -11,7 +9,6 @@
 """
 
 
-from __future__ import absolute_import
 
 # import models into sdk package
 from .models.access_policy import AccessPolicy

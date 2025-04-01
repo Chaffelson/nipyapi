@@ -1,19 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Tests for `nipyapi` package."""
 
 import pytest
-import six
 from lxml import etree
 
 import nipyapi
 from tests import conftest
 
-if six.PY3:
-    pass
-elif six.PY2:
-    pass
 
 
 def test_upload_template(regress_nifi, fix_templates, tmpdir):
@@ -31,7 +23,7 @@ def test_upload_template(regress_nifi, fix_templates, tmpdir):
             )
         assert isinstance(r0, nipyapi.nifi.TemplateEntity)
         # Check it's not an empty object
-        assert isinstance(r0.template.uri, six.string_types)
+        assert isinstance(r0.template.uri, str)
         # Export it again and check it's good
         r1 = nipyapi.templates.export_template(
             r0.id,

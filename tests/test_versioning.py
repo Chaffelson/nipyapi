@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
 """Tests for `nipyapi` package."""
 
-from __future__ import absolute_import
 import pytest
 from deepdiff import DeepDiff
 from tests import conftest
