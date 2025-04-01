@@ -115,7 +115,5 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 2.7 and 3.6, and for PyPy. Check
-   https://travis-ci.org/Chaffelson/nipyapi/pull_requests
-   and make sure that the tests pass for all supported Python versions.
-4. Pull requests should be created against the 'next' branch for new features, or 'master' for critical patches to current functionality.
+3. The pull request should pass all tox tests, including for security and regression.
+4. Pull requests should be created against 'main' branch for new features or work with NiFi-2.x, or maint-0.x for critical patches to NiFi-1.x featuers.
