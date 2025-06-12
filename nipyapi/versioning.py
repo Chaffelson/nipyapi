@@ -50,7 +50,7 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
         component = {
             'name': name,
             'description': description,
-            'type': reg_type or 'org.apache.nifi.registry.flow.NiFiRegistryFlowRegistryClient',
+            'type': reg_type or 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient',
             'properties': {
                 'url': uri
             }
