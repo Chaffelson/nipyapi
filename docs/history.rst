@@ -2,6 +2,42 @@
 History
 =======
 
+1.0.0 (2025-08-12)
+-------------------
+
+| Major migration to Apache NiFi/Registry 2.x (tested against 2.5.0). Drops 1.x support on main.
+
+- Core: switch low-level clients to NiFi/Registry 2.5.0 OpenAPI 3 specs (swagger-codegen 3.0.68)
+- Remove Templates feature (deprecated in NiFi 2.x): delete `nipyapi/templates.py`, related tests/resources; remove imports; adapt fixtures
+- Docker: update images to NiFi/Registry 2.5.0
+- OperationIds: adopt upstream suffixed names from OAS 3 (e.g., `update_run_status1`)
+
+- Generator: consolidate NiFi/Registry generation (`resources/client_gen/generate_api_client.sh`); add JSON enum normalizer (`resources/client_gen/normalize_openapi_enums.py`) as temporary workaround for upstream enum issues
+- Templates: `api_client.mustache` use raw regex strings to avoid DeprecationWarnings; `model.mustache` fix enum allowed_values; skip None-checks for required readOnly fields; remove callback/threading artifacts and vendor regex modifiers
+
+- Canvas (2.x API): use `ProcessGroupsApi.create_controller_service1(id=...)`; controller scheduling via `ControllerServicesApi.update_run_status1(...)`; update renamed APIs `FlowFileQueuesApi`, `FunnelsApi`
+- Security (2.x): replace removed `AccessApi.get_access_status` with `FlowApi.get_current_user()`; Registry readiness via `AboutApi.get_version()`
+ 
+ - Authentication and client generation:
+   - Switch to spec-driven `bearerAuth`; removed template-injected `tokenAuth`; `set_service_auth_token()` now targets `bearerAuth` by default
+   - Temporary augmentation scripts declare securitySchemes and per-operation security until upstream specs are fixed:
+     - `resources/client_gen/augment_nifi_security.py`
+     - `resources/client_gen/augment_registry_security.py`
+   - Once upstream fixes land, augmentation scripts will be removed and clients regenerated without local workarounds
+   - Upstream tracking for NiFi Core bearer scheme: [NIFI-14852](https://issues.apache.org/jira/browse/NIFI-14852)
+
+- Utils: YAML dump now forces block style to avoid ruamel parsing of inline flow mappings; `dump`/`load` continue safe YAML
+
+- Dependencies: explicitly include `urllib3`, `certifi`, `requests` used by generated clients
+  - Prune template-era deps (e.g., `lxml`, `xmltodict`) as Templates are removed
+
+- Tests: remove Templates tests; adapt for 2.x behavior; full suite green across default, secure-ldap, and secure-mtls (104 passed, 3 skipped)
+
+- Pruning: remove deprecated Docker localdev variant (upstream NiFi provides convenience images)
+
+- Upstream: track enum inconsistencies in [NIFI-14850](https://issues.apache.org/jira/browse/NIFI-14850)
+  - Track missing bearer security scheme in NiFi Core OpenAPI: [NIFI-14852](https://issues.apache.org/jira/browse/NIFI-14852)
+
 0.22.0 (2025-03-25)
 --------------------
 

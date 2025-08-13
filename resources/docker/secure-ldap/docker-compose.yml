@@ -1,6 +1,6 @@
 services:
   secure-nifi:
-    image: apache/nifi:1.28.1
+    image: apache/nifi:2.5.0
     container_name: secure-nifi
     hostname: secure-nifi
     ports:
@@ -15,7 +15,7 @@ services:
       - TRUSTSTORE_PATH=/opt/certs/localhost-ts.jks
       - TRUSTSTORE_PASSWORD=localhostTruststorePassword
       - TRUSTSTORE_TYPE=JKS
-      - INITIAL_ADMIN_IDENTITY=nobel
+      - INITIAL_ADMIN_IDENTITY=einstein
       - LDAP_AUTHENTICATION_STRATEGY=SIMPLE
       - LDAP_MANAGER_DN=cn=read-only-admin,dc=example,dc=com
       - LDAP_MANAGER_PASSWORD=password
@@ -25,7 +25,7 @@ services:
       - LDAP_URL=ldap://ldap.forumsys.com:389
       - NIFI_WEB_PROXY_HOST=localhost:9443,localhost:8443
   secure-registry:
-    image: apache/nifi-registry:1.28.1
+    image: apache/nifi-registry:2.5.0
     container_name: secure-registry
     hostname: secure-registry
     ports:
@@ -41,7 +41,7 @@ services:
       - TRUSTSTORE_PATH=/opt/certs/localhost-ts.jks
       - TRUSTSTORE_PASSWORD=localhostTruststorePassword
       - TRUSTSTORE_TYPE=JKS
-      - INITIAL_ADMIN_IDENTITY=nobel
+      - INITIAL_ADMIN_IDENTITY=einstein
       - LDAP_AUTHENTICATION_STRATEGY=SIMPLE
       - LDAP_MANAGER_DN=cn=read-only-admin,dc=example,dc=com
       - LDAP_MANAGER_PASSWORD=password

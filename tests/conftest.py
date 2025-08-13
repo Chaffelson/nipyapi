@@ -11,9 +11,9 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 # Test Suite Controls
-test_default = True  # Default to True for release
+test_default = False  # Default to True for release
 test_ldap = False  # Default to False for release
-test_mtls = False  # Default to False for release
+test_mtls = True  # Default to False for release
 test_regression = False  # Default to False for release
 
 # Test Configuration parameters
@@ -56,7 +56,7 @@ regress_nifi_endpoints = [
     ('http://' + test_host + ':10192/nifi-api', True, True, None, None),
     ('https://' + test_host + ':10127/nifi-api', True, True, 'nobel', 'supersecret1!'),
 ]
-ldap_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')]
+ldap_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, True, 'einstein', 'password')]
 mtls_nifi_endpoints = [('https://' + test_host + ':9443/nifi-api', True, False, None, None)]
 default_registry_endpoints = [
     (('http://' + test_host + ':18080/nifi-registry-api', True, True, None, None),
@@ -75,9 +75,9 @@ regress_registry_endpoints = [
              )
         ]
 ldap_registry_endpoints = [
-        (('https://' + test_host + ':18443/nifi-registry-api', True, True, None, None),
+        (('https://' + test_host + ':18443/nifi-registry-api', True, True, 'einstein', 'password'),
          'https://secure-registry:18443',
-         ('https://' + test_host + ':9443/nifi-api', True, True, 'nobel', 'password')
+         ('https://' + test_host + ':9443/nifi-api', True, True, 'einstein', 'password')
          )]
 mtls_registry_endpoints = [
         (('https://' + test_host + ':18443/nifi-registry-api', True, False, None, None),
@@ -263,15 +263,8 @@ def session_setup(request):
 
 
 def remove_test_templates():
-    if nipyapi.utils.enforce_max_ver('2', True):
-        pass
-        # Templates are not supported in NiFi 2
-    else:
-        all_templates = nipyapi.templates.list_all_templates(native=False)
-        if all_templates is not None:
-            for this_template in all_templates:
-                if test_basename in this_template.template.name:
-                    nipyapi.templates.delete_template(this_template.id)
+    # Templates are not supported in NiFi 2.x and the feature is removed from NiPyAPI
+    return None
 
 
 def remove_test_pgs():
@@ -432,43 +425,9 @@ def cleanup_reg():
 
 @pytest.fixture(name='fix_templates', scope='function')
 def fixture_templates(request, fix_pg):
-    log.info("Creating PyTest Fixture fix_templates on endpoint %s",
-             nipyapi.config.nifi_config.host)
-    FixtureTemplates = namedtuple(
-        'FixtureTemplates', ('pg', 'b_file', 'b_name', 'c_file',
-                             'c_name', 'g_name', 'g_file')
-    )
-    f_pg = fix_pg
-    f_b_file = path.join(
-            path.dirname(__file__),
-            test_resource_dir,
-            test_templates['basic'] + '.xml'
-        )
-    f_b_name = 'nipyapi_testTemplate_00'
-    f_c_file = path.join(
-            path.dirname(__file__),
-            test_resource_dir,
-            test_templates['complex'] + '.xml'
-        )
-    f_c_name = 'nipyapi_testTemplate_01'
-    f_g_file = path.join(
-        path.dirname(__file__),
-        test_resource_dir,
-        test_templates['greedy'] + '.xml'
-    )
-    f_g_name = 'nipyapi_testTemplate_00_greedy'
-    out = FixtureTemplates(
-        pg=f_pg,
-        b_name=f_b_name,
-        c_name=f_c_name,
-        g_name=f_g_name,
-        b_file=f_b_file,
-        g_file=f_g_file,
-        c_file=f_c_file
-    )
+    # Legacy fixture removed; keep a stub so parametrized tests won’t break during transition
     request.addfinalizer(remove_test_templates)
-    log.info("- Returning PyTest Fixture fix_templates")
-    return out
+    return None
 
 
 @pytest.fixture(name='fix_pg')

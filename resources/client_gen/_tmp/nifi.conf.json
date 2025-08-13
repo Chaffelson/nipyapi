@@ -1,0 +1,6 @@
+{
+  "packageName": "nifi",
+  "projectName": "nipyapi-nifi",
+  "pythonLegacySupport": false,
+  "hideGenerationTimestamp": true
+}

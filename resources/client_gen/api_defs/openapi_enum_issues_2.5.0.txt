@@ -1,0 +1,54 @@
+OpenAPI 3.0.1 enum issues observed in NiFi/Registry 2.5.0 specs
+
+Scope: Comma-joined single-string enums and duplicate enum values.
+
+1) Comma-joined single-string enums (syntactically valid but semantically wrong)
+- File: resources/client_gen/api_defs/nifi-2.5.0.json
+  - loadBalanceCompression
+    Lines ~28015-28023:
+    "enum" : [ "DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT" ]
+  - loadBalanceStrategy
+    Lines ~28020-28023:
+    "enum" : [ "DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE" ]
+  - backoffMechanism (VersionedProcessor)
+    Lines ~28778-28782:
+    "enum" : [ "PENALIZE_FLOWFILE, YIELD_PROCESSOR" ]
+  - transportProtocol (Site-to-Site)
+    Lines ~29058-29061:
+    "enum" : [ "RAW, HTTP" ]
+
+- File: resources/client_gen/api_defs/registry-2.5.0.json
+  - loadBalanceCompression
+    Lines ~6140-6144:
+    "enum" : [ "DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT" ]
+  - loadBalanceStrategy
+    Lines ~6145-6148:
+    "enum" : [ "DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE" ]
+  - backoffMechanism (VersionedProcessor)
+    Lines ~6904-6907:
+    "enum" : [ "PENALIZE_FLOWFILE, YIELD_PROCESSOR" ]
+  - transportProtocol (Site-to-Site)
+    Lines ~7184-7187:
+    "enum" : [ "RAW, HTTP" ]
+
+Impact: Generators interpret each array element as a discrete allowed value. These entries collapse multiple intended values into a single invalid literal, causing generated clients to reject legitimate inputs at runtime.
+
+2) Duplicate enum values (violates OAS 3.0.1 uniqueness requirement)
+- File: resources/client_gen/api_defs/nifi-2.5.0.json
+  - Query param schema: includedRegistries
+    Lines ~4698-4703:
+    "items" : {
+      "type" : "string",
+      "enum" : [ "NIFI", "JVM", "BULLETIN", "CONNECTION", "CLUSTER", "NIFI", "JVM", "BULLETIN", "CONNECTION", "CLUSTER" ]
+    }
+  - lineageRequestType
+    Lines ~20739-20743:
+    "enum" : [ "PARENTS", "CHILDREN", "FLOWFILE", "PARENTS", "CHILDREN", "FLOWFILE" ]
+
+Recommended fixes upstream
+- Replace comma-joined single-string enums with arrays of discrete string values for all affected properties.
+- Deduplicate enum arrays to satisfy OAS 3.0.1.
+- Consider defining shared enums as reusable components and referencing them to avoid divergence.
+
+Notes
+- Correct enum usage exists elsewhere in the same specs (e.g., executionEngine lists values as ["STANDARD", "STATELESS", "INHERITED"]). The above appears to be generation inconsistencies rather than intended modeling.

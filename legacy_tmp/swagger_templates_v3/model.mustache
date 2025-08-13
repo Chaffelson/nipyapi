@@ -1,0 +1,138 @@
+{{>partial_header}}
+
+{{#models}}
+{{#model}}
+import logging
+from typing import Dict, List, Optional, Any, Union, TypeVar, Generic
+from datetime import datetime, date
+from pydantic import BaseModel, Field, validator
+
+from .exceptions import ApiTypeError, ApiValueError
+
+logger = logging.getLogger(__name__)
+T = TypeVar('T')
+
+class Model(BaseModel, Generic[T]):
+    """Base model class for all API models"""
+
+    class Config:
+        """Pydantic configuration"""
+        allow_population_by_field_name = True
+        use_enum_values = True
+        json_encoders = {
+            datetime: lambda v: v.isoformat(),
+            date: lambda v: v.isoformat(),
+        }
+
+    def __init__(self, **kwargs):
+        """Initialize the model"""
+        try:
+            super().__init__(**kwargs)
+        except TypeError as e:
+            raise ApiTypeError(f"Invalid type for model: {e}")
+        except ValueError as e:
+            raise ApiValueError(f"Invalid value for model: {e}")
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert model to dictionary
+
+        Returns:
+            Dictionary representation of the model
+        """
+        return self.dict(by_alias=True)
+
+    @classmethod
+    def from_dict(cls, obj: Dict[str, Any]) -> 'Model':
+        """Create model from dictionary
+
+        Args:
+            obj: Dictionary to create model from
+
+        Returns:
+            Model instance
+
+        Raises:
+            ApiTypeError: If the input is not a dictionary
+            ApiValueError: If the input contains invalid values
+        """
+        if not isinstance(obj, dict):
+            raise ApiTypeError("Input must be a dictionary")
+        try:
+            return cls(**obj)
+        except TypeError as e:
+            raise ApiTypeError(f"Invalid type in dictionary: {e}")
+        except ValueError as e:
+            raise ApiValueError(f"Invalid value in dictionary: {e}")
+
+    def to_json(self) -> str:
+        """Convert model to JSON
+
+        Returns:
+            JSON string representation of the model
+        """
+        return self.json(by_alias=True)
+
+    @classmethod
+    def from_json(cls, json_str: str) -> 'Model':
+        """Create model from JSON
+
+        Args:
+            json_str: JSON string to create model from
+
+        Returns:
+            Model instance
+
+        Raises:
+            ApiTypeError: If the input is not a valid JSON string
+            ApiValueError: If the JSON contains invalid values
+        """
+        try:
+            return cls.parse_raw(json_str)
+        except ValueError as e:
+            raise ApiValueError(f"Invalid JSON: {e}")
+
+    def __str__(self) -> str:
+        """Convert model to string
+
+        Returns:
+            String representation of the model
+        """
+        return self.json(by_alias=True)
+
+    def __eq__(self, other: Any) -> bool:
+        """Compare models for equality
+
+        Args:
+            other: Other model to compare with
+
+        Returns:
+            True if models are equal, False otherwise
+        """
+        if not isinstance(other, Model):
+            return False
+        return self.dict(by_alias=True) == other.dict(by_alias=True)
+
+    def __ne__(self, other: Any) -> bool:
+        """Compare models for inequality
+
+        Args:
+            other: Other model to compare with
+
+        Returns:
+            True if models are not equal, False otherwise
+        """
+        return not self == other
+
+    def dict(self) -> Dict[str, Any]:
+        """Convert to API-compatible dictionary."""
+        return {
+            {{#vars}}
+            '{{baseName}}': self.{{name}}{{#hasMore}},{{/hasMore}}
+            {{/vars}}
+        }
+
+    def __repr__(self) -> str:
+        """Return string representation of the model."""
+        return f"<{{classname}} {self.__str__()}>"
+{{/model}}
+{{/models}} 

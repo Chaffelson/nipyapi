@@ -991,7 +991,7 @@ def purge_connection(con_id):
     """
 
     def _autumn_leaves(con_id_, drop_request_):
-        test_obj = nipyapi.nifi.FlowfileQueuesApi().get_drop_request(
+        test_obj = nipyapi.nifi.FlowFileQueuesApi().get_drop_request(
             con_id_,
             drop_request_.drop_request.id
         ).drop_request
@@ -1005,7 +1005,7 @@ def purge_connection(con_id):
         return True
 
     with nipyapi.utils.rest_exceptions():
-        drop_req = nipyapi.nifi.FlowfileQueuesApi().create_drop_request(con_id)
+        drop_req = nipyapi.nifi.FlowFileQueuesApi().create_drop_request(con_id)
     assert isinstance(drop_req, nipyapi.nifi.DropRequestEntity)
     return nipyapi.utils.wait_to_complete(_autumn_leaves, con_id, drop_req)
 
@@ -1082,7 +1082,8 @@ def create_controller(parent_pg, controller, name=None):
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert name is None or isinstance(name, str)
     with nipyapi.utils.rest_exceptions():
-        out = nipyapi.nifi.ProcessGroupsApi().create_controller_service(
+        # NiFi 2.x creates a PG-scoped Controller Service via ProcessGroupsApi
+        out = nipyapi.nifi.ProcessGroupsApi().create_controller_service1(
             id=parent_pg.id,
             body=nipyapi.nifi.ControllerServiceEntity(
                 revision={'version': 0},
@@ -1090,7 +1091,7 @@ def create_controller(parent_pg, controller, name=None):
                     bundle=controller.bundle,
                     type=controller.type
                 )
-            ),
+            )
         )
         if name:
             update_controller(
@@ -1243,23 +1244,14 @@ def schedule_controller(controller, scheduled, refresh=False):
     if refresh:
         controller = nipyapi.canvas.get_controller(controller.id, 'id')
         assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
-    if nipyapi.utils.check_version('1.2.0') >= 0:
-        # Case where NiFi <= 1.2.0
-        result = update_controller(
-            controller=controller,
-            update=nipyapi.nifi.ControllerServiceDTO(
-                state=target_state
-            )
+    # NiFi 2.x: update run status via ControllerServicesApi.update_run_status1
+    result = handle.update_run_status1(
+        id=controller.id,
+        body=nipyapi.nifi.ControllerServiceRunStatusEntity(
+            revision=controller.revision,
+            state=target_state
         )
-    else:
-        # Case where NiFi > 1.2.0
-        result = handle.update_run_status(
-            id=controller.id,
-            body=nipyapi.nifi.ControllerServiceRunStatusEntity(
-                revision=controller.revision,
-                state=target_state
-            )
-        )
+    )
     if not result:
         raise ValueError("Scheduling request failed")
     state_test = nipyapi.utils.wait_to_complete(
@@ -1555,7 +1547,7 @@ def delete_port(port):
 def get_funnel(funnel_id):
     """Gets a given Funnel by ID"""
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FunnelApi().get_funnel(funnel_id)
+        return nipyapi.nifi.FunnelsApi().get_funnel(funnel_id)
 
 
 def create_funnel(pg_id, position=None):
@@ -1603,7 +1595,7 @@ def delete_funnel(funnel, refresh=True):
     with nipyapi.utils.rest_exceptions():
         if refresh:
             funnel = get_funnel(funnel.id)
-        return nipyapi.nifi.FunnelApi().remove_funnel(
+        return nipyapi.nifi.FunnelsApi().remove_funnel(
             id=funnel.id,
             version=funnel.revision.version
         )

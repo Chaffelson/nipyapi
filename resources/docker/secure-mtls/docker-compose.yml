@@ -1,6 +1,6 @@
 services:
   secure-nifi:
-    image: apache/nifi:1.28.1
+    image: apache/nifi:2.5.0
     container_name: secure-nifi
     hostname: secure-nifi
     ports:
@@ -29,7 +29,7 @@ services:
       - nifi-net
 
   secure-registry:
-    image: apache/nifi-registry:1.28.1
+    image: apache/nifi-registry:2.5.0
     container_name: secure-registry
     hostname: secure-registry
     ports:

@@ -1,0 +1,99 @@
+Apache NiFi Registry 2.5.0 OpenAPI – Authorization Issues (Basic/Bearer)
+
+Context and comparison
+- 1.x behavior and our approach:
+  - In many 1.x test setups, NiFi Registry endpoints were effectively more relaxed about initial Authorization, so generated clients appeared to work even without explicit Basic at login.
+  - Our client generation templates hardcoded a token header (tokenAuth/Bearer) on all operations, and Basic for login was either tolerated by the environment or pushed through by client configuration when needed.
+
+- 2.x behavior (stricter and correct):
+  - 2.x Registry enforces Authorization more consistently. Login requires HTTP Basic credentials to obtain a JWT, and subsequent requests must use Bearer.
+  - This highlights a misalignment in the current OpenAPI spec: the login operation text requires Basic, but the spec does not declare security schemes (Basic/Bearer) nor set per-operation security. Generators cannot infer sending Basic, leading to 401 responses on login.
+
+Problem statement (2.5.0 spec)
+- Path: /nifi-registry-api/access/token/login (operationId: createAccessTokenUsingBasicAuthCredentials)
+  - Description explicitly requires HTTP Basic.
+- Missing pieces in the spec:
+  - No components.securitySchemes entries for Basic or Bearer
+  - No per-operation security for login (Basic) or for protected endpoints (Bearer)
+
+Impact on generated clients
+- Without declared security schemes and per-operation security, generators do not add Authorization: Basic for login and often cannot reliably apply Bearer across protected operations. This prevents Swagger Codegen from working OOTB (used by NiPyAPI, and also prevents other OAS3.0.1 compliant codegen from working, e.g. Fern as the expect full Spec compliance.)
+
+Current NiPyAPI workaround (tested and documented)
+- For Registry login only, NiPyAPI temporarily enables the generated client’s built-in Basic header via Configuration.force_basic_auth during the login call and restores it immediately after. This ensures Authorization: Basic <base64(username:password)> is sent for POST /access/token/login. After receiving the JWT, all subsequent calls use Authorization: Bearer <token> injected by the client configuration.
+
+Recommended upstream fix (OpenAPI 3.0.x)
+1) Define security schemes in components:
+   components:
+     securitySchemes:
+       basicAuth:
+         type: http
+         scheme: basic
+       bearerAuth:
+         type: http
+         scheme: bearer
+         bearerFormat: JWT
+
+2) Apply per-operation security:
+   - Login:
+     /access/token/login:
+       post:
+         security:
+           - basicAuth: []
+   - JWT-protected endpoints (e.g., /buckets, /flows, etc.):
+     (for each operation)
+       security:
+         - bearerAuth: []
+   - Try-all-providers (if designed to not require Authorization):
+     /access/token:
+       post:
+         security: []
+
+3) Optional global + overrides:
+   security:
+     - bearerAuth: []
+   (override login to use basicAuth only)
+
+References (best practice)
+- OpenAPI Security Scheme Object (HTTP Basic / Bearer): `https://spec.openapis.org/oas/v3.0.3#security-scheme-object`
+- OpenAPI Operation Object (per-operation security): `https://spec.openapis.org/oas/v3.0.3#operation-object`
+- HTTP Authentication Framework (RFC 7235): `https://www.rfc-editor.org/rfc/rfc7235`
+- Basic Authentication (RFC 7617): `https://www.rfc-editor.org/rfc/rfc7617`
+- Bearer Token Usage (RFC 6750): `https://www.rfc-editor.org/rfc/rfc6750`
+
+Outcome
+- Adding proper security schemes and per-operation security in the NiFi Registry 2.x OpenAPI spec aligns the machine-readable contract with the intended behavior, enabling generators to send Basic for login and Bearer for protected operations without client-side workarounds.
+
+Local validation (what we tested)
+- Augmentation script: `resources/client_gen/augment_registry_security.py`
+  - Inputs: `resources/client_gen/api_defs/registry-2.5.0.json`
+  - Output: `resources/client_gen/api_defs/registry-2.5.0.auth-test.json`
+  - Adds components.securitySchemes (basicAuth, bearerAuth), sets global `security: [ { bearerAuth: [] } ]`, and overrides:
+    - POST `/nifi-registry-api/access/token/login` → `security: [ { basicAuth: [] } ]`
+    - POST `/nifi-registry-api/access/token` → `security: []`
+- Client regeneration: ran `resources/client_gen/generate_api_client.sh` targeting Registry with the auth-test spec; synced into `nipyapi/registry`.
+- Code change for verification: removed the temporary Basic fallback in `nipyapi/security.py` (Registry login) so only spec-driven Basic is used.
+- Tests executed (passed):
+  - `tests/test_utils.py::test_check_version`
+  - `tests/test_system.py::test_get_nifi_version_info`
+- Result: login succeeded and version calls worked using Basic (for login) and Bearer (post-login), confirming the spec-driven approach functions as intended.
+
+Test environment (secure LDAP + TLS)
+- Runtime: Docker Compose from `resources/docker/secure-ldap/docker-compose.yml`
+- Versions: `apache/nifi:2.5.0`, `apache/nifi-registry:2.5.0`
+- Auth: LDAP, with `INITIAL_ADMIN_IDENTITY=einstein` for both NiFi and Registry
+- Endpoints:
+  - NiFi: `https://localhost:9443/nifi-api`
+  - Registry: `https://localhost:18443/nifi-registry-api`
+- Credentials used in tests: `einstein` / `password`
+- TLS: self-signed certificates in the compose environment; test harness tolerates unverified HTTPS (see InsecureRequestWarning) or supplies the demo CA as needed
+- Outcome: POST login sent Authorization: Basic; subsequent API calls sent Authorization: Bearer (JWT) as expected under 2.x
+
+Why NiFi differs (and best practice for NiFi)
+- NiFi’s login (POST /nifi-api/access/token) accepts username/password as form parameters rather than requiring HTTP Basic. Therefore, the missing Basic scheme does not block NiFi login.
+- For best practice and to reduce client-side header injection, NiFi should still declare a Bearer security scheme and apply it globally (or per-operation), and optionally override the login op with `security: []`:
+  - components.securitySchemes:
+    - bearerAuth: { type: http, scheme: bearer, bearerFormat: JWT }
+  - security: [ { bearerAuth: [] } ]
+  - /access/token (POST): security: [] (form-based login)
+- Once both NiFi and Registry specs declare security consistently, NiPyAPI can remove the template-side tokenAuth injection and rely entirely on spec-driven behavior.

@@ -63,6 +63,8 @@ def dump(obj, mode='json'):
     if mode == 'yaml':
         # Use 'safe' loading to prevent arbitrary code execution
         yaml = YAML(typ='safe', pure=True)
+        # Force block style to avoid inline flow mappings that can break parsing
+        yaml.default_flow_style = False
         # Create a StringIO object to act as the stream
         stream = StringIO()
         # Dump to the StringIO stream
@@ -515,31 +517,15 @@ def check_version(base, comparator=None, service='nifi',
         try:
             reg_ver = nipyapi.system.get_registry_version_info()
             ver_b = version.parse(strip_version_string(reg_ver))
-        except nipyapi.registry.rest.ApiException:
+        except Exception:
             log.warning(
-                "Unable to get registry version, trying swagger.json")
-            try:
-                config = nipyapi.config.registry_config
-                if config.api_client is None:
-                    config.api_client = nipyapi.registry.ApiClient()
-                reg_swagger_def = config.api_client.call_api(
-                    resource_path='/swagger/swagger.json',
-                    method='GET', _preload_content=False,
-                    auth_settings=['tokenAuth', 'Authorization']
-                )
-                reg_json = load(reg_swagger_def[0].data)
-                ver_b = version.parse(reg_json['info']['version'])
-            except nipyapi.registry.rest.ApiException:
-                log.warning(
-                    "Can't get registry swagger.json, assuming version %s",
-                    default_version)
-                ver_b = version.parse(default_version)
+                "Unable to get registry About version, assuming %s",
+                default_version)
+            ver_b = version.parse(default_version)
     else:
-        ver_b = version.parse(
-            strip_version_string(
-                nipyapi.system.get_nifi_version_info().ni_fi_version
-            )
-        )
+        nifi_ver = nipyapi.system.get_nifi_version_info()
+        nifi_ver_str = getattr(nifi_ver, 'ni_fi_version', nifi_ver)
+        ver_b = version.parse(strip_version_string(nifi_ver_str))
     if ver_b > ver_a:
         return -1
     if ver_b < ver_a:

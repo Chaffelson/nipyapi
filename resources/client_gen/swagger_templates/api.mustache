@@ -34,27 +34,11 @@ class {{classname}}(object):
 {{#notes}}
         {{{notes}}}
 {{/notes}}
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please define a `callback` function
-        to be invoked when receiving the response.
-        >>> def callback_function(response):
-        >>>     pprint(response)
-        >>>
-{{#sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
-{{^sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}({{#allParams}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
-
-        :param callback function: The callback function
-            for asynchronous request. (optional)
+        This method makes a synchronous HTTP request.
 {{#allParams}}
         :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional){{/optional}}
 {{/allParams}}
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
-                 If the method is called asynchronously,
-                 returns the request thread.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -71,31 +55,14 @@ class {{classname}}(object):
 {{#notes}}
         {{{notes}}}
 {{/notes}}
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please define a `callback` function
-        to be invoked when receiving the response.
-        >>> def callback_function(response):
-        >>>     pprint(response)
-        >>>
-{{#sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
-{{^sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
-
-        :param callback function: The callback function
-            for asynchronous request. (optional)
+        This method makes a synchronous HTTP request.
 {{#allParams}}
         :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
 {{/allParams}}
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
-                 If the method is called asynchronously,
-                 returns the request thread.
         """
 
         all_params = [{{#allParams}}'{{paramName}}'{{#hasMore}}, {{/hasMore}}{{/allParams}}]
-        all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
         all_params.append('_request_timeout')
@@ -136,7 +103,7 @@ class {{classname}}(object):
             raise ValueError("Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must be a value greater than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}`{{minimum}}`")
     {{/minimum}}
     {{#pattern}}
-        if '{{paramName}}' in params and not re.search('{{{vendorExtensions.x-regex}}}', params['{{paramName}}']{{#vendorExtensions.x-modifiers}}{{#-first}}, flags={{/-first}}re.{{.}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-modifiers}}):
+        if '{{paramName}}' in params and not re.search('{{{vendorExtensions.x-regex}}}', params['{{paramName}}']):
             raise ValueError("Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must conform to the pattern `{{{pattern}}}`")
     {{/pattern}}
     {{#maxItems}}
@@ -148,9 +115,7 @@ class {{classname}}(object):
             raise ValueError("Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, number of items must be greater than or equal to `{{minItems}}`")
     {{/minItems}}
 {{/hasValidation}}
-{{#-last}}
-
-{{/-last}}
+ 
 {{/allParams}}
         collection_formats = {}
 
@@ -201,7 +166,7 @@ class {{classname}}(object):
 
         {{/hasConsumes}}
         # Authentication setting
-        auth_settings = ['tokenAuth'{{#authMethods}}, '{{name}}'{{/authMethods}}]
+        auth_settings = [{{#authMethods}}'{{name}}'{{#hasMore}}, {{/hasMore}}{{/authMethods}}]
 
         return self.api_client.call_api('{{{path}}}', '{{httpMethod}}',
                                         path_params,
@@ -212,7 +177,6 @@ class {{classname}}(object):
                                         files=local_var_files,
                                         response_type={{#returnType}}'{{returnType}}'{{/returnType}}{{^returnType}}None{{/returnType}},
                                         auth_settings=auth_settings,
-                                        callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
                                         _preload_content=params.get('_preload_content', True),
                                         _request_timeout=params.get('_request_timeout'),

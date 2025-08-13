@@ -307,7 +307,7 @@ def service_login(service="nifi", username=None, password=None,
     configuration.username = uname
     configuration.password = pword
     log.info(
-        "Attempting tokenAuth login with user identity [%s]",
+        "Attempting bearerAuth login with user identity [%s]",
         configuration.username
     )
     try:
@@ -315,27 +315,29 @@ def service_login(service="nifi", username=None, password=None,
             token = nipyapi.nifi.AccessApi().create_access_token(
                 username=uname, password=pword
             )
+            set_service_auth_token(token=token, service=service)
+            return True
         else:
             token = (
                 nipyapi.registry.AccessApi()
                 .create_access_token_using_basic_auth_credentials()
             )
-        set_service_auth_token(token=token, service=service)
-        return True
+            set_service_auth_token(token=token, service=service)
+            return True
     except getattr(nipyapi, service).rest.ApiException as e:
         if bool_response:
             return False
         raise ValueError(e.body) from e
 
 
-def set_service_auth_token(token=None, token_name="tokenAuth", service="nifi"):
+def set_service_auth_token(token=None, token_name="bearerAuth", service="nifi"):
     """
     Helper method to set the auth token correctly for the specified service
 
     Args:
         token (Optional[str]): The token to set. Defaults to None.
         token_name (str): the api_key field name to set the token to. Defaults
-            to 'tokenAuth'
+            to 'bearerAuth'
         service (str): 'nifi' or 'registry', the service to set
 
     Returns:
@@ -408,9 +410,18 @@ def get_service_access_status(service="nifi", bool_response=False):
         log.debug("- bool_response is True, disabling urllib3 warnings")
         logging.getLogger("urllib3").setLevel(logging.ERROR)
     try:
-        out = getattr(nipyapi, service).AccessApi().get_access_status()
-        log.info("Got server response, returning")
-        return out
+        # NiFi 2.x: use FlowApi.get_current_user() as status check
+        if service == "nifi":
+            return nipyapi.nifi.FlowApi().get_current_user()
+        # Registry 2.x: use AboutApi.get_version() as a benign reachability check
+        # This does not assert auth, but serves as a health/status probe
+        return nipyapi.registry.AboutApi().get_version()
+    except AttributeError as e:
+        # NiFi 2.x removed AccessApi.get_access_status; treat as unavailable
+        log.debug("AccessApi.get_access_status not available: %s", e)
+        if bool_response:
+            return False
+        raise
     except urllib3.exceptions.MaxRetryError as e:
         log.debug("- Caught exception %s", type(e))
         if bool_response:
@@ -818,11 +829,23 @@ def bootstrap_security_policies(service, user_identity=None, group_identity=None
     if "nifi" in service:
         rpg_id = nipyapi.canvas.get_root_pg_id()
         if user_identity is None and group_identity is None:
-            # Try to find user by certificate DN if using mTLS
-            nifi_user_identity = nipyapi.security.get_service_user(
-                nipyapi.config.default_mtls_identity, service="nifi"
-            )
-            # Fall back to default username if not found
+            # Prefer currently authenticated user for policy bootstrapping
+            current_user = nipyapi.nifi.FlowApi().get_current_user()
+            current_identity = None
+            if current_user and not getattr(current_user, 'anonymous', True):
+                current_identity = current_user.identity
+            # Resolve or create a NiFi user entity for the current identity
+            nifi_user_identity = None
+            if current_identity:
+                nifi_user_identity = nipyapi.security.get_service_user(
+                    current_identity, service="nifi"
+                )
+                if not nifi_user_identity:
+                    # Ensure a user entity exists to attach policies
+                    nifi_user_identity = nipyapi.security.create_service_user(
+                        identity=current_identity, service="nifi", strict=False
+                    )
+            # Fallback to default username only if no current identity found
             if not nifi_user_identity:
                 nifi_user_identity = nipyapi.security.get_service_user(
                     nipyapi.config.default_nifi_username, service="nifi"

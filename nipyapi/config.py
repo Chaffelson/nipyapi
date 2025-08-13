@@ -99,9 +99,10 @@ default_ssl_context = {
     "client_key_password": "clientPassword",
 }
 # Identities and passwords to be used for service login if called for
-default_nifi_username = "nobel"
+default_nifi_username = "einstein"
 default_nifi_password = "password"
-default_registry_username = "nobel"
+# For secure-ldap test setup, initial admin is 'einstein'
+default_registry_username = "einstein"
 default_registry_password = "password"
 # Identity to be used for mTLS authentication
 default_mtls_identity = "CN=user1, OU=nifi"
