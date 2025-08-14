@@ -1,5 +1,13 @@
 .PHONY: clean clean-test clean-pyc clean-build docs help
 .DEFAULT_GOAL := help
+
+# Default NiFi/Registry version for docker compose profiles
+NIFI_VERSION ?= 2.5.0
+
+# Paths and docker compose helpers (avoid cd by using -f)
+COMPOSE_DIR := $(abspath resources/docker)
+COMPOSE_FILE := $(COMPOSE_DIR)/compose.yml
+DC := NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE)
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
 try:
@@ -53,6 +61,142 @@ lint: ## check style with flake8
 test: ## run tests quickly with the default Python
 	py.test
 
+certs: ## generate PKCS12 certs and env for docker profiles
+	cd resources/certs && bash gen_certs.sh
+
+fetch-openapi-base: ## refresh base OpenAPI specs for current NIFI_VERSION (always overwrite base)
+	@echo "Refreshing base specs for NIFI_VERSION=$(NIFI_VERSION)"
+	bash resources/client_gen/fetch_nifi_openapi.sh nifi-single || exit 1
+	bash resources/client_gen/fetch_registry_openapi.sh registry-single || exit 1
+	@echo "Base specs refreshed."
+
+augment-openapi: ## generate augmented OpenAPI specs from base (always overwrite augmented)
+	@echo "Generating augmented specs for NIFI_VERSION=$(NIFI_VERSION)"
+	rm -f resources/client_gen/api_defs/nifi-$(NIFI_VERSION).augmented.json \
+	      resources/client_gen/api_defs/registry-$(NIFI_VERSION).augmented.json
+	bash resources/client_gen/apply_augmentations.sh nifi \
+		resources/client_gen/api_defs/nifi-$(NIFI_VERSION).json \
+		resources/client_gen/api_defs/nifi-$(NIFI_VERSION).augmented.json
+	bash resources/client_gen/apply_augmentations.sh registry \
+		resources/client_gen/api_defs/registry-$(NIFI_VERSION).json \
+		resources/client_gen/api_defs/registry-$(NIFI_VERSION).augmented.json
+	@echo "Augmented specs refreshed."
+
+fetch-openapi: fetch-openapi-base augment-openapi ## convenience: fetch base then augment
+
+openapi-clean: ## remove generated augmented/backup OpenAPI artifacts
+	rm -f resources/client_gen/api_defs/*.augmented.json \
+	      resources/client_gen/api_defs/*.normalized.backup.json
+	@echo "Cleaned generated OpenAPI artifacts."
+
+gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_variant=augmented|base)
+	cd resources/client_gen && wv_spec_variant=$${wv_spec_variant:-augmented} wv_client_name=all wv_api_def_dir=$$(pwd)/api_defs wv_tmp_dir=$$(pwd)/_tmp bash ./generate_api_client.sh
+
+up: ## bring up docker profile: make up PROFILE=single-user|secure-ldap|secure-mtls (uses NIFI_VERSION=$(NIFI_VERSION))
+	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi
+	@$(DC) --profile $(PROFILE) up -d
+
+down: ## bring down all docker services
+	@echo "Bringing down Docker services (NIFI_VERSION=$(NIFI_VERSION))"
+	@echo " - Bringing down profile: single-user" && $(DC) --profile single-user down -v || true
+	@echo " - Bringing down profile: secure-ldap" && $(DC) --profile secure-ldap down -v || true
+	@echo " - Bringing down profile: secure-mtls" && $(DC) --profile secure-mtls down -v || true
+	@echo " - Ensuring project is fully down" && $(DC) down -v || true
+	@echo "Verifying expected containers are stopped/removed:"
+	@expect_names="nifi-single registry-single nifi-ldap registry-ldap nifi-mtls registry-mtls"; \
+	for n in $$expect_names; do \
+		if docker ps -a --format '{{.Names}}' | grep -Fxq "$$n"; then \
+			echo " - $$n: STILL PRESENT"; \
+		else \
+			echo " - $$n: not present"; \
+		fi; \
+	done
+
+wait-ready: ## wait for readiness; accepts PROFILE=single-user|secure-ldap|secure-mtls or explicit *BASE_URL envs
+	@# If PROFILE is provided, set sensible defaults for URLs
+	@if [ -n "$(PROFILE)" ]; then \
+		if [ "$(PROFILE)" = "single-user" ]; then \
+			NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9443/nifi-api}"; \
+			REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-http://localhost:18080/nifi-registry-api}"; \
+			export NIFI_BASE_URL REGISTRY_BASE_URL; \
+		elif [ "$(PROFILE)" = "secure-ldap" ]; then \
+		NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9444/nifi-api}"; \
+		REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18444/nifi-registry-api}"; \
+			export NIFI_BASE_URL REGISTRY_BASE_URL; \
+		elif [ "$(PROFILE)" = "secure-mtls" ]; then \
+		NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9445/nifi-api}"; \
+		REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18445/nifi-registry-api}"; \
+			export NIFI_BASE_URL REGISTRY_BASE_URL; \
+		else echo "Unknown PROFILE $(PROFILE)"; exit 1; fi; \
+	fi; \
+	python resources/scripts/wait_ready.py
+
+ test-profile: ## run pytest against selected PROFILE with defaults for URLs and TLS
+	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
+    if [ "$(PROFILE)" = "single-user" ] || [ "$(PROFILE)" = "secure-ldap" ]; then \
+        if [ "$(PROFILE)" = "secure-ldap" ]; then \
+            NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9444/nifi-api}"; \
+            REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18444/nifi-registry-api}"; \
+        else \
+            NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9443/nifi-api}"; \
+            REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-http://localhost:18080/nifi-registry-api}"; \
+        fi; \
+        NIFI_USERNAME="einstein"; \
+        if [ "$(PROFILE)" = "secure-ldap" ]; then \
+            NIFI_PASSWORD="password"; \
+        else \
+            NIFI_PASSWORD="password1234"; \
+        fi; \
+        REGISTRY_USERNAME="$${REGISTRY_USERNAME:-einstein}"; REGISTRY_PASSWORD="$${REGISTRY_PASSWORD:-password}"; \
+        if [ "$(PROFILE)" = "secure-ldap" ]; then \
+            TLS_CA_CERT_PATH="$${TLS_CA_CERT_PATH:-$(PWD)/resources/certs/client/ca.pem}"; \
+            NIPYAPI_VERIFY_SSL="$${NIPYAPI_VERIFY_SSL:-1}"; \
+        else \
+            TLS_CA_CERT_PATH=""; \
+            NIPYAPI_VERIFY_SSL="$${NIPYAPI_VERIFY_SSL:-0}"; \
+        fi; \
+        if [ "$(PROFILE)" = "single-user" ]; then \
+            export TEST_SINGLE_USER=true TEST_LDAP=false TEST_MTLS=false; \
+        else \
+            export TEST_SINGLE_USER=false TEST_LDAP=true TEST_MTLS=false; \
+        fi; \
+        export NIFI_BASE_URL REGISTRY_BASE_URL NIFI_USERNAME NIFI_PASSWORD REGISTRY_USERNAME REGISTRY_PASSWORD TLS_CA_CERT_PATH NIPYAPI_VERIFY_SSL; \
+	elif [ "$(PROFILE)" = "secure-mtls" ]; then \
+		NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9445/nifi-api}"; \
+		REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18445/nifi-registry-api}"; \
+		TLS_CA_CERT_PATH="$${TLS_CA_CERT_PATH:-$(PWD)/resources/certs/client/ca.pem}"; \
+		MTLS_CLIENT_CERT="$${MTLS_CLIENT_CERT:-$(PWD)/resources/certs/client/client.crt}"; \
+		MTLS_CLIENT_KEY="$${MTLS_CLIENT_KEY:-$(PWD)/resources/certs/client/client.key}"; \
+		export TEST_SINGLE_USER=false TEST_LDAP=false TEST_MTLS=true; \
+		export NIFI_BASE_URL REGISTRY_BASE_URL TLS_CA_CERT_PATH MTLS_CLIENT_CERT MTLS_CLIENT_KEY; \
+	else echo "Unknown PROFILE $(PROFILE)"; exit 1; fi; \
+	# Verify expected containers for the profile are running via docker ps
+	if [ "$(PROFILE)" = "single-user" ]; then expect_names="nifi-single registry-single"; \
+	elif [ "$(PROFILE)" = "secure-ldap" ]; then expect_names="nifi-ldap registry-ldap"; \
+	elif [ "$(PROFILE)" = "secure-mtls" ]; then expect_names="nifi-mtls registry-mtls"; fi; \
+	for n in $$expect_names; do \
+		if ! docker ps --format '{{.Names}}' | grep -Fxq "$$n"; then \
+			echo "ERROR: Expected container '$$n' not running for PROFILE=$(PROFILE). Run 'make up PROFILE=$(PROFILE)' first."; \
+			exit 2; \
+		fi; \
+	done; \
+    echo "Using PROFILE=$(PROFILE)"; \
+    echo "NIFI_BASE_URL=$$NIFI_BASE_URL"; \
+    echo "REGISTRY_BASE_URL=$$REGISTRY_BASE_URL"; \
+    echo "TLS_CA_CERT_PATH=$$TLS_CA_CERT_PATH"; \
+    echo "NIPYAPI_VERIFY_SSL=$$NIPYAPI_VERIFY_SSL"; \
+    NIFI_BASE_URL=$$NIFI_BASE_URL REGISTRY_BASE_URL=$$REGISTRY_BASE_URL TLS_CA_CERT_PATH=$$TLS_CA_CERT_PATH NIPYAPI_VERIFY_SSL=$$NIPYAPI_VERIFY_SSL PYTHONPATH=$(PWD):$$PYTHONPATH $(MAKE) wait-ready PROFILE=$(PROFILE) && NIPYAPI_VERIFY_SSL=$$NIPYAPI_VERIFY_SSL PYTHONPATH=$(PWD):$$PYTHONPATH py.test -q
+
+e2e: ## end-to-end: up -> wait-ready -> fetch-openapi -> augment-openapi -> gen-clients -> tests
+	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
+	$(MAKE) certs && \
+	$(MAKE) up PROFILE=$(PROFILE) && \
+	$(MAKE) wait-ready PROFILE=$(PROFILE) && \
+	$(MAKE) fetch-openapi && \
+	$(MAKE) augment-openapi && \
+	$(MAKE) gen-clients && \
+	$(MAKE) test-profile PROFILE=$(PROFILE)
+
 
 test-all: ## run tests on every Python version with tox
 	tox
@@ -70,6 +214,7 @@ docs: ## generate Sphinx HTML documentation, including API docs
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
+
 
 servedocs: docs ## compile the docs watching for changes
 	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .

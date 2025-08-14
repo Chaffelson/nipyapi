@@ -5,7 +5,7 @@ History
 1.0.1 (2025-08-14)
 -------------------
 
-| Secure-ldap end-to-end fixes, reproducible compose, and cleaner, env-driven tests.
+| Env-driven profiles (single-user, secure-ldap, secure-mtls) all green end-to-end; reproducible compose; cleaner tests.
 
 - Security / Policies:
   - Ensure NiFi→Registry uses NiFi node keystore for mTLS via `StandardSSLContextService` and attach it to the Flow Registry Client.
@@ -16,8 +16,9 @@ History
 - Tests (env-driven refactor):
   - Centralize profile/environment handling in `tests/conftest.py` (remove legacy regression scaffolding).
   - Create SSL Context Service with NiFi keystore and wire it to the Registry Client (internal Docker URI).
-  - Add helper to apply required Registry policies for the NiFi proxy DN and LDAP user.
-  - Full secure-ldap run: 104 passed, 3 skipped.
+  - LDAP: bearer token auth with CA bundle; Registry proxy and bucket policies applied.
+  - mTLS: client-certificate authentication to NiFi/Registry APIs (no token flow), CA bundle respected; teardown avoids token login.
+  - Results: single-user (85 passed, 22 skipped), secure-ldap (104 passed, 3 skipped), secure-mtls (85 passed, 22 skipped).
 
 - Certificates:
   - `resources/certs/gen_certs.sh`: clean previous artifacts; add clientAuth to server certs; ensure truststore contains CA; optional JKS outputs.
@@ -25,6 +26,11 @@ History
 
 - Docker Compose:
   - Consolidate to a single compose with profiles and unique external ports; map TLS envs; ensure services share a bridge network.
+  - mTLS profile: add `KEYSTORE_PATH/TRUSTSTORE_PATH` for `secure.sh`; align `INITIAL_ADMIN_IDENTITY` to match generated cert DN.
+
+- Readiness tooling:
+  - `resources/scripts/wait_ready.py`: require explicit `NIFI_BASE_URL`/`REGISTRY_BASE_URL` (no defaults); use CA and optional client certs.
+  - Treat explicit TLS client-auth failures as “service up” to prevent hangs when probing mTLS endpoints without credentials.
 
 - Developer tooling:
   - `resources/scripts/debug_registry.py`: reproducible NiFi↔Registry setup and diagnostics (policies, SSL context, versioning flow save/verify).

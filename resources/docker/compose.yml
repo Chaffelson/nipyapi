@@ -76,7 +76,14 @@ services:
       - ../certs/nifi.env
     environment:
       - AUTH=tls
-      - INITIAL_ADMIN_IDENTITY=CN=user1, OU=nifi
+      # Provide TLS keystore/truststore for secure.sh (two-way SSL)
+      - KEYSTORE_PATH=/certs/nifi/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - INITIAL_ADMIN_IDENTITY=C=US, O=NiPyAPI, CN=user1
       - NIFI_WEB_PROXY_HOST=localhost:9445,localhost:8443
       - NIFI_WEB_HTTPS_PORT=8443
       - NIFI_WEB_HTTPS_HOST=0.0.0.0
@@ -99,7 +106,14 @@ services:
       - ../certs/registry.env
     environment:
       - AUTH=tls
-      - INITIAL_ADMIN_IDENTITY=CN=user1, OU=nifi
+      # Provide TLS keystore/truststore for secure.sh (two-way SSL)
+      - KEYSTORE_PATH=/certs/registry/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - INITIAL_ADMIN_IDENTITY=C=US, O=NiPyAPI, CN=user1
       - NIFI_REGISTRY_WEB_HTTPS_PORT=18443
       - NIFI_REGISTRY_WEB_HTTPS_HOST=0.0.0.0
       - NIFI_REGISTRY_SECURITY_NEEDCLIENTAUTH=true

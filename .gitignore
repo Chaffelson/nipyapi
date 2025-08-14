@@ -45,6 +45,7 @@ resources/certs/nifi/
 resources/certs/registry/
 resources/certs/truststore/
 resources/certs/client/
+resources/certs/*.env
 
 # Client-gen caches and augmented OpenAPI outputs
 resources/client_gen/_cache/
@@ -171,9 +172,12 @@ fabric.properties
 
 # Stupid OSX exclusions
 /.vscode
-
 .DS_Store
+
 # Coverage reports
 coverage*
 .coverage
 htmlcov/
+
+# VSCode
+*.code-workspace

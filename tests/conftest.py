@@ -233,11 +233,30 @@ def regress_flow_reg(request):
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
     log.info("Commencing test session setup")
-    # NiFi: set CA first, then set endpoint with login
-    if TLS_CA_CERT_PATH:
-        nipyapi.config.nifi_config.verify_ssl = True
-        nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH
-    nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
+    # NiFi: mTLS vs LDAP/Single-User setup
+    if TEST_MTLS:
+        # Configure client certs for mTLS and avoid username/password token login
+        if TLS_CA_CERT_PATH:
+            nipyapi.config.nifi_config.verify_ssl = True
+            nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH
+        if MTLS_CLIENT_CERT and MTLS_CLIENT_KEY:
+            nipyapi.config.nifi_config.cert_file = MTLS_CLIENT_CERT
+            nipyapi.config.nifi_config.key_file = MTLS_CLIENT_KEY
+        # Point default_ssl_context to generated client certs for utils.set_endpoint
+        if MTLS_CLIENT_CERT and MTLS_CLIENT_KEY:
+            nipyapi.config.default_ssl_context.update({
+                'ca_file': TLS_CA_CERT_PATH or nipyapi.config.default_ssl_context.get('ca_file'),
+                'client_cert_file': MTLS_CLIENT_CERT,
+                'client_key_file': MTLS_CLIENT_KEY,
+                'client_key_password': MTLS_CLIENT_KEY_PASSWORD or ''
+            })
+        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, False)
+    else:
+        # LDAP/Single-user: set CA first, then username/password login
+        if TLS_CA_CERT_PATH:
+            nipyapi.config.nifi_config.verify_ssl = True
+            nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH
+        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
     gui_url = NIFI_BASE_URL.replace('-api', '')
     if not nipyapi.utils.wait_to_complete(
         nipyapi.utils.is_endpoint_up,
@@ -253,11 +272,21 @@ def session_setup(request):
         except Exception:
             pass
     cleanup_nifi()
-    # Registry: configure CA first, then set endpoint with login
-    if TLS_CA_CERT_PATH:
-        nipyapi.config.registry_config.verify_ssl = True
-        nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH
-    nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
+    # Registry: mTLS vs LDAP/Single-User setup
+    if TEST_MTLS:
+        if TLS_CA_CERT_PATH:
+            nipyapi.config.registry_config.verify_ssl = True
+            nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH
+        if MTLS_CLIENT_CERT and MTLS_CLIENT_KEY:
+            nipyapi.config.registry_config.cert_file = MTLS_CLIENT_CERT
+            nipyapi.config.registry_config.key_file = MTLS_CLIENT_KEY
+        # Reuse default_ssl_context set above for client cert auth
+        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, False)
+    else:
+        if TLS_CA_CERT_PATH:
+            nipyapi.config.registry_config.verify_ssl = True
+            nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH
+        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
     reg_gui = REGISTRY_BASE_URL.replace('-api', '')
     if not nipyapi.utils.wait_to_complete(
         nipyapi.utils.is_endpoint_up,
@@ -358,14 +387,20 @@ def final_cleanup():
         log.info("SKIP_TEARDOWN is true; skipping final cleanup")
         return None
     # Cleanup NiFi
-    nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
+    if TEST_MTLS:
+        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, False)
+    else:
+        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
     cleanup_nifi()
     if (test_ldap or test_mtls) and 'https' in NIFI_BASE_URL:
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')
         remove_test_controllers(include_reporting_tasks=True)
     # Cleanup Registry
-    nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
+    if TEST_MTLS:
+        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, False)
+    else:
+        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
     cleanup_reg()
     if (test_ldap or test_mtls) and 'https' in REGISTRY_BASE_URL:
         remove_test_service_user_groups('registry')
