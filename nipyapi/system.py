@@ -59,13 +59,13 @@ def get_nifi_version_info():
 
     Returns (VersionInfoDTO):
     """
-    try:
-        about = nipyapi.nifi.FlowApi().get_about_info()
-        # Build a minimal VersionInfoDTO carrying the version string
-        return nipyapi.nifi.VersionInfoDTO(ni_fi_version=about.about.version)
-    except Exception:
-        diags = get_system_diagnostics()
-        return diags.system_diagnostics.aggregate_snapshot.version_info
+    with nipyapi.utils.rest_exceptions():
+        try:
+            about = nipyapi.nifi.FlowApi().get_about_info()
+            return nipyapi.nifi.VersionInfoDTO(ni_fi_version=about.about.version)
+        except Exception:  # pylint: disable=broad-exception-caught
+            diags = get_system_diagnostics()
+            return diags.system_diagnostics.aggregate_snapshot.version_info
 
 
 def get_registry_version_info():
@@ -104,7 +104,7 @@ def get_registry_version_info():
         # If details is already a string, return it as-is
         if isinstance(details, str):
             return details
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         pass
     # Could not determine; raise to allow caller to handle defaults
     raise ValueError('Unable to determine NiFi Registry version from About API response')

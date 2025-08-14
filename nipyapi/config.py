@@ -2,9 +2,25 @@
 A set of defaults and parameters used elsewhere in the project.
 Also provides a handy link to the low-level client SDK configuration singleton
 objects.
+
+Notes for NiFi/Registry 2.x:
+- Prefer configuring TLS on the configuration objects directly:
+  - nifi_config.ssl_ca_cert, nifi_config.cert_file, nifi_config.key_file
+  - registry_config.ssl_ca_cert, registry_config.cert_file, registry_config.key_file
+- Then connect via utils.set_endpoint(url, ssl=True, login=True|False)
+  - For mTLS, pass login=False and rely on the configured client cert/key
+- Supported environment toggles for tests and convenience:
+  - REQUESTS_CA_BUNDLE (CA bundle)
+  - NIPYAPI_VERIFY_SSL (0/1) and NIPYAPI_CHECK_HOSTNAME (0/1)
+
+Deprecated (kept for backward compatibility; prefer explicit configuration):
+- NIFI_CA_CERT / NIFI_CLIENT_CERT / NIFI_CLIENT_KEY
+- REGISTRY_CA_CERT / REGISTRY_CLIENT_CERT / REGISTRY_CLIENT_KEY
+- Demo/test credentials (default_nifi_username/password, default_registry_username/password)
 """
 
 import os
+import warnings
 import ssl
 import urllib3
 from nipyapi.nifi import configuration as nifi_config
@@ -71,16 +87,6 @@ registered_filters = {
 }
 
 
-# --- Version Checking
-# Method to check if we're compatible with the API endpoint
-# NOT YET IMPLEMENTED
-# If None, then no check has been done
-# If True, then we have tested and there are no issues
-# If False, then we believe we are incompatible
-nifi_config.version_check = None
-registry_config.version_check = None
-
-
 # --- Simple Cache
 # This is a simple session-wide insecure cache for certain slow calls to speed
 # up subsequent requests. It is very stupid, so do not expect session handling,
@@ -99,16 +105,18 @@ default_ssl_context = {
     "client_key_password": "clientPassword",
 }
 # Identities and passwords to be used for service login if called for
-default_nifi_username = "einstein"
-default_nifi_password = "password"
+# DEPRECATED: demo/test-only defaults. Define credentials in your application
+# or test bootstrap instead of relying on client defaults.
+default_nifi_username = "einstein"  # DEPRECATED (test/demo)
+default_nifi_password = "password"  # DEPRECATED (test/demo)
 # For secure-ldap test setup, initial admin is 'einstein'
-default_registry_username = "einstein"
-default_registry_password = "password"
-# Identity to be used for mTLS authentication
-default_mtls_identity = "CN=user1, OU=nifi"
-# Identity to be used in the Registry Client Proxy setup
+default_registry_username = "einstein"  # DEPRECATED (test/demo)
+default_registry_password = "password"  # DEPRECATED (test/demo)
+# Identity to be used for mTLS authentication (test/demo)
+default_mtls_identity = "CN=user1, OU=nifi"  # DEPRECATED (test/demo)
+# Identity to be used in the Registry Client Proxy setup (test/demo)
 # If called for during policy setup, particularly bootstrap_policies
-default_proxy_user = "CN=user1, OU=nifi"
+default_proxy_user = "CN=user1, OU=nifi"  # DEPRECATED (test/demo)
 
 # Auth handling
 # If set, NiPyAPI will always include the Basic Authorization header
@@ -132,7 +140,7 @@ if not global_ssl_verify or disable_insecure_request_warnings:
 
 # Respect env overrides for verify SSL and hostname checking
 _verify_env = os.getenv("NIPYAPI_VERIFY_SSL")
-if _verify_env is not None and _verify_env.lower() in ("0", "false", "no"): 
+if _verify_env is not None and _verify_env.lower() in ("0", "false", "no"):
     nifi_config.verify_ssl = False
     registry_config.verify_ssl = False
 
@@ -142,25 +150,42 @@ _host_env = os.getenv("NIPYAPI_CHECK_HOSTNAME")
 if _host_env is not None and _host_env.lower() in ("0", "false", "no"):
     global_ssl_host_check = False
 
+
 # Only disable verification via ssl_context when verify_ssl is False
 def _disable_verify(cfg):
     cfg.ssl_context = ssl.create_default_context()
     cfg.ssl_context.check_hostname = False
     cfg.ssl_context.verify_mode = ssl.CERT_NONE
 
+
 if not nifi_config.verify_ssl:
     _disable_verify(nifi_config)
 if not registry_config.verify_ssl:
     _disable_verify(registry_config)
 
-if os.getenv("NIFI_CA_CERT") is not None:
-    nifi_config.ssl_ca_cert = os.getenv("NIFI_CA_CERT")
+# Back-compat TLS envs (DEPRECATED): prefer REQUESTS_CA_BUNDLE or direct config
+_nifi_ca = os.getenv("NIFI_CA_CERT")
+if _nifi_ca is not None:
+    warnings.warn(
+        "NIFI_CA_CERT / NIFI_CLIENT_CERT / NIFI_CLIENT_KEY are deprecated; "
+        "set configuration.ssl_ca_cert/cert_file/key_file explicitly or use REQUESTS_CA_BUNDLE",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    nifi_config.ssl_ca_cert = _nifi_ca
     nifi_config.cert_file = os.getenv("NIFI_CLIENT_CERT")
     nifi_config.key_file = os.getenv("NIFI_CLIENT_KEY")
 
 # Optional: registry-specific CA envs
-if os.getenv("REGISTRY_CA_CERT") is not None:
-    registry_config.ssl_ca_cert = os.getenv("REGISTRY_CA_CERT")
+_reg_ca = os.getenv("REGISTRY_CA_CERT")
+if _reg_ca is not None:
+    warnings.warn(
+        "REGISTRY_CA_CERT / REGISTRY_CLIENT_CERT / REGISTRY_CLIENT_KEY are deprecated; "
+        "set configuration.ssl_ca_cert/cert_file/key_file explicitly or use REQUESTS_CA_BUNDLE",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    registry_config.ssl_ca_cert = _reg_ca
     registry_config.cert_file = os.getenv("REGISTRY_CLIENT_CERT")
     registry_config.key_file = os.getenv("REGISTRY_CLIENT_KEY")
 
@@ -171,6 +196,14 @@ if _shared_ca:
     registry_config.ssl_ca_cert = registry_config.ssl_ca_cert or _shared_ca
     nifi_config.verify_ssl = True
     registry_config.verify_ssl = True
+
+# Example (documentation) mTLS setup for NiFi 2.x:
+#
+# nifi_config.ssl_ca_cert = "/path/to/ca.pem"
+# nifi_config.cert_file = "/path/to/client.crt"
+# nifi_config.key_file = "/path/to/client.key"
+# # Then connect without token login (mTLS auth):
+# # utils.set_endpoint("https://host:9443/nifi-api", ssl=True, login=False)
 
 # --- Encoding
 # URL Encoding bypass characters will not be encoded during submission

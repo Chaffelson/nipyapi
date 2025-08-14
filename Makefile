@@ -1,4 +1,4 @@
-.PHONY: clean clean-test clean-pyc clean-build docs help
+.PHONY: clean clean-pyc clean-build docs help
 .DEFAULT_GOAL := help
 
 # Default NiFi/Registry version for docker compose profiles
@@ -34,7 +34,7 @@ BROWSER := python -c "$$BROWSER_PYSCRIPT"
 help:
 	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
-clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
+clean: clean-build clean-pyc ## remove all build, test, coverage and Python artifacts
 
 
 clean-build: ## remove build artifacts
@@ -50,13 +50,17 @@ clean-pyc: ## remove Python file artifacts
 	find . -name '*~' -exec rm -f {} +
 	find . -name '__pycache__' -exec rm -fr {} +
 
-clean-test: ## remove test and coverage artifacts
-	rm -fr .tox/
-	rm -f .coverage
-	rm -fr htmlcov/
+# remove test and coverage artifacts handled by coverage target
 
-lint: ## check style with flake8
+lint: ## run flake8 and pylint
+	$(MAKE) lint-flake8
+	$(MAKE) lint-pylint
+
+lint-flake8: ## run flake8
 	flake8 nipyapi tests
+
+lint-pylint: ## run pylint
+	pylint nipyapi --rcfile=pylintrc || true
 
 test: ## run tests quickly with the default Python (env handled by tests/conftest.py)
 	pytest -q
@@ -155,12 +159,15 @@ e2e: ## end-to-end: up -> wait-ready -> fetch-openapi -> augment-openapi -> gen-
 	$(MAKE) test-profile PROFILE=$(PROFILE)
 
 
-test-all: ## run tests on every Python version with tox
-	tox
+# Deprecated tox target
+test-all: ## (deprecated) use GitHub Actions matrix or run make test locally
+	@echo "Deprecated: use PROFILE=... make test or CI matrix instead."
 
-coverage: ## check code coverage quickly with the default Python
+coverage-min ?= 70
+coverage: ## run pytest with coverage and generate report (set coverage-min=NN to enforce)
 	coverage run --source nipyapi -m pytest
-	coverage report -m
+	coverage report -m --fail-under=$(coverage-min)
+	coverage xml -o coverage.xml
 	coverage html
 	$(BROWSER) htmlcov/index.html
 

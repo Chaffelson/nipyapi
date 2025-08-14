@@ -3,7 +3,6 @@ Convenience utility functions for NiPyApi, not really intended for external use
 """
 
 import logging
-import os
 import json
 import io
 import time
@@ -27,10 +26,7 @@ __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            ]
 
 log = logging.getLogger(__name__)
-
 DOCKER_AVAILABLE = False  # Docker management removed in 1.x (NiFi 2.x)
- 
-
 
 
 def dump(obj, mode='json'):
@@ -338,22 +334,24 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
             nipyapi.security.set_service_ssl_context(
                 service=service,
                 ca_file=shared_ca or nipyapi.config.default_ssl_context['ca_file'],
-                client_cert_file=getattr(configuration, 'cert_file', None) or nipyapi.config.default_ssl_context['client_cert_file'],
-                client_key_file=getattr(configuration, 'key_file', None) or nipyapi.config.default_ssl_context['client_key_file'],
-                client_key_password=getattr(configuration, 'key_password', None) or nipyapi.config.default_ssl_context['client_key_password']
+                client_cert_file=(getattr(configuration, 'cert_file', None)
+                                  or nipyapi.config.default_ssl_context['client_cert_file']),
+                client_key_file=(getattr(configuration, 'key_file', None)
+                                 or nipyapi.config.default_ssl_context['client_key_file']),
+                client_key_password=(getattr(configuration, 'key_password', None)
+                                     or nipyapi.config.default_ssl_context['client_key_password'])
             )
 
     # One-time supported-version enforcement: check once using existing helper.
     try:
         enforce_min_ver('2', service=service)
-    except Exception as e:
+    except Exception as e:  # pylint: disable=broad-except
         # Do not block connection for unreachable About in secured setups; log instead
         log.debug("Version check skipped or failed for %s: %s", service, e)
-
     return True
 
 
-# pylint: disable=R0913,R0902,R0917
+# pylint: disable=R0913,R0902,R0917,R0903
 class DockerContainer:  # pragma: no cover
     """Removed in 1.x (NiFi 2.x). Use Docker Compose or external tooling.
 
@@ -421,7 +419,7 @@ def check_version(base, comparator=None, service='nifi',
         try:
             reg_ver = nipyapi.system.get_registry_version_info()
             ver_b = version.parse(strip_version_string(reg_ver))
-        except Exception:
+        except Exception:  # pylint: disable=broad-exception-caught
             log.warning(
                 "Unable to get registry About version, assuming %s",
                 default_version)
@@ -437,8 +435,8 @@ def check_version(base, comparator=None, service='nifi',
     return 0
 
 
-def validate_parameters_versioning_support(verify_nifi=True,
-                                           verify_registry=True):
+def validate_parameters_versioning_support(verify_nifi=True,  # pylint: disable=unused-argument
+                                           verify_registry=True):  # pylint: disable=unused-argument
     """
     Convenience method to check if Parameters are supported
     Args:

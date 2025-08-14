@@ -1,3 +1,4 @@
+# pylint: disable=C0302
 """
 Secure connectivity management for NiPyApi
 """
@@ -317,13 +318,13 @@ def service_login(service="nifi", username=None, password=None,
             )
             set_service_auth_token(token=token, service=service)
             return True
-        else:
-            token = (
-                nipyapi.registry.AccessApi()
-                .create_access_token_using_basic_auth_credentials()
-            )
-            set_service_auth_token(token=token, service=service)
-            return True
+        # else:
+        token = (
+            nipyapi.registry.AccessApi()
+            .create_access_token_using_basic_auth_credentials()
+        )
+        set_service_auth_token(token=token, service=service)
+        return True
     except getattr(nipyapi, service).rest.ApiException as e:
         if bool_response:
             return False
@@ -808,7 +809,8 @@ def set_service_ssl_context(
 
 
 # pylint: disable=W0702,R0912,r0914
-def bootstrap_security_policies(service, user_identity=None, group_identity=None, nifi_proxy_identity=None):
+def bootstrap_security_policies(
+        service, user_identity=None, group_identity=None, nifi_proxy_identity=None):
     """Creates a default security context within NiFi or Nifi-Registry.
 
     Args:
