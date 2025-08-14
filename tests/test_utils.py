@@ -159,3 +159,19 @@ def test_check_version():
     # Check 2.x vs 1.x
     assert utils.check_version('2.0.0-M4', '1.13.0') == 1
     assert utils.check_version('1.13.0', '2.0.0-M4') == -1
+
+
+def test_validate_parameters_versioning_support_noop():
+    # Should be a no-op; legacy warnings removed due to 2.x floor
+    assert utils.validate_parameters_versioning_support() is None
+
+
+def test_get_registry_version_info_string():
+    ver = system.get_registry_version_info()
+    assert isinstance(ver, str) and len(ver) > 0
+
+
+def test_platform_minimum_versions():
+    # Both services should be 2.x or newer in supported environments
+    assert utils.check_version('2', service='nifi') <= 0
+    assert utils.check_version('2', service='registry') <= 0

@@ -58,8 +58,8 @@ clean-test: ## remove test and coverage artifacts
 lint: ## check style with flake8
 	flake8 nipyapi tests
 
-test: ## run tests quickly with the default Python
-	py.test
+test: ## run tests quickly with the default Python (env handled by tests/conftest.py)
+	pytest -q
 
 certs: ## generate PKCS12 certs and env for docker profiles
 	cd resources/certs && bash gen_certs.sh
@@ -131,61 +131,18 @@ wait-ready: ## wait for readiness; accepts PROFILE=single-user|secure-ldap|secur
 	fi; \
 	python resources/scripts/wait_ready.py
 
- test-profile: ## run pytest against selected PROFILE with defaults for URLs and TLS
-	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
-    if [ "$(PROFILE)" = "single-user" ] || [ "$(PROFILE)" = "secure-ldap" ]; then \
-        if [ "$(PROFILE)" = "secure-ldap" ]; then \
-            NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9444/nifi-api}"; \
-            REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18444/nifi-registry-api}"; \
-        else \
-            NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9443/nifi-api}"; \
-            REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-http://localhost:18080/nifi-registry-api}"; \
-        fi; \
-        NIFI_USERNAME="einstein"; \
-        if [ "$(PROFILE)" = "secure-ldap" ]; then \
-            NIFI_PASSWORD="password"; \
-        else \
-            NIFI_PASSWORD="password1234"; \
-        fi; \
-        REGISTRY_USERNAME="$${REGISTRY_USERNAME:-einstein}"; REGISTRY_PASSWORD="$${REGISTRY_PASSWORD:-password}"; \
-        if [ "$(PROFILE)" = "secure-ldap" ]; then \
-            TLS_CA_CERT_PATH="$${TLS_CA_CERT_PATH:-$(PWD)/resources/certs/client/ca.pem}"; \
-            NIPYAPI_VERIFY_SSL="$${NIPYAPI_VERIFY_SSL:-1}"; \
-        else \
-            TLS_CA_CERT_PATH=""; \
-            NIPYAPI_VERIFY_SSL="$${NIPYAPI_VERIFY_SSL:-0}"; \
-        fi; \
-        if [ "$(PROFILE)" = "single-user" ]; then \
-            export TEST_SINGLE_USER=true TEST_LDAP=false TEST_MTLS=false; \
-        else \
-            export TEST_SINGLE_USER=false TEST_LDAP=true TEST_MTLS=false; \
-        fi; \
-        export NIFI_BASE_URL REGISTRY_BASE_URL NIFI_USERNAME NIFI_PASSWORD REGISTRY_USERNAME REGISTRY_PASSWORD TLS_CA_CERT_PATH NIPYAPI_VERIFY_SSL; \
-	elif [ "$(PROFILE)" = "secure-mtls" ]; then \
-		NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9445/nifi-api}"; \
-		REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18445/nifi-registry-api}"; \
-		TLS_CA_CERT_PATH="$${TLS_CA_CERT_PATH:-$(PWD)/resources/certs/client/ca.pem}"; \
-		MTLS_CLIENT_CERT="$${MTLS_CLIENT_CERT:-$(PWD)/resources/certs/client/client.crt}"; \
-		MTLS_CLIENT_KEY="$${MTLS_CLIENT_KEY:-$(PWD)/resources/certs/client/client.key}"; \
-		export TEST_SINGLE_USER=false TEST_LDAP=false TEST_MTLS=true; \
-		export NIFI_BASE_URL REGISTRY_BASE_URL TLS_CA_CERT_PATH MTLS_CLIENT_CERT MTLS_CLIENT_KEY; \
-	else echo "Unknown PROFILE $(PROFILE)"; exit 1; fi; \
-	# Verify expected containers for the profile are running via docker ps
-	if [ "$(PROFILE)" = "single-user" ]; then expect_names="nifi-single registry-single"; \
-	elif [ "$(PROFILE)" = "secure-ldap" ]; then expect_names="nifi-ldap registry-ldap"; \
-	elif [ "$(PROFILE)" = "secure-mtls" ]; then expect_names="nifi-mtls registry-mtls"; fi; \
-	for n in $$expect_names; do \
-		if ! docker ps --format '{{.Names}}' | grep -Fxq "$$n"; then \
-			echo "ERROR: Expected container '$$n' not running for PROFILE=$(PROFILE). Run 'make up PROFILE=$(PROFILE)' first."; \
-			exit 2; \
-		fi; \
-	done; \
-    echo "Using PROFILE=$(PROFILE)"; \
-    echo "NIFI_BASE_URL=$$NIFI_BASE_URL"; \
-    echo "REGISTRY_BASE_URL=$$REGISTRY_BASE_URL"; \
-    echo "TLS_CA_CERT_PATH=$$TLS_CA_CERT_PATH"; \
-    echo "NIPYAPI_VERIFY_SSL=$$NIPYAPI_VERIFY_SSL"; \
-    NIFI_BASE_URL=$$NIFI_BASE_URL REGISTRY_BASE_URL=$$REGISTRY_BASE_URL TLS_CA_CERT_PATH=$$TLS_CA_CERT_PATH NIPYAPI_VERIFY_SSL=$$NIPYAPI_VERIFY_SSL PYTHONPATH=$(PWD):$$PYTHONPATH $(MAKE) wait-ready PROFILE=$(PROFILE) && NIPYAPI_VERIFY_SSL=$$NIPYAPI_VERIFY_SSL PYTHONPATH=$(PWD):$$PYTHONPATH py.test -q
+test-profile: ## run pytest with provided PROFILE; config resolved by tests/conftest.py
+	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required (single-user|secure-ldap|secure-mtls)"; exit 1; fi; \
+	PROFILE=$(PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
+
+test-su: ## shortcut: PROFILE=single-user pytest
+	PROFILE=single-user $(MAKE) test-profile
+
+test-ldap: ## shortcut: PROFILE=secure-ldap pytest
+	PROFILE=secure-ldap $(MAKE) test-profile
+
+test-mtls: ## shortcut: PROFILE=secure-mtls pytest
+	PROFILE=secure-mtls $(MAKE) test-profile
 
 e2e: ## end-to-end: up -> wait-ready -> fetch-openapi -> augment-openapi -> gen-clients -> tests
 	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \

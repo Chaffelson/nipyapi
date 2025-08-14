@@ -35,6 +35,8 @@ try:
     DOCKER_AVAILABLE = True
 except ImportError:
     DOCKER_AVAILABLE = False
+ 
+
 
 
 def dump(obj, mode='json'):
@@ -321,11 +323,10 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
     # remove any trailing slash to avoid hard to spot errors
     configuration.host = endpoint_url.rstrip('/')
 
-    # Apply TLS CA if provided via env (preferred over demo defaults)
-    shared_ca = os.getenv('TLS_CA_CERT_PATH') or os.getenv('REQUESTS_CA_BUNDLE')
-    if shared_ca:
-        configuration.ssl_ca_cert = shared_ca
-        # Ensure we do not carry a stale SSLContext; rely on CA bundle for one-way TLS
+    # Respect preconfigured CA only; environment integration should be handled by callers
+    shared_ca = getattr(configuration, 'ssl_ca_cert', None)
+    if shared_ca and login:
+        # For username/password (one-way TLS) flows, prefer CA bundle over any pre-set SSLContext
         configuration.ssl_context = None
         # Recreate API client to pick up new CA
         configuration.api_client = None
@@ -339,14 +340,21 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
                 service, username=username, password=password
             )
         else:
-            # mTLS auth with client certificates
+            # mTLS auth with client certificates; prefer preconfigured values
             nipyapi.security.set_service_ssl_context(
                 service=service,
                 ca_file=shared_ca or nipyapi.config.default_ssl_context['ca_file'],
-                client_cert_file=nipyapi.config.default_ssl_context['client_cert_file'],
-                client_key_file=nipyapi.config.default_ssl_context['client_key_file'],
-                client_key_password=nipyapi.config.default_ssl_context['client_key_password']
+                client_cert_file=getattr(configuration, 'cert_file', None) or nipyapi.config.default_ssl_context['client_cert_file'],
+                client_key_file=getattr(configuration, 'key_file', None) or nipyapi.config.default_ssl_context['client_key_file'],
+                client_key_password=getattr(configuration, 'key_password', None) or nipyapi.config.default_ssl_context['client_key_password']
             )
+
+    # One-time supported-version enforcement: check once using existing helper.
+    try:
+        enforce_min_ver('2', service=service)
+    except Exception as e:
+        # Do not block connection for unreachable About in secured setups; log instead
+        log.debug("Version check skipped or failed for %s: %s", service, e)
 
     return True
 
@@ -485,7 +493,7 @@ class VersionError(Exception):
 
 
 def check_version(base, comparator=None, service='nifi',
-                  default_version='0.2.0'):
+                  default_version='2.0.0'):
     """
     Compares version base against either version comparator, or the version
     of the currently connected service instance.
@@ -546,21 +554,10 @@ def validate_parameters_versioning_support(verify_nifi=True,
         verify_nifi (bool): If True, check NiFi meets the min version
         verify_registry (bool): If True, check Registry meets the min version
     """
-    if verify_nifi:
-        nifi_check = enforce_min_ver('1.10', bool_response=True)
-    else:
-        nifi_check = False
-
-    if verify_registry:
-        registry_check = enforce_min_ver('0.6', service='registry',
-                                         bool_response=True)
-    else:
-        registry_check = False
-
-    if nifi_check or registry_check:
-        log.warning("Connected NiFi Registry may not support "
-                    "Parameter Contexts and they may be lost in "
-                    "Version Control")
+    # NiFi 2.x/Registry 2.x support Parameter Contexts in versioned flows.
+    # Legacy warnings for <1.10 (NiFi) or <0.6 (Registry) removed as we no
+    # longer support those platform versions.
+    return None
 
 
 def validate_templates_version_support():

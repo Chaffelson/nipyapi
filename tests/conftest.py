@@ -12,7 +12,16 @@ from urllib.parse import urlparse
 log = logging.getLogger(__name__)
 
 # Environment-driven test configuration
-PROFILE = os.getenv('PROFILE', '').strip()  # optional; informational
+PROFIlE_DOC = """
+Profile controls how tests connect to NiFi and Registry:
+  - single-user: HTTPS NiFi with username/password; Registry over HTTP
+  - secure-ldap: HTTPS NiFi and Registry with username/password; TLS CA required
+  - secure-mtls: HTTPS NiFi and Registry with mutual TLS (client certs)
+
+Defaults are applied for URLs, credentials, and TLS assets suitable for local
+Docker-based testing. Environment variables override all defaults.
+"""
+PROFILE = os.getenv('PROFILE', '').strip()
 
 def _flag(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
@@ -30,7 +39,7 @@ SKIP_TEARDOWN = _flag('SKIP_TEARDOWN', default=False)
 test_ldap = TEST_LDAP
 test_mtls = TEST_MTLS
 
-# Base URLs; prefer env, otherwise decide by PROFILE below
+# Base URLs and credentials; env overrides take precedence, otherwise default by PROFILE below
 NIFI_BASE_URL = os.getenv('NIFI_BASE_URL')
 REGISTRY_BASE_URL = os.getenv('REGISTRY_BASE_URL')
 NIFI_USERNAME = os.getenv('NIFI_USERNAME')
@@ -45,6 +54,32 @@ MTLS_CLIENT_KEY_PASSWORD = os.getenv('MTLS_CLIENT_KEY_PASSWORD')
 
 # Use only environment variable for CERT_PASSWORD (no file fallback)
 CERT_PASSWORD = os.getenv('CERT_PASSWORD', 'changeit')
+
+# ---- Profile helpers -------------------------------------------------------
+
+def _active_profile() -> str:
+    """Return one of 'single-user', 'secure-ldap', 'secure-mtls'."""
+    if TEST_MTLS:
+        return 'secure-mtls'
+    if TEST_LDAP:
+        return 'secure-ldap'
+    return 'single-user'
+
+
+_PROFILE_DEFAULT_URLS = {
+    'single-user': {
+        'nifi': 'https://localhost:9443/nifi-api',
+        'registry': 'http://localhost:18080/nifi-registry-api',
+    },
+    'secure-ldap': {
+        'nifi': 'https://localhost:9444/nifi-api',
+        'registry': 'https://localhost:18444/nifi-registry-api',
+    },
+    'secure-mtls': {
+        'nifi': 'https://localhost:9445/nifi-api',
+        'registry': 'https://localhost:18445/nifi-registry-api',
+    },
+}
 
 # Test Configuration parameters
 test_host = nipyapi.config.default_host
@@ -70,34 +105,127 @@ test_ssl_controller_name = test_basename + "_ssl_controller"
 test_user_name = test_basename + '_user'
 test_user_group_name = test_basename + '_user_group'
 
-test_resource_dir = 'resources'
-# Test template filenames should match the template PG name
-test_templates = {
-    'basic': test_basename + 'Template_00',
-    'greedy': test_basename + 'Template_00_greedy',
-    'complex': test_basename + 'Template_01'
-}
 
 log.info("Setting up Test Endpoints")
 
-# Apply CA bundle if provided, but do not force verification on/off here
-if TLS_CA_CERT_PATH:
-    nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH
-    nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH
+def _apply_global_ca_defaults():
+    """Apply a CA bundle usable by both services for one-way TLS.
 
-# Provide sensible defaults if envs are not set
-if PROFILE == 'secure-ldap':
-    NIFI_BASE_URL = NIFI_BASE_URL or 'https://localhost:9444/nifi-api'
-    REGISTRY_BASE_URL = REGISTRY_BASE_URL or 'https://localhost:18444/nifi-registry-api'
-elif PROFILE == 'secure-mtls':
-    NIFI_BASE_URL = NIFI_BASE_URL or 'https://localhost:9445/nifi-api'
-    REGISTRY_BASE_URL = REGISTRY_BASE_URL or 'https://localhost:18445/nifi-registry-api'
-else:
-    NIFI_BASE_URL = NIFI_BASE_URL or 'https://localhost:9443/nifi-api'
-    REGISTRY_BASE_URL = REGISTRY_BASE_URL or 'http://localhost:18080/nifi-registry-api'
+    If TLS_CA_CERT_PATH is set in the environment, use it. Otherwise, when a
+    repo-local test CA exists, adopt it for convenience.
+    This does not toggle verification policy; individual setup functions decide.
+    """
+    if TLS_CA_CERT_PATH:
+        nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH
+        nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH
+    else:
+        # For local test convenience, if a repo-local CA exists, adopt it unless explicitly overridden
+        local_ca = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'certs', 'client', 'ca.pem')
+        if os.path.exists(local_ca):
+            nipyapi.config.nifi_config.ssl_ca_cert = local_ca
+            nipyapi.config.registry_config.ssl_ca_cert = local_ca
+
+
+def _ensure_tls_for(service: str, base_url: str):
+    """Ensure TLS verification and CA bundle are set for HTTPS URLs.
+
+    - Prefers explicit CA (TLS_CA_CERT_PATH), else uses repo-local CA if present
+    - Keeps verification enabled; does not toggle to insecure
+    - Only applies to the target service and when base_url uses HTTPS
+    """
+    assert service in ('nifi', 'registry')
+    cfg = nipyapi.config.nifi_config if service == 'nifi' else nipyapi.config.registry_config
+    if base_url and base_url.startswith('https://'):
+        # If an explicit env was provided earlier, cfg.ssl_ca_cert is already set
+        if not getattr(cfg, 'ssl_ca_cert', None):
+            local_ca = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'certs', 'client', 'ca.pem')
+            if os.path.exists(local_ca):
+                cfg.ssl_ca_cert = local_ca
+        cfg.verify_ssl = True
+
+
+def _apply_default_urls():
+    """Apply profile-based default URLs when env overrides are not provided."""
+    global NIFI_BASE_URL, REGISTRY_BASE_URL
+    profile_key = _active_profile()
+    defaults = _PROFILE_DEFAULT_URLS[profile_key]
+    NIFI_BASE_URL = NIFI_BASE_URL or defaults['nifi']
+    REGISTRY_BASE_URL = REGISTRY_BASE_URL or defaults['registry']
+
+
+_apply_global_ca_defaults()
+_apply_default_urls()
+
+# Provide sensible default credentials for supported profiles when not set via env
+if _active_profile() == 'secure-ldap':
+    NIFI_USERNAME = NIFI_USERNAME or 'einstein'
+    NIFI_PASSWORD = NIFI_PASSWORD or 'password'
+    REGISTRY_USERNAME = REGISTRY_USERNAME or 'einstein'
+    REGISTRY_PASSWORD = REGISTRY_PASSWORD or 'password'
+elif _active_profile() == 'single-user':
+    NIFI_USERNAME = NIFI_USERNAME or 'einstein'
+    NIFI_PASSWORD = NIFI_PASSWORD or 'password1234'
+    REGISTRY_USERNAME = REGISTRY_USERNAME or 'einstein'
+    REGISTRY_PASSWORD = REGISTRY_PASSWORD or 'password'
  
 
+def _resolve_profile_defaults():
+    """Resolve connection defaults for the active PROFILE.
 
+    Precedence:
+      1) Env vars: URLs, credentials, TLS_CA_CERT_PATH, MTLS_CLIENT_CERT/KEY
+      2) Profile defaults (URLs, credentials)
+      3) Repo-local TLS assets for secure profiles
+
+    Returns a dict used to configure nipyapi.config and setup handlers.
+    """
+    profile_key = _active_profile()
+    defaults = _PROFILE_DEFAULT_URLS[profile_key]
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    local_ca = os.path.join(repo_root, 'resources', 'certs', 'client', 'ca.pem')
+    client_crt = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
+    client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
+
+    nifi_url = NIFI_BASE_URL or defaults['nifi']
+    reg_url = REGISTRY_BASE_URL or defaults['registry']
+
+    if profile_key == 'secure-ldap':
+        nifi_user = NIFI_USERNAME or 'einstein'
+        nifi_pass = NIFI_PASSWORD or 'password'
+        reg_user = REGISTRY_USERNAME or 'einstein'
+        reg_pass = REGISTRY_PASSWORD or 'password'
+    elif profile_key == 'single-user':
+        nifi_user = NIFI_USERNAME or 'einstein'
+        nifi_pass = NIFI_PASSWORD or 'password1234'
+        reg_user = REGISTRY_USERNAME or 'einstein'
+        reg_pass = REGISTRY_PASSWORD or 'password'
+    else:
+        nifi_user = NIFI_USERNAME or ''
+        nifi_pass = NIFI_PASSWORD or ''
+        reg_user = REGISTRY_USERNAME or (REGISTRY_USERNAME or '')
+        reg_pass = REGISTRY_PASSWORD or (REGISTRY_PASSWORD or '')
+
+    ca_path = TLS_CA_CERT_PATH
+    if not ca_path and profile_key in ('secure-ldap', 'secure-mtls') and os.path.exists(local_ca):
+        ca_path = local_ca
+
+    client_cert = MTLS_CLIENT_CERT or (client_crt if os.path.exists(client_crt) else None)
+    key_path = MTLS_CLIENT_KEY or (client_key if os.path.exists(client_key) else None)
+    client_key_password = MTLS_CLIENT_KEY_PASSWORD or ''
+
+    return {
+        'profile': profile_key,
+        'nifi_url': nifi_url,
+        'registry_url': reg_url,
+        'nifi_user': nifi_user,
+        'nifi_pass': nifi_pass,
+        'registry_user': reg_user,
+        'registry_pass': reg_pass,
+        'ca_path': ca_path,
+        'client_cert': client_cert,
+        'client_key': key_path,
+        'client_key_password': client_key_password,
+    }
 def pytest_generate_tests(metafunc):
     # Single target per profile; no parametrization
     return None
@@ -229,73 +357,125 @@ def regress_flow_reg(request):
     return None
 
 
-# Tests that the Docker test environment is available before running test suite
-@pytest.fixture(scope="session", autouse=True)
-def session_setup(request):
-    log.info("Commencing test session setup")
-    # NiFi: mTLS vs LDAP/Single-User setup
-    if TEST_MTLS:
-        # Configure client certs for mTLS and avoid username/password token login
-        if TLS_CA_CERT_PATH:
-            nipyapi.config.nifi_config.verify_ssl = True
-            nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH
-        if MTLS_CLIENT_CERT and MTLS_CLIENT_KEY:
-            nipyapi.config.nifi_config.cert_file = MTLS_CLIENT_CERT
-            nipyapi.config.nifi_config.key_file = MTLS_CLIENT_KEY
-        # Point default_ssl_context to generated client certs for utils.set_endpoint
-        if MTLS_CLIENT_CERT and MTLS_CLIENT_KEY:
-            nipyapi.config.default_ssl_context.update({
-                'ca_file': TLS_CA_CERT_PATH or nipyapi.config.default_ssl_context.get('ca_file'),
-                'client_cert_file': MTLS_CLIENT_CERT,
-                'client_key_file': MTLS_CLIENT_KEY,
-                'client_key_password': MTLS_CLIENT_KEY_PASSWORD or ''
-            })
-        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, False)
-    else:
-        # LDAP/Single-user: set CA first, then username/password login
-        if TLS_CA_CERT_PATH:
-            nipyapi.config.nifi_config.verify_ssl = True
-            nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH
-        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
-    gui_url = NIFI_BASE_URL.replace('-api', '')
+def _setup_nifi_single_user():
+    _ensure_tls_for('nifi', NIFI_BASE_URL or '')
+    nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
+
+
+def _setup_nifi_secure_ldap():
+    # LDAP behaves the same as single-user for client auth (username/password)
+    _setup_nifi_single_user()
+
+
+def _setup_nifi_secure_mtls():
+    # Ensure CA and client certs are configured for mTLS
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    local_ca = os.path.join(repo_root, 'resources', 'certs', 'client', 'ca.pem')
+    client_crt = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
+    client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
+    if TLS_CA_CERT_PATH or os.path.exists(local_ca):
+        nipyapi.config.nifi_config.verify_ssl = True
+        nipyapi.config.nifi_config.ssl_ca_cert = TLS_CA_CERT_PATH or local_ca
+    # Prefer env-provided client certs; otherwise use repo-local test certs
+    cert_path = MTLS_CLIENT_CERT if MTLS_CLIENT_CERT else (client_crt if os.path.exists(client_crt) else None)
+    key_path = MTLS_CLIENT_KEY if MTLS_CLIENT_KEY else (client_key if os.path.exists(client_key) else None)
+    if cert_path and key_path:
+        nipyapi.config.nifi_config.cert_file = cert_path
+        nipyapi.config.nifi_config.key_file = key_path
+    nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, False)
+
+
+def _setup_registry_single_user():
+    _ensure_tls_for('registry', REGISTRY_BASE_URL or '')
+    nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
+
+
+def _setup_registry_secure_ldap():
+    _setup_registry_single_user()
+
+
+def _setup_registry_secure_mtls():
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    local_ca = os.path.join(repo_root, 'resources', 'certs', 'client', 'ca.pem')
+    client_crt = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
+    client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
+    if TLS_CA_CERT_PATH or os.path.exists(local_ca):
+        nipyapi.config.registry_config.verify_ssl = True
+        nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH or local_ca
+    cert_path = MTLS_CLIENT_CERT if MTLS_CLIENT_CERT else (client_crt if os.path.exists(client_crt) else None)
+    key_path = MTLS_CLIENT_KEY if MTLS_CLIENT_KEY else (client_key if os.path.exists(client_key) else None)
+    if cert_path and key_path:
+        nipyapi.config.registry_config.cert_file = cert_path
+        nipyapi.config.registry_config.key_file = key_path
+    nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, False)
+
+
+_NIFI_SETUP_MAP = {
+    'single-user': _setup_nifi_single_user,
+    'secure-ldap': _setup_nifi_secure_ldap,
+    'secure-mtls': _setup_nifi_secure_mtls,
+}
+
+_REGISTRY_SETUP_MAP = {
+    'single-user': _setup_registry_single_user,
+    'secure-ldap': _setup_registry_secure_ldap,
+    'secure-mtls': _setup_registry_secure_mtls,
+}
+
+
+def _wait_until_service_up(gui_url: str):
     if not nipyapi.utils.wait_to_complete(
         nipyapi.utils.is_endpoint_up,
         gui_url,
         nipyapi_delay=nipyapi.config.long_retry_delay,
         nipyapi_max_wait=nipyapi.config.long_max_wait):
         pytest.exit(f"Expected Service endpoint ({gui_url}) is not responding")
+
+
+# Tests that the Docker test environment is available before running test suite
+@pytest.fixture(scope="session", autouse=True)
+def session_setup(request):
+    log.info("Commencing test session setup")
+    # Resolve effective connection defaults from env + profile
+    resolved = _resolve_profile_defaults()
+    profile_key = resolved['profile']
+    # Apply CA bundle to both configs if present
+    if resolved['ca_path']:
+        nipyapi.config.nifi_config.ssl_ca_cert = resolved['ca_path']
+        nipyapi.config.registry_config.ssl_ca_cert = resolved['ca_path']
+    # Apply mTLS client certs for secure-mtls
+    if profile_key == 'secure-mtls':
+        if resolved['client_cert'] and resolved['client_key']:
+            nipyapi.config.nifi_config.cert_file = resolved['client_cert']
+            nipyapi.config.nifi_config.key_file = resolved['client_key']
+        if resolved['client_cert'] and resolved['client_key']:
+            nipyapi.config.registry_config.cert_file = resolved['client_cert']
+            nipyapi.config.registry_config.key_file = resolved['client_key']
+    # Stabilize module-level globals for downstream calls
+    global NIFI_BASE_URL, REGISTRY_BASE_URL, NIFI_USERNAME, NIFI_PASSWORD, REGISTRY_USERNAME, REGISTRY_PASSWORD
+    NIFI_BASE_URL = resolved['nifi_url']
+    REGISTRY_BASE_URL = resolved['registry_url']
+    NIFI_USERNAME = resolved['nifi_user']
+    NIFI_PASSWORD = resolved['nifi_pass']
+    REGISTRY_USERNAME = resolved['registry_user']
+    REGISTRY_PASSWORD = resolved['registry_pass']
+
+    # NiFi setup and readiness
+    _NIFI_SETUP_MAP[profile_key]()
+    _wait_until_service_up(NIFI_BASE_URL.replace('-api', ''))
     if not nipyapi.canvas.get_root_pg_id():
         raise ValueError("No Response from NiFi test call")
-    if TEST_LDAP or TEST_MTLS:
+    if profile_key in ('secure-ldap', 'secure-mtls'):
         try:
             nipyapi.security.bootstrap_security_policies(service='nifi')
         except Exception:
             pass
     cleanup_nifi()
-    # Registry: mTLS vs LDAP/Single-User setup
-    if TEST_MTLS:
-        if TLS_CA_CERT_PATH:
-            nipyapi.config.registry_config.verify_ssl = True
-            nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH
-        if MTLS_CLIENT_CERT and MTLS_CLIENT_KEY:
-            nipyapi.config.registry_config.cert_file = MTLS_CLIENT_CERT
-            nipyapi.config.registry_config.key_file = MTLS_CLIENT_KEY
-        # Reuse default_ssl_context set above for client cert auth
-        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, False)
-    else:
-        if TLS_CA_CERT_PATH:
-            nipyapi.config.registry_config.verify_ssl = True
-            nipyapi.config.registry_config.ssl_ca_cert = TLS_CA_CERT_PATH
-        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
-    reg_gui = REGISTRY_BASE_URL.replace('-api', '')
-    if not nipyapi.utils.wait_to_complete(
-        nipyapi.utils.is_endpoint_up,
-        reg_gui,
-        nipyapi_delay=nipyapi.config.long_retry_delay,
-        nipyapi_max_wait=nipyapi.config.long_max_wait):
-        pytest.exit(f"Expected Service endpoint ({reg_gui}) is not responding")
-    # Explicit Registry version probe to validate auth/TLS; fail early if not reachable
-    _ = nipyapi.registry.AboutApi().get_version()
+
+    # Registry setup and readiness
+    _REGISTRY_SETUP_MAP[profile_key]()
+    _wait_until_service_up(REGISTRY_BASE_URL.replace('-api', ''))
+    _ = nipyapi.system.get_registry_version_info()
     try:
         # Baseline registry bootstrap
         nipyapi.security.bootstrap_security_policies(
@@ -316,11 +496,13 @@ def session_setup(request):
     except Exception:
         pass
     cleanup_reg()
+
     # Ensure a registry client exists for secure profiles
-    if TEST_LDAP:
+    if profile_key == 'secure-ldap':
         _ = ensure_registry_client('https://registry-ldap:18443')
-    elif TEST_MTLS:
+    elif profile_key == 'secure-mtls':
         _ = ensure_registry_client('https://registry-mtls:18443')
+
     request.addfinalizer(final_cleanup)
     log.info("Completing Test Session Setup")
 
@@ -386,21 +568,13 @@ def final_cleanup():
     if SKIP_TEARDOWN:
         log.info("SKIP_TEARDOWN is true; skipping final cleanup")
         return None
-    # Cleanup NiFi
-    if TEST_MTLS:
-        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, False)
-    else:
-        nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
+    # Cleanup NiFi using the existing authenticated session
     cleanup_nifi()
     if (test_ldap or test_mtls) and 'https' in NIFI_BASE_URL:
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')
         remove_test_controllers(include_reporting_tasks=True)
-    # Cleanup Registry
-    if TEST_MTLS:
-        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, False)
-    else:
-        nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
+    # Cleanup Registry using the existing authenticated session
     cleanup_reg()
     if (test_ldap or test_mtls) and 'https' in REGISTRY_BASE_URL:
         remove_test_service_user_groups('registry')

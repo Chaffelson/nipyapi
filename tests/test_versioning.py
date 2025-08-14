@@ -392,46 +392,41 @@ def test_import_flow_version(fix_flow_serde):
 
 
 def test_issue_229(fix_bucket, fix_pg, fix_context):
-    # test we can deploy and imported flow, issue 229
-    if utils.enforce_min_ver('1.10.0', bool_response=True) or utils.enforce_min_ver('0.6.0', service='registry',
-                                                                                    bool_response=True):
-        pass
-    else:
-        reg_client = conftest.ensure_registry_client(conftest.REGISTRY_BASE_URL)
-        bucket = fix_bucket()
-        pg = fix_pg.generate()
-        context = fix_context.generate()
-        parameters.assign_context_to_process_group(pg, context.id)
-        save_flow_ver = versioning.save_flow_ver(
-            process_group=pg,
-            registry_client=reg_client,
-            bucket=bucket,
-            flow_name=conftest.test_versioned_flow_name,
-            comment='NiPyApi Test',
-            desc='NiPyApi Test'
-        )
-        flow_raw = versioning.get_flow_version(
-            bucket_id=bucket.identifier,
-            flow_id=save_flow_ver.version_control_information.flow_id,
-            export=True
-        )
-        # Check that it is being exported correctly
-        # Older versions of Registry will drop unsupported parameterContext information
-        if 'parameterContexts' in utils.load(flow_raw).keys():
-            imported_flow = versioning.import_flow_version(
-                bucket_id=bucket.identifier,
-                encoded_flow=flow_raw,
-                flow_name=conftest.test_versioned_flow_name + '_229'
-            )
-            deployed_flow = versioning.deploy_flow_version(
-                parent_id=canvas.get_root_pg_id(),
-                location=(0, 0),
-                bucket_id=bucket.identifier,
-                flow_id=imported_flow.flow.identifier,
-                 reg_client_id=reg_client.id,
-                version=None
-            )
-            assert isinstance(deployed_flow, nifi.ProcessGroupEntity)
+    # test we can deploy an imported flow, issue 229
+    reg_client = conftest.ensure_registry_client(conftest.REGISTRY_BASE_URL)
+    bucket = fix_bucket()
+    pg = fix_pg.generate()
+    context = fix_context.generate()
+    parameters.assign_context_to_process_group(pg, context.id)
+    save_flow_ver = versioning.save_flow_ver(
+        process_group=pg,
+        registry_client=reg_client,
+        bucket=bucket,
+        flow_name=conftest.test_versioned_flow_name,
+        comment='NiPyApi Test',
+        desc='NiPyApi Test'
+    )
+    flow_raw = versioning.get_flow_version(
+        bucket_id=bucket.identifier,
+        flow_id=save_flow_ver.version_control_information.flow_id,
+        export=True
+    )
+    # Check that it is being exported correctly
+    # Older registries (<2.x) are unsupported; proceed unconditionally
+    imported_flow = versioning.import_flow_version(
+        bucket_id=bucket.identifier,
+        encoded_flow=flow_raw,
+        flow_name=conftest.test_versioned_flow_name + '_229'
+    )
+    deployed_flow = versioning.deploy_flow_version(
+        parent_id=canvas.get_root_pg_id(),
+        location=(0, 0),
+        bucket_id=bucket.identifier,
+        flow_id=imported_flow.flow.identifier,
+        reg_client_id=reg_client.id,
+        version=None
+    )
+    assert isinstance(deployed_flow, nifi.ProcessGroupEntity)
 
 
 def test_deploy_flow_version(regress_flow_reg, fix_ver_flow):

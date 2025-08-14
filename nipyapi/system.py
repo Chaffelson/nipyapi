@@ -73,7 +73,38 @@ def get_registry_version_info():
     Returns the version information of the connected NiFi Registry instance.
 
     Uses About endpoint which is sufficient for version probes.
-    Returns (str):
+    Returns (str): The version string (e.g., "2.5.0")
     """
     details = nipyapi.registry.AboutApi().get_version()
-    return details.registry_about.version
+    # The generated model for Registry 2.5.0 exposes `registry_about_version`
+    # but we normalize and attempt multiple shapes for forward/backward compat.
+    # Always return a plain version string.
+    try:
+        # Direct attribute on the model (current generator)
+        ver = getattr(details, 'registry_about_version', None)
+        if ver:
+            return ver
+        # Sometimes models expose a top-level `version`
+        ver = getattr(details, 'version', None)
+        if ver:
+            return ver
+        # Attempt dict conversion and look for common keys
+        if hasattr(details, 'to_dict'):
+            d = details.to_dict() or {}
+        elif isinstance(details, dict):
+            d = details
+        else:
+            d = {}
+        for key in (
+            'registry_about_version', 'registryAboutVersion', 'version',
+            'registry_version', 'registryVersion'
+        ):
+            if key in d and d[key]:
+                return d[key]
+        # If details is already a string, return it as-is
+        if isinstance(details, str):
+            return details
+    except Exception:
+        pass
+    # Could not determine; raise to allow caller to handle defaults
+    raise ValueError('Unable to determine NiFi Registry version from About API response')

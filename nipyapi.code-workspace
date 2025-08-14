@@ -5,6 +5,7 @@
         }
     ],
     "settings": {
-        "makefile.configureOnOpen": false
+        "makefile.configureOnOpen": false,
+        "python.defaultInterpreterPath": "/opt/anaconda3/envs/nipyapi-dev/bin/python"
     }
 }
