@@ -1,5 +1,8 @@
 """
-A convenience script for generating an interactive test environment.
+A convenience script for generating an interactive test environment (deprecated).
+
+This module is deprecated and will be removed. Use external examples
+or Docker Compose based environments.
 """
 
 import logging

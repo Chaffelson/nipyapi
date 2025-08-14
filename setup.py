@@ -20,9 +20,8 @@ tests_require=[
     'pytest>=7.2.0'
 ]
 
-extras_require={
-    'demo': ['docker>=2.5.1']
-}
+# Extras no longer include docker; demos are deprecated and removed in 1.x
+extras_require={}
 
 setup(
     name='nipyapi',

@@ -21,7 +21,6 @@ from nipyapi.config import default_string_encoding as DEF_ENCODING
 
 __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
-           'start_docker_containers', 'DockerContainer',
            'infer_object_label_from_class', 'bypass_slash_encoding',
            'exception_handler', 'enforce_min_ver', 'check_version',
            'validate_parameters_versioning_support'
@@ -29,12 +28,7 @@ __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
 
 log = logging.getLogger(__name__)
 
-try:
-    import docker
-    from docker.errors import ImageNotFound
-    DOCKER_AVAILABLE = True
-except ImportError:
-    DOCKER_AVAILABLE = False
+DOCKER_AVAILABLE = False  # Docker management removed in 1.x (NiFi 2.x)
  
 
 
@@ -360,132 +354,29 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
 
 
 # pylint: disable=R0913,R0902,R0917
-class DockerContainer():
+class DockerContainer:  # pragma: no cover
+    """Removed in 1.x (NiFi 2.x). Use Docker Compose or external tooling.
+
+    This class is kept as a stub to raise a clear error for callers
+    who still import it. It will be removed in a future release.
     """
-    Helper class for Docker container automation without using Ansible
-    """
-    def __init__(self, name=None, image_name=None, image_tag=None, ports=None,
-                 env=None, volumes=None, test_url=None, endpoint=None):
-        if not DOCKER_AVAILABLE:
-            raise ImportError(
-                "The 'docker' package is required for this class. "
-                "Please install nipyapi with the 'demo' extra: "
-                "pip install nipyapi[demo]"
-            )
-        self.name = name
-        self.image_name = image_name
-        self.image_tag = image_tag
-        self.ports = ports
-        self.env = env
-        self.volumes = volumes
-        self.test_url = test_url
-        self.endpoint = endpoint
-        self.container = None
-
-    def get_test_url_status(self):
-        """
-        Checks if a URL is available
-        :return: status code if available, String 'ConnectionError' if not
-        """
-        try:
-            return requests.get(self.test_url, timeout=10).status_code
-        except requests.ConnectionError:
-            return 'ConnectionError'
-        except requests.Timeout:
-            return 'Timeout'
-
-    def set_container(self, container):
-        """Set the container object"""
-        self.container = container
-
-    def get_container(self):
-        """Fetch the container object"""
-        return self.container
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError(
+            "DockerContainer has been removed. Use Docker Compose or external tooling."
+        )
 
 
 # pylint: disable=W0703,R1718
-def start_docker_containers(docker_containers, network_name='demo'):
+def start_docker_containers(*args, **kwargs):  # pragma: no cover
     """
-    Deploys a list of DockerContainer's on a given network
+    Removed in 1.x (NiFi 2.x). Use Docker Compose or external tooling.
 
-    Args:
-        docker_containers (list[DockerContainer]): list of Dockers to start
-        network_name (str): The name of the Docker Bridge Network to get or
-            create for the Docker Containers
-
-    Returns: Nothing
-
+    This function is kept as a stub to raise a clear error for callers
+    who still import it. It will be removed in a future release.
     """
-    if not DOCKER_AVAILABLE:
-        raise ImportError(
-            "The 'docker' package is required for this function. "
-            "Please install nipyapi with the 'demo' extra: "
-            "pip install nipyapi[demo]"
-        )
-
-    log.info("Creating Docker client using Environment Variables")
-    d_client = docker.from_env()
-
-    # Test if Docker Service is available
-    try:
-        d_client.version()
-    except Exception as e:
-        raise EnvironmentError("Docker Service not found") from e
-
-    for target in docker_containers:
-        assert isinstance(target, DockerContainer)
-
-    # Pull relevant Images
-    log.info("Pulling relevant Docker Images if needed")
-    for image in set([(c.image_name + ':' + c.image_tag)
-                      for c in docker_containers]):
-        log.info("Checking image %s", image)
-        try:
-            d_client.images.get(image)
-            log.info("Using local image for %s", image)
-        except ImageNotFound:
-            log.info("Pulling %s", image)
-            d_client.images.pull(image)
-
-    # Clear previous containers
-    log.info("Clearing previous containers for this demo")
-    d_clear_list = [li for li in d_client.containers.list(all=True)
-                    if li.name in [i.name for i in docker_containers]]
-    for c in d_clear_list:
-        log.info("Removing old container %s", c.name)
-        c.remove(force=True)
-
-    # Deploy/Get Network
-    log.info("Getting Docker bridge network")
-    d_n_list = [li for li in d_client.networks.list()
-                if network_name in li.name]
-    if not d_n_list:
-        d_network = d_client.networks.create(
-            name=network_name,
-            driver='bridge',
-            check_duplicate=True
-        )
-    elif len(d_n_list) > 1:
-        raise EnvironmentError("Too many test networks found")
-    else:
-        d_network = d_n_list[0]
-    log.info("Using Docker network: %s", d_network.name)
-
-    # Deploy Containers
-    log.info("Starting relevant Docker Containers")
-    for c in docker_containers:
-        log.info("Starting Container %s", c.name)
-        c.set_container(d_client.containers.run(
-            image=c.image_name + ':' + c.image_tag,
-            detach=True,
-            network=network_name,
-            hostname=c.name,
-            name=c.name,
-            ports=c.ports,
-            environment=c.env,
-            volumes=c.volumes,
-            auto_remove=True
-        ))
+    raise RuntimeError(
+        "start_docker_containers has been removed. Use Docker Compose or external tooling."
+    )
 
 
 class VersionError(Exception):

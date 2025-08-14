@@ -8,15 +8,11 @@ See initial print statement for detailed explanation.
 import logging
 from time import sleep
 import nipyapi
+import sys
 
-try:
-    from nipyapi.utils import DockerContainer
-except ImportError:
-    print("The 'docker' package is required for this demo. "
-          "Please install nipyapi with the 'demo' extra: "
-          "pip install nipyapi[demo]")
-    import sys
-    sys.exit(1)
+raise RuntimeError(
+    "nipyapi.demo is deprecated and will be removed. Use Docker Compose profiles and external tooling for environment setup."
+)
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)

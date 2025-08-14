@@ -12,15 +12,9 @@ from os import path
 import sys
 import nipyapi
 
-try:
-    from nipyapi.utils import DockerContainer
-    DOCKER_AVAILABLE = True
-except ImportError:
-    DOCKER_AVAILABLE = False
-    print("The 'docker' package is required for this demo. "
-          "Please install nipyapi with the 'demo' extra: "
-          "pip install nipyapi[demo]")
-    sys.exit(1)
+raise RuntimeError(
+    "nipyapi.demo is deprecated and will be removed. Use Docker Compose profiles and external tooling for environment setup."
+)
 
 log = logging.getLogger(__name__)
 log.setLevel(logging.INFO)
