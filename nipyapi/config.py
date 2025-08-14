@@ -121,9 +121,7 @@ registry_config.password = default_registry_password
 registry_config.force_basic_auth = global_force_basic_auth
 
 # Set SSL Handling
-# When operating with self signed certs, your log can fill up with
-# unnecessary warnings
-# Set to True by default, change to false if necessary
+# Default to verifying SSL
 global_ssl_verify = True
 disable_insecure_request_warnings = False
 
@@ -132,21 +130,47 @@ registry_config.verify_ssl = global_ssl_verify
 if not global_ssl_verify or disable_insecure_request_warnings:
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-# Enforce no host checking when SSL context is disabled
-global_ssl_host_check = False
-if not global_ssl_host_check:
-    nifi_config.ssl_context = ssl.create_default_context()
-    nifi_config.ssl_context.check_hostname = False
-    nifi_config.ssl_context.verify_mode = ssl.CERT_NONE
+# Respect env overrides for verify SSL and hostname checking
+_verify_env = os.getenv("NIPYAPI_VERIFY_SSL")
+if _verify_env is not None and _verify_env.lower() in ("0", "false", "no"): 
+    nifi_config.verify_ssl = False
+    registry_config.verify_ssl = False
 
-    registry_config.ssl_context = ssl.create_default_context()
-    registry_config.ssl_context.check_hostname = False
-    registry_config.ssl_context.verify_mode = ssl.CERT_NONE
+# Hostname checking (default True)
+global_ssl_host_check = True
+_host_env = os.getenv("NIPYAPI_CHECK_HOSTNAME")
+if _host_env is not None and _host_env.lower() in ("0", "false", "no"):
+    global_ssl_host_check = False
+
+# Only disable verification via ssl_context when verify_ssl is False
+def _disable_verify(cfg):
+    cfg.ssl_context = ssl.create_default_context()
+    cfg.ssl_context.check_hostname = False
+    cfg.ssl_context.verify_mode = ssl.CERT_NONE
+
+if not nifi_config.verify_ssl:
+    _disable_verify(nifi_config)
+if not registry_config.verify_ssl:
+    _disable_verify(registry_config)
 
 if os.getenv("NIFI_CA_CERT") is not None:
     nifi_config.ssl_ca_cert = os.getenv("NIFI_CA_CERT")
     nifi_config.cert_file = os.getenv("NIFI_CLIENT_CERT")
     nifi_config.key_file = os.getenv("NIFI_CLIENT_KEY")
+
+# Optional: registry-specific CA envs
+if os.getenv("REGISTRY_CA_CERT") is not None:
+    registry_config.ssl_ca_cert = os.getenv("REGISTRY_CA_CERT")
+    registry_config.cert_file = os.getenv("REGISTRY_CLIENT_CERT")
+    registry_config.key_file = os.getenv("REGISTRY_CLIENT_KEY")
+
+# Fallback: shared TLS CA for both services (e.g., local test CA)
+_shared_ca = os.getenv("TLS_CA_CERT_PATH") or os.getenv("REQUESTS_CA_BUNDLE")
+if _shared_ca:
+    nifi_config.ssl_ca_cert = nifi_config.ssl_ca_cert or _shared_ca
+    registry_config.ssl_ca_cert = registry_config.ssl_ca_cert or _shared_ca
+    nifi_config.verify_ssl = True
+    registry_config.verify_ssl = True
 
 # --- Encoding
 # URL Encoding bypass characters will not be encoded during submission

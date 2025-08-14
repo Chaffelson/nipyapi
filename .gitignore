@@ -38,6 +38,20 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+
+# NiPyAPI generated cert artifacts (keep script, ignore outputs)
+resources/certs/ca/
+resources/certs/nifi/
+resources/certs/registry/
+resources/certs/truststore/
+resources/certs/client/
+
+# Client-gen caches and augmented OpenAPI outputs
+resources/client_gen/_cache/
+resources/client_gen/api_defs/*.augmented.json
+
+# Local scripts/helpers
+resources/scripts/__pycache__/
 .tox/
 .coverage
 .coverage.*

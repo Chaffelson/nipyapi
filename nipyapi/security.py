@@ -665,7 +665,7 @@ def get_access_policy_for_resource(
         )
         nipyapi.utils.bypass_slash_encoding(service, False)
         return response
-    except nipyapi.nifi.rest.ApiException as e:
+    except (nipyapi.nifi.rest.ApiException, nipyapi.registry.rest.ApiException) as e:
         if any(
             pol_string in e.body
             for pol_string in [
@@ -808,7 +808,7 @@ def set_service_ssl_context(
 
 
 # pylint: disable=W0702,R0912,r0914
-def bootstrap_security_policies(service, user_identity=None, group_identity=None):
+def bootstrap_security_policies(service, user_identity=None, group_identity=None, nifi_proxy_identity=None):
     """Creates a default security context within NiFi or Nifi-Registry.
 
     Args:
@@ -930,39 +930,37 @@ def bootstrap_security_policies(service, user_identity=None, group_identity=None
                     service="registry",
                     strict=False
                 )
-        # get the identity of the user as a string
-        if isinstance(reg_user_identity, nipyapi.registry.User):
-            reg_user_ident_str = reg_user_identity.identity
-        else:
-            reg_user_ident_str = reg_user_identity
-        # Setup Proxy Access
-        nifi_proxy_user = nipyapi.security.create_service_user(
-            identity=reg_user_ident_str,
-            service="registry",
-            strict=False
-        )
-        proxy_access_policies = [
-            ("read", "/proxy"),
-            ("write", "/proxy"),
-            ("delete", "/proxy"),
-        ]
-        for action, resource in proxy_access_policies:
-            pol = nipyapi.security.get_access_policy_for_resource(
-                resource=resource,
-                action=action,
-                service="registry",
-                auto_create=True
-            )
-            nipyapi.security.add_user_to_access_policy(
-                user=nifi_proxy_user,
-                policy=pol,
+        # Setup Proxy Access for NiFi's TLS client identity if provided
+        if nifi_proxy_identity:
+            nifi_proxy_user = nipyapi.security.create_service_user(
+                identity=nifi_proxy_identity,
                 service="registry",
                 strict=False
             )
+            proxy_access_policies = [
+                ("read", "/proxy"),
+                ("write", "/proxy"),
+                ("delete", "/proxy"),
+            ]
+            for action, resource in proxy_access_policies:
+                pol = nipyapi.security.get_access_policy_for_resource(
+                    resource=resource,
+                    action=action,
+                    service="registry",
+                    auto_create=True
+                )
+                nipyapi.security.add_user_to_access_policy(
+                    user=nifi_proxy_user,
+                    policy=pol,
+                    service="registry",
+                    strict=False
+                )
 
 
 def create_ssl_context_controller_service(
-        parent_pg, name, keystore_file, keystore_password, truststore_file, truststore_password,
+        parent_pg, name,
+        keystore_file=None, keystore_password=None,
+        truststore_file=None, truststore_password=None,
         key_password=None, keystore_type=None, truststore_type=None, ssl_protocol=None,
         ssl_service_type=None):
     """
@@ -988,8 +986,8 @@ def create_ssl_context_controller_service(
     """
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert isinstance(name, str)
-    assert isinstance(keystore_file, str)
-    assert isinstance(keystore_password, str)
+    assert keystore_file is None or isinstance(keystore_file, str)
+    assert keystore_password is None or isinstance(keystore_password, str)
     assert isinstance(truststore_file, str)
     assert isinstance(truststore_password, str)
     assert key_password is None or isinstance(key_password, str)
@@ -999,6 +997,19 @@ def create_ssl_context_controller_service(
 
     default_ssl_service_type = 'org.apache.nifi.ssl.StandardRestrictedSSLContextService'
     with nipyapi.utils.rest_exceptions():
+        props = {
+            'Truststore Filename': truststore_file,
+            'Truststore Password': truststore_password,
+            'Truststore Type': truststore_type or 'JKS',
+            'SSL Protocol': ssl_protocol or 'TLS'
+        }
+        if keystore_file:
+            props.update({
+                'Keystore Filename': keystore_file,
+                'Keystore Password': keystore_password or '',
+                'key-password': key_password or keystore_password or '',
+                'Keystore Type': keystore_type or 'JKS',
+            })
         return nipyapi.nifi.ControllerApi().create_controller_service(
             body=nipyapi.nifi.ControllerServiceEntity(
                 revision=nipyapi.nifi.RevisionDTO(
@@ -1007,13 +1018,4 @@ def create_ssl_context_controller_service(
                 component=nipyapi.nifi.ControllerServiceDTO(
                     type=ssl_service_type or default_ssl_service_type,
                     name=name,
-                    properties={
-                        'Keystore Filename': keystore_file,
-                        'Keystore Password': keystore_password,
-                        'key-password': key_password or keystore_password,
-                        'Keystore Type': keystore_type or 'JKS',
-                        'Truststore Filename': truststore_file,
-                        'Truststore Password': truststore_password,
-                        'Truststore Type': truststore_type or 'JKS',
-                        'SSL Protocol': ssl_protocol or 'TLS'
-                    })))
+                    properties=props)))

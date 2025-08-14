@@ -3,6 +3,7 @@ Convenience utility functions for NiPyApi, not really intended for external use
 """
 
 import logging
+import os
 import json
 import io
 import time
@@ -314,22 +315,26 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
 
     log.info("Setting %s endpoint to %s", service, endpoint_url)
     if configuration.api_client:
-        # Running controlled logout procedure
         nipyapi.security.service_logout(service)
-        # Resetting API client so it recreates from config.host
         configuration.api_client = None
 
     # remove any trailing slash to avoid hard to spot errors
     configuration.host = endpoint_url.rstrip('/')
 
+    # Apply TLS CA if provided via env (preferred over demo defaults)
+    shared_ca = os.getenv('TLS_CA_CERT_PATH') or os.getenv('REQUESTS_CA_BUNDLE')
+    if shared_ca:
+        configuration.ssl_ca_cert = shared_ca
+        # Ensure we do not carry a stale SSLContext; rely on CA bundle for one-way TLS
+        configuration.ssl_context = None
+        # Recreate API client to pick up new CA
+        configuration.api_client = None
+
     # Set up SSL context if using HTTPS
     if ssl and 'https://' in endpoint_url:
         if login:
-            # Username/password auth with basic SSL
-            nipyapi.security.set_service_ssl_context(
-                service=service,
-                ca_file=nipyapi.config.default_ssl_context['ca_file']
-            )
+            # For one-way TLS with username/password, rely on ssl_ca_cert and verify_ssl
+            # Avoid setting a custom SSLContext here
             nipyapi.security.service_login(
                 service, username=username, password=password
             )
@@ -337,7 +342,7 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
             # mTLS auth with client certificates
             nipyapi.security.set_service_ssl_context(
                 service=service,
-                ca_file=nipyapi.config.default_ssl_context['ca_file'],
+                ca_file=shared_ca or nipyapi.config.default_ssl_context['ca_file'],
                 client_cert_file=nipyapi.config.default_ssl_context['client_cert_file'],
                 client_key_file=nipyapi.config.default_ssl_context['client_key_file'],
                 client_key_password=nipyapi.config.default_ssl_context['client_key_password']

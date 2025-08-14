@@ -1,6 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Fetch NiFi OpenAPI spec from a running container by copying from filesystem.
+# Usage: NIFI_VERSION=2.5.0 ./fetch_nifi_openapi.sh [container_name]
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+api_defs_dir="${script_dir}/api_defs"
+nifi_version="${NIFI_VERSION:-2.5.0}"
+container_name="${1:-${NIFI_CONTAINER:-nifi-single}}"
+
+if ! docker ps --format '{{.Names}}' | grep -q "^${container_name}$"; then
+  echo "ERROR: Container '${container_name}' not running. Start a compose profile first." >&2
+  exit 1
+fi
+
+echo "Searching for NiFi OpenAPI/Swagger spec inside container '${container_name}'"
+spec_path=$(docker exec "${container_name}" sh -lc "set -e; find /opt -type f \
+  \( -iname '*openapi*.json' -o -iname '*swagger*.json' \) 2>/dev/null | head -n 1") || true
+
+if [ -z "${spec_path}" ]; then
+  echo "ERROR: Could not locate an OpenAPI/Swagger JSON inside ${container_name}" >&2
+  exit 1
+fi
+
+mkdir -p "${api_defs_dir}"
+out_file="${api_defs_dir}/nifi-${nifi_version}.json"
+tmp_file="${api_defs_dir}/.nifi-openapi-tmp.json"
+
+echo "Copying '${spec_path}' to '${out_file}'"
+docker cp "${container_name}:${spec_path}" "${tmp_file}"
+
+# Ensure JSON extension and pretty minimal check
+mv "${tmp_file}" "${out_file}"
+echo "WROTE ${out_file}"
+exit 0
+#!/usr/bin/env bash
+set -euo pipefail
+
 # Attempt to obtain NiFi OpenAPI/Swagger from a running container (compose) or a disposable one.
 # Writes to resources/client_gen/api_defs/nifi-<version>.yaml or .json depending on source.
 

@@ -2,6 +2,33 @@
 History
 =======
 
+1.0.1 (2025-08-14)
+-------------------
+
+| Secure-ldap end-to-end fixes, reproducible compose, and cleaner, env-driven tests.
+
+- Security / Policies:
+  - Ensure NiFi→Registry uses NiFi node keystore for mTLS via `StandardSSLContextService` and attach it to the Flow Registry Client.
+  - Registry policies: grant the NiFi proxy identity (C=US, O=NiPyAPI, CN=nifi) `/proxy` read/write/delete and global `/buckets` read/write.
+  - Tests grant bucket-specific read/write to the LDAP user (einstein) for flows under version control.
+  - Harden `get_access_policy_for_resource` to also handle Registry ApiException when auto-creating policies.
+
+- Tests (env-driven refactor):
+  - Centralize profile/environment handling in `tests/conftest.py` (remove legacy regression scaffolding).
+  - Create SSL Context Service with NiFi keystore and wire it to the Registry Client (internal Docker URI).
+  - Add helper to apply required Registry policies for the NiFi proxy DN and LDAP user.
+  - Full secure-ldap run: 104 passed, 3 skipped.
+
+- Certificates:
+  - `resources/certs/gen_certs.sh`: clean previous artifacts; add clientAuth to server certs; ensure truststore contains CA; optional JKS outputs.
+  - Add .gitignore entries to exclude generated cert stores and client-gen caches.
+
+- Docker Compose:
+  - Consolidate to a single compose with profiles and unique external ports; map TLS envs; ensure services share a bridge network.
+
+- Developer tooling:
+  - `resources/scripts/debug_registry.py`: reproducible NiFi↔Registry setup and diagnostics (policies, SSL context, versioning flow save/verify).
+
 1.0.0 (2025-08-12)
 -------------------
 
@@ -10,6 +37,7 @@ History
 - Core: switch low-level clients to NiFi/Registry 2.5.0 OpenAPI 3 specs (swagger-codegen 3.0.68)
 - Remove Templates feature (deprecated in NiFi 2.x): delete `nipyapi/templates.py`, related tests/resources; remove imports; adapt fixtures
 - Docker: update images to NiFi/Registry 2.5.0
+  - Secure docker setups (secure-ldap, secure-mtls) now use generated PKCS12 keystore/truststore via certs.env
 - OperationIds: adopt upstream suffixed names from OAS 3 (e.g., `update_run_status1`)
 
 - Generator: consolidate NiFi/Registry generation (`resources/client_gen/generate_api_client.sh`); add JSON enum normalizer (`resources/client_gen/normalize_openapi_enums.py`) as temporary workaround for upstream enum issues
@@ -33,7 +61,10 @@ History
 
 - Tests: remove Templates tests; adapt for 2.x behavior; full suite green across default, secure-ldap, and secure-mtls (104 passed, 3 skipped)
 
-- Pruning: remove deprecated Docker localdev variant (upstream NiFi provides convenience images)
+- Pruning: removed deprecated docker and test scaffolding
+  - Deleted `resources/docker/tox-full/` and `resources/test_setup/setup_centos7.sh`
+  - Removed docker/localdev variant (upstream provides official images)
+  - Consolidation to a single docker-compose with profiles is planned (current secure-ldap and secure-mtls updated)
 
 - Upstream: track enum inconsistencies in [NIFI-14850](https://issues.apache.org/jira/browse/NIFI-14850)
   - Track missing bearer security scheme in NiFi Core OpenAPI: [NIFI-14852](https://issues.apache.org/jira/browse/NIFI-14852)

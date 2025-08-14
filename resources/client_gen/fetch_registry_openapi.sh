@@ -1,6 +1,67 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Fetch NiFi Registry OpenAPI spec from a running container by copying from filesystem,
+# falling back to the HTTP endpoint if present.
+# Usage: NIFI_VERSION=2.5.0 ./fetch_registry_openapi.sh [container_name]
+
+script_dir="$(cd "$(dirname "$0")" && pwd)"
+api_defs_dir="${script_dir}/api_defs"
+reg_version="${NIFI_VERSION:-2.5.0}"
+container_name="${1:-${REGISTRY_CONTAINER:-registry-single}}"
+
+if ! docker ps --format '{{.Names}}' | grep -q "^${container_name}$"; then
+  echo "ERROR: Container '${container_name}' not running. Start a compose profile first." >&2
+  exit 1
+fi
+
+mkdir -p "${api_defs_dir}"
+out_file="${api_defs_dir}/registry-${reg_version}.json"
+tmp_file="${api_defs_dir}/.registry-openapi-tmp.json"
+
+# Try filesystem copy first
+echo "Searching for Registry OpenAPI JSON inside '${container_name}'"
+spec_path=$(docker exec "${container_name}" sh -lc "set -e; find /opt -type f \
+  \( -iname '*openapi*.json' -o -iname '*swagger*.json' \) 2>/dev/null | head -n 1") || true
+if [ -n "${spec_path}" ]; then
+  echo "Copying '${spec_path}' to '${out_file}'"
+  docker cp "${container_name}:${spec_path}" "${tmp_file}"
+  mv "${tmp_file}" "${out_file}"
+echo "WROTE ${out_file}"
+exit 0
+fi
+
+# Fallback to HTTP(S) endpoint; prefer REGISTRY_BASE_URL if provided
+echo "Falling back to /nifi-registry-api/swagger.json"
+base_url="${REGISTRY_BASE_URL:-}"
+try_urls=()
+if [ -n "${base_url}" ]; then
+  try_urls+=("${base_url}/swagger.json")
+fi
+# Common local defaults
+try_urls+=(
+  "https://localhost:18443/nifi-registry-api/swagger.json"
+  "http://localhost:18080/nifi-registry-api/swagger.json"
+)
+
+set +e
+rc=1
+for u in "${try_urls[@]}"; do
+  echo "  trying ${u}"
+  curl -fsSk "${u}" -o "${tmp_file}"
+  rc=$?
+  [ $rc -eq 0 ] && { echo "  fetched ${u}"; break; }
+done
+set -e
+if [ $rc -ne 0 ]; then
+  echo "ERROR: Unable to fetch Registry OpenAPI via HTTP fallback" >&2
+  exit 1
+fi
+mv "${tmp_file}" "${out_file}"
+echo "WROTE ${out_file}"
+#!/usr/bin/env bash
+set -euo pipefail
+
 # Fetch the NiFi Registry OpenAPI/Swagger from a running compose service 'registry'
 # and store it under api_defs/registry-<version>.yaml or .json
 
