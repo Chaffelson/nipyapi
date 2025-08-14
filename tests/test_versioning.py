@@ -6,17 +6,14 @@ from tests import conftest
 from nipyapi import registry, nifi, versioning, canvas, utils, config, parameters
 
 
-def test_create_registry_client(regress_flow_reg):
+def test_create_registry_client():
     # First remove any leftover test client connections
     [versioning.delete_registry_client(li) for
      li in versioning.list_registry_clients().registries
-     if conftest.test_registry_client_name in li.component.name
+             if conftest.test_registry_client_name in li.component.name
      ]
-    r = versioning.create_registry_client(
-        name=conftest.test_registry_client_name,
-        uri=conftest.registry_test_endpoints[0][0][0],
-        description='a test connection'
-    )
+    # Delegate URL and SSL handling to conftest helper (profile-aware)
+    r = conftest.ensure_registry_client(conftest.REGISTRY_BASE_URL)
     assert isinstance(r, nifi.FlowRegistryClientEntity)
     # # test duplicate catch result
     # with pytest.raises(ValueError):
@@ -62,14 +59,14 @@ def test_delete_registry_client():
     # TODO Add test for when a PG is attached to the client
 
 
-def test_list_registry_buckets(regress_flow_reg, fix_bucket):
+def test_list_registry_buckets(fix_bucket):
     _ = fix_bucket()
     r = versioning.list_registry_buckets()
     assert isinstance(r, list)
     assert len(r) >= 1
 
 
-def test_create_registry_bucket(regress_flow_reg, fix_bucket):
+def test_create_registry_bucket(fix_bucket):
     # We include fix_bucket to handle the cleanup
     r = versioning.create_registry_bucket(conftest.test_bucket_name)
     assert isinstance(r, registry.Bucket)
@@ -80,7 +77,7 @@ def test_create_registry_bucket(regress_flow_reg, fix_bucket):
     # Cleanup, as no test fixture to do so here
 
 
-def test_delete_registry_bucket(regress_flow_reg, fix_bucket):
+def test_delete_registry_bucket(fix_bucket):
     f_bucket = fix_bucket()
     r = versioning.delete_registry_bucket(f_bucket)
     assert r.identifier == f_bucket.identifier
@@ -88,7 +85,7 @@ def test_delete_registry_bucket(regress_flow_reg, fix_bucket):
         _ = versioning.delete_registry_bucket('FakeNews')
 
 
-def test_get_registry_bucket(regress_flow_reg, fix_bucket):
+def test_get_registry_bucket(fix_bucket):
     f_bucket = fix_bucket()
     r1 = versioning.get_registry_bucket(f_bucket.name)
     assert r1.name == conftest.test_bucket_name
@@ -100,9 +97,9 @@ def test_get_registry_bucket(regress_flow_reg, fix_bucket):
     assert r3 is None
 
 
-def test_save_flow_ver(regress_flow_reg, fix_bucket, fix_pg, fix_proc):
+def test_save_flow_ver(fix_bucket, fix_pg, fix_proc):
     f_reg_client = conftest.ensure_registry_client(
-        config.registry_local_name
+        conftest.REGISTRY_BASE_URL
     )
     f_bucket = fix_bucket()
     f_pg = fix_pg.generate()
@@ -154,7 +151,7 @@ def test_save_flow_ver(regress_flow_reg, fix_bucket, fix_pg, fix_proc):
     conftest.cleanup_reg()
 
 
-def test_stop_flow_ver(regress_flow_reg, fix_ver_flow):
+def test_stop_flow_ver(fix_ver_flow):
     r1 = versioning.stop_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionControlInformationEntity)
     assert r1.version_control_information is None
@@ -165,7 +162,7 @@ def test_stop_flow_ver(regress_flow_reg, fix_ver_flow):
         _ = versioning.stop_flow_ver(fix_ver_flow.pg, refresh=False)
 
 
-def test_revert_flow_ver(regress_flow_reg, fix_ver_flow):
+def test_revert_flow_ver(fix_ver_flow):
     r1 = versioning.revert_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionedFlowUpdateRequestEntity)
     # TODO: Add Tests for flows with data loss on reversion
@@ -173,7 +170,7 @@ def test_revert_flow_ver(regress_flow_reg, fix_ver_flow):
         _ = versioning.revert_flow_ver('NotAPg')
 
 
-def test_list_flows_in_bucket(regress_flow_reg, fix_ver_flow):
+def test_list_flows_in_bucket(fix_ver_flow):
     r1 = versioning.list_flows_in_bucket(fix_ver_flow.bucket.identifier)
     assert isinstance(r1, list)
     assert isinstance(r1[0], registry.VersionedFlow)
@@ -181,7 +178,7 @@ def test_list_flows_in_bucket(regress_flow_reg, fix_ver_flow):
         _ = versioning.list_flows_in_bucket('NiPyApi-FakeNews')
 
 
-def test_get_flow_in_bucket(regress_flow_reg, fix_ver_flow):
+def test_get_flow_in_bucket(fix_ver_flow):
     r1 = versioning.get_flow_in_bucket(
         fix_ver_flow.bucket.identifier,
         fix_ver_flow.flow.identifier,
@@ -195,7 +192,7 @@ def test_get_flow_in_bucket(regress_flow_reg, fix_ver_flow):
     assert r2 is None
 
 
-def test_get_latest_flow_ver(regress_flow_reg, fix_ver_flow):
+def test_get_latest_flow_ver(fix_ver_flow):
     r1 = versioning.get_latest_flow_ver(
         fix_ver_flow.bucket.identifier,
         fix_ver_flow.flow.identifier
@@ -218,14 +215,14 @@ def test_list_flow_versions():
     pass
 
 
-def test_get_version_info(regress_flow_reg, fix_ver_flow):
+def test_get_version_info(fix_ver_flow):
     r1 = versioning.get_version_info(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionControlInformationEntity)
     with pytest.raises(AssertionError):
         _ = versioning.get_version_info('NotAPG')
 
 
-def test_create_flow(regress_flow_reg, fix_ver_flow):
+def test_create_flow(fix_ver_flow):
     r1 = versioning.create_flow(
         bucket_id=fix_ver_flow.bucket.identifier,
         flow_name=conftest.test_cloned_ver_flow_name,
@@ -240,7 +237,7 @@ def test_create_flow(regress_flow_reg, fix_ver_flow):
         )
 
 
-def test_create_flow_version(regress_flow_reg, fix_ver_flow):
+def test_create_flow_version(fix_ver_flow):
     new_ver_stub = versioning.create_flow(
         bucket_id=fix_ver_flow.bucket.identifier,
         flow_name=conftest.test_cloned_ver_flow_name,
@@ -276,7 +273,7 @@ def test_create_flow_version(regress_flow_reg, fix_ver_flow):
     ) == {}
 
 
-def test_export_flow_version(regress_flow_reg, fix_flow_serde):
+def test_export_flow_version(fix_flow_serde):
     # Test we can turn a flow snapshot into a json string
     r1 = versioning.export_flow_version(
         fix_flow_serde.bucket.identifier,
@@ -313,7 +310,7 @@ def test_export_flow_version(regress_flow_reg, fix_flow_serde):
     assert r3l['snapshotMetadata'].__contains__('flowIdentifier')
 
 
-def test_import_flow_version(regress_flow_reg, fix_flow_serde):
+def test_import_flow_version(fix_flow_serde):
     compare_obj = fix_flow_serde.snapshot
     test_obj = fix_flow_serde.raw
     # Test that our test_obj serialises and deserialises through the layers of
@@ -394,13 +391,13 @@ def test_import_flow_version(regress_flow_reg, fix_flow_serde):
     ) == {}
 
 
-def test_issue_229(regress_flow_reg, fix_bucket, fix_pg, fix_context):
+def test_issue_229(fix_bucket, fix_pg, fix_context):
     # test we can deploy and imported flow, issue 229
     if utils.enforce_min_ver('1.10.0', bool_response=True) or utils.enforce_min_ver('0.6.0', service='registry',
                                                                                     bool_response=True):
         pass
     else:
-        reg_client = conftest.ensure_registry_client(config.registry_local_name)
+        reg_client = conftest.ensure_registry_client(conftest.REGISTRY_BASE_URL)
         bucket = fix_bucket()
         pg = fix_pg.generate()
         context = fix_context.generate()
@@ -431,7 +428,7 @@ def test_issue_229(regress_flow_reg, fix_bucket, fix_pg, fix_context):
                 location=(0, 0),
                 bucket_id=bucket.identifier,
                 flow_id=imported_flow.flow.identifier,
-                reg_client_id=reg_client.id,
+                 reg_client_id=reg_client.id,
                 version=None
             )
             assert isinstance(deployed_flow, nifi.ProcessGroupEntity)

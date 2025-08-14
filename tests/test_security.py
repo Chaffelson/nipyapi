@@ -5,7 +5,7 @@ from tests import conftest
 import nipyapi
 
 # Tells pytest to skip this module of security testing if not enabled.
-pytestmark = pytest.mark.skipif(not conftest.test_ldap, reason='test_ldap disabled in Conftest')
+pytestmark = pytest.mark.skipif(not conftest.TEST_LDAP, reason='LDAP profile not enabled')
 
 # Useful for manual testing
 # if conftest.test_ldap:

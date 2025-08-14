@@ -9,7 +9,7 @@ from nipyapi import utils, nifi, system
 from nipyapi.config import default_string_encoding as DEF_ENCODING
 
 
-def test_dump(regress_flow_reg, fix_flow_serde):
+def test_dump(fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
     export_obj = json.loads(fix_flow_serde.raw.decode(DEF_ENCODING))
@@ -38,7 +38,7 @@ def test_dump(regress_flow_reg, fix_flow_serde):
     ) == {}
 
 
-def test_load(regress_flow_reg, fix_flow_serde):
+def test_load(fix_flow_serde):
     # Validating load testing again in case we break the 'dump' test
     r1 = utils.load(
         obj=fix_flow_serde.json,
@@ -131,7 +131,7 @@ def test_wait_to_complete():
     pass
 
 
-def test_check_version(regress_nifi):
+def test_check_version():
     # We expect the passed version to be older than the system version, and
     # the response to therefore be -1 (older/negative, newer/positive)
 
