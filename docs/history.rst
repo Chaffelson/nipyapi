@@ -2,38 +2,7 @@
 History
 =======
 
-1.0.1 (2025-08-14)
--------------------
-
-| Env-driven profiles (single-user, secure-ldap, secure-mtls) all green end-to-end; reproducible compose; cleaner tests.
-
-- Security / Policies:
-  - Ensure NiFi→Registry uses NiFi node keystore for mTLS via `StandardSSLContextService` and attach it to the Flow Registry Client.
-  - Registry policies: grant the NiFi proxy identity (C=US, O=NiPyAPI, CN=nifi) `/proxy` read/write/delete and global `/buckets` read/write.
-  - Tests grant bucket-specific read/write to the LDAP user (einstein) for flows under version control.
-  - Harden `get_access_policy_for_resource` to also handle Registry ApiException when auto-creating policies.
-
-- Tests (env-driven refactor):
-  - Centralize profile/environment handling in `tests/conftest.py` (remove legacy regression scaffolding).
-  - Create SSL Context Service with NiFi keystore and wire it to the Registry Client (internal Docker URI).
-  - LDAP: bearer token auth with CA bundle; Registry proxy and bucket policies applied.
-  - mTLS: client-certificate authentication to NiFi/Registry APIs (no token flow), CA bundle respected; teardown avoids token login.
-  - Results: single-user (85 passed, 22 skipped), secure-ldap (104 passed, 3 skipped), secure-mtls (85 passed, 22 skipped).
-
-- Certificates:
-  - `resources/certs/gen_certs.sh`: clean previous artifacts; add clientAuth to server certs; ensure truststore contains CA; optional JKS outputs.
-  - Add .gitignore entries to exclude generated cert stores and client-gen caches.
-
-- Docker Compose:
-  - Consolidate to a single compose with profiles and unique external ports; map TLS envs; ensure services share a bridge network.
-  - mTLS profile: add `KEYSTORE_PATH/TRUSTSTORE_PATH` for `secure.sh`; align `INITIAL_ADMIN_IDENTITY` to match generated cert DN.
-
-- Readiness tooling:
-  - `resources/scripts/wait_ready.py`: require explicit `NIFI_BASE_URL`/`REGISTRY_BASE_URL` (no defaults); use CA and optional client certs.
-  - Treat explicit TLS client-auth failures as “service up” to prevent hangs when probing mTLS endpoints without credentials.
-
-- Developer tooling:
-  - `resources/scripts/debug_registry.py`: reproducible NiFi↔Registry setup and diagnostics (policies, SSL context, versioning flow save/verify).
+ 
 
 1.0.0 (2025-08-12)
 -------------------
@@ -66,6 +35,18 @@ History
   - Prune template-era deps (e.g., `lxml`, `xmltodict`) as Templates are removed
 
 - Tests: remove Templates tests; adapt for 2.x behavior; full suite green across default, secure-ldap, and secure-mtls (104 passed, 3 skipped)
+
+- Tests / Profiles:
+  - Centralize profile configuration in `tests/conftest.py` with clear docstrings; env overrides respected.
+  - Support `PROFILE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
+  - Remove duplicate TLS logic; consistent one-time setup and safe teardown.
+  - `Makefile`: simplified `make test` runner; defers configuration to conftest.
+
+- Client utils:
+  - Remove ad-hoc env reads in `utils.set_endpoint`; rely on preconfigured values only.
+
+- Resource pruning:
+  - Deleted legacy client-gen artifacts and old docker scaffolding under `resources/` no longer used in 2.x workflow.
 
 - Pruning: removed deprecated docker and test scaffolding
   - Deleted `resources/docker/tox-full/` and `resources/test_setup/setup_centos7.sh`
