@@ -1,4 +1,16 @@
 #!/usr/bin/env python3
+"""
+Simple readiness probe for NiFi and NiFi Registry UIs/APIs.
+
+Environment:
+  - NIFI_BASE_URL (required), e.g., https://localhost:9443/nifi-api
+  - REGISTRY_BASE_URL (required), e.g., https://localhost:18445/nifi-registry-api
+  - TLS_CA_CERT_PATH (optional): path to PEM CA bundle
+  - REQUESTS_CA_BUNDLE (optional): fallback CA bundle path (respected if TLS_CA_CERT_PATH not set)
+  - MTLS_CLIENT_CERT / MTLS_CLIENT_KEY / MTLS_CLIENT_KEY_PASSWORD (optional): client auth for mTLS
+  - WAIT_SKIP_VERIFY (optional, default=1): set to 0 to enforce verification when no CA bundle is provided
+  - WAIT_TIMEOUT (optional, default=60): seconds
+"""
 import os
 import sys
 import time
@@ -62,13 +74,13 @@ def main() -> int:
     if not nifi or not reg:
         print("ERROR: NIFI_BASE_URL and REGISTRY_BASE_URL must be provided; no defaults will be assumed.")
         return 2
-    cafile = os.getenv('TLS_CA_CERT_PATH')
+    cafile = os.getenv('TLS_CA_CERT_PATH') or os.getenv('REQUESTS_CA_BUNDLE')
     client_cert = os.getenv('MTLS_CLIENT_CERT')
     client_key = os.getenv('MTLS_CLIENT_KEY')
     client_key_password = os.getenv('MTLS_CLIENT_KEY_PASSWORD')
     skip_verify = os.getenv('WAIT_SKIP_VERIFY', '1') != '0' and not cafile
     timeout = int(os.getenv('WAIT_TIMEOUT', '60'))
-    print(f"Using TLS_CA_CERT_PATH={cafile or '(none)'} client_cert={'set' if client_cert else 'none'} skip_verify={skip_verify} timeout={timeout}")
+    print(f"Using CA={cafile or '(none)'} client_cert={'set' if client_cert else 'none'} skip_verify={skip_verify} timeout={timeout}")
     # Probe NiFi UI then API on the exact host/port derived from NIFI_BASE_URL
     nifi_ui = nifi.replace('/nifi-api', '/nifi/')
     ok1 = wait(nifi_ui, expect_401_ok=False, cafile=cafile, name='NiFi UI', skip_verify=skip_verify, timeout=timeout,
