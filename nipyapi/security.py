@@ -301,8 +301,10 @@ def service_login(service="nifi", username=None, password=None,
     # Prefer explicitly provided credentials, then configuration-set creds, then deprecated defaults
     cfg_uname = getattr(configuration, 'username', None)
     cfg_pword = getattr(configuration, 'password', None)
-    uname = username if username is not None else (copy(cfg_uname) if cfg_uname else copy(default_uname))
-    pword = password if password is not None else (copy(cfg_pword) if cfg_pword else copy(default_pword))
+    uname = (username if username is not None
+             else (copy(cfg_uname) if cfg_uname else copy(default_uname)))
+    pword = (password if password is not None
+             else (copy(cfg_pword) if cfg_pword else copy(default_pword)))
     assert pword, "Password must be set or in default config"
     assert uname, "Username must be set or in default config"
     # set username/password in configuration for initial login
@@ -514,7 +516,7 @@ def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
         if pol_resource is None and hasattr(policy_tgt, "component"):
             pol_resource = getattr(policy_tgt.component, "resource", None)
             pol_action = getattr(policy_tgt.component, "action", None)
-    except Exception:  # best-effort logging only
+    except Exception:  # pylint: disable=broad-exception-caught  # best-effort logging only
         pol_resource = None
         pol_action = None
     if user_id not in policy_user_ids:
@@ -824,7 +826,7 @@ def set_service_ssl_context(
         nipyapi.config.nifi_config.ssl_context = ssl_context
 
 
-# pylint: disable=W0702,R0912,r0914
+# pylint: disable=W0702,R0912,r0914,R0915
 def bootstrap_security_policies(
         service, user_identity=None, group_identity=None, nifi_proxy_identity=None):
     """Creates a default security context within NiFi or Nifi-Registry.
@@ -867,7 +869,8 @@ def bootstrap_security_policies(
             # identity here. Callers should pass explicit identities.
             if not nifi_user_identity:
                 log.warning(
-                    "bootstrap_nifi: no current user identity resolved; skipping user policy attachment"
+                    "bootstrap_nifi: no current user identity resolved; "
+                    "skipping user policy attachment"
                 )
         else:
             nifi_user_identity = user_identity
@@ -952,7 +955,7 @@ def bootstrap_security_policies(
                         service="registry",
                         strict=False
                     )
-        except Exception as e:
+        except Exception as e:  # pylint: disable=broad-exception-caught
             log.warning("Registry bucket policy bootstrap skipped due to error: %s", e)
         # Setup Proxy Access for NiFi's TLS client identity if provided
         if nifi_proxy_identity:

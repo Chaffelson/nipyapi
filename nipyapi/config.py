@@ -43,7 +43,8 @@ default_host = "localhost"  # Default to localhost for release
 nifi_config.host = os.getenv(
     "NIFI_API_ENDPOINT", "https://" + default_host + ":9443/nifi-api"
 )
-# Set Default Host for NiFi-Registry (default secure in 2.x single/ldap profiles use 18444/18445; single-user registry is http 18080)
+# Set Default Host for NiFi-Registry (default secure in 2.x single/ldap profiles use
+# 18444/18445; single-user registry is http 18080)
 registry_config.host = os.getenv(
     "REGISTRY_API_ENDPOINT", "http://" + default_host + ":18080/nifi-registry-api"
 )
