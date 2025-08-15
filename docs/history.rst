@@ -52,6 +52,8 @@ History
   - Deleted `resources/docker/tox-full/` and `resources/test_setup/setup_centos7.sh`
   - Removed docker/localdev variant (upstream provides official images)
   - Consolidation to a single docker-compose with profiles is planned (current secure-ldap and secure-mtls updated)
+  - Removed tox from development flow; deleted top-level `tox.ini`, replaced docs with Makefile-based testing
+  - Removed legacy dev deps (nose, pluggy, coveralls, randomize, cryptography) from requirements_dev; dropped Coveralls badge from README
 
 - Upstream: track enum inconsistencies in [NIFI-14850](https://issues.apache.org/jira/browse/NIFI-14850)
   - Track missing bearer security scheme in NiFi Core OpenAPI: [NIFI-14852](https://issues.apache.org/jira/browse/NIFI-14852)

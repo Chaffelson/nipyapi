@@ -159,9 +159,7 @@ e2e: ## end-to-end: up -> wait-ready -> fetch-openapi -> augment-openapi -> gen-
 	$(MAKE) test-profile PROFILE=$(PROFILE)
 
 
-# Deprecated tox target
-test-all: ## (deprecated) use GitHub Actions matrix or run make test locally
-	@echo "Deprecated: use PROFILE=... make test or CI matrix instead."
+# tox deprecated: use Makefile targets or CI matrix
 
 coverage-min ?= 70
 coverage: ## run pytest with coverage and generate report (set coverage-min=NN to enforce)

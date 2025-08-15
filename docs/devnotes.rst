@@ -49,10 +49,9 @@ Instructions::
     Follow the instructions to set up your .bashrc
     To build various versions of Python for testing you may also need `sudo dnf install bzip2-devel openssl-devel libffi-devel zlib-devel readline-devel sqlite-devel -y`
     Install the latest supported version of Python for your main dev environment `pyenv install 3.9 2.7 3.12`
-    Set these versions as global in pyenv so tox can see them. Use the actual versions with the command `pyenv global 3.9.16 2.7.18 3.12.2`
-    You'll want to stand up the two sets of NiFi containers for testing. resources/docker/tox-full for default and regression tests, and resources/docker/secure for tests under auth.
-    You can switch between the tests by changing flags in tests/conftest.py around line 17.
-    Python3 can be tested automatically using Tox.
+    Set these versions as global in pyenv. Use the actual versions with the command `pyenv global 3.9.16 2.7.18 3.12.2`
+    Stand up NiFi containers with docker compose profiles (`resources/docker/compose.yml`) and run tests via `make`:
+    `PROFILE=single-user make test`, `PROFILE=secure-ldap make test`, `PROFILE=secure-mtls make test`.
     Python2 can be tested using the following steps within a Python2 virtualenv:
     1. Install requirements: pip install -r requirements.txt
     2. Install dev requirements: `pip install -r requirements_dev.txt`
@@ -94,10 +93,9 @@ Set up remote execution environment to this server from your IDE, such as PyChar
 Python3 will be in a path like /opt/rh/rh-python36/root/usr/bin/python
 These commands are conveniently presented in /resources/test_setup/setup_centos7.sh
 
-You will then want to open up /home/centos/tmp/<pycharmprojectname>/resources/docker/tox-full and run::
+You will then want to open up the docker compose directory and run::
 
-    docker-compose pull
-    docker-compose up -d
+    docker compose -f resources/docker/compose.yml --profile single-user up -d
 
 Testing on OSX
 --------------

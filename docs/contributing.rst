@@ -84,7 +84,7 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
     $ cd resources/docker/latest
     $ docker-compose up -d
     $ cd ../../../
-    $ tox
+    $ PROFILE=single-user make test
     $ cd resources/docker/latest
     $ docker-compose stop
 
@@ -94,9 +94,14 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
     $ python
     > from nipyapi.demo.console import *
 
-7. When you're done making changes, check that your changes pass the tests, including testing other Python versions, with tox::
+7. When you're done making changes, run the test suite::
 
-    $ tox
+    $ make test
+
+   For secured profiles::
+
+    $ PROFILE=secure-ldap make test
+    $ PROFILE=secure-mtls make test
 
 8. Commit your changes and push your branch to GitHub::
 
