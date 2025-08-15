@@ -13,7 +13,7 @@ def test_create_registry_client():
              if conftest.test_registry_client_name in li.component.name
      ]
     # Delegate URL and SSL handling to conftest helper (profile-aware)
-    r = conftest.ensure_registry_client(conftest.REGISTRY_BASE_URL)
+    r = conftest.ensure_registry_client(conftest.REGISTRY_API_ENDPOINT)
     assert isinstance(r, nifi.FlowRegistryClientEntity)
     # # test duplicate catch result
     # with pytest.raises(ValueError):
@@ -99,7 +99,7 @@ def test_get_registry_bucket(fix_bucket):
 
 def test_save_flow_ver(fix_bucket, fix_pg, fix_proc):
     f_reg_client = conftest.ensure_registry_client(
-        conftest.REGISTRY_BASE_URL
+        conftest.REGISTRY_API_ENDPOINT
     )
     f_bucket = fix_bucket()
     f_pg = fix_pg.generate()
@@ -393,7 +393,7 @@ def test_import_flow_version(fix_flow_serde):
 
 def test_issue_229(fix_bucket, fix_pg, fix_context):
     # test we can deploy an imported flow, issue 229
-    reg_client = conftest.ensure_registry_client(conftest.REGISTRY_BASE_URL)
+    reg_client = conftest.ensure_registry_client(conftest.REGISTRY_API_ENDPOINT)
     bucket = fix_bucket()
     pg = fix_pg.generate()
     context = fix_context.generate()

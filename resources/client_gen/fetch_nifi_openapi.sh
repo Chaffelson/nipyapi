@@ -45,9 +45,9 @@ api_defs_dir="${script_dir}/api_defs"
 mkdir -p "${api_defs_dir}"
 
 container_name="${NIFI_CONTAINER:-nifi}"
-base_url_env="${NIFI_BASE_URL:-}"
+base_url_env="${NIFI_API_ENDPOINT:-}"
 
-# Require a running container (compose) unless NIFI_BASE_URL is provided
+# Require a running container (compose) unless NIFI_API_ENDPOINT is provided
 if [[ -z "${base_url_env}" ]]; then
   if ! docker ps --format '{{.Names}}' | grep -qx "${container_name}"; then
     echo "Container '${container_name}' is not running. Start it with:"

@@ -330,16 +330,20 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
                 service, username=username, password=password
             )
         else:
-            # mTLS auth with client certificates; prefer preconfigured values
+            # mTLS auth with client certificates; require preconfigured values
+            client_cert = getattr(configuration, 'cert_file', None)
+            client_key = getattr(configuration, 'key_file', None)
+            client_key_password = getattr(configuration, 'key_password', None)
+            if not (client_cert and client_key):
+                raise ValueError(
+                    f"mTLS requires cert_file and key_file to be set on {service} configuration"
+                )
             nipyapi.security.set_service_ssl_context(
                 service=service,
-                ca_file=shared_ca or nipyapi.config.default_ssl_context['ca_file'],
-                client_cert_file=(getattr(configuration, 'cert_file', None)
-                                  or nipyapi.config.default_ssl_context['client_cert_file']),
-                client_key_file=(getattr(configuration, 'key_file', None)
-                                 or nipyapi.config.default_ssl_context['client_key_file']),
-                client_key_password=(getattr(configuration, 'key_password', None)
-                                     or nipyapi.config.default_ssl_context['client_key_password'])
+                ca_file=shared_ca,
+                client_cert_file=client_cert,
+                client_key_file=client_key,
+                client_key_password=client_key_password,
             )
 
     # One-time supported-version enforcement: check once using existing helper.

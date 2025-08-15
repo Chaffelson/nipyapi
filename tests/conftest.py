@@ -39,9 +39,9 @@ SKIP_TEARDOWN = _flag('SKIP_TEARDOWN', default=False)
 test_ldap = TEST_LDAP
 test_mtls = TEST_MTLS
 
-# Base URLs and credentials; env overrides take precedence, otherwise default by PROFILE below
-NIFI_BASE_URL = os.getenv('NIFI_BASE_URL')
-REGISTRY_BASE_URL = os.getenv('REGISTRY_BASE_URL')
+# API endpoints and credentials; env overrides take precedence, otherwise default by PROFILE below
+NIFI_API_ENDPOINT = os.getenv('NIFI_API_ENDPOINT')
+REGISTRY_API_ENDPOINT = os.getenv('REGISTRY_API_ENDPOINT')
 NIFI_USERNAME = os.getenv('NIFI_USERNAME')
 NIFI_PASSWORD = os.getenv('NIFI_PASSWORD')
 REGISTRY_USERNAME = os.getenv('REGISTRY_USERNAME')
@@ -146,11 +146,11 @@ def _ensure_tls_for(service: str, base_url: str):
 
 def _apply_default_urls():
     """Apply profile-based default URLs when env overrides are not provided."""
-    global NIFI_BASE_URL, REGISTRY_BASE_URL
+    global NIFI_API_ENDPOINT, REGISTRY_API_ENDPOINT
     profile_key = _active_profile()
     defaults = _PROFILE_DEFAULT_URLS[profile_key]
-    NIFI_BASE_URL = NIFI_BASE_URL or defaults['nifi']
-    REGISTRY_BASE_URL = REGISTRY_BASE_URL or defaults['registry']
+    NIFI_API_ENDPOINT = NIFI_API_ENDPOINT or defaults['nifi']
+    REGISTRY_API_ENDPOINT = REGISTRY_API_ENDPOINT or defaults['registry']
 
 
 _apply_global_ca_defaults()
@@ -186,8 +186,8 @@ def _resolve_profile_defaults():
     client_crt = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
     client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
 
-    nifi_url = NIFI_BASE_URL or defaults['nifi']
-    reg_url = REGISTRY_BASE_URL or defaults['registry']
+    nifi_url = NIFI_API_ENDPOINT or defaults['nifi']
+    reg_url = REGISTRY_API_ENDPOINT or defaults['registry']
 
     if profile_key == 'secure-ldap':
         nifi_user = NIFI_USERNAME or 'einstein'
@@ -358,8 +358,8 @@ def regress_flow_reg(request):
 
 
 def _setup_nifi_single_user():
-    _ensure_tls_for('nifi', NIFI_BASE_URL or '')
-    nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, True, NIFI_USERNAME, NIFI_PASSWORD)
+    _ensure_tls_for('nifi', NIFI_API_ENDPOINT or '')
+    nipyapi.utils.set_endpoint(NIFI_API_ENDPOINT, True, True, NIFI_USERNAME, NIFI_PASSWORD)
 
 
 def _setup_nifi_secure_ldap():
@@ -382,12 +382,12 @@ def _setup_nifi_secure_mtls():
     if cert_path and key_path:
         nipyapi.config.nifi_config.cert_file = cert_path
         nipyapi.config.nifi_config.key_file = key_path
-    nipyapi.utils.set_endpoint(NIFI_BASE_URL, True, False)
+    nipyapi.utils.set_endpoint(NIFI_API_ENDPOINT, True, False)
 
 
 def _setup_registry_single_user():
-    _ensure_tls_for('registry', REGISTRY_BASE_URL or '')
-    nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
+    _ensure_tls_for('registry', REGISTRY_API_ENDPOINT or '')
+    nipyapi.utils.set_endpoint(REGISTRY_API_ENDPOINT, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
 
 
 def _setup_registry_secure_ldap():
@@ -407,7 +407,7 @@ def _setup_registry_secure_mtls():
     if cert_path and key_path:
         nipyapi.config.registry_config.cert_file = cert_path
         nipyapi.config.registry_config.key_file = key_path
-    nipyapi.utils.set_endpoint(REGISTRY_BASE_URL, True, False)
+    nipyapi.utils.set_endpoint(REGISTRY_API_ENDPOINT, True, False)
 
 
 _NIFI_SETUP_MAP = {
@@ -452,9 +452,9 @@ def session_setup(request):
             nipyapi.config.registry_config.cert_file = resolved['client_cert']
             nipyapi.config.registry_config.key_file = resolved['client_key']
     # Stabilize module-level globals for downstream calls
-    global NIFI_BASE_URL, REGISTRY_BASE_URL, NIFI_USERNAME, NIFI_PASSWORD, REGISTRY_USERNAME, REGISTRY_PASSWORD
-    NIFI_BASE_URL = resolved['nifi_url']
-    REGISTRY_BASE_URL = resolved['registry_url']
+    global NIFI_API_ENDPOINT, REGISTRY_API_ENDPOINT, NIFI_USERNAME, NIFI_PASSWORD, REGISTRY_USERNAME, REGISTRY_PASSWORD
+    NIFI_API_ENDPOINT = resolved['nifi_url']
+    REGISTRY_API_ENDPOINT = resolved['registry_url']
     NIFI_USERNAME = resolved['nifi_user']
     NIFI_PASSWORD = resolved['nifi_pass']
     REGISTRY_USERNAME = resolved['registry_user']
@@ -462,7 +462,7 @@ def session_setup(request):
 
     # NiFi setup and readiness
     _NIFI_SETUP_MAP[profile_key]()
-    _wait_until_service_up(NIFI_BASE_URL.replace('-api', ''))
+    _wait_until_service_up(NIFI_API_ENDPOINT.replace('-api', ''))
     if not nipyapi.canvas.get_root_pg_id():
         raise ValueError("No Response from NiFi test call")
     if profile_key in ('secure-ldap', 'secure-mtls'):
@@ -474,25 +474,13 @@ def session_setup(request):
 
     # Registry setup and readiness
     _REGISTRY_SETUP_MAP[profile_key]()
-    _wait_until_service_up(REGISTRY_BASE_URL.replace('-api', ''))
+    _wait_until_service_up(REGISTRY_API_ENDPOINT.replace('-api', ''))
     _ = nipyapi.system.get_registry_version_info()
     try:
-        # Baseline registry bootstrap
+        # Baseline registry bootstrap handles proxy and global bucket policies
         nipyapi.security.bootstrap_security_policies(
             service='registry', nifi_proxy_identity=NIFI_PROXY_IDENTITY
         )
-        # Ensure NiFi proxy has global buckets read/write for version control listing
-        proxy_user = nipyapi.security.create_service_user(
-            identity=NIFI_PROXY_IDENTITY, service='registry', strict=False
-        )
-        for action in ('read', 'write'):
-            pol = nipyapi.security.get_access_policy_for_resource(
-                resource='/buckets', action=action,
-                service='registry', auto_create=True
-            )
-            nipyapi.security.add_user_to_access_policy(
-                user=proxy_user, policy=pol, service='registry', strict=False
-            )
     except Exception:
         pass
     cleanup_reg()
@@ -570,13 +558,13 @@ def final_cleanup():
         return None
     # Cleanup NiFi using the existing authenticated session
     cleanup_nifi()
-    if (test_ldap or test_mtls) and 'https' in NIFI_BASE_URL:
+    if (test_ldap or test_mtls) and 'https' in NIFI_API_ENDPOINT:
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')
         remove_test_controllers(include_reporting_tasks=True)
     # Cleanup Registry using the existing authenticated session
     cleanup_reg()
-    if (test_ldap or test_mtls) and 'https' in REGISTRY_BASE_URL:
+    if (test_ldap or test_mtls) and 'https' in REGISTRY_API_ENDPOINT:
         remove_test_service_user_groups('registry')
         remove_test_service_users('registry')
 
@@ -816,32 +804,10 @@ def fixture_ver_flow(request, fix_bucket, fix_pg, fix_proc):
         'FixtureVerFlow', ('client', 'bucket', 'pg', 'proc', 'info',
                            'flow', 'snapshot', 'dto')
     )
-    f_reg_client = ensure_registry_client(REGISTRY_BASE_URL)
+    f_reg_client = ensure_registry_client(REGISTRY_API_ENDPOINT)
     assert f_reg_client is not None
     f_pg = fix_pg.generate()
     f_bucket = fix_bucket()
-    # Ensure NiFi proxy identity can access this bucket (required for NiFi->Registry save)
-    try:
-        # Grant bucket-specific access to NiFi proxy and the authenticated registry user
-        bucket_resource = f"/buckets/{f_bucket.identifier}"
-        targets = []
-        if NIFI_PROXY_IDENTITY:
-            targets.append(NIFI_PROXY_IDENTITY)
-        if REGISTRY_USERNAME:
-            targets.append(REGISTRY_USERNAME)
-        for ident in targets:
-            reg_user = nipyapi.security.create_service_user(
-                identity=ident, service='registry', strict=False
-            )
-            for action in ('read', 'write'):
-                pol = nipyapi.security.create_access_policy(
-                    resource=bucket_resource, action=action, service='registry'
-                )
-                nipyapi.security.add_user_to_access_policy(
-                    user=reg_user, policy=pol, service='registry', strict=False
-                )
-    except Exception:
-        pass
     f_proc = fix_proc.generate(parent_pg=f_pg)
     f_info = nipyapi.versioning.save_flow_ver(
             process_group=f_pg,

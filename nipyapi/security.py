@@ -296,11 +296,13 @@ def service_login(service="nifi", username=None, password=None,
     assert configuration.host.startswith(
         "https"
     ), "Login is only available when connecting over HTTPS."
-    default_pword = getattr(nipyapi.config, "default_" + service + "_password")
-    default_uname = getattr(nipyapi.config, "default_" + service + "_username")
-    # We use copy so we don't clobber the default by mistake
-    pword = password if password is not None else copy(default_pword)
-    uname = username if username is not None else copy(default_uname)
+    default_pword = getattr(nipyapi.config, "default_" + service + "_password", None)
+    default_uname = getattr(nipyapi.config, "default_" + service + "_username", None)
+    # Prefer explicitly provided credentials, then configuration-set creds, then deprecated defaults
+    cfg_uname = getattr(configuration, 'username', None)
+    cfg_pword = getattr(configuration, 'password', None)
+    uname = username if username is not None else (copy(cfg_uname) if cfg_uname else copy(default_uname))
+    pword = password if password is not None else (copy(cfg_pword) if cfg_pword else copy(default_pword))
     assert pword, "Password must be set or in default config"
     assert uname, "Username must be set or in default config"
     # set username/password in configuration for initial login
@@ -505,7 +507,21 @@ def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
     policy_user_ids = [
         i.identifier if service == "registry" else i.id for i in policy_users
     ]
+    # Add concise debug context to help trace registry bootstrap activity
+    try:
+        pol_resource = getattr(policy_tgt, "resource", None)
+        pol_action = getattr(policy_tgt, "action", None)
+        if pol_resource is None and hasattr(policy_tgt, "component"):
+            pol_resource = getattr(policy_tgt.component, "resource", None)
+            pol_action = getattr(policy_tgt.component, "action", None)
+    except Exception:  # best-effort logging only
+        pol_resource = None
+        pol_action = None
     if user_id not in policy_user_ids:
+        log.info(
+            "add_user_to_access_policy: service=%s action=%s resource=%s add user=%s",
+            service, pol_action, pol_resource, getattr(user, "identity", user_id)
+        )
         if service == "registry":
             policy_tgt.users.append(user)
         elif service == "nifi":
@@ -847,10 +863,11 @@ def bootstrap_security_policies(
                     nifi_user_identity = nipyapi.security.create_service_user(
                         identity=current_identity, service="nifi", strict=False
                     )
-            # Fallback to default username only if no current identity found
+            # If no current identity could be resolved, skip attaching a default
+            # identity here. Callers should pass explicit identities.
             if not nifi_user_identity:
-                nifi_user_identity = nipyapi.security.get_service_user(
-                    nipyapi.config.default_nifi_username, service="nifi"
+                log.warning(
+                    "bootstrap_nifi: no current user identity resolved; skipping user policy attachment"
                 )
         else:
             nifi_user_identity = user_identity
@@ -892,53 +909,80 @@ def bootstrap_security_policies(
                     strict=False
                 )
     else:
+        log.info("bootstrap_security_policies: starting registry bootstrap")
+        # Respect explicit caller-provided identity only; do not guess defaults here
         if user_identity is None and group_identity is None:
-            # Try to find user by certificate DN if using mTLS
-            reg_user_identity = nipyapi.security.get_service_user(
-                nipyapi.config.default_mtls_identity, service="registry"
-            )
-            # Fall back to default username if not found
-            if not reg_user_identity:
-                reg_user_identity = nipyapi.security.get_service_user(
-                    nipyapi.config.default_registry_username,
-                    service="registry"
-                )
+            reg_user_identity = None
         else:
             reg_user_identity = user_identity
-
-        all_buckets_access_policies = [
-            ("read", "/buckets"),
-            ("write", "/buckets"),
-            ("delete", "/buckets"),
-        ]
-        for action, resource in all_buckets_access_policies:
-            pol = nipyapi.security.get_access_policy_for_resource(
-                resource=resource,
-                action=action,
-                service="registry",
-                auto_create=True
+        if reg_user_identity:
+            log.info(
+                "bootstrap_registry: resolved reg_user_identity=%s",
+                getattr(reg_user_identity, "identity", None),
             )
-            if reg_user_identity is None:
-                if group_identity:  # Only try to add group if it exists
-                    nipyapi.security.add_user_group_to_access_policy(
-                        user_group=group_identity,
-                        policy=pol,
-                        service="registry"
-                    )
-            else:
-                nipyapi.security.add_user_to_access_policy(
-                    user=reg_user_identity,
-                    policy=pol,
+
+        try:
+            all_buckets_access_policies = [
+                ("read", "/buckets"),
+                ("write", "/buckets"),
+                ("delete", "/buckets"),
+            ]
+            for action, resource in all_buckets_access_policies:
+                pol = nipyapi.security.get_access_policy_for_resource(
+                    resource=resource,
+                    action=action,
                     service="registry",
-                    strict=False
+                    auto_create=True
                 )
+                log.info(
+                    "bootstrap_registry: ensure policy action=%s resource=%s id=%s",
+                    action, resource, getattr(pol, "identifier", None),
+                )
+                if reg_user_identity is None:
+                    if group_identity:  # Only try to add group if it exists
+                        nipyapi.security.add_user_group_to_access_policy(
+                            user_group=group_identity,
+                            policy=pol,
+                            service="registry"
+                        )
+                else:
+                    nipyapi.security.add_user_to_access_policy(
+                        user=reg_user_identity,
+                        policy=pol,
+                        service="registry",
+                        strict=False
+                    )
+        except Exception as e:
+            log.warning("Registry bucket policy bootstrap skipped due to error: %s", e)
         # Setup Proxy Access for NiFi's TLS client identity if provided
         if nifi_proxy_identity:
+            log.info(
+                "bootstrap_registry: ensuring proxy DN=%s user and policies",
+                nifi_proxy_identity,
+            )
             nifi_proxy_user = nipyapi.security.create_service_user(
                 identity=nifi_proxy_identity,
                 service="registry",
                 strict=False
             )
+            # Grant global buckets read/write so proxy can operate across all buckets
+            for action in ("read", "write"):
+                pol = nipyapi.security.get_access_policy_for_resource(
+                    resource="/buckets",
+                    action=action,
+                    service="registry",
+                    auto_create=True,
+                )
+                log.info(
+                    "bootstrap_registry: attach proxy to /buckets action=%s policy id=%s",
+                    action, getattr(pol, "identifier", None),
+                )
+                nipyapi.security.add_user_to_access_policy(
+                    user=nifi_proxy_user,
+                    policy=pol,
+                    service="registry",
+                    strict=False,
+                )
             proxy_access_policies = [
                 ("read", "/proxy"),
                 ("write", "/proxy"),
@@ -950,6 +994,10 @@ def bootstrap_security_policies(
                     action=action,
                     service="registry",
                     auto_create=True
+                )
+                log.info(
+                    "bootstrap_registry: attach proxy to %s action=%s policy id=%s",
+                    resource, action, getattr(pol, "identifier", None),
                 )
                 nipyapi.security.add_user_to_access_policy(
                     user=nifi_proxy_user,

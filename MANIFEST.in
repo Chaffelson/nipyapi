@@ -1,12 +1,12 @@
-include docs/authors.rst
-include docs/contributing.rst
-include docs/history.rst
 include LICENSE
+include NOTICE
 include README.rst
 include requirements.txt
-include nipyapi/demo/keys/*
 
 recursive-include nipyapi *
 recursive-exclude * *.py[co]
 
-recursive-include docs *.rst conf.py Makefile make.bat
+# Prune docs and resources
+prune docs
+prune resources
+prune examples

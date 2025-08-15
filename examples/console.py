@@ -5,8 +5,8 @@ This module is deprecated and will be removed. Use external examples
 or Docker Compose based environments.
 """
 
-# import logging
-# import nipyapi
+import logging
+import nipyapi
 
 # Note that this is the URI for NiFi to connect to Registry
 # Which may be different from your localhost connection if using Docker

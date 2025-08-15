@@ -1,0 +1,70 @@
+[build-system]
+requires = [
+  "setuptools>=69",
+  "wheel",
+  "setuptools-scm[toml]>=8",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nipyapi"
+description = "A rich Apache NiFi Python Client SDK"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+authors = [ { name = "NiPyAPI maintainers", email = "chaffelson@gmail.com" } ]
+keywords = ["nipyapi", "nifi", "apache nifi", "client", "sdk"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+]
+dynamic = ["version", "dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools_scm]
+write_to = "nipyapi/_version.py"
+fallback_version = "0.0.0+unknown"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["nipyapi*"]
+exclude = ["nipyapi.demo", "nipyapi.demo.*"]
+
+[tool.setuptools.exclude-package-data]
+"nipyapi.demo" = ["keys/*"]
+
+[project.urls]
+Homepage = "https://github.com/Chaffelson/nipyapi"
+Repository = "https://github.com/Chaffelson/nipyapi.git"
+Documentation = "https://nipyapi.readthedocs.io/en/latest/"
+Issues = "https://github.com/Chaffelson/nipyapi/issues"
+
+[project.optional-dependencies]
+dev = [
+  "flake8>=3.6.0",
+  "pylint>=3.3.0",
+  "coverage>=7.0",
+  "pytest>=8.4",
+  "deepdiff>=3.3.0",
+  "twine>=6.0.0",
+]
+docs = [
+  "Sphinx>=7.4.0",
+  "sphinx_rtd_theme>=3.0.0",
+  "sphinxcontrib-jquery>=4.1",
+]
+
+

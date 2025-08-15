@@ -8,6 +8,7 @@ Contents:
 
    readme
    installation
+   authentication
    apiReference
    todo
    contributing

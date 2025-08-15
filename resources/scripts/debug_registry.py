@@ -14,7 +14,7 @@ def getenv(name: str, default: str | None = None) -> str | None:
 
 
 def main() -> int:
-    nifi_url = getenv('NIFI_BASE_URL', 'https://localhost:9443/nifi-api')
+    nifi_url = getenv('NIFI_API_ENDPOINT', 'https://localhost:9443/nifi-api')
     ca_path = getenv('TLS_CA_CERT_PATH') or os.path.join(os.getcwd(), 'resources', 'certs', 'client', 'ca.pem')
     nifi_user = getenv('NIFI_USERNAME', 'einstein')
     nifi_pass = getenv('NIFI_PASSWORD', 'password1234')

@@ -6,9 +6,17 @@ import importlib
 
 __author__ = """Daniel Chaffelson"""
 __email__ = 'chaffelson@gmail.com'
-__version__ = '0.22.0'
+try:
+    # Generated during build by setuptools_scm
+    from ._version import version as __version__  # type: ignore
+except ImportError:  # pragma: no cover - version file not present in editable contexts
+    from importlib.metadata import PackageNotFoundError, version as _pkg_version
+    try:
+        __version__ = _pkg_version("nipyapi")
+    except PackageNotFoundError:  # package metadata not available (e.g., source checkout)
+        __version__ = "0.0.0+unknown"
 __all__ = ['canvas', 'system', 'config', 'nifi', 'registry',
-           'versioning', 'demo', 'utils', 'security', 'parameters']
+           'versioning', 'utils', 'security', 'parameters']
 
 for sub_module in __all__:
     importlib.import_module('nipyapi.' + sub_module)

@@ -49,6 +49,7 @@ resources/certs/*.env
 
 # Client-gen caches and augmented OpenAPI outputs
 resources/client_gen/_cache/
+resources/client_gen/_tmp/
 resources/client_gen/api_defs/*.augmented.json
 
 # Local scripts/helpers

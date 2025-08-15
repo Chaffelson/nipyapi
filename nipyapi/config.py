@@ -13,6 +13,10 @@ Notes for NiFi/Registry 2.x:
   - REQUESTS_CA_BUNDLE (CA bundle)
   - NIPYAPI_VERIFY_SSL (0/1) and NIPYAPI_CHECK_HOSTNAME (0/1)
 
+For a step-by-step guide on configuring NiFi/Registry authentication (single-user, LDAP, mTLS),
+see the project documentation: docs/authentication.rst or the online guide at
+https://nipyapi.readthedocs.io/en/latest/authentication.html
+
 Deprecated (kept for backward compatibility; prefer explicit configuration):
 - NIFI_CA_CERT / NIFI_CLIENT_CERT / NIFI_CLIENT_KEY
 - REGISTRY_CA_CERT / REGISTRY_CLIENT_CERT / REGISTRY_CLIENT_KEY
@@ -37,10 +41,12 @@ from nipyapi.registry import configuration as registry_config
 default_host = "localhost"  # Default to localhost for release
 #
 nifi_config.host = os.getenv(
-    "NIFI_API_ENDPOINT", "http://" + default_host + ":8080/nifi-api"
+    "NIFI_API_ENDPOINT", "https://" + default_host + ":9443/nifi-api"
 )
-# Set Default Host for NiFi-Registry
-registry_config.host = "http://" + default_host + ":18080/nifi-registry-api"
+# Set Default Host for NiFi-Registry (default secure in 2.x single/ldap profiles use 18444/18445; single-user registry is http 18080)
+registry_config.host = os.getenv(
+    "REGISTRY_API_ENDPOINT", "http://" + default_host + ":18080/nifi-registry-api"
+)
 
 # ---  Project Root ------
 # Is is helpful to have a reference to the root directory of the project
@@ -93,40 +99,6 @@ registered_filters = {
 # or on-demand refresh if not handled by the function itself
 cache = {}
 
-
-# --- Security Context
-# This allows easy reference to a set of certificates for use in automation
-# By default it points to our demo certs, change it for your environment
-default_certs_path = os.path.join(PROJECT_ROOT_DIR, "demo/keys")
-default_ssl_context = {
-    "ca_file": os.path.join(default_certs_path, "localhost-ts.pem"),
-    "client_cert_file": os.path.join(default_certs_path, "client-cert.pem"),
-    "client_key_file": os.path.join(default_certs_path, "client-key.pem"),
-    "client_key_password": "clientPassword",
-}
-# Identities and passwords to be used for service login if called for
-# DEPRECATED: demo/test-only defaults. Define credentials in your application
-# or test bootstrap instead of relying on client defaults.
-default_nifi_username = "einstein"  # DEPRECATED (test/demo)
-default_nifi_password = "password"  # DEPRECATED (test/demo)
-# For secure-ldap test setup, initial admin is 'einstein'
-default_registry_username = "einstein"  # DEPRECATED (test/demo)
-default_registry_password = "password"  # DEPRECATED (test/demo)
-# Identity to be used for mTLS authentication (test/demo)
-default_mtls_identity = "CN=user1, OU=nifi"  # DEPRECATED (test/demo)
-# Identity to be used in the Registry Client Proxy setup (test/demo)
-# If called for during policy setup, particularly bootstrap_policies
-default_proxy_user = "CN=user1, OU=nifi"  # DEPRECATED (test/demo)
-
-# Auth handling
-# If set, NiPyAPI will always include the Basic Authorization header
-global_force_basic_auth = False
-nifi_config.username = default_nifi_username
-nifi_config.password = default_nifi_password
-nifi_config.force_basic_auth = global_force_basic_auth
-registry_config.username = default_registry_username
-registry_config.password = default_registry_password
-registry_config.force_basic_auth = global_force_basic_auth
 
 # Set SSL Handling
 # Default to verifying SSL
@@ -197,13 +169,6 @@ if _shared_ca:
     nifi_config.verify_ssl = True
     registry_config.verify_ssl = True
 
-# Example (documentation) mTLS setup for NiFi 2.x:
-#
-# nifi_config.ssl_ca_cert = "/path/to/ca.pem"
-# nifi_config.cert_file = "/path/to/client.crt"
-# nifi_config.key_file = "/path/to/client.key"
-# # Then connect without token login (mTLS auth):
-# # utils.set_endpoint("https://host:9443/nifi-api", ssl=True, login=False)
 
 # --- Encoding
 # URL Encoding bypass characters will not be encoded during submission

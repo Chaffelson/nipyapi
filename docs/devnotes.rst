@@ -10,7 +10,7 @@ A collection point for information about the development process for future coll
 Decision Points
 ---------------
 
-* Using Swagger 2.0 instead of OpenAPI3.0 as it (currently as of Aug2017) has wider adoption and completed codegen tools
+* OpenAPI-based client generation using swagger-codegen v3 (OpenAPI 3.x definitions), with project-specific mustache templates
 * We use Google style Docstrings to better enable Sphinx to produce nicely readable documentation
 
 
@@ -53,10 +53,9 @@ Instructions::
     Stand up NiFi containers with docker compose profiles (`resources/docker/compose.yml`) and run tests via `make`:
     `PROFILE=single-user make test`, `PROFILE=secure-ldap make test`, `PROFILE=secure-mtls make test`.
     Python2 can be tested using the following steps within a Python2 virtualenv:
-    1. Install requirements: pip install -r requirements.txt
-    2. Install dev requirements: `pip install -r requirements_dev.txt`
-    3. Install package in editable mode with test support: `pip install -e .[test]`
-    4. Run tests: `pytest -v -s tests --tb=long -W ignore::urllib3.exceptions.InsecureRequestWarning`
+    1. Install runtime requirements: `pip install -r requirements.txt`
+    2. Install dev extras: `pip install -e ".[dev]"`
+    3. Run tests: `pytest -v -s tests --tb=long -W ignore::urllib3.exceptions.InsecureRequestWarning`
 
 Setup Code Signing
 ------------------
@@ -179,8 +178,8 @@ Release Process
 This assumes you have virtualenvwrapper, git, and appropriate python versions installed, as well as the necessary test environment:
 
 - update History.rst
-- check setup.py
-- check requirements.txt and requirements_dev.txt
+- check pyproject.toml
+- check requirements.txt
 - Commit all changes
 - in bash::
 

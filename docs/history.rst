@@ -4,7 +4,7 @@ History
 
  
 
-1.0.0 (2025-08-12)
+1.0.0 (2025-08-15)
 -------------------
 
 | Major migration to Apache NiFi/Registry 2.x (tested against 2.5.0). Drops 1.x support on main.
@@ -34,13 +34,16 @@ History
 - Dependencies: explicitly include `urllib3`, `certifi`, `requests` used by generated clients
   - Prune template-era deps (e.g., `lxml`, `xmltodict`) as Templates are removed
 
-- Tests: remove Templates tests; adapt for 2.x behavior; full suite green across default, secure-ldap, and secure-mtls (104 passed, 3 skipped)
+- Tests: remove Templates tests; adapt for 2.x behavior; full suite green across profiles
+  - single-user: 88 passed, 22 skipped
+  - secure-ldap: 107 passed, 3 skipped
+  - secure-mtls: 88 passed, 22 skipped
 
 - Tests / Profiles:
   - Centralize profile configuration in `tests/conftest.py` with clear docstrings; env overrides respected.
   - Support `PROFILE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
   - Remove duplicate TLS logic; consistent one-time setup and safe teardown.
-  - `Makefile`: simplified `make test` runner; defers configuration to conftest.
+  - `Makefile`: simplified `make test` runner; defers configuration to conftest; Docker targets use stable COMPOSE_PROJECT_NAME, quiet down with --remove-orphans.
 
 - Client utils:
   - Remove ad-hoc env reads in `utils.set_endpoint`; rely on preconfigured values only.

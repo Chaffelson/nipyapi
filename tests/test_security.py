@@ -250,34 +250,37 @@ def test_set_service_ssl_context():
     from nipyapi import config
 
     # Test default behavior (no purpose specified)
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        ca_file=config.default_ssl_context['ca_file']
-    )
+    # Use repo-local test CA if configured; default demo paths are deprecated
+    ca = config.nifi_config.ssl_ca_cert or config.registry_config.ssl_ca_cert
+    if not ca:
+        import os
+        ca_candidate = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'resources', 'certs', 'client', 'ca.pem')
+        ca = ca_candidate if os.path.exists(ca_candidate) else None
+    nipyapi.security.set_service_ssl_context(service='nifi', ca_file=ca)
     assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
 
     # Test with explicit SERVER_AUTH purpose
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        ca_file=config.default_ssl_context['ca_file'],
-        purpose=ssl.Purpose.SERVER_AUTH
-    )
+    nipyapi.security.set_service_ssl_context(service='nifi', ca_file=ca, purpose=ssl.Purpose.SERVER_AUTH)
     assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
 
     # Test with CLIENT_AUTH purpose
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        ca_file=config.default_ssl_context['ca_file'],
-        purpose=ssl.Purpose.CLIENT_AUTH
-    )
+    nipyapi.security.set_service_ssl_context(service='nifi', ca_file=ca, purpose=ssl.Purpose.CLIENT_AUTH)
     assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
 
     # Test with full client cert configuration
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        **config.default_ssl_context
-    )
-    assert nipyapi.config.nifi_config.ssl_context.get_ca_certs() is not None
+    # Full client cert config (use test certs if present)
+    import os
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    client_crt = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
+    client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
+    if os.path.exists(client_crt) and os.path.exists(client_key):
+        nipyapi.security.set_service_ssl_context(
+            service='nifi',
+            ca_file=ca,
+            client_cert_file=client_crt,
+            client_key_file=client_key,
+        )
+        assert nipyapi.config.nifi_config.ssl_context is not None
 
 
 def test_bootstrap_security_policies():

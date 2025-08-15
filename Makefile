@@ -7,7 +7,9 @@ NIFI_VERSION ?= 2.5.0
 # Paths and docker compose helpers (avoid cd by using -f)
 COMPOSE_DIR := $(abspath resources/docker)
 COMPOSE_FILE := $(COMPOSE_DIR)/compose.yml
-DC := NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE)
+# Use a stable project name to avoid noisy warnings about defaulting to 'docker'
+COMPOSE_PROJECT_NAME ?= nipyapi
+DC := COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE)
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
 try:
@@ -65,6 +67,12 @@ lint-pylint: ## run pylint
 test: ## run tests quickly with the default Python (env handled by tests/conftest.py)
 	pytest -q
 
+dev-install: ## install dev extras for local development
+	pip install -e ".[dev]"
+
+docs-install: ## install docs extras
+	pip install -e ".[docs]"
+
 certs: ## generate PKCS12 certs and env for docker profiles
 	cd resources/certs && bash gen_certs.sh
 
@@ -102,35 +110,30 @@ up: ## bring up docker profile: make up PROFILE=single-user|secure-ldap|secure-m
 
 down: ## bring down all docker services
 	@echo "Bringing down Docker services (NIFI_VERSION=$(NIFI_VERSION))"
-	@echo " - Bringing down profile: single-user" && $(DC) --profile single-user down -v || true
-	@echo " - Bringing down profile: secure-ldap" && $(DC) --profile secure-ldap down -v || true
-	@echo " - Bringing down profile: secure-mtls" && $(DC) --profile secure-mtls down -v || true
-	@echo " - Ensuring project is fully down" && $(DC) down -v || true
+	@containers=$$($(DC) ps -q 2>/dev/null); \
+	if [ -n "$$containers" ]; then \
+		$(DC) down -v --remove-orphans; \
+	else \
+		echo "No compose resources to remove for project $(COMPOSE_PROJECT_NAME)"; \
+	fi
 	@echo "Verifying expected containers are stopped/removed:"
-	@expect_names="nifi-single registry-single nifi-ldap registry-ldap nifi-mtls registry-mtls"; \
-	for n in $$expect_names; do \
-		if docker ps -a --format '{{.Names}}' | grep -Fxq "$$n"; then \
-			echo " - $$n: STILL PRESENT"; \
-		else \
-			echo " - $$n: not present"; \
-		fi; \
-	done
+	@COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE) ps --all | tail -n +2 | awk '{print " - " $$1 ": " $$6}' || true
 
-wait-ready: ## wait for readiness; accepts PROFILE=single-user|secure-ldap|secure-mtls or explicit *BASE_URL envs
-	@# If PROFILE is provided, set sensible defaults for URLs
+wait-ready: ## wait for readiness; accepts PROFILE=single-user|secure-ldap|secure-mtls or explicit *_API_ENDPOINT envs
+	@# If PROFILE is provided, set sensible defaults for endpoints (standardized names)
 	@if [ -n "$(PROFILE)" ]; then \
 		if [ "$(PROFILE)" = "single-user" ]; then \
-			NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9443/nifi-api}"; \
-			REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-http://localhost:18080/nifi-registry-api}"; \
-			export NIFI_BASE_URL REGISTRY_BASE_URL; \
+			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9443/nifi-api}"; \
+			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-http://localhost:18080/nifi-registry-api}"; \
+			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
 		elif [ "$(PROFILE)" = "secure-ldap" ]; then \
-		NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9444/nifi-api}"; \
-		REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18444/nifi-registry-api}"; \
-			export NIFI_BASE_URL REGISTRY_BASE_URL; \
+			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9444/nifi-api}"; \
+			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-https://localhost:18444/nifi-registry-api}"; \
+			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
 		elif [ "$(PROFILE)" = "secure-mtls" ]; then \
-		NIFI_BASE_URL="$${NIFI_BASE_URL:-https://localhost:9445/nifi-api}"; \
-		REGISTRY_BASE_URL="$${REGISTRY_BASE_URL:-https://localhost:18445/nifi-registry-api}"; \
-			export NIFI_BASE_URL REGISTRY_BASE_URL; \
+			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9445/nifi-api}"; \
+			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-https://localhost:18445/nifi-registry-api}"; \
+			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
 		else echo "Unknown PROFILE $(PROFILE)"; exit 1; fi; \
 	fi; \
 	python resources/scripts/wait_ready.py
@@ -147,6 +150,30 @@ test-ldap: ## shortcut: PROFILE=secure-ldap pytest
 
 test-mtls: ## shortcut: PROFILE=secure-mtls pytest
 	PROFILE=secure-mtls $(MAKE) test-profile
+
+smoke: ## quick version probe without bootstrap (use PROFILE=single-user|secure-ldap|secure-mtls)
+	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
+	if [ "$(PROFILE)" = "single-user" ]; then \
+		NIFI_API_ENDPOINT=$${NIFI_API_ENDPOINT:-https://localhost:9443/nifi-api}; \
+		REGISTRY_API_ENDPOINT=$${REGISTRY_API_ENDPOINT:-http://localhost:18080/nifi-registry-api}; \
+		NIFI_USERNAME=$${NIFI_USERNAME:-einstein}; \
+		NIFI_PASSWORD=$${NIFI_PASSWORD:-password1234}; \
+		REGISTRY_USERNAME=$${REGISTRY_USERNAME:-einstein}; \
+		REGISTRY_PASSWORD=$${REGISTRY_PASSWORD:-password}; \
+	elif [ "$(PROFILE)" = "secure-ldap" ]; then \
+		NIFI_API_ENDPOINT=$${NIFI_API_ENDPOINT:-https://localhost:9444/nifi-api}; \
+		REGISTRY_API_ENDPOINT=$${REGISTRY_API_ENDPOINT:-https://localhost:18444/nifi-registry-api}; \
+		NIFI_USERNAME=$${NIFI_USERNAME:-einstein}; \
+		NIFI_PASSWORD=$${NIFI_PASSWORD:-password}; \
+		REGISTRY_USERNAME=$${REGISTRY_USERNAME:-einstein}; \
+		REGISTRY_PASSWORD=$${REGISTRY_PASSWORD:-password}; \
+	elif [ "$(PROFILE)" = "secure-mtls" ]; then \
+		NIFI_API_ENDPOINT=$${NIFI_API_ENDPOINT:-https://localhost:9445/nifi-api}; \
+		REGISTRY_API_ENDPOINT=$${REGISTRY_API_ENDPOINT:-https://localhost:18445/nifi-registry-api}; \
+	else echo "Unknown PROFILE $(PROFILE)"; exit 1; fi; \
+	TLS_CA_CERT_PATH=$${TLS_CA_CERT_PATH:-$(PWD)/resources/certs/client/ca.pem}; \
+	export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT NIFI_USERNAME NIFI_PASSWORD REGISTRY_USERNAME REGISTRY_PASSWORD TLS_CA_CERT_PATH; \
+	python resources/scripts/smoke_versions.py
 
 e2e: ## end-to-end: up -> wait-ready -> fetch-openapi -> augment-openapi -> gen-clients -> tests
 	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
@@ -178,8 +205,7 @@ docs: ## generate Sphinx HTML documentation, including API docs
 	$(BROWSER) docs/_build/html/index.html
 
 
-servedocs: docs ## compile the docs watching for changes
-	watchmedo shell-command -p '*.rst' -c '$(MAKE) -C docs html' -R -D .
+
 
 release: clean ## package and upload a release
 	python setup.py sdist upload

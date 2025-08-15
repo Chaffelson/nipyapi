@@ -3,8 +3,8 @@
 Simple readiness probe for NiFi and NiFi Registry UIs/APIs.
 
 Environment:
-  - NIFI_BASE_URL (required), e.g., https://localhost:9443/nifi-api
-  - REGISTRY_BASE_URL (required), e.g., https://localhost:18445/nifi-registry-api
+  - NIFI_API_ENDPOINT (required), e.g., https://localhost:9443/nifi-api
+  - REGISTRY_API_ENDPOINT (required), e.g., https://localhost:18445/nifi-registry-api
   - TLS_CA_CERT_PATH (optional): path to PEM CA bundle
   - REQUESTS_CA_BUNDLE (optional): fallback CA bundle path (respected if TLS_CA_CERT_PATH not set)
   - MTLS_CLIENT_CERT / MTLS_CLIENT_KEY / MTLS_CLIENT_KEY_PASSWORD (optional): client auth for mTLS
@@ -69,10 +69,10 @@ def wait(url: str, expect_401_ok: bool = False, timeout: int = 60, cafile: str |
 
 
 def main() -> int:
-    nifi = os.getenv('NIFI_BASE_URL')
-    reg = os.getenv('REGISTRY_BASE_URL')
+    nifi = os.getenv('NIFI_API_ENDPOINT')
+    reg = os.getenv('REGISTRY_API_ENDPOINT')
     if not nifi or not reg:
-        print("ERROR: NIFI_BASE_URL and REGISTRY_BASE_URL must be provided; no defaults will be assumed.")
+        print("ERROR: NIFI_API_ENDPOINT and REGISTRY_API_ENDPOINT must be provided; no defaults will be assumed.")
         return 2
     cafile = os.getenv('TLS_CA_CERT_PATH') or os.getenv('REQUESTS_CA_BUNDLE')
     client_cert = os.getenv('MTLS_CLIENT_CERT')
@@ -81,13 +81,13 @@ def main() -> int:
     skip_verify = os.getenv('WAIT_SKIP_VERIFY', '1') != '0' and not cafile
     timeout = int(os.getenv('WAIT_TIMEOUT', '60'))
     print(f"Using CA={cafile or '(none)'} client_cert={'set' if client_cert else 'none'} skip_verify={skip_verify} timeout={timeout}")
-    # Probe NiFi UI then API on the exact host/port derived from NIFI_BASE_URL
+    # Probe NiFi UI then API on the exact host/port derived from NIFI_API_ENDPOINT
     nifi_ui = nifi.replace('/nifi-api', '/nifi/')
     ok1 = wait(nifi_ui, expect_401_ok=False, cafile=cafile, name='NiFi UI', skip_verify=skip_verify, timeout=timeout,
                client_cert=client_cert, client_key=client_key, client_key_password=client_key_password, accept_auth_errors=True) \
           or wait(nifi + '/flow/about', expect_401_ok=True, cafile=cafile, name='NiFi about', skip_verify=skip_verify, timeout=timeout,
                    client_cert=client_cert, client_key=client_key, client_key_password=client_key_password, accept_auth_errors=True)
-    # Probe Registry UI then API on the exact host/port derived from REGISTRY_BASE_URL only
+    # Probe Registry UI then API on the exact host/port derived from REGISTRY_API_ENDPOINT only
     reg_ui = reg.replace('/nifi-registry-api', '/nifi-registry/')
     ok2 = wait(reg_ui, expect_401_ok=False, cafile=cafile, name='Registry UI', skip_verify=skip_verify, timeout=timeout,
                client_cert=client_cert, client_key=client_key, client_key_password=client_key_password, accept_auth_errors=True) \

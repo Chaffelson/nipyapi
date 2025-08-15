@@ -31,9 +31,9 @@ echo "WROTE ${out_file}"
 exit 0
 fi
 
-# Fallback to HTTP(S) endpoint; prefer REGISTRY_BASE_URL if provided
+# Fallback to HTTP(S) endpoint; prefer REGISTRY_API_ENDPOINT if provided
 echo "Falling back to /nifi-registry-api/swagger.json"
-base_url="${REGISTRY_BASE_URL:-}"
+base_url="${REGISTRY_API_ENDPOINT:-}"
 try_urls=()
 if [ -n "${base_url}" ]; then
   try_urls+=("${base_url}/swagger.json")
