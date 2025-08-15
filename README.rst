@@ -98,4 +98,5 @@ Python Support
 
 | Tests are run locally against upstream Apache NiFi and NiFi Registry Docker images via Docker Compose profiles (Docker Desktop).
 | Developed on macOS 14+ and Windows 10.
-| Outside of the standard Python modules, runtime uses requests/urllib3, ruamel.yaml, and PySocks. Demos and Docker management have been removed from the client; use Docker Compose profiles in resources/docker instead.
+| Outside of the standard Python modules, runtime uses requests/urllib3, PyYAML, and PySocks. 
+| Demos and Docker management have been removed from the client; use Docker Compose profiles in resources/docker instead.

@@ -316,7 +316,7 @@ def test_import_flow_version(fix_flow_serde):
     # Test that our test_obj serialises and deserialises through the layers of
     # json reformatting. This is because we load the NiFi Java json object,
     # dump it using the Python json library, and load it again using
-    # ruamel.yaml.
+    # PyYAML.
     assert DeepDiff(
         compare_obj,
         utils.load(

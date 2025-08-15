@@ -11,8 +11,7 @@ from functools import reduce, wraps
 import operator
 from contextlib import contextmanager
 from packaging import version
-from ruamel.yaml import YAML
-from ruamel.yaml.compat import StringIO
+import yaml
 import requests
 from requests.models import Response
 import nipyapi
@@ -54,16 +53,14 @@ def dump(obj, mode='json'):
         except TypeError as e:
             raise e
     if mode == 'yaml':
-        # Use 'safe' loading to prevent arbitrary code execution
-        yaml = YAML(typ='safe', pure=True)
+        # Use 'safe' dumping to prevent arbitrary code execution
         # Force block style to avoid inline flow mappings that can break parsing
-        yaml.default_flow_style = False
-        # Create a StringIO object to act as the stream
-        stream = StringIO()
-        # Dump to the StringIO stream
-        yaml.dump(prepared_obj, stream)
-        # Return the contents of the stream as a string
-        return stream.getvalue()
+        return yaml.safe_dump(
+            prepared_obj,
+            default_flow_style=False,
+            sort_keys=True,
+            indent=4
+        )
     raise ValueError("Invalid dump Mode specified {0}".format(mode))
 
 
@@ -89,8 +86,8 @@ def load(obj, dto=None):
     """
     assert isinstance(obj, (str, bytes))
     assert dto is None or isinstance(dto, tuple)
-    yaml = YAML(typ='safe', pure=True)
-    loaded_obj = yaml.load(obj)
+    # Use safe_load to prevent arbitrary code execution
+    loaded_obj = yaml.safe_load(obj)
     if dto:
         assert dto[0] in ['nifi', 'registry']
         assert isinstance(dto[1], str)

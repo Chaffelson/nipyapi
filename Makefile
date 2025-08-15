@@ -146,6 +146,11 @@ test-ldap: ## shortcut: PROFILE=secure-ldap pytest
 test-mtls: ## shortcut: PROFILE=secure-mtls pytest
 	PROFILE=secure-mtls $(MAKE) test-profile
 
+test-specific: ## run specific pytest with provided PROFILE and TEST_ARGS
+	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required (single-user|secure-ldap|secure-mtls)"; exit 1; fi; \
+	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required (e.g., tests/test_utils.py::test_dump -v)"; exit 1; fi; \
+	PROFILE=$(PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
+
 test-all: ## run full e2e tests across all profiles: single-user, secure-ldap, secure-mtls
 	@echo "Running full e2e tests across all profiles..."
 	$(MAKE) certs
