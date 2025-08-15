@@ -182,3 +182,6 @@ htmlcov/
 
 # VSCode
 *.code-workspace
+
+# setuptools-scm generated version file
+nipyapi/_version.py
