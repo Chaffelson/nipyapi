@@ -221,14 +221,24 @@ docs: ## generate Sphinx HTML documentation, including API docs
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
 
-release: clean ## package and upload a release
-	python setup.py sdist upload
-	python setup.py bdist_wheel upload
+release: clean dist ## package and upload a release
+	twine check dist/*
+	twine upload dist/*
 
-dist: clean ## builds source and wheel package
-	python setup.py sdist
-	python setup.py bdist_wheel
+dist: clean ## builds source and wheel package using modern build system
+	python -m build
 	ls -l dist
 
+wheel: clean ## builds wheel package only
+	python -m build --wheel
+	ls -l dist
+
+sdist: clean ## builds source distribution only
+	python -m build --sdist
+	ls -l dist
+
+check-dist: dist ## validate distribution files
+	twine check dist/*
+
 install: clean ## install the package to the active Python's site-packages
-	python setup.py install
+	pip install -e .
