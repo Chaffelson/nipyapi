@@ -110,14 +110,9 @@ up: ## bring up docker profile: make up PROFILE=single-user|secure-ldap|secure-m
 
 down: ## bring down all docker services
 	@echo "Bringing down Docker services (NIFI_VERSION=$(NIFI_VERSION))"
-	@containers=$$($(DC) ps -q 2>/dev/null); \
-	if [ -n "$$containers" ]; then \
-		$(DC) down -v --remove-orphans; \
-	else \
-		echo "No compose resources to remove for project $(COMPOSE_PROJECT_NAME)"; \
-	fi
+	@$(DC) --profile single-user --profile secure-ldap --profile secure-mtls down -v --remove-orphans || true
 	@echo "Verifying expected containers are stopped/removed:"
-	@COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE) ps --all | tail -n +2 | awk '{print " - " $$1 ": " $$6}' || true
+	@COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE) ps --format "table {{.Name}}\t{{.State}}" | tail -n +2 | awk '{print " - " $$1 ": " $$2}' || true
 
 wait-ready: ## wait for readiness; accepts PROFILE=single-user|secure-ldap|secure-mtls or explicit *_API_ENDPOINT envs
 	@# If PROFILE is provided, set sensible defaults for endpoints (standardized names)
@@ -150,6 +145,24 @@ test-ldap: ## shortcut: PROFILE=secure-ldap pytest
 
 test-mtls: ## shortcut: PROFILE=secure-mtls pytest
 	PROFILE=secure-mtls $(MAKE) test-profile
+
+test-all: ## run full e2e tests across all profiles: single-user, secure-ldap, secure-mtls
+	@echo "Running full e2e tests across all profiles..."
+	$(MAKE) certs
+	@for profile in single-user secure-ldap secure-mtls; do \
+		echo "=== Running e2e test for profile: $$profile ==="; \
+		$(MAKE) up PROFILE=$$profile && \
+		$(MAKE) wait-ready PROFILE=$$profile && \
+		$(MAKE) test-profile PROFILE=$$profile; \
+		test_result=$$?; \
+		echo "=== Cleaning up profile: $$profile ==="; \
+		$(MAKE) down; \
+		if [ $$test_result -ne 0 ]; then \
+			echo "Tests failed for profile: $$profile"; \
+			exit $$test_result; \
+		fi; \
+	done
+	@echo "All profile e2e tests completed successfully."
 
 smoke: ## quick version probe without bootstrap (use PROFILE=single-user|secure-ldap|secure-mtls)
 	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
@@ -185,7 +198,6 @@ e2e: ## end-to-end: up -> wait-ready -> fetch-openapi -> augment-openapi -> gen-
 	$(MAKE) gen-clients && \
 	$(MAKE) test-profile PROFILE=$(PROFILE)
 
-
 # tox deprecated: use Makefile targets or CI matrix
 
 coverage-min ?= 70
@@ -203,9 +215,6 @@ docs: ## generate Sphinx HTML documentation, including API docs
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
-
-
-
 
 release: clean ## package and upload a release
 	python setup.py sdist upload
