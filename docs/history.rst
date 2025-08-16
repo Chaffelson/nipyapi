@@ -18,7 +18,7 @@ History
 - Generator: consolidate NiFi/Registry generation (`resources/client_gen/generate_api_client.sh`); add JSON enum normalizer (`resources/client_gen/normalize_openapi_enums.py`) as temporary workaround for upstream enum issues
 - Templates: `api_client.mustache` use raw regex strings to avoid DeprecationWarnings; `model.mustache` fix enum allowed_values; skip None-checks for required readOnly fields; remove callback/threading artifacts and vendor regex modifiers
 - Dependencies: replace ruamel.yaml with PyYAML (reduces dependency count while maintaining full compatibility)
-- Build: modernize build system using python -m build instead of deprecated setup.py; add comprehensive make targets (dist, wheel, sdist, check-dist) with proper validation
+- Build: modernize build system using python -m build instead of deprecated setup.py; add comprehensive make targets (dist, wheel, sdist, check-dist, test-dist) with proper validation; add distribution import validation script for release process
 
 - Canvas (2.x API): use `ProcessGroupsApi.create_controller_service1(id=...)`; controller scheduling via `ControllerServicesApi.update_run_status1(...)`; update renamed APIs `FlowFileQueuesApi`, `FunnelsApi`
 - Security (2.x): replace removed `AccessApi.get_access_status` with `FlowApi.get_current_user()`; Registry readiness via `AboutApi.get_version()`

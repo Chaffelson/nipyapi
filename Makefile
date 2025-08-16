@@ -240,5 +240,8 @@ sdist: clean ## builds source distribution only
 check-dist: dist ## validate distribution files
 	twine check dist/*
 
+test-dist: dist ## test that built distribution can be imported and used
+	python resources/scripts/test_distribution.py
+
 install: clean ## install the package to the active Python's site-packages
 	pip install -e .
