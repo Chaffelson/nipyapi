@@ -35,11 +35,8 @@ class AboutApi(object):
     def get_version(self, **kwargs):
         """
         Get version
-
         Gets the NiFi Registry version.
-
         This method makes a synchronous HTTP request.
-
         :return: RegistryAbout
         """
         kwargs['_return_http_data_only'] = True
@@ -52,11 +49,8 @@ class AboutApi(object):
     def get_version_with_http_info(self, **kwargs):
         """
         Get version
-
         Gets the NiFi Registry version.
-
         This method makes a synchronous HTTP request.
-
         :return: RegistryAbout
         """
 
@@ -92,7 +86,7 @@ class AboutApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/about', 'GET',
                                         path_params,

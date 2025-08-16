@@ -35,9 +35,7 @@ class ResourcesApi(object):
     def get_resources(self, **kwargs):
         """
         Gets the available resources that support access/authorization policies
-
         This method makes a synchronous HTTP request.
-
         :return: ResourcesEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -50,9 +48,7 @@ class ResourcesApi(object):
     def get_resources_with_http_info(self, **kwargs):
         """
         Gets the available resources that support access/authorization policies
-
         This method makes a synchronous HTTP request.
-
         :return: ResourcesEntity
         """
 
@@ -88,7 +84,7 @@ class ResourcesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/resources', 'GET',
                                         path_params,

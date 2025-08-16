@@ -35,9 +35,7 @@ class BucketsApi(object):
     def create_bucket(self, body, **kwargs):
         """
         Create bucket
-
         This method makes a synchronous HTTP request.
-
         :param Bucket body: The bucket to create (required)
         :param bool preserve_source_properties: Whether source properties like identifier should be kept
         :return: Bucket
@@ -52,9 +50,7 @@ class BucketsApi(object):
     def create_bucket_with_http_info(self, body, **kwargs):
         """
         Create bucket
-
         This method makes a synchronous HTTP request.
-
         :param Bucket body: The bucket to create (required)
         :param bool preserve_source_properties: Whether source properties like identifier should be kept
         :return: Bucket
@@ -78,8 +74,8 @@ class BucketsApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_bucket`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -105,7 +101,7 @@ class BucketsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets', 'POST',
                                         path_params,
@@ -124,11 +120,8 @@ class BucketsApi(object):
     def delete_bucket(self, version, bucket_id, **kwargs):
         """
         Delete bucket
-
         Deletes the bucket with the given id, along with all objects stored in the bucket
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str bucket_id: The bucket identifier (required)
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -144,11 +137,8 @@ class BucketsApi(object):
     def delete_bucket_with_http_info(self, version, bucket_id, **kwargs):
         """
         Delete bucket
-
         Deletes the bucket with the given id, along with all objects stored in the bucket
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str bucket_id: The bucket identifier (required)
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -176,9 +166,9 @@ class BucketsApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `delete_bucket`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -202,7 +192,7 @@ class BucketsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}', 'DELETE',
                                         path_params,
@@ -221,11 +211,8 @@ class BucketsApi(object):
     def get_available_bucket_fields(self, **kwargs):
         """
         Get bucket fields
-
         Retrieves bucket field names for searching or sorting on buckets.
-
         This method makes a synchronous HTTP request.
-
         :return: Fields
         """
         kwargs['_return_http_data_only'] = True
@@ -238,11 +225,8 @@ class BucketsApi(object):
     def get_available_bucket_fields_with_http_info(self, **kwargs):
         """
         Get bucket fields
-
         Retrieves bucket field names for searching or sorting on buckets.
-
         This method makes a synchronous HTTP request.
-
         :return: Fields
         """
 
@@ -278,7 +262,7 @@ class BucketsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/fields', 'GET',
                                         path_params,
@@ -297,11 +281,8 @@ class BucketsApi(object):
     def get_bucket(self, bucket_id, **kwargs):
         """
         Get bucket
-
         Gets the bucket with the given id.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_id: The bucket identifier (required)
         :return: Bucket
         """
@@ -315,11 +296,8 @@ class BucketsApi(object):
     def get_bucket_with_http_info(self, bucket_id, **kwargs):
         """
         Get bucket
-
         Gets the bucket with the given id.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_id: The bucket identifier (required)
         :return: Bucket
         """
@@ -342,7 +320,7 @@ class BucketsApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `get_bucket`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -362,7 +340,7 @@ class BucketsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}', 'GET',
                                         path_params,
@@ -381,11 +359,8 @@ class BucketsApi(object):
     def get_buckets(self, **kwargs):
         """
         Get all buckets
-
         The returned list will include only buckets for which the user is authorized.If the user is not authorized for any buckets, this returns an empty list.
-
         This method makes a synchronous HTTP request.
-
         :return: list[Bucket]
         """
         kwargs['_return_http_data_only'] = True
@@ -398,11 +373,8 @@ class BucketsApi(object):
     def get_buckets_with_http_info(self, **kwargs):
         """
         Get all buckets
-
         The returned list will include only buckets for which the user is authorized.If the user is not authorized for any buckets, this returns an empty list.
-
         This method makes a synchronous HTTP request.
-
         :return: list[Bucket]
         """
 
@@ -438,7 +410,7 @@ class BucketsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets', 'GET',
                                         path_params,
@@ -457,11 +429,8 @@ class BucketsApi(object):
     def update_bucket(self, body, bucket_id, **kwargs):
         """
         Update bucket
-
         Updates the bucket with the given id.
-
         This method makes a synchronous HTTP request.
-
         :param Bucket body: The updated bucket (required)
         :param str bucket_id: The bucket identifier (required)
         :return: Bucket
@@ -476,11 +445,8 @@ class BucketsApi(object):
     def update_bucket_with_http_info(self, body, bucket_id, **kwargs):
         """
         Update bucket
-
         Updates the bucket with the given id.
-
         This method makes a synchronous HTTP request.
-
         :param Bucket body: The updated bucket (required)
         :param str bucket_id: The bucket identifier (required)
         :return: Bucket
@@ -507,8 +473,8 @@ class BucketsApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `update_bucket`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -534,7 +500,7 @@ class BucketsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}', 'PUT',
                                         path_params,

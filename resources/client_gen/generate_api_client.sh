@@ -48,11 +48,11 @@ generate_and_sync() {
   local swagger_def
   if [ "${wv_spec_variant}" = "augmented" ]; then
     # Prefer augmented specs (e.g., nifi-<ver>.augmented.json)
-    swagger_def=$(ls "${wv_api_def_dir}" | grep "^${client_name}-" | grep -E 'augmented\\.json$' | sort -V | tail -1 || true)
+    swagger_def=$(ls "${wv_api_def_dir}" | grep "^${client_name}-" | grep -E 'augmented\.json$' | sort -V | tail -1 || true)
   fi
   if [ -z "${swagger_def:-}" ]; then
     # Fall back to base spec (exclude augmented files)
-    swagger_def=$(ls "${wv_api_def_dir}" | grep "^${client_name}-" | grep -v 'augmented\\.json$' | sort -V | tail -1 || true)
+    swagger_def=$(ls "${wv_api_def_dir}" | grep "^${client_name}-" | grep -v 'augmented\.json$' | sort -V | tail -1 || true)
   fi
   if [ -z "${swagger_def}" ]; then
     echo "ERROR: No API definition found for ${client_name} in ${wv_api_def_dir}" >&2

@@ -123,7 +123,7 @@ class LineageRequestDTO(object):
         :param lineage_request_type: The lineage_request_type of this LineageRequestDTO.
         :type: str
         """
-        allowed_values = ["PARENTS", "CHILDREN", "FLOWFILE", "PARENTS", "CHILDREN", "FLOWFILE", ]
+        allowed_values = ["PARENTS", "CHILDREN", "FLOWFILE", ]
         if lineage_request_type not in allowed_values:
             raise ValueError(
                 "Invalid value for `lineage_request_type` ({0}), must be one of {1}"

@@ -35,11 +35,8 @@ class TenantsApi(object):
     def create_user(self, body, **kwargs):
         """
         Creates a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserEntity body: The user configuration details. (required)
         :return: UserEntity
         """
@@ -53,11 +50,8 @@ class TenantsApi(object):
     def create_user_with_http_info(self, body, **kwargs):
         """
         Creates a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserEntity body: The user configuration details. (required)
         :return: UserEntity
         """
@@ -80,7 +74,7 @@ class TenantsApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_user`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -104,7 +98,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/users', 'POST',
                                         path_params,
@@ -123,11 +117,8 @@ class TenantsApi(object):
     def create_user_group(self, body, **kwargs):
         """
         Creates a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserGroupEntity body: The user group configuration details. (required)
         :return: UserGroupEntity
         """
@@ -141,11 +132,8 @@ class TenantsApi(object):
     def create_user_group_with_http_info(self, body, **kwargs):
         """
         Creates a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserGroupEntity body: The user group configuration details. (required)
         :return: UserGroupEntity
         """
@@ -168,7 +156,7 @@ class TenantsApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_user_group`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -192,7 +180,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/user-groups', 'POST',
                                         path_params,
@@ -211,11 +199,8 @@ class TenantsApi(object):
     def get_user(self, id, **kwargs):
         """
         Gets a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user id. (required)
         :return: UserEntity
         """
@@ -229,11 +214,8 @@ class TenantsApi(object):
     def get_user_with_http_info(self, id, **kwargs):
         """
         Gets a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user id. (required)
         :return: UserEntity
         """
@@ -256,7 +238,7 @@ class TenantsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_user`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -276,7 +258,7 @@ class TenantsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/users/{id}', 'GET',
                                         path_params,
@@ -295,11 +277,8 @@ class TenantsApi(object):
     def get_user_group(self, id, **kwargs):
         """
         Gets a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user group id. (required)
         :return: UserGroupEntity
         """
@@ -313,11 +292,8 @@ class TenantsApi(object):
     def get_user_group_with_http_info(self, id, **kwargs):
         """
         Gets a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user group id. (required)
         :return: UserGroupEntity
         """
@@ -340,7 +316,7 @@ class TenantsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_user_group`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -360,7 +336,7 @@ class TenantsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/user-groups/{id}', 'GET',
                                         path_params,
@@ -379,11 +355,8 @@ class TenantsApi(object):
     def get_user_groups(self, **kwargs):
         """
         Gets all user groups
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: UserGroupsEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -396,11 +369,8 @@ class TenantsApi(object):
     def get_user_groups_with_http_info(self, **kwargs):
         """
         Gets all user groups
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: UserGroupsEntity
         """
 
@@ -436,7 +406,7 @@ class TenantsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/user-groups', 'GET',
                                         path_params,
@@ -455,11 +425,8 @@ class TenantsApi(object):
     def get_users(self, **kwargs):
         """
         Gets all users
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: UsersEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -472,11 +439,8 @@ class TenantsApi(object):
     def get_users_with_http_info(self, **kwargs):
         """
         Gets all users
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: UsersEntity
         """
 
@@ -512,7 +476,7 @@ class TenantsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/users', 'GET',
                                         path_params,
@@ -531,11 +495,8 @@ class TenantsApi(object):
     def remove_user(self, id, **kwargs):
         """
         Deletes a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -552,11 +513,8 @@ class TenantsApi(object):
     def remove_user_with_http_info(self, id, **kwargs):
         """
         Deletes a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -582,10 +540,10 @@ class TenantsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_user`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -611,7 +569,7 @@ class TenantsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/users/{id}', 'DELETE',
                                         path_params,
@@ -630,11 +588,8 @@ class TenantsApi(object):
     def remove_user_group(self, id, **kwargs):
         """
         Deletes a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user group id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -651,11 +606,8 @@ class TenantsApi(object):
     def remove_user_group_with_http_info(self, id, **kwargs):
         """
         Deletes a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The user group id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -681,10 +633,10 @@ class TenantsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_user_group`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -710,7 +662,7 @@ class TenantsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/user-groups/{id}', 'DELETE',
                                         path_params,
@@ -729,11 +681,8 @@ class TenantsApi(object):
     def search_tenants(self, q, **kwargs):
         """
         Searches for a tenant with the specified identity
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str q: Identity to search for. (required)
         :return: TenantsEntity
         """
@@ -747,11 +696,8 @@ class TenantsApi(object):
     def search_tenants_with_http_info(self, q, **kwargs):
         """
         Searches for a tenant with the specified identity
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str q: Identity to search for. (required)
         :return: TenantsEntity
         """
@@ -774,7 +720,7 @@ class TenantsApi(object):
         if ('q' not in params) or (params['q'] is None):
             raise ValueError("Missing the required parameter `q` when calling `search_tenants`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -794,7 +740,7 @@ class TenantsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/search-results', 'GET',
                                         path_params,
@@ -813,11 +759,8 @@ class TenantsApi(object):
     def update_user(self, body, id, **kwargs):
         """
         Updates a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserEntity body: The user configuration details. (required)
         :param str id: The user id. (required)
         :return: UserEntity
@@ -832,11 +775,8 @@ class TenantsApi(object):
     def update_user_with_http_info(self, body, id, **kwargs):
         """
         Updates a user
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserEntity body: The user configuration details. (required)
         :param str id: The user id. (required)
         :return: UserEntity
@@ -863,8 +803,8 @@ class TenantsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_user`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -890,7 +830,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/users/{id}', 'PUT',
                                         path_params,
@@ -909,11 +849,8 @@ class TenantsApi(object):
     def update_user_group(self, body, id, **kwargs):
         """
         Updates a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserGroupEntity body: The user group configuration details. (required)
         :param str id: The user group id. (required)
         :return: UserGroupEntity
@@ -928,11 +865,8 @@ class TenantsApi(object):
     def update_user_group_with_http_info(self, body, id, **kwargs):
         """
         Updates a user group
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param UserGroupEntity body: The user group configuration details. (required)
         :param str id: The user group id. (required)
         :return: UserGroupEntity
@@ -959,8 +893,8 @@ class TenantsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_user_group`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -986,7 +920,7 @@ class TenantsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/tenants/user-groups/{id}', 'PUT',
                                         path_params,

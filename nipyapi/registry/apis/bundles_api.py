@@ -35,11 +35,8 @@ class BundlesApi(object):
     def delete_bundle(self, bundle_id, **kwargs):
         """
         Delete bundle
-
         Deletes the given extension bundle and all of it's versions.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :return: Bundle
         """
@@ -53,11 +50,8 @@ class BundlesApi(object):
     def delete_bundle_with_http_info(self, bundle_id, **kwargs):
         """
         Delete bundle
-
         Deletes the given extension bundle and all of it's versions.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :return: Bundle
         """
@@ -80,7 +74,7 @@ class BundlesApi(object):
         if ('bundle_id' not in params) or (params['bundle_id'] is None):
             raise ValueError("Missing the required parameter `bundle_id` when calling `delete_bundle`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -100,7 +94,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}', 'DELETE',
                                         path_params,
@@ -119,11 +113,8 @@ class BundlesApi(object):
     def delete_bundle_version(self, bundle_id, version, **kwargs):
         """
         Delete bundle version
-
         Deletes the given extension bundle version and it's associated binary content.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: BundleVersion
@@ -138,11 +129,8 @@ class BundlesApi(object):
     def delete_bundle_version_with_http_info(self, bundle_id, version, **kwargs):
         """
         Delete bundle version
-
         Deletes the given extension bundle version and it's associated binary content.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: BundleVersion
@@ -169,8 +157,8 @@ class BundlesApi(object):
         if ('version' not in params) or (params['version'] is None):
             raise ValueError("Missing the required parameter `version` when calling `delete_bundle_version`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -192,7 +180,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}', 'DELETE',
                                         path_params,
@@ -211,11 +199,8 @@ class BundlesApi(object):
     def get_bundle(self, bundle_id, **kwargs):
         """
         Get bundle
-
         Gets the metadata about an extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :return: Bundle
         """
@@ -229,11 +214,8 @@ class BundlesApi(object):
     def get_bundle_with_http_info(self, bundle_id, **kwargs):
         """
         Get bundle
-
         Gets the metadata about an extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :return: Bundle
         """
@@ -256,7 +238,7 @@ class BundlesApi(object):
         if ('bundle_id' not in params) or (params['bundle_id'] is None):
             raise ValueError("Missing the required parameter `bundle_id` when calling `get_bundle`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -276,7 +258,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}', 'GET',
                                         path_params,
@@ -295,11 +277,8 @@ class BundlesApi(object):
     def get_bundle_version(self, bundle_id, version, **kwargs):
         """
         Get bundle version
-
         Gets the descriptor for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: BundleVersion
@@ -314,11 +293,8 @@ class BundlesApi(object):
     def get_bundle_version_with_http_info(self, bundle_id, version, **kwargs):
         """
         Get bundle version
-
         Gets the descriptor for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: BundleVersion
@@ -345,8 +321,8 @@ class BundlesApi(object):
         if ('version' not in params) or (params['version'] is None):
             raise ValueError("Missing the required parameter `version` when calling `get_bundle_version`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -368,7 +344,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}', 'GET',
                                         path_params,
@@ -387,11 +363,8 @@ class BundlesApi(object):
     def get_bundle_version_content(self, bundle_id, version, **kwargs):
         """
         Get bundle version content
-
         Gets the binary content for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: str
@@ -406,11 +379,8 @@ class BundlesApi(object):
     def get_bundle_version_content_with_http_info(self, bundle_id, version, **kwargs):
         """
         Get bundle version content
-
         Gets the binary content for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: str
@@ -437,8 +407,8 @@ class BundlesApi(object):
         if ('version' not in params) or (params['version'] is None):
             raise ValueError("Missing the required parameter `version` when calling `get_bundle_version_content`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -460,7 +430,7 @@ class BundlesApi(object):
             select_header_accept(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/content', 'GET',
                                         path_params,
@@ -479,11 +449,8 @@ class BundlesApi(object):
     def get_bundle_version_extension(self, bundle_id, version, name, **kwargs):
         """
         Get bundle version extension
-
         Gets the metadata about the extension with the given name in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :param str name: The fully qualified name of the extension (required)
@@ -499,11 +466,8 @@ class BundlesApi(object):
     def get_bundle_version_extension_with_http_info(self, bundle_id, version, name, **kwargs):
         """
         Get bundle version extension
-
         Gets the metadata about the extension with the given name in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :param str name: The fully qualified name of the extension (required)
@@ -534,9 +498,9 @@ class BundlesApi(object):
         if ('name' not in params) or (params['name'] is None):
             raise ValueError("Missing the required parameter `name` when calling `get_bundle_version_extension`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -560,7 +524,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions/{name}', 'GET',
                                         path_params,
@@ -579,11 +543,8 @@ class BundlesApi(object):
     def get_bundle_version_extension_additional_details_docs(self, bundle_id, version, name, **kwargs):
         """
         Get bundle version extension docs details
-
         Gets the additional details documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :param str name: The fully qualified name of the extension (required)
@@ -599,11 +560,8 @@ class BundlesApi(object):
     def get_bundle_version_extension_additional_details_docs_with_http_info(self, bundle_id, version, name, **kwargs):
         """
         Get bundle version extension docs details
-
         Gets the additional details documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :param str name: The fully qualified name of the extension (required)
@@ -634,9 +592,9 @@ class BundlesApi(object):
         if ('name' not in params) or (params['name'] is None):
             raise ValueError("Missing the required parameter `name` when calling `get_bundle_version_extension_additional_details_docs`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -656,7 +614,7 @@ class BundlesApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions/{name}/docs/additional-details', 'GET',
                                         path_params,
@@ -675,11 +633,8 @@ class BundlesApi(object):
     def get_bundle_version_extension_docs(self, bundle_id, version, name, **kwargs):
         """
         Get bundle version extension docs
-
         Gets the documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :param str name: The fully qualified name of the extension (required)
@@ -695,11 +650,8 @@ class BundlesApi(object):
     def get_bundle_version_extension_docs_with_http_info(self, bundle_id, version, name, **kwargs):
         """
         Get bundle version extension docs
-
         Gets the documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :param str name: The fully qualified name of the extension (required)
@@ -730,9 +682,9 @@ class BundlesApi(object):
         if ('name' not in params) or (params['name'] is None):
             raise ValueError("Missing the required parameter `name` when calling `get_bundle_version_extension_docs`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -752,7 +704,7 @@ class BundlesApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions/{name}/docs', 'GET',
                                         path_params,
@@ -771,11 +723,8 @@ class BundlesApi(object):
     def get_bundle_version_extensions(self, bundle_id, version, **kwargs):
         """
         Get bundle version extensions
-
         Gets the metadata about the extensions in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: list[ExtensionMetadata]
@@ -790,11 +739,8 @@ class BundlesApi(object):
     def get_bundle_version_extensions_with_http_info(self, bundle_id, version, **kwargs):
         """
         Get bundle version extensions
-
         Gets the metadata about the extensions in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :param str version: The version of the bundle (required)
         :return: list[ExtensionMetadata]
@@ -821,8 +767,8 @@ class BundlesApi(object):
         if ('version' not in params) or (params['version'] is None):
             raise ValueError("Missing the required parameter `version` when calling `get_bundle_version_extensions`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -844,7 +790,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions/{version}/extensions', 'GET',
                                         path_params,
@@ -863,11 +809,8 @@ class BundlesApi(object):
     def get_bundle_versions(self, bundle_id, **kwargs):
         """
         Get bundle versions
-
         Gets the metadata for the versions of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :return: list[BundleVersionMetadata]
         """
@@ -881,11 +824,8 @@ class BundlesApi(object):
     def get_bundle_versions_with_http_info(self, bundle_id, **kwargs):
         """
         Get bundle versions
-
         Gets the metadata for the versions of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_id: The extension bundle identifier (required)
         :return: list[BundleVersionMetadata]
         """
@@ -908,7 +848,7 @@ class BundlesApi(object):
         if ('bundle_id' not in params) or (params['bundle_id'] is None):
             raise ValueError("Missing the required parameter `bundle_id` when calling `get_bundle_versions`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -928,7 +868,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/{bundleId}/versions', 'GET',
                                         path_params,
@@ -947,11 +887,8 @@ class BundlesApi(object):
     def get_bundle_versions1(self, **kwargs):
         """
         Get all bundle versions
-
         Gets the metadata about extension bundle versions across all authorized buckets with optional filters applied. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str group_id: Optional groupId to filter results. The value may be an exact match, or a wildcard, such as 'com.%' to select all bundle versions where the groupId starts with 'com.'.
         :param str artifact_id: Optional artifactId to filter results. The value may be an exact match, or a wildcard, such as 'nifi-%' to select all bundle versions where the artifactId starts with 'nifi-'.
         :param str version: Optional version to filter results. The value maye be an exact match, or a wildcard, such as '1.0.%' to select all bundle versions where the version starts with '1.0.'.
@@ -967,11 +904,8 @@ class BundlesApi(object):
     def get_bundle_versions1_with_http_info(self, **kwargs):
         """
         Get all bundle versions
-
         Gets the metadata about extension bundle versions across all authorized buckets with optional filters applied. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str group_id: Optional groupId to filter results. The value may be an exact match, or a wildcard, such as 'com.%' to select all bundle versions where the groupId starts with 'com.'.
         :param str artifact_id: Optional artifactId to filter results. The value may be an exact match, or a wildcard, such as 'nifi-%' to select all bundle versions where the artifactId starts with 'nifi-'.
         :param str version: Optional version to filter results. The value maye be an exact match, or a wildcard, such as '1.0.%' to select all bundle versions where the version starts with '1.0.'.
@@ -993,9 +927,9 @@ class BundlesApi(object):
             params[key] = val
         del params['kwargs']
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1019,7 +953,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles/versions', 'GET',
                                         path_params,
@@ -1038,11 +972,8 @@ class BundlesApi(object):
     def get_bundles(self, **kwargs):
         """
         Get all bundles
-
         Gets the metadata for all bundles across all authorized buckets with optional filters applied. The returned results will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_name: Optional bucket name to filter results. The value may be an exact match, or a wildcard, such as 'My Bucket%' to select all bundles where the bucket name starts with 'My Bucket'.
         :param str group_id: Optional groupId to filter results. The value may be an exact match, or a wildcard, such as 'com.%' to select all bundles where the groupId starts with 'com.'.
         :param str artifact_id: Optional artifactId to filter results. The value may be an exact match, or a wildcard, such as 'nifi-%' to select all bundles where the artifactId starts with 'nifi-'.
@@ -1058,11 +989,8 @@ class BundlesApi(object):
     def get_bundles_with_http_info(self, **kwargs):
         """
         Get all bundles
-
         Gets the metadata for all bundles across all authorized buckets with optional filters applied. The returned results will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_name: Optional bucket name to filter results. The value may be an exact match, or a wildcard, such as 'My Bucket%' to select all bundles where the bucket name starts with 'My Bucket'.
         :param str group_id: Optional groupId to filter results. The value may be an exact match, or a wildcard, such as 'com.%' to select all bundles where the groupId starts with 'com.'.
         :param str artifact_id: Optional artifactId to filter results. The value may be an exact match, or a wildcard, such as 'nifi-%' to select all bundles where the artifactId starts with 'nifi-'.
@@ -1084,9 +1012,9 @@ class BundlesApi(object):
             params[key] = val
         del params['kwargs']
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1110,7 +1038,7 @@ class BundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/bundles', 'GET',
                                         path_params,

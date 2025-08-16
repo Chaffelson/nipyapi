@@ -35,11 +35,8 @@ class ConfigApi(object):
     def get_configuration(self, **kwargs):
         """
         Get configration
-
         Gets the NiFi Registry configurations.
-
         This method makes a synchronous HTTP request.
-
         :return: RegistryConfiguration
         """
         kwargs['_return_http_data_only'] = True
@@ -52,11 +49,8 @@ class ConfigApi(object):
     def get_configuration_with_http_info(self, **kwargs):
         """
         Get configration
-
         Gets the NiFi Registry configurations.
-
         This method makes a synchronous HTTP request.
-
         :return: RegistryConfiguration
         """
 
@@ -92,7 +86,7 @@ class ConfigApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/config', 'GET',
                                         path_params,

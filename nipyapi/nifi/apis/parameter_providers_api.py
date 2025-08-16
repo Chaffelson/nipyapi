@@ -35,9 +35,7 @@ class ParameterProvidersApi(object):
     def analyze_configuration1(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
-
         This method makes a synchronous HTTP request.
-
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The parameter provider id. (required)
         :return: ConfigurationAnalysisEntity
@@ -52,9 +50,7 @@ class ParameterProvidersApi(object):
     def analyze_configuration1_with_http_info(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
-
         This method makes a synchronous HTTP request.
-
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The parameter provider id. (required)
         :return: ConfigurationAnalysisEntity
@@ -81,8 +77,8 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `analyze_configuration1`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -108,7 +104,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/analysis', 'POST',
                                         path_params,
@@ -127,9 +123,7 @@ class ParameterProvidersApi(object):
     def clear_state2(self, id, **kwargs):
         """
         Clears the state for a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ComponentStateEntity
         """
@@ -143,9 +137,7 @@ class ParameterProvidersApi(object):
     def clear_state2_with_http_info(self, id, **kwargs):
         """
         Clears the state for a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ComponentStateEntity
         """
@@ -168,7 +160,7 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `clear_state2`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -188,7 +180,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -207,11 +199,8 @@ class ParameterProvidersApi(object):
     def delete_apply_parameters_request(self, provider_id, request_id, **kwargs):
         """
         Deletes the Apply Parameters Request with the given ID
-
         Deletes the Apply Parameters Request with the given ID. After a request is created via a POST to /nifi-api/parameter-providers/apply-parameters-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Apply process has completed. If the request is deleted before the request completes, then the Apply Parameters Request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str provider_id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Apply Parameters Request (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
@@ -227,11 +216,8 @@ class ParameterProvidersApi(object):
     def delete_apply_parameters_request_with_http_info(self, provider_id, request_id, **kwargs):
         """
         Deletes the Apply Parameters Request with the given ID
-
         Deletes the Apply Parameters Request with the given ID. After a request is created via a POST to /nifi-api/parameter-providers/apply-parameters-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Apply process has completed. If the request is deleted before the request completes, then the Apply Parameters Request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str provider_id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Apply Parameters Request (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
@@ -259,9 +245,9 @@ class ParameterProvidersApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `delete_apply_parameters_request`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -285,7 +271,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{providerId}/apply-parameters-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -304,11 +290,8 @@ class ParameterProvidersApi(object):
     def delete_verification_request1(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
-
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -323,11 +306,8 @@ class ParameterProvidersApi(object):
     def delete_verification_request1_with_http_info(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
-
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -354,8 +334,8 @@ class ParameterProvidersApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `delete_verification_request1`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -377,7 +357,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -396,9 +376,7 @@ class ParameterProvidersApi(object):
     def fetch_parameters(self, body, id, **kwargs):
         """
         Fetches and temporarily caches the parameters for a provider
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderParameterFetchEntity body: The parameter fetch request. (required)
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderEntity
@@ -413,9 +391,7 @@ class ParameterProvidersApi(object):
     def fetch_parameters_with_http_info(self, body, id, **kwargs):
         """
         Fetches and temporarily caches the parameters for a provider
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderParameterFetchEntity body: The parameter fetch request. (required)
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderEntity
@@ -442,8 +418,8 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `fetch_parameters`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -469,7 +445,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/parameters/fetch-requests', 'POST',
                                         path_params,
@@ -488,9 +464,7 @@ class ParameterProvidersApi(object):
     def get_parameter_provider(self, id, **kwargs):
         """
         Gets a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderEntity
         """
@@ -504,9 +478,7 @@ class ParameterProvidersApi(object):
     def get_parameter_provider_with_http_info(self, id, **kwargs):
         """
         Gets a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderEntity
         """
@@ -529,7 +501,7 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_parameter_provider`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -549,7 +521,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}', 'GET',
                                         path_params,
@@ -568,11 +540,8 @@ class ParameterProvidersApi(object):
     def get_parameter_provider_apply_parameters_request(self, provider_id, request_id, **kwargs):
         """
         Returns the Apply Parameters Request with the given ID
-
         Returns the Apply Parameters Request with the given ID. Once an Apply Parameters Request has been created by performing a POST to /nifi-api/parameter-providers, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str provider_id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Apply Parameters Request (required)
         :return: ParameterProviderApplyParametersRequestEntity
@@ -587,11 +556,8 @@ class ParameterProvidersApi(object):
     def get_parameter_provider_apply_parameters_request_with_http_info(self, provider_id, request_id, **kwargs):
         """
         Returns the Apply Parameters Request with the given ID
-
         Returns the Apply Parameters Request with the given ID. Once an Apply Parameters Request has been created by performing a POST to /nifi-api/parameter-providers, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str provider_id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Apply Parameters Request (required)
         :return: ParameterProviderApplyParametersRequestEntity
@@ -618,8 +584,8 @@ class ParameterProvidersApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `get_parameter_provider_apply_parameters_request`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -641,7 +607,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{providerId}/apply-parameters-requests/{requestId}', 'GET',
                                         path_params,
@@ -660,9 +626,7 @@ class ParameterProvidersApi(object):
     def get_parameter_provider_references(self, id, **kwargs):
         """
         Gets all references to a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderReferencingComponentsEntity
         """
@@ -676,9 +640,7 @@ class ParameterProvidersApi(object):
     def get_parameter_provider_references_with_http_info(self, id, **kwargs):
         """
         Gets all references to a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderReferencingComponentsEntity
         """
@@ -701,7 +663,7 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_parameter_provider_references`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -721,7 +683,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/references', 'GET',
                                         path_params,
@@ -740,9 +702,7 @@ class ParameterProvidersApi(object):
     def get_property_descriptor2(self, id, property_name, **kwargs):
         """
         Gets a parameter provider property descriptor
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :param str property_name: The property name. (required)
         :return: PropertyDescriptorEntity
@@ -757,9 +717,7 @@ class ParameterProvidersApi(object):
     def get_property_descriptor2_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a parameter provider property descriptor
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :param str property_name: The property name. (required)
         :return: PropertyDescriptorEntity
@@ -786,8 +744,8 @@ class ParameterProvidersApi(object):
         if ('property_name' not in params) or (params['property_name'] is None):
             raise ValueError("Missing the required parameter `property_name` when calling `get_property_descriptor2`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -809,7 +767,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/descriptors', 'GET',
                                         path_params,
@@ -828,9 +786,7 @@ class ParameterProvidersApi(object):
     def get_state1(self, id, **kwargs):
         """
         Gets the state for a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ComponentStateEntity
         """
@@ -844,9 +800,7 @@ class ParameterProvidersApi(object):
     def get_state1_with_http_info(self, id, **kwargs):
         """
         Gets the state for a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :return: ComponentStateEntity
         """
@@ -869,7 +823,7 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_state1`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -889,7 +843,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/state', 'GET',
                                         path_params,
@@ -908,11 +862,8 @@ class ParameterProvidersApi(object):
     def get_verification_request1(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
-
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -927,11 +878,8 @@ class ParameterProvidersApi(object):
     def get_verification_request1_with_http_info(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
-
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Parameter Provider (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -958,8 +906,8 @@ class ParameterProvidersApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `get_verification_request1`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -981,7 +929,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -1000,9 +948,7 @@ class ParameterProvidersApi(object):
     def remove_parameter_provider(self, id, **kwargs):
         """
         Deletes a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -1019,9 +965,7 @@ class ParameterProvidersApi(object):
     def remove_parameter_provider_with_http_info(self, id, **kwargs):
         """
         Deletes a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param str id: The parameter provider id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -1047,10 +991,10 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_parameter_provider`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1076,7 +1020,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}', 'DELETE',
                                         path_params,
@@ -1095,13 +1039,10 @@ class ParameterProvidersApi(object):
     def submit_apply_parameters(self, body, provider_id, **kwargs):
         """
         Initiate a request to apply the fetched parameters of a Parameter Provider
-
         This will initiate the process of applying fetched parameters to all referencing Parameter Contexts. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterProviderApplyParametersRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/apply-parameters-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/apply-parameters-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderParameterApplicationEntity body: The apply parameters request. (required)
-        :param str provider_id:  (required)
+        :param str provider_id: (required)
         :return: ParameterProviderApplyParametersRequestEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1114,13 +1055,10 @@ class ParameterProvidersApi(object):
     def submit_apply_parameters_with_http_info(self, body, provider_id, **kwargs):
         """
         Initiate a request to apply the fetched parameters of a Parameter Provider
-
         This will initiate the process of applying fetched parameters to all referencing Parameter Contexts. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterProviderApplyParametersRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/apply-parameters-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/apply-parameters-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderParameterApplicationEntity body: The apply parameters request. (required)
-        :param str provider_id:  (required)
+        :param str provider_id: (required)
         :return: ParameterProviderApplyParametersRequestEntity
         """
 
@@ -1145,8 +1083,8 @@ class ParameterProvidersApi(object):
         if ('provider_id' not in params) or (params['provider_id'] is None):
             raise ValueError("Missing the required parameter `provider_id` when calling `submit_apply_parameters`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1172,7 +1110,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{providerId}/apply-parameters-requests', 'POST',
                                         path_params,
@@ -1191,11 +1129,8 @@ class ParameterProvidersApi(object):
     def submit_config_verification_request1(self, body, id, **kwargs):
         """
         Performs verification of the Parameter Provider's configuration
-
         This will initiate the process of verifying a given Parameter Provider configuration. This may be a long-running task. As a result, this endpoint will immediately return a ParameterProviderConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/{providerId}/verification-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param VerifyConfigRequestEntity body: The parameter provider configuration verification request. (required)
         :param str id: The parameter provider id. (required)
         :return: VerifyConfigRequestEntity
@@ -1210,11 +1145,8 @@ class ParameterProvidersApi(object):
     def submit_config_verification_request1_with_http_info(self, body, id, **kwargs):
         """
         Performs verification of the Parameter Provider's configuration
-
         This will initiate the process of verifying a given Parameter Provider configuration. This may be a long-running task. As a result, this endpoint will immediately return a ParameterProviderConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/{providerId}/verification-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param VerifyConfigRequestEntity body: The parameter provider configuration verification request. (required)
         :param str id: The parameter provider id. (required)
         :return: VerifyConfigRequestEntity
@@ -1241,8 +1173,8 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `submit_config_verification_request1`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1268,7 +1200,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -1287,9 +1219,7 @@ class ParameterProvidersApi(object):
     def update_parameter_provider(self, body, id, **kwargs):
         """
         Updates a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderEntity body: The parameter provider configuration details. (required)
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderEntity
@@ -1304,9 +1234,7 @@ class ParameterProvidersApi(object):
     def update_parameter_provider_with_http_info(self, body, id, **kwargs):
         """
         Updates a parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderEntity body: The parameter provider configuration details. (required)
         :param str id: The parameter provider id. (required)
         :return: ParameterProviderEntity
@@ -1333,8 +1261,8 @@ class ParameterProvidersApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_parameter_provider`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1360,7 +1288,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-providers/{id}', 'PUT',
                                         path_params,

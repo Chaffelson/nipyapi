@@ -35,14 +35,11 @@ class ParameterContextsApi(object):
     def create_asset(self, body, context_id, **kwargs):
         """
         Creates a new Asset in the given Parameter Context
-
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
-
         This method makes a synchronous HTTP request.
-
         :param object body: The contents of the asset. (required)
-        :param str context_id:  (required)
-        :param str filename: 
+        :param str context_id: (required)
+        :param str filename:
         :return: AssetEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -55,14 +52,11 @@ class ParameterContextsApi(object):
     def create_asset_with_http_info(self, body, context_id, **kwargs):
         """
         Creates a new Asset in the given Parameter Context
-
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
-
         This method makes a synchronous HTTP request.
-
         :param object body: The contents of the asset. (required)
-        :param str context_id:  (required)
-        :param str filename: 
+        :param str context_id: (required)
+        :param str filename:
         :return: AssetEntity
         """
 
@@ -87,9 +81,9 @@ class ParameterContextsApi(object):
         if ('context_id' not in params) or (params['context_id'] is None):
             raise ValueError("Missing the required parameter `context_id` when calling `create_asset`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -117,7 +111,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets', 'POST',
                                         path_params,
@@ -136,9 +130,7 @@ class ParameterContextsApi(object):
     def create_parameter_context(self, body, **kwargs):
         """
         Create a Parameter Context
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextEntity body: The Parameter Context. (required)
         :return: ParameterContextEntity
         """
@@ -152,9 +144,7 @@ class ParameterContextsApi(object):
     def create_parameter_context_with_http_info(self, body, **kwargs):
         """
         Create a Parameter Context
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextEntity body: The Parameter Context. (required)
         :return: ParameterContextEntity
         """
@@ -177,7 +167,7 @@ class ParameterContextsApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_parameter_context`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -201,7 +191,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts', 'POST',
                                         path_params,
@@ -220,14 +210,11 @@ class ParameterContextsApi(object):
     def delete_asset(self, context_id, asset_id, **kwargs):
         """
         Deletes an Asset from the given Parameter Context
-
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str asset_id: The ID of the Asset (required)
-        :param bool disconnected_node_acknowledged: 
+        :param bool disconnected_node_acknowledged:
         :return: AssetEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -240,14 +227,11 @@ class ParameterContextsApi(object):
     def delete_asset_with_http_info(self, context_id, asset_id, **kwargs):
         """
         Deletes an Asset from the given Parameter Context
-
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str asset_id: The ID of the Asset (required)
-        :param bool disconnected_node_acknowledged: 
+        :param bool disconnected_node_acknowledged:
         :return: AssetEntity
         """
 
@@ -272,9 +256,9 @@ class ParameterContextsApi(object):
         if ('asset_id' not in params) or (params['asset_id'] is None):
             raise ValueError("Missing the required parameter `asset_id` when calling `delete_asset`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -298,7 +282,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets/{assetId}', 'DELETE',
                                         path_params,
@@ -317,11 +301,8 @@ class ParameterContextsApi(object):
     def delete_parameter_context(self, id, **kwargs):
         """
         Deletes the Parameter Context with the given ID
-
         Deletes the Parameter Context with the given ID.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The Parameter Context ID. (required)
         :param LongParameter version: The version is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, a new one will be generated. This value (whether specified or generated) is included in the response.
@@ -338,11 +319,8 @@ class ParameterContextsApi(object):
     def delete_parameter_context_with_http_info(self, id, **kwargs):
         """
         Deletes the Parameter Context with the given ID
-
         Deletes the Parameter Context with the given ID.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The Parameter Context ID. (required)
         :param LongParameter version: The version is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, a new one will be generated. This value (whether specified or generated) is included in the response.
@@ -368,10 +346,10 @@ class ParameterContextsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_parameter_context`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -397,7 +375,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'DELETE',
                                         path_params,
@@ -416,11 +394,8 @@ class ParameterContextsApi(object):
     def delete_update_request(self, context_id, request_id, **kwargs):
         """
         Deletes the Update Request with the given ID
-
         Deletes the Update Request with the given ID. After a request is created via a POST to /nifi-api/parameter-contexts/update-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Update process has completed. If the request is deleted before the request completes, then the Update request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the ParameterContext (required)
         :param str request_id: The ID of the Update Request (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
@@ -436,11 +411,8 @@ class ParameterContextsApi(object):
     def delete_update_request_with_http_info(self, context_id, request_id, **kwargs):
         """
         Deletes the Update Request with the given ID
-
         Deletes the Update Request with the given ID. After a request is created via a POST to /nifi-api/parameter-contexts/update-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Update process has completed. If the request is deleted before the request completes, then the Update request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the ParameterContext (required)
         :param str request_id: The ID of the Update Request (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
@@ -468,9 +440,9 @@ class ParameterContextsApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `delete_update_request`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -494,7 +466,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -513,11 +485,8 @@ class ParameterContextsApi(object):
     def delete_validation_request(self, context_id, id, **kwargs):
         """
         Deletes the Validation Request with the given ID
-
         Deletes the Validation Request with the given ID. After a request is created via a POST to /nifi-api/validation-contexts, it is expected that the client will properly clean up the request by DELETE'ing it, once the validation process has completed. If the request is deleted before the request completes, then the Validation request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str id: The ID of the Update Request (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
@@ -533,11 +502,8 @@ class ParameterContextsApi(object):
     def delete_validation_request_with_http_info(self, context_id, id, **kwargs):
         """
         Deletes the Validation Request with the given ID
-
         Deletes the Validation Request with the given ID. After a request is created via a POST to /nifi-api/validation-contexts, it is expected that the client will properly clean up the request by DELETE'ing it, once the validation process has completed. If the request is deleted before the request completes, then the Validation request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str id: The ID of the Update Request (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
@@ -565,9 +531,9 @@ class ParameterContextsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_validation_request`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -591,7 +557,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'DELETE',
                                         path_params,
@@ -610,9 +576,7 @@ class ParameterContextsApi(object):
     def get_asset_content(self, context_id, asset_id, **kwargs):
         """
         Retrieves the content of the asset with the given id
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str asset_id: The ID of the Asset (required)
         :return: str
@@ -627,9 +591,7 @@ class ParameterContextsApi(object):
     def get_asset_content_with_http_info(self, context_id, asset_id, **kwargs):
         """
         Retrieves the content of the asset with the given id
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str asset_id: The ID of the Asset (required)
         :return: str
@@ -656,8 +618,8 @@ class ParameterContextsApi(object):
         if ('asset_id' not in params) or (params['asset_id'] is None):
             raise ValueError("Missing the required parameter `asset_id` when calling `get_asset_content`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -679,7 +641,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets/{assetId}', 'GET',
                                         path_params,
@@ -698,11 +660,8 @@ class ParameterContextsApi(object):
     def get_assets(self, context_id, **kwargs):
         """
         Lists the assets that belong to the Parameter Context with the given ID
-
         Lists the assets that belong to the Parameter Context with the given ID.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :return: AssetsEntity
         """
@@ -716,11 +675,8 @@ class ParameterContextsApi(object):
     def get_assets_with_http_info(self, context_id, **kwargs):
         """
         Lists the assets that belong to the Parameter Context with the given ID
-
         Lists the assets that belong to the Parameter Context with the given ID.
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :return: AssetsEntity
         """
@@ -743,7 +699,7 @@ class ParameterContextsApi(object):
         if ('context_id' not in params) or (params['context_id'] is None):
             raise ValueError("Missing the required parameter `context_id` when calling `get_assets`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -763,7 +719,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets', 'GET',
                                         path_params,
@@ -782,11 +738,8 @@ class ParameterContextsApi(object):
     def get_parameter_context(self, id, **kwargs):
         """
         Returns the Parameter Context with the given ID
-
         Returns the Parameter Context with the given ID.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Parameter Context (required)
         :param bool include_inherited_parameters: Whether or not to include inherited parameters from other parameter contexts, and therefore also overridden values.  If true, the result will be the 'effective' parameter context.
         :return: ParameterContextEntity
@@ -801,11 +754,8 @@ class ParameterContextsApi(object):
     def get_parameter_context_with_http_info(self, id, **kwargs):
         """
         Returns the Parameter Context with the given ID
-
         Returns the Parameter Context with the given ID.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Parameter Context (required)
         :param bool include_inherited_parameters: Whether or not to include inherited parameters from other parameter contexts, and therefore also overridden values.  If true, the result will be the 'effective' parameter context.
         :return: ParameterContextEntity
@@ -829,8 +779,8 @@ class ParameterContextsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_parameter_context`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -852,7 +802,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'GET',
                                         path_params,
@@ -871,11 +821,8 @@ class ParameterContextsApi(object):
     def get_parameter_context_update(self, context_id, request_id, **kwargs):
         """
         Returns the Update Request with the given ID
-
         Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str request_id: The ID of the Update Request (required)
         :return: ParameterContextUpdateRequestEntity
@@ -890,11 +837,8 @@ class ParameterContextsApi(object):
     def get_parameter_context_update_with_http_info(self, context_id, request_id, **kwargs):
         """
         Returns the Update Request with the given ID
-
         Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str request_id: The ID of the Update Request (required)
         :return: ParameterContextUpdateRequestEntity
@@ -921,8 +865,8 @@ class ParameterContextsApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `get_parameter_context_update`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -944,7 +888,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'GET',
                                         path_params,
@@ -963,11 +907,8 @@ class ParameterContextsApi(object):
     def get_validation_request(self, context_id, id, **kwargs):
         """
         Returns the Validation Request with the given ID
-
         Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str id: The ID of the Validation Request (required)
         :return: ParameterContextValidationRequestEntity
@@ -982,11 +923,8 @@ class ParameterContextsApi(object):
     def get_validation_request_with_http_info(self, context_id, id, **kwargs):
         """
         Returns the Validation Request with the given ID
-
         Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str context_id: The ID of the Parameter Context (required)
         :param str id: The ID of the Validation Request (required)
         :return: ParameterContextValidationRequestEntity
@@ -1013,8 +951,8 @@ class ParameterContextsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_validation_request`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1036,7 +974,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'GET',
                                         path_params,
@@ -1055,13 +993,10 @@ class ParameterContextsApi(object):
     def submit_parameter_context_update(self, body, context_id, **kwargs):
         """
         Initiate the Update Request of a Parameter Context
-
         This will initiate the process of updating a Parameter Context. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextUpdateRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/update-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/update-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextEntity body: The updated version of the parameter context. (required)
-        :param str context_id:  (required)
+        :param str context_id: (required)
         :return: ParameterContextUpdateRequestEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1074,13 +1009,10 @@ class ParameterContextsApi(object):
     def submit_parameter_context_update_with_http_info(self, body, context_id, **kwargs):
         """
         Initiate the Update Request of a Parameter Context
-
         This will initiate the process of updating a Parameter Context. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextUpdateRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/update-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/update-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextEntity body: The updated version of the parameter context. (required)
-        :param str context_id:  (required)
+        :param str context_id: (required)
         :return: ParameterContextUpdateRequestEntity
         """
 
@@ -1105,8 +1037,8 @@ class ParameterContextsApi(object):
         if ('context_id' not in params) or (params['context_id'] is None):
             raise ValueError("Missing the required parameter `context_id` when calling `submit_parameter_context_update`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1132,7 +1064,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests', 'POST',
                                         path_params,
@@ -1151,13 +1083,10 @@ class ParameterContextsApi(object):
     def submit_validation_request(self, body, context_id, **kwargs):
         """
         Initiate a Validation Request to determine how the validity of components will change if a Parameter Context were to be updated
-
         This will initiate the process of validating all components whose Process Group is bound to the specified Parameter Context. Performing validation against an arbitrary number of components may be expect and take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextValidationRequestEntity, and the process of validating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/validation-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/validation-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextValidationRequestEntity body: The validation request (required)
-        :param str context_id:  (required)
+        :param str context_id: (required)
         :return: ParameterContextValidationRequestEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1170,13 +1099,10 @@ class ParameterContextsApi(object):
     def submit_validation_request_with_http_info(self, body, context_id, **kwargs):
         """
         Initiate a Validation Request to determine how the validity of components will change if a Parameter Context were to be updated
-
         This will initiate the process of validating all components whose Process Group is bound to the specified Parameter Context. Performing validation against an arbitrary number of components may be expect and take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextValidationRequestEntity, and the process of validating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/validation-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/validation-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextValidationRequestEntity body: The validation request (required)
-        :param str context_id:  (required)
+        :param str context_id: (required)
         :return: ParameterContextValidationRequestEntity
         """
 
@@ -1201,8 +1127,8 @@ class ParameterContextsApi(object):
         if ('context_id' not in params) or (params['context_id'] is None):
             raise ValueError("Missing the required parameter `context_id` when calling `submit_validation_request`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1228,7 +1154,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests', 'POST',
                                         path_params,
@@ -1247,13 +1173,10 @@ class ParameterContextsApi(object):
     def update_parameter_context(self, body, id, **kwargs):
         """
         Modifies a Parameter Context
-
         This endpoint will update a Parameter Context to match the provided entity. However, this request will fail if any component is running and is referencing a Parameter in the Parameter Context. Generally, this endpoint is not called directly. Instead, an update request should be submitted by making a POST to the /parameter-contexts/update-requests endpoint. That endpoint will, in turn, call this endpoint.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextEntity body: The updated Parameter Context (required)
-        :param str id:  (required)
+        :param str id: (required)
         :return: ParameterContextEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1266,13 +1189,10 @@ class ParameterContextsApi(object):
     def update_parameter_context_with_http_info(self, body, id, **kwargs):
         """
         Modifies a Parameter Context
-
         This endpoint will update a Parameter Context to match the provided entity. However, this request will fail if any component is running and is referencing a Parameter in the Parameter Context. Generally, this endpoint is not called directly. Instead, an update request should be submitted by making a POST to the /parameter-contexts/update-requests endpoint. That endpoint will, in turn, call this endpoint.
-
         This method makes a synchronous HTTP request.
-
         :param ParameterContextEntity body: The updated Parameter Context (required)
-        :param str id:  (required)
+        :param str id: (required)
         :return: ParameterContextEntity
         """
 
@@ -1297,8 +1217,8 @@ class ParameterContextsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_parameter_context`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1324,7 +1244,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'PUT',
                                         path_params,

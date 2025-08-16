@@ -35,9 +35,7 @@ class InputPortsApi(object):
     def get_input_port(self, id, **kwargs):
         """
         Gets an input port
-
         This method makes a synchronous HTTP request.
-
         :param str id: The input port id. (required)
         :return: PortEntity
         """
@@ -51,9 +49,7 @@ class InputPortsApi(object):
     def get_input_port_with_http_info(self, id, **kwargs):
         """
         Gets an input port
-
         This method makes a synchronous HTTP request.
-
         :param str id: The input port id. (required)
         :return: PortEntity
         """
@@ -76,7 +72,7 @@ class InputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_input_port`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -96,7 +92,7 @@ class InputPortsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'GET',
                                         path_params,
@@ -115,9 +111,7 @@ class InputPortsApi(object):
     def remove_input_port(self, id, **kwargs):
         """
         Deletes an input port
-
         This method makes a synchronous HTTP request.
-
         :param str id: The input port id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -134,9 +128,7 @@ class InputPortsApi(object):
     def remove_input_port_with_http_info(self, id, **kwargs):
         """
         Deletes an input port
-
         This method makes a synchronous HTTP request.
-
         :param str id: The input port id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -162,10 +154,10 @@ class InputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_input_port`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -191,7 +183,7 @@ class InputPortsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'DELETE',
                                         path_params,
@@ -210,9 +202,7 @@ class InputPortsApi(object):
     def update_input_port(self, body, id, **kwargs):
         """
         Updates an input port
-
         This method makes a synchronous HTTP request.
-
         :param PortEntity body: The input port configuration details. (required)
         :param str id: The input port id. (required)
         :return: PortEntity
@@ -227,9 +217,7 @@ class InputPortsApi(object):
     def update_input_port_with_http_info(self, body, id, **kwargs):
         """
         Updates an input port
-
         This method makes a synchronous HTTP request.
-
         :param PortEntity body: The input port configuration details. (required)
         :param str id: The input port id. (required)
         :return: PortEntity
@@ -256,8 +244,8 @@ class InputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_input_port`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -283,7 +271,7 @@ class InputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/input-ports/{id}', 'PUT',
                                         path_params,
@@ -302,9 +290,7 @@ class InputPortsApi(object):
     def update_run_status2(self, body, id, **kwargs):
         """
         Updates run status of an input-port
-
         This method makes a synchronous HTTP request.
-
         :param PortRunStatusEntity body: The port run status. (required)
         :param str id: The port id. (required)
         :return: ProcessorEntity
@@ -319,9 +305,7 @@ class InputPortsApi(object):
     def update_run_status2_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of an input-port
-
         This method makes a synchronous HTTP request.
-
         :param PortRunStatusEntity body: The port run status. (required)
         :param str id: The port id. (required)
         :return: ProcessorEntity
@@ -348,8 +332,8 @@ class InputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_run_status2`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -375,7 +359,7 @@ class InputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/input-ports/{id}/run-status', 'PUT',
                                         path_params,

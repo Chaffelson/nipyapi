@@ -412,7 +412,7 @@ class VersionedConnection(object):
         :param load_balance_compression: The load_balance_compression of this VersionedConnection.
         :type: str
         """
-        allowed_values = ["DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT", ]
+        allowed_values = ["DO_NOT_COMPRESS", "COMPRESS_ATTRIBUTES_ONLY", "COMPRESS_ATTRIBUTES_AND_CONTENT", ]
         if load_balance_compression not in allowed_values:
             raise ValueError(
                 "Invalid value for `load_balance_compression` ({0}), must be one of {1}"
@@ -441,7 +441,7 @@ class VersionedConnection(object):
         :param load_balance_strategy: The load_balance_strategy of this VersionedConnection.
         :type: str
         """
-        allowed_values = ["DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE", ]
+        allowed_values = ["DO_NOT_LOAD_BALANCE", "PARTITION_BY_ATTRIBUTE", "ROUND_ROBIN", "SINGLE_NODE", ]
         if load_balance_strategy not in allowed_values:
             raise ValueError(
                 "Invalid value for `load_balance_strategy` ({0}), must be one of {1}"

@@ -35,15 +35,12 @@ class BucketBundlesApi(object):
     def create_extension_bundle_version(self, bucket_id, bundle_type, **kwargs):
         """
         Create extension bundle version
-
         Creates a version of an extension bundle by uploading a binary artifact. If an extension bundle already exists in the given bucket with the same group id and artifact id as that of the bundle being uploaded, then it will be added as a new version to the existing bundle. If an extension bundle does not already exist in the given bucket with the same group id and artifact id, then a new extension bundle will be created and this version will be added to the new bundle. Client's may optionally supply a SHA-256 in hex format through the multi-part form field 'sha256'. If supplied, then this value will be compared against the SHA-256 computed by the server, and the bundle will be rejected if the values do not match. If not supplied, the bundle will be accepted, but will be marked to indicate that the client did not supply a SHA-256 during creation.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_id: The bucket identifier (required)
         :param str bundle_type: The type of the bundle (required)
-        :param FormDataContentDisposition file: 
-        :param str sha256: 
+        :param FormDataContentDisposition file:
+        :param str sha256:
         :return: BundleVersion
         """
         kwargs['_return_http_data_only'] = True
@@ -56,15 +53,12 @@ class BucketBundlesApi(object):
     def create_extension_bundle_version_with_http_info(self, bucket_id, bundle_type, **kwargs):
         """
         Create extension bundle version
-
         Creates a version of an extension bundle by uploading a binary artifact. If an extension bundle already exists in the given bucket with the same group id and artifact id as that of the bundle being uploaded, then it will be added as a new version to the existing bundle. If an extension bundle does not already exist in the given bucket with the same group id and artifact id, then a new extension bundle will be created and this version will be added to the new bundle. Client's may optionally supply a SHA-256 in hex format through the multi-part form field 'sha256'. If supplied, then this value will be compared against the SHA-256 computed by the server, and the bundle will be rejected if the values do not match. If not supplied, the bundle will be accepted, but will be marked to indicate that the client did not supply a SHA-256 during creation.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_id: The bucket identifier (required)
         :param str bundle_type: The type of the bundle (required)
-        :param FormDataContentDisposition file: 
-        :param str sha256: 
+        :param FormDataContentDisposition file:
+        :param str sha256:
         :return: BundleVersion
         """
 
@@ -89,10 +83,10 @@ class BucketBundlesApi(object):
         if ('bundle_type' not in params) or (params['bundle_type'] is None):
             raise ValueError("Missing the required parameter `bundle_type` when calling `create_extension_bundle_version`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -122,7 +116,7 @@ class BucketBundlesApi(object):
             select_header_content_type(['multipart/form-data'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/bundles/{bundleType}', 'POST',
                                         path_params,
@@ -141,11 +135,8 @@ class BucketBundlesApi(object):
     def get_extension_bundles(self, bucket_id, **kwargs):
         """
         Get extension bundles by bucket
-
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_id: The bucket identifier (required)
         :return: list[Bundle]
         """
@@ -159,11 +150,8 @@ class BucketBundlesApi(object):
     def get_extension_bundles_with_http_info(self, bucket_id, **kwargs):
         """
         Get extension bundles by bucket
-
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bucket_id: The bucket identifier (required)
         :return: list[Bundle]
         """
@@ -186,7 +174,7 @@ class BucketBundlesApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `get_extension_bundles`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -206,7 +194,7 @@ class BucketBundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/bundles', 'GET',
                                         path_params,

@@ -238,7 +238,7 @@ class VersionedProcessor(object):
         :param backoff_mechanism: The backoff_mechanism of this VersionedProcessor.
         :type: str
         """
-        allowed_values = ["PENALIZE_FLOWFILE, YIELD_PROCESSOR", ]
+        allowed_values = ["PENALIZE_FLOWFILE", "YIELD_PROCESSOR", ]
         if backoff_mechanism not in allowed_values:
             raise ValueError(
                 "Invalid value for `backoff_mechanism` ({0}), must be one of {1}"

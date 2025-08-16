@@ -35,9 +35,7 @@ class SiteToSiteApi(object):
     def get_peers(self, **kwargs):
         """
         Returns the available Peers and its status of this NiFi
-
         This method makes a synchronous HTTP request.
-
         :return: PeersEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -50,9 +48,7 @@ class SiteToSiteApi(object):
     def get_peers_with_http_info(self, **kwargs):
         """
         Returns the available Peers and its status of this NiFi
-
         This method makes a synchronous HTTP request.
-
         :return: PeersEntity
         """
 
@@ -88,7 +84,7 @@ class SiteToSiteApi(object):
             select_header_accept(['application/json', 'application/xml'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/site-to-site/peers', 'GET',
                                         path_params,
@@ -107,9 +103,7 @@ class SiteToSiteApi(object):
     def get_site_to_site_details(self, **kwargs):
         """
         Returns the details about this NiFi necessary to communicate via site to site
-
         This method makes a synchronous HTTP request.
-
         :return: ControllerEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -122,9 +116,7 @@ class SiteToSiteApi(object):
     def get_site_to_site_details_with_http_info(self, **kwargs):
         """
         Returns the details about this NiFi necessary to communicate via site to site
-
         This method makes a synchronous HTTP request.
-
         :return: ControllerEntity
         """
 
@@ -160,7 +152,7 @@ class SiteToSiteApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/site-to-site', 'GET',
                                         path_params,

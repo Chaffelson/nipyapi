@@ -35,9 +35,7 @@ class ProvenanceEventsApi(object):
     def get_input_content(self, id, **kwargs):
         """
         Gets the input content for a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter id: The provenance event id. (required)
         :param str range: Range of bytes requested
         :param str cluster_node_id: The id of the node where the content exists if clustered.
@@ -53,9 +51,7 @@ class ProvenanceEventsApi(object):
     def get_input_content_with_http_info(self, id, **kwargs):
         """
         Gets the input content for a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter id: The provenance event id. (required)
         :param str range: Range of bytes requested
         :param str cluster_node_id: The id of the node where the content exists if clustered.
@@ -80,9 +76,9 @@ class ProvenanceEventsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_input_content`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -106,7 +102,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance-events/{id}/content/input', 'GET',
                                         path_params,
@@ -125,9 +121,7 @@ class ProvenanceEventsApi(object):
     def get_latest_provenance_events(self, component_id, **kwargs):
         """
         Retrieves the latest cached Provenance Events for the specified component
-
         This method makes a synchronous HTTP request.
-
         :param str component_id: The ID of the component to retrieve the latest Provenance Events for. (required)
         :param int limit: The number of events to limit the response to. Defaults to 10.
         :return: LatestProvenanceEventsEntity
@@ -142,9 +136,7 @@ class ProvenanceEventsApi(object):
     def get_latest_provenance_events_with_http_info(self, component_id, **kwargs):
         """
         Retrieves the latest cached Provenance Events for the specified component
-
         This method makes a synchronous HTTP request.
-
         :param str component_id: The ID of the component to retrieve the latest Provenance Events for. (required)
         :param int limit: The number of events to limit the response to. Defaults to 10.
         :return: LatestProvenanceEventsEntity
@@ -168,8 +160,8 @@ class ProvenanceEventsApi(object):
         if ('component_id' not in params) or (params['component_id'] is None):
             raise ValueError("Missing the required parameter `component_id` when calling `get_latest_provenance_events`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -191,7 +183,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance-events/latest/{componentId}', 'GET',
                                         path_params,
@@ -210,9 +202,7 @@ class ProvenanceEventsApi(object):
     def get_output_content(self, id, **kwargs):
         """
         Gets the output content for a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter id: The provenance event id. (required)
         :param str range: Range of bytes requested
         :param str cluster_node_id: The id of the node where the content exists if clustered.
@@ -228,9 +218,7 @@ class ProvenanceEventsApi(object):
     def get_output_content_with_http_info(self, id, **kwargs):
         """
         Gets the output content for a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter id: The provenance event id. (required)
         :param str range: Range of bytes requested
         :param str cluster_node_id: The id of the node where the content exists if clustered.
@@ -255,9 +243,9 @@ class ProvenanceEventsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_output_content`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -281,7 +269,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance-events/{id}/content/output', 'GET',
                                         path_params,
@@ -300,9 +288,7 @@ class ProvenanceEventsApi(object):
     def get_provenance_event(self, id, **kwargs):
         """
         Gets a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter id: The provenance event id. (required)
         :param str cluster_node_id: The id of the node where this event exists if clustered.
         :return: ProvenanceEventEntity
@@ -317,9 +303,7 @@ class ProvenanceEventsApi(object):
     def get_provenance_event_with_http_info(self, id, **kwargs):
         """
         Gets a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter id: The provenance event id. (required)
         :param str cluster_node_id: The id of the node where this event exists if clustered.
         :return: ProvenanceEventEntity
@@ -343,8 +327,8 @@ class ProvenanceEventsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_provenance_event`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -366,7 +350,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance-events/{id}', 'GET',
                                         path_params,
@@ -385,9 +369,7 @@ class ProvenanceEventsApi(object):
     def submit_replay(self, body, **kwargs):
         """
         Replays content from a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param SubmitReplayRequestEntity body: The replay request. (required)
         :return: ProvenanceEventEntity
         """
@@ -401,9 +383,7 @@ class ProvenanceEventsApi(object):
     def submit_replay_with_http_info(self, body, **kwargs):
         """
         Replays content from a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param SubmitReplayRequestEntity body: The replay request. (required)
         :return: ProvenanceEventEntity
         """
@@ -426,7 +406,7 @@ class ProvenanceEventsApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `submit_replay`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -450,7 +430,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance-events/replays', 'POST',
                                         path_params,
@@ -469,9 +449,7 @@ class ProvenanceEventsApi(object):
     def submit_replay_latest_event(self, body, **kwargs):
         """
         Replays content from a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param ReplayLastEventRequestEntity body: The replay request. (required)
         :return: ReplayLastEventResponseEntity
         """
@@ -485,9 +463,7 @@ class ProvenanceEventsApi(object):
     def submit_replay_latest_event_with_http_info(self, body, **kwargs):
         """
         Replays content from a provenance event
-
         This method makes a synchronous HTTP request.
-
         :param ReplayLastEventRequestEntity body: The replay request. (required)
         :return: ReplayLastEventResponseEntity
         """
@@ -510,7 +486,7 @@ class ProvenanceEventsApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `submit_replay_latest_event`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -534,7 +510,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance-events/latest/replays', 'POST',
                                         path_params,

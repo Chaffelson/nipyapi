@@ -35,9 +35,7 @@ class ControllerApi(object):
     def analyze_flow_analysis_rule_configuration(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
-
         This method makes a synchronous HTTP request.
-
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The flow analysis rules id. (required)
         :return: ConfigurationAnalysisEntity
@@ -52,9 +50,7 @@ class ControllerApi(object):
     def analyze_flow_analysis_rule_configuration_with_http_info(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
-
         This method makes a synchronous HTTP request.
-
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The flow analysis rules id. (required)
         :return: ConfigurationAnalysisEntity
@@ -81,8 +77,8 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `analyze_flow_analysis_rule_configuration`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -108,7 +104,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/analysis', 'POST',
                                         path_params,
@@ -127,9 +123,7 @@ class ControllerApi(object):
     def clear_state(self, id, **kwargs):
         """
         Clears the state for a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :return: ComponentStateEntity
         """
@@ -143,9 +137,7 @@ class ControllerApi(object):
     def clear_state_with_http_info(self, id, **kwargs):
         """
         Clears the state for a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :return: ComponentStateEntity
         """
@@ -168,7 +160,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `clear_state`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -188,7 +180,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -207,9 +199,7 @@ class ControllerApi(object):
     def create_bulletin(self, body, **kwargs):
         """
         Creates a new bulletin
-
         This method makes a synchronous HTTP request.
-
         :param BulletinEntity body: The reporting task configuration details. (required)
         :return: BulletinEntity
         """
@@ -223,9 +213,7 @@ class ControllerApi(object):
     def create_bulletin_with_http_info(self, body, **kwargs):
         """
         Creates a new bulletin
-
         This method makes a synchronous HTTP request.
-
         :param BulletinEntity body: The reporting task configuration details. (required)
         :return: BulletinEntity
         """
@@ -248,7 +236,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_bulletin`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -272,7 +260,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/bulletin', 'POST',
                                         path_params,
@@ -291,9 +279,7 @@ class ControllerApi(object):
     def create_controller_service(self, body, **kwargs):
         """
         Creates a new controller service
-
         This method makes a synchronous HTTP request.
-
         :param ControllerServiceEntity body: The controller service configuration details. (required)
         :return: ControllerServiceEntity
         """
@@ -307,9 +293,7 @@ class ControllerApi(object):
     def create_controller_service_with_http_info(self, body, **kwargs):
         """
         Creates a new controller service
-
         This method makes a synchronous HTTP request.
-
         :param ControllerServiceEntity body: The controller service configuration details. (required)
         :return: ControllerServiceEntity
         """
@@ -332,7 +316,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_controller_service`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -356,7 +340,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/controller-services', 'POST',
                                         path_params,
@@ -375,9 +359,7 @@ class ControllerApi(object):
     def create_flow_analysis_rule(self, body, **kwargs):
         """
         Creates a new flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param FlowAnalysisRuleEntity body: The flow analysis rule configuration details. (required)
         :return: FlowAnalysisRuleEntity
         """
@@ -391,9 +373,7 @@ class ControllerApi(object):
     def create_flow_analysis_rule_with_http_info(self, body, **kwargs):
         """
         Creates a new flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param FlowAnalysisRuleEntity body: The flow analysis rule configuration details. (required)
         :return: FlowAnalysisRuleEntity
         """
@@ -416,7 +396,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_flow_analysis_rule`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -440,7 +420,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules', 'POST',
                                         path_params,
@@ -459,9 +439,7 @@ class ControllerApi(object):
     def create_flow_registry_client(self, body, **kwargs):
         """
         Creates a new flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param FlowRegistryClientEntity body: The flow registry client configuration details. (required)
         :return: FlowRegistryClientEntity
         """
@@ -475,9 +453,7 @@ class ControllerApi(object):
     def create_flow_registry_client_with_http_info(self, body, **kwargs):
         """
         Creates a new flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param FlowRegistryClientEntity body: The flow registry client configuration details. (required)
         :return: FlowRegistryClientEntity
         """
@@ -500,7 +476,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_flow_registry_client`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -524,7 +500,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/registry-clients', 'POST',
                                         path_params,
@@ -543,9 +519,7 @@ class ControllerApi(object):
     def create_parameter_provider(self, body, **kwargs):
         """
         Creates a new parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderEntity body: The parameter provider configuration details. (required)
         :return: ParameterProviderEntity
         """
@@ -559,9 +533,7 @@ class ControllerApi(object):
     def create_parameter_provider_with_http_info(self, body, **kwargs):
         """
         Creates a new parameter provider
-
         This method makes a synchronous HTTP request.
-
         :param ParameterProviderEntity body: The parameter provider configuration details. (required)
         :return: ParameterProviderEntity
         """
@@ -584,7 +556,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_parameter_provider`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -608,7 +580,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/parameter-providers', 'POST',
                                         path_params,
@@ -627,9 +599,7 @@ class ControllerApi(object):
     def create_reporting_task(self, body, **kwargs):
         """
         Creates a new reporting task
-
         This method makes a synchronous HTTP request.
-
         :param ReportingTaskEntity body: The reporting task configuration details. (required)
         :return: ReportingTaskEntity
         """
@@ -643,9 +613,7 @@ class ControllerApi(object):
     def create_reporting_task_with_http_info(self, body, **kwargs):
         """
         Creates a new reporting task
-
         This method makes a synchronous HTTP request.
-
         :param ReportingTaskEntity body: The reporting task configuration details. (required)
         :return: ReportingTaskEntity
         """
@@ -668,7 +636,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_reporting_task`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -692,7 +660,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/reporting-tasks', 'POST',
                                         path_params,
@@ -711,11 +679,8 @@ class ControllerApi(object):
     def delete_flow_analysis_rule_verification_request(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
-
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Flow Analysis Rule (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -730,11 +695,8 @@ class ControllerApi(object):
     def delete_flow_analysis_rule_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
-
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Flow Analysis Rule (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -761,8 +723,8 @@ class ControllerApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `delete_flow_analysis_rule_verification_request`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -784,7 +746,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -803,9 +765,7 @@ class ControllerApi(object):
     def delete_flow_registry_client(self, id, **kwargs):
         """
         Deletes a flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow registry client id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -822,9 +782,7 @@ class ControllerApi(object):
     def delete_flow_registry_client_with_http_info(self, id, **kwargs):
         """
         Deletes a flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow registry client id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -850,10 +808,10 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_flow_registry_client`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -879,7 +837,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'DELETE',
                                         path_params,
@@ -898,9 +856,7 @@ class ControllerApi(object):
     def delete_history(self, end_date, **kwargs):
         """
         Purges history
-
         This method makes a synchronous HTTP request.
-
         :param DateTimeParameter end_date: Purge actions before this date/time. (required)
         :return: HistoryEntity
         """
@@ -914,9 +870,7 @@ class ControllerApi(object):
     def delete_history_with_http_info(self, end_date, **kwargs):
         """
         Purges history
-
         This method makes a synchronous HTTP request.
-
         :param DateTimeParameter end_date: Purge actions before this date/time. (required)
         :return: HistoryEntity
         """
@@ -939,7 +893,7 @@ class ControllerApi(object):
         if ('end_date' not in params) or (params['end_date'] is None):
             raise ValueError("Missing the required parameter `end_date` when calling `delete_history`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -959,7 +913,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/history', 'DELETE',
                                         path_params,
@@ -978,12 +932,10 @@ class ControllerApi(object):
     def delete_nar(self, id, **kwargs):
         """
         Deletes an installed NAR
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
-        :param bool disconnected_node_acknowledged: 
-        :param bool force: 
+        :param bool disconnected_node_acknowledged:
+        :param bool force:
         :return: NarSummaryEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -996,12 +948,10 @@ class ControllerApi(object):
     def delete_nar_with_http_info(self, id, **kwargs):
         """
         Deletes an installed NAR
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
-        :param bool disconnected_node_acknowledged: 
-        :param bool force: 
+        :param bool disconnected_node_acknowledged:
+        :param bool force:
         :return: NarSummaryEntity
         """
 
@@ -1023,9 +973,9 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_nar`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1049,7 +999,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}', 'DELETE',
                                         path_params,
@@ -1068,9 +1018,7 @@ class ControllerApi(object):
     def delete_node(self, id, **kwargs):
         """
         Removes a node from the cluster
-
         This method makes a synchronous HTTP request.
-
         :param str id: The node id. (required)
         :return: NodeEntity
         """
@@ -1084,9 +1032,7 @@ class ControllerApi(object):
     def delete_node_with_http_info(self, id, **kwargs):
         """
         Removes a node from the cluster
-
         This method makes a synchronous HTTP request.
-
         :param str id: The node id. (required)
         :return: NodeEntity
         """
@@ -1109,7 +1055,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_node`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1129,7 +1075,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'DELETE',
                                         path_params,
@@ -1148,9 +1094,7 @@ class ControllerApi(object):
     def download_nar(self, id, **kwargs):
         """
         Retrieves the content of the NAR with the given id
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
         :return: str
         """
@@ -1164,9 +1108,7 @@ class ControllerApi(object):
     def download_nar_with_http_info(self, id, **kwargs):
         """
         Retrieves the content of the NAR with the given id
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
         :return: str
         """
@@ -1189,7 +1131,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `download_nar`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1209,7 +1151,7 @@ class ControllerApi(object):
             select_header_accept(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}/content', 'GET',
                                         path_params,
@@ -1228,11 +1170,8 @@ class ControllerApi(object):
     def get_cluster(self, **kwargs):
         """
         Gets the contents of the cluster
-
         Returns the contents of the cluster including all nodes and their status.
-
         This method makes a synchronous HTTP request.
-
         :return: ClusterEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1245,11 +1184,8 @@ class ControllerApi(object):
     def get_cluster_with_http_info(self, **kwargs):
         """
         Gets the contents of the cluster
-
         Returns the contents of the cluster including all nodes and their status.
-
         This method makes a synchronous HTTP request.
-
         :return: ClusterEntity
         """
 
@@ -1285,7 +1221,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/cluster', 'GET',
                                         path_params,
@@ -1304,9 +1240,7 @@ class ControllerApi(object):
     def get_controller_config(self, **kwargs):
         """
         Retrieves the configuration for this NiFi Controller
-
         This method makes a synchronous HTTP request.
-
         :return: ControllerConfigurationEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1319,9 +1253,7 @@ class ControllerApi(object):
     def get_controller_config_with_http_info(self, **kwargs):
         """
         Retrieves the configuration for this NiFi Controller
-
         This method makes a synchronous HTTP request.
-
         :return: ControllerConfigurationEntity
         """
 
@@ -1357,7 +1289,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/config', 'GET',
                                         path_params,
@@ -1376,9 +1308,7 @@ class ControllerApi(object):
     def get_flow_analysis_rule(self, id, **kwargs):
         """
         Gets a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :return: FlowAnalysisRuleEntity
         """
@@ -1392,9 +1322,7 @@ class ControllerApi(object):
     def get_flow_analysis_rule_with_http_info(self, id, **kwargs):
         """
         Gets a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :return: FlowAnalysisRuleEntity
         """
@@ -1417,7 +1345,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_flow_analysis_rule`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1437,7 +1365,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}', 'GET',
                                         path_params,
@@ -1456,9 +1384,7 @@ class ControllerApi(object):
     def get_flow_analysis_rule_property_descriptor(self, id, property_name, **kwargs):
         """
         Gets a flow analysis rule property descriptor
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :param str property_name: The property name. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -1474,9 +1400,7 @@ class ControllerApi(object):
     def get_flow_analysis_rule_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a flow analysis rule property descriptor
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :param str property_name: The property name. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -1504,9 +1428,9 @@ class ControllerApi(object):
         if ('property_name' not in params) or (params['property_name'] is None):
             raise ValueError("Missing the required parameter `property_name` when calling `get_flow_analysis_rule_property_descriptor`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1530,7 +1454,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/descriptors', 'GET',
                                         path_params,
@@ -1549,9 +1473,7 @@ class ControllerApi(object):
     def get_flow_analysis_rule_state(self, id, **kwargs):
         """
         Gets the state for a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :return: ComponentStateEntity
         """
@@ -1565,9 +1487,7 @@ class ControllerApi(object):
     def get_flow_analysis_rule_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :return: ComponentStateEntity
         """
@@ -1590,7 +1510,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_flow_analysis_rule_state`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1610,7 +1530,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/state', 'GET',
                                         path_params,
@@ -1629,11 +1549,8 @@ class ControllerApi(object):
     def get_flow_analysis_rule_verification_request(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
-
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Flow Analysis Rule (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -1648,11 +1565,8 @@ class ControllerApi(object):
     def get_flow_analysis_rule_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
-
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
-
         This method makes a synchronous HTTP request.
-
         :param str id: The ID of the Flow Analysis Rule (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -1679,8 +1593,8 @@ class ControllerApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `get_flow_analysis_rule_verification_request`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1702,7 +1616,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -1721,9 +1635,7 @@ class ControllerApi(object):
     def get_flow_analysis_rules(self, **kwargs):
         """
         Gets all flow analysis rules
-
         This method makes a synchronous HTTP request.
-
         :return: FlowAnalysisRulesEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1736,9 +1648,7 @@ class ControllerApi(object):
     def get_flow_analysis_rules_with_http_info(self, **kwargs):
         """
         Gets all flow analysis rules
-
         This method makes a synchronous HTTP request.
-
         :return: FlowAnalysisRulesEntity
         """
 
@@ -1774,7 +1684,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules', 'GET',
                                         path_params,
@@ -1793,9 +1703,7 @@ class ControllerApi(object):
     def get_flow_registry_client(self, id, **kwargs):
         """
         Gets a flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow registry client id. (required)
         :return: FlowRegistryClientEntity
         """
@@ -1809,9 +1717,7 @@ class ControllerApi(object):
     def get_flow_registry_client_with_http_info(self, id, **kwargs):
         """
         Gets a flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow registry client id. (required)
         :return: FlowRegistryClientEntity
         """
@@ -1834,7 +1740,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_flow_registry_client`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -1854,7 +1760,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'GET',
                                         path_params,
@@ -1873,9 +1779,7 @@ class ControllerApi(object):
     def get_flow_registry_clients(self, **kwargs):
         """
         Gets the listing of available flow registry clients
-
         This method makes a synchronous HTTP request.
-
         :return: FlowRegistryClientsEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1888,9 +1792,7 @@ class ControllerApi(object):
     def get_flow_registry_clients_with_http_info(self, **kwargs):
         """
         Gets the listing of available flow registry clients
-
         This method makes a synchronous HTTP request.
-
         :return: FlowRegistryClientsEntity
         """
 
@@ -1926,7 +1828,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/registry-clients', 'GET',
                                         path_params,
@@ -1945,9 +1847,7 @@ class ControllerApi(object):
     def get_nar_details(self, id, **kwargs):
         """
         Retrieves the component types available from the installed NARs
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
         :return: NarDetailsEntity
         """
@@ -1961,9 +1861,7 @@ class ControllerApi(object):
     def get_nar_details_with_http_info(self, id, **kwargs):
         """
         Retrieves the component types available from the installed NARs
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
         :return: NarDetailsEntity
         """
@@ -1986,7 +1884,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_nar_details`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2006,7 +1904,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}/details', 'GET',
                                         path_params,
@@ -2025,9 +1923,7 @@ class ControllerApi(object):
     def get_nar_summaries(self, **kwargs):
         """
         Retrieves summary information for installed NARs
-
         This method makes a synchronous HTTP request.
-
         :return: NarSummariesEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -2040,9 +1936,7 @@ class ControllerApi(object):
     def get_nar_summaries_with_http_info(self, **kwargs):
         """
         Retrieves summary information for installed NARs
-
         This method makes a synchronous HTTP request.
-
         :return: NarSummariesEntity
         """
 
@@ -2078,7 +1972,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/nar-manager/nars', 'GET',
                                         path_params,
@@ -2097,9 +1991,7 @@ class ControllerApi(object):
     def get_nar_summary(self, id, **kwargs):
         """
         Retrieves the summary information for the NAR with the given identifier
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
         :return: NarDetailsEntity
         """
@@ -2113,9 +2005,7 @@ class ControllerApi(object):
     def get_nar_summary_with_http_info(self, id, **kwargs):
         """
         Retrieves the summary information for the NAR with the given identifier
-
         This method makes a synchronous HTTP request.
-
         :param str id: The id of the NAR. (required)
         :return: NarDetailsEntity
         """
@@ -2138,7 +2028,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_nar_summary`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2158,7 +2048,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}', 'GET',
                                         path_params,
@@ -2177,9 +2067,7 @@ class ControllerApi(object):
     def get_node(self, id, **kwargs):
         """
         Gets a node in the cluster
-
         This method makes a synchronous HTTP request.
-
         :param str id: The node id. (required)
         :return: NodeEntity
         """
@@ -2193,9 +2081,7 @@ class ControllerApi(object):
     def get_node_with_http_info(self, id, **kwargs):
         """
         Gets a node in the cluster
-
         This method makes a synchronous HTTP request.
-
         :param str id: The node id. (required)
         :return: NodeEntity
         """
@@ -2218,7 +2104,7 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_node`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2238,7 +2124,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'GET',
                                         path_params,
@@ -2257,11 +2143,8 @@ class ControllerApi(object):
     def get_node_status_history(self, **kwargs):
         """
         Gets status history for the node
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: ComponentHistoryEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -2274,11 +2157,8 @@ class ControllerApi(object):
     def get_node_status_history_with_http_info(self, **kwargs):
         """
         Gets status history for the node
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: ComponentHistoryEntity
         """
 
@@ -2314,7 +2194,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/status/history', 'GET',
                                         path_params,
@@ -2333,9 +2213,7 @@ class ControllerApi(object):
     def get_property_descriptor(self, id, property_name, **kwargs):
         """
         Gets a flow registry client property descriptor
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow registry client id. (required)
         :param str property_name: The property name. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -2351,9 +2229,7 @@ class ControllerApi(object):
     def get_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a flow registry client property descriptor
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow registry client id. (required)
         :param str property_name: The property name. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -2381,9 +2257,9 @@ class ControllerApi(object):
         if ('property_name' not in params) or (params['property_name'] is None):
             raise ValueError("Missing the required parameter `property_name` when calling `get_property_descriptor`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2407,7 +2283,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}/descriptors', 'GET',
                                         path_params,
@@ -2426,11 +2302,8 @@ class ControllerApi(object):
     def get_registry_client_types(self, **kwargs):
         """
         Retrieves the types of flow  that this NiFi supports
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: FlowRegistryClientTypesEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -2443,11 +2316,8 @@ class ControllerApi(object):
     def get_registry_client_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of flow  that this NiFi supports
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: FlowRegistryClientTypesEntity
         """
 
@@ -2483,7 +2353,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/registry-types', 'GET',
                                         path_params,
@@ -2502,9 +2372,7 @@ class ControllerApi(object):
     def import_reporting_task_snapshot(self, body, **kwargs):
         """
         Imports a reporting task snapshot
-
         This method makes a synchronous HTTP request.
-
         :param VersionedReportingTaskImportRequestEntity body: The import request containing the reporting task snapshot to import. (required)
         :return: VersionedReportingTaskImportResponseEntity
         """
@@ -2518,9 +2386,7 @@ class ControllerApi(object):
     def import_reporting_task_snapshot_with_http_info(self, body, **kwargs):
         """
         Imports a reporting task snapshot
-
         This method makes a synchronous HTTP request.
-
         :param VersionedReportingTaskImportRequestEntity body: The import request containing the reporting task snapshot to import. (required)
         :return: VersionedReportingTaskImportResponseEntity
         """
@@ -2543,7 +2409,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `import_reporting_task_snapshot`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2567,7 +2433,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/reporting-tasks/import', 'POST',
                                         path_params,
@@ -2586,9 +2452,7 @@ class ControllerApi(object):
     def remove_flow_analysis_rule(self, id, **kwargs):
         """
         Deletes a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -2605,9 +2469,7 @@ class ControllerApi(object):
     def remove_flow_analysis_rule_with_http_info(self, id, **kwargs):
         """
         Deletes a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param str id: The flow analysis rule id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -2633,10 +2495,10 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_flow_analysis_rule`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2662,7 +2524,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}', 'DELETE',
                                         path_params,
@@ -2681,11 +2543,8 @@ class ControllerApi(object):
     def submit_flow_analysis_rule_config_verification_request(self, body, id, **kwargs):
         """
         Performs verification of the Flow Analysis Rule's configuration
-
         This will initiate the process of verifying a given Flow Analysis Rule configuration. This may be a long-running task. As a result, this endpoint will immediately return a FlowAnalysisRuleConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /flow-analysis-rules/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /flow-analysis-rules/{serviceId}/verification-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param VerifyConfigRequestEntity body: The flow analysis rules configuration verification request. (required)
         :param str id: The flow analysis rules id. (required)
         :return: VerifyConfigRequestEntity
@@ -2700,11 +2559,8 @@ class ControllerApi(object):
     def submit_flow_analysis_rule_config_verification_request_with_http_info(self, body, id, **kwargs):
         """
         Performs verification of the Flow Analysis Rule's configuration
-
         This will initiate the process of verifying a given Flow Analysis Rule configuration. This may be a long-running task. As a result, this endpoint will immediately return a FlowAnalysisRuleConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /flow-analysis-rules/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /flow-analysis-rules/{serviceId}/verification-requests/{requestId}.
-
         This method makes a synchronous HTTP request.
-
         :param VerifyConfigRequestEntity body: The flow analysis rules configuration verification request. (required)
         :param str id: The flow analysis rules id. (required)
         :return: VerifyConfigRequestEntity
@@ -2731,8 +2587,8 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `submit_flow_analysis_rule_config_verification_request`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2758,7 +2614,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -2777,9 +2633,7 @@ class ControllerApi(object):
     def update_controller_config(self, body, **kwargs):
         """
         Retrieves the configuration for this NiFi
-
         This method makes a synchronous HTTP request.
-
         :param ControllerConfigurationEntity body: The controller configuration. (required)
         :return: ControllerConfigurationEntity
         """
@@ -2793,9 +2647,7 @@ class ControllerApi(object):
     def update_controller_config_with_http_info(self, body, **kwargs):
         """
         Retrieves the configuration for this NiFi
-
         This method makes a synchronous HTTP request.
-
         :param ControllerConfigurationEntity body: The controller configuration. (required)
         :return: ControllerConfigurationEntity
         """
@@ -2818,7 +2670,7 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `update_controller_config`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2842,7 +2694,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/config', 'PUT',
                                         path_params,
@@ -2861,9 +2713,7 @@ class ControllerApi(object):
     def update_flow_analysis_rule(self, body, id, **kwargs):
         """
         Updates a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param FlowAnalysisRuleEntity body: The flow analysis rule configuration details. (required)
         :param str id: The flow analysis rule id. (required)
         :return: FlowAnalysisRuleEntity
@@ -2878,9 +2728,7 @@ class ControllerApi(object):
     def update_flow_analysis_rule_with_http_info(self, body, id, **kwargs):
         """
         Updates a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param FlowAnalysisRuleEntity body: The flow analysis rule configuration details. (required)
         :param str id: The flow analysis rule id. (required)
         :return: FlowAnalysisRuleEntity
@@ -2907,8 +2755,8 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_flow_analysis_rule`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -2934,7 +2782,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}', 'PUT',
                                         path_params,
@@ -2953,9 +2801,7 @@ class ControllerApi(object):
     def update_flow_registry_client(self, body, id, **kwargs):
         """
         Updates a flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param FlowRegistryClientEntity body: The flow registry client configuration details. (required)
         :param str id: The flow registry client id. (required)
         :return: FlowRegistryClientEntity
@@ -2970,9 +2816,7 @@ class ControllerApi(object):
     def update_flow_registry_client_with_http_info(self, body, id, **kwargs):
         """
         Updates a flow registry client
-
         This method makes a synchronous HTTP request.
-
         :param FlowRegistryClientEntity body: The flow registry client configuration details. (required)
         :param str id: The flow registry client id. (required)
         :return: FlowRegistryClientEntity
@@ -2999,8 +2843,8 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_flow_registry_client`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -3026,7 +2870,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'PUT',
                                         path_params,
@@ -3045,9 +2889,7 @@ class ControllerApi(object):
     def update_node(self, body, id, **kwargs):
         """
         Updates a node in the cluster
-
         This method makes a synchronous HTTP request.
-
         :param NodeEntity body: The node configuration. The only configuration that will be honored at this endpoint is the status. (required)
         :param str id: The node id. (required)
         :return: NodeEntity
@@ -3062,9 +2904,7 @@ class ControllerApi(object):
     def update_node_with_http_info(self, body, id, **kwargs):
         """
         Updates a node in the cluster
-
         This method makes a synchronous HTTP request.
-
         :param NodeEntity body: The node configuration. The only configuration that will be honored at this endpoint is the status. (required)
         :param str id: The node id. (required)
         :return: NodeEntity
@@ -3091,8 +2931,8 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_node`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -3118,7 +2958,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'PUT',
                                         path_params,
@@ -3137,9 +2977,7 @@ class ControllerApi(object):
     def update_run_status(self, body, id, **kwargs):
         """
         Updates run status of a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param FlowAnalysisRuleRunStatusEntity body: The flow analysis rule run status. (required)
         :param str id: The flow analysis rule id. (required)
         :return: FlowAnalysisRuleEntity
@@ -3154,9 +2992,7 @@ class ControllerApi(object):
     def update_run_status_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of a flow analysis rule
-
         This method makes a synchronous HTTP request.
-
         :param FlowAnalysisRuleRunStatusEntity body: The flow analysis rule run status. (required)
         :param str id: The flow analysis rule id. (required)
         :return: FlowAnalysisRuleEntity
@@ -3183,8 +3019,8 @@ class ControllerApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_run_status`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -3210,7 +3046,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/run-status', 'PUT',
                                         path_params,
@@ -3229,11 +3065,9 @@ class ControllerApi(object):
     def upload_nar(self, body, **kwargs):
         """
         Uploads a NAR and requests for it to be installed
-
         This method makes a synchronous HTTP request.
-
         :param object body: The contents of the NAR file. (required)
-        :param str filename: 
+        :param str filename:
         :return: NarSummaryEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -3246,11 +3080,9 @@ class ControllerApi(object):
     def upload_nar_with_http_info(self, body, **kwargs):
         """
         Uploads a NAR and requests for it to be installed
-
         This method makes a synchronous HTTP request.
-
         :param object body: The contents of the NAR file. (required)
-        :param str filename: 
+        :param str filename:
         :return: NarSummaryEntity
         """
 
@@ -3272,8 +3104,8 @@ class ControllerApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `upload_nar`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -3299,7 +3131,7 @@ class ControllerApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/controller/nar-manager/nars/content', 'POST',
                                         path_params,

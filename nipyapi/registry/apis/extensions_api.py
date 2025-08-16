@@ -35,11 +35,8 @@ class ExtensionsApi(object):
     def get_extensions(self, **kwargs):
         """
         Get all extensions
-
         Gets the metadata for all extensions that match the filter params and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_type: The type of bundles to return
         :param str extension_type: The type of extensions to return
         :param list[str] tag: The tags to filter on, will be used in an OR statement
@@ -55,11 +52,8 @@ class ExtensionsApi(object):
     def get_extensions_with_http_info(self, **kwargs):
         """
         Get all extensions
-
         Gets the metadata for all extensions that match the filter params and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str bundle_type: The type of bundles to return
         :param str extension_type: The type of extensions to return
         :param list[str] tag: The tags to filter on, will be used in an OR statement
@@ -81,9 +75,9 @@ class ExtensionsApi(object):
             params[key] = val
         del params['kwargs']
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -108,7 +102,7 @@ class ExtensionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/extensions', 'GET',
                                         path_params,
@@ -127,11 +121,8 @@ class ExtensionsApi(object):
     def get_extensions_providing_service_api(self, class_name, group_id, artifact_id, version, **kwargs):
         """
         Get extensions providing service API
-
         Gets the metadata for extensions that provide the specified API and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str class_name: The name of the service API class (required)
         :param str group_id: The groupId of the bundle containing the service API class (required)
         :param str artifact_id: The artifactId of the bundle containing the service API class (required)
@@ -148,11 +139,8 @@ class ExtensionsApi(object):
     def get_extensions_providing_service_api_with_http_info(self, class_name, group_id, artifact_id, version, **kwargs):
         """
         Get extensions providing service API
-
         Gets the metadata for extensions that provide the specified API and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param str class_name: The name of the service API class (required)
         :param str group_id: The groupId of the bundle containing the service API class (required)
         :param str artifact_id: The artifactId of the bundle containing the service API class (required)
@@ -187,10 +175,10 @@ class ExtensionsApi(object):
         if ('version' not in params) or (params['version'] is None):
             raise ValueError("Missing the required parameter `version` when calling `get_extensions_providing_service_api`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -216,7 +204,7 @@ class ExtensionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/extensions/provided-service-api', 'GET',
                                         path_params,
@@ -235,11 +223,8 @@ class ExtensionsApi(object):
     def get_tags(self, **kwargs):
         """
         Get extension tags
-
         Gets all the extension tags known to this NiFi Registry instance, along with the number of extensions that have the given tag.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: list[TagCount]
         """
         kwargs['_return_http_data_only'] = True
@@ -252,11 +237,8 @@ class ExtensionsApi(object):
     def get_tags_with_http_info(self, **kwargs):
         """
         Get extension tags
-
         Gets all the extension tags known to this NiFi Registry instance, along with the number of extensions that have the given tag.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :return: list[TagCount]
         """
 
@@ -292,7 +274,7 @@ class ExtensionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/extensions/tags', 'GET',
                                         path_params,

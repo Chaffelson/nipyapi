@@ -35,9 +35,7 @@ class RemoteProcessGroupsApi(object):
     def get_remote_process_group(self, id, **kwargs):
         """
         Gets a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param str id: The remote process group id. (required)
         :return: RemoteProcessGroupEntity
         """
@@ -51,9 +49,7 @@ class RemoteProcessGroupsApi(object):
     def get_remote_process_group_with_http_info(self, id, **kwargs):
         """
         Gets a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param str id: The remote process group id. (required)
         :return: RemoteProcessGroupEntity
         """
@@ -76,7 +72,7 @@ class RemoteProcessGroupsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_remote_process_group`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -96,7 +92,7 @@ class RemoteProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'GET',
                                         path_params,
@@ -115,9 +111,7 @@ class RemoteProcessGroupsApi(object):
     def get_state3(self, id, **kwargs):
         """
         Gets the state for a RemoteProcessGroup
-
         This method makes a synchronous HTTP request.
-
         :param str id: The processor id. (required)
         :return: ComponentStateEntity
         """
@@ -131,9 +125,7 @@ class RemoteProcessGroupsApi(object):
     def get_state3_with_http_info(self, id, **kwargs):
         """
         Gets the state for a RemoteProcessGroup
-
         This method makes a synchronous HTTP request.
-
         :param str id: The processor id. (required)
         :return: ComponentStateEntity
         """
@@ -156,7 +148,7 @@ class RemoteProcessGroupsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_state3`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -176,7 +168,7 @@ class RemoteProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/state', 'GET',
                                         path_params,
@@ -195,9 +187,7 @@ class RemoteProcessGroupsApi(object):
     def remove_remote_process_group(self, id, **kwargs):
         """
         Deletes a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param str id: The remote process group id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -214,9 +204,7 @@ class RemoteProcessGroupsApi(object):
     def remove_remote_process_group_with_http_info(self, id, **kwargs):
         """
         Deletes a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param str id: The remote process group id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -242,10 +230,10 @@ class RemoteProcessGroupsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_remote_process_group`")
 
-
-
-
-
+ 
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -271,7 +259,7 @@ class RemoteProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'DELETE',
                                         path_params,
@@ -290,9 +278,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group(self, body, id, **kwargs):
         """
         Updates a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param RemoteProcessGroupEntity body: The remote process group. (required)
         :param str id: The remote process group id. (required)
         :return: RemoteProcessGroupEntity
@@ -307,9 +293,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_with_http_info(self, body, id, **kwargs):
         """
         Updates a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param RemoteProcessGroupEntity body: The remote process group. (required)
         :param str id: The remote process group id. (required)
         :return: RemoteProcessGroupEntity
@@ -336,8 +320,8 @@ class RemoteProcessGroupsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_remote_process_group`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -363,7 +347,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'PUT',
                                         path_params,
@@ -382,11 +366,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -402,11 +383,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -437,9 +415,9 @@ class RemoteProcessGroupsApi(object):
         if ('port_id' not in params) or (params['port_id'] is None):
             raise ValueError("Missing the required parameter `port_id` when calling `update_remote_process_group_input_port`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -467,7 +445,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/input-ports/{port-id}', 'PUT',
                                         path_params,
@@ -486,11 +464,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port_run_status(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -506,11 +481,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port_run_status_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -541,9 +513,9 @@ class RemoteProcessGroupsApi(object):
         if ('port_id' not in params) or (params['port_id'] is None):
             raise ValueError("Missing the required parameter `port_id` when calling `update_remote_process_group_input_port_run_status`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -571,7 +543,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/input-ports/{port-id}/run-status', 'PUT',
                                         path_params,
@@ -590,11 +562,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -610,11 +579,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -645,9 +611,9 @@ class RemoteProcessGroupsApi(object):
         if ('port_id' not in params) or (params['port_id'] is None):
             raise ValueError("Missing the required parameter `port_id` when calling `update_remote_process_group_output_port`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -675,7 +641,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/output-ports/{port-id}', 'PUT',
                                         path_params,
@@ -694,11 +660,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port_run_status(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -714,11 +677,8 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port_run_status_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
-
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process group port. (required)
         :param str id: The remote process group id. (required)
         :param str port_id: The remote process group port id. (required)
@@ -749,9 +709,9 @@ class RemoteProcessGroupsApi(object):
         if ('port_id' not in params) or (params['port_id'] is None):
             raise ValueError("Missing the required parameter `port_id` when calling `update_remote_process_group_output_port_run_status`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -779,7 +739,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/output-ports/{port-id}/run-status', 'PUT',
                                         path_params,
@@ -798,9 +758,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_run_status(self, body, id, **kwargs):
         """
         Updates run status of a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process group run status. (required)
         :param str id: The remote process group id. (required)
         :return: RemoteProcessGroupEntity
@@ -815,9 +773,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_run_status_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of a remote process group
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process group run status. (required)
         :param str id: The remote process group id. (required)
         :return: RemoteProcessGroupEntity
@@ -844,8 +800,8 @@ class RemoteProcessGroupsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_remote_process_group_run_status`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -871,7 +827,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/run-status', 'PUT',
                                         path_params,
@@ -890,9 +846,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_run_statuses(self, body, id, **kwargs):
         """
         Updates run status of all remote process groups in a process group (recursively)
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process groups run status. (required)
         :param str id: The process group id. (required)
         :return: RemoteProcessGroupEntity
@@ -907,9 +861,7 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_run_statuses_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of all remote process groups in a process group (recursively)
-
         This method makes a synchronous HTTP request.
-
         :param RemotePortRunStatusEntity body: The remote process groups run status. (required)
         :param str id: The process group id. (required)
         :return: RemoteProcessGroupEntity
@@ -936,8 +888,8 @@ class RemoteProcessGroupsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_remote_process_group_run_statuses`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -963,7 +915,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/process-group/{id}/run-status', 'PUT',
                                         path_params,

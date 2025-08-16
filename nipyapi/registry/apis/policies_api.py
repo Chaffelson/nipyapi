@@ -35,9 +35,7 @@ class PoliciesApi(object):
     def create_access_policy(self, body, **kwargs):
         """
         Create access policy
-
         This method makes a synchronous HTTP request.
-
         :param AccessPolicy body: The access policy configuration details. (required)
         :return: AccessPolicy
         """
@@ -51,9 +49,7 @@ class PoliciesApi(object):
     def create_access_policy_with_http_info(self, body, **kwargs):
         """
         Create access policy
-
         This method makes a synchronous HTTP request.
-
         :param AccessPolicy body: The access policy configuration details. (required)
         :return: AccessPolicy
         """
@@ -76,7 +72,7 @@ class PoliciesApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_access_policy`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -100,7 +96,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/policies', 'POST',
                                         path_params,
@@ -119,9 +115,7 @@ class PoliciesApi(object):
     def get_access_policies(self, **kwargs):
         """
         Get all access policies
-
         This method makes a synchronous HTTP request.
-
         :return: list[AccessPolicy]
         """
         kwargs['_return_http_data_only'] = True
@@ -134,9 +128,7 @@ class PoliciesApi(object):
     def get_access_policies_with_http_info(self, **kwargs):
         """
         Get all access policies
-
         This method makes a synchronous HTTP request.
-
         :return: list[AccessPolicy]
         """
 
@@ -172,7 +164,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/policies', 'GET',
                                         path_params,
@@ -191,9 +183,7 @@ class PoliciesApi(object):
     def get_access_policy(self, id, **kwargs):
         """
         Get access policy
-
         This method makes a synchronous HTTP request.
-
         :param str id: The access policy id. (required)
         :return: AccessPolicy
         """
@@ -207,9 +197,7 @@ class PoliciesApi(object):
     def get_access_policy_with_http_info(self, id, **kwargs):
         """
         Get access policy
-
         This method makes a synchronous HTTP request.
-
         :param str id: The access policy id. (required)
         :return: AccessPolicy
         """
@@ -232,7 +220,7 @@ class PoliciesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_access_policy`")
 
-
+ 
         collection_formats = {}
 
         path_params = {}
@@ -252,7 +240,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/policies/{id}', 'GET',
                                         path_params,
@@ -271,11 +259,8 @@ class PoliciesApi(object):
     def get_access_policy_for_resource(self, action, resource, **kwargs):
         """
         Get access policy for resource
-
         Gets an access policy for the specified action and resource
-
         This method makes a synchronous HTTP request.
-
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
         :return: AccessPolicy
@@ -290,11 +275,8 @@ class PoliciesApi(object):
     def get_access_policy_for_resource_with_http_info(self, action, resource, **kwargs):
         """
         Get access policy for resource
-
         Gets an access policy for the specified action and resource
-
         This method makes a synchronous HTTP request.
-
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
         :return: AccessPolicy
@@ -321,8 +303,8 @@ class PoliciesApi(object):
         if ('resource' not in params) or (params['resource'] is None):
             raise ValueError("Missing the required parameter `resource` when calling `get_access_policy_for_resource`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -344,7 +326,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/policies/{action}/{resource}', 'GET',
                                         path_params,
@@ -363,11 +345,8 @@ class PoliciesApi(object):
     def get_resources(self, **kwargs):
         """
         Get available resources
-
         Gets the available resources that support access/authorization policies
-
         This method makes a synchronous HTTP request.
-
         :return: list[Resource]
         """
         kwargs['_return_http_data_only'] = True
@@ -380,11 +359,8 @@ class PoliciesApi(object):
     def get_resources_with_http_info(self, **kwargs):
         """
         Get available resources
-
         Gets the available resources that support access/authorization policies
-
         This method makes a synchronous HTTP request.
-
         :return: list[Resource]
         """
 
@@ -420,7 +396,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/policies/resources', 'GET',
                                         path_params,
@@ -439,9 +415,7 @@ class PoliciesApi(object):
     def remove_access_policy(self, version, id, **kwargs):
         """
         Delete access policy
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str id: The access policy id. (required)
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -457,9 +431,7 @@ class PoliciesApi(object):
     def remove_access_policy_with_http_info(self, version, id, **kwargs):
         """
         Delete access policy
-
         This method makes a synchronous HTTP request.
-
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str id: The access policy id. (required)
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -487,9 +459,9 @@ class PoliciesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_access_policy`")
 
-
-
-
+ 
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -513,7 +485,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/policies/{id}', 'DELETE',
                                         path_params,
@@ -532,9 +504,7 @@ class PoliciesApi(object):
     def update_access_policy(self, body, id, **kwargs):
         """
         Update access policy
-
         This method makes a synchronous HTTP request.
-
         :param AccessPolicy body: The access policy configuration details. (required)
         :param str id: The access policy id. (required)
         :return: AccessPolicy
@@ -549,9 +519,7 @@ class PoliciesApi(object):
     def update_access_policy_with_http_info(self, body, id, **kwargs):
         """
         Update access policy
-
         This method makes a synchronous HTTP request.
-
         :param AccessPolicy body: The access policy configuration details. (required)
         :param str id: The access policy id. (required)
         :return: AccessPolicy
@@ -578,8 +546,8 @@ class PoliciesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_access_policy`")
 
-
-
+ 
+ 
         collection_formats = {}
 
         path_params = {}
@@ -605,7 +573,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/policies/{id}', 'PUT',
                                         path_params,
