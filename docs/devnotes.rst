@@ -51,7 +51,7 @@ Instructions::
     Install the latest supported version of Python for your main dev environment `pyenv install 3.9 2.7 3.12`
     Set these versions as global in pyenv. Use the actual versions with the command `pyenv global 3.9.16 2.7.18 3.12.2`
     Stand up NiFi containers with docker compose profiles (`resources/docker/compose.yml`) and run tests via `make`:
-    `PROFILE=single-user make test`, `PROFILE=secure-ldap make test`, `PROFILE=secure-mtls make test`.
+    `AUTH_MODE=single-user make test`, `AUTH_MODE=secure-ldap make test`, `AUTH_MODE=secure-mtls make test`.
     Python2 can be tested using the following steps within a Python2 virtualenv:
     1. Install runtime requirements: `pip install -r requirements.txt`
     2. Install dev extras: `pip install -e ".[dev]"`

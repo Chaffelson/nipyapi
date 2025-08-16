@@ -18,7 +18,7 @@ import sys
 import os
 import glob
 
-def test_distribution():
+def validate_distribution():
     """Test that the built wheel can be imported and used in a clean environment."""
     
     # Find wheel file
@@ -134,5 +134,5 @@ except Exception as e:
     return True
 
 if __name__ == "__main__":
-    success = test_distribution()
+    success = validate_distribution()
     sys.exit(0 if success else 1)

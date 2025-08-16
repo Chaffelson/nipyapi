@@ -91,8 +91,8 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
     $ make certs
 
     # bring up single-user profile and wait for readiness
-    $ make up PROFILE=single-user
-    $ make wait-ready PROFILE=single-user
+    $ make up AUTH_MODE=single-user
+    $ make wait-ready AUTH_MODE=single-user
     # run tests (conftest resolves URLs, credentials, and TLS for the profile)
     $ make test
     # bring everything down when done

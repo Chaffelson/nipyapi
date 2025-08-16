@@ -104,9 +104,9 @@ openapi-clean: ## remove generated augmented/backup OpenAPI artifacts
 gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_variant=augmented|base)
 	cd resources/client_gen && wv_spec_variant=$${wv_spec_variant:-augmented} wv_client_name=all wv_api_def_dir=$$(pwd)/api_defs wv_tmp_dir=$$(pwd)/_tmp bash ./generate_api_client.sh
 
-up: ## bring up docker profile: make up PROFILE=single-user|secure-ldap|secure-mtls (uses NIFI_VERSION=$(NIFI_VERSION))
-	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi
-	@$(DC) --profile $(PROFILE) up -d
+up: ## bring up docker profile: make up AUTH_MODE=single-user|secure-ldap|secure-mtls (uses NIFI_VERSION=$(NIFI_VERSION))
+	@if [ -z "$(AUTH_MODE)" ]; then echo "AUTH_MODE is required"; exit 1; fi
+	@$(DC) --profile $(AUTH_MODE) up -d
 
 down: ## bring down all docker services
 	@echo "Bringing down Docker services (NIFI_VERSION=$(NIFI_VERSION))"
@@ -114,51 +114,59 @@ down: ## bring down all docker services
 	@echo "Verifying expected containers are stopped/removed:"
 	@COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE) ps --format "table {{.Name}}\t{{.State}}" | tail -n +2 | awk '{print " - " $$1 ": " $$2}' || true
 
-wait-ready: ## wait for readiness; accepts PROFILE=single-user|secure-ldap|secure-mtls or explicit *_API_ENDPOINT envs
-	@# If PROFILE is provided, set sensible defaults for endpoints (standardized names)
-	@if [ -n "$(PROFILE)" ]; then \
-		if [ "$(PROFILE)" = "single-user" ]; then \
+wait-ready: ## wait for readiness; accepts AUTH_MODE=single-user|secure-ldap|secure-mtls or explicit *_API_ENDPOINT envs
+	@# If AUTH_MODE is provided, set sensible defaults for endpoints (standardized names)
+	@if [ -n "$(AUTH_MODE)" ]; then \
+		if [ "$(AUTH_MODE)" = "single-user" ]; then \
 			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9443/nifi-api}"; \
 			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-http://localhost:18080/nifi-registry-api}"; \
 			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
-		elif [ "$(PROFILE)" = "secure-ldap" ]; then \
+		elif [ "$(AUTH_MODE)" = "secure-ldap" ]; then \
 			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9444/nifi-api}"; \
 			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-https://localhost:18444/nifi-registry-api}"; \
 			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
-		elif [ "$(PROFILE)" = "secure-mtls" ]; then \
+		elif [ "$(AUTH_MODE)" = "secure-mtls" ]; then \
 			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9445/nifi-api}"; \
 			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-https://localhost:18445/nifi-registry-api}"; \
 			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
-		else echo "Unknown PROFILE $(PROFILE)"; exit 1; fi; \
+		else echo "Unknown AUTH_MODE $(AUTH_MODE)"; exit 1; fi; \
 	fi; \
 	python resources/scripts/wait_ready.py
 
-test-profile: ## run pytest with provided PROFILE; config resolved by tests/conftest.py
-	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required (single-user|secure-ldap|secure-mtls)"; exit 1; fi; \
-	PROFILE=$(PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
+test-profile: ## run pytest with provided AUTH_MODE; config resolved by tests/conftest.py
+	@if [ -z "$(AUTH_MODE)" ]; then echo "AUTH_MODE is required (single-user|secure-ldap|secure-mtls)"; exit 1; fi; \
+	NIPYAPI_AUTH_MODE=$(AUTH_MODE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
 
-test-su: ## shortcut: PROFILE=single-user pytest
-	PROFILE=single-user $(MAKE) test-profile
+test-su: ## shortcut: AUTH_MODE=single-user pytest
+	AUTH_MODE=single-user $(MAKE) test-profile
 
-test-ldap: ## shortcut: PROFILE=secure-ldap pytest
-	PROFILE=secure-ldap $(MAKE) test-profile
+test-ldap: ## shortcut: AUTH_MODE=secure-ldap pytest
+	AUTH_MODE=secure-ldap $(MAKE) test-profile
 
-test-mtls: ## shortcut: PROFILE=secure-mtls pytest
-	PROFILE=secure-mtls $(MAKE) test-profile
+test-mtls: ## shortcut: AUTH_MODE=secure-mtls pytest
+	AUTH_MODE=secure-mtls $(MAKE) test-profile
 
-test-specific: ## run specific pytest with provided PROFILE and TEST_ARGS
-	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required (single-user|secure-ldap|secure-mtls)"; exit 1; fi; \
+test-specific: ## run specific pytest with provided AUTH_MODE and TEST_ARGS
+	@if [ -z "$(AUTH_MODE)" ]; then echo "AUTH_MODE is required (single-user|secure-ldap|secure-mtls)"; exit 1; fi; \
 	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required (e.g., tests/test_utils.py::test_dump -v)"; exit 1; fi; \
-	PROFILE=$(PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
+	NIPYAPI_AUTH_MODE=$(AUTH_MODE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
+
+# Integration testing workflow (requires Docker infrastructure):
+# 1. make certs
+# 2. make up AUTH_MODE=single-user  
+# 3. make wait-ready AUTH_MODE=single-user
+# 4. make test-specific AUTH_MODE=single-user TEST_ARGS="tests/test_utils.py::test_dump -v"
+# 5. make down
+# Note: CI runs full integration tests with Docker infrastructure using single-user profile
 
 test-all: ## run full e2e tests across all profiles: single-user, secure-ldap, secure-mtls
 	@echo "Running full e2e tests across all profiles..."
 	$(MAKE) certs
 	@for profile in single-user secure-ldap secure-mtls; do \
 		echo "=== Running e2e test for profile: $$profile ==="; \
-		$(MAKE) up PROFILE=$$profile && \
-		$(MAKE) wait-ready PROFILE=$$profile && \
-		$(MAKE) test-profile PROFILE=$$profile; \
+		$(MAKE) up AUTH_MODE=$$profile && \
+		$(MAKE) wait-ready AUTH_MODE=$$profile && \
+		$(MAKE) test-profile AUTH_MODE=$$profile; \
 		test_result=$$?; \
 		echo "=== Cleaning up profile: $$profile ==="; \
 		$(MAKE) down; \
@@ -169,49 +177,49 @@ test-all: ## run full e2e tests across all profiles: single-user, secure-ldap, s
 	done
 	@echo "All profile e2e tests completed successfully."
 
-smoke: ## quick version probe without bootstrap (use PROFILE=single-user|secure-ldap|secure-mtls)
-	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
-	if [ "$(PROFILE)" = "single-user" ]; then \
+smoke: ## quick version probe without bootstrap (use AUTH_MODE=single-user|secure-ldap|secure-mtls)
+	@if [ -z "$(AUTH_MODE)" ]; then echo "AUTH_MODE is required"; exit 1; fi; \
+	if [ "$(AUTH_MODE)" = "single-user" ]; then \
 		NIFI_API_ENDPOINT=$${NIFI_API_ENDPOINT:-https://localhost:9443/nifi-api}; \
 		REGISTRY_API_ENDPOINT=$${REGISTRY_API_ENDPOINT:-http://localhost:18080/nifi-registry-api}; \
 		NIFI_USERNAME=$${NIFI_USERNAME:-einstein}; \
 		NIFI_PASSWORD=$${NIFI_PASSWORD:-password1234}; \
 		REGISTRY_USERNAME=$${REGISTRY_USERNAME:-einstein}; \
 		REGISTRY_PASSWORD=$${REGISTRY_PASSWORD:-password}; \
-	elif [ "$(PROFILE)" = "secure-ldap" ]; then \
+	elif [ "$(AUTH_MODE)" = "secure-ldap" ]; then \
 		NIFI_API_ENDPOINT=$${NIFI_API_ENDPOINT:-https://localhost:9444/nifi-api}; \
 		REGISTRY_API_ENDPOINT=$${REGISTRY_API_ENDPOINT:-https://localhost:18444/nifi-registry-api}; \
 		NIFI_USERNAME=$${NIFI_USERNAME:-einstein}; \
 		NIFI_PASSWORD=$${NIFI_PASSWORD:-password}; \
 		REGISTRY_USERNAME=$${REGISTRY_USERNAME:-einstein}; \
 		REGISTRY_PASSWORD=$${REGISTRY_PASSWORD:-password}; \
-	elif [ "$(PROFILE)" = "secure-mtls" ]; then \
+	elif [ "$(AUTH_MODE)" = "secure-mtls" ]; then \
 		NIFI_API_ENDPOINT=$${NIFI_API_ENDPOINT:-https://localhost:9445/nifi-api}; \
 		REGISTRY_API_ENDPOINT=$${REGISTRY_API_ENDPOINT:-https://localhost:18445/nifi-registry-api}; \
-	else echo "Unknown PROFILE $(PROFILE)"; exit 1; fi; \
+	else echo "Unknown AUTH_MODE $(AUTH_MODE)"; exit 1; fi; \
 	TLS_CA_CERT_PATH=$${TLS_CA_CERT_PATH:-$(PWD)/resources/certs/client/ca.pem}; \
 	export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT NIFI_USERNAME NIFI_PASSWORD REGISTRY_USERNAME REGISTRY_PASSWORD TLS_CA_CERT_PATH; \
 	python resources/scripts/smoke_versions.py
 
 e2e: ## end-to-end: up -> wait-ready -> fetch-openapi -> augment-openapi -> gen-clients -> tests
-	@if [ -z "$(PROFILE)" ]; then echo "PROFILE is required"; exit 1; fi; \
+	@if [ -z "$(AUTH_MODE)" ]; then echo "AUTH_MODE is required"; exit 1; fi; \
 	$(MAKE) certs && \
-	$(MAKE) up PROFILE=$(PROFILE) && \
-	$(MAKE) wait-ready PROFILE=$(PROFILE) && \
+	$(MAKE) up AUTH_MODE=$(AUTH_MODE) && \
+	$(MAKE) wait-ready AUTH_MODE=$(AUTH_MODE) && \
 	$(MAKE) fetch-openapi && \
 	$(MAKE) augment-openapi && \
 	$(MAKE) gen-clients && \
-	$(MAKE) test-profile PROFILE=$(PROFILE)
+	$(MAKE) test-profile AUTH_MODE=$(AUTH_MODE)
 
 # tox deprecated: use Makefile targets or CI matrix
 
 coverage-min ?= 70
 coverage: ## run pytest with coverage and generate report (set coverage-min=NN to enforce)
-	coverage run --source nipyapi -m pytest
-	coverage report -m --fail-under=$(coverage-min)
-	coverage xml -o coverage.xml
-	coverage html
+	pytest --cov=nipyapi --cov-report=term-missing --cov-report=xml --cov-report=html --cov-fail-under=$(coverage-min)
 	$(BROWSER) htmlcov/index.html
+
+coverage-upload: coverage ## run coverage and upload to codecov
+	codecov --file coverage.xml
 
 docs: ## generate Sphinx HTML documentation, including API docs
 	rm -f docs/nipyapi.rst

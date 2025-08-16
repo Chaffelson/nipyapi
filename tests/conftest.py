@@ -21,7 +21,7 @@ Profile controls how tests connect to NiFi and Registry:
 Defaults are applied for URLs, credentials, and TLS assets suitable for local
 Docker-based testing. Environment variables override all defaults.
 """
-PROFILE = os.getenv('PROFILE', '').strip()
+PROFILE = os.getenv('NIPYAPI_AUTH_MODE', '').strip()
 
 def _flag(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
@@ -29,7 +29,7 @@ def _flag(name: str, default: bool = False) -> bool:
         return default
     return str(val).strip().lower() in ("1", "true", "yes", "on")
 
-# Derive test flags from env, defaulting from PROFILE when not explicitly set
+# Derive test flags from env, defaulting from NIPYAPI_AUTH_MODE when not explicitly set
 TEST_SINGLE_USER = _flag('TEST_SINGLE_USER', default=(PROFILE == 'single-user'))
 TEST_LDAP = _flag('TEST_LDAP', default=(PROFILE == 'secure-ldap'))
 TEST_MTLS = _flag('TEST_MTLS', default=(PROFILE == 'secure-mtls'))
@@ -39,7 +39,7 @@ SKIP_TEARDOWN = _flag('SKIP_TEARDOWN', default=False)
 test_ldap = TEST_LDAP
 test_mtls = TEST_MTLS
 
-# API endpoints and credentials; env overrides take precedence, otherwise default by PROFILE below
+# API endpoints and credentials; env overrides take precedence, otherwise default by NIPYAPI_AUTH_MODE below
 NIFI_API_ENDPOINT = os.getenv('NIFI_API_ENDPOINT')
 REGISTRY_API_ENDPOINT = os.getenv('REGISTRY_API_ENDPOINT')
 NIFI_USERNAME = os.getenv('NIFI_USERNAME')
@@ -170,7 +170,7 @@ elif _active_profile() == 'single-user':
  
 
 def _resolve_profile_defaults():
-    """Resolve connection defaults for the active PROFILE.
+    """Resolve connection defaults for the active NIPYAPI_AUTH_MODE.
 
     Precedence:
       1) Env vars: URLs, credentials, TLS_CA_CERT_PATH, MTLS_CLIENT_CERT/KEY

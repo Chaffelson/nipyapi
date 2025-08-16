@@ -15,6 +15,10 @@ Nifi-Python-Api: A rich Apache NiFi Python Client SDK
         :target: https://nipyapi.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
+.. image:: https://codecov.io/gh/Chaffelson/nipyapi/branch/NiFi2x/graph/badge.svg
+        :target: https://codecov.io/gh/Chaffelson/nipyapi
+        :alt: Coverage Status
+
 .. image:: https://pyup.io/repos/github/Chaffelson/nipyapi/shield.svg
      :target: https://pyup.io/repos/github/Chaffelson/nipyapi/
      :alt: Python Updates

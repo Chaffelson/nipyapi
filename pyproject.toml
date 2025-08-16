@@ -58,6 +58,8 @@ dev = [
   "pylint>=3.3.0",
   "coverage>=7.0",
   "pytest>=8.4",
+  "pytest-cov>=5.0.0",
+  "codecov>=2.1.13",
   "deepdiff>=3.3.0",
   "twine>=6.0.0",
 ]

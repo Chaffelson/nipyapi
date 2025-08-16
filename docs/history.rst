@@ -19,6 +19,7 @@ History
 - Templates: `api_client.mustache` use raw regex strings to avoid DeprecationWarnings; `model.mustache` fix enum allowed_values; skip None-checks for required readOnly fields; remove callback/threading artifacts and vendor regex modifiers
 - Dependencies: replace ruamel.yaml with PyYAML (reduces dependency count while maintaining full compatibility)
 - Build: modernize build system using python -m build instead of deprecated setup.py; add comprehensive make targets (dist, wheel, sdist, check-dist, test-dist) with proper validation; add distribution import validation script for release process; remove legacy 1.x API definitions and temporary files (saves ~13MB)
+- Testing: add Codecov integration with pytest-cov for modern coverage reporting; add GitHub Actions CI workflow with full Docker NiFi integration tests and coverage upload
 
 - Canvas (2.x API): use `ProcessGroupsApi.create_controller_service1(id=...)`; controller scheduling via `ControllerServicesApi.update_run_status1(...)`; update renamed APIs `FlowFileQueuesApi`, `FunnelsApi`
 - Security (2.x): replace removed `AccessApi.get_access_status` with `FlowApi.get_current_user()`; Registry readiness via `AboutApi.get_version()`
@@ -43,7 +44,7 @@ History
 
 - Tests / Profiles:
   - Centralize profile configuration in `tests/conftest.py` with clear docstrings; env overrides respected.
-  - Support `PROFILE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
+  - Support `AUTH_MODE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
   - Remove duplicate TLS logic; consistent one-time setup and safe teardown.
   - `Makefile`: simplified `make test` runner; defers configuration to conftest; Docker targets use stable COMPOSE_PROJECT_NAME, quiet down with --remove-orphans.
 

@@ -23,11 +23,11 @@ If you want to use the provided Docker profiles, you need to:
 
 - Bring up a set of Docker containers for a profile and wait for readiness (examples)::
 
-    make up PROFILE=single-user && make wait-ready PROFILE=single-user
+    make up AUTH_MODE=single-user && make wait-ready AUTH_MODE=single-user
     # or
-    make up PROFILE=secure-ldap && make wait-ready PROFILE=secure-ldap
+    make up AUTH_MODE=secure-ldap && make wait-ready AUTH_MODE=secure-ldap
     # or
-    make up PROFILE=secure-mtls && make wait-ready PROFILE=secure-mtls
+    make up AUTH_MODE=secure-mtls && make wait-ready AUTH_MODE=secure-mtls
 
 Environment variables
 ---------------------
