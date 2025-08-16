@@ -44,7 +44,7 @@ History
 
 - Tests / Profiles:
   - Centralize profile configuration in `tests/conftest.py` with clear docstrings; env overrides respected.
-  - Support `AUTH_MODE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
+  - Support `NIPYAPI_AUTH_MODE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
   - Remove duplicate TLS logic; consistent one-time setup and safe teardown.
   - `Makefile`: simplified `make test` runner; defers configuration to conftest; Docker targets use stable COMPOSE_PROJECT_NAME, quiet down with --remove-orphans.
 

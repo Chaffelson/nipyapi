@@ -23,11 +23,11 @@ If you want to use the provided Docker profiles, you need to:
 
 - Bring up a set of Docker containers for a profile and wait for readiness (examples)::
 
-    make up AUTH_MODE=single-user && make wait-ready AUTH_MODE=single-user
+    make up NIPYAPI_AUTH_MODE=single-user && make wait-ready NIPYAPI_AUTH_MODE=single-user
     # or
-    make up AUTH_MODE=secure-ldap && make wait-ready AUTH_MODE=secure-ldap
+    make up NIPYAPI_AUTH_MODE=secure-ldap && make wait-ready NIPYAPI_AUTH_MODE=secure-ldap
     # or
-    make up AUTH_MODE=secure-mtls && make wait-ready AUTH_MODE=secure-mtls
+    make up NIPYAPI_AUTH_MODE=secure-mtls && make wait-ready NIPYAPI_AUTH_MODE=secure-mtls
 
 Environment variables
 ---------------------
