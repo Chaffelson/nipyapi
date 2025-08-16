@@ -35,7 +35,9 @@ class SnippetsApi(object):
     def create_snippet(self, body, **kwargs):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
+
         This method makes a synchronous HTTP request.
+
         :param SnippetEntity body: The snippet configuration details. (required)
         :return: SnippetEntity
         """
@@ -49,7 +51,9 @@ class SnippetsApi(object):
     def create_snippet_with_http_info(self, body, **kwargs):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
+
         This method makes a synchronous HTTP request.
+
         :param SnippetEntity body: The snippet configuration details. (required)
         :return: SnippetEntity
         """
@@ -72,7 +76,7 @@ class SnippetsApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_snippet`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -96,7 +100,7 @@ class SnippetsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/snippets', 'POST',
                                         path_params,
@@ -115,7 +119,9 @@ class SnippetsApi(object):
     def delete_snippet(self, id, **kwargs):
         """
         Deletes the components in a snippet and discards the snippet
+
         This method makes a synchronous HTTP request.
+
         :param str id: The snippet id. (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
         :return: SnippetEntity
@@ -130,7 +136,9 @@ class SnippetsApi(object):
     def delete_snippet_with_http_info(self, id, **kwargs):
         """
         Deletes the components in a snippet and discards the snippet
+
         This method makes a synchronous HTTP request.
+
         :param str id: The snippet id. (required)
         :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
         :return: SnippetEntity
@@ -154,8 +162,8 @@ class SnippetsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_snippet`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -177,7 +185,7 @@ class SnippetsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/snippets/{id}', 'DELETE',
                                         path_params,
@@ -196,7 +204,9 @@ class SnippetsApi(object):
     def update_snippet(self, body, id, **kwargs):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
+
         This method makes a synchronous HTTP request.
+
         :param SnippetEntity body: The snippet configuration details. (required)
         :param str id: The snippet id. (required)
         :return: SnippetEntity
@@ -211,7 +221,9 @@ class SnippetsApi(object):
     def update_snippet_with_http_info(self, body, id, **kwargs):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
+
         This method makes a synchronous HTTP request.
+
         :param SnippetEntity body: The snippet configuration details. (required)
         :param str id: The snippet id. (required)
         :return: SnippetEntity
@@ -238,8 +250,8 @@ class SnippetsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_snippet`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -265,7 +277,7 @@ class SnippetsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/snippets/{id}', 'PUT',
                                         path_params,

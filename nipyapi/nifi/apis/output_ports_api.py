@@ -35,7 +35,9 @@ class OutputPortsApi(object):
     def get_output_port(self, id, **kwargs):
         """
         Gets an output port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The output port id. (required)
         :return: PortEntity
         """
@@ -49,7 +51,9 @@ class OutputPortsApi(object):
     def get_output_port_with_http_info(self, id, **kwargs):
         """
         Gets an output port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The output port id. (required)
         :return: PortEntity
         """
@@ -72,7 +76,7 @@ class OutputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_output_port`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -92,7 +96,7 @@ class OutputPortsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/output-ports/{id}', 'GET',
                                         path_params,
@@ -111,7 +115,9 @@ class OutputPortsApi(object):
     def remove_output_port(self, id, **kwargs):
         """
         Deletes an output port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The output port id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -128,7 +134,9 @@ class OutputPortsApi(object):
     def remove_output_port_with_http_info(self, id, **kwargs):
         """
         Deletes an output port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The output port id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -154,10 +162,10 @@ class OutputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_output_port`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -183,7 +191,7 @@ class OutputPortsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/output-ports/{id}', 'DELETE',
                                         path_params,
@@ -202,7 +210,9 @@ class OutputPortsApi(object):
     def update_output_port(self, body, id, **kwargs):
         """
         Updates an output port
+
         This method makes a synchronous HTTP request.
+
         :param PortEntity body: The output port configuration details. (required)
         :param str id: The output port id. (required)
         :return: PortEntity
@@ -217,7 +227,9 @@ class OutputPortsApi(object):
     def update_output_port_with_http_info(self, body, id, **kwargs):
         """
         Updates an output port
+
         This method makes a synchronous HTTP request.
+
         :param PortEntity body: The output port configuration details. (required)
         :param str id: The output port id. (required)
         :return: PortEntity
@@ -244,8 +256,8 @@ class OutputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_output_port`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -271,7 +283,7 @@ class OutputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/output-ports/{id}', 'PUT',
                                         path_params,
@@ -290,7 +302,9 @@ class OutputPortsApi(object):
     def update_run_status3(self, body, id, **kwargs):
         """
         Updates run status of an output-port
+
         This method makes a synchronous HTTP request.
+
         :param PortRunStatusEntity body: The port run status. (required)
         :param str id: The port id. (required)
         :return: ProcessorEntity
@@ -305,7 +319,9 @@ class OutputPortsApi(object):
     def update_run_status3_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of an output-port
+
         This method makes a synchronous HTTP request.
+
         :param PortRunStatusEntity body: The port run status. (required)
         :param str id: The port id. (required)
         :return: ProcessorEntity
@@ -332,8 +348,8 @@ class OutputPortsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_run_status3`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -359,7 +375,7 @@ class OutputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/output-ports/{id}/run-status', 'PUT',
                                         path_params,

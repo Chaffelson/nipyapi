@@ -35,7 +35,9 @@ class FlowApi(object):
     def activate_controller_services(self, body, id, **kwargs):
         """
         Enable or disable Controller Services in the specified Process Group.
+
         This method makes a synchronous HTTP request.
+
         :param ActivateControllerServicesEntity body: The request to schedule or unschedule. If the comopnents in the request are not specified, all authorized components will be considered. (required)
         :param str id: The process group id. (required)
         :return: ActivateControllerServicesEntity
@@ -50,7 +52,9 @@ class FlowApi(object):
     def activate_controller_services_with_http_info(self, body, id, **kwargs):
         """
         Enable or disable Controller Services in the specified Process Group.
+
         This method makes a synchronous HTTP request.
+
         :param ActivateControllerServicesEntity body: The request to schedule or unschedule. If the comopnents in the request are not specified, all authorized components will be considered. (required)
         :param str id: The process group id. (required)
         :return: ActivateControllerServicesEntity
@@ -77,8 +81,8 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `activate_controller_services`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -104,7 +108,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'PUT',
                                         path_params,
@@ -123,7 +127,9 @@ class FlowApi(object):
     def download_reporting_task_snapshot(self, **kwargs):
         """
         Download a snapshot of the given reporting tasks and any controller services they use
+
         This method makes a synchronous HTTP request.
+
         :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
         :return: str
         """
@@ -137,7 +143,9 @@ class FlowApi(object):
     def download_reporting_task_snapshot_with_http_info(self, **kwargs):
         """
         Download a snapshot of the given reporting tasks and any controller services they use
+
         This method makes a synchronous HTTP request.
+
         :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
         :return: str
         """
@@ -157,7 +165,7 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -177,7 +185,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/reporting-tasks/download', 'GET',
                                         path_params,
@@ -196,7 +204,9 @@ class FlowApi(object):
     def generate_client_id(self, **kwargs):
         """
         Generates a client id.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -209,7 +219,9 @@ class FlowApi(object):
     def generate_client_id_with_http_info(self, **kwargs):
         """
         Generates a client id.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
 
@@ -245,7 +257,7 @@ class FlowApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/client-id', 'GET',
                                         path_params,
@@ -264,7 +276,9 @@ class FlowApi(object):
     def get_about_info(self, **kwargs):
         """
         Retrieves details about this NiFi to put in the About dialog
+
         This method makes a synchronous HTTP request.
+
         :return: AboutEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -277,7 +291,9 @@ class FlowApi(object):
     def get_about_info_with_http_info(self, **kwargs):
         """
         Retrieves details about this NiFi to put in the About dialog
+
         This method makes a synchronous HTTP request.
+
         :return: AboutEntity
         """
 
@@ -313,7 +329,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/about', 'GET',
                                         path_params,
@@ -332,8 +348,11 @@ class FlowApi(object):
     def get_action(self, id, **kwargs):
         """
         Gets an action
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param IntegerParameter id: The action id. (required)
         :return: ActionEntity
         """
@@ -347,8 +366,11 @@ class FlowApi(object):
     def get_action_with_http_info(self, id, **kwargs):
         """
         Gets an action
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param IntegerParameter id: The action id. (required)
         :return: ActionEntity
         """
@@ -371,7 +393,7 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_action`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -391,7 +413,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/history/{id}', 'GET',
                                         path_params,
@@ -410,8 +432,11 @@ class FlowApi(object):
     def get_additional_details(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the additional details for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -428,8 +453,11 @@ class FlowApi(object):
     def get_additional_details_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the additional details for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -464,10 +492,10 @@ class FlowApi(object):
         if ('type' not in params) or (params['type'] is None):
             raise ValueError("Missing the required parameter `type` when calling `get_additional_details`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -493,7 +521,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/additional-details/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -512,7 +540,9 @@ class FlowApi(object):
     def get_all_flow_analysis_results(self, **kwargs):
         """
         Returns all flow analysis results currently in effect
+
         This method makes a synchronous HTTP request.
+
         :return: FlowAnalysisResultEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -525,7 +555,9 @@ class FlowApi(object):
     def get_all_flow_analysis_results_with_http_info(self, **kwargs):
         """
         Returns all flow analysis results currently in effect
+
         This method makes a synchronous HTTP request.
+
         :return: FlowAnalysisResultEntity
         """
 
@@ -561,7 +593,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/flow-analysis/results', 'GET',
                                         path_params,
@@ -580,7 +612,9 @@ class FlowApi(object):
     def get_banners(self, **kwargs):
         """
         Retrieves the banners for this NiFi
+
         This method makes a synchronous HTTP request.
+
         :return: BannerEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -593,7 +627,9 @@ class FlowApi(object):
     def get_banners_with_http_info(self, **kwargs):
         """
         Retrieves the banners for this NiFi
+
         This method makes a synchronous HTTP request.
+
         :return: BannerEntity
         """
 
@@ -629,7 +665,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/banners', 'GET',
                                         path_params,
@@ -648,7 +684,9 @@ class FlowApi(object):
     def get_branches(self, id, **kwargs):
         """
         Gets the branches from the specified registry for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str id: The registry id. (required)
         :return: FlowRegistryBranchesEntity
         """
@@ -662,7 +700,9 @@ class FlowApi(object):
     def get_branches_with_http_info(self, id, **kwargs):
         """
         Gets the branches from the specified registry for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str id: The registry id. (required)
         :return: FlowRegistryBranchesEntity
         """
@@ -685,7 +725,7 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_branches`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -705,7 +745,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/registries/{id}/branches', 'GET',
                                         path_params,
@@ -724,7 +764,9 @@ class FlowApi(object):
     def get_breadcrumbs(self, id, **kwargs):
         """
         Gets the breadcrumbs for a process group
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :return: FlowBreadcrumbEntity
         """
@@ -738,7 +780,9 @@ class FlowApi(object):
     def get_breadcrumbs_with_http_info(self, id, **kwargs):
         """
         Gets the breadcrumbs for a process group
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :return: FlowBreadcrumbEntity
         """
@@ -761,7 +805,7 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_breadcrumbs`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -781,7 +825,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/process-groups/{id}/breadcrumbs', 'GET',
                                         path_params,
@@ -800,7 +844,9 @@ class FlowApi(object):
     def get_buckets(self, id, **kwargs):
         """
         Gets the buckets from the specified registry for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str id: The registry id. (required)
         :param str branch: The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
         :return: FlowRegistryBucketsEntity
@@ -815,7 +861,9 @@ class FlowApi(object):
     def get_buckets_with_http_info(self, id, **kwargs):
         """
         Gets the buckets from the specified registry for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str id: The registry id. (required)
         :param str branch: The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
         :return: FlowRegistryBucketsEntity
@@ -839,8 +887,8 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_buckets`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -862,7 +910,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/registries/{id}/buckets', 'GET',
                                         path_params,
@@ -881,7 +929,9 @@ class FlowApi(object):
     def get_bulletin_board(self, **kwargs):
         """
         Gets current bulletins
+
         This method makes a synchronous HTTP request.
+
         :param LongParameter after: Includes bulletins with an id after this value.
         :param BulletinBoardPatternParameter source_name: Includes bulletins originating from this sources whose name match this regular expression.
         :param BulletinBoardPatternParameter message: Includes bulletins whose message that match this regular expression.
@@ -900,7 +950,9 @@ class FlowApi(object):
     def get_bulletin_board_with_http_info(self, **kwargs):
         """
         Gets current bulletins
+
         This method makes a synchronous HTTP request.
+
         :param LongParameter after: Includes bulletins with an id after this value.
         :param BulletinBoardPatternParameter source_name: Includes bulletins originating from this sources whose name match this regular expression.
         :param BulletinBoardPatternParameter message: Includes bulletins whose message that match this regular expression.
@@ -925,12 +977,12 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -960,7 +1012,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/bulletin-board', 'GET',
                                         path_params,
@@ -979,7 +1031,9 @@ class FlowApi(object):
     def get_bulletins(self, **kwargs):
         """
         Retrieves Controller level bulletins
+
         This method makes a synchronous HTTP request.
+
         :return: ControllerBulletinsEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -992,7 +1046,9 @@ class FlowApi(object):
     def get_bulletins_with_http_info(self, **kwargs):
         """
         Retrieves Controller level bulletins
+
         This method makes a synchronous HTTP request.
+
         :return: ControllerBulletinsEntity
         """
 
@@ -1028,7 +1084,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/controller/bulletins', 'GET',
                                         path_params,
@@ -1047,7 +1103,9 @@ class FlowApi(object):
     def get_cluster_summary(self, **kwargs):
         """
         The cluster summary for this NiFi
+
         This method makes a synchronous HTTP request.
+
         :return: ClusterSummaryEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1060,7 +1118,9 @@ class FlowApi(object):
     def get_cluster_summary_with_http_info(self, **kwargs):
         """
         The cluster summary for this NiFi
+
         This method makes a synchronous HTTP request.
+
         :return: ClusterSummaryEntity
         """
 
@@ -1096,7 +1156,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/cluster/summary', 'GET',
                                         path_params,
@@ -1115,8 +1175,11 @@ class FlowApi(object):
     def get_component_history(self, component_id, **kwargs):
         """
         Gets configuration history for a component
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str component_id: The component id. (required)
         :return: ComponentHistoryEntity
         """
@@ -1130,8 +1193,11 @@ class FlowApi(object):
     def get_component_history_with_http_info(self, component_id, **kwargs):
         """
         Gets configuration history for a component
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str component_id: The component id. (required)
         :return: ComponentHistoryEntity
         """
@@ -1154,7 +1220,7 @@ class FlowApi(object):
         if ('component_id' not in params) or (params['component_id'] is None):
             raise ValueError("Missing the required parameter `component_id` when calling `get_component_history`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -1174,7 +1240,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/history/components/{componentId}', 'GET',
                                         path_params,
@@ -1193,7 +1259,9 @@ class FlowApi(object):
     def get_connection_statistics(self, id, **kwargs):
         """
         Gets statistics for a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the statistics.
@@ -1209,7 +1277,9 @@ class FlowApi(object):
     def get_connection_statistics_with_http_info(self, id, **kwargs):
         """
         Gets statistics for a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the statistics.
@@ -1234,9 +1304,9 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_connection_statistics`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1260,7 +1330,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/connections/{id}/statistics', 'GET',
                                         path_params,
@@ -1279,7 +1349,9 @@ class FlowApi(object):
     def get_connection_status(self, id, **kwargs):
         """
         Gets status for a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -1295,7 +1367,9 @@ class FlowApi(object):
     def get_connection_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -1320,9 +1394,9 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_connection_status`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1346,7 +1420,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/connections/{id}/status', 'GET',
                                         path_params,
@@ -1365,7 +1439,9 @@ class FlowApi(object):
     def get_connection_status_history(self, id, **kwargs):
         """
         Gets the status history for a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: StatusHistoryEntity
         """
@@ -1379,7 +1455,9 @@ class FlowApi(object):
     def get_connection_status_history_with_http_info(self, id, **kwargs):
         """
         Gets the status history for a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: StatusHistoryEntity
         """
@@ -1402,7 +1480,7 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_connection_status_history`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -1422,7 +1500,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/connections/{id}/status/history', 'GET',
                                         path_params,
@@ -1441,7 +1519,9 @@ class FlowApi(object):
     def get_content_viewers(self, **kwargs):
         """
         Retrieves the registered content viewers
+
         This method makes a synchronous HTTP request.
+
         :return: ContentViewerEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1454,7 +1534,9 @@ class FlowApi(object):
     def get_content_viewers_with_http_info(self, **kwargs):
         """
         Retrieves the registered content viewers
+
         This method makes a synchronous HTTP request.
+
         :return: ContentViewerEntity
         """
 
@@ -1490,7 +1572,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/content-viewers', 'GET',
                                         path_params,
@@ -1509,8 +1591,11 @@ class FlowApi(object):
     def get_controller_service_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Controller Service Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -1527,8 +1612,11 @@ class FlowApi(object):
     def get_controller_service_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Controller Service Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -1563,10 +1651,10 @@ class FlowApi(object):
         if ('type' not in params) or (params['type'] is None):
             raise ValueError("Missing the required parameter `type` when calling `get_controller_service_definition`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1592,7 +1680,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/controller-service-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -1611,8 +1699,11 @@ class FlowApi(object):
     def get_controller_service_types(self, **kwargs):
         """
         Retrieves the types of controller services that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str service_type: If specified, will only return controller services that are compatible with this type of service.
         :param str service_bundle_group: If serviceType specified, is the bundle group of the serviceType.
         :param str service_bundle_artifact: If serviceType specified, is the bundle artifact of the serviceType.
@@ -1632,8 +1723,11 @@ class FlowApi(object):
     def get_controller_service_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of controller services that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str service_type: If specified, will only return controller services that are compatible with this type of service.
         :param str service_bundle_group: If serviceType specified, is the bundle group of the serviceType.
         :param str service_bundle_artifact: If serviceType specified, is the bundle artifact of the serviceType.
@@ -1659,13 +1753,13 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1697,7 +1791,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/controller-service-types', 'GET',
                                         path_params,
@@ -1716,9 +1810,12 @@ class FlowApi(object):
     def get_controller_services_from_controller(self, **kwargs):
         """
         Gets controller services for reporting tasks
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param bool ui_only:
+
+        :param bool ui_only: 
         :param bool include_referencing_components: Whether or not to include services' referencing components in the response
         :return: ControllerServicesEntity
         """
@@ -1732,9 +1829,12 @@ class FlowApi(object):
     def get_controller_services_from_controller_with_http_info(self, **kwargs):
         """
         Gets controller services for reporting tasks
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param bool ui_only:
+
+        :param bool ui_only: 
         :param bool include_referencing_components: Whether or not to include services' referencing components in the response
         :return: ControllerServicesEntity
         """
@@ -1754,8 +1854,8 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1777,7 +1877,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/controller/controller-services', 'GET',
                                         path_params,
@@ -1796,13 +1896,16 @@ class FlowApi(object):
     def get_controller_services_from_group(self, id, **kwargs):
         """
         Gets all controller services
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :param bool include_ancestor_groups: Whether or not to include parent/ancestor process groups
         :param bool include_descendant_groups: Whether or not to include descendant process groups
         :param bool include_referencing_components: Whether or not to include services' referencing components in the response
-        :param bool ui_only:
+        :param bool ui_only: 
         :return: ControllerServicesEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1815,13 +1918,16 @@ class FlowApi(object):
     def get_controller_services_from_group_with_http_info(self, id, **kwargs):
         """
         Gets all controller services
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :param bool include_ancestor_groups: Whether or not to include parent/ancestor process groups
         :param bool include_descendant_groups: Whether or not to include descendant process groups
         :param bool include_referencing_components: Whether or not to include services' referencing components in the response
-        :param bool ui_only:
+        :param bool ui_only: 
         :return: ControllerServicesEntity
         """
 
@@ -1843,11 +1949,11 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_controller_services_from_group`")
 
- 
- 
- 
- 
- 
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1875,7 +1981,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'GET',
                                         path_params,
@@ -1894,7 +2000,9 @@ class FlowApi(object):
     def get_controller_status(self, **kwargs):
         """
         Gets the current status of this NiFi
+
         This method makes a synchronous HTTP request.
+
         :return: ControllerStatusEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1907,7 +2015,9 @@ class FlowApi(object):
     def get_controller_status_with_http_info(self, **kwargs):
         """
         Gets the current status of this NiFi
+
         This method makes a synchronous HTTP request.
+
         :return: ControllerStatusEntity
         """
 
@@ -1943,7 +2053,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/status', 'GET',
                                         path_params,
@@ -1962,7 +2072,9 @@ class FlowApi(object):
     def get_current_user(self, **kwargs):
         """
         Retrieves the user identity of the user making the request
+
         This method makes a synchronous HTTP request.
+
         :return: CurrentUserEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -1975,7 +2087,9 @@ class FlowApi(object):
     def get_current_user_with_http_info(self, **kwargs):
         """
         Retrieves the user identity of the user making the request
+
         This method makes a synchronous HTTP request.
+
         :return: CurrentUserEntity
         """
 
@@ -2011,7 +2125,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/current-user', 'GET',
                                         path_params,
@@ -2030,7 +2144,9 @@ class FlowApi(object):
     def get_details(self, registry_id, bucket_id, flow_id, **kwargs):
         """
         Gets the details of a flow from the specified registry and bucket for the specified flow for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str bucket_id: The bucket id. (required)
         :param str flow_id: The flow id. (required)
@@ -2047,7 +2163,9 @@ class FlowApi(object):
     def get_details_with_http_info(self, registry_id, bucket_id, flow_id, **kwargs):
         """
         Gets the details of a flow from the specified registry and bucket for the specified flow for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str bucket_id: The bucket id. (required)
         :param str flow_id: The flow id. (required)
@@ -2079,10 +2197,10 @@ class FlowApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_details`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2108,7 +2226,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows/{flow-id}/details', 'GET',
                                         path_params,
@@ -2127,10 +2245,13 @@ class FlowApi(object):
     def get_flow(self, id, **kwargs):
         """
         Gets a process group
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
-        :param bool ui_only:
+        :param bool ui_only: 
         :return: ProcessGroupFlowEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -2143,10 +2264,13 @@ class FlowApi(object):
     def get_flow_with_http_info(self, id, **kwargs):
         """
         Gets a process group
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
-        :param bool ui_only:
+        :param bool ui_only: 
         :return: ProcessGroupFlowEntity
         """
 
@@ -2168,8 +2292,8 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_flow`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2191,7 +2315,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'GET',
                                         path_params,
@@ -2210,7 +2334,9 @@ class FlowApi(object):
     def get_flow_analysis_results(self, process_group_id, **kwargs):
         """
         Returns flow analysis results produced by the analysis of a given process group
+
         This method makes a synchronous HTTP request.
+
         :param str process_group_id: The id of the process group representing (a part of) the flow to be analyzed. (required)
         :return: FlowAnalysisResultEntity
         """
@@ -2224,7 +2350,9 @@ class FlowApi(object):
     def get_flow_analysis_results_with_http_info(self, process_group_id, **kwargs):
         """
         Returns flow analysis results produced by the analysis of a given process group
+
         This method makes a synchronous HTTP request.
+
         :param str process_group_id: The id of the process group representing (a part of) the flow to be analyzed. (required)
         :return: FlowAnalysisResultEntity
         """
@@ -2247,7 +2375,7 @@ class FlowApi(object):
         if ('process_group_id' not in params) or (params['process_group_id'] is None):
             raise ValueError("Missing the required parameter `process_group_id` when calling `get_flow_analysis_results`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -2267,7 +2395,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/flow-analysis/results/{processGroupId}', 'GET',
                                         path_params,
@@ -2286,8 +2414,11 @@ class FlowApi(object):
     def get_flow_analysis_rule_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Flow Analysis Rule Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -2304,8 +2435,11 @@ class FlowApi(object):
     def get_flow_analysis_rule_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Flow Analysis Rule Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -2340,10 +2474,10 @@ class FlowApi(object):
         if ('type' not in params) or (params['type'] is None):
             raise ValueError("Missing the required parameter `type` when calling `get_flow_analysis_rule_definition`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2369,7 +2503,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/flow-analysis-rule-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -2388,8 +2522,11 @@ class FlowApi(object):
     def get_flow_analysis_rule_types(self, **kwargs):
         """
         Retrieves the types of available Flow Analysis Rules
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -2405,8 +2542,11 @@ class FlowApi(object):
     def get_flow_analysis_rule_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of available Flow Analysis Rules
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -2428,9 +2568,9 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2454,7 +2594,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/flow-analysis-rule-types', 'GET',
                                         path_params,
@@ -2473,7 +2613,9 @@ class FlowApi(object):
     def get_flow_config(self, **kwargs):
         """
         Retrieves the configuration for this NiFi flow
+
         This method makes a synchronous HTTP request.
+
         :return: FlowConfigurationEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -2486,7 +2628,9 @@ class FlowApi(object):
     def get_flow_config_with_http_info(self, **kwargs):
         """
         Retrieves the configuration for this NiFi flow
+
         This method makes a synchronous HTTP request.
+
         :return: FlowConfigurationEntity
         """
 
@@ -2522,7 +2666,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/config', 'GET',
                                         path_params,
@@ -2541,7 +2685,9 @@ class FlowApi(object):
     def get_flow_metrics(self, producer, **kwargs):
         """
         Gets all metrics for the flow from a particular node
+
         This method makes a synchronous HTTP request.
+
         :param str producer: The producer for flow file metrics. Each producer may have its own output format. (required)
         :param list[str] included_registries: Set of included metrics registries. Duplicate the parameter to include multiple registries. All registries are included by default.
         :param str sample_name: Regular Expression Pattern to be applied against the sample name field
@@ -2559,7 +2705,9 @@ class FlowApi(object):
     def get_flow_metrics_with_http_info(self, producer, **kwargs):
         """
         Gets all metrics for the flow from a particular node
+
         This method makes a synchronous HTTP request.
+
         :param str producer: The producer for flow file metrics. Each producer may have its own output format. (required)
         :param list[str] included_registries: Set of included metrics registries. Duplicate the parameter to include multiple registries. All registries are included by default.
         :param str sample_name: Regular Expression Pattern to be applied against the sample name field
@@ -2586,11 +2734,11 @@ class FlowApi(object):
         if ('producer' not in params) or (params['producer'] is None):
             raise ValueError("Missing the required parameter `producer` when calling `get_flow_metrics`")
 
- 
- 
- 
- 
- 
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2619,7 +2767,7 @@ class FlowApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/metrics/{producer}', 'GET',
                                         path_params,
@@ -2638,7 +2786,9 @@ class FlowApi(object):
     def get_flows(self, registry_id, bucket_id, **kwargs):
         """
         Gets the flows from the specified registry and bucket for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str bucket_id: The bucket id. (required)
         :param str branch: The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
@@ -2654,7 +2804,9 @@ class FlowApi(object):
     def get_flows_with_http_info(self, registry_id, bucket_id, **kwargs):
         """
         Gets the flows from the specified registry and bucket for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str bucket_id: The bucket id. (required)
         :param str branch: The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
@@ -2682,9 +2834,9 @@ class FlowApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `get_flows`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2708,7 +2860,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows', 'GET',
                                         path_params,
@@ -2727,7 +2879,9 @@ class FlowApi(object):
     def get_input_port_status(self, id, **kwargs):
         """
         Gets status for an input port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The input port id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -2743,7 +2897,9 @@ class FlowApi(object):
     def get_input_port_status_with_http_info(self, id, **kwargs):
         """
         Gets status for an input port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The input port id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -2768,9 +2924,9 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_input_port_status`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2794,7 +2950,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/input-ports/{id}/status', 'GET',
                                         path_params,
@@ -2813,7 +2969,9 @@ class FlowApi(object):
     def get_output_port_status(self, id, **kwargs):
         """
         Gets status for an output port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The output port id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -2829,7 +2987,9 @@ class FlowApi(object):
     def get_output_port_status_with_http_info(self, id, **kwargs):
         """
         Gets status for an output port
+
         This method makes a synchronous HTTP request.
+
         :param str id: The output port id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -2854,9 +3014,9 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_output_port_status`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -2880,7 +3040,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/output-ports/{id}/status', 'GET',
                                         path_params,
@@ -2899,7 +3059,9 @@ class FlowApi(object):
     def get_parameter_contexts(self, **kwargs):
         """
         Gets all Parameter Contexts
+
         This method makes a synchronous HTTP request.
+
         :return: ParameterContextsEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -2912,7 +3074,9 @@ class FlowApi(object):
     def get_parameter_contexts_with_http_info(self, **kwargs):
         """
         Gets all Parameter Contexts
+
         This method makes a synchronous HTTP request.
+
         :return: ParameterContextsEntity
         """
 
@@ -2948,7 +3112,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/parameter-contexts', 'GET',
                                         path_params,
@@ -2967,8 +3131,11 @@ class FlowApi(object):
     def get_parameter_provider_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Parameter Provider Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -2985,8 +3152,11 @@ class FlowApi(object):
     def get_parameter_provider_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Parameter Provider Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -3021,10 +3191,10 @@ class FlowApi(object):
         if ('type' not in params) or (params['type'] is None):
             raise ValueError("Missing the required parameter `type` when calling `get_parameter_provider_definition`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -3050,7 +3220,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/parameter-provider-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -3069,8 +3239,11 @@ class FlowApi(object):
     def get_parameter_provider_types(self, **kwargs):
         """
         Retrieves the types of parameter providers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -3086,8 +3259,11 @@ class FlowApi(object):
     def get_parameter_provider_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of parameter providers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -3109,9 +3285,9 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -3135,7 +3311,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/parameter-provider-types', 'GET',
                                         path_params,
@@ -3154,7 +3330,9 @@ class FlowApi(object):
     def get_parameter_providers(self, **kwargs):
         """
         Gets all parameter providers
+
         This method makes a synchronous HTTP request.
+
         :return: ParameterProvidersEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -3167,7 +3345,9 @@ class FlowApi(object):
     def get_parameter_providers_with_http_info(self, **kwargs):
         """
         Gets all parameter providers
+
         This method makes a synchronous HTTP request.
+
         :return: ParameterProvidersEntity
         """
 
@@ -3203,7 +3383,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/parameter-providers', 'GET',
                                         path_params,
@@ -3222,8 +3402,11 @@ class FlowApi(object):
     def get_prioritizers(self, **kwargs):
         """
         Retrieves the types of prioritizers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: PrioritizerTypesEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -3236,8 +3419,11 @@ class FlowApi(object):
     def get_prioritizers_with_http_info(self, **kwargs):
         """
         Retrieves the types of prioritizers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: PrioritizerTypesEntity
         """
 
@@ -3273,7 +3459,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/prioritizers', 'GET',
                                         path_params,
@@ -3292,8 +3478,11 @@ class FlowApi(object):
     def get_process_group_status(self, id, **kwargs):
         """
         Gets the status for a process group
+
         The status for a process group includes status for all descendent components. When invoked on the root group with recursive set to true, it will return the current status of every component in the flow.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :param bool recursive: Whether all descendant groups and the status of their content will be included. Optional, defaults to false
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
@@ -3310,8 +3499,11 @@ class FlowApi(object):
     def get_process_group_status_with_http_info(self, id, **kwargs):
         """
         Gets the status for a process group
+
         The status for a process group includes status for all descendent components. When invoked on the root group with recursive set to true, it will return the current status of every component in the flow.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :param bool recursive: Whether all descendant groups and the status of their content will be included. Optional, defaults to false
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
@@ -3337,10 +3529,10 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_process_group_status`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -3366,7 +3558,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/process-groups/{id}/status', 'GET',
                                         path_params,
@@ -3385,7 +3577,9 @@ class FlowApi(object):
     def get_process_group_status_history(self, id, **kwargs):
         """
         Gets status history for a remote process group
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :return: StatusHistoryEntity
         """
@@ -3399,7 +3593,9 @@ class FlowApi(object):
     def get_process_group_status_history_with_http_info(self, id, **kwargs):
         """
         Gets status history for a remote process group
+
         This method makes a synchronous HTTP request.
+
         :param str id: The process group id. (required)
         :return: StatusHistoryEntity
         """
@@ -3422,7 +3618,7 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_process_group_status_history`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -3442,7 +3638,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -3461,8 +3657,11 @@ class FlowApi(object):
     def get_processor_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Processor Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -3479,8 +3678,11 @@ class FlowApi(object):
     def get_processor_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Processor Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -3515,10 +3717,10 @@ class FlowApi(object):
         if ('type' not in params) or (params['type'] is None):
             raise ValueError("Missing the required parameter `type` when calling `get_processor_definition`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -3544,7 +3746,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/processor-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -3563,7 +3765,9 @@ class FlowApi(object):
     def get_processor_status(self, id, **kwargs):
         """
         Gets status for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -3579,7 +3783,9 @@ class FlowApi(object):
     def get_processor_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -3604,9 +3810,9 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_processor_status`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -3630,7 +3836,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/processors/{id}/status', 'GET',
                                         path_params,
@@ -3649,7 +3855,9 @@ class FlowApi(object):
     def get_processor_status_history(self, id, **kwargs):
         """
         Gets status history for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: StatusHistoryEntity
         """
@@ -3663,7 +3871,9 @@ class FlowApi(object):
     def get_processor_status_history_with_http_info(self, id, **kwargs):
         """
         Gets status history for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: StatusHistoryEntity
         """
@@ -3686,7 +3896,7 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_processor_status_history`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -3706,7 +3916,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/processors/{id}/status/history', 'GET',
                                         path_params,
@@ -3725,8 +3935,11 @@ class FlowApi(object):
     def get_processor_types(self, **kwargs):
         """
         Retrieves the types of processors that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -3742,8 +3955,11 @@ class FlowApi(object):
     def get_processor_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of processors that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -3765,9 +3981,9 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -3791,7 +4007,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/processor-types', 'GET',
                                         path_params,
@@ -3810,7 +4026,9 @@ class FlowApi(object):
     def get_registry_clients(self, **kwargs):
         """
         Gets the listing of available flow registry clients
+
         This method makes a synchronous HTTP request.
+
         :return: FlowRegistryClientsEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -3823,7 +4041,9 @@ class FlowApi(object):
     def get_registry_clients_with_http_info(self, **kwargs):
         """
         Gets the listing of available flow registry clients
+
         This method makes a synchronous HTTP request.
+
         :return: FlowRegistryClientsEntity
         """
 
@@ -3859,7 +4079,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/registries', 'GET',
                                         path_params,
@@ -3878,7 +4098,9 @@ class FlowApi(object):
     def get_remote_process_group_status(self, id, **kwargs):
         """
         Gets status for a remote process group
+
         This method makes a synchronous HTTP request.
+
         :param str id: The remote process group id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -3894,7 +4116,9 @@ class FlowApi(object):
     def get_remote_process_group_status_with_http_info(self, id, **kwargs):
         """
         Gets status for a remote process group
+
         This method makes a synchronous HTTP request.
+
         :param str id: The remote process group id. (required)
         :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
         :param str cluster_node_id: The id of the node where to get the status.
@@ -3919,9 +4143,9 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_remote_process_group_status`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -3945,7 +4169,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status', 'GET',
                                         path_params,
@@ -3964,7 +4188,9 @@ class FlowApi(object):
     def get_remote_process_group_status_history(self, id, **kwargs):
         """
         Gets the status history
+
         This method makes a synchronous HTTP request.
+
         :param str id: The remote process group id. (required)
         :return: StatusHistoryEntity
         """
@@ -3978,7 +4204,9 @@ class FlowApi(object):
     def get_remote_process_group_status_history_with_http_info(self, id, **kwargs):
         """
         Gets the status history
+
         This method makes a synchronous HTTP request.
+
         :param str id: The remote process group id. (required)
         :return: StatusHistoryEntity
         """
@@ -4001,7 +4229,7 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_remote_process_group_status_history`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -4021,7 +4249,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -4040,8 +4268,11 @@ class FlowApi(object):
     def get_reporting_task_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Reporting Task Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -4058,8 +4289,11 @@ class FlowApi(object):
     def get_reporting_task_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Reporting Task Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str group: The bundle group (required)
         :param str artifact: The bundle artifact (required)
         :param str version: The bundle version (required)
@@ -4094,10 +4328,10 @@ class FlowApi(object):
         if ('type' not in params) or (params['type'] is None):
             raise ValueError("Missing the required parameter `type` when calling `get_reporting_task_definition`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -4123,7 +4357,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/reporting-task-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -4142,7 +4376,9 @@ class FlowApi(object):
     def get_reporting_task_snapshot(self, **kwargs):
         """
         Get a snapshot of the given reporting tasks and any controller services they use
+
         This method makes a synchronous HTTP request.
+
         :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
         :return: VersionedReportingTaskSnapshot
         """
@@ -4156,7 +4392,9 @@ class FlowApi(object):
     def get_reporting_task_snapshot_with_http_info(self, **kwargs):
         """
         Get a snapshot of the given reporting tasks and any controller services they use
+
         This method makes a synchronous HTTP request.
+
         :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
         :return: VersionedReportingTaskSnapshot
         """
@@ -4176,7 +4414,7 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -4196,7 +4434,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/reporting-tasks/snapshot', 'GET',
                                         path_params,
@@ -4215,8 +4453,11 @@ class FlowApi(object):
     def get_reporting_task_types(self, **kwargs):
         """
         Retrieves the types of reporting tasks that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -4232,8 +4473,11 @@ class FlowApi(object):
     def get_reporting_task_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of reporting tasks that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
         :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
         :param str type: If specified, will only return types whose fully qualified classname matches.
@@ -4255,9 +4499,9 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -4281,7 +4525,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/reporting-task-types', 'GET',
                                         path_params,
@@ -4300,7 +4544,9 @@ class FlowApi(object):
     def get_reporting_tasks(self, **kwargs):
         """
         Gets all reporting tasks
+
         This method makes a synchronous HTTP request.
+
         :return: ReportingTasksEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -4313,7 +4559,9 @@ class FlowApi(object):
     def get_reporting_tasks_with_http_info(self, **kwargs):
         """
         Gets all reporting tasks
+
         This method makes a synchronous HTTP request.
+
         :return: ReportingTasksEntity
         """
 
@@ -4349,7 +4597,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/reporting-tasks', 'GET',
                                         path_params,
@@ -4368,8 +4616,11 @@ class FlowApi(object):
     def get_runtime_manifest(self, **kwargs):
         """
         Retrieves the runtime manifest for this NiFi instance.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: RuntimeManifestEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -4382,8 +4633,11 @@ class FlowApi(object):
     def get_runtime_manifest_with_http_info(self, **kwargs):
         """
         Retrieves the runtime manifest for this NiFi instance.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: RuntimeManifestEntity
         """
 
@@ -4419,7 +4673,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/runtime-manifest', 'GET',
                                         path_params,
@@ -4438,7 +4692,9 @@ class FlowApi(object):
     def get_version_differences(self, registry_id, branch_id_a, bucket_id_a, flow_id_a, version_a, branch_id_b, bucket_id_b, flow_id_b, version_b, **kwargs):
         """
         Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str branch_id_a: The branch id for the base version. (required)
         :param str bucket_id_a: The bucket id for the base version. (required)
@@ -4462,7 +4718,9 @@ class FlowApi(object):
     def get_version_differences_with_http_info(self, registry_id, branch_id_a, bucket_id_a, flow_id_a, version_a, branch_id_b, bucket_id_b, flow_id_b, version_b, **kwargs):
         """
         Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str branch_id_a: The branch id for the base version. (required)
         :param str bucket_id_a: The bucket id for the base version. (required)
@@ -4519,17 +4777,17 @@ class FlowApi(object):
         if ('version_b' not in params) or (params['version_b'] is None):
             raise ValueError("Missing the required parameter `version_b` when calling `get_version_differences`")
 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -4569,7 +4827,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/registries/{registry-id}/branches/{branch-id-a}/buckets/{bucket-id-a}/flows/{flow-id-a}/{version-a}/diff/branches/{branch-id-b}/buckets/{bucket-id-b}/flows/{flow-id-b}/{version-b}', 'GET',
                                         path_params,
@@ -4588,7 +4846,9 @@ class FlowApi(object):
     def get_versions(self, registry_id, bucket_id, flow_id, **kwargs):
         """
         Gets the flow versions from the specified registry and bucket for the specified flow for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str bucket_id: The bucket id. (required)
         :param str flow_id: The flow id. (required)
@@ -4605,7 +4865,9 @@ class FlowApi(object):
     def get_versions_with_http_info(self, registry_id, bucket_id, flow_id, **kwargs):
         """
         Gets the flow versions from the specified registry and bucket for the specified flow for the current user
+
         This method makes a synchronous HTTP request.
+
         :param str registry_id: The registry client id. (required)
         :param str bucket_id: The bucket id. (required)
         :param str flow_id: The flow id. (required)
@@ -4637,10 +4899,10 @@ class FlowApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_versions`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -4666,7 +4928,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows/{flow-id}/versions', 'GET',
                                         path_params,
@@ -4685,8 +4947,11 @@ class FlowApi(object):
     def query_history(self, offset, count, **kwargs):
         """
         Gets configuration history
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param IntegerParameter offset: The offset into the result set. (required)
         :param IntegerParameter count: The number of actions to return. (required)
         :param str sort_column: The field to sort on.
@@ -4707,8 +4972,11 @@ class FlowApi(object):
     def query_history_with_http_info(self, offset, count, **kwargs):
         """
         Gets configuration history
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param IntegerParameter offset: The offset into the result set. (required)
         :param IntegerParameter count: The number of actions to return. (required)
         :param str sort_column: The field to sort on.
@@ -4741,14 +5009,14 @@ class FlowApi(object):
         if ('count' not in params) or (params['count'] is None):
             raise ValueError("Missing the required parameter `count` when calling `query_history`")
 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -4782,7 +5050,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/history', 'GET',
                                         path_params,
@@ -4801,7 +5069,9 @@ class FlowApi(object):
     def schedule_components(self, body, id, **kwargs):
         """
         Schedule or unschedule components in the specified Process Group.
+
         This method makes a synchronous HTTP request.
+
         :param ScheduleComponentsEntity body: The request to schedule or unschedule. If the components in the request are not specified, all authorized components will be considered. (required)
         :param str id: The process group id. (required)
         :return: ScheduleComponentsEntity
@@ -4816,7 +5086,9 @@ class FlowApi(object):
     def schedule_components_with_http_info(self, body, id, **kwargs):
         """
         Schedule or unschedule components in the specified Process Group.
+
         This method makes a synchronous HTTP request.
+
         :param ScheduleComponentsEntity body: The request to schedule or unschedule. If the components in the request are not specified, all authorized components will be considered. (required)
         :param str id: The process group id. (required)
         :return: ScheduleComponentsEntity
@@ -4843,8 +5115,8 @@ class FlowApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `schedule_components`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -4870,7 +5142,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'PUT',
                                         path_params,
@@ -4889,8 +5161,11 @@ class FlowApi(object):
     def search_cluster(self, q, **kwargs):
         """
         Searches the cluster for a node with the specified address
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str q: Node address to search for. (required)
         :return: ClusterSearchResultsEntity
         """
@@ -4904,8 +5179,11 @@ class FlowApi(object):
     def search_cluster_with_http_info(self, q, **kwargs):
         """
         Searches the cluster for a node with the specified address
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str q: Node address to search for. (required)
         :return: ClusterSearchResultsEntity
         """
@@ -4928,7 +5206,7 @@ class FlowApi(object):
         if ('q' not in params) or (params['q'] is None):
             raise ValueError("Missing the required parameter `q` when calling `search_cluster`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -4948,7 +5226,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/cluster/search-results', 'GET',
                                         path_params,
@@ -4967,10 +5245,13 @@ class FlowApi(object):
     def search_flow(self, **kwargs):
         """
         Performs a search against this NiFi using the specified search term
+
         Only search results from authorized components will be returned.
+
         This method makes a synchronous HTTP request.
-        :param str q:
-        :param str a:
+
+        :param str q: 
+        :param str a: 
         :return: SearchResultsEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -4983,10 +5264,13 @@ class FlowApi(object):
     def search_flow_with_http_info(self, **kwargs):
         """
         Performs a search against this NiFi using the specified search term
+
         Only search results from authorized components will be returned.
+
         This method makes a synchronous HTTP request.
-        :param str q:
-        :param str a:
+
+        :param str q: 
+        :param str a: 
         :return: SearchResultsEntity
         """
 
@@ -5005,8 +5289,8 @@ class FlowApi(object):
             params[key] = val
         del params['kwargs']
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -5028,7 +5312,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flow/search-results', 'GET',
                                         path_params,

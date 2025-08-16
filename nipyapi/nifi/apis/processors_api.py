@@ -35,7 +35,9 @@ class ProcessorsApi(object):
     def analyze_configuration2(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
+
         This method makes a synchronous HTTP request.
+
         :param ConfigurationAnalysisEntity body: The processor configuration analysis request. (required)
         :param str id: The processor id. (required)
         :return: ConfigurationAnalysisEntity
@@ -50,7 +52,9 @@ class ProcessorsApi(object):
     def analyze_configuration2_with_http_info(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
+
         This method makes a synchronous HTTP request.
+
         :param ConfigurationAnalysisEntity body: The processor configuration analysis request. (required)
         :param str id: The processor id. (required)
         :return: ConfigurationAnalysisEntity
@@ -77,8 +81,8 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `analyze_configuration2`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -104,7 +108,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/config/analysis', 'POST',
                                         path_params,
@@ -123,7 +127,9 @@ class ProcessorsApi(object):
     def clear_state3(self, id, **kwargs):
         """
         Clears the state for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ComponentStateEntity
         """
@@ -137,7 +143,9 @@ class ProcessorsApi(object):
     def clear_state3_with_http_info(self, id, **kwargs):
         """
         Clears the state for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ComponentStateEntity
         """
@@ -160,7 +168,7 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `clear_state3`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -180,7 +188,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -199,7 +207,9 @@ class ProcessorsApi(object):
     def delete_processor(self, id, **kwargs):
         """
         Deletes a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -216,7 +226,9 @@ class ProcessorsApi(object):
     def delete_processor_with_http_info(self, id, **kwargs):
         """
         Deletes a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -242,10 +254,10 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_processor`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -271,7 +283,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}', 'DELETE',
                                         path_params,
@@ -290,8 +302,11 @@ class ProcessorsApi(object):
     def delete_verification_request2(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Processor (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -306,8 +321,11 @@ class ProcessorsApi(object):
     def delete_verification_request2_with_http_info(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Processor (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -334,8 +352,8 @@ class ProcessorsApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `delete_verification_request2`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -357,7 +375,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -376,7 +394,9 @@ class ProcessorsApi(object):
     def get_processor(self, id, **kwargs):
         """
         Gets a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ProcessorEntity
         """
@@ -390,7 +410,9 @@ class ProcessorsApi(object):
     def get_processor_with_http_info(self, id, **kwargs):
         """
         Gets a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ProcessorEntity
         """
@@ -413,7 +435,7 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_processor`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -433,7 +455,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}', 'GET',
                                         path_params,
@@ -452,8 +474,11 @@ class ProcessorsApi(object):
     def get_processor_diagnostics(self, id, **kwargs):
         """
         Gets diagnostics information about a processor
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ProcessorEntity
         """
@@ -467,8 +492,11 @@ class ProcessorsApi(object):
     def get_processor_diagnostics_with_http_info(self, id, **kwargs):
         """
         Gets diagnostics information about a processor
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ProcessorEntity
         """
@@ -491,7 +519,7 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_processor_diagnostics`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -511,7 +539,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/diagnostics', 'GET',
                                         path_params,
@@ -530,7 +558,9 @@ class ProcessorsApi(object):
     def get_processor_run_status_details(self, **kwargs):
         """
         Submits a query to retrieve the run status details of all processors that are in the given list of Processor IDs
+
         This method makes a synchronous HTTP request.
+
         :param RunStatusDetailsRequestEntity body: The request for the processors that should be included in the results
         :return: ProcessorsRunStatusDetailsEntity
         """
@@ -544,7 +574,9 @@ class ProcessorsApi(object):
     def get_processor_run_status_details_with_http_info(self, **kwargs):
         """
         Submits a query to retrieve the run status details of all processors that are in the given list of Processor IDs
+
         This method makes a synchronous HTTP request.
+
         :param RunStatusDetailsRequestEntity body: The request for the processors that should be included in the results
         :return: ProcessorsRunStatusDetailsEntity
         """
@@ -564,7 +596,7 @@ class ProcessorsApi(object):
             params[key] = val
         del params['kwargs']
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -588,7 +620,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/run-status-details/queries', 'POST',
                                         path_params,
@@ -607,7 +639,9 @@ class ProcessorsApi(object):
     def get_property_descriptor3(self, id, property_name, **kwargs):
         """
         Gets the descriptor for a processor property
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :param str property_name: The property name. (required)
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -624,7 +658,9 @@ class ProcessorsApi(object):
     def get_property_descriptor3_with_http_info(self, id, property_name, **kwargs):
         """
         Gets the descriptor for a processor property
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :param str property_name: The property name. (required)
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -653,10 +689,10 @@ class ProcessorsApi(object):
         if ('property_name' not in params) or (params['property_name'] is None):
             raise ValueError("Missing the required parameter `property_name` when calling `get_property_descriptor3`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -682,7 +718,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/descriptors', 'GET',
                                         path_params,
@@ -701,7 +737,9 @@ class ProcessorsApi(object):
     def get_state2(self, id, **kwargs):
         """
         Gets the state for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ComponentStateEntity
         """
@@ -715,7 +753,9 @@ class ProcessorsApi(object):
     def get_state2_with_http_info(self, id, **kwargs):
         """
         Gets the state for a processor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ComponentStateEntity
         """
@@ -738,7 +778,7 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_state2`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -758,7 +798,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/state', 'GET',
                                         path_params,
@@ -777,8 +817,11 @@ class ProcessorsApi(object):
     def get_verification_request2(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Processor (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -793,8 +836,11 @@ class ProcessorsApi(object):
     def get_verification_request2_with_http_info(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Processor (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -821,8 +867,8 @@ class ProcessorsApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `get_verification_request2`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -844,7 +890,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -863,8 +909,11 @@ class ProcessorsApi(object):
     def submit_processor_verification_request(self, body, id, **kwargs):
         """
         Performs verification of the Processor's configuration
+
         This will initiate the process of verifying a given Processor configuration. This may be a long-running task. As a result, this endpoint will immediately return a ProcessorConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /processors/{processorId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /processors/{processorId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
+
         :param VerifyConfigRequestEntity body: The processor configuration verification request. (required)
         :param str id: The processor id. (required)
         :return: VerifyConfigRequestEntity
@@ -879,8 +928,11 @@ class ProcessorsApi(object):
     def submit_processor_verification_request_with_http_info(self, body, id, **kwargs):
         """
         Performs verification of the Processor's configuration
+
         This will initiate the process of verifying a given Processor configuration. This may be a long-running task. As a result, this endpoint will immediately return a ProcessorConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /processors/{processorId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /processors/{processorId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
+
         :param VerifyConfigRequestEntity body: The processor configuration verification request. (required)
         :param str id: The processor id. (required)
         :return: VerifyConfigRequestEntity
@@ -907,8 +959,8 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `submit_processor_verification_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -934,7 +986,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -953,7 +1005,9 @@ class ProcessorsApi(object):
     def terminate_processor(self, id, **kwargs):
         """
         Terminates a processor, essentially \"deleting\" its threads and any active tasks
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ProcessorEntity
         """
@@ -967,7 +1021,9 @@ class ProcessorsApi(object):
     def terminate_processor_with_http_info(self, id, **kwargs):
         """
         Terminates a processor, essentially \"deleting\" its threads and any active tasks
+
         This method makes a synchronous HTTP request.
+
         :param str id: The processor id. (required)
         :return: ProcessorEntity
         """
@@ -990,7 +1046,7 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `terminate_processor`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -1010,7 +1066,7 @@ class ProcessorsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/threads', 'DELETE',
                                         path_params,
@@ -1029,7 +1085,9 @@ class ProcessorsApi(object):
     def update_processor(self, body, id, **kwargs):
         """
         Updates a processor
+
         This method makes a synchronous HTTP request.
+
         :param ProcessorEntity body: The processor configuration details. (required)
         :param str id: The processor id. (required)
         :return: ProcessorEntity
@@ -1044,7 +1102,9 @@ class ProcessorsApi(object):
     def update_processor_with_http_info(self, body, id, **kwargs):
         """
         Updates a processor
+
         This method makes a synchronous HTTP request.
+
         :param ProcessorEntity body: The processor configuration details. (required)
         :param str id: The processor id. (required)
         :return: ProcessorEntity
@@ -1071,8 +1131,8 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_processor`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1098,7 +1158,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}', 'PUT',
                                         path_params,
@@ -1117,7 +1177,9 @@ class ProcessorsApi(object):
     def update_run_status4(self, body, id, **kwargs):
         """
         Updates run status of a processor
+
         This method makes a synchronous HTTP request.
+
         :param ProcessorRunStatusEntity body: The processor run status. (required)
         :param str id: The processor id. (required)
         :return: ProcessorEntity
@@ -1132,7 +1194,9 @@ class ProcessorsApi(object):
     def update_run_status4_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of a processor
+
         This method makes a synchronous HTTP request.
+
         :param ProcessorRunStatusEntity body: The processor run status. (required)
         :param str id: The processor id. (required)
         :return: ProcessorEntity
@@ -1159,8 +1223,8 @@ class ProcessorsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_run_status4`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1186,7 +1250,7 @@ class ProcessorsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/processors/{id}/run-status', 'PUT',
                                         path_params,

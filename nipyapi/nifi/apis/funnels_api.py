@@ -35,7 +35,9 @@ class FunnelsApi(object):
     def get_funnel(self, id, **kwargs):
         """
         Gets a funnel
+
         This method makes a synchronous HTTP request.
+
         :param str id: The funnel id. (required)
         :return: FunnelEntity
         """
@@ -49,7 +51,9 @@ class FunnelsApi(object):
     def get_funnel_with_http_info(self, id, **kwargs):
         """
         Gets a funnel
+
         This method makes a synchronous HTTP request.
+
         :param str id: The funnel id. (required)
         :return: FunnelEntity
         """
@@ -72,7 +76,7 @@ class FunnelsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_funnel`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -92,7 +96,7 @@ class FunnelsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/funnels/{id}', 'GET',
                                         path_params,
@@ -111,7 +115,9 @@ class FunnelsApi(object):
     def remove_funnel(self, id, **kwargs):
         """
         Deletes a funnel
+
         This method makes a synchronous HTTP request.
+
         :param str id: The funnel id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -128,7 +134,9 @@ class FunnelsApi(object):
     def remove_funnel_with_http_info(self, id, **kwargs):
         """
         Deletes a funnel
+
         This method makes a synchronous HTTP request.
+
         :param str id: The funnel id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -154,10 +162,10 @@ class FunnelsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_funnel`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -183,7 +191,7 @@ class FunnelsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/funnels/{id}', 'DELETE',
                                         path_params,
@@ -202,7 +210,9 @@ class FunnelsApi(object):
     def update_funnel(self, body, id, **kwargs):
         """
         Updates a funnel
+
         This method makes a synchronous HTTP request.
+
         :param FunnelEntity body: The funnel configuration details. (required)
         :param str id: The funnel id. (required)
         :return: FunnelEntity
@@ -217,7 +227,9 @@ class FunnelsApi(object):
     def update_funnel_with_http_info(self, body, id, **kwargs):
         """
         Updates a funnel
+
         This method makes a synchronous HTTP request.
+
         :param FunnelEntity body: The funnel configuration details. (required)
         :param str id: The funnel id. (required)
         :return: FunnelEntity
@@ -244,8 +256,8 @@ class FunnelsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_funnel`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -271,7 +283,7 @@ class FunnelsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/funnels/{id}', 'PUT',
                                         path_params,

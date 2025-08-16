@@ -9,8 +9,7 @@ Contents:
    readme
    installation
    authentication
-   apiReference
-   todo
+   nipyapi-docs/api_reference
    contributing
    devnotes
    authors

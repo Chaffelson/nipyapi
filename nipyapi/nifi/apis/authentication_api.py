@@ -35,7 +35,9 @@ class AuthenticationApi(object):
     def get_authentication_configuration(self, **kwargs):
         """
         Retrieves the authentication configuration endpoint and status information
+
         This method makes a synchronous HTTP request.
+
         :return: AuthenticationConfigurationEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -48,7 +50,9 @@ class AuthenticationApi(object):
     def get_authentication_configuration_with_http_info(self, **kwargs):
         """
         Retrieves the authentication configuration endpoint and status information
+
         This method makes a synchronous HTTP request.
+
         :return: AuthenticationConfigurationEntity
         """
 
@@ -84,7 +88,7 @@ class AuthenticationApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/authentication/configuration', 'GET',
                                         path_params,

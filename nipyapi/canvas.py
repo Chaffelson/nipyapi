@@ -45,10 +45,12 @@ def get_root_pg_id():
 def recurse_flow(pg_id='root'):
     """
     Returns information about a Process Group and all its Child Flows.
+
     Recurses the child flows by appending each process group with a
     'nipyapi_extended' parameter which contains the child process groups, etc.
+
     Note: This previously used actual recursion which broke on large NiFi
-        environments, we now use a task/list update approach
+    environments, we now use a task/list update approach.
 
     Args:
         pg_id (str): The Process Group UUID
@@ -1105,8 +1107,9 @@ def create_controller(parent_pg, controller, name=None):
 
 def list_all_controllers(pg_id='root', descendants=True, include_reporting_tasks=False):
     """
-    Lists all controllers under a given Process Group, defaults to Root
-        Optionally recurses all child Process Groups as well
+    Lists all controllers under a given Process Group, defaults to Root.
+    Optionally recurses all child Process Groups as well.
+
     Args:
         pg_id (str): String of the ID of the Process Group to list from
         descendants (bool): True to recurse child PGs, False to not

@@ -35,7 +35,9 @@ class ReportingTasksApi(object):
     def analyze_configuration3(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
+
         This method makes a synchronous HTTP request.
+
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The reporting task id. (required)
         :return: ConfigurationAnalysisEntity
@@ -50,7 +52,9 @@ class ReportingTasksApi(object):
     def analyze_configuration3_with_http_info(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
+
         This method makes a synchronous HTTP request.
+
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The reporting task id. (required)
         :return: ConfigurationAnalysisEntity
@@ -77,8 +81,8 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `analyze_configuration3`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -104,7 +108,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/analysis', 'POST',
                                         path_params,
@@ -123,7 +127,9 @@ class ReportingTasksApi(object):
     def clear_state4(self, id, **kwargs):
         """
         Clears the state for a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :return: ComponentStateEntity
         """
@@ -137,7 +143,9 @@ class ReportingTasksApi(object):
     def clear_state4_with_http_info(self, id, **kwargs):
         """
         Clears the state for a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :return: ComponentStateEntity
         """
@@ -160,7 +168,7 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `clear_state4`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -180,7 +188,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -199,8 +207,11 @@ class ReportingTasksApi(object):
     def delete_verification_request3(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Reporting Task (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -215,8 +226,11 @@ class ReportingTasksApi(object):
     def delete_verification_request3_with_http_info(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Reporting Task (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -243,8 +257,8 @@ class ReportingTasksApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `delete_verification_request3`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -266,7 +280,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -285,7 +299,9 @@ class ReportingTasksApi(object):
     def get_property_descriptor4(self, id, property_name, **kwargs):
         """
         Gets a reporting task property descriptor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :param str property_name: The property name. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -301,7 +317,9 @@ class ReportingTasksApi(object):
     def get_property_descriptor4_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a reporting task property descriptor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :param str property_name: The property name. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -329,9 +347,9 @@ class ReportingTasksApi(object):
         if ('property_name' not in params) or (params['property_name'] is None):
             raise ValueError("Missing the required parameter `property_name` when calling `get_property_descriptor4`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -355,7 +373,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/descriptors', 'GET',
                                         path_params,
@@ -374,7 +392,9 @@ class ReportingTasksApi(object):
     def get_reporting_task(self, id, **kwargs):
         """
         Gets a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :return: ReportingTaskEntity
         """
@@ -388,7 +408,9 @@ class ReportingTasksApi(object):
     def get_reporting_task_with_http_info(self, id, **kwargs):
         """
         Gets a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :return: ReportingTaskEntity
         """
@@ -411,7 +433,7 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_reporting_task`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -431,7 +453,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'GET',
                                         path_params,
@@ -450,7 +472,9 @@ class ReportingTasksApi(object):
     def get_state4(self, id, **kwargs):
         """
         Gets the state for a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :return: ComponentStateEntity
         """
@@ -464,7 +488,9 @@ class ReportingTasksApi(object):
     def get_state4_with_http_info(self, id, **kwargs):
         """
         Gets the state for a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :return: ComponentStateEntity
         """
@@ -487,7 +513,7 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_state4`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -507,7 +533,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/state', 'GET',
                                         path_params,
@@ -526,8 +552,11 @@ class ReportingTasksApi(object):
     def get_verification_request3(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Reporting Task (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -542,8 +571,11 @@ class ReportingTasksApi(object):
     def get_verification_request3_with_http_info(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Reporting Task (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -570,8 +602,8 @@ class ReportingTasksApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `get_verification_request3`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -593,7 +625,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -612,7 +644,9 @@ class ReportingTasksApi(object):
     def remove_reporting_task(self, id, **kwargs):
         """
         Deletes a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -629,7 +663,9 @@ class ReportingTasksApi(object):
     def remove_reporting_task_with_http_info(self, id, **kwargs):
         """
         Deletes a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param str id: The reporting task id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -655,10 +691,10 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_reporting_task`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -684,7 +720,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'DELETE',
                                         path_params,
@@ -703,8 +739,11 @@ class ReportingTasksApi(object):
     def submit_config_verification_request2(self, body, id, **kwargs):
         """
         Performs verification of the Reporting Task's configuration
+
         This will initiate the process of verifying a given Reporting Task configuration. This may be a long-running task. As a result, this endpoint will immediately return a ReportingTaskConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /reporting-tasks/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /reporting-tasks/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
+
         :param VerifyConfigRequestEntity body: The reporting task configuration verification request. (required)
         :param str id: The reporting task id. (required)
         :return: VerifyConfigRequestEntity
@@ -719,8 +758,11 @@ class ReportingTasksApi(object):
     def submit_config_verification_request2_with_http_info(self, body, id, **kwargs):
         """
         Performs verification of the Reporting Task's configuration
+
         This will initiate the process of verifying a given Reporting Task configuration. This may be a long-running task. As a result, this endpoint will immediately return a ReportingTaskConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /reporting-tasks/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /reporting-tasks/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
+
         :param VerifyConfigRequestEntity body: The reporting task configuration verification request. (required)
         :param str id: The reporting task id. (required)
         :return: VerifyConfigRequestEntity
@@ -747,8 +789,8 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `submit_config_verification_request2`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -774,7 +816,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -793,7 +835,9 @@ class ReportingTasksApi(object):
     def update_reporting_task(self, body, id, **kwargs):
         """
         Updates a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param ReportingTaskEntity body: The reporting task configuration details. (required)
         :param str id: The reporting task id. (required)
         :return: ReportingTaskEntity
@@ -808,7 +852,9 @@ class ReportingTasksApi(object):
     def update_reporting_task_with_http_info(self, body, id, **kwargs):
         """
         Updates a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param ReportingTaskEntity body: The reporting task configuration details. (required)
         :param str id: The reporting task id. (required)
         :return: ReportingTaskEntity
@@ -835,8 +881,8 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_reporting_task`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -862,7 +908,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'PUT',
                                         path_params,
@@ -881,7 +927,9 @@ class ReportingTasksApi(object):
     def update_run_status5(self, body, id, **kwargs):
         """
         Updates run status of a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param ReportingTaskRunStatusEntity body: The reporting task run status. (required)
         :param str id: The reporting task id. (required)
         :return: ReportingTaskEntity
@@ -896,7 +944,9 @@ class ReportingTasksApi(object):
     def update_run_status5_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of a reporting task
+
         This method makes a synchronous HTTP request.
+
         :param ReportingTaskRunStatusEntity body: The reporting task run status. (required)
         :param str id: The reporting task id. (required)
         :return: ReportingTaskEntity
@@ -923,8 +973,8 @@ class ReportingTasksApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_run_status5`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -950,7 +1000,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/reporting-tasks/{id}/run-status', 'PUT',
                                         path_params,

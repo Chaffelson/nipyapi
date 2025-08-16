@@ -35,7 +35,9 @@ class LabelsApi(object):
     def get_label(self, id, **kwargs):
         """
         Gets a label
+
         This method makes a synchronous HTTP request.
+
         :param str id: The label id. (required)
         :return: LabelEntity
         """
@@ -49,7 +51,9 @@ class LabelsApi(object):
     def get_label_with_http_info(self, id, **kwargs):
         """
         Gets a label
+
         This method makes a synchronous HTTP request.
+
         :param str id: The label id. (required)
         :return: LabelEntity
         """
@@ -72,7 +76,7 @@ class LabelsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_label`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -92,7 +96,7 @@ class LabelsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/labels/{id}', 'GET',
                                         path_params,
@@ -111,7 +115,9 @@ class LabelsApi(object):
     def remove_label(self, id, **kwargs):
         """
         Deletes a label
+
         This method makes a synchronous HTTP request.
+
         :param str id: The label id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -128,7 +134,9 @@ class LabelsApi(object):
     def remove_label_with_http_info(self, id, **kwargs):
         """
         Deletes a label
+
         This method makes a synchronous HTTP request.
+
         :param str id: The label id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -154,10 +162,10 @@ class LabelsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_label`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -183,7 +191,7 @@ class LabelsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/labels/{id}', 'DELETE',
                                         path_params,
@@ -202,7 +210,9 @@ class LabelsApi(object):
     def update_label(self, body, id, **kwargs):
         """
         Updates a label
+
         This method makes a synchronous HTTP request.
+
         :param LabelEntity body: The label configuration details. (required)
         :param str id: The label id. (required)
         :return: LabelEntity
@@ -217,7 +227,9 @@ class LabelsApi(object):
     def update_label_with_http_info(self, body, id, **kwargs):
         """
         Updates a label
+
         This method makes a synchronous HTTP request.
+
         :param LabelEntity body: The label configuration details. (required)
         :param str id: The label id. (required)
         :return: LabelEntity
@@ -244,8 +256,8 @@ class LabelsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_label`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -271,7 +283,7 @@ class LabelsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/labels/{id}', 'PUT',
                                         path_params,

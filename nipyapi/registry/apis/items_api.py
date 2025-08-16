@@ -35,8 +35,11 @@ class ItemsApi(object):
     def get_available_bucket_item_fields(self, **kwargs):
         """
         Get item fields
+
         Retrieves the item field names for searching or sorting on bucket items.
+
         This method makes a synchronous HTTP request.
+
         :return: Fields
         """
         kwargs['_return_http_data_only'] = True
@@ -49,8 +52,11 @@ class ItemsApi(object):
     def get_available_bucket_item_fields_with_http_info(self, **kwargs):
         """
         Get item fields
+
         Retrieves the item field names for searching or sorting on bucket items.
+
         This method makes a synchronous HTTP request.
+
         :return: Fields
         """
 
@@ -86,7 +92,7 @@ class ItemsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/items/fields', 'GET',
                                         path_params,
@@ -105,8 +111,11 @@ class ItemsApi(object):
     def get_items(self, **kwargs):
         """
         Get all items
+
         Get items across all buckets. The returned items will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.
+
         This method makes a synchronous HTTP request.
+
         :return: list[BucketItem]
         """
         kwargs['_return_http_data_only'] = True
@@ -119,8 +128,11 @@ class ItemsApi(object):
     def get_items_with_http_info(self, **kwargs):
         """
         Get all items
+
         Get items across all buckets. The returned items will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.
+
         This method makes a synchronous HTTP request.
+
         :return: list[BucketItem]
         """
 
@@ -156,7 +168,7 @@ class ItemsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/items', 'GET',
                                         path_params,
@@ -175,8 +187,11 @@ class ItemsApi(object):
     def get_items1(self, bucket_id, **kwargs):
         """
         Get bucket items
+
         Gets the items located in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :return: list[BucketItem]
         """
@@ -190,8 +205,11 @@ class ItemsApi(object):
     def get_items1_with_http_info(self, bucket_id, **kwargs):
         """
         Get bucket items
+
         Gets the items located in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :return: list[BucketItem]
         """
@@ -214,7 +232,7 @@ class ItemsApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `get_items1`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -234,7 +252,7 @@ class ItemsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/items/{bucketId}', 'GET',
                                         path_params,

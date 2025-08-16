@@ -9,6 +9,25 @@ History
 
 | Major migration to Apache NiFi/Registry 2.x (tested against 2.5.0). Drops 1.x support on main.
 
+- Documentation modernization and restructuring:
+
+  - Complete overhaul of Sphinx documentation generation with custom structured approach
+  - Replace monolithic API reference pages with modular, navigable structure addressing GitHub issue #376
+  - Auto-generated API categorization into functional groups (core_flow, security, data_management, etc.)
+  - Individual documentation pages for each core module improving navigation and maintainability
+  - Template-level docstring formatting fixes ensuring Sphinx-compliant generated client code
+  - Direct GitHub source code links for all functions and classes with line-level precision
+  - Modern installation guide with current best practices, virtual environments, and dependency management
+  - Auto-generated dependencies documentation from actual requirements files eliminating maintenance burden
+  - Zero Sphinx warnings achieved through systematic docstring and formatting improvements
+  - Enhanced Sphinx configuration with modern extensions and improved navigation depth
+
+- Client generation improvements:
+
+  - Fix Mustache template formatting to produce clean, Sphinx-compliant docstrings in generated code
+  - Correct parameter documentation spacing and structure in API templates
+  - Remove invalid template syntax causing generation errors
+
 - Core: switch low-level clients to NiFi/Registry 2.5.0 OpenAPI 3 specs (swagger-codegen 3.0.68)
 - Remove Templates feature (deprecated in NiFi 2.x): delete `nipyapi/templates.py`, related tests/resources; remove imports; adapt fixtures
 - Docker: update images to NiFi/Registry 2.5.0
@@ -25,10 +44,13 @@ History
 - Security (2.x): replace removed `AccessApi.get_access_status` with `FlowApi.get_current_user()`; Registry readiness via `AboutApi.get_version()`
  
  - Authentication and client generation:
+
    - Switch to spec-driven `bearerAuth`; removed template-injected `tokenAuth`; `set_service_auth_token()` now targets `bearerAuth` by default
    - Temporary augmentation scripts declare securitySchemes and per-operation security until upstream specs are fixed:
+
      - `resources/client_gen/augment_nifi_security.py`
      - `resources/client_gen/augment_registry_security.py`
+
    - Once upstream fixes land, augmentation scripts will be removed and clients regenerated without local workarounds
    - Upstream tracking for NiFi Core bearer scheme: [NIFI-14852](https://issues.apache.org/jira/browse/NIFI-14852)
 

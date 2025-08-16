@@ -509,7 +509,7 @@ class VersionedRemoteProcessGroup(object):
         :param transport_protocol: The transport_protocol of this VersionedRemoteProcessGroup.
         :type: str
         """
-        allowed_values = ["RAW", "HTTP", ]
+        allowed_values = ["RAW, HTTP", ]
         if transport_protocol not in allowed_values:
             raise ValueError(
                 "Invalid value for `transport_protocol` ({0}), must be one of {1}"

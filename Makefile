@@ -221,10 +221,9 @@ coverage: ## run pytest with coverage and generate report (set coverage-min=NN t
 coverage-upload: coverage ## run coverage and upload to codecov
 	codecov --file coverage.xml
 
-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/nipyapi.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ nipyapi
+docs: ## generate Sphinx HTML documentation with improved navigation
+	rm -rf docs/nipyapi-docs
+	python docs/scripts/generate_structured_docs.py
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html

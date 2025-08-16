@@ -35,7 +35,9 @@ class ProvenanceApi(object):
     def delete_lineage(self, id, **kwargs):
         """
         Deletes a lineage query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the lineage query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :return: LineageEntity
@@ -50,7 +52,9 @@ class ProvenanceApi(object):
     def delete_lineage_with_http_info(self, id, **kwargs):
         """
         Deletes a lineage query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the lineage query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :return: LineageEntity
@@ -74,8 +78,8 @@ class ProvenanceApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_lineage`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -97,7 +101,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'DELETE',
                                         path_params,
@@ -116,7 +120,9 @@ class ProvenanceApi(object):
     def delete_provenance(self, id, **kwargs):
         """
         Deletes a provenance query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the provenance query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :return: ProvenanceEntity
@@ -131,7 +137,9 @@ class ProvenanceApi(object):
     def delete_provenance_with_http_info(self, id, **kwargs):
         """
         Deletes a provenance query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the provenance query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :return: ProvenanceEntity
@@ -155,8 +163,8 @@ class ProvenanceApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_provenance`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -178,7 +186,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/provenance/{id}', 'DELETE',
                                         path_params,
@@ -197,7 +205,9 @@ class ProvenanceApi(object):
     def get_lineage(self, id, **kwargs):
         """
         Gets a lineage query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the lineage query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :return: LineageEntity
@@ -212,7 +222,9 @@ class ProvenanceApi(object):
     def get_lineage_with_http_info(self, id, **kwargs):
         """
         Gets a lineage query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the lineage query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :return: LineageEntity
@@ -236,8 +248,8 @@ class ProvenanceApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_lineage`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -259,7 +271,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'GET',
                                         path_params,
@@ -278,7 +290,9 @@ class ProvenanceApi(object):
     def get_provenance(self, id, **kwargs):
         """
         Gets a provenance query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the provenance query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :param bool summarize: Whether or not incremental results are returned. If false, provenance events are only returned once the query completes. This property is true by default.
@@ -295,7 +309,9 @@ class ProvenanceApi(object):
     def get_provenance_with_http_info(self, id, **kwargs):
         """
         Gets a provenance query
+
         This method makes a synchronous HTTP request.
+
         :param str id: The id of the provenance query. (required)
         :param str cluster_node_id: The id of the node where this query exists if clustered.
         :param bool summarize: Whether or not incremental results are returned. If false, provenance events are only returned once the query completes. This property is true by default.
@@ -321,10 +337,10 @@ class ProvenanceApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_provenance`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -350,7 +366,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/provenance/{id}', 'GET',
                                         path_params,
@@ -369,7 +385,9 @@ class ProvenanceApi(object):
     def get_search_options(self, **kwargs):
         """
         Gets the searchable attributes for provenance events
+
         This method makes a synchronous HTTP request.
+
         :return: ProvenanceOptionsEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -382,7 +400,9 @@ class ProvenanceApi(object):
     def get_search_options_with_http_info(self, **kwargs):
         """
         Gets the searchable attributes for provenance events
+
         This method makes a synchronous HTTP request.
+
         :return: ProvenanceOptionsEntity
         """
 
@@ -418,7 +438,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/provenance/search-options', 'GET',
                                         path_params,
@@ -437,8 +457,11 @@ class ProvenanceApi(object):
     def submit_lineage_request(self, body, **kwargs):
         """
         Submits a lineage query
+
         Lineage queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the lineage request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
+
         :param LineageEntity body: The lineage query details. (required)
         :return: LineageEntity
         """
@@ -452,8 +475,11 @@ class ProvenanceApi(object):
     def submit_lineage_request_with_http_info(self, body, **kwargs):
         """
         Submits a lineage query
+
         Lineage queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the lineage request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
+
         :param LineageEntity body: The lineage query details. (required)
         :return: LineageEntity
         """
@@ -476,7 +502,7 @@ class ProvenanceApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `submit_lineage_request`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -500,7 +526,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/provenance/lineage', 'POST',
                                         path_params,
@@ -519,8 +545,11 @@ class ProvenanceApi(object):
     def submit_provenance_request(self, body, **kwargs):
         """
         Submits a provenance query
+
         Provenance queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the provenance request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
+
         :param ProvenanceEntity body: The provenance query details. (required)
         :return: ProvenanceEntity
         """
@@ -534,8 +563,11 @@ class ProvenanceApi(object):
     def submit_provenance_request_with_http_info(self, body, **kwargs):
         """
         Submits a provenance query
+
         Provenance queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the provenance request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
+
         :param ProvenanceEntity body: The provenance query details. (required)
         :return: ProvenanceEntity
         """
@@ -558,7 +590,7 @@ class ProvenanceApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `submit_provenance_request`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -582,7 +614,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/provenance', 'POST',
                                         path_params,

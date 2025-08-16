@@ -35,7 +35,9 @@ class PoliciesApi(object):
     def create_access_policy(self, body, **kwargs):
         """
         Creates an access policy
+
         This method makes a synchronous HTTP request.
+
         :param AccessPolicyEntity body: The access policy configuration details. (required)
         :return: AccessPolicyEntity
         """
@@ -49,7 +51,9 @@ class PoliciesApi(object):
     def create_access_policy_with_http_info(self, body, **kwargs):
         """
         Creates an access policy
+
         This method makes a synchronous HTTP request.
+
         :param AccessPolicyEntity body: The access policy configuration details. (required)
         :return: AccessPolicyEntity
         """
@@ -72,7 +76,7 @@ class PoliciesApi(object):
         if ('body' not in params) or (params['body'] is None):
             raise ValueError("Missing the required parameter `body` when calling `create_access_policy`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -96,7 +100,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/policies', 'POST',
                                         path_params,
@@ -115,7 +119,9 @@ class PoliciesApi(object):
     def get_access_policy(self, id, **kwargs):
         """
         Gets an access policy
+
         This method makes a synchronous HTTP request.
+
         :param str id: The access policy id. (required)
         :return: AccessPolicyEntity
         """
@@ -129,7 +135,9 @@ class PoliciesApi(object):
     def get_access_policy_with_http_info(self, id, **kwargs):
         """
         Gets an access policy
+
         This method makes a synchronous HTTP request.
+
         :param str id: The access policy id. (required)
         :return: AccessPolicyEntity
         """
@@ -152,7 +160,7 @@ class PoliciesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_access_policy`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -172,7 +180,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/policies/{id}', 'GET',
                                         path_params,
@@ -191,8 +199,11 @@ class PoliciesApi(object):
     def get_access_policy_for_resource(self, action, resource, **kwargs):
         """
         Gets an access policy for the specified action and resource
+
         Will return the effective policy if no component specific policy exists for the specified action and resource. Must have Read permissions to the policy with the desired action and resource. Permissions for the policy that is returned will be indicated in the response. This means the client could be authorized to get the policy for a given component but the effective policy may be inherited from an ancestor Process Group. If the client does not have permissions to that policy, the response will not include the policy and the permissions in the response will be marked accordingly. If the client does not have permissions to the policy of the desired action and resource a 403 response will be returned.
+
         This method makes a synchronous HTTP request.
+
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
         :return: AccessPolicyEntity
@@ -207,8 +218,11 @@ class PoliciesApi(object):
     def get_access_policy_for_resource_with_http_info(self, action, resource, **kwargs):
         """
         Gets an access policy for the specified action and resource
+
         Will return the effective policy if no component specific policy exists for the specified action and resource. Must have Read permissions to the policy with the desired action and resource. Permissions for the policy that is returned will be indicated in the response. This means the client could be authorized to get the policy for a given component but the effective policy may be inherited from an ancestor Process Group. If the client does not have permissions to that policy, the response will not include the policy and the permissions in the response will be marked accordingly. If the client does not have permissions to the policy of the desired action and resource a 403 response will be returned.
+
         This method makes a synchronous HTTP request.
+
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
         :return: AccessPolicyEntity
@@ -235,8 +249,8 @@ class PoliciesApi(object):
         if ('resource' not in params) or (params['resource'] is None):
             raise ValueError("Missing the required parameter `resource` when calling `get_access_policy_for_resource`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -258,7 +272,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/policies/{action}/{resource}', 'GET',
                                         path_params,
@@ -277,7 +291,9 @@ class PoliciesApi(object):
     def remove_access_policy(self, id, **kwargs):
         """
         Deletes an access policy
+
         This method makes a synchronous HTTP request.
+
         :param str id: The access policy id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -294,7 +310,9 @@ class PoliciesApi(object):
     def remove_access_policy_with_http_info(self, id, **kwargs):
         """
         Deletes an access policy
+
         This method makes a synchronous HTTP request.
+
         :param str id: The access policy id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -320,10 +338,10 @@ class PoliciesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_access_policy`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -349,7 +367,7 @@ class PoliciesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/policies/{id}', 'DELETE',
                                         path_params,
@@ -368,7 +386,9 @@ class PoliciesApi(object):
     def update_access_policy(self, body, id, **kwargs):
         """
         Updates a access policy
+
         This method makes a synchronous HTTP request.
+
         :param AccessPolicyEntity body: The access policy configuration details. (required)
         :param str id: The access policy id. (required)
         :return: AccessPolicyEntity
@@ -383,7 +403,9 @@ class PoliciesApi(object):
     def update_access_policy_with_http_info(self, body, id, **kwargs):
         """
         Updates a access policy
+
         This method makes a synchronous HTTP request.
+
         :param AccessPolicyEntity body: The access policy configuration details. (required)
         :param str id: The access policy id. (required)
         :return: AccessPolicyEntity
@@ -410,8 +432,8 @@ class PoliciesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_access_policy`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -437,7 +459,7 @@ class PoliciesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/policies/{id}', 'PUT',
                                         path_params,

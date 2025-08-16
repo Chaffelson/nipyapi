@@ -1,0 +1,711 @@
+#!/usr/bin/env python3
+"""
+Custom Sphinx documentation generator for NiPyApi.
+
+This script replaces the default sphinx-apidoc behavior to create better-organized,
+more navigable documentation that addresses GitHub issue #376.
+
+Instead of monolithic files with 1000+ lines, this creates logical groupings
+of APIs and models for easier navigation.
+
+This script automatically introspects the current codebase structure to ensure
+it stays synchronized with client generation updates.
+"""
+
+import os
+import sys
+import importlib
+import inspect
+from pathlib import Path
+
+def get_actual_core_modules():
+    """Get the actual core nipyapi modules by introspecting __all__."""
+    sys.path.insert(0, os.path.abspath('.'))
+    try:
+        import nipyapi
+        # Remove the generated client modules to get just the core modules
+        core_modules = [mod for mod in nipyapi.__all__ if mod not in ['nifi', 'registry']]
+        return core_modules
+    except ImportError:
+        # Fallback to known modules if import fails
+        return ['canvas', 'config', 'parameters', 'security', 'system', 'utils', 'versioning']
+
+def get_actual_apis(module_path):
+    """Get actual APIs by introspecting the generated modules."""
+    try:
+        module = importlib.import_module(f"{module_path}.apis")
+        # Get all classes that end with 'Api'
+        apis = []
+        for name, obj in inspect.getmembers(module):
+            if (inspect.isclass(obj) and 
+                name.endswith('Api') and 
+                hasattr(obj, '__module__') and 
+                obj.__module__.startswith(module_path)):
+                # Convert class name to snake_case module name
+                snake_name = ''.join(['_' + c.lower() if c.isupper() else c for c in name]).lstrip('_')
+                apis.append(snake_name)
+        return sorted(apis)
+    except (ImportError, AttributeError):
+        return []
+
+def categorize_apis_automatically(apis):
+    """Automatically categorize APIs based on naming patterns."""
+    categories = {
+        "core_flow": {
+            "title": "Core Flow Management",
+            "description": "Essential APIs for managing NiFi flows, processors, and connections",
+            "apis": []
+        },
+        "security": {
+            "title": "Security & Access Control", 
+            "description": "Authentication, authorization, policies, and user management",
+            "apis": []
+        },
+        "data_management": {
+            "title": "Data & Provenance",
+            "description": "Data transfer, queues, provenance tracking, and lineage",
+            "apis": []
+        },
+        "system_monitoring": {
+            "title": "System & Monitoring",
+            "description": "System diagnostics, counters, and reporting", 
+            "apis": []
+        },
+        "configuration": {
+            "title": "Configuration Management",
+            "description": "Parameters, controller services, and configuration",
+            "apis": []
+        },
+        "templates_versioning": {
+            "title": "Templates & Versioning", 
+            "description": "Flow templates, snippets, and version control",
+            "apis": []
+        },
+        "infrastructure": {
+            "title": "Infrastructure Components",
+            "description": "Ports, funnels, labels, and remote connections",
+            "apis": []
+        },
+        "other": {
+            "title": "Other APIs",
+            "description": "Additional API endpoints",
+            "apis": []
+        }
+    }
+    
+    # Categorize based on API names
+    for api in apis:
+        if any(keyword in api for keyword in ['flow', 'process', 'connection', 'processor']):
+            categories["core_flow"]["apis"].append(api)
+        elif any(keyword in api for keyword in ['access', 'authentication', 'policies', 'tenant']):
+            categories["security"]["apis"].append(api)
+        elif any(keyword in api for keyword in ['data_transfer', 'provenance', 'queue']):
+            categories["data_management"]["apis"].append(api)
+        elif any(keyword in api for keyword in ['system', 'counter', 'reporting']):
+            categories["system_monitoring"]["apis"].append(api)
+        elif any(keyword in api for keyword in ['parameter', 'controller_service', 'config']):
+            categories["configuration"]["apis"].append(api)
+        elif any(keyword in api for keyword in ['snippet', 'version', 'template']):
+            categories["templates_versioning"]["apis"].append(api)
+        elif any(keyword in api for keyword in ['port', 'funnel', 'label', 'remote', 'site']):
+            categories["infrastructure"]["apis"].append(api)
+        else:
+            categories["other"]["apis"].append(api)
+    
+    # Remove empty categories
+    return {k: v for k, v in categories.items() if v["apis"]}
+
+# Legacy API groupings (kept for reference but will be replaced by automated detection)
+NIFI_API_GROUPS = {
+    "core_flow": {
+        "title": "Core Flow Management",
+        "description": "Essential APIs for managing NiFi flows, processors, and connections",
+        "apis": [
+            "flow_api",
+            "process_groups_api", 
+            "processors_api",
+            "connections_api",
+            "controller_api",
+        ]
+    },
+    "security": {
+        "title": "Security & Access Control",
+        "description": "Authentication, authorization, policies, and user management",
+        "apis": [
+            "access_api",
+            "authentication_api", 
+            "policies_api",
+            "tenants_api",
+        ]
+    },
+    "data_management": {
+        "title": "Data & Provenance",
+        "description": "Data transfer, queues, provenance tracking, and lineage",
+        "apis": [
+            "data_transfer_api",
+            "flow_file_queues_api",
+            "provenance_api",
+            "provenance_events_api",
+        ]
+    },
+    "system_monitoring": {
+        "title": "System & Monitoring", 
+        "description": "System diagnostics, counters, and reporting",
+        "apis": [
+            "system_diagnostics_api",
+            "counters_api",
+            "reporting_tasks_api",
+        ]
+    },
+    "configuration": {
+        "title": "Configuration Management",
+        "description": "Parameters, controller services, and configuration",
+        "apis": [
+            "parameter_contexts_api",
+            "parameter_providers_api",
+            "controller_services_api",
+        ]
+    },
+    "templates_versioning": {
+        "title": "Templates & Versioning",
+        "description": "Flow templates, snippets, and version control",
+        "apis": [
+            "snippets_api",
+            "versions_api",
+        ]
+    },
+    "infrastructure": {
+        "title": "Infrastructure Components",
+        "description": "Ports, funnels, labels, and remote connections",
+        "apis": [
+            "input_ports_api",
+            "output_ports_api", 
+            "funnels_api",
+            "labels_api",
+            "remote_process_groups_api",
+            "site_to_site_api",
+        ]
+    },
+    "resources": {
+        "title": "Resources & Utilities",
+        "description": "Resource management and utility functions",
+        "apis": [
+            "resources_api",
+        ]
+    }
+}
+
+# Model groupings (simplified - can be expanded later)
+NIFI_MODEL_GROUPS = {
+    "basic": {
+        "title": "Basic Data Types",
+        "description": "Fundamental data structures and DTOs",
+        "pattern": ["*dto.py", "*entity.py", "bundle*.py", "revision*.py"]
+    },
+    "flow": {
+        "title": "Flow Components", 
+        "description": "Processors, connections, process groups, and flow structures",
+        "pattern": ["*process*.py", "*connection*.py", "*flow*.py", "*processor*.py"]
+    },
+    "security": {
+        "title": "Security Models",
+        "description": "Access policies, authentication, and user/tenant models", 
+        "pattern": ["*access*.py", "*policy*.py", "*user*.py", "*tenant*.py", "*authentication*.py"]
+    },
+    "monitoring": {
+        "title": "Monitoring & Diagnostics",
+        "description": "System diagnostics, counters, bulletins, and status models",
+        "pattern": ["*diagnostic*.py", "*counter*.py", "*bulletin*.py", "*status*.py", "*snapshot*.py"]
+    }
+}
+
+REGISTRY_API_GROUPS = {
+    "core": {
+        "title": "Core Registry APIs", 
+        "description": "Flow management, buckets, and version control",
+        "apis": ["flows_api", "buckets_api", "items_api"]
+    },
+    "access": {
+        "title": "Access & Security",
+        "description": "Authentication and access control", 
+        "apis": ["access_api", "policies_api", "tenants_api"]
+    },
+    "config": {
+        "title": "Configuration",
+        "description": "Configuration and administrative functions",
+        "apis": ["config_api", "about_api"]
+    }
+}
+
+
+def write_rst_file(filepath, content):
+    """Write content to RST file with proper encoding."""
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"Generated: {filepath}")
+
+
+def generate_api_group_file(group_name, group_info, base_module, output_dir):
+    """Generate RST file for a group of APIs."""
+    title = group_info['title']
+    description = group_info['description']
+    apis = group_info['apis']
+    
+    # Create title with proper RST formatting
+    content = f"{title}\n"
+    content += "=" * len(title) + "\n\n"
+    content += f"{description}\n\n"
+    
+    # No separate toctree - APIs are documented inline in this file
+    content += "\n"
+    
+    # Add individual API documentation sections
+    for api in apis:
+        api_title = api.replace('_', ' ').title().replace(' Api', ' API')
+        content += f"{api_title}\n"
+        content += "-" * len(api_title) + "\n\n"
+        content += f".. automodule:: {base_module}.{api}\n"
+        content += "    :members:\n"
+        content += "    :undoc-members:\n"
+        content += "    :show-inheritance:\n\n"
+    
+    filepath = os.path.join(output_dir, f"{group_name}.rst")
+    write_rst_file(filepath, content)
+    return os.path.basename(filepath)
+
+
+def generate_api_index(groups, base_module, output_dir, title_prefix):
+    """Generate main index file for API groups."""
+    title = f"{title_prefix} APIs"
+    content = f"{title}\n"
+    content += "=" * len(title) + "\n\n"
+    content += f"This section contains the {title_prefix} API documentation organized by functional area for easier navigation.\n\n"
+    
+    # Add toctree
+    content += ".. toctree::\n"
+    content += "   :maxdepth: 2\n"
+    content += "   :caption: API Groups\n\n"
+    
+    for group_name, group_info in groups.items():
+        content += f"   {group_name}\n"
+    
+    content += "\n"
+    
+    # Add overview sections
+    for group_name, group_info in groups.items():
+        title = group_info['title']
+        content += f"{title}\n"
+        content += "-" * len(title) + "\n\n"
+        content += f"{group_info['description']}\n\n"
+        content += f"APIs: {', '.join([api.replace('_api', '').replace('_', ' ').title() for api in group_info['apis']])}\n\n"
+    
+    filepath = os.path.join(output_dir, "index.rst")
+    write_rst_file(filepath, content)
+
+
+def generate_core_module_docs(output_dir):
+    """Generate modular documentation for core nipyapi modules."""
+    # Get actual modules from the codebase
+    actual_modules = get_actual_core_modules()
+    
+    # Module descriptions  
+    module_descriptions = {
+        "canvas": "Canvas operations and flow management",
+        "config": "Configuration management", 
+        "parameters": "Parameter context management",
+        "security": "Security and authentication utilities",
+        "system": "System information and diagnostics",
+        "utils": "Utility functions and helpers",
+        "versioning": "Version control operations",
+    }
+    
+    # Create core_modules directory
+    core_modules_dir = os.path.join(output_dir, "core_modules")
+    os.makedirs(core_modules_dir, exist_ok=True)
+    
+    # Generate individual module files
+    for module_name in actual_modules:
+        description = module_descriptions.get(module_name, f"{module_name.title()} functionality")
+        module_title = module_name.title()
+        
+        content = f"{module_title}\n"
+        content += "=" * len(module_title) + "\n\n"
+        content += f"{description}\n\n"
+        content += f".. automodule:: nipyapi.{module_name}\n"
+        content += "    :members:\n"
+        content += "    :undoc-members:\n"
+        content += "    :show-inheritance:\n"
+        
+        filepath = os.path.join(core_modules_dir, f"{module_name}.rst")
+        write_rst_file(filepath, content)
+    
+    # Generate core modules index
+    title = "Core Client Modules"
+    content = f"{title}\n"
+    content += "=" * len(title) + "\n\n"
+    content += "These modules provide high-level convenience functions for common NiFi operations.\n"
+    content += "They wrap the lower-level generated API clients with Pythonic interfaces.\n\n"
+    
+    # Add toctree for separate module files
+    content += ".. toctree::\n"
+    content += "   :maxdepth: 1\n\n"
+    
+    for module_name in actual_modules:
+        content += f"   core_modules/{module_name}\n"
+    
+    filepath = os.path.join(output_dir, "core_modules.rst")
+    write_rst_file(filepath, content)
+    return "core_modules.rst"
+
+
+def generate_main_api_reference(output_dir):
+    """Generate the main API reference index."""
+    title = "API Reference"
+    content = f"{title}\n"
+    content += "=" * len(title) + "\n\n"
+    content += "Complete API documentation for NiPyApi, organized for easy navigation.\n\n"
+    
+    content += ".. toctree::\n"
+    content += "   :maxdepth: 2\n"
+    content += "   :caption: Documentation Sections\n\n"
+    content += "   core_modules\n"
+    content += "   nifi_apis/index\n" 
+    content += "   nifi_models/index\n"
+    content += "   registry_apis/index\n" 
+    content += "   registry_models/index\n"
+    content += "   examples\n\n"
+    
+    content += "Overview\n"
+    content += "--------\n\n"
+    content += "**Core Modules**: High-level Python interfaces for common operations\n\n"
+    content += "**NiFi APIs**: Complete generated client for all NiFi REST endpoints\n\n" 
+    content += "**NiFi Models**: Data structures and DTOs used by NiFi APIs\n\n"
+    content += "**Registry APIs**: Complete generated client for NiFi Registry\n\n"
+    content += "**Registry Models**: Data structures used by Registry APIs\n\n"
+    content += "**Examples**: Example scripts and tutorials\n\n"
+    
+    filepath = os.path.join(output_dir, "api_reference.rst")
+    write_rst_file(filepath, content)
+
+
+def generate_examples_docs(output_dir):
+    """Generate documentation for example scripts (not a module)."""
+    title = "Examples and Tutorials"
+    content = f"{title}\n"
+    content += "=" * len(title) + "\n\n"
+    content += "Example scripts demonstrating NiPyApi functionality can be found in the\n"
+    content += "`examples/ directory <https://github.com/Chaffelson/nipyapi/tree/master/examples>`_\n"
+    content += "of the source repository.\n\n"
+    
+    content += "Available Examples\n"
+    content += "------------------\n\n"
+    content += "* **console.py**: Interactive console examples\n"
+    content += "* **fdlc.py**: Flow Development Life Cycle examples\n" 
+    content += "* **secure_connection.py**: Secure connection setup examples\n\n"
+    
+    content += ".. note::\n"
+    content += "   These are standalone Python scripts, not importable modules.\n"
+    content += "   Run them directly with Python after setting up your environment.\n\n"
+    
+    filepath = os.path.join(output_dir, "examples.rst")
+    write_rst_file(filepath, content)
+
+
+def generate_simplified_models_docs(model_groups, base_module, output_dir, title_prefix):
+    """Generate simplified model documentation (placeholder for now)."""
+    title = f"{title_prefix} Models"
+    content = f"{title}\n"
+    content += "=" * len(title) + "\n\n"
+    content += f"Data structures and model classes used by {title_prefix} APIs.\n\n"
+    content += ".. note::\n"
+    content += "   Model documentation is currently consolidated. Future versions may split\n"
+    content += "   these into functional groups for better navigation.\n\n"
+    
+    content += f".. automodule:: {base_module}\n"
+    content += "    :members:\n" 
+    content += "    :undoc-members:\n"
+    content += "    :show-inheritance:\n\n"
+    
+    # Create index file
+    index_content = f"{title}\n"
+    index_content += "=" * len(title) + "\n\n"
+    index_content += f"{title_prefix} model documentation.\n\n"
+    index_content += ".. toctree::\n"
+    index_content += "   :maxdepth: 1\n\n"
+    index_content += "   models\n\n"
+    
+    os.makedirs(output_dir, exist_ok=True)
+    write_rst_file(os.path.join(output_dir, "index.rst"), index_content)
+    write_rst_file(os.path.join(output_dir, "models.rst"), content)
+
+
+def generate_dependencies_docs(docs_dir):
+    """Generate dependencies documentation from actual dependency files."""
+    import re
+    
+    project_root = Path(__file__).parent.parent.parent
+    
+    # Read requirements.txt
+    requirements_file = project_root / "requirements.txt"
+    runtime_deps = []
+    
+    if requirements_file.exists():
+        with open(requirements_file) as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and not line.startswith('-'):
+                    runtime_deps.append(line)
+    
+    # Read pyproject.toml for optional dependencies
+    pyproject_file = project_root / "pyproject.toml"
+    dev_deps = []
+    docs_deps = []
+    
+    if pyproject_file.exists():
+        # Try to parse pyproject.toml for optional dependencies
+        try:
+            # Python 3.11+ has tomllib built-in
+            try:
+                import tomllib
+            except ImportError:
+                # Fallback to tomli for older Python versions
+                try:
+                    import tomli as tomllib
+                except ImportError:
+                    tomllib = None
+            
+            if tomllib:
+                with open(pyproject_file, 'rb') as f:
+                    data = tomllib.load(f)
+                    optional_deps = data.get('project', {}).get('optional-dependencies', {})
+                    dev_deps = optional_deps.get('dev', [])
+                    docs_deps = optional_deps.get('docs', [])
+            else:
+                # Fallback: parse manually for known sections
+                print("⚠️  TOML parsing not available, using basic fallback")
+                with open(pyproject_file, 'r') as f:
+                    content = f.read()
+                    # Simple regex-based parsing for our specific use case
+                    if '[project.optional-dependencies]' in content:
+                        lines = content.split('\n')
+                        in_dev = False
+                        in_docs = False
+                        for line in lines:
+                            line = line.strip()
+                            if line.startswith('dev = ['):
+                                in_dev = True
+                                in_docs = False
+                            elif line.startswith('docs = ['):
+                                in_docs = True
+                                in_dev = False
+                            elif line.startswith(']'):
+                                in_dev = in_docs = False
+                            elif in_dev and line.startswith('"') and line.endswith('",'):
+                                dev_deps.append(line.strip('"",'))
+                            elif in_docs and line.startswith('"') and line.endswith('",'):
+                                docs_deps.append(line.strip('"",'))
+        except Exception as e:
+            print(f"⚠️  Could not parse pyproject.toml: {e}")
+            print("   Continuing with runtime dependencies only...")
+    
+    # Categorize runtime dependencies
+    def categorize_runtime_deps(deps):
+        categories = {
+            'Core HTTP Stack': [],
+            'Utilities': [],
+            'Build & Packaging': []
+        }
+        
+        for dep in deps:
+            dep_lower = dep.lower()
+            if any(x in dep_lower for x in ['requests', 'urllib3', 'certifi', 'pysocks']):
+                categories['Core HTTP Stack'].append(dep)
+            elif any(x in dep_lower for x in ['pyyaml', 'packaging']):
+                categories['Utilities'].append(dep)
+            elif any(x in dep_lower for x in ['setuptools']):
+                categories['Build & Packaging'].append(dep)
+            else:
+                categories['Utilities'].append(dep)  # Default category
+        
+        return categories
+    
+    runtime_categories = categorize_runtime_deps(runtime_deps)
+    
+    # Generate the dependencies.rst file
+    deps_content = """Dependencies
+-------------
+
+NiPyAPI automatically manages its dependencies during installation. Here are the complete dependency details, automatically generated from the actual project dependency files.
+
+Runtime Dependencies
+--------------------
+
+These dependencies are automatically installed when you install NiPyAPI:
+
+"""
+    
+    # Add runtime dependencies by category
+    for category, deps in runtime_categories.items():
+        if deps:
+            deps_content += f"\n**{category}:**\n\n"
+            for dep in sorted(deps):
+                # Parse dependency for description
+                dep_name = re.split(r'[>=<]', dep)[0]
+                
+                descriptions = {
+                    'requests': 'Primary HTTP client for API communication',
+                    'urllib3': 'HTTP client backend and connection pooling', 
+                    'certifi': 'SSL certificate verification',
+                    'pysocks': 'SOCKS proxy support',
+                    'PyYAML': 'YAML file processing and serialization',
+                    'packaging': 'Version comparison utilities',
+                    'setuptools': 'Package management and distribution'
+                }
+                
+                desc = descriptions.get(dep_name, 'Required dependency')
+                deps_content += f"- ``{dep}`` - {desc}\n"
+    
+    # Add optional dependencies
+    if dev_deps or docs_deps:
+        deps_content += "\nOptional Dependencies\n---------------------\n\n"
+        
+        if dev_deps:
+            deps_content += "**Development Dependencies** (install with ``pip install nipyapi[dev]``):\n\n"
+            for dep in sorted(dev_deps):
+                dep_name = re.split(r'[>=<]', dep)[0]
+                dev_descriptions = {
+                    'pytest': 'Testing framework',
+                    'pytest-cov': 'Test coverage measurement',
+                    'coverage': 'Coverage analysis and reporting',
+                    'codecov': 'Coverage reporting service integration',
+                    'flake8': 'Code style and syntax checking',
+                    'pylint': 'Advanced code analysis and linting',
+                    'deepdiff': 'Deep data structure comparison for testing',
+                    'twine': 'Package distribution to PyPI'
+                }
+                desc = dev_descriptions.get(dep_name, 'Development tool')
+                deps_content += f"- ``{dep}`` - {desc}\n"
+        
+        if docs_deps:
+            deps_content += "\n**Documentation Dependencies** (install with ``pip install nipyapi[docs]``):\n\n"
+            for dep in sorted(docs_deps):
+                dep_name = re.split(r'[>=<]', dep)[0]
+                docs_descriptions = {
+                    'Sphinx': 'Documentation generation framework',
+                    'sphinx_rtd_theme': 'Read the Docs theme for Sphinx',
+                    'sphinxcontrib-jquery': 'jQuery support for Sphinx themes'
+                }
+                desc = docs_descriptions.get(dep_name, 'Documentation tool')
+                deps_content += f"- ``{dep}`` - {desc}\n"
+    
+    deps_content += f"""
+Dependency Management
+---------------------
+
+**Automatic Installation:**
+All runtime dependencies are automatically installed when you install NiPyAPI via pip.
+
+**Version Constraints:**
+NiPyAPI specifies minimum versions for compatibility but allows newer versions unless there are known incompatibilities.
+
+**Development Setup:**
+For a complete development environment with all optional dependencies:
+
+.. code-block:: console
+
+    $ pip install -e ".[dev,docs]"
+
+**Minimal Installation:**
+NiPyAPI requires only {len(runtime_deps)} runtime dependencies for basic functionality.
+
+.. note::
+   This dependency information is automatically generated from the project's 
+   ``requirements.txt`` and ``pyproject.toml`` files during documentation build.
+
+"""
+    
+    # Write the dependencies file
+    deps_file = docs_dir / "dependencies.rst"
+    with open(deps_file, 'w') as f:
+        f.write(deps_content)
+    
+    print(f"Generated: {deps_file}")
+    return deps_file
+
+
+def main():
+    """Generate structured documentation."""
+    print("🚀 Generating structured NiPyApi documentation...")
+    print("🔍 Auto-detecting current codebase structure...")
+    
+    # Base output directory
+    docs_dir = Path("docs/nipyapi-docs")
+    
+    # Clean and recreate output directory
+    import shutil
+    if docs_dir.exists():
+        shutil.rmtree(docs_dir)
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Generate core modules documentation  
+    print("\n📚 Generating core modules...")
+    actual_modules = get_actual_core_modules()
+    generate_core_module_docs(docs_dir)
+    print(f"Generated: docs/nipyapi-docs/core_modules.rst (index)")
+    for module in actual_modules:
+        print(f"Generated: docs/nipyapi-docs/core_modules/{module}.rst")
+    
+    # Auto-detect and generate NiFi API documentation
+    print("\n🔧 Auto-detecting NiFi APIs...")
+    nifi_apis = get_actual_apis("nipyapi.nifi")
+    nifi_api_groups = categorize_apis_automatically(nifi_apis)
+    print(f"   Found {len(nifi_apis)} APIs in {len(nifi_api_groups)} categories")
+    
+    nifi_apis_dir = docs_dir / "nifi_apis"
+    nifi_apis_dir.mkdir(exist_ok=True)
+    
+    for group_name, group_info in nifi_api_groups.items():
+        generate_api_group_file(group_name, group_info, "nipyapi.nifi.apis", nifi_apis_dir)
+    
+    generate_api_index(nifi_api_groups, "nipyapi.nifi.apis", nifi_apis_dir, "NiFi")
+    
+    # Auto-detect and generate Registry API documentation  
+    print("\n📋 Auto-detecting Registry APIs...")
+    registry_apis = get_actual_apis("nipyapi.registry")
+    registry_api_groups = categorize_apis_automatically(registry_apis)
+    print(f"   Found {len(registry_apis)} APIs in {len(registry_api_groups)} categories")
+    
+    registry_apis_dir = docs_dir / "registry_apis"
+    registry_apis_dir.mkdir(exist_ok=True)
+    
+    for group_name, group_info in registry_api_groups.items():
+        generate_api_group_file(group_name, group_info, "nipyapi.registry.apis", registry_apis_dir)
+    
+    generate_api_index(registry_api_groups, "nipyapi.registry.apis", registry_apis_dir, "Registry")
+    
+    # Generate simplified model documentation (for now)
+    print("\n📊 Generating model documentation...")
+    generate_simplified_models_docs(NIFI_MODEL_GROUPS, "nipyapi.nifi.models", docs_dir / "nifi_models", "NiFi")
+    generate_simplified_models_docs({}, "nipyapi.registry.models", docs_dir / "registry_models", "Registry")
+    
+    # Generate examples documentation (not a module)
+    print("\n🎯 Generating examples documentation...")
+    generate_examples_docs(docs_dir)
+    
+    # Generate dependencies documentation
+    print("\n📦 Generating dependencies documentation...")
+    generate_dependencies_docs(docs_dir)
+    
+    # Generate main API reference
+    print("\n📖 Generating main API reference...")
+    generate_main_api_reference(docs_dir)
+    
+    print(f"\n✅ Documentation generation complete!")
+    print(f"📁 Output directory: {docs_dir.resolve()}")
+    print(f"🔗 Entry point: {docs_dir / 'api_reference.rst'}")
+    print(f"🤖 Auto-detected: {len(nifi_apis)} NiFi APIs, {len(registry_apis)} Registry APIs")
+
+
+if __name__ == "__main__":
+    main()

@@ -35,11 +35,13 @@ class DataTransferApi(object):
     def commit_input_port_transaction(self, response_code, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
+
         This method makes a synchronous HTTP request.
+
         :param int response_code: The response code. Available values are BAD_CHECKSUM(19), CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
         :param str port_id: The input port id. (required)
         :param str transaction_id: The transaction id. (required)
-        :param object body:
+        :param object body: 
         :return: TransactionResultEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -52,11 +54,13 @@ class DataTransferApi(object):
     def commit_input_port_transaction_with_http_info(self, response_code, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
+
         This method makes a synchronous HTTP request.
+
         :param int response_code: The response code. Available values are BAD_CHECKSUM(19), CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
         :param str port_id: The input port id. (required)
         :param str transaction_id: The transaction id. (required)
-        :param object body:
+        :param object body: 
         :return: TransactionResultEntity
         """
 
@@ -84,10 +88,10 @@ class DataTransferApi(object):
         if ('transaction_id' not in params) or (params['transaction_id'] is None):
             raise ValueError("Missing the required parameter `transaction_id` when calling `commit_input_port_transaction`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -117,7 +121,7 @@ class DataTransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}', 'DELETE',
                                         path_params,
@@ -136,12 +140,14 @@ class DataTransferApi(object):
     def commit_output_port_transaction(self, response_code, checksum, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
+
         This method makes a synchronous HTTP request.
+
         :param int response_code: The response code. Available values are CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
         :param str checksum: A checksum calculated at client side using CRC32 to check flow file content integrity. It must match with the value calculated at server side. (required)
         :param str port_id: The output port id. (required)
         :param str transaction_id: The transaction id. (required)
-        :param object body:
+        :param object body: 
         :return: TransactionResultEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -154,12 +160,14 @@ class DataTransferApi(object):
     def commit_output_port_transaction_with_http_info(self, response_code, checksum, port_id, transaction_id, **kwargs):
         """
         Commit or cancel the specified transaction
+
         This method makes a synchronous HTTP request.
+
         :param int response_code: The response code. Available values are CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
         :param str checksum: A checksum calculated at client side using CRC32 to check flow file content integrity. It must match with the value calculated at server side. (required)
         :param str port_id: The output port id. (required)
         :param str transaction_id: The transaction id. (required)
-        :param object body:
+        :param object body: 
         :return: TransactionResultEntity
         """
 
@@ -190,11 +198,11 @@ class DataTransferApi(object):
         if ('transaction_id' not in params) or (params['transaction_id'] is None):
             raise ValueError("Missing the required parameter `transaction_id` when calling `commit_output_port_transaction`")
 
- 
- 
- 
- 
- 
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -226,7 +234,7 @@ class DataTransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}', 'DELETE',
                                         path_params,
@@ -245,10 +253,12 @@ class DataTransferApi(object):
     def create_port_transaction(self, port_type, port_id, **kwargs):
         """
         Create a transaction to the specified output port or input port
+
         This method makes a synchronous HTTP request.
+
         :param str port_type: The port type. (required)
-        :param str port_id: (required)
-        :param object body:
+        :param str port_id:  (required)
+        :param object body: 
         :return: TransactionResultEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -261,10 +271,12 @@ class DataTransferApi(object):
     def create_port_transaction_with_http_info(self, port_type, port_id, **kwargs):
         """
         Create a transaction to the specified output port or input port
+
         This method makes a synchronous HTTP request.
+
         :param str port_type: The port type. (required)
-        :param str port_id: (required)
-        :param object body:
+        :param str port_id:  (required)
+        :param object body: 
         :return: TransactionResultEntity
         """
 
@@ -289,9 +301,9 @@ class DataTransferApi(object):
         if ('port_id' not in params) or (params['port_id'] is None):
             raise ValueError("Missing the required parameter `port_id` when calling `create_port_transaction`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -319,7 +331,7 @@ class DataTransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/data-transfer/{portType}/{portId}/transactions', 'POST',
                                         path_params,
@@ -338,10 +350,12 @@ class DataTransferApi(object):
     def extend_input_port_transaction_ttl(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
+
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
+
+        :param str port_id:  (required)
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: TransactionResultEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -354,10 +368,12 @@ class DataTransferApi(object):
     def extend_input_port_transaction_ttl_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
+
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
+
+        :param str port_id:  (required)
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: TransactionResultEntity
         """
 
@@ -382,9 +398,9 @@ class DataTransferApi(object):
         if ('transaction_id' not in params) or (params['transaction_id'] is None):
             raise ValueError("Missing the required parameter `transaction_id` when calling `extend_input_port_transaction_ttl`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -412,7 +428,7 @@ class DataTransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}', 'PUT',
                                         path_params,
@@ -431,10 +447,12 @@ class DataTransferApi(object):
     def extend_output_port_transaction_ttl(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
+
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
+
+        :param str port_id:  (required)
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: TransactionResultEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -447,10 +465,12 @@ class DataTransferApi(object):
     def extend_output_port_transaction_ttl_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Extend transaction TTL
+
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
+
+        :param str port_id:  (required)
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: TransactionResultEntity
         """
 
@@ -475,9 +495,9 @@ class DataTransferApi(object):
         if ('transaction_id' not in params) or (params['transaction_id'] is None):
             raise ValueError("Missing the required parameter `transaction_id` when calling `extend_output_port_transaction_ttl`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -505,7 +525,7 @@ class DataTransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}', 'PUT',
                                         path_params,
@@ -524,10 +544,12 @@ class DataTransferApi(object):
     def receive_flow_files(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files to the input port
+
         This method makes a synchronous HTTP request.
+
         :param str port_id: The input port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -540,10 +562,12 @@ class DataTransferApi(object):
     def receive_flow_files_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files to the input port
+
         This method makes a synchronous HTTP request.
+
         :param str port_id: The input port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: str
         """
 
@@ -568,9 +592,9 @@ class DataTransferApi(object):
         if ('transaction_id' not in params) or (params['transaction_id'] is None):
             raise ValueError("Missing the required parameter `transaction_id` when calling `receive_flow_files`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -598,7 +622,7 @@ class DataTransferApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/data-transfer/input-ports/{portId}/transactions/{transactionId}/flow-files', 'POST',
                                         path_params,
@@ -617,10 +641,12 @@ class DataTransferApi(object):
     def transfer_flow_files(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files from the output port
+
         This method makes a synchronous HTTP request.
+
         :param str port_id: The output port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -633,10 +659,12 @@ class DataTransferApi(object):
     def transfer_flow_files_with_http_info(self, port_id, transaction_id, **kwargs):
         """
         Transfer flow files from the output port
+
         This method makes a synchronous HTTP request.
+
         :param str port_id: The output port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
+        :param str transaction_id:  (required)
+        :param object body: 
         :return: None
         """
 
@@ -661,9 +689,9 @@ class DataTransferApi(object):
         if ('transaction_id' not in params) or (params['transaction_id'] is None):
             raise ValueError("Missing the required parameter `transaction_id` when calling `transfer_flow_files`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -691,7 +719,7 @@ class DataTransferApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/data-transfer/output-ports/{portId}/transactions/{transactionId}/flow-files', 'GET',
                                         path_params,

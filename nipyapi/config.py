@@ -4,10 +4,14 @@ Also provides a handy link to the low-level client SDK configuration singleton
 objects.
 
 Notes for NiFi/Registry 2.x:
+
 - Prefer configuring TLS on the configuration objects directly:
+
   - nifi_config.ssl_ca_cert, nifi_config.cert_file, nifi_config.key_file
   - registry_config.ssl_ca_cert, registry_config.cert_file, registry_config.key_file
+
 - Then connect via utils.set_endpoint(url, ssl=True, login=True|False)
+
   - For mTLS, pass login=False and rely on the configured client cert/key
 - Supported environment toggles for tests and convenience:
   - REQUESTS_CA_BUNDLE (CA bundle)

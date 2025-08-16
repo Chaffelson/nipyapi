@@ -35,8 +35,11 @@ class AccessApi(object):
     def create_access_token_by_trying_all_providers(self, **kwargs):
         """
         Create token trying all providers
+
         Creates a token for accessing the REST API via auto-detected method of verifying client identity claim credentials. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -49,8 +52,11 @@ class AccessApi(object):
     def create_access_token_by_trying_all_providers_with_http_info(self, **kwargs):
         """
         Create token trying all providers
+
         Creates a token for accessing the REST API via auto-detected method of verifying client identity claim credentials. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
 
@@ -105,8 +111,11 @@ class AccessApi(object):
     def create_access_token_using_basic_auth_credentials(self, **kwargs):
         """
         Create token using basic auth
+
         Creates a token for accessing the REST API via username/password. The user credentials must be passed in standard HTTP Basic Auth format. That is: 'Authorization: Basic <credentials>', where <credentials> is the base64 encoded value of '<username>:<password>'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -119,8 +128,11 @@ class AccessApi(object):
     def create_access_token_using_basic_auth_credentials_with_http_info(self, **kwargs):
         """
         Create token using basic auth
+
         Creates a token for accessing the REST API via username/password. The user credentials must be passed in standard HTTP Basic Auth format. That is: 'Authorization: Basic <credentials>', where <credentials> is the base64 encoded value of '<username>:<password>'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
 
@@ -156,7 +168,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['basicAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/token/login', 'POST',
                                         path_params,
@@ -175,8 +187,11 @@ class AccessApi(object):
     def create_access_token_using_identity_provider_credentials(self, **kwargs):
         """
         Create token using identity provider
+
         Creates a token for accessing the REST API via a custom identity provider. The user credentials must be passed in a format understood by the custom identity provider, e.g., a third-party auth token in an HTTP header. The exact format of the user credentials expected by the custom identity provider can be discovered by 'GET /access/token/identity-provider/usage'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -189,8 +204,11 @@ class AccessApi(object):
     def create_access_token_using_identity_provider_credentials_with_http_info(self, **kwargs):
         """
         Create token using identity provider
+
         Creates a token for accessing the REST API via a custom identity provider. The user credentials must be passed in a format understood by the custom identity provider, e.g., a third-party auth token in an HTTP header. The exact format of the user credentials expected by the custom identity provider can be discovered by 'GET /access/token/identity-provider/usage'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
 
@@ -226,7 +244,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/token/identity-provider', 'POST',
                                         path_params,
@@ -245,8 +263,11 @@ class AccessApi(object):
     def create_access_token_using_kerberos_ticket(self, **kwargs):
         """
         Create token using kerberos
+
         Creates a token for accessing the REST API via Kerberos Service Tickets or SPNEGO Tokens (which includes Kerberos Service Tickets). The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -259,8 +280,11 @@ class AccessApi(object):
     def create_access_token_using_kerberos_ticket_with_http_info(self, **kwargs):
         """
         Create token using kerberos
+
         Creates a token for accessing the REST API via Kerberos Service Tickets or SPNEGO Tokens (which includes Kerberos Service Tickets). The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
 
@@ -296,7 +320,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/token/kerberos', 'POST',
                                         path_params,
@@ -315,8 +339,11 @@ class AccessApi(object):
     def get_access_status(self, **kwargs):
         """
         Get access status
+
         Returns the current client's authenticated identity and permissions to top-level resources
+
         This method makes a synchronous HTTP request.
+
         :return: CurrentUser
         """
         kwargs['_return_http_data_only'] = True
@@ -329,8 +356,11 @@ class AccessApi(object):
     def get_access_status_with_http_info(self, **kwargs):
         """
         Get access status
+
         Returns the current client's authenticated identity and permissions to top-level resources
+
         This method makes a synchronous HTTP request.
+
         :return: CurrentUser
         """
 
@@ -366,7 +396,7 @@ class AccessApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access', 'GET',
                                         path_params,
@@ -385,8 +415,11 @@ class AccessApi(object):
     def get_identity_provider_usage_instructions(self, **kwargs):
         """
         Get identity provider usage
+
         Provides a description of how the currently configured identity provider expects credentials to be passed to POST /access/token/identity-provider
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -399,8 +432,11 @@ class AccessApi(object):
     def get_identity_provider_usage_instructions_with_http_info(self, **kwargs):
         """
         Get identity provider usage
+
         Provides a description of how the currently configured identity provider expects credentials to be passed to POST /access/token/identity-provider
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
 
@@ -436,7 +472,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/token/identity-provider/usage', 'GET',
                                         path_params,
@@ -455,8 +491,11 @@ class AccessApi(object):
     def logout(self, **kwargs):
         """
         Performs a logout for other providers that have been issued a JWT.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -469,8 +508,11 @@ class AccessApi(object):
     def logout_with_http_info(self, **kwargs):
         """
         Performs a logout for other providers that have been issued a JWT.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
 
@@ -502,7 +544,7 @@ class AccessApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/logout', 'DELETE',
                                         path_params,
@@ -521,8 +563,11 @@ class AccessApi(object):
     def logout_complete(self, **kwargs):
         """
         Completes the logout sequence.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -535,8 +580,11 @@ class AccessApi(object):
     def logout_complete_with_http_info(self, **kwargs):
         """
         Completes the logout sequence.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
 
@@ -568,7 +616,7 @@ class AccessApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/logout/complete', 'GET',
                                         path_params,
@@ -587,8 +635,11 @@ class AccessApi(object):
     def oidc_callback(self, **kwargs):
         """
         Redirect/callback URI for processing the result of the OpenId Connect login sequence.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -601,8 +652,11 @@ class AccessApi(object):
     def oidc_callback_with_http_info(self, **kwargs):
         """
         Redirect/callback URI for processing the result of the OpenId Connect login sequence.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
 
@@ -638,7 +692,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/oidc/callback', 'GET',
                                         path_params,
@@ -657,8 +711,11 @@ class AccessApi(object):
     def oidc_exchange(self, **kwargs):
         """
         Retrieves a JWT following a successful login sequence using the configured OpenId Connect provider.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -671,8 +728,11 @@ class AccessApi(object):
     def oidc_exchange_with_http_info(self, **kwargs):
         """
         Retrieves a JWT following a successful login sequence using the configured OpenId Connect provider.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
 
@@ -708,7 +768,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/oidc/exchange', 'POST',
                                         path_params,
@@ -727,8 +787,11 @@ class AccessApi(object):
     def oidc_logout(self, **kwargs):
         """
         Performs a logout in the OpenId Provider.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -741,8 +804,11 @@ class AccessApi(object):
     def oidc_logout_with_http_info(self, **kwargs):
         """
         Performs a logout in the OpenId Provider.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
 
@@ -778,7 +844,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/oidc/logout', 'GET',
                                         path_params,
@@ -797,8 +863,11 @@ class AccessApi(object):
     def oidc_logout_callback(self, **kwargs):
         """
         Redirect/callback URI for processing the result of the OpenId Connect logout sequence.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -811,8 +880,11 @@ class AccessApi(object):
     def oidc_logout_callback_with_http_info(self, **kwargs):
         """
         Redirect/callback URI for processing the result of the OpenId Connect logout sequence.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
 
@@ -848,7 +920,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/oidc/logout/callback', 'GET',
                                         path_params,
@@ -867,8 +939,11 @@ class AccessApi(object):
     def oidc_request(self, **kwargs):
         """
         Initiates a request to authenticate through the configured OpenId Connect provider.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
         kwargs['_return_http_data_only'] = True
@@ -881,8 +956,11 @@ class AccessApi(object):
     def oidc_request_with_http_info(self, **kwargs):
         """
         Initiates a request to authenticate through the configured OpenId Connect provider.
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
+
         :return: None
         """
 
@@ -918,7 +996,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/oidc/request', 'GET',
                                         path_params,
@@ -937,8 +1015,11 @@ class AccessApi(object):
     def test_identity_provider_recognizes_credentials_format(self, **kwargs):
         """
         Test identity provider
+
         Tests the format of the credentials against this identity provider without preforming authentication on the credentials to validate them. The user credentials should be passed in a format understood by the custom identity provider as defined by 'GET /access/token/identity-provider/usage'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
         kwargs['_return_http_data_only'] = True
@@ -951,8 +1032,11 @@ class AccessApi(object):
     def test_identity_provider_recognizes_credentials_format_with_http_info(self, **kwargs):
         """
         Test identity provider
+
         Tests the format of the credentials against this identity provider without preforming authentication on the credentials to validate them. The user credentials should be passed in a format understood by the custom identity provider as defined by 'GET /access/token/identity-provider/usage'.
+
         This method makes a synchronous HTTP request.
+
         :return: str
         """
 
@@ -988,7 +1072,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/access/token/identity-provider/test', 'POST',
                                         path_params,

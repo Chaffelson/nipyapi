@@ -71,6 +71,7 @@ Recommended usage patterns
 --------------------------
 
 - Minimal env + explicit calls:
+
   - Optionally set ``REQUESTS_CA_BUNDLE`` (shared CA) and
     ``NIFI_API_ENDPOINT``/``REGISTRY_API_ENDPOINT`` for defaults.
   - Set credentials/certs on ``nipyapi.config``.

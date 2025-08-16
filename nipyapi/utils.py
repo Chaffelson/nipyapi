@@ -471,12 +471,12 @@ def enforce_max_ver(max_version, bool_response=False, service='nifi', error_mess
 
 def enforce_min_ver(min_version, bool_response=False, service='nifi'):
     """
-    Raises an error if target NiFi environment is not minimum version
+    Raises an error if target NiFi environment is not minimum version.
+
     Args:
         min_version (str): Version to check against
-        bool_response (bool): If True, will return True instead of
-         raising error
-     service: nifi or registry
+        bool_response (bool): If True, will return True instead of raising error
+        service (str): nifi or registry
 
     Returns:
         (bool) or (NotImplementedError)

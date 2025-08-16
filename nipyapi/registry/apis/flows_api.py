@@ -35,8 +35,11 @@ class FlowsApi(object):
     def get_available_flow_fields(self, **kwargs):
         """
         Get flow fields
+
         Retrieves the flow field names that can be used for searching or sorting on flows.
+
         This method makes a synchronous HTTP request.
+
         :return: Fields
         """
         kwargs['_return_http_data_only'] = True
@@ -49,8 +52,11 @@ class FlowsApi(object):
     def get_available_flow_fields_with_http_info(self, **kwargs):
         """
         Get flow fields
+
         Retrieves the flow field names that can be used for searching or sorting on flows.
+
         This method makes a synchronous HTTP request.
+
         :return: Fields
         """
 
@@ -86,7 +92,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/fields', 'GET',
                                         path_params,
@@ -105,8 +111,11 @@ class FlowsApi(object):
     def get_flow1(self, flow_id, **kwargs):
         """
         Get flow
+
         Gets a flow by id.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlow
         """
@@ -120,8 +129,11 @@ class FlowsApi(object):
     def get_flow1_with_http_info(self, flow_id, **kwargs):
         """
         Get flow
+
         Gets a flow by id.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlow
         """
@@ -144,7 +156,7 @@ class FlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_flow1`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -164,7 +176,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}', 'GET',
                                         path_params,
@@ -183,8 +195,11 @@ class FlowsApi(object):
     def get_flow_version1(self, flow_id, version_number, **kwargs):
         """
         Get flow version
+
         Gets the given version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
         :return: VersionedFlowSnapshot
@@ -199,8 +214,11 @@ class FlowsApi(object):
     def get_flow_version1_with_http_info(self, flow_id, version_number, **kwargs):
         """
         Get flow version
+
         Gets the given version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
         :return: VersionedFlowSnapshot
@@ -227,8 +245,8 @@ class FlowsApi(object):
         if ('version_number' not in params) or (params['version_number'] is None):
             raise ValueError("Missing the required parameter `version_number` when calling `get_flow_version1`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -250,7 +268,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions/{versionNumber}', 'GET',
                                         path_params,
@@ -269,8 +287,11 @@ class FlowsApi(object):
     def get_flow_versions1(self, flow_id, **kwargs):
         """
         Get flow versions
+
         Gets summary information for all versions of a given flow. Versions are ordered newest->oldest.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: list[VersionedFlowSnapshotMetadata]
         """
@@ -284,8 +305,11 @@ class FlowsApi(object):
     def get_flow_versions1_with_http_info(self, flow_id, **kwargs):
         """
         Get flow versions
+
         Gets summary information for all versions of a given flow. Versions are ordered newest->oldest.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: list[VersionedFlowSnapshotMetadata]
         """
@@ -308,7 +332,7 @@ class FlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_flow_versions1`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -328,7 +352,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions', 'GET',
                                         path_params,
@@ -347,8 +371,11 @@ class FlowsApi(object):
     def get_latest_flow_version1(self, flow_id, **kwargs):
         """
         Get latest flow version
+
         Gets the latest version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshot
         """
@@ -362,8 +389,11 @@ class FlowsApi(object):
     def get_latest_flow_version1_with_http_info(self, flow_id, **kwargs):
         """
         Get latest flow version
+
         Gets the latest version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshot
         """
@@ -386,7 +416,7 @@ class FlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_latest_flow_version1`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -406,7 +436,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions/latest', 'GET',
                                         path_params,
@@ -425,8 +455,11 @@ class FlowsApi(object):
     def get_latest_flow_version_metadata1(self, flow_id, **kwargs):
         """
         Get latest flow version metadata
+
         Gets the metadata for the latest version of a flow.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshotMetadata
         """
@@ -440,8 +473,11 @@ class FlowsApi(object):
     def get_latest_flow_version_metadata1_with_http_info(self, flow_id, **kwargs):
         """
         Get latest flow version metadata
+
         Gets the metadata for the latest version of a flow.
+
         This method makes a synchronous HTTP request.
+
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshotMetadata
         """
@@ -464,7 +500,7 @@ class FlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_latest_flow_version_metadata1`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -484,7 +520,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions/latest/metadata', 'GET',
                                         path_params,

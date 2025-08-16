@@ -35,7 +35,9 @@ class ConnectionsApi(object):
     def delete_connection(self, id, **kwargs):
         """
         Deletes a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -52,7 +54,9 @@ class ConnectionsApi(object):
     def delete_connection_with_http_info(self, id, **kwargs):
         """
         Deletes a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -78,10 +82,10 @@ class ConnectionsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `delete_connection`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -107,7 +111,7 @@ class ConnectionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/connections/{id}', 'DELETE',
                                         path_params,
@@ -126,7 +130,9 @@ class ConnectionsApi(object):
     def get_connection(self, id, **kwargs):
         """
         Gets a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: ConnectionEntity
         """
@@ -140,7 +146,9 @@ class ConnectionsApi(object):
     def get_connection_with_http_info(self, id, **kwargs):
         """
         Gets a connection
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: ConnectionEntity
         """
@@ -163,7 +171,7 @@ class ConnectionsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_connection`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -183,7 +191,7 @@ class ConnectionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/connections/{id}', 'GET',
                                         path_params,
@@ -202,7 +210,9 @@ class ConnectionsApi(object):
     def update_connection(self, body, id, **kwargs):
         """
         Updates a connection
+
         This method makes a synchronous HTTP request.
+
         :param ConnectionEntity body: The connection configuration details. (required)
         :param str id: The connection id. (required)
         :return: ConnectionEntity
@@ -217,7 +227,9 @@ class ConnectionsApi(object):
     def update_connection_with_http_info(self, body, id, **kwargs):
         """
         Updates a connection
+
         This method makes a synchronous HTTP request.
+
         :param ConnectionEntity body: The connection configuration details. (required)
         :param str id: The connection id. (required)
         :return: ConnectionEntity
@@ -244,8 +256,8 @@ class ConnectionsApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_connection`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -271,7 +283,7 @@ class ConnectionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/connections/{id}', 'PUT',
                                         path_params,

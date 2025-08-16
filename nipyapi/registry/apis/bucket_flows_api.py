@@ -35,8 +35,11 @@ class BucketFlowsApi(object):
     def create_flow(self, body, bucket_id, **kwargs):
         """
         Create flow
+
         Creates a flow in the given bucket. The flow id is created by the server and populated in the returned entity.
+
         This method makes a synchronous HTTP request.
+
         :param VersionedFlow body: The details of the flow to create. (required)
         :param str bucket_id: The bucket identifier (required)
         :return: VersionedFlow
@@ -51,8 +54,11 @@ class BucketFlowsApi(object):
     def create_flow_with_http_info(self, body, bucket_id, **kwargs):
         """
         Create flow
+
         Creates a flow in the given bucket. The flow id is created by the server and populated in the returned entity.
+
         This method makes a synchronous HTTP request.
+
         :param VersionedFlow body: The details of the flow to create. (required)
         :param str bucket_id: The bucket identifier (required)
         :return: VersionedFlow
@@ -79,8 +85,8 @@ class BucketFlowsApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `create_flow`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -106,7 +112,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows', 'POST',
                                         path_params,
@@ -125,8 +131,11 @@ class BucketFlowsApi(object):
     def create_flow_version(self, body, bucket_id, flow_id, **kwargs):
         """
         Create flow version
+
         Creates the next version of a flow. The version number of the object being created must be the next available version integer. Flow versions are immutable after they are created.
+
         This method makes a synchronous HTTP request.
+
         :param VersionedFlowSnapshot body: The new versioned flow snapshot. (required)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
@@ -143,8 +152,11 @@ class BucketFlowsApi(object):
     def create_flow_version_with_http_info(self, body, bucket_id, flow_id, **kwargs):
         """
         Create flow version
+
         Creates the next version of a flow. The version number of the object being created must be the next available version integer. Flow versions are immutable after they are created.
+
         This method makes a synchronous HTTP request.
+
         :param VersionedFlowSnapshot body: The new versioned flow snapshot. (required)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
@@ -176,10 +188,10 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `create_flow_version`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -209,7 +221,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions', 'POST',
                                         path_params,
@@ -228,8 +240,11 @@ class BucketFlowsApi(object):
     def delete_flow(self, version, bucket_id, flow_id, **kwargs):
         """
         Delete bucket flow
+
         Deletes a flow, including all saved versions of that flow.
+
         This method makes a synchronous HTTP request.
+
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
@@ -246,8 +261,11 @@ class BucketFlowsApi(object):
     def delete_flow_with_http_info(self, version, bucket_id, flow_id, **kwargs):
         """
         Delete bucket flow
+
         Deletes a flow, including all saved versions of that flow.
+
         This method makes a synchronous HTTP request.
+
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
@@ -279,10 +297,10 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `delete_flow`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -308,7 +326,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}', 'DELETE',
                                         path_params,
@@ -327,8 +345,11 @@ class BucketFlowsApi(object):
     def export_versioned_flow(self, bucket_id, flow_id, version_number, **kwargs):
         """
         Exports specified bucket flow version content
+
         Exports the specified version of a flow, including the metadata and content of the flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
@@ -344,8 +365,11 @@ class BucketFlowsApi(object):
     def export_versioned_flow_with_http_info(self, bucket_id, flow_id, version_number, **kwargs):
         """
         Exports specified bucket flow version content
+
         Exports the specified version of a flow, including the metadata and content of the flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
@@ -376,9 +400,9 @@ class BucketFlowsApi(object):
         if ('version_number' not in params) or (params['version_number'] is None):
             raise ValueError("Missing the required parameter `version_number` when calling `export_versioned_flow`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -402,7 +426,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/{versionNumber}/export', 'GET',
                                         path_params,
@@ -421,8 +445,11 @@ class BucketFlowsApi(object):
     def get_flow(self, bucket_id, flow_id, **kwargs):
         """
         Get bucket flow
+
         Retrieves the flow with the given id in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlow
@@ -437,8 +464,11 @@ class BucketFlowsApi(object):
     def get_flow_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Get bucket flow
+
         Retrieves the flow with the given id in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlow
@@ -465,8 +495,8 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_flow`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -488,7 +518,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}', 'GET',
                                         path_params,
@@ -507,8 +537,11 @@ class BucketFlowsApi(object):
     def get_flow_diff(self, bucket_id, flow_id, version_a, version_b, **kwargs):
         """
         Get bucket flow diff
+
         Computes the differences between two given versions of a flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param int version_a: The first version number (required)
@@ -525,8 +558,11 @@ class BucketFlowsApi(object):
     def get_flow_diff_with_http_info(self, bucket_id, flow_id, version_a, version_b, **kwargs):
         """
         Get bucket flow diff
+
         Computes the differences between two given versions of a flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param int version_a: The first version number (required)
@@ -561,10 +597,10 @@ class BucketFlowsApi(object):
         if ('version_b' not in params) or (params['version_b'] is None):
             raise ValueError("Missing the required parameter `version_b` when calling `get_flow_diff`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -590,7 +626,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/diff/{versionA}/{versionB}', 'GET',
                                         path_params,
@@ -609,8 +645,11 @@ class BucketFlowsApi(object):
     def get_flow_version(self, bucket_id, flow_id, version_number, **kwargs):
         """
         Get bucket flow version
+
         Gets the given version of a flow, including the metadata and content for the version.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
@@ -626,8 +665,11 @@ class BucketFlowsApi(object):
     def get_flow_version_with_http_info(self, bucket_id, flow_id, version_number, **kwargs):
         """
         Get bucket flow version
+
         Gets the given version of a flow, including the metadata and content for the version.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
@@ -658,9 +700,9 @@ class BucketFlowsApi(object):
         if ('version_number' not in params) or (params['version_number'] is None):
             raise ValueError("Missing the required parameter `version_number` when calling `get_flow_version`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -684,7 +726,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/{versionNumber}', 'GET',
                                         path_params,
@@ -703,8 +745,11 @@ class BucketFlowsApi(object):
     def get_flow_versions(self, bucket_id, flow_id, **kwargs):
         """
         Get bucket flow versions
+
         Gets summary information for all versions of a flow. Versions are ordered newest->oldest.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: list[VersionedFlowSnapshotMetadata]
@@ -719,8 +764,11 @@ class BucketFlowsApi(object):
     def get_flow_versions_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Get bucket flow versions
+
         Gets summary information for all versions of a flow. Versions are ordered newest->oldest.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: list[VersionedFlowSnapshotMetadata]
@@ -747,8 +795,8 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_flow_versions`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -770,7 +818,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions', 'GET',
                                         path_params,
@@ -789,8 +837,11 @@ class BucketFlowsApi(object):
     def get_flows(self, bucket_id, **kwargs):
         """
         Get bucket flows
+
         Retrieves all flows in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :return: list[VersionedFlow]
         """
@@ -804,8 +855,11 @@ class BucketFlowsApi(object):
     def get_flows_with_http_info(self, bucket_id, **kwargs):
         """
         Get bucket flows
+
         Retrieves all flows in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :return: list[VersionedFlow]
         """
@@ -828,7 +882,7 @@ class BucketFlowsApi(object):
         if ('bucket_id' not in params) or (params['bucket_id'] is None):
             raise ValueError("Missing the required parameter `bucket_id` when calling `get_flows`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -848,7 +902,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows', 'GET',
                                         path_params,
@@ -867,8 +921,11 @@ class BucketFlowsApi(object):
     def get_latest_flow_version(self, bucket_id, flow_id, **kwargs):
         """
         Get latest bucket flow version content
+
         Gets the latest version of a flow, including the metadata and content of the flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshot
@@ -883,8 +940,11 @@ class BucketFlowsApi(object):
     def get_latest_flow_version_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Get latest bucket flow version content
+
         Gets the latest version of a flow, including the metadata and content of the flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshot
@@ -911,8 +971,8 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_latest_flow_version`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -934,7 +994,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/latest', 'GET',
                                         path_params,
@@ -953,8 +1013,11 @@ class BucketFlowsApi(object):
     def get_latest_flow_version_metadata(self, bucket_id, flow_id, **kwargs):
         """
         Get latest bucket flow version metadata
+
         Gets the metadata for the latest version of a flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshotMetadata
@@ -969,8 +1032,11 @@ class BucketFlowsApi(object):
     def get_latest_flow_version_metadata_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Get latest bucket flow version metadata
+
         Gets the metadata for the latest version of a flow.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshotMetadata
@@ -997,8 +1063,8 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `get_latest_flow_version_metadata`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1020,7 +1086,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/latest/metadata', 'GET',
                                         path_params,
@@ -1039,12 +1105,15 @@ class BucketFlowsApi(object):
     def import_versioned_flow(self, bucket_id, flow_id, **kwargs):
         """
         Import flow version
+
         Import the next version of a flow. The version number of the object being created will be the next available version integer. Flow versions are immutable after they are created.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param VersionedFlowSnapshot body: file
-        :param str comments:
+        :param str comments: 
         :return: VersionedFlowSnapshot
         """
         kwargs['_return_http_data_only'] = True
@@ -1057,12 +1126,15 @@ class BucketFlowsApi(object):
     def import_versioned_flow_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
         Import flow version
+
         Import the next version of a flow. The version number of the object being created will be the next available version integer. Flow versions are immutable after they are created.
+
         This method makes a synchronous HTTP request.
+
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
         :param VersionedFlowSnapshot body: file
-        :param str comments:
+        :param str comments: 
         :return: VersionedFlowSnapshot
         """
 
@@ -1087,10 +1159,10 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `import_versioned_flow`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1120,7 +1192,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/import', 'POST',
                                         path_params,
@@ -1139,8 +1211,11 @@ class BucketFlowsApi(object):
     def update_flow(self, body, bucket_id, flow_id, **kwargs):
         """
         Update bucket flow
+
         Updates the flow with the given id in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param VersionedFlow body: The updated flow (required)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
@@ -1156,8 +1231,11 @@ class BucketFlowsApi(object):
     def update_flow_with_http_info(self, body, bucket_id, flow_id, **kwargs):
         """
         Update bucket flow
+
         Updates the flow with the given id in the given bucket.
+
         This method makes a synchronous HTTP request.
+
         :param VersionedFlow body: The updated flow (required)
         :param str bucket_id: The bucket identifier (required)
         :param str flow_id: The flow identifier (required)
@@ -1188,9 +1266,9 @@ class BucketFlowsApi(object):
         if ('flow_id' not in params) or (params['flow_id'] is None):
             raise ValueError("Missing the required parameter `flow_id` when calling `update_flow`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1218,7 +1296,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}', 'PUT',
                                         path_params,

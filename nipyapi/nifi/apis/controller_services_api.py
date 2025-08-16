@@ -35,7 +35,9 @@ class ControllerServicesApi(object):
     def analyze_configuration(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
+
         This method makes a synchronous HTTP request.
+
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The controller service id. (required)
         :return: ConfigurationAnalysisEntity
@@ -50,7 +52,9 @@ class ControllerServicesApi(object):
     def analyze_configuration_with_http_info(self, body, id, **kwargs):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
+
         This method makes a synchronous HTTP request.
+
         :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
         :param str id: The controller service id. (required)
         :return: ConfigurationAnalysisEntity
@@ -77,8 +81,8 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `analyze_configuration`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -104,7 +108,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/config/analysis', 'POST',
                                         path_params,
@@ -123,7 +127,9 @@ class ControllerServicesApi(object):
     def clear_state1(self, id, **kwargs):
         """
         Clears the state for a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :return: ComponentStateEntity
         """
@@ -137,7 +143,9 @@ class ControllerServicesApi(object):
     def clear_state1_with_http_info(self, id, **kwargs):
         """
         Clears the state for a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :return: ComponentStateEntity
         """
@@ -160,7 +168,7 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `clear_state1`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -180,7 +188,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -199,8 +207,11 @@ class ControllerServicesApi(object):
     def delete_verification_request(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Controller Service (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -215,8 +226,11 @@ class ControllerServicesApi(object):
     def delete_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Controller Service (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -243,8 +257,8 @@ class ControllerServicesApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `delete_verification_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -266,7 +280,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -285,10 +299,13 @@ class ControllerServicesApi(object):
     def get_controller_service(self, id, **kwargs):
         """
         Gets a controller service
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
-        :param bool ui_only:
+        :param bool ui_only: 
         :return: ControllerServiceEntity
         """
         kwargs['_return_http_data_only'] = True
@@ -301,10 +318,13 @@ class ControllerServicesApi(object):
     def get_controller_service_with_http_info(self, id, **kwargs):
         """
         Gets a controller service
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
-        :param bool ui_only:
+        :param bool ui_only: 
         :return: ControllerServiceEntity
         """
 
@@ -326,8 +346,8 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_controller_service`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -349,7 +369,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}', 'GET',
                                         path_params,
@@ -368,7 +388,9 @@ class ControllerServicesApi(object):
     def get_controller_service_references(self, id, **kwargs):
         """
         Gets a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :return: ControllerServiceReferencingComponentsEntity
         """
@@ -382,7 +404,9 @@ class ControllerServicesApi(object):
     def get_controller_service_references_with_http_info(self, id, **kwargs):
         """
         Gets a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :return: ControllerServiceReferencingComponentsEntity
         """
@@ -405,7 +429,7 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_controller_service_references`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -425,7 +449,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/references', 'GET',
                                         path_params,
@@ -444,7 +468,9 @@ class ControllerServicesApi(object):
     def get_property_descriptor1(self, id, property_name, **kwargs):
         """
         Gets a controller service property descriptor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :param str property_name: The property name to return the descriptor for. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -460,7 +486,9 @@ class ControllerServicesApi(object):
     def get_property_descriptor1_with_http_info(self, id, property_name, **kwargs):
         """
         Gets a controller service property descriptor
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :param str property_name: The property name to return the descriptor for. (required)
         :param bool sensitive: Property Descriptor requested sensitive status
@@ -488,9 +516,9 @@ class ControllerServicesApi(object):
         if ('property_name' not in params) or (params['property_name'] is None):
             raise ValueError("Missing the required parameter `property_name` when calling `get_property_descriptor1`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -514,7 +542,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/descriptors', 'GET',
                                         path_params,
@@ -533,7 +561,9 @@ class ControllerServicesApi(object):
     def get_state(self, id, **kwargs):
         """
         Gets the state for a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :return: ComponentStateEntity
         """
@@ -547,7 +577,9 @@ class ControllerServicesApi(object):
     def get_state_with_http_info(self, id, **kwargs):
         """
         Gets the state for a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :return: ComponentStateEntity
         """
@@ -570,7 +602,7 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `get_state`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -590,7 +622,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/state', 'GET',
                                         path_params,
@@ -609,8 +641,11 @@ class ControllerServicesApi(object):
     def get_verification_request(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Controller Service (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -625,8 +660,11 @@ class ControllerServicesApi(object):
     def get_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
+
         :param str id: The ID of the Controller Service (required)
         :param str request_id: The ID of the Verification Request (required)
         :return: VerifyConfigRequestEntity
@@ -653,8 +691,8 @@ class ControllerServicesApi(object):
         if ('request_id' not in params) or (params['request_id'] is None):
             raise ValueError("Missing the required parameter `request_id` when calling `get_verification_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -676,7 +714,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -695,7 +733,9 @@ class ControllerServicesApi(object):
     def remove_controller_service(self, id, **kwargs):
         """
         Deletes a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -712,7 +752,9 @@ class ControllerServicesApi(object):
     def remove_controller_service_with_http_info(self, id, **kwargs):
         """
         Deletes a controller service
+
         This method makes a synchronous HTTP request.
+
         :param str id: The controller service id. (required)
         :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
         :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
@@ -738,10 +780,10 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `remove_controller_service`")
 
- 
- 
- 
- 
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -767,7 +809,7 @@ class ControllerServicesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}', 'DELETE',
                                         path_params,
@@ -786,8 +828,11 @@ class ControllerServicesApi(object):
     def submit_config_verification_request(self, body, id, **kwargs):
         """
         Performs verification of the Controller Service's configuration
+
         This will initiate the process of verifying a given Controller Service configuration. This may be a long-running task. As a result, this endpoint will immediately return a ControllerServiceConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /controller-services/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /controller-services/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
+
         :param VerifyConfigRequestEntity body: The controller service configuration verification request. (required)
         :param str id: The controller service id. (required)
         :return: VerifyConfigRequestEntity
@@ -802,8 +847,11 @@ class ControllerServicesApi(object):
     def submit_config_verification_request_with_http_info(self, body, id, **kwargs):
         """
         Performs verification of the Controller Service's configuration
+
         This will initiate the process of verifying a given Controller Service configuration. This may be a long-running task. As a result, this endpoint will immediately return a ControllerServiceConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /controller-services/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /controller-services/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
+
         :param VerifyConfigRequestEntity body: The controller service configuration verification request. (required)
         :param str id: The controller service id. (required)
         :return: VerifyConfigRequestEntity
@@ -830,8 +878,8 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `submit_config_verification_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -857,7 +905,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -876,7 +924,9 @@ class ControllerServicesApi(object):
     def update_controller_service(self, body, id, **kwargs):
         """
         Updates a controller service
+
         This method makes a synchronous HTTP request.
+
         :param ControllerServiceEntity body: The controller service configuration details. (required)
         :param str id: The controller service id. (required)
         :return: ControllerServiceEntity
@@ -891,7 +941,9 @@ class ControllerServicesApi(object):
     def update_controller_service_with_http_info(self, body, id, **kwargs):
         """
         Updates a controller service
+
         This method makes a synchronous HTTP request.
+
         :param ControllerServiceEntity body: The controller service configuration details. (required)
         :param str id: The controller service id. (required)
         :return: ControllerServiceEntity
@@ -918,8 +970,8 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_controller_service`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -945,7 +997,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}', 'PUT',
                                         path_params,
@@ -964,7 +1016,9 @@ class ControllerServicesApi(object):
     def update_controller_service_references(self, body, id, **kwargs):
         """
         Updates a controller services references
+
         This method makes a synchronous HTTP request.
+
         :param UpdateControllerServiceReferenceRequestEntity body: The controller service request update request. (required)
         :param str id: The controller service id. (required)
         :return: ControllerServiceReferencingComponentsEntity
@@ -979,7 +1033,9 @@ class ControllerServicesApi(object):
     def update_controller_service_references_with_http_info(self, body, id, **kwargs):
         """
         Updates a controller services references
+
         This method makes a synchronous HTTP request.
+
         :param UpdateControllerServiceReferenceRequestEntity body: The controller service request update request. (required)
         :param str id: The controller service id. (required)
         :return: ControllerServiceReferencingComponentsEntity
@@ -1006,8 +1062,8 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_controller_service_references`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1033,7 +1089,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/references', 'PUT',
                                         path_params,
@@ -1052,7 +1108,9 @@ class ControllerServicesApi(object):
     def update_run_status1(self, body, id, **kwargs):
         """
         Updates run status of a controller service
+
         This method makes a synchronous HTTP request.
+
         :param ControllerServiceRunStatusEntity body: The controller service run status. (required)
         :param str id: The controller service id. (required)
         :return: ControllerServiceEntity
@@ -1067,7 +1125,9 @@ class ControllerServicesApi(object):
     def update_run_status1_with_http_info(self, body, id, **kwargs):
         """
         Updates run status of a controller service
+
         This method makes a synchronous HTTP request.
+
         :param ControllerServiceRunStatusEntity body: The controller service run status. (required)
         :param str id: The controller service id. (required)
         :return: ControllerServiceEntity
@@ -1094,8 +1154,8 @@ class ControllerServicesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `update_run_status1`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -1121,7 +1181,7 @@ class ControllerServicesApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/controller-services/{id}/run-status', 'PUT',
                                         path_params,

@@ -35,7 +35,9 @@ class FlowFileQueuesApi(object):
     def create_drop_request(self, id, **kwargs):
         """
         Creates a request to drop the contents of the queue in this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: DropRequestEntity
         """
@@ -49,7 +51,9 @@ class FlowFileQueuesApi(object):
     def create_drop_request_with_http_info(self, id, **kwargs):
         """
         Creates a request to drop the contents of the queue in this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: DropRequestEntity
         """
@@ -72,7 +76,7 @@ class FlowFileQueuesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `create_drop_request`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -92,7 +96,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests', 'POST',
                                         path_params,
@@ -111,7 +115,9 @@ class FlowFileQueuesApi(object):
     def create_flow_file_listing(self, id, **kwargs):
         """
         Lists the contents of the queue in this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: ListingRequestEntity
         """
@@ -125,7 +131,9 @@ class FlowFileQueuesApi(object):
     def create_flow_file_listing_with_http_info(self, id, **kwargs):
         """
         Lists the contents of the queue in this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :return: ListingRequestEntity
         """
@@ -148,7 +156,7 @@ class FlowFileQueuesApi(object):
         if ('id' not in params) or (params['id'] is None):
             raise ValueError("Missing the required parameter `id` when calling `create_flow_file_listing`")
 
- 
+
         collection_formats = {}
 
         path_params = {}
@@ -168,7 +176,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests', 'POST',
                                         path_params,
@@ -187,7 +195,9 @@ class FlowFileQueuesApi(object):
     def delete_listing_request(self, id, listing_request_id, **kwargs):
         """
         Cancels and/or removes a request to list the contents of this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str listing_request_id: The listing request id. (required)
         :return: ListingRequestEntity
@@ -202,7 +212,9 @@ class FlowFileQueuesApi(object):
     def delete_listing_request_with_http_info(self, id, listing_request_id, **kwargs):
         """
         Cancels and/or removes a request to list the contents of this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str listing_request_id: The listing request id. (required)
         :return: ListingRequestEntity
@@ -229,8 +241,8 @@ class FlowFileQueuesApi(object):
         if ('listing_request_id' not in params) or (params['listing_request_id'] is None):
             raise ValueError("Missing the required parameter `listing_request_id` when calling `delete_listing_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -252,7 +264,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'DELETE',
                                         path_params,
@@ -271,7 +283,9 @@ class FlowFileQueuesApi(object):
     def download_flow_file_content(self, id, flowfile_uuid, **kwargs):
         """
         Gets the content for a FlowFile in a Connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str flowfile_uuid: The flowfile uuid. (required)
         :param str range: Range of bytes requested
@@ -289,7 +303,9 @@ class FlowFileQueuesApi(object):
     def download_flow_file_content_with_http_info(self, id, flowfile_uuid, **kwargs):
         """
         Gets the content for a FlowFile in a Connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str flowfile_uuid: The flowfile uuid. (required)
         :param str range: Range of bytes requested
@@ -319,11 +335,11 @@ class FlowFileQueuesApi(object):
         if ('flowfile_uuid' not in params) or (params['flowfile_uuid'] is None):
             raise ValueError("Missing the required parameter `flowfile_uuid` when calling `download_flow_file_content`")
 
- 
- 
- 
- 
- 
+
+
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -351,7 +367,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}/content', 'GET',
                                         path_params,
@@ -370,7 +386,9 @@ class FlowFileQueuesApi(object):
     def get_drop_request(self, id, drop_request_id, **kwargs):
         """
         Gets the current status of a drop request for the specified connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str drop_request_id: The drop request id. (required)
         :return: DropRequestEntity
@@ -385,7 +403,9 @@ class FlowFileQueuesApi(object):
     def get_drop_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
         Gets the current status of a drop request for the specified connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str drop_request_id: The drop request id. (required)
         :return: DropRequestEntity
@@ -412,8 +432,8 @@ class FlowFileQueuesApi(object):
         if ('drop_request_id' not in params) or (params['drop_request_id'] is None):
             raise ValueError("Missing the required parameter `drop_request_id` when calling `get_drop_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -435,7 +455,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'GET',
                                         path_params,
@@ -454,7 +474,9 @@ class FlowFileQueuesApi(object):
     def get_flow_file(self, id, flowfile_uuid, **kwargs):
         """
         Gets a FlowFile from a Connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str flowfile_uuid: The flowfile uuid. (required)
         :param str cluster_node_id: The id of the node where the content exists if clustered.
@@ -470,7 +492,9 @@ class FlowFileQueuesApi(object):
     def get_flow_file_with_http_info(self, id, flowfile_uuid, **kwargs):
         """
         Gets a FlowFile from a Connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str flowfile_uuid: The flowfile uuid. (required)
         :param str cluster_node_id: The id of the node where the content exists if clustered.
@@ -498,9 +522,9 @@ class FlowFileQueuesApi(object):
         if ('flowfile_uuid' not in params) or (params['flowfile_uuid'] is None):
             raise ValueError("Missing the required parameter `flowfile_uuid` when calling `get_flow_file`")
 
- 
- 
- 
+
+
+
         collection_formats = {}
 
         path_params = {}
@@ -524,7 +548,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}', 'GET',
                                         path_params,
@@ -543,7 +567,9 @@ class FlowFileQueuesApi(object):
     def get_listing_request(self, id, listing_request_id, **kwargs):
         """
         Gets the current status of a listing request for the specified connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str listing_request_id: The listing request id. (required)
         :return: ListingRequestEntity
@@ -558,7 +584,9 @@ class FlowFileQueuesApi(object):
     def get_listing_request_with_http_info(self, id, listing_request_id, **kwargs):
         """
         Gets the current status of a listing request for the specified connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str listing_request_id: The listing request id. (required)
         :return: ListingRequestEntity
@@ -585,8 +613,8 @@ class FlowFileQueuesApi(object):
         if ('listing_request_id' not in params) or (params['listing_request_id'] is None):
             raise ValueError("Missing the required parameter `listing_request_id` when calling `get_listing_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -608,7 +636,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'GET',
                                         path_params,
@@ -627,7 +655,9 @@ class FlowFileQueuesApi(object):
     def remove_drop_request(self, id, drop_request_id, **kwargs):
         """
         Cancels and/or removes a request to drop the contents of this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str drop_request_id: The drop request id. (required)
         :return: DropRequestEntity
@@ -642,7 +672,9 @@ class FlowFileQueuesApi(object):
     def remove_drop_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
         Cancels and/or removes a request to drop the contents of this connection.
+
         This method makes a synchronous HTTP request.
+
         :param str id: The connection id. (required)
         :param str drop_request_id: The drop request id. (required)
         :return: DropRequestEntity
@@ -669,8 +701,8 @@ class FlowFileQueuesApi(object):
         if ('drop_request_id' not in params) or (params['drop_request_id'] is None):
             raise ValueError("Missing the required parameter `drop_request_id` when calling `remove_drop_request`")
 
- 
- 
+
+
         collection_formats = {}
 
         path_params = {}
@@ -692,7 +724,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'DELETE',
                                         path_params,

@@ -32,11 +32,14 @@ class {{classname}}(object):
         {{{summary}}}
 {{/summary}}
 {{#notes}}
+
         {{{notes}}}
 {{/notes}}
+
         This method makes a synchronous HTTP request.
+
 {{#allParams}}
-        :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional){{/optional}}
+        :param {{dataType}} {{paramName}}: {{#description}}{{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}} (optional){{/optional}}
 {{/allParams}}
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
         """
@@ -53,11 +56,14 @@ class {{classname}}(object):
         {{{summary}}}
 {{/summary}}
 {{#notes}}
+
         {{{notes}}}
 {{/notes}}
+
         This method makes a synchronous HTTP request.
+
 {{#allParams}}
-        :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
+        :param {{dataType}} {{paramName}}: {{#description}}{{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
 {{/allParams}}
         :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
         """
@@ -115,7 +121,7 @@ class {{classname}}(object):
             raise ValueError("Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, number of items must be greater than or equal to `{{minItems}}`")
     {{/minItems}}
 {{/hasValidation}}
- 
+
 {{/allParams}}
         collection_formats = {}
 
