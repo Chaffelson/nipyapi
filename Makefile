@@ -292,6 +292,19 @@ test-all: check-certs ## run full e2e tests across all profiles (requires: make 
 	done
 	@echo "✅ All profiles tested successfully"
 
+playground: check-certs ## set up ready-to-use environment with sample objects: make playground NIPYAPI_AUTH_MODE=single-user|secure-ldap|secure-mtls (default: single-user)
+	@if [ -z "$(NIPYAPI_AUTH_MODE)" ]; then echo "❌ NIPYAPI_AUTH_MODE is required (single-user|secure-ldap|secure-mtls)"; exit 1; fi
+	@echo "🎮 Setting up NiPyAPI playground with profile: $(NIPYAPI_AUTH_MODE)"
+	@echo "=== 1/4: Starting infrastructure ==="
+	$(MAKE) up NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE)
+	@echo "=== 2/4: Waiting for readiness ==="
+	$(MAKE) wait-ready NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE)
+	@echo "=== 3/4: Setting up authentication and sample objects ==="
+	@NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE) python resources/scripts/setup_playground.py $(NIPYAPI_AUTH_MODE)
+	@echo "=== 4/4: Playground ready! ==="
+	@echo "🎯 Your NiPyAPI playground is ready for experimentation!"
+	@echo "   Run 'make down' when finished to clean up"
+
 rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> docs
 	@echo "🚀 Starting comprehensive rebuild from clean slate..."
 	@echo "=== 1/8: Clean All Artifacts ==="

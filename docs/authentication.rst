@@ -8,9 +8,13 @@ NiPyAPI 1.x targets Apache NiFi 2.x and NiFi Registry 2.x, which prefer secure-b
 This page shows how to configure the client for the three common modes we test via Docker Compose profiles.
 
 .. note::
-   Example snippets below reference the repository's generated test certificates and localhost URLs.
-   Replace any certificate/key/CA bundle paths with your own production credentials and endpoints
-   when using NiPyAPI outside of the provided Docker profiles.
+   **Test vs Production Certificates:**
+   
+   Example snippets below use the NiPyAPI repository's generated test certificates (``resources/certs/``) 
+   and localhost URLs for demonstration with the provided Docker profiles.
+   
+   **For production deployments:** Replace certificate/key/CA bundle paths with your own production 
+   credentials and endpoints. The authentication patterns remain the same, only the paths and URLs change.
 
 Prerequisites
 -------------
@@ -95,6 +99,8 @@ Using the library-level configuration objects is preferred. For TLS verification
     from nipyapi import utils
 
     # Option A: via env for both services
+    # For NiPyAPI test environment: "resources/certs/ca/ca.crt"
+    # For production: use your own CA bundle path
     os.environ["REQUESTS_CA_BUNDLE"] = "/path/to/ca.pem"
 
     # Option B: explicit per-service config
@@ -150,6 +156,8 @@ Default ports (Docker profile): NiFi ``https://localhost:9445/nifi-api``; Regist
     from nipyapi import config, utils
 
     # Set client cert and key (PEM)
+    # For NiPyAPI test environment: "resources/certs/client/client.crt" and "resources/certs/client/client.key"
+    # For production: replace with your own client certificate paths
     config.nifi_config.cert_file = "/path/to/client.crt"
     config.nifi_config.key_file = "/path/to/client.key"
     # If your key is encrypted, set key password via MTLS_CLIENT_KEY_PASSWORD env or programmatically
@@ -157,12 +165,66 @@ Default ports (Docker profile): NiFi ``https://localhost:9445/nifi-api``; Regist
     config.registry_config.cert_file = config.nifi_config.cert_file
     config.registry_config.key_file = config.nifi_config.key_file
     # CA bundle for both services (or per-service as above)
+    # For NiPyAPI test environment: "resources/certs/ca/ca.crt"
+    # For production: replace with your own CA bundle path
     config.nifi_config.ssl_ca_cert = "/path/to/ca.pem"
     config.registry_config.ssl_ca_cert = "/path/to/ca.pem"
 
     # Establish endpoints without token login (mTLS provides auth)
     utils.set_endpoint("https://localhost:9445/nifi-api", ssl=True, login=False)
     utils.set_endpoint("https://localhost:18445/nifi-registry-api", ssl=True, login=False)
+
+
+Browser Certificate Import (mTLS Web UI Access)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For mTLS web UI access, you must import the client certificate into your browser **before** visiting the NiFi/Registry URLs.
+
+**Using NiPyAPI test certificates:** The NiPyAPI Docker environment generates a browser-compatible PKCS#12 certificate at:
+``resources/certs/client/client.p12`` (password: ``changeit``)
+
+**Using production certificates:** Convert your client certificate and key to PKCS#12 format for browser import:
+
+.. code-block:: shell
+
+    openssl pkcs12 -export -in /path/to/client.crt -inkey /path/to/client.key -out client.p12
+
+**Chrome/Edge:**
+
+1. Settings → Privacy & Security → Security → **Manage certificates**
+2. **Personal** tab → **Import** → Browse to your ``.p12`` file
+3. Enter your certificate password (``changeit`` for NiPyAPI test certs)
+4. ✓ Check "Mark this key as exportable" → **Next** → **Finish**
+
+**Firefox:**
+
+1. Settings → Privacy & Security → Certificates → **View Certificates**
+2. **Your Certificates** tab → **Import** → Select your ``.p12`` file
+3. Enter your certificate password (``changeit`` for NiPyAPI test certs)
+
+**Safari:**
+
+1. Double-click your ``.p12`` file
+2. **Keychain Access** opens → Choose **"login"** keychain → Enter your certificate password (``changeit`` for NiPyAPI test certs)
+3. Right-click imported certificate → **Get Info** → **Trust** → **Always Trust**
+
+**After Import:**
+
+Visit https://localhost:9445/nifi or https://localhost:18445/nifi-registry and your browser 
+will prompt to select the "client" certificate. The certificate subject ``CN=user1`` is 
+pre-configured with admin access in the Docker environment.
+
+**Safari Keychain Authentication:**
+
+After selecting the certificate, Safari will prompt for your macOS user/admin password to access 
+the keychain. You have two options:
+
+- **"Allow"** - Enter password each time you access the NiFi/Registry site
+- **"Always Allow"** - Grant permanent access (no password prompt on subsequent visits)
+
+Choose based on your security requirements and company policy. For development environments, 
+"Always Allow" provides convenience. For production access, consider the security implications 
+of storing keychain access permissions.
 
 
 Quick connection checks

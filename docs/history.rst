@@ -93,6 +93,13 @@ History
   - Standardized password consistency: ``password1234`` for single-user, ``password`` for secure-ldap
   - Improved error handling in ``nipyapi.versioning.save_flow_ver`` with type validation and descriptive messages
   - Removed deprecated ``examples/console.py`` (all code was commented out and superseded by modernized examples)
+  - Removed deprecated ``examples/secure_connection.py`` and legacy ``examples/keys/`` directory (replaced by ``make playground`` target with modern patterns)
+  - Added ``make playground`` target for instant experimentation environments with sample objects and proper security
+  - Fixed security bootstrapping in playground script: Registry policies now correctly applied to all profiles including single-user
+  - Enhanced authentication documentation to clearly distinguish between test certificates and production deployments
+  - Added comprehensive Safari keychain authentication guidance with "Allow" vs "Always Allow" options and security considerations
+  - Updated playground recommendations to default to single-user profile for optimal new user experience (no complex Registry security policies)
+  - Created dedicated ``resources/scripts/setup_playground.py`` script following ``conftest.py`` patterns for reliable environment setup
 
 - Resource pruning:
   - Deleted legacy client-gen artifacts and old docker scaffolding under `resources/` no longer used in 2.x workflow.
