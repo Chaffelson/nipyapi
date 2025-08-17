@@ -36,8 +36,13 @@ class RemoteProcessGroupsApi(object):
         """
         Gets a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,8 +55,13 @@ class RemoteProcessGroupsApi(object):
         """
         Gets a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
 
         all_params = ['id']
@@ -112,8 +122,13 @@ class RemoteProcessGroupsApi(object):
         """
         Gets the state for a RemoteProcessGroup
         This method makes a synchronous HTTP request.
-        :param str id: The processor id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The processor id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -126,8 +141,13 @@ class RemoteProcessGroupsApi(object):
         """
         Gets the state for a RemoteProcessGroup
         This method makes a synchronous HTTP request.
-        :param str id: The processor id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The processor id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
 
         all_params = ['id']
@@ -188,11 +208,19 @@ class RemoteProcessGroupsApi(object):
         """
         Deletes a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -205,11 +233,19 @@ class RemoteProcessGroupsApi(object):
         """
         Deletes a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -279,9 +315,15 @@ class RemoteProcessGroupsApi(object):
         """
         Updates a remote process group
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupEntity body: The remote process group. (required)
-        :param str id: The remote process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
+                The remote process group. (required)
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -294,9 +336,15 @@ class RemoteProcessGroupsApi(object):
         """
         Updates a remote process group
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupEntity body: The remote process group. (required)
-        :param str id: The remote process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
+                The remote process group. (required)
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -366,12 +414,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -383,12 +440,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -464,12 +530,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port_run_status(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -481,12 +556,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_input_port_run_status_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -562,12 +646,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -579,12 +672,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupPortEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -660,12 +762,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port_run_status(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -677,12 +788,21 @@ class RemoteProcessGroupsApi(object):
     def update_remote_process_group_output_port_run_status_with_http_info(self, body, id, port_id, **kwargs):
         """
         Updates run status of a remote port
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process group port. (required)
-        :param str id: The remote process group id. (required)
-        :param str port_id: The remote process group port id. (required)
-        :return: RemoteProcessGroupPortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process group port. (required)
+            id (str): 
+                The remote process group id. (required)
+            port_id (str): 
+                The remote process group port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -759,9 +879,15 @@ class RemoteProcessGroupsApi(object):
         """
         Updates run status of a remote process group
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process group run status. (required)
-        :param str id: The remote process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process group run status. (required)
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -774,9 +900,15 @@ class RemoteProcessGroupsApi(object):
         """
         Updates run status of a remote process group
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process group run status. (required)
-        :param str id: The remote process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process group run status. (required)
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -847,9 +979,15 @@ class RemoteProcessGroupsApi(object):
         """
         Updates run status of all remote process groups in a process group (recursively)
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process groups run status. (required)
-        :param str id: The process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process groups run status. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -862,9 +1000,15 @@ class RemoteProcessGroupsApi(object):
         """
         Updates run status of all remote process groups in a process group (recursively)
         This method makes a synchronous HTTP request.
-        :param RemotePortRunStatusEntity body: The remote process groups run status. (required)
-        :param str id: The process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
+                The remote process groups run status. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
 
         all_params = ['body', 'id']

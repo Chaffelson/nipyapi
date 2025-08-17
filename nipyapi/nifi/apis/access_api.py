@@ -35,11 +35,17 @@ class AccessApi(object):
     def create_access_token(self, **kwargs):
         """
         Creates a token for accessing the REST API via username/password
+
         The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. It is stored in the browser as a cookie, but also returned inthe response body to be stored/used by third party client scripts.
+
         This method makes a synchronous HTTP request.
-        :param str password:
-        :param str username:
-        :return: str
+        
+        Args:
+            password (str):
+            username (str):
+                
+        Returns:
+            str: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,11 +57,17 @@ class AccessApi(object):
     def create_access_token_with_http_info(self, **kwargs):
         """
         Creates a token for accessing the REST API via username/password
+
         The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. It is stored in the browser as a cookie, but also returned inthe response body to be stored/used by third party client scripts.
+
         This method makes a synchronous HTTP request.
-        :param str password:
-        :param str username:
-        :return: str
+        
+        Args:
+            password (str):
+            username (str):
+                
+        Returns:
+            str: The response object.
         """
 
         all_params = ['password', 'username']
@@ -119,9 +131,15 @@ class AccessApi(object):
     def log_out(self, **kwargs):
         """
         Performs a logout for other providers that have been issued a JWT.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: None
+        
+        Args:
+                
+        Returns:
+            None
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -133,9 +151,15 @@ class AccessApi(object):
     def log_out_with_http_info(self, **kwargs):
         """
         Performs a logout for other providers that have been issued a JWT.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: None
+        
+        Args:
+                
+        Returns:
+            None
         """
 
         all_params = []
@@ -185,9 +209,15 @@ class AccessApi(object):
     def log_out_complete(self, **kwargs):
         """
         Completes the logout sequence by removing the cached Logout Request and Cookie if they existed and redirects to /nifi/login.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: None
+        
+        Args:
+                
+        Returns:
+            None
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -199,9 +229,15 @@ class AccessApi(object):
     def log_out_complete_with_http_info(self, **kwargs):
         """
         Completes the logout sequence by removing the cached Logout Request and Cookie if they existed and redirects to /nifi/login.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: None
+        
+        Args:
+                
+        Returns:
+            None
         """
 
         all_params = []

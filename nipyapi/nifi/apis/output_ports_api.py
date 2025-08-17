@@ -36,8 +36,13 @@ class OutputPortsApi(object):
         """
         Gets an output port
         This method makes a synchronous HTTP request.
-        :param str id: The output port id. (required)
-        :return: PortEntity
+        
+        Args:
+            id (str): 
+                The output port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,8 +55,13 @@ class OutputPortsApi(object):
         """
         Gets an output port
         This method makes a synchronous HTTP request.
-        :param str id: The output port id. (required)
-        :return: PortEntity
+        
+        Args:
+            id (str): 
+                The output port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
 
         all_params = ['id']
@@ -112,11 +122,19 @@ class OutputPortsApi(object):
         """
         Deletes an output port
         This method makes a synchronous HTTP request.
-        :param str id: The output port id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: PortEntity
+        
+        Args:
+            id (str): 
+                The output port id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -129,11 +147,19 @@ class OutputPortsApi(object):
         """
         Deletes an output port
         This method makes a synchronous HTTP request.
-        :param str id: The output port id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: PortEntity
+        
+        Args:
+            id (str): 
+                The output port id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -203,9 +229,15 @@ class OutputPortsApi(object):
         """
         Updates an output port
         This method makes a synchronous HTTP request.
-        :param PortEntity body: The output port configuration details. (required)
-        :param str id: The output port id. (required)
-        :return: PortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortEntity`): 
+                The output port configuration details. (required)
+            id (str): 
+                The output port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -218,9 +250,15 @@ class OutputPortsApi(object):
         """
         Updates an output port
         This method makes a synchronous HTTP request.
-        :param PortEntity body: The output port configuration details. (required)
-        :param str id: The output port id. (required)
-        :return: PortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortEntity`): 
+                The output port configuration details. (required)
+            id (str): 
+                The output port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -291,9 +329,15 @@ class OutputPortsApi(object):
         """
         Updates run status of an output-port
         This method makes a synchronous HTTP request.
-        :param PortRunStatusEntity body: The port run status. (required)
-        :param str id: The port id. (required)
-        :return: ProcessorEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortRunStatusEntity`): 
+                The port run status. (required)
+            id (str): 
+                The port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -306,9 +350,15 @@ class OutputPortsApi(object):
         """
         Updates run status of an output-port
         This method makes a synchronous HTTP request.
-        :param PortRunStatusEntity body: The port run status. (required)
-        :param str id: The port id. (required)
-        :return: ProcessorEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortRunStatusEntity`): 
+                The port run status. (required)
+            id (str): 
+                The port id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
         """
 
         all_params = ['body', 'id']

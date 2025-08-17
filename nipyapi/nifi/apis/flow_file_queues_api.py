@@ -36,8 +36,13 @@ class FlowFileQueuesApi(object):
         """
         Creates a request to drop the contents of the queue in this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,8 +55,13 @@ class FlowFileQueuesApi(object):
         """
         Creates a request to drop the contents of the queue in this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
 
         all_params = ['id']
@@ -112,8 +122,13 @@ class FlowFileQueuesApi(object):
         """
         Lists the contents of the queue in this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: ListingRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -126,8 +141,13 @@ class FlowFileQueuesApi(object):
         """
         Lists the contents of the queue in this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: ListingRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
         """
 
         all_params = ['id']
@@ -188,9 +208,15 @@ class FlowFileQueuesApi(object):
         """
         Cancels and/or removes a request to list the contents of this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str listing_request_id: The listing request id. (required)
-        :return: ListingRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            listing_request_id (str): 
+                The listing request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -203,9 +229,15 @@ class FlowFileQueuesApi(object):
         """
         Cancels and/or removes a request to list the contents of this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str listing_request_id: The listing request id. (required)
-        :return: ListingRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            listing_request_id (str): 
+                The listing request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
         """
 
         all_params = ['id', 'listing_request_id']
@@ -272,12 +304,21 @@ class FlowFileQueuesApi(object):
         """
         Gets the content for a FlowFile in a Connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str flowfile_uuid: The flowfile uuid. (required)
-        :param str range: Range of bytes requested
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: StreamingOutput
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            flowfile_uuid (str): 
+                The flowfile uuid. (required)
+            range (str): 
+                Range of bytes requested
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -290,12 +331,21 @@ class FlowFileQueuesApi(object):
         """
         Gets the content for a FlowFile in a Connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str flowfile_uuid: The flowfile uuid. (required)
-        :param str range: Range of bytes requested
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: StreamingOutput
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            flowfile_uuid (str): 
+                The flowfile uuid. (required)
+            range (str): 
+                Range of bytes requested
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
 
         all_params = ['id', 'flowfile_uuid', 'range', 'client_id', 'cluster_node_id']
@@ -371,9 +421,15 @@ class FlowFileQueuesApi(object):
         """
         Gets the current status of a drop request for the specified connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -386,9 +442,15 @@ class FlowFileQueuesApi(object):
         """
         Gets the current status of a drop request for the specified connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
 
         all_params = ['id', 'drop_request_id']
@@ -455,10 +517,17 @@ class FlowFileQueuesApi(object):
         """
         Gets a FlowFile from a Connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str flowfile_uuid: The flowfile uuid. (required)
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: FlowFileEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            flowfile_uuid (str): 
+                The flowfile uuid. (required)
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowFileEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -471,10 +540,17 @@ class FlowFileQueuesApi(object):
         """
         Gets a FlowFile from a Connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str flowfile_uuid: The flowfile uuid. (required)
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: FlowFileEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            flowfile_uuid (str): 
+                The flowfile uuid. (required)
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowFileEntity`: The response object.
         """
 
         all_params = ['id', 'flowfile_uuid', 'cluster_node_id']
@@ -544,9 +620,15 @@ class FlowFileQueuesApi(object):
         """
         Gets the current status of a listing request for the specified connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str listing_request_id: The listing request id. (required)
-        :return: ListingRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            listing_request_id (str): 
+                The listing request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -559,9 +641,15 @@ class FlowFileQueuesApi(object):
         """
         Gets the current status of a listing request for the specified connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str listing_request_id: The listing request id. (required)
-        :return: ListingRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            listing_request_id (str): 
+                The listing request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
         """
 
         all_params = ['id', 'listing_request_id']
@@ -628,9 +716,15 @@ class FlowFileQueuesApi(object):
         """
         Cancels and/or removes a request to drop the contents of this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -643,9 +737,15 @@ class FlowFileQueuesApi(object):
         """
         Cancels and/or removes a request to drop the contents of this connection.
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
 
         all_params = ['id', 'drop_request_id']

@@ -35,11 +35,19 @@ class CountersApi(object):
     def get_counters(self, **kwargs):
         """
         Gets the current counters for this NiFi
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: CountersEntity
+        
+        Args:
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CountersEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,11 +59,19 @@ class CountersApi(object):
     def get_counters_with_http_info(self, **kwargs):
         """
         Gets the current counters for this NiFi
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: CountersEntity
+        
+        Args:
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CountersEntity`: The response object.
         """
 
         all_params = ['nodewise', 'cluster_node_id']
@@ -115,10 +131,17 @@ class CountersApi(object):
     def update_counter(self, id, **kwargs):
         """
         Updates the specified counter. This will reset the counter value to 0
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str id: The id of the counter. (required)
-        :return: CounterEntity
+        
+        Args:
+            id (str): 
+                The id of the counter. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CounterEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -130,10 +153,17 @@ class CountersApi(object):
     def update_counter_with_http_info(self, id, **kwargs):
         """
         Updates the specified counter. This will reset the counter value to 0
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str id: The id of the counter. (required)
-        :return: CounterEntity
+        
+        Args:
+            id (str): 
+                The id of the counter. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CounterEntity`: The response object.
         """
 
         all_params = ['id']

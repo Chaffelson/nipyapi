@@ -36,11 +36,18 @@ class DataTransferApi(object):
         """
         Commit or cancel the specified transaction
         This method makes a synchronous HTTP request.
-        :param int response_code: The response code. Available values are BAD_CHECKSUM(19), CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
-        :param str port_id: The input port id. (required)
-        :param str transaction_id: The transaction id. (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            response_code (int): 
+                The response code. Available values are BAD_CHECKSUM(19), CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
+            port_id (str): 
+                The input port id. (required)
+            transaction_id (str): 
+                The transaction id. (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,11 +60,18 @@ class DataTransferApi(object):
         """
         Commit or cancel the specified transaction
         This method makes a synchronous HTTP request.
-        :param int response_code: The response code. Available values are BAD_CHECKSUM(19), CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
-        :param str port_id: The input port id. (required)
-        :param str transaction_id: The transaction id. (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            response_code (int): 
+                The response code. Available values are BAD_CHECKSUM(19), CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
+            port_id (str): 
+                The input port id. (required)
+            transaction_id (str): 
+                The transaction id. (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
 
         all_params = ['response_code', 'port_id', 'transaction_id', 'body']
@@ -137,12 +151,20 @@ class DataTransferApi(object):
         """
         Commit or cancel the specified transaction
         This method makes a synchronous HTTP request.
-        :param int response_code: The response code. Available values are CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
-        :param str checksum: A checksum calculated at client side using CRC32 to check flow file content integrity. It must match with the value calculated at server side. (required)
-        :param str port_id: The output port id. (required)
-        :param str transaction_id: The transaction id. (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            response_code (int): 
+                The response code. Available values are CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
+            checksum (str): 
+                A checksum calculated at client side using CRC32 to check flow file content integrity. It must match with the value calculated at server side. (required)
+            port_id (str): 
+                The output port id. (required)
+            transaction_id (str): 
+                The transaction id. (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -155,12 +177,20 @@ class DataTransferApi(object):
         """
         Commit or cancel the specified transaction
         This method makes a synchronous HTTP request.
-        :param int response_code: The response code. Available values are CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
-        :param str checksum: A checksum calculated at client side using CRC32 to check flow file content integrity. It must match with the value calculated at server side. (required)
-        :param str port_id: The output port id. (required)
-        :param str transaction_id: The transaction id. (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            response_code (int): 
+                The response code. Available values are CONFIRM_TRANSACTION(12) or CANCEL_TRANSACTION(15). (required)
+            checksum (str): 
+                A checksum calculated at client side using CRC32 to check flow file content integrity. It must match with the value calculated at server side. (required)
+            port_id (str): 
+                The output port id. (required)
+            transaction_id (str): 
+                The transaction id. (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
 
         all_params = ['response_code', 'checksum', 'port_id', 'transaction_id', 'body']
@@ -246,10 +276,15 @@ class DataTransferApi(object):
         """
         Create a transaction to the specified output port or input port
         This method makes a synchronous HTTP request.
-        :param str port_type: The port type. (required)
-        :param str port_id: (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            port_type (str): 
+                The port type. (required)
+            port_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -262,10 +297,15 @@ class DataTransferApi(object):
         """
         Create a transaction to the specified output port or input port
         This method makes a synchronous HTTP request.
-        :param str port_type: The port type. (required)
-        :param str port_id: (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            port_type (str): 
+                The port type. (required)
+            port_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
 
         all_params = ['port_type', 'port_id', 'body']
@@ -339,10 +379,14 @@ class DataTransferApi(object):
         """
         Extend transaction TTL
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            port_id (str): (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -355,10 +399,14 @@ class DataTransferApi(object):
         """
         Extend transaction TTL
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            port_id (str): (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
 
         all_params = ['port_id', 'transaction_id', 'body']
@@ -432,10 +480,14 @@ class DataTransferApi(object):
         """
         Extend transaction TTL
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            port_id (str): (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -448,10 +500,14 @@ class DataTransferApi(object):
         """
         Extend transaction TTL
         This method makes a synchronous HTTP request.
-        :param str port_id: (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: TransactionResultEntity
+        
+        Args:
+            port_id (str): (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
         """
 
         all_params = ['port_id', 'transaction_id', 'body']
@@ -525,10 +581,15 @@ class DataTransferApi(object):
         """
         Transfer flow files to the input port
         This method makes a synchronous HTTP request.
-        :param str port_id: The input port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: str
+        
+        Args:
+            port_id (str): 
+                The input port id. (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            str: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -541,10 +602,15 @@ class DataTransferApi(object):
         """
         Transfer flow files to the input port
         This method makes a synchronous HTTP request.
-        :param str port_id: The input port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: str
+        
+        Args:
+            port_id (str): 
+                The input port id. (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            str: The response object.
         """
 
         all_params = ['port_id', 'transaction_id', 'body']
@@ -618,10 +684,15 @@ class DataTransferApi(object):
         """
         Transfer flow files from the output port
         This method makes a synchronous HTTP request.
-        :param str port_id: The output port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: None
+        
+        Args:
+            port_id (str): 
+                The output port id. (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            None
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -634,10 +705,15 @@ class DataTransferApi(object):
         """
         Transfer flow files from the output port
         This method makes a synchronous HTTP request.
-        :param str port_id: The output port id. (required)
-        :param str transaction_id: (required)
-        :param object body:
-        :return: None
+        
+        Args:
+            port_id (str): 
+                The output port id. (required)
+            transaction_id (str): (required)
+            body (:class:`~nipyapi.nifi.models.object`):
+                
+        Returns:
+            None
         """
 
         all_params = ['port_id', 'transaction_id', 'body']

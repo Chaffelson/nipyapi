@@ -36,8 +36,13 @@ class FunnelsApi(object):
         """
         Gets a funnel
         This method makes a synchronous HTTP request.
-        :param str id: The funnel id. (required)
-        :return: FunnelEntity
+        
+        Args:
+            id (str): 
+                The funnel id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,8 +55,13 @@ class FunnelsApi(object):
         """
         Gets a funnel
         This method makes a synchronous HTTP request.
-        :param str id: The funnel id. (required)
-        :return: FunnelEntity
+        
+        Args:
+            id (str): 
+                The funnel id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
 
         all_params = ['id']
@@ -112,11 +122,19 @@ class FunnelsApi(object):
         """
         Deletes a funnel
         This method makes a synchronous HTTP request.
-        :param str id: The funnel id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: FunnelEntity
+        
+        Args:
+            id (str): 
+                The funnel id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -129,11 +147,19 @@ class FunnelsApi(object):
         """
         Deletes a funnel
         This method makes a synchronous HTTP request.
-        :param str id: The funnel id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: FunnelEntity
+        
+        Args:
+            id (str): 
+                The funnel id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -203,9 +229,15 @@ class FunnelsApi(object):
         """
         Updates a funnel
         This method makes a synchronous HTTP request.
-        :param FunnelEntity body: The funnel configuration details. (required)
-        :param str id: The funnel id. (required)
-        :return: FunnelEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
+                The funnel configuration details. (required)
+            id (str): 
+                The funnel id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -218,9 +250,15 @@ class FunnelsApi(object):
         """
         Updates a funnel
         This method makes a synchronous HTTP request.
-        :param FunnelEntity body: The funnel configuration details. (required)
-        :param str id: The funnel id. (required)
-        :return: FunnelEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
+                The funnel configuration details. (required)
+            id (str): 
+                The funnel id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
 
         all_params = ['body', 'id']

@@ -36,9 +36,15 @@ class ReportingTasksApi(object):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
         This method makes a synchronous HTTP request.
-        :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
-        :param str id: The reporting task id. (required)
-        :return: ConfigurationAnalysisEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
+                The configuration analysis request. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,9 +57,15 @@ class ReportingTasksApi(object):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
         This method makes a synchronous HTTP request.
-        :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
-        :param str id: The reporting task id. (required)
-        :return: ConfigurationAnalysisEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
+                The configuration analysis request. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -124,8 +136,13 @@ class ReportingTasksApi(object):
         """
         Clears the state for a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -138,8 +155,13 @@ class ReportingTasksApi(object):
         """
         Clears the state for a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
 
         all_params = ['id']
@@ -199,11 +221,19 @@ class ReportingTasksApi(object):
     def delete_verification_request3(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Reporting Task (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Reporting Task (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -215,11 +245,19 @@ class ReportingTasksApi(object):
     def delete_verification_request3_with_http_info(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Reporting Task (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Reporting Task (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
 
         all_params = ['id', 'request_id']
@@ -286,10 +324,17 @@ class ReportingTasksApi(object):
         """
         Gets a reporting task property descriptor
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :param str property_name: The property name. (required)
-        :param bool sensitive: Property Descriptor requested sensitive status
-        :return: PropertyDescriptorEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+            property_name (str): 
+                The property name. (required)
+            sensitive (bool): 
+                Property Descriptor requested sensitive status
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -302,10 +347,17 @@ class ReportingTasksApi(object):
         """
         Gets a reporting task property descriptor
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :param str property_name: The property name. (required)
-        :param bool sensitive: Property Descriptor requested sensitive status
-        :return: PropertyDescriptorEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+            property_name (str): 
+                The property name. (required)
+            sensitive (bool): 
+                Property Descriptor requested sensitive status
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
         """
 
         all_params = ['id', 'property_name', 'sensitive']
@@ -375,8 +427,13 @@ class ReportingTasksApi(object):
         """
         Gets a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :return: ReportingTaskEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -389,8 +446,13 @@ class ReportingTasksApi(object):
         """
         Gets a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :return: ReportingTaskEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
 
         all_params = ['id']
@@ -451,8 +513,13 @@ class ReportingTasksApi(object):
         """
         Gets the state for a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -465,8 +532,13 @@ class ReportingTasksApi(object):
         """
         Gets the state for a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
 
         all_params = ['id']
@@ -526,11 +598,19 @@ class ReportingTasksApi(object):
     def get_verification_request3(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Reporting Task (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Reporting Task (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -542,11 +622,19 @@ class ReportingTasksApi(object):
     def get_verification_request3_with_http_info(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Reporting Task (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Reporting Task (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
 
         all_params = ['id', 'request_id']
@@ -613,11 +701,19 @@ class ReportingTasksApi(object):
         """
         Deletes a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ReportingTaskEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -630,11 +726,19 @@ class ReportingTasksApi(object):
         """
         Deletes a reporting task
         This method makes a synchronous HTTP request.
-        :param str id: The reporting task id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ReportingTaskEntity
+        
+        Args:
+            id (str): 
+                The reporting task id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -703,11 +807,19 @@ class ReportingTasksApi(object):
     def submit_config_verification_request2(self, body, id, **kwargs):
         """
         Performs verification of the Reporting Task's configuration
+
         This will initiate the process of verifying a given Reporting Task configuration. This may be a long-running task. As a result, this endpoint will immediately return a ReportingTaskConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /reporting-tasks/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /reporting-tasks/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
-        :param VerifyConfigRequestEntity body: The reporting task configuration verification request. (required)
-        :param str id: The reporting task id. (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
+                The reporting task configuration verification request. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -719,11 +831,19 @@ class ReportingTasksApi(object):
     def submit_config_verification_request2_with_http_info(self, body, id, **kwargs):
         """
         Performs verification of the Reporting Task's configuration
+
         This will initiate the process of verifying a given Reporting Task configuration. This may be a long-running task. As a result, this endpoint will immediately return a ReportingTaskConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /reporting-tasks/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /reporting-tasks/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
-        :param VerifyConfigRequestEntity body: The reporting task configuration verification request. (required)
-        :param str id: The reporting task id. (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
+                The reporting task configuration verification request. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -794,9 +914,15 @@ class ReportingTasksApi(object):
         """
         Updates a reporting task
         This method makes a synchronous HTTP request.
-        :param ReportingTaskEntity body: The reporting task configuration details. (required)
-        :param str id: The reporting task id. (required)
-        :return: ReportingTaskEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ReportingTaskEntity`): 
+                The reporting task configuration details. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -809,9 +935,15 @@ class ReportingTasksApi(object):
         """
         Updates a reporting task
         This method makes a synchronous HTTP request.
-        :param ReportingTaskEntity body: The reporting task configuration details. (required)
-        :param str id: The reporting task id. (required)
-        :return: ReportingTaskEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ReportingTaskEntity`): 
+                The reporting task configuration details. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -882,9 +1014,15 @@ class ReportingTasksApi(object):
         """
         Updates run status of a reporting task
         This method makes a synchronous HTTP request.
-        :param ReportingTaskRunStatusEntity body: The reporting task run status. (required)
-        :param str id: The reporting task id. (required)
-        :return: ReportingTaskEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ReportingTaskRunStatusEntity`): 
+                The reporting task run status. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -897,9 +1035,15 @@ class ReportingTasksApi(object):
         """
         Updates run status of a reporting task
         This method makes a synchronous HTTP request.
-        :param ReportingTaskRunStatusEntity body: The reporting task run status. (required)
-        :param str id: The reporting task id. (required)
-        :return: ReportingTaskEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ReportingTaskRunStatusEntity`): 
+                The reporting task run status. (required)
+            id (str): 
+                The reporting task id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
         """
 
         all_params = ['body', 'id']

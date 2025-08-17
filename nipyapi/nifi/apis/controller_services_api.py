@@ -36,9 +36,15 @@ class ControllerServicesApi(object):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
         This method makes a synchronous HTTP request.
-        :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
-        :param str id: The controller service id. (required)
-        :return: ConfigurationAnalysisEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
+                The configuration analysis request. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,9 +57,15 @@ class ControllerServicesApi(object):
         """
         Performs analysis of the component's configuration, providing information about which attributes are referenced.
         This method makes a synchronous HTTP request.
-        :param ConfigurationAnalysisEntity body: The configuration analysis request. (required)
-        :param str id: The controller service id. (required)
-        :return: ConfigurationAnalysisEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
+                The configuration analysis request. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -124,8 +136,13 @@ class ControllerServicesApi(object):
         """
         Clears the state for a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -138,8 +155,13 @@ class ControllerServicesApi(object):
         """
         Clears the state for a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
 
         all_params = ['id']
@@ -199,11 +221,19 @@ class ControllerServicesApi(object):
     def delete_verification_request(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Controller Service (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Controller Service (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -215,11 +245,19 @@ class ControllerServicesApi(object):
     def delete_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
         Deletes the Verification Request with the given ID
+
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Controller Service (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Controller Service (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
 
         all_params = ['id', 'request_id']
@@ -285,11 +323,18 @@ class ControllerServicesApi(object):
     def get_controller_service(self, id, **kwargs):
         """
         Gets a controller service
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :param bool ui_only:
-        :return: ControllerServiceEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+            ui_only (bool):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -301,11 +346,18 @@ class ControllerServicesApi(object):
     def get_controller_service_with_http_info(self, id, **kwargs):
         """
         Gets a controller service
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :param bool ui_only:
-        :return: ControllerServiceEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+            ui_only (bool):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
 
         all_params = ['id', 'ui_only']
@@ -369,8 +421,13 @@ class ControllerServicesApi(object):
         """
         Gets a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceReferencingComponentsEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceReferencingComponentsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -383,8 +440,13 @@ class ControllerServicesApi(object):
         """
         Gets a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceReferencingComponentsEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceReferencingComponentsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -445,10 +507,17 @@ class ControllerServicesApi(object):
         """
         Gets a controller service property descriptor
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :param str property_name: The property name to return the descriptor for. (required)
-        :param bool sensitive: Property Descriptor requested sensitive status
-        :return: PropertyDescriptorEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+            property_name (str): 
+                The property name to return the descriptor for. (required)
+            sensitive (bool): 
+                Property Descriptor requested sensitive status
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -461,10 +530,17 @@ class ControllerServicesApi(object):
         """
         Gets a controller service property descriptor
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :param str property_name: The property name to return the descriptor for. (required)
-        :param bool sensitive: Property Descriptor requested sensitive status
-        :return: PropertyDescriptorEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+            property_name (str): 
+                The property name to return the descriptor for. (required)
+            sensitive (bool): 
+                Property Descriptor requested sensitive status
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
         """
 
         all_params = ['id', 'property_name', 'sensitive']
@@ -534,8 +610,13 @@ class ControllerServicesApi(object):
         """
         Gets the state for a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -548,8 +629,13 @@ class ControllerServicesApi(object):
         """
         Gets the state for a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :return: ComponentStateEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
         """
 
         all_params = ['id']
@@ -609,11 +695,19 @@ class ControllerServicesApi(object):
     def get_verification_request(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Controller Service (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Controller Service (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -625,11 +719,19 @@ class ControllerServicesApi(object):
     def get_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
         Returns the Verification Request with the given ID
+
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Controller Service (required)
-        :param str request_id: The ID of the Verification Request (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Controller Service (required)
+            request_id (str): 
+                The ID of the Verification Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
 
         all_params = ['id', 'request_id']
@@ -696,11 +798,19 @@ class ControllerServicesApi(object):
         """
         Deletes a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ControllerServiceEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -713,11 +823,19 @@ class ControllerServicesApi(object):
         """
         Deletes a controller service
         This method makes a synchronous HTTP request.
-        :param str id: The controller service id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ControllerServiceEntity
+        
+        Args:
+            id (str): 
+                The controller service id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -786,11 +904,19 @@ class ControllerServicesApi(object):
     def submit_config_verification_request(self, body, id, **kwargs):
         """
         Performs verification of the Controller Service's configuration
+
         This will initiate the process of verifying a given Controller Service configuration. This may be a long-running task. As a result, this endpoint will immediately return a ControllerServiceConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /controller-services/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /controller-services/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
-        :param VerifyConfigRequestEntity body: The controller service configuration verification request. (required)
-        :param str id: The controller service id. (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
+                The controller service configuration verification request. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -802,11 +928,19 @@ class ControllerServicesApi(object):
     def submit_config_verification_request_with_http_info(self, body, id, **kwargs):
         """
         Performs verification of the Controller Service's configuration
+
         This will initiate the process of verifying a given Controller Service configuration. This may be a long-running task. As a result, this endpoint will immediately return a ControllerServiceConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /controller-services/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /controller-services/{serviceId}/verification-requests/{requestId}.
+
         This method makes a synchronous HTTP request.
-        :param VerifyConfigRequestEntity body: The controller service configuration verification request. (required)
-        :param str id: The controller service id. (required)
-        :return: VerifyConfigRequestEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
+                The controller service configuration verification request. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -877,9 +1011,15 @@ class ControllerServicesApi(object):
         """
         Updates a controller service
         This method makes a synchronous HTTP request.
-        :param ControllerServiceEntity body: The controller service configuration details. (required)
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
+                The controller service configuration details. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -892,9 +1032,15 @@ class ControllerServicesApi(object):
         """
         Updates a controller service
         This method makes a synchronous HTTP request.
-        :param ControllerServiceEntity body: The controller service configuration details. (required)
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
+                The controller service configuration details. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -965,9 +1111,15 @@ class ControllerServicesApi(object):
         """
         Updates a controller services references
         This method makes a synchronous HTTP request.
-        :param UpdateControllerServiceReferenceRequestEntity body: The controller service request update request. (required)
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceReferencingComponentsEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.UpdateControllerServiceReferenceRequestEntity`): 
+                The controller service request update request. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceReferencingComponentsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -980,9 +1132,15 @@ class ControllerServicesApi(object):
         """
         Updates a controller services references
         This method makes a synchronous HTTP request.
-        :param UpdateControllerServiceReferenceRequestEntity body: The controller service request update request. (required)
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceReferencingComponentsEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.UpdateControllerServiceReferenceRequestEntity`): 
+                The controller service request update request. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceReferencingComponentsEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -1053,9 +1211,15 @@ class ControllerServicesApi(object):
         """
         Updates run status of a controller service
         This method makes a synchronous HTTP request.
-        :param ControllerServiceRunStatusEntity body: The controller service run status. (required)
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ControllerServiceRunStatusEntity`): 
+                The controller service run status. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1068,9 +1232,15 @@ class ControllerServicesApi(object):
         """
         Updates run status of a controller service
         This method makes a synchronous HTTP request.
-        :param ControllerServiceRunStatusEntity body: The controller service run status. (required)
-        :param str id: The controller service id. (required)
-        :return: ControllerServiceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ControllerServiceRunStatusEntity`): 
+                The controller service run status. (required)
+            id (str): 
+                The controller service id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
 
         all_params = ['body', 'id']

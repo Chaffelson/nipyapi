@@ -195,29 +195,8 @@ NIFI_API_GROUPS = {
     }
 }
 
-# Model groupings (simplified - can be expanded later)
-NIFI_MODEL_GROUPS = {
-    "basic": {
-        "title": "Basic Data Types",
-        "description": "Fundamental data structures and DTOs",
-        "pattern": ["*dto.py", "*entity.py", "bundle*.py", "revision*.py"]
-    },
-    "flow": {
-        "title": "Flow Components", 
-        "description": "Processors, connections, process groups, and flow structures",
-        "pattern": ["*process*.py", "*connection*.py", "*flow*.py", "*processor*.py"]
-    },
-    "security": {
-        "title": "Security Models",
-        "description": "Access policies, authentication, and user/tenant models", 
-        "pattern": ["*access*.py", "*policy*.py", "*user*.py", "*tenant*.py", "*authentication*.py"]
-    },
-    "monitoring": {
-        "title": "Monitoring & Diagnostics",
-        "description": "System diagnostics, counters, bulletins, and status models",
-        "pattern": ["*diagnostic*.py", "*counter*.py", "*bulletin*.py", "*status*.py", "*snapshot*.py"]
-    }
-}
+# Note: Model groupings removed - using comprehensive single-section approach
+# for better cross-referencing between APIs and models
 
 REGISTRY_API_GROUPS = {
     "core": {
@@ -246,59 +225,42 @@ def write_rst_file(filepath, content):
     print(f"Generated: {filepath}")
 
 
-def generate_api_group_file(group_name, group_info, base_module, output_dir):
-    """Generate RST file for a group of APIs."""
-    title = group_info['title']
-    description = group_info['description']
-    apis = group_info['apis']
-    
-    # Create title with proper RST formatting
-    content = f"{title}\n"
-    content += "=" * len(title) + "\n\n"
-    content += f"{description}\n\n"
-    
-    # No separate toctree - APIs are documented inline in this file
-    content += "\n"
-    
-    # Add individual API documentation sections
+def generate_individual_api_files(apis, base_module, output_dir):
+    """Generate individual RST files for each API (flat structure)."""
+    api_files = []
     for api in apis:
-        api_title = api.replace('_', ' ').title().replace(' Api', ' API')
-        content += f"{api_title}\n"
-        content += "-" * len(api_title) + "\n\n"
-        content += f".. automodule:: {base_module}.{api}\n"
-        content += "    :members:\n"
-        content += "    :undoc-members:\n"
-        content += "    :show-inheritance:\n\n"
+        api_content = f".. automodule:: {base_module}.{api}\n"
+        api_content += "    :members:\n"
+        api_content += "    :undoc-members:\n"
+        api_content += "    :show-inheritance:\n"
+        
+        api_filename = f"{api}.rst"
+        api_filepath = os.path.join(output_dir, api_filename)
+        write_rst_file(api_filepath, api_content)
+        api_files.append(api_filename)
     
-    filepath = os.path.join(output_dir, f"{group_name}.rst")
-    write_rst_file(filepath, content)
-    return os.path.basename(filepath)
+    return api_files
 
 
-def generate_api_index(groups, base_module, output_dir, title_prefix):
-    """Generate main index file for API groups."""
+def generate_flat_api_index(api_files, base_module, output_dir, title_prefix):
+    """Generate main index file for all APIs (flat structure)."""
     title = f"{title_prefix} APIs"
     content = f"{title}\n"
     content += "=" * len(title) + "\n\n"
-    content += f"This section contains the {title_prefix} API documentation organized by functional area for easier navigation.\n\n"
+    content += f"Complete {title_prefix} REST API client documentation.\n\n"
     
-    # Add toctree
+    content += f"This section documents all **{len(api_files)}** {title_prefix} API classes. "
+    content += f"Each API class provides methods for interacting with specific {title_prefix} endpoints. "
+    content += "Click any API to see its methods and their model parameters.\n\n"
+    
+    # Add clean toctree with all APIs
     content += ".. toctree::\n"
-    content += "   :maxdepth: 2\n"
-    content += "   :caption: API Groups\n\n"
+    content += "   :maxdepth: 1\n\n"
     
-    for group_name, group_info in groups.items():
-        content += f"   {group_name}\n"
-    
-    content += "\n"
-    
-    # Add overview sections
-    for group_name, group_info in groups.items():
-        title = group_info['title']
-        content += f"{title}\n"
-        content += "-" * len(title) + "\n\n"
-        content += f"{group_info['description']}\n\n"
-        content += f"APIs: {', '.join([api.replace('_api', '').replace('_', ' ').title() for api in group_info['apis']])}\n\n"
+    for api_file in sorted(api_files):
+        # Clean display name: connections_api -> Connections API
+        api_name = api_file.replace('.rst', '').replace('_api', '').replace('_', ' ').title() + ' API'
+        content += f"   {api_file.replace('.rst', '')}\n"
     
     filepath = os.path.join(output_dir, "index.rst")
     write_rst_file(filepath, content)
@@ -369,6 +331,7 @@ def generate_main_api_reference(output_dir):
     content += ".. toctree::\n"
     content += "   :maxdepth: 2\n"
     content += "   :caption: Documentation Sections\n\n"
+    content += "   client_architecture\n"
     content += "   core_modules\n"
     content += "   nifi_apis/index\n" 
     content += "   nifi_models/index\n"
@@ -412,25 +375,129 @@ def generate_examples_docs(output_dir):
     write_rst_file(filepath, content)
 
 
-def generate_simplified_models_docs(model_groups, base_module, output_dir, title_prefix):
-    """Generate simplified model documentation (placeholder for now)."""
-    title = f"{title_prefix} Models"
+def generate_client_architecture_docs(output_dir):
+    """Generate documentation explaining the client architecture."""
+    title = "Client Architecture"
     content = f"{title}\n"
     content += "=" * len(title) + "\n\n"
-    content += f"Data structures and model classes used by {title_prefix} APIs.\n\n"
-    content += ".. note::\n"
-    content += "   Model documentation is currently consolidated. Future versions may split\n"
-    content += "   these into functional groups for better navigation.\n\n"
+    content += "Understanding how NiPyApi clients are structured and how to use them effectively.\n\n"
     
-    content += f".. automodule:: {base_module}\n"
-    content += "    :members:\n" 
-    content += "    :undoc-members:\n"
-    content += "    :show-inheritance:\n\n"
+    content += "Client Layers\n"
+    content += "-------------\n\n"
+    content += "NiPyApi provides multiple layers of abstraction:\n\n"
+    content += "**Core Modules** (High-level): :doc:`core_modules` - Convenient Python functions for common operations\n\n"
+    content += "**Generated APIs** (Low-level): :doc:`nifi_apis/index` and :doc:`registry_apis/index` - Direct REST API access\n\n"
+    content += "**Models**: :doc:`nifi_models/index` and :doc:`registry_models/index` - Data structures used by APIs\n\n"
+    
+    content += "Generated API Structure\n"
+    content += "-----------------------\n\n"
+    content += "Each generated API class provides two methods for every operation:\n\n"
+    content += "**Base Methods** (e.g., ``copy()``)\n"
+    content += "  Return response data directly. Use these for most operations.\n\n"
+    content += "**HTTP Info Methods** (e.g., ``copy_with_http_info()``)\n"
+    content += "  Return detailed response including status code and headers.\n"
+    content += "  Use when you need HTTP metadata or error details.\n\n"
+    
+    content += "Example Usage\n"
+    content += "~~~~~~~~~~~~~\n\n"
+    content += ".. code-block:: python\n\n"
+    content += "   import nipyapi\n\n"
+    content += "   # High-level approach (recommended for most users)\n"
+    content += "   process_groups = nipyapi.canvas.list_all_process_groups()\n\n"
+    content += "   # Low-level API approach\n"
+    content += "   api_instance = nipyapi.nifi.ProcessGroupsApi()\n"
+    content += "   \n"
+    content += "   # Get just the data\n"
+    content += "   flow = api_instance.get_flow('root')\n"
+    content += "   \n"
+    content += "   # Get data + HTTP details\n"
+    content += "   flow, status, headers = api_instance.get_flow_with_http_info('root')\n"
+    content += "   print(f\"HTTP Status: {status}\")\n\n"
+    
+    content += "Callback Functions\n"
+    content += "------------------\n\n"
+    content += "The generated clients support callback functions for asynchronous operations:\n\n"
+    content += ".. code-block:: python\n\n"
+    content += "   def my_callback(response):\n"
+    content += "       print(f\"Response received: {response}\")\n\n"
+    content += "   # Use callback for async-style processing\n"
+    content += "   api_instance.get_flow('root', callback=my_callback)\n\n"
+    content += "**Note**: Callbacks are inherited from the original Swagger-generated client.\n"
+    content += "They maintain backwards compatibility but are not commonly used.\n\n"
+    
+    content += "Error Handling\n"
+    content += "--------------\n\n"
+    content += "APIs can raise exceptions on HTTP errors:\n\n"
+    content += ".. code-block:: python\n\n"
+    content += "   from nipyapi.nifi.rest import ApiException\n\n"
+    content += "   try:\n"
+    content += "       flow = api_instance.get_flow('invalid-id')\n"
+    content += "   except ApiException as e:\n"
+    content += "       print(f\"API Error: {e.status} - {e.reason}\")\n\n"
+    
+    content += "Model Cross-References\n"
+    content += "----------------------\n\n"
+    content += "API documentation includes clickable links to model classes.\n"
+    content += "Click any model type (e.g., :class:`~nipyapi.nifi.models.ProcessGroupEntity`) "
+    content += "to jump to its detailed documentation.\n\n"
+    
+    filepath = os.path.join(output_dir, "client_architecture.rst")
+    write_rst_file(filepath, content)
+
+
+def generate_comprehensive_models_docs(base_module, output_dir, title_prefix):
+    """Generate comprehensive model documentation with all classes for proper cross-referencing."""
+    title = f"{title_prefix} Models"
+    
+    # Get all model classes from the module
+    try:
+        import importlib
+        module = importlib.import_module(base_module)
+        # Get all classes that don't start with underscore
+        model_classes = [name for name in dir(module) 
+                        if not name.startswith('_') and 
+                        hasattr(getattr(module, name), '__module__') and
+                        getattr(module, name).__module__.startswith(base_module)]
+        print(f"   Found {len(model_classes)} model classes")
+    except Exception as e:
+        print(f"   ⚠️  Could not import {base_module}: {e}")
+        model_classes = []
+    
+    content = f"{title}\n"
+    content += "=" * len(title) + "\n\n"
+    content += f"Complete model class reference for {title_prefix} APIs.\n\n"
+    
+    if model_classes:
+        content += f"This reference documents all **{len(model_classes)}** model classes used by {title_prefix} APIs. "
+        content += "These classes are automatically cross-referenced from API documentation - "
+        content += "click any model type in API documentation to jump directly to its definition here.\n\n"
+        
+        content += "Model Type Patterns\n"
+        content += "--------------------\n\n"
+        content += "**Entity Classes** (e.g., ProcessGroupEntity): Complete API objects with metadata and revision information\n\n"
+        content += "**DTO Classes** (e.g., ProcessGroupDTO): Core data transfer objects containing the essential properties\n\n" 
+        content += "**Status Classes** (e.g., ProcessGroupStatus): Runtime status and statistics for monitoring\n\n"
+        content += "**Configuration Classes**: Settings, parameters, and configuration objects\n\n"
+        
+        content += f"\n.. currentmodule:: {base_module}\n\n"
+        content += "All Model Classes\n"
+        content += "------------------\n\n"
+        
+        # Document ALL classes individually for proper cross-referencing
+        for cls in sorted(model_classes):
+            content += f".. autoclass:: {cls}\n"
+            content += f"   :members:\n"
+            content += f"   :show-inheritance:\n\n"
+            
+    else:
+        content += ".. note::\n"
+        content += f"   Model classes for {title_prefix} could not be loaded.\n"
+        content += f"   Please check the :py:mod:`{base_module}` module.\n\n"
     
     # Create index file
     index_content = f"{title}\n"
     index_content += "=" * len(title) + "\n\n"
-    index_content += f"{title_prefix} model documentation.\n\n"
+    index_content += f"Complete {title_prefix} model class documentation with cross-reference support.\n\n"
     index_content += ".. toctree::\n"
     index_content += "   :maxdepth: 1\n\n"
     index_content += "   models\n\n"
@@ -656,42 +723,40 @@ def main():
     for module in actual_modules:
         print(f"Generated: docs/nipyapi-docs/core_modules/{module}.rst")
     
-    # Auto-detect and generate NiFi API documentation
+    # Auto-detect and generate NiFi API documentation (flat structure)
     print("\n🔧 Auto-detecting NiFi APIs...")
     nifi_apis = get_actual_apis("nipyapi.nifi")
-    nifi_api_groups = categorize_apis_automatically(nifi_apis)
-    print(f"   Found {len(nifi_apis)} APIs in {len(nifi_api_groups)} categories")
+    print(f"   Found {len(nifi_apis)} APIs")
     
     nifi_apis_dir = docs_dir / "nifi_apis"
     nifi_apis_dir.mkdir(exist_ok=True)
     
-    for group_name, group_info in nifi_api_groups.items():
-        generate_api_group_file(group_name, group_info, "nipyapi.nifi.apis", nifi_apis_dir)
+    nifi_api_files = generate_individual_api_files(nifi_apis, "nipyapi.nifi.apis", nifi_apis_dir)
+    generate_flat_api_index(nifi_api_files, "nipyapi.nifi.apis", nifi_apis_dir, "NiFi")
     
-    generate_api_index(nifi_api_groups, "nipyapi.nifi.apis", nifi_apis_dir, "NiFi")
-    
-    # Auto-detect and generate Registry API documentation  
+    # Auto-detect and generate Registry API documentation (flat structure)
     print("\n📋 Auto-detecting Registry APIs...")
     registry_apis = get_actual_apis("nipyapi.registry")
-    registry_api_groups = categorize_apis_automatically(registry_apis)
-    print(f"   Found {len(registry_apis)} APIs in {len(registry_api_groups)} categories")
+    print(f"   Found {len(registry_apis)} APIs")
     
     registry_apis_dir = docs_dir / "registry_apis"
     registry_apis_dir.mkdir(exist_ok=True)
     
-    for group_name, group_info in registry_api_groups.items():
-        generate_api_group_file(group_name, group_info, "nipyapi.registry.apis", registry_apis_dir)
+    registry_api_files = generate_individual_api_files(registry_apis, "nipyapi.registry.apis", registry_apis_dir)
+    generate_flat_api_index(registry_api_files, "nipyapi.registry.apis", registry_apis_dir, "Registry")
     
-    generate_api_index(registry_api_groups, "nipyapi.registry.apis", registry_apis_dir, "Registry")
-    
-    # Generate simplified model documentation (for now)
+    # Generate comprehensive model documentation for cross-referencing
     print("\n📊 Generating model documentation...")
-    generate_simplified_models_docs(NIFI_MODEL_GROUPS, "nipyapi.nifi.models", docs_dir / "nifi_models", "NiFi")
-    generate_simplified_models_docs({}, "nipyapi.registry.models", docs_dir / "registry_models", "Registry")
+    generate_comprehensive_models_docs("nipyapi.nifi.models", docs_dir / "nifi_models", "NiFi")
+    generate_comprehensive_models_docs("nipyapi.registry.models", docs_dir / "registry_models", "Registry")
     
     # Generate examples documentation (not a module)
     print("\n🎯 Generating examples documentation...")
     generate_examples_docs(docs_dir)
+    
+    # Generate client architecture documentation
+    print("\n📚 Generating client architecture documentation...")
+    generate_client_architecture_docs(docs_dir)
     
     # Generate dependencies documentation
     print("\n📦 Generating dependencies documentation...")

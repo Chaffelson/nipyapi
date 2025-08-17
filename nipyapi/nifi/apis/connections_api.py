@@ -36,11 +36,19 @@ class ConnectionsApi(object):
         """
         Deletes a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ConnectionEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,11 +61,19 @@ class ConnectionsApi(object):
         """
         Deletes a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ConnectionEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -127,8 +143,13 @@ class ConnectionsApi(object):
         """
         Gets a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: ConnectionEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -141,8 +162,13 @@ class ConnectionsApi(object):
         """
         Gets a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: ConnectionEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
 
         all_params = ['id']
@@ -203,9 +229,15 @@ class ConnectionsApi(object):
         """
         Updates a connection
         This method makes a synchronous HTTP request.
-        :param ConnectionEntity body: The connection configuration details. (required)
-        :param str id: The connection id. (required)
-        :return: ConnectionEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
+                The connection configuration details. (required)
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -218,9 +250,15 @@ class ConnectionsApi(object):
         """
         Updates a connection
         This method makes a synchronous HTTP request.
-        :param ConnectionEntity body: The connection configuration details. (required)
-        :param str id: The connection id. (required)
-        :return: ConnectionEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
+                The connection configuration details. (required)
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
 
         all_params = ['body', 'id']

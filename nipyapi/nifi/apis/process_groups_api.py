@@ -36,9 +36,15 @@ class ProcessGroupsApi(object):
         """
         Generates a copy response for the given copy request
         This method makes a synchronous HTTP request.
-        :param CopyRequestEntity body: The request including the components to be copied from the specified Process Group. (required)
-        :param str id: The process group id. (required)
-        :return: CopyResponseEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.CopyRequestEntity`): 
+                The request including the components to be copied from the specified Process Group. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CopyResponseEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,9 +57,15 @@ class ProcessGroupsApi(object):
         """
         Generates a copy response for the given copy request
         This method makes a synchronous HTTP request.
-        :param CopyRequestEntity body: The request including the components to be copied from the specified Process Group. (required)
-        :param str id: The process group id. (required)
-        :return: CopyResponseEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.CopyRequestEntity`): 
+                The request including the components to be copied from the specified Process Group. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CopyResponseEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -124,9 +136,15 @@ class ProcessGroupsApi(object):
         """
         Copies a snippet and discards it.
         This method makes a synchronous HTTP request.
-        :param CopySnippetRequestEntity body: The copy snippet request. (required)
-        :param str id: The process group id. (required)
-        :return: FlowEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.CopySnippetRequestEntity`): 
+                The copy snippet request. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -139,9 +157,15 @@ class ProcessGroupsApi(object):
         """
         Copies a snippet and discards it.
         This method makes a synchronous HTTP request.
-        :param CopySnippetRequestEntity body: The copy snippet request. (required)
-        :param str id: The process group id. (required)
-        :return: FlowEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.CopySnippetRequestEntity`): 
+                The copy snippet request. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -212,9 +236,15 @@ class ProcessGroupsApi(object):
         """
         Creates a connection
         This method makes a synchronous HTTP request.
-        :param ConnectionEntity body: The connection configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ConnectionEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
+                The connection configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -227,9 +257,15 @@ class ProcessGroupsApi(object):
         """
         Creates a connection
         This method makes a synchronous HTTP request.
-        :param ConnectionEntity body: The connection configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ConnectionEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
+                The connection configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -300,9 +336,15 @@ class ProcessGroupsApi(object):
         """
         Creates a new controller service
         This method makes a synchronous HTTP request.
-        :param ControllerServiceEntity body: The controller service configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ControllerServiceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
+                The controller service configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -315,9 +357,15 @@ class ProcessGroupsApi(object):
         """
         Creates a new controller service
         This method makes a synchronous HTTP request.
-        :param ControllerServiceEntity body: The controller service configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ControllerServiceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
+                The controller service configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -388,8 +436,13 @@ class ProcessGroupsApi(object):
         """
         Creates a request to drop all flowfiles of all connection queues in this process group.
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -402,8 +455,13 @@ class ProcessGroupsApi(object):
         """
         Creates a request to drop all flowfiles of all connection queues in this process group.
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
 
         all_params = ['id']
@@ -464,9 +522,15 @@ class ProcessGroupsApi(object):
         """
         Creates a funnel
         This method makes a synchronous HTTP request.
-        :param FunnelEntity body: The funnel configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: FunnelEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
+                The funnel configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -479,9 +543,15 @@ class ProcessGroupsApi(object):
         """
         Creates a funnel
         This method makes a synchronous HTTP request.
-        :param FunnelEntity body: The funnel configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: FunnelEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
+                The funnel configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -552,9 +622,15 @@ class ProcessGroupsApi(object):
         """
         Creates an input port
         This method makes a synchronous HTTP request.
-        :param PortEntity body: The input port configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: PortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortEntity`): 
+                The input port configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -567,9 +643,15 @@ class ProcessGroupsApi(object):
         """
         Creates an input port
         This method makes a synchronous HTTP request.
-        :param PortEntity body: The input port configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: PortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortEntity`): 
+                The input port configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -640,9 +722,15 @@ class ProcessGroupsApi(object):
         """
         Creates a label
         This method makes a synchronous HTTP request.
-        :param LabelEntity body: The label configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: LabelEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.LabelEntity`): 
+                The label configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -655,9 +743,15 @@ class ProcessGroupsApi(object):
         """
         Creates a label
         This method makes a synchronous HTTP request.
-        :param LabelEntity body: The label configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: LabelEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.LabelEntity`): 
+                The label configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -728,9 +822,15 @@ class ProcessGroupsApi(object):
         """
         Creates an output port
         This method makes a synchronous HTTP request.
-        :param PortEntity body: The output port configuration. (required)
-        :param str id: The process group id. (required)
-        :return: PortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortEntity`): 
+                The output port configuration. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -743,9 +843,15 @@ class ProcessGroupsApi(object):
         """
         Creates an output port
         This method makes a synchronous HTTP request.
-        :param PortEntity body: The output port configuration. (required)
-        :param str id: The process group id. (required)
-        :return: PortEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PortEntity`): 
+                The output port configuration. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -816,10 +922,17 @@ class ProcessGroupsApi(object):
         """
         Creates a process group
         This method makes a synchronous HTTP request.
-        :param ProcessGroupEntity body: The process group configuration details. (required)
-        :param str id: The process group id. (required)
-        :param str parameter_context_handling_strategy: Handling Strategy controls whether to keep or replace Parameter Contexts
-        :return: ProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
+                The process group configuration details. (required)
+            id (str): 
+                The process group id. (required)
+            parameter_context_handling_strategy (str): 
+                Handling Strategy controls whether to keep or replace Parameter Contexts
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -832,10 +945,17 @@ class ProcessGroupsApi(object):
         """
         Creates a process group
         This method makes a synchronous HTTP request.
-        :param ProcessGroupEntity body: The process group configuration details. (required)
-        :param str id: The process group id. (required)
-        :param str parameter_context_handling_strategy: Handling Strategy controls whether to keep or replace Parameter Contexts
-        :return: ProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
+                The process group configuration details. (required)
+            id (str): 
+                The process group id. (required)
+            parameter_context_handling_strategy (str): 
+                Handling Strategy controls whether to keep or replace Parameter Contexts
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
 
         all_params = ['body', 'id', 'parameter_context_handling_strategy']
@@ -909,9 +1029,15 @@ class ProcessGroupsApi(object):
         """
         Creates a new processor
         This method makes a synchronous HTTP request.
-        :param ProcessorEntity body: The processor configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ProcessorEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessorEntity`): 
+                The processor configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -924,9 +1050,15 @@ class ProcessGroupsApi(object):
         """
         Creates a new processor
         This method makes a synchronous HTTP request.
-        :param ProcessorEntity body: The processor configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ProcessorEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessorEntity`): 
+                The processor configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -997,9 +1129,15 @@ class ProcessGroupsApi(object):
         """
         Creates a new process group
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupEntity body: The remote process group configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
+                The remote process group configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1012,9 +1150,15 @@ class ProcessGroupsApi(object):
         """
         Creates a new process group
         This method makes a synchronous HTTP request.
-        :param RemoteProcessGroupEntity body: The remote process group configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: RemoteProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
+                The remote process group configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -1084,11 +1228,19 @@ class ProcessGroupsApi(object):
     def delete_replace_process_group_request(self, id, **kwargs):
         """
         Deletes the Replace Request with the given ID
+
         Deletes the Replace Request with the given ID. After a request is created via a POST to /process-groups/{id}/replace-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Replace process has completed. If the request is deleted before the request completes, then the Replace request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Update Request (required)
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ProcessGroupReplaceRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Update Request (required)
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1100,11 +1252,19 @@ class ProcessGroupsApi(object):
     def delete_replace_process_group_request_with_http_info(self, id, **kwargs):
         """
         Deletes the Replace Request with the given ID
+
         Deletes the Replace Request with the given ID. After a request is created via a POST to /process-groups/{id}/replace-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Replace process has completed. If the request is deleted before the request completes, then the Replace request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Update Request (required)
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ProcessGroupReplaceRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Update Request (required)
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged']
@@ -1168,9 +1328,15 @@ class ProcessGroupsApi(object):
         """
         Gets a process group for download
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool include_referenced_services: If referenced services from outside the target group should be included
-        :return: str
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            include_referenced_services (bool): 
+                If referenced services from outside the target group should be included
+                
+        Returns:
+            str: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1183,9 +1349,15 @@ class ProcessGroupsApi(object):
         """
         Gets a process group for download
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool include_referenced_services: If referenced services from outside the target group should be included
-        :return: str
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            include_referenced_services (bool): 
+                If referenced services from outside the target group should be included
+                
+        Returns:
+            str: The response object.
         """
 
         all_params = ['id', 'include_referenced_services']
@@ -1249,8 +1421,13 @@ class ProcessGroupsApi(object):
         """
         Gets all connections
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: ConnectionsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1263,8 +1440,13 @@ class ProcessGroupsApi(object):
         """
         Gets all connections
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: ConnectionsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1325,9 +1507,15 @@ class ProcessGroupsApi(object):
         """
         Gets the current status of a drop all flowfiles request.
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1340,9 +1528,15 @@ class ProcessGroupsApi(object):
         """
         Gets the current status of a drop all flowfiles request.
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
 
         all_params = ['id', 'drop_request_id']
@@ -1409,8 +1603,13 @@ class ProcessGroupsApi(object):
         """
         Gets all funnels
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: FunnelsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1423,8 +1622,13 @@ class ProcessGroupsApi(object):
         """
         Gets all funnels
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: FunnelsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FunnelsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1485,8 +1689,13 @@ class ProcessGroupsApi(object):
         """
         Gets all input ports
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: InputPortsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.InputPortsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1499,8 +1708,13 @@ class ProcessGroupsApi(object):
         """
         Gets all input ports
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: InputPortsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.InputPortsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1561,8 +1775,13 @@ class ProcessGroupsApi(object):
         """
         Gets all labels
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: LabelsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LabelsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1575,8 +1794,13 @@ class ProcessGroupsApi(object):
         """
         Gets all labels
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: LabelsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LabelsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1637,8 +1861,13 @@ class ProcessGroupsApi(object):
         """
         Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: FlowComparisonEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1651,8 +1880,13 @@ class ProcessGroupsApi(object):
         """
         Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: FlowComparisonEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1713,8 +1947,13 @@ class ProcessGroupsApi(object):
         """
         Gets all output ports
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: OutputPortsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.OutputPortsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1727,8 +1966,13 @@ class ProcessGroupsApi(object):
         """
         Gets all output ports
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: OutputPortsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.OutputPortsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1789,8 +2033,13 @@ class ProcessGroupsApi(object):
         """
         Gets a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1803,8 +2052,13 @@ class ProcessGroupsApi(object):
         """
         Gets a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1865,8 +2119,13 @@ class ProcessGroupsApi(object):
         """
         Gets all process groups
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: ProcessGroupsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1879,8 +2138,13 @@ class ProcessGroupsApi(object):
         """
         Gets all process groups
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: ProcessGroupsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1941,9 +2205,15 @@ class ProcessGroupsApi(object):
         """
         Gets all processors
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool include_descendant_groups: Whether or not to include processors from descendant process groups
-        :return: ProcessorsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            include_descendant_groups (bool): 
+                Whether or not to include processors from descendant process groups
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1956,9 +2226,15 @@ class ProcessGroupsApi(object):
         """
         Gets all processors
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool include_descendant_groups: Whether or not to include processors from descendant process groups
-        :return: ProcessorsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            include_descendant_groups (bool): 
+                Whether or not to include processors from descendant process groups
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorsEntity`: The response object.
         """
 
         all_params = ['id', 'include_descendant_groups']
@@ -2022,8 +2298,13 @@ class ProcessGroupsApi(object):
         """
         Gets all remote process groups
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: RemoteProcessGroupsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2036,8 +2317,13 @@ class ProcessGroupsApi(object):
         """
         Gets all remote process groups
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: RemoteProcessGroupsEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupsEntity`: The response object.
         """
 
         all_params = ['id']
@@ -2097,10 +2383,17 @@ class ProcessGroupsApi(object):
     def get_replace_process_group_request(self, id, **kwargs):
         """
         Returns the Replace Request with the given ID
+
         Returns the Replace Request with the given ID. Once a Replace Request has been created by performing a POST to /process-groups/{id}/replace-requests, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Replace Request (required)
-        :return: ProcessGroupReplaceRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Replace Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2112,10 +2405,17 @@ class ProcessGroupsApi(object):
     def get_replace_process_group_request_with_http_info(self, id, **kwargs):
         """
         Returns the Replace Request with the given ID
+
         Returns the Replace Request with the given ID. Once a Replace Request has been created by performing a POST to /process-groups/{id}/replace-requests, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str id: The ID of the Replace Request (required)
-        :return: ProcessGroupReplaceRequestEntity
+        
+        Args:
+            id (str): 
+                The ID of the Replace Request (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
         """
 
         all_params = ['id']
@@ -2176,9 +2476,14 @@ class ProcessGroupsApi(object):
         """
         Imports a specified process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param ProcessGroupUploadEntity body:
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            body (:class:`~nipyapi.nifi.models.ProcessGroupUploadEntity`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2191,9 +2496,14 @@ class ProcessGroupsApi(object):
         """
         Imports a specified process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param ProcessGroupUploadEntity body:
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            body (:class:`~nipyapi.nifi.models.ProcessGroupUploadEntity`):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
 
         all_params = ['id', 'body']
@@ -2260,11 +2570,19 @@ class ProcessGroupsApi(object):
     def initiate_replace_process_group(self, body, id, **kwargs):
         """
         Initiate the Replace Request of a Process Group with the given ID
+
         This will initiate the action of replacing a process group with the given process group. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a ProcessGroupReplaceRequestEntity, and the process of replacing the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /process-groups/replace-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /process-groups/replace-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param ProcessGroupImportEntity body: The process group replace request entity (required)
-        :param str id: The process group id. (required)
-        :return: ProcessGroupReplaceRequestEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
+                The process group replace request entity (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2276,11 +2594,19 @@ class ProcessGroupsApi(object):
     def initiate_replace_process_group_with_http_info(self, body, id, **kwargs):
         """
         Initiate the Replace Request of a Process Group with the given ID
+
         This will initiate the action of replacing a process group with the given process group. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a ProcessGroupReplaceRequestEntity, and the process of replacing the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /process-groups/replace-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /process-groups/replace-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param ProcessGroupImportEntity body: The process group replace request entity (required)
-        :param str id: The process group id. (required)
-        :return: ProcessGroupReplaceRequestEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
+                The process group replace request entity (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -2351,9 +2677,15 @@ class ProcessGroupsApi(object):
         """
         Pastes into the specified process group
         This method makes a synchronous HTTP request.
-        :param PasteRequestEntity body: The request including the components to be pasted into the specified Process Group. (required)
-        :param str id: The process group id. (required)
-        :return: PasteResponseEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PasteRequestEntity`): 
+                The request including the components to be pasted into the specified Process Group. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PasteResponseEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2366,9 +2698,15 @@ class ProcessGroupsApi(object):
         """
         Pastes into the specified process group
         This method makes a synchronous HTTP request.
-        :param PasteRequestEntity body: The request including the components to be pasted into the specified Process Group. (required)
-        :param str id: The process group id. (required)
-        :return: PasteResponseEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.PasteRequestEntity`): 
+                The request including the components to be pasted into the specified Process Group. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PasteResponseEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -2439,9 +2777,15 @@ class ProcessGroupsApi(object):
         """
         Cancels and/or removes a request to drop all flowfiles.
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2454,9 +2798,15 @@ class ProcessGroupsApi(object):
         """
         Cancels and/or removes a request to drop all flowfiles.
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param str drop_request_id: The drop request id. (required)
-        :return: DropRequestEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            drop_request_id (str): 
+                The drop request id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
         """
 
         all_params = ['id', 'drop_request_id']
@@ -2523,11 +2873,19 @@ class ProcessGroupsApi(object):
         """
         Deletes a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2540,11 +2898,19 @@ class ProcessGroupsApi(object):
         """
         Deletes a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -2613,11 +2979,19 @@ class ProcessGroupsApi(object):
     def replace_process_group(self, body, id, **kwargs):
         """
         Replace Process Group contents with the given ID with the specified Process Group contents
+
         This endpoint is used for replication within a cluster, when replacing a flow with a new flow. It expects that the flow beingreplaced is not under version control and that the given snapshot will not modify any Processor that is currently running or any Controller Service that is enabled. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param ProcessGroupImportEntity body: The process group replace request entity. (required)
-        :param str id: The process group id. (required)
-        :return: ProcessGroupImportEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
+                The process group replace request entity. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupImportEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2629,11 +3003,19 @@ class ProcessGroupsApi(object):
     def replace_process_group_with_http_info(self, body, id, **kwargs):
         """
         Replace Process Group contents with the given ID with the specified Process Group contents
+
         This endpoint is used for replication within a cluster, when replacing a flow with a new flow. It expects that the flow beingreplaced is not under version control and that the given snapshot will not modify any Processor that is currently running or any Controller Service that is enabled. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param ProcessGroupImportEntity body: The process group replace request entity. (required)
-        :param str id: The process group id. (required)
-        :return: ProcessGroupImportEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
+                The process group replace request entity. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupImportEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -2704,9 +3086,15 @@ class ProcessGroupsApi(object):
         """
         Updates a process group
         This method makes a synchronous HTTP request.
-        :param ProcessGroupEntity body: The process group configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
+                The process group configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2719,9 +3107,15 @@ class ProcessGroupsApi(object):
         """
         Updates a process group
         This method makes a synchronous HTTP request.
-        :param ProcessGroupEntity body: The process group configuration details. (required)
-        :param str id: The process group id. (required)
-        :return: ProcessGroupEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
+                The process group configuration details. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -2792,14 +3186,19 @@ class ProcessGroupsApi(object):
         """
         Uploads a versioned flow definition and creates a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param str client_id:
-        :param bool disconnected_node_acknowledged:
-        :param object file:
-        :param str group_name:
-        :param float position_x:
-        :param float position_y:
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            client_id (str):
+            disconnected_node_acknowledged (bool):
+            file (:class:`~nipyapi.nifi.models.object`):
+            group_name (str):
+            position_x (float):
+            position_y (float):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2812,14 +3211,19 @@ class ProcessGroupsApi(object):
         """
         Uploads a versioned flow definition and creates a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param str client_id:
-        :param bool disconnected_node_acknowledged:
-        :param object file:
-        :param str group_name:
-        :param float position_x:
-        :param float position_y:
-        :return: ProcessGroupEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            client_id (str):
+            disconnected_node_acknowledged (bool):
+            file (:class:`~nipyapi.nifi.models.object`):
+            group_name (str):
+            position_x (float):
+            position_y (float):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
         """
 
         all_params = ['id', 'client_id', 'disconnected_node_acknowledged', 'file', 'group_name', 'position_x', 'position_y']

@@ -36,7 +36,11 @@ class SiteToSiteApi(object):
         """
         Returns the available Peers and its status of this NiFi
         This method makes a synchronous HTTP request.
-        :return: PeersEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PeersEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -49,7 +53,11 @@ class SiteToSiteApi(object):
         """
         Returns the available Peers and its status of this NiFi
         This method makes a synchronous HTTP request.
-        :return: PeersEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PeersEntity`: The response object.
         """
 
         all_params = []
@@ -104,7 +112,11 @@ class SiteToSiteApi(object):
         """
         Returns the details about this NiFi necessary to communicate via site to site
         This method makes a synchronous HTTP request.
-        :return: ControllerEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -117,7 +129,11 @@ class SiteToSiteApi(object):
         """
         Returns the details about this NiFi necessary to communicate via site to site
         This method makes a synchronous HTTP request.
-        :return: ControllerEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerEntity`: The response object.
         """
 
         all_params = []

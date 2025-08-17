@@ -38,6 +38,20 @@ help:
 
 clean: clean-build clean-pyc ## remove all build, test, coverage and Python artifacts
 
+clean-all: clean-build clean-pyc openapi-clean ## comprehensive clean: ALL artifacts (build + clients + specs + docs + coverage)
+	@echo "=== Comprehensive Clean: ALL Artifacts ==="
+	# Generated clients
+	rm -rf nipyapi/nifi/apis/* nipyapi/nifi/models/* || true
+	rm -rf nipyapi/registry/apis/* nipyapi/registry/models/* || true
+	# Generated documentation
+	rm -rf docs/nipyapi-docs docs/_build/* || true
+	# Coverage artifacts
+	rm -rf htmlcov/ .coverage coverage.xml .pytest_cache || true
+	# Temporary generation files
+	rm -rf resources/client_gen/_tmp/* || true
+	# Auto-generated version file
+	rm -f nipyapi/_version.py || true
+	@echo "✅ ALL artifacts removed: build, Python, OpenAPI, clients, docs, coverage, temp files."
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -176,6 +190,30 @@ test-all: ## run full e2e tests across all profiles: single-user, secure-ldap, s
 		fi; \
 	done
 	@echo "All profile e2e tests completed successfully."
+
+rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> docs
+	@echo "🚀 Starting comprehensive rebuild from clean slate..."
+	@echo "=== 1/8: Clean All Artifacts ==="
+	$(MAKE) clean-all
+	@echo "=== 2/8: Generate Certificates ==="
+	$(MAKE) certs
+	@echo "=== 3/8: Extract OpenAPI Specs ==="
+	$(MAKE) up NIPYAPI_AUTH_MODE=single-user
+	$(MAKE) wait-ready NIPYAPI_AUTH_MODE=single-user
+	$(MAKE) fetch-openapi
+	@echo "=== 4/8: Augment OpenAPI Specs ==="
+	$(MAKE) augment-openapi
+	@echo "=== 5/8: Generate Fresh Clients ==="
+	$(MAKE) gen-clients
+	@echo "=== 6/8: Test All Profiles with Fresh Clients ==="
+	$(MAKE) test-all
+	@echo "=== 7/8: Build Distribution Packages ==="
+	$(MAKE) dist
+	@echo "=== 8/8: Generate Documentation ==="
+	$(MAKE) docs
+	@echo "✅ Comprehensive rebuild completed successfully!"
+	@echo "📦 Distribution: dist/"
+	@echo "📚 Documentation: docs/_build/html/"
 
 smoke: ## quick version probe without bootstrap (use NIPYAPI_AUTH_MODE=single-user|secure-ldap|secure-mtls)
 	@if [ -z "$(NIPYAPI_AUTH_MODE)" ]; then echo "NIPYAPI_AUTH_MODE is required"; exit 1; fi; \

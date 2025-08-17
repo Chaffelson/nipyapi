@@ -35,10 +35,17 @@ class SystemDiagnosticsApi(object):
     def get_jmx_metrics(self, **kwargs):
         """
         Retrieve available JMX metrics
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bean_name_filter: Regular Expression Pattern to be applied against the ObjectName
-        :return: JmxMetricsResultsEntity
+        
+        Args:
+            bean_name_filter (str): 
+                Regular Expression Pattern to be applied against the ObjectName
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.JmxMetricsResultsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,10 +57,17 @@ class SystemDiagnosticsApi(object):
     def get_jmx_metrics_with_http_info(self, **kwargs):
         """
         Retrieve available JMX metrics
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bean_name_filter: Regular Expression Pattern to be applied against the ObjectName
-        :return: JmxMetricsResultsEntity
+        
+        Args:
+            bean_name_filter (str): 
+                Regular Expression Pattern to be applied against the ObjectName
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.JmxMetricsResultsEntity`: The response object.
         """
 
         all_params = ['bean_name_filter']
@@ -111,10 +125,17 @@ class SystemDiagnosticsApi(object):
         """
         Gets the diagnostics for the system NiFi is running on
         This method makes a synchronous HTTP request.
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str diagnostic_level: Whether or not to include verbose details. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: SystemDiagnosticsEntity
+        
+        Args:
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            diagnostic_level (str): 
+                Whether or not to include verbose details. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SystemDiagnosticsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -127,10 +148,17 @@ class SystemDiagnosticsApi(object):
         """
         Gets the diagnostics for the system NiFi is running on
         This method makes a synchronous HTTP request.
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str diagnostic_level: Whether or not to include verbose details. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: SystemDiagnosticsEntity
+        
+        Args:
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            diagnostic_level (str): 
+                Whether or not to include verbose details. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SystemDiagnosticsEntity`: The response object.
         """
 
         all_params = ['nodewise', 'diagnostic_level', 'cluster_node_id']

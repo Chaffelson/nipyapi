@@ -36,10 +36,17 @@ class ProvenanceEventsApi(object):
         """
         Gets the input content for a provenance event
         This method makes a synchronous HTTP request.
-        :param LongParameter id: The provenance event id. (required)
-        :param str range: Range of bytes requested
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: StreamingOutput
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The provenance event id. (required)
+            range (str): 
+                Range of bytes requested
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -52,10 +59,17 @@ class ProvenanceEventsApi(object):
         """
         Gets the input content for a provenance event
         This method makes a synchronous HTTP request.
-        :param LongParameter id: The provenance event id. (required)
-        :param str range: Range of bytes requested
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: StreamingOutput
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The provenance event id. (required)
+            range (str): 
+                Range of bytes requested
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
 
         all_params = ['id', 'range', 'cluster_node_id']
@@ -122,9 +136,15 @@ class ProvenanceEventsApi(object):
         """
         Retrieves the latest cached Provenance Events for the specified component
         This method makes a synchronous HTTP request.
-        :param str component_id: The ID of the component to retrieve the latest Provenance Events for. (required)
-        :param int limit: The number of events to limit the response to. Defaults to 10.
-        :return: LatestProvenanceEventsEntity
+        
+        Args:
+            component_id (str): 
+                The ID of the component to retrieve the latest Provenance Events for. (required)
+            limit (int): 
+                The number of events to limit the response to. Defaults to 10.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LatestProvenanceEventsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -137,9 +157,15 @@ class ProvenanceEventsApi(object):
         """
         Retrieves the latest cached Provenance Events for the specified component
         This method makes a synchronous HTTP request.
-        :param str component_id: The ID of the component to retrieve the latest Provenance Events for. (required)
-        :param int limit: The number of events to limit the response to. Defaults to 10.
-        :return: LatestProvenanceEventsEntity
+        
+        Args:
+            component_id (str): 
+                The ID of the component to retrieve the latest Provenance Events for. (required)
+            limit (int): 
+                The number of events to limit the response to. Defaults to 10.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LatestProvenanceEventsEntity`: The response object.
         """
 
         all_params = ['component_id', 'limit']
@@ -203,10 +229,17 @@ class ProvenanceEventsApi(object):
         """
         Gets the output content for a provenance event
         This method makes a synchronous HTTP request.
-        :param LongParameter id: The provenance event id. (required)
-        :param str range: Range of bytes requested
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: StreamingOutput
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The provenance event id. (required)
+            range (str): 
+                Range of bytes requested
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -219,10 +252,17 @@ class ProvenanceEventsApi(object):
         """
         Gets the output content for a provenance event
         This method makes a synchronous HTTP request.
-        :param LongParameter id: The provenance event id. (required)
-        :param str range: Range of bytes requested
-        :param str cluster_node_id: The id of the node where the content exists if clustered.
-        :return: StreamingOutput
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The provenance event id. (required)
+            range (str): 
+                Range of bytes requested
+            cluster_node_id (str): 
+                The id of the node where the content exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
 
         all_params = ['id', 'range', 'cluster_node_id']
@@ -289,9 +329,15 @@ class ProvenanceEventsApi(object):
         """
         Gets a provenance event
         This method makes a synchronous HTTP request.
-        :param LongParameter id: The provenance event id. (required)
-        :param str cluster_node_id: The id of the node where this event exists if clustered.
-        :return: ProvenanceEventEntity
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The provenance event id. (required)
+            cluster_node_id (str): 
+                The id of the node where this event exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -304,9 +350,15 @@ class ProvenanceEventsApi(object):
         """
         Gets a provenance event
         This method makes a synchronous HTTP request.
-        :param LongParameter id: The provenance event id. (required)
-        :param str cluster_node_id: The id of the node where this event exists if clustered.
-        :return: ProvenanceEventEntity
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The provenance event id. (required)
+            cluster_node_id (str): 
+                The id of the node where this event exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
         """
 
         all_params = ['id', 'cluster_node_id']
@@ -370,8 +422,13 @@ class ProvenanceEventsApi(object):
         """
         Replays content from a provenance event
         This method makes a synchronous HTTP request.
-        :param SubmitReplayRequestEntity body: The replay request. (required)
-        :return: ProvenanceEventEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.SubmitReplayRequestEntity`): 
+                The replay request. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -384,8 +441,13 @@ class ProvenanceEventsApi(object):
         """
         Replays content from a provenance event
         This method makes a synchronous HTTP request.
-        :param SubmitReplayRequestEntity body: The replay request. (required)
-        :return: ProvenanceEventEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.SubmitReplayRequestEntity`): 
+                The replay request. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
         """
 
         all_params = ['body']
@@ -450,8 +512,13 @@ class ProvenanceEventsApi(object):
         """
         Replays content from a provenance event
         This method makes a synchronous HTTP request.
-        :param ReplayLastEventRequestEntity body: The replay request. (required)
-        :return: ReplayLastEventResponseEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ReplayLastEventRequestEntity`): 
+                The replay request. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReplayLastEventResponseEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -464,8 +531,13 @@ class ProvenanceEventsApi(object):
         """
         Replays content from a provenance event
         This method makes a synchronous HTTP request.
-        :param ReplayLastEventRequestEntity body: The replay request. (required)
-        :return: ReplayLastEventResponseEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ReplayLastEventRequestEntity`): 
+                The replay request. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReplayLastEventResponseEntity`: The response object.
         """
 
         all_params = ['body']

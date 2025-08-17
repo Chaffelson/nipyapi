@@ -811,14 +811,14 @@ def update_variable_registry(process_group, update, refresh=True):
     Updates one or more key:value pairs in the variable registry
 
     Args:
-        process_group (ProcessGroupEntity): The Process Group which has the
-        Variable Registry to be updated
+        process_group (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): The Process Group which
+            has the Variable Registry to be updated
         update (list[tuple]): The variables to write to the registry
         refresh (bool): Whether to refresh the object revision before updating
 
     Returns:
-        (VariableRegistryEntity): The created or updated Variable Registry
-        Entries
+        :class:`~nipyapi.nifi.models.VariableRegistryEntity`: The created or updated Variable
+            Registry Entries
 
     """
     if not isinstance(process_group, nipyapi.nifi.ProcessGroupEntity):
@@ -1067,17 +1067,17 @@ def get_bulletin_board():
 
 def create_controller(parent_pg, controller, name=None):
     """
-    Creates a new Controller Service in a given Process Group of the given
-        Controller type, with the given Name
+    Creates a new Controller Service in a given Process Group of the given Controller type, with the
+    given Name.
 
     Args:
-        parent_pg (ProcessGroupEntity): Target Parent PG
-        controller (DocumentedTypeDTO): Type of Controller to create, found
-            via the list_all_controller_types method
-        name (str[Optional]): Name for the new Controller as a String
+        parent_pg (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): Target Parent PG
+        controller (:class:`~nipyapi.nifi.models.DocumentedTypeDTO`): Type of Controller to create,
+            found via the list_all_controller_types method
+        name (str, optional): Name for the new Controller as a String
 
     Returns:
-        (ControllerServiceEntity)
+        :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The created controller service
 
     """
     assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)

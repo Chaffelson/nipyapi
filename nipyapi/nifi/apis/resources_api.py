@@ -36,7 +36,11 @@ class ResourcesApi(object):
         """
         Gets the available resources that support access/authorization policies
         This method makes a synchronous HTTP request.
-        :return: ResourcesEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ResourcesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -49,7 +53,11 @@ class ResourcesApi(object):
         """
         Gets the available resources that support access/authorization policies
         This method makes a synchronous HTTP request.
-        :return: ResourcesEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ResourcesEntity`: The response object.
         """
 
         all_params = []

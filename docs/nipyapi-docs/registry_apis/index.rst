@@ -1,42 +1,23 @@
 Registry APIs
 =============
 
-This section contains the Registry API documentation organized by functional area for easier navigation.
+Complete Registry REST API client documentation.
+
+This section documents all **13** Registry API classes. Each API class provides methods for interacting with specific Registry endpoints. Click any API to see its methods and their model parameters.
 
 .. toctree::
-   :maxdepth: 2
-   :caption: API Groups
+   :maxdepth: 1
 
-   core_flow
-   security
-   configuration
-   other
-
-Core Flow Management
---------------------
-
-Essential APIs for managing NiFi flows, processors, and connections
-
-APIs: Bucket Flows, Flows
-
-Security & Access Control
--------------------------
-
-Authentication, authorization, policies, and user management
-
-APIs: Access, Policies, Tenants
-
-Configuration Management
-------------------------
-
-Parameters, controller services, and configuration
-
-APIs: Config
-
-Other APIs
-----------
-
-Additional API endpoints
-
-APIs: About, Bucket Bundles, Buckets, Bundles, Extension Repository, Extensions, Items
-
+   about_api
+   access_api
+   bucket_bundles_api
+   bucket_flows_api
+   buckets_api
+   bundles_api
+   config_api
+   extension_repository_api
+   extensions_api
+   flows_api
+   items_api
+   policies_api
+   tenants_api

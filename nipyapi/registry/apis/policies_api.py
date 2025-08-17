@@ -34,10 +34,15 @@ class PoliciesApi(object):
 
     def create_access_policy(self, body, **kwargs):
         """
-        Create access policy
+        Create access policy.
         This method makes a synchronous HTTP request.
-        :param AccessPolicy body: The access policy configuration details. (required)
-        :return: AccessPolicy
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.AccessPolicy`): 
+                The access policy configuration details. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -48,10 +53,15 @@ class PoliciesApi(object):
 
     def create_access_policy_with_http_info(self, body, **kwargs):
         """
-        Create access policy
+        Create access policy.
         This method makes a synchronous HTTP request.
-        :param AccessPolicy body: The access policy configuration details. (required)
-        :return: AccessPolicy
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.AccessPolicy`): 
+                The access policy configuration details. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
 
         all_params = ['body']
@@ -114,9 +124,13 @@ class PoliciesApi(object):
 
     def get_access_policies(self, **kwargs):
         """
-        Get all access policies
+        Get all access policies.
         This method makes a synchronous HTTP request.
-        :return: list[AccessPolicy]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[AccessPolicy]`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -127,9 +141,13 @@ class PoliciesApi(object):
 
     def get_access_policies_with_http_info(self, **kwargs):
         """
-        Get all access policies
+        Get all access policies.
         This method makes a synchronous HTTP request.
-        :return: list[AccessPolicy]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[AccessPolicy]`: The response object.
         """
 
         all_params = []
@@ -182,10 +200,15 @@ class PoliciesApi(object):
 
     def get_access_policy(self, id, **kwargs):
         """
-        Get access policy
+        Get access policy.
         This method makes a synchronous HTTP request.
-        :param str id: The access policy id. (required)
-        :return: AccessPolicy
+        
+        Args:
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -196,10 +219,15 @@ class PoliciesApi(object):
 
     def get_access_policy_with_http_info(self, id, **kwargs):
         """
-        Get access policy
+        Get access policy.
         This method makes a synchronous HTTP request.
-        :param str id: The access policy id. (required)
-        :return: AccessPolicy
+        
+        Args:
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
 
         all_params = ['id']
@@ -258,14 +286,20 @@ class PoliciesApi(object):
 
     def get_access_policy_for_resource(self, action, resource, **kwargs):
         """
-        Get access policy for resource
+        Get access policy for resource.
 
         Gets an access policy for the specified action and resource
 
         This method makes a synchronous HTTP request.
-        :param str action: The request action. (required)
-        :param str resource: The resource of the policy. (required)
-        :return: AccessPolicy
+        
+        Args:
+            action (str): 
+                The request action. (required)
+            resource (str): 
+                The resource of the policy. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -276,14 +310,20 @@ class PoliciesApi(object):
 
     def get_access_policy_for_resource_with_http_info(self, action, resource, **kwargs):
         """
-        Get access policy for resource
+        Get access policy for resource.
 
         Gets an access policy for the specified action and resource
 
         This method makes a synchronous HTTP request.
-        :param str action: The request action. (required)
-        :param str resource: The resource of the policy. (required)
-        :return: AccessPolicy
+        
+        Args:
+            action (str): 
+                The request action. (required)
+            resource (str): 
+                The resource of the policy. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
 
         all_params = ['action', 'resource']
@@ -348,12 +388,16 @@ class PoliciesApi(object):
 
     def get_resources(self, **kwargs):
         """
-        Get available resources
+        Get available resources.
 
         Gets the available resources that support access/authorization policies
 
         This method makes a synchronous HTTP request.
-        :return: list[Resource]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[Resource]`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -364,12 +408,16 @@ class PoliciesApi(object):
 
     def get_resources_with_http_info(self, **kwargs):
         """
-        Get available resources
+        Get available resources.
 
         Gets the available resources that support access/authorization policies
 
         This method makes a synchronous HTTP request.
-        :return: list[Resource]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[Resource]`: The response object.
         """
 
         all_params = []
@@ -422,12 +470,19 @@ class PoliciesApi(object):
 
     def remove_access_policy(self, version, id, **kwargs):
         """
-        Delete access policy
+        Delete access policy.
         This method makes a synchronous HTTP request.
-        :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
-        :param str id: The access policy id. (required)
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :return: AccessPolicy
+        
+        Args:
+            version (:class:`~nipyapi.registry.models.LongParameter`): 
+                The version is used to verify the client is working with the latest version of the entity. (required)
+            id (str): 
+                The access policy id. (required)
+            client_id (:class:`~nipyapi.registry.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -438,12 +493,19 @@ class PoliciesApi(object):
 
     def remove_access_policy_with_http_info(self, version, id, **kwargs):
         """
-        Delete access policy
+        Delete access policy.
         This method makes a synchronous HTTP request.
-        :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
-        :param str id: The access policy id. (required)
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :return: AccessPolicy
+        
+        Args:
+            version (:class:`~nipyapi.registry.models.LongParameter`): 
+                The version is used to verify the client is working with the latest version of the entity. (required)
+            id (str): 
+                The access policy id. (required)
+            client_id (:class:`~nipyapi.registry.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
 
         all_params = ['version', 'id', 'client_id']
@@ -511,11 +573,17 @@ class PoliciesApi(object):
 
     def update_access_policy(self, body, id, **kwargs):
         """
-        Update access policy
+        Update access policy.
         This method makes a synchronous HTTP request.
-        :param AccessPolicy body: The access policy configuration details. (required)
-        :param str id: The access policy id. (required)
-        :return: AccessPolicy
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.AccessPolicy`): 
+                The access policy configuration details. (required)
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -526,11 +594,17 @@ class PoliciesApi(object):
 
     def update_access_policy_with_http_info(self, body, id, **kwargs):
         """
-        Update access policy
+        Update access policy.
         This method makes a synchronous HTTP request.
-        :param AccessPolicy body: The access policy configuration details. (required)
-        :param str id: The access policy id. (required)
-        :return: AccessPolicy
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.AccessPolicy`): 
+                The access policy configuration details. (required)
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
         """
 
         all_params = ['body', 'id']

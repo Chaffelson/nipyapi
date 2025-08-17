@@ -102,9 +102,7 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
 6. When you're done making changes, run the test suites for all profiles::
 
     # convenience shortcuts
-    $ make test-su
-    $ make test-ldap
-    $ make test-mtls
+    $ make test-all
 
 7. Commit your changes and push your branch to GitHub::
 

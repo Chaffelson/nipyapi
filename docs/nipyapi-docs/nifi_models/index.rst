@@ -1,7 +1,7 @@
 NiFi Models
 ===========
 
-NiFi model documentation.
+Complete NiFi model class documentation with cross-reference support.
 
 .. toctree::
    :maxdepth: 1

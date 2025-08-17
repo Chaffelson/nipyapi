@@ -34,12 +34,16 @@ class ItemsApi(object):
 
     def get_available_bucket_item_fields(self, **kwargs):
         """
-        Get item fields
+        Get item fields.
 
         Retrieves the item field names for searching or sorting on bucket items.
 
         This method makes a synchronous HTTP request.
-        :return: Fields
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.Fields`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,12 +54,16 @@ class ItemsApi(object):
 
     def get_available_bucket_item_fields_with_http_info(self, **kwargs):
         """
-        Get item fields
+        Get item fields.
 
         Retrieves the item field names for searching or sorting on bucket items.
 
         This method makes a synchronous HTTP request.
-        :return: Fields
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.Fields`: The response object.
         """
 
         all_params = []
@@ -108,12 +116,16 @@ class ItemsApi(object):
 
     def get_items(self, **kwargs):
         """
-        Get all items
+        Get all items.
 
         Get items across all buckets. The returned items will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.
 
         This method makes a synchronous HTTP request.
-        :return: list[BucketItem]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -124,12 +136,16 @@ class ItemsApi(object):
 
     def get_items_with_http_info(self, **kwargs):
         """
-        Get all items
+        Get all items.
 
         Get items across all buckets. The returned items will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.
 
         This method makes a synchronous HTTP request.
-        :return: list[BucketItem]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
         """
 
         all_params = []
@@ -182,13 +198,18 @@ class ItemsApi(object):
 
     def get_items1(self, bucket_id, **kwargs):
         """
-        Get bucket items
+        Get bucket items.
 
         Gets the items located in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :return: list[BucketItem]
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -199,13 +220,18 @@ class ItemsApi(object):
 
     def get_items1_with_http_info(self, bucket_id, **kwargs):
         """
-        Get bucket items
+        Get bucket items.
 
         Gets the items located in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :return: list[BucketItem]
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
         """
 
         all_params = ['bucket_id']

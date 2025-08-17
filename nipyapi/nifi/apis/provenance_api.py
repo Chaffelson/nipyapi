@@ -36,9 +36,15 @@ class ProvenanceApi(object):
         """
         Deletes a lineage query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the lineage query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :return: LineageEntity
+        
+        Args:
+            id (str): 
+                The id of the lineage query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LineageEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,9 +57,15 @@ class ProvenanceApi(object):
         """
         Deletes a lineage query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the lineage query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :return: LineageEntity
+        
+        Args:
+            id (str): 
+                The id of the lineage query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LineageEntity`: The response object.
         """
 
         all_params = ['id', 'cluster_node_id']
@@ -117,9 +129,15 @@ class ProvenanceApi(object):
         """
         Deletes a provenance query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the provenance query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :return: ProvenanceEntity
+        
+        Args:
+            id (str): 
+                The id of the provenance query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -132,9 +150,15 @@ class ProvenanceApi(object):
         """
         Deletes a provenance query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the provenance query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :return: ProvenanceEntity
+        
+        Args:
+            id (str): 
+                The id of the provenance query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEntity`: The response object.
         """
 
         all_params = ['id', 'cluster_node_id']
@@ -198,9 +222,15 @@ class ProvenanceApi(object):
         """
         Gets a lineage query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the lineage query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :return: LineageEntity
+        
+        Args:
+            id (str): 
+                The id of the lineage query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LineageEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -213,9 +243,15 @@ class ProvenanceApi(object):
         """
         Gets a lineage query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the lineage query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :return: LineageEntity
+        
+        Args:
+            id (str): 
+                The id of the lineage query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LineageEntity`: The response object.
         """
 
         all_params = ['id', 'cluster_node_id']
@@ -279,11 +315,19 @@ class ProvenanceApi(object):
         """
         Gets a provenance query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the provenance query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :param bool summarize: Whether or not incremental results are returned. If false, provenance events are only returned once the query completes. This property is true by default.
-        :param bool incremental_results: Whether or not to summarize provenance events returned. This property is false by default.
-        :return: ProvenanceEntity
+        
+        Args:
+            id (str): 
+                The id of the provenance query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+            summarize (bool): 
+                Whether or not incremental results are returned. If false, provenance events are only returned once the query completes. This property is true by default.
+            incremental_results (bool): 
+                Whether or not to summarize provenance events returned. This property is false by default.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -296,11 +340,19 @@ class ProvenanceApi(object):
         """
         Gets a provenance query
         This method makes a synchronous HTTP request.
-        :param str id: The id of the provenance query. (required)
-        :param str cluster_node_id: The id of the node where this query exists if clustered.
-        :param bool summarize: Whether or not incremental results are returned. If false, provenance events are only returned once the query completes. This property is true by default.
-        :param bool incremental_results: Whether or not to summarize provenance events returned. This property is false by default.
-        :return: ProvenanceEntity
+        
+        Args:
+            id (str): 
+                The id of the provenance query. (required)
+            cluster_node_id (str): 
+                The id of the node where this query exists if clustered.
+            summarize (bool): 
+                Whether or not incremental results are returned. If false, provenance events are only returned once the query completes. This property is true by default.
+            incremental_results (bool): 
+                Whether or not to summarize provenance events returned. This property is false by default.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEntity`: The response object.
         """
 
         all_params = ['id', 'cluster_node_id', 'summarize', 'incremental_results']
@@ -370,7 +422,11 @@ class ProvenanceApi(object):
         """
         Gets the searchable attributes for provenance events
         This method makes a synchronous HTTP request.
-        :return: ProvenanceOptionsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceOptionsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -383,7 +439,11 @@ class ProvenanceApi(object):
         """
         Gets the searchable attributes for provenance events
         This method makes a synchronous HTTP request.
-        :return: ProvenanceOptionsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceOptionsEntity`: The response object.
         """
 
         all_params = []
@@ -437,10 +497,17 @@ class ProvenanceApi(object):
     def submit_lineage_request(self, body, **kwargs):
         """
         Submits a lineage query
+
         Lineage queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the lineage request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
-        :param LineageEntity body: The lineage query details. (required)
-        :return: LineageEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.LineageEntity`): 
+                The lineage query details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LineageEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -452,10 +519,17 @@ class ProvenanceApi(object):
     def submit_lineage_request_with_http_info(self, body, **kwargs):
         """
         Submits a lineage query
+
         Lineage queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the lineage request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
-        :param LineageEntity body: The lineage query details. (required)
-        :return: LineageEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.LineageEntity`): 
+                The lineage query details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.LineageEntity`: The response object.
         """
 
         all_params = ['body']
@@ -519,10 +593,17 @@ class ProvenanceApi(object):
     def submit_provenance_request(self, body, **kwargs):
         """
         Submits a provenance query
+
         Provenance queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the provenance request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
-        :param ProvenanceEntity body: The provenance query details. (required)
-        :return: ProvenanceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProvenanceEntity`): 
+                The provenance query details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -534,10 +615,17 @@ class ProvenanceApi(object):
     def submit_provenance_request_with_http_info(self, body, **kwargs):
         """
         Submits a provenance query
+
         Provenance queries may be long running so this endpoint submits a request. The response will include the current state of the query. If the request is not completed the URI in the response can be used at a later time to get the updated state of the query. Once the query has completed the provenance request should be deleted by the client who originally submitted it.
+
         This method makes a synchronous HTTP request.
-        :param ProvenanceEntity body: The provenance query details. (required)
-        :return: ProvenanceEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ProvenanceEntity`): 
+                The provenance query details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProvenanceEntity`: The response object.
         """
 
         all_params = ['body']

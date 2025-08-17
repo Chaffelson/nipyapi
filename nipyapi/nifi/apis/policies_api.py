@@ -36,8 +36,13 @@ class PoliciesApi(object):
         """
         Creates an access policy
         This method makes a synchronous HTTP request.
-        :param AccessPolicyEntity body: The access policy configuration details. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.AccessPolicyEntity`): 
+                The access policy configuration details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,8 +55,13 @@ class PoliciesApi(object):
         """
         Creates an access policy
         This method makes a synchronous HTTP request.
-        :param AccessPolicyEntity body: The access policy configuration details. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.AccessPolicyEntity`): 
+                The access policy configuration details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
 
         all_params = ['body']
@@ -116,8 +126,13 @@ class PoliciesApi(object):
         """
         Gets an access policy
         This method makes a synchronous HTTP request.
-        :param str id: The access policy id. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -130,8 +145,13 @@ class PoliciesApi(object):
         """
         Gets an access policy
         This method makes a synchronous HTTP request.
-        :param str id: The access policy id. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
 
         all_params = ['id']
@@ -191,11 +211,19 @@ class PoliciesApi(object):
     def get_access_policy_for_resource(self, action, resource, **kwargs):
         """
         Gets an access policy for the specified action and resource
+
         Will return the effective policy if no component specific policy exists for the specified action and resource. Must have Read permissions to the policy with the desired action and resource. Permissions for the policy that is returned will be indicated in the response. This means the client could be authorized to get the policy for a given component but the effective policy may be inherited from an ancestor Process Group. If the client does not have permissions to that policy, the response will not include the policy and the permissions in the response will be marked accordingly. If the client does not have permissions to the policy of the desired action and resource a 403 response will be returned.
+
         This method makes a synchronous HTTP request.
-        :param str action: The request action. (required)
-        :param str resource: The resource of the policy. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            action (str): 
+                The request action. (required)
+            resource (str): 
+                The resource of the policy. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -207,11 +235,19 @@ class PoliciesApi(object):
     def get_access_policy_for_resource_with_http_info(self, action, resource, **kwargs):
         """
         Gets an access policy for the specified action and resource
+
         Will return the effective policy if no component specific policy exists for the specified action and resource. Must have Read permissions to the policy with the desired action and resource. Permissions for the policy that is returned will be indicated in the response. This means the client could be authorized to get the policy for a given component but the effective policy may be inherited from an ancestor Process Group. If the client does not have permissions to that policy, the response will not include the policy and the permissions in the response will be marked accordingly. If the client does not have permissions to the policy of the desired action and resource a 403 response will be returned.
+
         This method makes a synchronous HTTP request.
-        :param str action: The request action. (required)
-        :param str resource: The resource of the policy. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            action (str): 
+                The request action. (required)
+            resource (str): 
+                The resource of the policy. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
 
         all_params = ['action', 'resource']
@@ -278,11 +314,19 @@ class PoliciesApi(object):
         """
         Deletes an access policy
         This method makes a synchronous HTTP request.
-        :param str id: The access policy id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: AccessPolicyEntity
+        
+        Args:
+            id (str): 
+                The access policy id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -295,11 +339,19 @@ class PoliciesApi(object):
         """
         Deletes an access policy
         This method makes a synchronous HTTP request.
-        :param str id: The access policy id. (required)
-        :param LongParameter version: The revision is used to verify the client is working with the latest version of the flow.
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: AccessPolicyEntity
+        
+        Args:
+            id (str): 
+                The access policy id. (required)
+            version (:class:`~nipyapi.nifi.models.LongParameter`): 
+                The revision is used to verify the client is working with the latest version of the flow.
+            client_id (:class:`~nipyapi.nifi.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -369,9 +421,15 @@ class PoliciesApi(object):
         """
         Updates a access policy
         This method makes a synchronous HTTP request.
-        :param AccessPolicyEntity body: The access policy configuration details. (required)
-        :param str id: The access policy id. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.AccessPolicyEntity`): 
+                The access policy configuration details. (required)
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -384,9 +442,15 @@ class PoliciesApi(object):
         """
         Updates a access policy
         This method makes a synchronous HTTP request.
-        :param AccessPolicyEntity body: The access policy configuration details. (required)
-        :param str id: The access policy id. (required)
-        :return: AccessPolicyEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.AccessPolicyEntity`): 
+                The access policy configuration details. (required)
+            id (str): 
+                The access policy id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The response object.
         """
 
         all_params = ['body', 'id']

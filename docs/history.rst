@@ -4,18 +4,28 @@ History
 
  
 
-1.0.0 (2025-08-15)
+1.0.0 (2025-01-15)
 -------------------
 
 | Major migration to Apache NiFi/Registry 2.x (tested against 2.5.0). Drops 1.x support on main.
+
+- Build system and workflow improvements:
+
+  - Added comprehensive ``rebuild-all`` Makefile target for complete project regeneration from clean slate
+  - Enhanced ``clean-all`` target to remove ALL artifacts: build, clients, docs, coverage, temporary files
+  - Optimized rebuild flow to avoid unnecessary infrastructure cycling during client generation
+  - Streamlined client generation workflow using existing scripts in ``resources/client_gen/``
 
 - Documentation modernization and restructuring:
 
   - Complete overhaul of Sphinx documentation generation with custom structured approach
   - Replace monolithic API reference pages with modular, navigable structure addressing GitHub issue #376
-  - Auto-generated API categorization into functional groups (core_flow, security, data_management, etc.)
+  - Flat API structure with individual pages for all 39 NiFi APIs and 13 Registry APIs for optimal navigation
+  - Comprehensive models documentation with all 394 NiFi and 85 Registry model classes auto-discovered
   - Individual documentation pages for each core module improving navigation and maintainability
   - Template-level docstring formatting fixes ensuring Sphinx-compliant generated client code
+  - Enhanced generated docstrings with proper Google-style formatting, primitive type handling, and method distinction
+  - Added client architecture documentation explaining base vs _with_http_info methods, callbacks, and error handling
   - Direct GitHub source code links for all functions and classes with line-level precision
   - Modern installation guide with current best practices, virtual environments, and dependency management
   - Auto-generated dependencies documentation from actual requirements files eliminating maintenance burden

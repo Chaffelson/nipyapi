@@ -36,9 +36,15 @@ class FlowApi(object):
         """
         Enable or disable Controller Services in the specified Process Group.
         This method makes a synchronous HTTP request.
-        :param ActivateControllerServicesEntity body: The request to schedule or unschedule. If the comopnents in the request are not specified, all authorized components will be considered. (required)
-        :param str id: The process group id. (required)
-        :return: ActivateControllerServicesEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`): 
+                The request to schedule or unschedule. If the comopnents in the request are not specified, all authorized components will be considered. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,9 +57,15 @@ class FlowApi(object):
         """
         Enable or disable Controller Services in the specified Process Group.
         This method makes a synchronous HTTP request.
-        :param ActivateControllerServicesEntity body: The request to schedule or unschedule. If the comopnents in the request are not specified, all authorized components will be considered. (required)
-        :param str id: The process group id. (required)
-        :return: ActivateControllerServicesEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`): 
+                The request to schedule or unschedule. If the comopnents in the request are not specified, all authorized components will be considered. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -124,8 +136,13 @@ class FlowApi(object):
         """
         Download a snapshot of the given reporting tasks and any controller services they use
         This method makes a synchronous HTTP request.
-        :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
-        :return: str
+        
+        Args:
+            reporting_task_id (str): 
+                Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
+                
+        Returns:
+            str: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -138,8 +155,13 @@ class FlowApi(object):
         """
         Download a snapshot of the given reporting tasks and any controller services they use
         This method makes a synchronous HTTP request.
-        :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
-        :return: str
+        
+        Args:
+            reporting_task_id (str): 
+                Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
+                
+        Returns:
+            str: The response object.
         """
 
         all_params = ['reporting_task_id']
@@ -197,7 +219,11 @@ class FlowApi(object):
         """
         Generates a client id.
         This method makes a synchronous HTTP request.
-        :return: str
+        
+        Args:
+                
+        Returns:
+            str: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -210,7 +236,11 @@ class FlowApi(object):
         """
         Generates a client id.
         This method makes a synchronous HTTP request.
-        :return: str
+        
+        Args:
+                
+        Returns:
+            str: The response object.
         """
 
         all_params = []
@@ -265,7 +295,11 @@ class FlowApi(object):
         """
         Retrieves details about this NiFi to put in the About dialog
         This method makes a synchronous HTTP request.
-        :return: AboutEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AboutEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -278,7 +312,11 @@ class FlowApi(object):
         """
         Retrieves details about this NiFi to put in the About dialog
         This method makes a synchronous HTTP request.
-        :return: AboutEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AboutEntity`: The response object.
         """
 
         all_params = []
@@ -332,10 +370,17 @@ class FlowApi(object):
     def get_action(self, id, **kwargs):
         """
         Gets an action
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param IntegerParameter id: The action id. (required)
-        :return: ActionEntity
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The action id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ActionEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -347,10 +392,17 @@ class FlowApi(object):
     def get_action_with_http_info(self, id, **kwargs):
         """
         Gets an action
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param IntegerParameter id: The action id. (required)
-        :return: ActionEntity
+        
+        Args:
+            id (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The action id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ActionEntity`: The response object.
         """
 
         all_params = ['id']
@@ -410,13 +462,23 @@ class FlowApi(object):
     def get_additional_details(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the additional details for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The processor type (required)
-        :return: AdditionalDetailsEntity
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The processor type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AdditionalDetailsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -428,13 +490,23 @@ class FlowApi(object):
     def get_additional_details_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the additional details for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The processor type (required)
-        :return: AdditionalDetailsEntity
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The processor type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AdditionalDetailsEntity`: The response object.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -513,7 +585,11 @@ class FlowApi(object):
         """
         Returns all flow analysis results currently in effect
         This method makes a synchronous HTTP request.
-        :return: FlowAnalysisResultEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -526,7 +602,11 @@ class FlowApi(object):
         """
         Returns all flow analysis results currently in effect
         This method makes a synchronous HTTP request.
-        :return: FlowAnalysisResultEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
         """
 
         all_params = []
@@ -581,7 +661,11 @@ class FlowApi(object):
         """
         Retrieves the banners for this NiFi
         This method makes a synchronous HTTP request.
-        :return: BannerEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.BannerEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -594,7 +678,11 @@ class FlowApi(object):
         """
         Retrieves the banners for this NiFi
         This method makes a synchronous HTTP request.
-        :return: BannerEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.BannerEntity`: The response object.
         """
 
         all_params = []
@@ -649,8 +737,13 @@ class FlowApi(object):
         """
         Gets the branches from the specified registry for the current user
         This method makes a synchronous HTTP request.
-        :param str id: The registry id. (required)
-        :return: FlowRegistryBranchesEntity
+        
+        Args:
+            id (str): 
+                The registry id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowRegistryBranchesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -663,8 +756,13 @@ class FlowApi(object):
         """
         Gets the branches from the specified registry for the current user
         This method makes a synchronous HTTP request.
-        :param str id: The registry id. (required)
-        :return: FlowRegistryBranchesEntity
+        
+        Args:
+            id (str): 
+                The registry id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowRegistryBranchesEntity`: The response object.
         """
 
         all_params = ['id']
@@ -725,8 +823,13 @@ class FlowApi(object):
         """
         Gets the breadcrumbs for a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: FlowBreadcrumbEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowBreadcrumbEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -739,8 +842,13 @@ class FlowApi(object):
         """
         Gets the breadcrumbs for a process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: FlowBreadcrumbEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowBreadcrumbEntity`: The response object.
         """
 
         all_params = ['id']
@@ -801,9 +909,15 @@ class FlowApi(object):
         """
         Gets the buckets from the specified registry for the current user
         This method makes a synchronous HTTP request.
-        :param str id: The registry id. (required)
-        :param str branch: The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
-        :return: FlowRegistryBucketsEntity
+        
+        Args:
+            id (str): 
+                The registry id. (required)
+            branch (str): 
+                The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -816,9 +930,15 @@ class FlowApi(object):
         """
         Gets the buckets from the specified registry for the current user
         This method makes a synchronous HTTP request.
-        :param str id: The registry id. (required)
-        :param str branch: The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
-        :return: FlowRegistryBucketsEntity
+        
+        Args:
+            id (str): 
+                The registry id. (required)
+            branch (str): 
+                The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`: The response object.
         """
 
         all_params = ['id', 'branch']
@@ -882,13 +1002,23 @@ class FlowApi(object):
         """
         Gets current bulletins
         This method makes a synchronous HTTP request.
-        :param LongParameter after: Includes bulletins with an id after this value.
-        :param BulletinBoardPatternParameter source_name: Includes bulletins originating from this sources whose name match this regular expression.
-        :param BulletinBoardPatternParameter message: Includes bulletins whose message that match this regular expression.
-        :param BulletinBoardPatternParameter source_id: Includes bulletins originating from this sources whose id match this regular expression.
-        :param BulletinBoardPatternParameter group_id: Includes bulletins originating from this sources whose group id match this regular expression.
-        :param IntegerParameter limit: The number of bulletins to limit the response to.
-        :return: BulletinBoardEntity
+        
+        Args:
+            after (:class:`~nipyapi.nifi.models.LongParameter`): 
+                Includes bulletins with an id after this value.
+            source_name (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins originating from this sources whose name match this regular expression.
+            message (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins whose message that match this regular expression.
+            source_id (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins originating from this sources whose id match this regular expression.
+            group_id (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins originating from this sources whose group id match this regular expression.
+            limit (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The number of bulletins to limit the response to.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.BulletinBoardEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -901,13 +1031,23 @@ class FlowApi(object):
         """
         Gets current bulletins
         This method makes a synchronous HTTP request.
-        :param LongParameter after: Includes bulletins with an id after this value.
-        :param BulletinBoardPatternParameter source_name: Includes bulletins originating from this sources whose name match this regular expression.
-        :param BulletinBoardPatternParameter message: Includes bulletins whose message that match this regular expression.
-        :param BulletinBoardPatternParameter source_id: Includes bulletins originating from this sources whose id match this regular expression.
-        :param BulletinBoardPatternParameter group_id: Includes bulletins originating from this sources whose group id match this regular expression.
-        :param IntegerParameter limit: The number of bulletins to limit the response to.
-        :return: BulletinBoardEntity
+        
+        Args:
+            after (:class:`~nipyapi.nifi.models.LongParameter`): 
+                Includes bulletins with an id after this value.
+            source_name (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins originating from this sources whose name match this regular expression.
+            message (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins whose message that match this regular expression.
+            source_id (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins originating from this sources whose id match this regular expression.
+            group_id (:class:`~nipyapi.nifi.models.BulletinBoardPatternParameter`): 
+                Includes bulletins originating from this sources whose group id match this regular expression.
+            limit (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The number of bulletins to limit the response to.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.BulletinBoardEntity`: The response object.
         """
 
         all_params = ['after', 'source_name', 'message', 'source_id', 'group_id', 'limit']
@@ -980,7 +1120,11 @@ class FlowApi(object):
         """
         Retrieves Controller level bulletins
         This method makes a synchronous HTTP request.
-        :return: ControllerBulletinsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerBulletinsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -993,7 +1137,11 @@ class FlowApi(object):
         """
         Retrieves Controller level bulletins
         This method makes a synchronous HTTP request.
-        :return: ControllerBulletinsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerBulletinsEntity`: The response object.
         """
 
         all_params = []
@@ -1048,7 +1196,11 @@ class FlowApi(object):
         """
         The cluster summary for this NiFi
         This method makes a synchronous HTTP request.
-        :return: ClusterSummaryEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ClusterSummaryEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1061,7 +1213,11 @@ class FlowApi(object):
         """
         The cluster summary for this NiFi
         This method makes a synchronous HTTP request.
-        :return: ClusterSummaryEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ClusterSummaryEntity`: The response object.
         """
 
         all_params = []
@@ -1115,10 +1271,17 @@ class FlowApi(object):
     def get_component_history(self, component_id, **kwargs):
         """
         Gets configuration history for a component
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str component_id: The component id. (required)
-        :return: ComponentHistoryEntity
+        
+        Args:
+            component_id (str): 
+                The component id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1130,10 +1293,17 @@ class FlowApi(object):
     def get_component_history_with_http_info(self, component_id, **kwargs):
         """
         Gets configuration history for a component
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str component_id: The component id. (required)
-        :return: ComponentHistoryEntity
+        
+        Args:
+            component_id (str): 
+                The component id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response object.
         """
 
         all_params = ['component_id']
@@ -1194,10 +1364,17 @@ class FlowApi(object):
         """
         Gets statistics for a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the statistics.
-        :return: ConnectionStatisticsEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the statistics.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionStatisticsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1210,10 +1387,17 @@ class FlowApi(object):
         """
         Gets statistics for a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the statistics.
-        :return: ConnectionStatisticsEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the statistics.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionStatisticsEntity`: The response object.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -1280,10 +1464,17 @@ class FlowApi(object):
         """
         Gets status for a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: ConnectionStatusEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionStatusEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1296,10 +1487,17 @@ class FlowApi(object):
         """
         Gets status for a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: ConnectionStatusEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ConnectionStatusEntity`: The response object.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -1366,8 +1564,13 @@ class FlowApi(object):
         """
         Gets the status history for a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1380,8 +1583,13 @@ class FlowApi(object):
         """
         Gets the status history for a connection
         This method makes a synchronous HTTP request.
-        :param str id: The connection id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The connection id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
 
         all_params = ['id']
@@ -1442,7 +1650,11 @@ class FlowApi(object):
         """
         Retrieves the registered content viewers
         This method makes a synchronous HTTP request.
-        :return: ContentViewerEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ContentViewerEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1455,7 +1667,11 @@ class FlowApi(object):
         """
         Retrieves the registered content viewers
         This method makes a synchronous HTTP request.
-        :return: ContentViewerEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ContentViewerEntity`: The response object.
         """
 
         all_params = []
@@ -1509,13 +1725,23 @@ class FlowApi(object):
     def get_controller_service_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Controller Service Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The controller service type (required)
-        :return: ControllerServiceDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The controller service type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1527,13 +1753,23 @@ class FlowApi(object):
     def get_controller_service_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Controller Service Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The controller service type (required)
-        :return: ControllerServiceDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The controller service type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: The response object.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -1611,16 +1847,29 @@ class FlowApi(object):
     def get_controller_service_types(self, **kwargs):
         """
         Retrieves the types of controller services that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str service_type: If specified, will only return controller services that are compatible with this type of service.
-        :param str service_bundle_group: If serviceType specified, is the bundle group of the serviceType.
-        :param str service_bundle_artifact: If serviceType specified, is the bundle artifact of the serviceType.
-        :param str service_bundle_version: If serviceType specified, is the bundle version of the serviceType.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type_filter: If specified, will only return types whose fully qualified classname matches.
-        :return: ControllerServiceTypesEntity
+        
+        Args:
+            service_type (str): 
+                If specified, will only return controller services that are compatible with this type of service.
+            service_bundle_group (str): 
+                If serviceType specified, is the bundle group of the serviceType.
+            service_bundle_artifact (str): 
+                If serviceType specified, is the bundle artifact of the serviceType.
+            service_bundle_version (str): 
+                If serviceType specified, is the bundle version of the serviceType.
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type_filter (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceTypesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1632,16 +1881,29 @@ class FlowApi(object):
     def get_controller_service_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of controller services that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str service_type: If specified, will only return controller services that are compatible with this type of service.
-        :param str service_bundle_group: If serviceType specified, is the bundle group of the serviceType.
-        :param str service_bundle_artifact: If serviceType specified, is the bundle artifact of the serviceType.
-        :param str service_bundle_version: If serviceType specified, is the bundle version of the serviceType.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type_filter: If specified, will only return types whose fully qualified classname matches.
-        :return: ControllerServiceTypesEntity
+        
+        Args:
+            service_type (str): 
+                If specified, will only return controller services that are compatible with this type of service.
+            service_bundle_group (str): 
+                If serviceType specified, is the bundle group of the serviceType.
+            service_bundle_artifact (str): 
+                If serviceType specified, is the bundle artifact of the serviceType.
+            service_bundle_version (str): 
+                If serviceType specified, is the bundle version of the serviceType.
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type_filter (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServiceTypesEntity`: The response object.
         """
 
         all_params = ['service_type', 'service_bundle_group', 'service_bundle_artifact', 'service_bundle_version', 'bundle_group_filter', 'bundle_artifact_filter', 'type_filter']
@@ -1716,11 +1978,18 @@ class FlowApi(object):
     def get_controller_services_from_controller(self, **kwargs):
         """
         Gets controller services for reporting tasks
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param bool ui_only:
-        :param bool include_referencing_components: Whether or not to include services' referencing components in the response
-        :return: ControllerServicesEntity
+        
+        Args:
+            ui_only (bool):
+            include_referencing_components (bool): 
+                Whether or not to include services' referencing components in the response
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1732,11 +2001,18 @@ class FlowApi(object):
     def get_controller_services_from_controller_with_http_info(self, **kwargs):
         """
         Gets controller services for reporting tasks
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param bool ui_only:
-        :param bool include_referencing_components: Whether or not to include services' referencing components in the response
-        :return: ControllerServicesEntity
+        
+        Args:
+            ui_only (bool):
+            include_referencing_components (bool): 
+                Whether or not to include services' referencing components in the response
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
         """
 
         all_params = ['ui_only', 'include_referencing_components']
@@ -1796,14 +2072,24 @@ class FlowApi(object):
     def get_controller_services_from_group(self, id, **kwargs):
         """
         Gets all controller services
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool include_ancestor_groups: Whether or not to include parent/ancestor process groups
-        :param bool include_descendant_groups: Whether or not to include descendant process groups
-        :param bool include_referencing_components: Whether or not to include services' referencing components in the response
-        :param bool ui_only:
-        :return: ControllerServicesEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            include_ancestor_groups (bool): 
+                Whether or not to include parent/ancestor process groups
+            include_descendant_groups (bool): 
+                Whether or not to include descendant process groups
+            include_referencing_components (bool): 
+                Whether or not to include services' referencing components in the response
+            ui_only (bool):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1815,14 +2101,24 @@ class FlowApi(object):
     def get_controller_services_from_group_with_http_info(self, id, **kwargs):
         """
         Gets all controller services
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool include_ancestor_groups: Whether or not to include parent/ancestor process groups
-        :param bool include_descendant_groups: Whether or not to include descendant process groups
-        :param bool include_referencing_components: Whether or not to include services' referencing components in the response
-        :param bool ui_only:
-        :return: ControllerServicesEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            include_ancestor_groups (bool): 
+                Whether or not to include parent/ancestor process groups
+            include_descendant_groups (bool): 
+                Whether or not to include descendant process groups
+            include_referencing_components (bool): 
+                Whether or not to include services' referencing components in the response
+            ui_only (bool):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
         """
 
         all_params = ['id', 'include_ancestor_groups', 'include_descendant_groups', 'include_referencing_components', 'ui_only']
@@ -1895,7 +2191,11 @@ class FlowApi(object):
         """
         Gets the current status of this NiFi
         This method makes a synchronous HTTP request.
-        :return: ControllerStatusEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerStatusEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1908,7 +2208,11 @@ class FlowApi(object):
         """
         Gets the current status of this NiFi
         This method makes a synchronous HTTP request.
-        :return: ControllerStatusEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ControllerStatusEntity`: The response object.
         """
 
         all_params = []
@@ -1963,7 +2267,11 @@ class FlowApi(object):
         """
         Retrieves the user identity of the user making the request
         This method makes a synchronous HTTP request.
-        :return: CurrentUserEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CurrentUserEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1976,7 +2284,11 @@ class FlowApi(object):
         """
         Retrieves the user identity of the user making the request
         This method makes a synchronous HTTP request.
-        :return: CurrentUserEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.CurrentUserEntity`: The response object.
         """
 
         all_params = []
@@ -2031,11 +2343,19 @@ class FlowApi(object):
         """
         Gets the details of a flow from the specified registry and bucket for the specified flow for the current user
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str bucket_id: The bucket id. (required)
-        :param str flow_id: The flow id. (required)
-        :param str branch: The name of a branch to get the flow from. If not specified the default branch of the registry client will be used.
-        :return: VersionedFlowEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            bucket_id (str): 
+                The bucket id. (required)
+            flow_id (str): 
+                The flow id. (required)
+            branch (str): 
+                The name of a branch to get the flow from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedFlowEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2048,11 +2368,19 @@ class FlowApi(object):
         """
         Gets the details of a flow from the specified registry and bucket for the specified flow for the current user
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str bucket_id: The bucket id. (required)
-        :param str flow_id: The flow id. (required)
-        :param str branch: The name of a branch to get the flow from. If not specified the default branch of the registry client will be used.
-        :return: VersionedFlowEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            bucket_id (str): 
+                The bucket id. (required)
+            flow_id (str): 
+                The flow id. (required)
+            branch (str): 
+                The name of a branch to get the flow from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedFlowEntity`: The response object.
         """
 
         all_params = ['registry_id', 'bucket_id', 'flow_id', 'branch']
@@ -2127,11 +2455,18 @@ class FlowApi(object):
     def get_flow(self, id, **kwargs):
         """
         Gets a process group
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool ui_only:
-        :return: ProcessGroupFlowEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            ui_only (bool):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2143,11 +2478,18 @@ class FlowApi(object):
     def get_flow_with_http_info(self, id, **kwargs):
         """
         Gets a process group
+
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
+
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool ui_only:
-        :return: ProcessGroupFlowEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            ui_only (bool):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`: The response object.
         """
 
         all_params = ['id', 'ui_only']
@@ -2211,8 +2553,13 @@ class FlowApi(object):
         """
         Returns flow analysis results produced by the analysis of a given process group
         This method makes a synchronous HTTP request.
-        :param str process_group_id: The id of the process group representing (a part of) the flow to be analyzed. (required)
-        :return: FlowAnalysisResultEntity
+        
+        Args:
+            process_group_id (str): 
+                The id of the process group representing (a part of) the flow to be analyzed. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2225,8 +2572,13 @@ class FlowApi(object):
         """
         Returns flow analysis results produced by the analysis of a given process group
         This method makes a synchronous HTTP request.
-        :param str process_group_id: The id of the process group representing (a part of) the flow to be analyzed. (required)
-        :return: FlowAnalysisResultEntity
+        
+        Args:
+            process_group_id (str): 
+                The id of the process group representing (a part of) the flow to be analyzed. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
         """
 
         all_params = ['process_group_id']
@@ -2286,13 +2638,23 @@ class FlowApi(object):
     def get_flow_analysis_rule_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Flow Analysis Rule Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The flow analysis rule type (required)
-        :return: FlowAnalysisRuleDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The flow analysis rule type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleDefinition`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2304,13 +2666,23 @@ class FlowApi(object):
     def get_flow_analysis_rule_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Flow Analysis Rule Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The flow analysis rule type (required)
-        :return: FlowAnalysisRuleDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The flow analysis rule type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleDefinition`: The response object.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -2388,12 +2760,21 @@ class FlowApi(object):
     def get_flow_analysis_rule_types(self, **kwargs):
         """
         Retrieves the types of available Flow Analysis Rules
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: FlowAnalysisRuleTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleTypesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2405,12 +2786,21 @@ class FlowApi(object):
     def get_flow_analysis_rule_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of available Flow Analysis Rules
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: FlowAnalysisRuleTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleTypesEntity`: The response object.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -2474,7 +2864,11 @@ class FlowApi(object):
         """
         Retrieves the configuration for this NiFi flow
         This method makes a synchronous HTTP request.
-        :return: FlowConfigurationEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowConfigurationEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2487,7 +2881,11 @@ class FlowApi(object):
         """
         Retrieves the configuration for this NiFi flow
         This method makes a synchronous HTTP request.
-        :return: FlowConfigurationEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowConfigurationEntity`: The response object.
         """
 
         all_params = []
@@ -2542,12 +2940,21 @@ class FlowApi(object):
         """
         Gets all metrics for the flow from a particular node
         This method makes a synchronous HTTP request.
-        :param str producer: The producer for flow file metrics. Each producer may have its own output format. (required)
-        :param list[str] included_registries: Set of included metrics registries. Duplicate the parameter to include multiple registries. All registries are included by default.
-        :param str sample_name: Regular Expression Pattern to be applied against the sample name field
-        :param str sample_label_value: Regular Expression Pattern to be applied against the sample label value field
-        :param str root_field_name: Name of the first field of JSON object. Applicable for JSON producer only.
-        :return: StreamingOutput
+        
+        Args:
+            producer (str): 
+                The producer for flow file metrics. Each producer may have its own output format. (required)
+            included_registries (:class:`~nipyapi.nifi.models.list[str]`): 
+                Set of included metrics registries. Duplicate the parameter to include multiple registries. All registries are included by default.
+            sample_name (str): 
+                Regular Expression Pattern to be applied against the sample name field
+            sample_label_value (str): 
+                Regular Expression Pattern to be applied against the sample label value field
+            root_field_name (str): 
+                Name of the first field of JSON object. Applicable for JSON producer only.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2560,12 +2967,21 @@ class FlowApi(object):
         """
         Gets all metrics for the flow from a particular node
         This method makes a synchronous HTTP request.
-        :param str producer: The producer for flow file metrics. Each producer may have its own output format. (required)
-        :param list[str] included_registries: Set of included metrics registries. Duplicate the parameter to include multiple registries. All registries are included by default.
-        :param str sample_name: Regular Expression Pattern to be applied against the sample name field
-        :param str sample_label_value: Regular Expression Pattern to be applied against the sample label value field
-        :param str root_field_name: Name of the first field of JSON object. Applicable for JSON producer only.
-        :return: StreamingOutput
+        
+        Args:
+            producer (str): 
+                The producer for flow file metrics. Each producer may have its own output format. (required)
+            included_registries (:class:`~nipyapi.nifi.models.list[str]`): 
+                Set of included metrics registries. Duplicate the parameter to include multiple registries. All registries are included by default.
+            sample_name (str): 
+                Regular Expression Pattern to be applied against the sample name field
+            sample_label_value (str): 
+                Regular Expression Pattern to be applied against the sample label value field
+            root_field_name (str): 
+                Name of the first field of JSON object. Applicable for JSON producer only.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
         """
 
         all_params = ['producer', 'included_registries', 'sample_name', 'sample_label_value', 'root_field_name']
@@ -2639,10 +3055,17 @@ class FlowApi(object):
         """
         Gets the flows from the specified registry and bucket for the current user
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str bucket_id: The bucket id. (required)
-        :param str branch: The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
-        :return: VersionedFlowsEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            bucket_id (str): 
+                The bucket id. (required)
+            branch (str): 
+                The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedFlowsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2655,10 +3078,17 @@ class FlowApi(object):
         """
         Gets the flows from the specified registry and bucket for the current user
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str bucket_id: The bucket id. (required)
-        :param str branch: The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
-        :return: VersionedFlowsEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            bucket_id (str): 
+                The bucket id. (required)
+            branch (str): 
+                The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedFlowsEntity`: The response object.
         """
 
         all_params = ['registry_id', 'bucket_id', 'branch']
@@ -2728,10 +3158,17 @@ class FlowApi(object):
         """
         Gets status for an input port
         This method makes a synchronous HTTP request.
-        :param str id: The input port id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: PortStatusEntity
+        
+        Args:
+            id (str): 
+                The input port id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2744,10 +3181,17 @@ class FlowApi(object):
         """
         Gets status for an input port
         This method makes a synchronous HTTP request.
-        :param str id: The input port id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: PortStatusEntity
+        
+        Args:
+            id (str): 
+                The input port id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -2814,10 +3258,17 @@ class FlowApi(object):
         """
         Gets status for an output port
         This method makes a synchronous HTTP request.
-        :param str id: The output port id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: PortStatusEntity
+        
+        Args:
+            id (str): 
+                The output port id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2830,10 +3281,17 @@ class FlowApi(object):
         """
         Gets status for an output port
         This method makes a synchronous HTTP request.
-        :param str id: The output port id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: PortStatusEntity
+        
+        Args:
+            id (str): 
+                The output port id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -2900,7 +3358,11 @@ class FlowApi(object):
         """
         Gets all Parameter Contexts
         This method makes a synchronous HTTP request.
-        :return: ParameterContextsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterContextsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2913,7 +3375,11 @@ class FlowApi(object):
         """
         Gets all Parameter Contexts
         This method makes a synchronous HTTP request.
-        :return: ParameterContextsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterContextsEntity`: The response object.
         """
 
         all_params = []
@@ -2967,13 +3433,23 @@ class FlowApi(object):
     def get_parameter_provider_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Parameter Provider Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The parameter provider type (required)
-        :return: ParameterProviderDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The parameter provider type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterProviderDefinition`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2985,13 +3461,23 @@ class FlowApi(object):
     def get_parameter_provider_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Parameter Provider Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The parameter provider type (required)
-        :return: ParameterProviderDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The parameter provider type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterProviderDefinition`: The response object.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -3069,12 +3555,21 @@ class FlowApi(object):
     def get_parameter_provider_types(self, **kwargs):
         """
         Retrieves the types of parameter providers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: ParameterProviderTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterProviderTypesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3086,12 +3581,21 @@ class FlowApi(object):
     def get_parameter_provider_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of parameter providers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: ParameterProviderTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterProviderTypesEntity`: The response object.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -3155,7 +3659,11 @@ class FlowApi(object):
         """
         Gets all parameter providers
         This method makes a synchronous HTTP request.
-        :return: ParameterProvidersEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterProvidersEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3168,7 +3676,11 @@ class FlowApi(object):
         """
         Gets all parameter providers
         This method makes a synchronous HTTP request.
-        :return: ParameterProvidersEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ParameterProvidersEntity`: The response object.
         """
 
         all_params = []
@@ -3222,9 +3734,15 @@ class FlowApi(object):
     def get_prioritizers(self, **kwargs):
         """
         Retrieves the types of prioritizers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: PrioritizerTypesEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PrioritizerTypesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3236,9 +3754,15 @@ class FlowApi(object):
     def get_prioritizers_with_http_info(self, **kwargs):
         """
         Retrieves the types of prioritizers that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: PrioritizerTypesEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.PrioritizerTypesEntity`: The response object.
         """
 
         all_params = []
@@ -3292,13 +3816,23 @@ class FlowApi(object):
     def get_process_group_status(self, id, **kwargs):
         """
         Gets the status for a process group
+
         The status for a process group includes status for all descendent components. When invoked on the root group with recursive set to true, it will return the current status of every component in the flow.
+
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool recursive: Whether all descendant groups and the status of their content will be included. Optional, defaults to false
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: ProcessGroupStatusEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            recursive (bool): 
+                Whether all descendant groups and the status of their content will be included. Optional, defaults to false
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupStatusEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3310,13 +3844,23 @@ class FlowApi(object):
     def get_process_group_status_with_http_info(self, id, **kwargs):
         """
         Gets the status for a process group
+
         The status for a process group includes status for all descendent components. When invoked on the root group with recursive set to true, it will return the current status of every component in the flow.
+
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :param bool recursive: Whether all descendant groups and the status of their content will be included. Optional, defaults to false
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: ProcessGroupStatusEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+            recursive (bool): 
+                Whether all descendant groups and the status of their content will be included. Optional, defaults to false
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessGroupStatusEntity`: The response object.
         """
 
         all_params = ['id', 'recursive', 'nodewise', 'cluster_node_id']
@@ -3386,8 +3930,13 @@ class FlowApi(object):
         """
         Gets status history for a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3400,8 +3949,13 @@ class FlowApi(object):
         """
         Gets status history for a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The process group id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
 
         all_params = ['id']
@@ -3461,13 +4015,23 @@ class FlowApi(object):
     def get_processor_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Processor Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The processor type (required)
-        :return: ProcessorDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The processor type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorDefinition`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3479,13 +4043,23 @@ class FlowApi(object):
     def get_processor_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Processor Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The processor type (required)
-        :return: ProcessorDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The processor type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorDefinition`: The response object.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -3564,10 +4138,17 @@ class FlowApi(object):
         """
         Gets status for a processor
         This method makes a synchronous HTTP request.
-        :param str id: The processor id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: ProcessorStatusEntity
+        
+        Args:
+            id (str): 
+                The processor id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorStatusEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3580,10 +4161,17 @@ class FlowApi(object):
         """
         Gets status for a processor
         This method makes a synchronous HTTP request.
-        :param str id: The processor id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: ProcessorStatusEntity
+        
+        Args:
+            id (str): 
+                The processor id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorStatusEntity`: The response object.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -3650,8 +4238,13 @@ class FlowApi(object):
         """
         Gets status history for a processor
         This method makes a synchronous HTTP request.
-        :param str id: The processor id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The processor id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3664,8 +4257,13 @@ class FlowApi(object):
         """
         Gets status history for a processor
         This method makes a synchronous HTTP request.
-        :param str id: The processor id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The processor id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
 
         all_params = ['id']
@@ -3725,12 +4323,21 @@ class FlowApi(object):
     def get_processor_types(self, **kwargs):
         """
         Retrieves the types of processors that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: ProcessorTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorTypesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3742,12 +4349,21 @@ class FlowApi(object):
     def get_processor_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of processors that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: ProcessorTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ProcessorTypesEntity`: The response object.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -3811,7 +4427,11 @@ class FlowApi(object):
         """
         Gets the listing of available flow registry clients
         This method makes a synchronous HTTP request.
-        :return: FlowRegistryClientsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3824,7 +4444,11 @@ class FlowApi(object):
         """
         Gets the listing of available flow registry clients
         This method makes a synchronous HTTP request.
-        :return: FlowRegistryClientsEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response object.
         """
 
         all_params = []
@@ -3879,10 +4503,17 @@ class FlowApi(object):
         """
         Gets status for a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: RemoteProcessGroupStatusEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupStatusEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3895,10 +4526,17 @@ class FlowApi(object):
         """
         Gets status for a remote process group
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :param bool nodewise: Whether or not to include the breakdown per node. Optional, defaults to false
-        :param str cluster_node_id: The id of the node where to get the status.
-        :return: RemoteProcessGroupStatusEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+            nodewise (bool): 
+                Whether or not to include the breakdown per node. Optional, defaults to false
+            cluster_node_id (str): 
+                The id of the node where to get the status.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupStatusEntity`: The response object.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -3965,8 +4603,13 @@ class FlowApi(object):
         """
         Gets the status history
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3979,8 +4622,13 @@ class FlowApi(object):
         """
         Gets the status history
         This method makes a synchronous HTTP request.
-        :param str id: The remote process group id. (required)
-        :return: StatusHistoryEntity
+        
+        Args:
+            id (str): 
+                The remote process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
         """
 
         all_params = ['id']
@@ -4040,13 +4688,23 @@ class FlowApi(object):
     def get_reporting_task_definition(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Reporting Task Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The reporting task type (required)
-        :return: ReportingTaskDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The reporting task type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskDefinition`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4058,13 +4716,23 @@ class FlowApi(object):
     def get_reporting_task_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
         Retrieves the Reporting Task Definition for the specified component type.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str group: The bundle group (required)
-        :param str artifact: The bundle artifact (required)
-        :param str version: The bundle version (required)
-        :param str type: The reporting task type (required)
-        :return: ReportingTaskDefinition
+        
+        Args:
+            group (str): 
+                The bundle group (required)
+            artifact (str): 
+                The bundle artifact (required)
+            version (str): 
+                The bundle version (required)
+            type (str): 
+                The reporting task type (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskDefinition`: The response object.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -4143,8 +4811,13 @@ class FlowApi(object):
         """
         Get a snapshot of the given reporting tasks and any controller services they use
         This method makes a synchronous HTTP request.
-        :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
-        :return: VersionedReportingTaskSnapshot
+        
+        Args:
+            reporting_task_id (str): 
+                Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedReportingTaskSnapshot`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4157,8 +4830,13 @@ class FlowApi(object):
         """
         Get a snapshot of the given reporting tasks and any controller services they use
         This method makes a synchronous HTTP request.
-        :param str reporting_task_id: Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
-        :return: VersionedReportingTaskSnapshot
+        
+        Args:
+            reporting_task_id (str): 
+                Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedReportingTaskSnapshot`: The response object.
         """
 
         all_params = ['reporting_task_id']
@@ -4215,12 +4893,21 @@ class FlowApi(object):
     def get_reporting_task_types(self, **kwargs):
         """
         Retrieves the types of reporting tasks that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: ReportingTaskTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskTypesEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4232,12 +4919,21 @@ class FlowApi(object):
     def get_reporting_task_types_with_http_info(self, **kwargs):
         """
         Retrieves the types of reporting tasks that this NiFi supports
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str bundle_group_filter: If specified, will only return types that are a member of this bundle group.
-        :param str bundle_artifact_filter: If specified, will only return types that are a member of this bundle artifact.
-        :param str type: If specified, will only return types whose fully qualified classname matches.
-        :return: ReportingTaskTypesEntity
+        
+        Args:
+            bundle_group_filter (str): 
+                If specified, will only return types that are a member of this bundle group.
+            bundle_artifact_filter (str): 
+                If specified, will only return types that are a member of this bundle artifact.
+            type (str): 
+                If specified, will only return types whose fully qualified classname matches.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTaskTypesEntity`: The response object.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -4301,7 +4997,11 @@ class FlowApi(object):
         """
         Gets all reporting tasks
         This method makes a synchronous HTTP request.
-        :return: ReportingTasksEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTasksEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4314,7 +5014,11 @@ class FlowApi(object):
         """
         Gets all reporting tasks
         This method makes a synchronous HTTP request.
-        :return: ReportingTasksEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ReportingTasksEntity`: The response object.
         """
 
         all_params = []
@@ -4368,9 +5072,15 @@ class FlowApi(object):
     def get_runtime_manifest(self, **kwargs):
         """
         Retrieves the runtime manifest for this NiFi instance.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: RuntimeManifestEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RuntimeManifestEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4382,9 +5092,15 @@ class FlowApi(object):
     def get_runtime_manifest_with_http_info(self, **kwargs):
         """
         Retrieves the runtime manifest for this NiFi instance.
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :return: RuntimeManifestEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.RuntimeManifestEntity`: The response object.
         """
 
         all_params = []
@@ -4439,18 +5155,33 @@ class FlowApi(object):
         """
         Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str branch_id_a: The branch id for the base version. (required)
-        :param str bucket_id_a: The bucket id for the base version. (required)
-        :param str flow_id_a: The flow id for the base version. (required)
-        :param str version_a: The base version. (required)
-        :param str branch_id_b: The branch id for the compared version. (required)
-        :param str bucket_id_b: The bucket id for the compared version. (required)
-        :param str flow_id_b: The flow id for the compared version. (required)
-        :param str version_b: The compared version. (required)
-        :param int offset: Must be a non-negative number. Specifies the starting point of the listing. 0 means start from the beginning.
-        :param int limit: Limits the number of differences listed. This might lead to partial result. 0 means no limitation is applied.
-        :return: FlowComparisonEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            branch_id_a (str): 
+                The branch id for the base version. (required)
+            bucket_id_a (str): 
+                The bucket id for the base version. (required)
+            flow_id_a (str): 
+                The flow id for the base version. (required)
+            version_a (str): 
+                The base version. (required)
+            branch_id_b (str): 
+                The branch id for the compared version. (required)
+            bucket_id_b (str): 
+                The bucket id for the compared version. (required)
+            flow_id_b (str): 
+                The flow id for the compared version. (required)
+            version_b (str): 
+                The compared version. (required)
+            offset (int): 
+                Must be a non-negative number. Specifies the starting point of the listing. 0 means start from the beginning.
+            limit (int): 
+                Limits the number of differences listed. This might lead to partial result. 0 means no limitation is applied.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4463,18 +5194,33 @@ class FlowApi(object):
         """
         Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str branch_id_a: The branch id for the base version. (required)
-        :param str bucket_id_a: The bucket id for the base version. (required)
-        :param str flow_id_a: The flow id for the base version. (required)
-        :param str version_a: The base version. (required)
-        :param str branch_id_b: The branch id for the compared version. (required)
-        :param str bucket_id_b: The bucket id for the compared version. (required)
-        :param str flow_id_b: The flow id for the compared version. (required)
-        :param str version_b: The compared version. (required)
-        :param int offset: Must be a non-negative number. Specifies the starting point of the listing. 0 means start from the beginning.
-        :param int limit: Limits the number of differences listed. This might lead to partial result. 0 means no limitation is applied.
-        :return: FlowComparisonEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            branch_id_a (str): 
+                The branch id for the base version. (required)
+            bucket_id_a (str): 
+                The bucket id for the base version. (required)
+            flow_id_a (str): 
+                The flow id for the base version. (required)
+            version_a (str): 
+                The base version. (required)
+            branch_id_b (str): 
+                The branch id for the compared version. (required)
+            bucket_id_b (str): 
+                The bucket id for the compared version. (required)
+            flow_id_b (str): 
+                The flow id for the compared version. (required)
+            version_b (str): 
+                The compared version. (required)
+            offset (int): 
+                Must be a non-negative number. Specifies the starting point of the listing. 0 means start from the beginning.
+            limit (int): 
+                Limits the number of differences listed. This might lead to partial result. 0 means no limitation is applied.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
         """
 
         all_params = ['registry_id', 'branch_id_a', 'bucket_id_a', 'flow_id_a', 'version_a', 'branch_id_b', 'bucket_id_b', 'flow_id_b', 'version_b', 'offset', 'limit']
@@ -4589,11 +5335,19 @@ class FlowApi(object):
         """
         Gets the flow versions from the specified registry and bucket for the specified flow for the current user
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str bucket_id: The bucket id. (required)
-        :param str flow_id: The flow id. (required)
-        :param str branch: The name of a branch to get the flow versions from. If not specified the default branch of the registry client will be used.
-        :return: VersionedFlowSnapshotMetadataSetEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            bucket_id (str): 
+                The bucket id. (required)
+            flow_id (str): 
+                The flow id. (required)
+            branch (str): 
+                The name of a branch to get the flow versions from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4606,11 +5360,19 @@ class FlowApi(object):
         """
         Gets the flow versions from the specified registry and bucket for the specified flow for the current user
         This method makes a synchronous HTTP request.
-        :param str registry_id: The registry client id. (required)
-        :param str bucket_id: The bucket id. (required)
-        :param str flow_id: The flow id. (required)
-        :param str branch: The name of a branch to get the flow versions from. If not specified the default branch of the registry client will be used.
-        :return: VersionedFlowSnapshotMetadataSetEntity
+        
+        Args:
+            registry_id (str): 
+                The registry client id. (required)
+            bucket_id (str): 
+                The bucket id. (required)
+            flow_id (str): 
+                The flow id. (required)
+            branch (str): 
+                The name of a branch to get the flow versions from. If not specified the default branch of the registry client will be used.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`: The response object.
         """
 
         all_params = ['registry_id', 'bucket_id', 'flow_id', 'branch']
@@ -4685,17 +5447,31 @@ class FlowApi(object):
     def query_history(self, offset, count, **kwargs):
         """
         Gets configuration history
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param IntegerParameter offset: The offset into the result set. (required)
-        :param IntegerParameter count: The number of actions to return. (required)
-        :param str sort_column: The field to sort on.
-        :param str sort_order: The direction to sort.
-        :param DateTimeParameter start_date: Include actions after this date.
-        :param DateTimeParameter end_date: Include actions before this date.
-        :param str user_identity: Include actions performed by this user.
-        :param str source_id: Include actions on this component.
-        :return: HistoryEntity
+        
+        Args:
+            offset (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The offset into the result set. (required)
+            count (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The number of actions to return. (required)
+            sort_column (str): 
+                The field to sort on.
+            sort_order (str): 
+                The direction to sort.
+            start_date (:class:`~nipyapi.nifi.models.DateTimeParameter`): 
+                Include actions after this date.
+            end_date (:class:`~nipyapi.nifi.models.DateTimeParameter`): 
+                Include actions before this date.
+            user_identity (str): 
+                Include actions performed by this user.
+            source_id (str): 
+                Include actions on this component.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.HistoryEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4707,17 +5483,31 @@ class FlowApi(object):
     def query_history_with_http_info(self, offset, count, **kwargs):
         """
         Gets configuration history
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param IntegerParameter offset: The offset into the result set. (required)
-        :param IntegerParameter count: The number of actions to return. (required)
-        :param str sort_column: The field to sort on.
-        :param str sort_order: The direction to sort.
-        :param DateTimeParameter start_date: Include actions after this date.
-        :param DateTimeParameter end_date: Include actions before this date.
-        :param str user_identity: Include actions performed by this user.
-        :param str source_id: Include actions on this component.
-        :return: HistoryEntity
+        
+        Args:
+            offset (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The offset into the result set. (required)
+            count (:class:`~nipyapi.nifi.models.IntegerParameter`): 
+                The number of actions to return. (required)
+            sort_column (str): 
+                The field to sort on.
+            sort_order (str): 
+                The direction to sort.
+            start_date (:class:`~nipyapi.nifi.models.DateTimeParameter`): 
+                Include actions after this date.
+            end_date (:class:`~nipyapi.nifi.models.DateTimeParameter`): 
+                Include actions before this date.
+            user_identity (str): 
+                Include actions performed by this user.
+            source_id (str): 
+                Include actions on this component.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.HistoryEntity`: The response object.
         """
 
         all_params = ['offset', 'count', 'sort_column', 'sort_order', 'start_date', 'end_date', 'user_identity', 'source_id']
@@ -4802,9 +5592,15 @@ class FlowApi(object):
         """
         Schedule or unschedule components in the specified Process Group.
         This method makes a synchronous HTTP request.
-        :param ScheduleComponentsEntity body: The request to schedule or unschedule. If the components in the request are not specified, all authorized components will be considered. (required)
-        :param str id: The process group id. (required)
-        :return: ScheduleComponentsEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ScheduleComponentsEntity`): 
+                The request to schedule or unschedule. If the components in the request are not specified, all authorized components will be considered. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ScheduleComponentsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4817,9 +5613,15 @@ class FlowApi(object):
         """
         Schedule or unschedule components in the specified Process Group.
         This method makes a synchronous HTTP request.
-        :param ScheduleComponentsEntity body: The request to schedule or unschedule. If the components in the request are not specified, all authorized components will be considered. (required)
-        :param str id: The process group id. (required)
-        :return: ScheduleComponentsEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.ScheduleComponentsEntity`): 
+                The request to schedule or unschedule. If the components in the request are not specified, all authorized components will be considered. (required)
+            id (str): 
+                The process group id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ScheduleComponentsEntity`: The response object.
         """
 
         all_params = ['body', 'id']
@@ -4889,10 +5691,17 @@ class FlowApi(object):
     def search_cluster(self, q, **kwargs):
         """
         Searches the cluster for a node with the specified address
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str q: Node address to search for. (required)
-        :return: ClusterSearchResultsEntity
+        
+        Args:
+            q (str): 
+                Node address to search for. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ClusterSearchResultsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4904,10 +5713,17 @@ class FlowApi(object):
     def search_cluster_with_http_info(self, q, **kwargs):
         """
         Searches the cluster for a node with the specified address
+
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
+
         This method makes a synchronous HTTP request.
-        :param str q: Node address to search for. (required)
-        :return: ClusterSearchResultsEntity
+        
+        Args:
+            q (str): 
+                Node address to search for. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.ClusterSearchResultsEntity`: The response object.
         """
 
         all_params = ['q']
@@ -4967,11 +5783,17 @@ class FlowApi(object):
     def search_flow(self, **kwargs):
         """
         Performs a search against this NiFi using the specified search term
+
         Only search results from authorized components will be returned.
+
         This method makes a synchronous HTTP request.
-        :param str q:
-        :param str a:
-        :return: SearchResultsEntity
+        
+        Args:
+            q (str):
+            a (str):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SearchResultsEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4983,11 +5805,17 @@ class FlowApi(object):
     def search_flow_with_http_info(self, **kwargs):
         """
         Performs a search against this NiFi using the specified search term
+
         Only search results from authorized components will be returned.
+
         This method makes a synchronous HTTP request.
-        :param str q:
-        :param str a:
-        :return: SearchResultsEntity
+        
+        Args:
+            q (str):
+            a (str):
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SearchResultsEntity`: The response object.
         """
 
         all_params = ['q', 'a']

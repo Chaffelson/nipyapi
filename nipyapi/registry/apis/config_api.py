@@ -34,12 +34,16 @@ class ConfigApi(object):
 
     def get_configuration(self, **kwargs):
         """
-        Get configration
+        Get configration.
 
         Gets the NiFi Registry configurations.
 
         This method makes a synchronous HTTP request.
-        :return: RegistryConfiguration
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.RegistryConfiguration`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,12 +54,16 @@ class ConfigApi(object):
 
     def get_configuration_with_http_info(self, **kwargs):
         """
-        Get configration
+        Get configration.
 
         Gets the NiFi Registry configurations.
 
         This method makes a synchronous HTTP request.
-        :return: RegistryConfiguration
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.RegistryConfiguration`: The response object.
         """
 
         all_params = []

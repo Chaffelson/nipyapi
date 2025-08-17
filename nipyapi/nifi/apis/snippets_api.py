@@ -36,8 +36,13 @@ class SnippetsApi(object):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
         This method makes a synchronous HTTP request.
-        :param SnippetEntity body: The snippet configuration details. (required)
-        :return: SnippetEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
+                The snippet configuration details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,8 +55,13 @@ class SnippetsApi(object):
         """
         Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
         This method makes a synchronous HTTP request.
-        :param SnippetEntity body: The snippet configuration details. (required)
-        :return: SnippetEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
+                The snippet configuration details. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
         """
 
         all_params = ['body']
@@ -116,9 +126,15 @@ class SnippetsApi(object):
         """
         Deletes the components in a snippet and discards the snippet
         This method makes a synchronous HTTP request.
-        :param str id: The snippet id. (required)
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: SnippetEntity
+        
+        Args:
+            id (str): 
+                The snippet id. (required)
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -131,9 +147,15 @@ class SnippetsApi(object):
         """
         Deletes the components in a snippet and discards the snippet
         This method makes a synchronous HTTP request.
-        :param str id: The snippet id. (required)
-        :param bool disconnected_node_acknowledged: Acknowledges that this node is disconnected to allow for mutable requests to proceed.
-        :return: SnippetEntity
+        
+        Args:
+            id (str): 
+                The snippet id. (required)
+            disconnected_node_acknowledged (bool): 
+                Acknowledges that this node is disconnected to allow for mutable requests to proceed.
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged']
@@ -197,9 +219,15 @@ class SnippetsApi(object):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
         This method makes a synchronous HTTP request.
-        :param SnippetEntity body: The snippet configuration details. (required)
-        :param str id: The snippet id. (required)
-        :return: SnippetEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
+                The snippet configuration details. (required)
+            id (str): 
+                The snippet id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -212,9 +240,15 @@ class SnippetsApi(object):
         """
         Move's the components in this Snippet into a new Process Group and discards the snippet
         This method makes a synchronous HTTP request.
-        :param SnippetEntity body: The snippet configuration details. (required)
-        :param str id: The snippet id. (required)
-        :return: SnippetEntity
+        
+        Args:
+            body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
+                The snippet configuration details. (required)
+            id (str): 
+                The snippet id. (required)
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
         """
 
         all_params = ['body', 'id']

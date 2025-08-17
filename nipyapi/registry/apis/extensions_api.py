@@ -34,15 +34,22 @@ class ExtensionsApi(object):
 
     def get_extensions(self, **kwargs):
         """
-        Get all extensions
+        Get all extensions.
 
         Gets the metadata for all extensions that match the filter params and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
         This method makes a synchronous HTTP request.
-        :param str bundle_type: The type of bundles to return
-        :param str extension_type: The type of extensions to return
-        :param list[str] tag: The tags to filter on, will be used in an OR statement
-        :return: ExtensionMetadataContainer
+        
+        Args:
+            bundle_type (str): 
+                The type of bundles to return
+            extension_type (str): 
+                The type of extensions to return
+            tag (:class:`~nipyapi.registry.models.list[str]`): 
+                The tags to filter on, will be used in an OR statement
+                
+        Returns:
+            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,15 +60,22 @@ class ExtensionsApi(object):
 
     def get_extensions_with_http_info(self, **kwargs):
         """
-        Get all extensions
+        Get all extensions.
 
         Gets the metadata for all extensions that match the filter params and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
         This method makes a synchronous HTTP request.
-        :param str bundle_type: The type of bundles to return
-        :param str extension_type: The type of extensions to return
-        :param list[str] tag: The tags to filter on, will be used in an OR statement
-        :return: ExtensionMetadataContainer
+        
+        Args:
+            bundle_type (str): 
+                The type of bundles to return
+            extension_type (str): 
+                The type of extensions to return
+            tag (:class:`~nipyapi.registry.models.list[str]`): 
+                The tags to filter on, will be used in an OR statement
+                
+        Returns:
+            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
         """
 
         all_params = ['bundle_type', 'extension_type', 'tag']
@@ -124,16 +138,24 @@ class ExtensionsApi(object):
 
     def get_extensions_providing_service_api(self, class_name, group_id, artifact_id, version, **kwargs):
         """
-        Get extensions providing service API
+        Get extensions providing service API.
 
         Gets the metadata for extensions that provide the specified API and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
         This method makes a synchronous HTTP request.
-        :param str class_name: The name of the service API class (required)
-        :param str group_id: The groupId of the bundle containing the service API class (required)
-        :param str artifact_id: The artifactId of the bundle containing the service API class (required)
-        :param str version: The version of the bundle containing the service API class (required)
-        :return: ExtensionMetadataContainer
+        
+        Args:
+            class_name (str): 
+                The name of the service API class (required)
+            group_id (str): 
+                The groupId of the bundle containing the service API class (required)
+            artifact_id (str): 
+                The artifactId of the bundle containing the service API class (required)
+            version (str): 
+                The version of the bundle containing the service API class (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -144,16 +166,24 @@ class ExtensionsApi(object):
 
     def get_extensions_providing_service_api_with_http_info(self, class_name, group_id, artifact_id, version, **kwargs):
         """
-        Get extensions providing service API
+        Get extensions providing service API.
 
         Gets the metadata for extensions that provide the specified API and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
         This method makes a synchronous HTTP request.
-        :param str class_name: The name of the service API class (required)
-        :param str group_id: The groupId of the bundle containing the service API class (required)
-        :param str artifact_id: The artifactId of the bundle containing the service API class (required)
-        :param str version: The version of the bundle containing the service API class (required)
-        :return: ExtensionMetadataContainer
+        
+        Args:
+            class_name (str): 
+                The name of the service API class (required)
+            group_id (str): 
+                The groupId of the bundle containing the service API class (required)
+            artifact_id (str): 
+                The artifactId of the bundle containing the service API class (required)
+            version (str): 
+                The version of the bundle containing the service API class (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
         """
 
         all_params = ['class_name', 'group_id', 'artifact_id', 'version']
@@ -230,12 +260,16 @@ class ExtensionsApi(object):
 
     def get_tags(self, **kwargs):
         """
-        Get extension tags
+        Get extension tags.
 
         Gets all the extension tags known to this NiFi Registry instance, along with the number of extensions that have the given tag.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
         This method makes a synchronous HTTP request.
-        :return: list[TagCount]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[TagCount]`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -246,12 +280,16 @@ class ExtensionsApi(object):
 
     def get_tags_with_http_info(self, **kwargs):
         """
-        Get extension tags
+        Get extension tags.
 
         Gets all the extension tags known to this NiFi Registry instance, along with the number of extensions that have the given tag.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
         This method makes a synchronous HTTP request.
-        :return: list[TagCount]
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[TagCount]`: The response object.
         """
 
         all_params = []

@@ -21,8 +21,7 @@ This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypack
 .. _Cookiecutter: https://github.com/audreyr/cookiecutter
 .. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage
 
-Inspired by the equivalent Java client maintained over at
-`hermannpencole/nifi-config <https://github.com/hermannpencole/nifi-config>`_
+Inspired by the original Java client written by `Hermann Pencole <https://github.com/hermannpencole>`_
 
 The client SDKs are generated from OpenAPI definitions using
 `swagger-codegen v3 <https://github.com/swagger-api/swagger-codegen>`_,

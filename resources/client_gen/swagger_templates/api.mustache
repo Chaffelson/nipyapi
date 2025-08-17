@@ -29,18 +29,26 @@ class {{classname}}(object):
     def {{operationId}}(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
         """
 {{#summary}}
-        {{{summary}}}
+        {{{summary}}}.
 {{/summary}}
 {{#notes}}
 
         {{{notes}}}
 
 {{/notes}}
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``{{operationId}}_with_http_info()`` method instead.
+        
+        Args:
 {{#allParams}}
-        :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional){{/optional}}
+            {{paramName}} ({{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}:class:`~nipyapi.{{packageName}}.models.{{dataType}}`{{/isPrimitiveType}}):{{#description}} 
+                {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}} (optional){{/optional}}
 {{/allParams}}
-        :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
+                
+        Returns:
+            {{#returnType}}{{#returnTypeIsPrimitive}}{{returnType}}{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}:class:`~nipyapi.{{packageName}}.models.{{returnType}}`{{/returnTypeIsPrimitive}}: The response data.{{/returnType}}{{^returnType}}None{{/returnType}}
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -52,18 +60,26 @@ class {{classname}}(object):
     def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
         """
 {{#summary}}
-        {{{summary}}}
+        {{{summary}}}.
 {{/summary}}
 {{#notes}}
 
         {{{notes}}}
 
 {{/notes}}
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``{{operationId}}()`` method instead.
+        
+        Args:
 {{#allParams}}
-        :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
+            {{paramName}} ({{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}:class:`~nipyapi.{{packageName}}.models.{{dataType}}`{{/isPrimitiveType}}):{{#description}} 
+                {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
 {{/allParams}}
-        :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
+                
+        Returns:
+            tuple: ({{#returnType}}{{#returnTypeIsPrimitive}}{{returnType}}{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}:class:`~nipyapi.{{packageName}}.models.{{returnType}}`{{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}}None{{/returnType}}, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = [{{#allParams}}'{{paramName}}'{{#hasMore}}, {{/hasMore}}{{/allParams}}]

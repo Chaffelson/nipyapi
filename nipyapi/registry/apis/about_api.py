@@ -34,12 +34,16 @@ class AboutApi(object):
 
     def get_version(self, **kwargs):
         """
-        Get version
+        Get version.
 
         Gets the NiFi Registry version.
 
         This method makes a synchronous HTTP request.
-        :return: RegistryAbout
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.RegistryAbout`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -50,12 +54,16 @@ class AboutApi(object):
 
     def get_version_with_http_info(self, **kwargs):
         """
-        Get version
+        Get version.
 
         Gets the NiFi Registry version.
 
         This method makes a synchronous HTTP request.
-        :return: RegistryAbout
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.registry.models.RegistryAbout`: The response object.
         """
 
         all_params = []

@@ -34,14 +34,20 @@ class BucketFlowsApi(object):
 
     def create_flow(self, body, bucket_id, **kwargs):
         """
-        Create flow
+        Create flow.
 
         Creates a flow in the given bucket. The flow id is created by the server and populated in the returned entity.
 
         This method makes a synchronous HTTP request.
-        :param VersionedFlow body: The details of the flow to create. (required)
-        :param str bucket_id: The bucket identifier (required)
-        :return: VersionedFlow
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.VersionedFlow`): 
+                The details of the flow to create. (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -52,14 +58,20 @@ class BucketFlowsApi(object):
 
     def create_flow_with_http_info(self, body, bucket_id, **kwargs):
         """
-        Create flow
+        Create flow.
 
         Creates a flow in the given bucket. The flow id is created by the server and populated in the returned entity.
 
         This method makes a synchronous HTTP request.
-        :param VersionedFlow body: The details of the flow to create. (required)
-        :param str bucket_id: The bucket identifier (required)
-        :return: VersionedFlow
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.VersionedFlow`): 
+                The details of the flow to create. (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
 
         all_params = ['body', 'bucket_id']
@@ -128,16 +140,24 @@ class BucketFlowsApi(object):
 
     def create_flow_version(self, body, bucket_id, flow_id, **kwargs):
         """
-        Create flow version
+        Create flow version.
 
         Creates the next version of a flow. The version number of the object being created must be the next available version integer. Flow versions are immutable after they are created.
 
         This method makes a synchronous HTTP request.
-        :param VersionedFlowSnapshot body: The new versioned flow snapshot. (required)
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param bool preserve_source_properties: Whether source properties like author should be kept
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.VersionedFlowSnapshot`): 
+                The new versioned flow snapshot. (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            preserve_source_properties (bool): 
+                Whether source properties like author should be kept
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -148,16 +168,24 @@ class BucketFlowsApi(object):
 
     def create_flow_version_with_http_info(self, body, bucket_id, flow_id, **kwargs):
         """
-        Create flow version
+        Create flow version.
 
         Creates the next version of a flow. The version number of the object being created must be the next available version integer. Flow versions are immutable after they are created.
 
         This method makes a synchronous HTTP request.
-        :param VersionedFlowSnapshot body: The new versioned flow snapshot. (required)
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param bool preserve_source_properties: Whether source properties like author should be kept
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.VersionedFlowSnapshot`): 
+                The new versioned flow snapshot. (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            preserve_source_properties (bool): 
+                Whether source properties like author should be kept
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
 
         all_params = ['body', 'bucket_id', 'flow_id', 'preserve_source_properties']
@@ -235,16 +263,24 @@ class BucketFlowsApi(object):
 
     def delete_flow(self, version, bucket_id, flow_id, **kwargs):
         """
-        Delete bucket flow
+        Delete bucket flow.
 
         Deletes a flow, including all saved versions of that flow.
 
         This method makes a synchronous HTTP request.
-        :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :return: VersionedFlow
+        
+        Args:
+            version (:class:`~nipyapi.registry.models.LongParameter`): 
+                The version is used to verify the client is working with the latest version of the entity. (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            client_id (:class:`~nipyapi.registry.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -255,16 +291,24 @@ class BucketFlowsApi(object):
 
     def delete_flow_with_http_info(self, version, bucket_id, flow_id, **kwargs):
         """
-        Delete bucket flow
+        Delete bucket flow.
 
         Deletes a flow, including all saved versions of that flow.
 
         This method makes a synchronous HTTP request.
-        :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param ClientIdParameter client_id: If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
-        :return: VersionedFlow
+        
+        Args:
+            version (:class:`~nipyapi.registry.models.LongParameter`): 
+                The version is used to verify the client is working with the latest version of the entity. (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            client_id (:class:`~nipyapi.registry.models.ClientIdParameter`): 
+                If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
 
         all_params = ['version', 'bucket_id', 'flow_id', 'client_id']
@@ -338,15 +382,22 @@ class BucketFlowsApi(object):
 
     def export_versioned_flow(self, bucket_id, flow_id, version_number, **kwargs):
         """
-        Exports specified bucket flow version content
+        Exports specified bucket flow version content.
 
         Exports the specified version of a flow, including the metadata and content of the flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param int version_number: The version number (required)
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            version_number (int): 
+                The version number (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -357,15 +408,22 @@ class BucketFlowsApi(object):
 
     def export_versioned_flow_with_http_info(self, bucket_id, flow_id, version_number, **kwargs):
         """
-        Exports specified bucket flow version content
+        Exports specified bucket flow version content.
 
         Exports the specified version of a flow, including the metadata and content of the flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param int version_number: The version number (required)
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            version_number (int): 
+                The version number (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id', 'version_number']
@@ -436,14 +494,20 @@ class BucketFlowsApi(object):
 
     def get_flow(self, bucket_id, flow_id, **kwargs):
         """
-        Get bucket flow
+        Get bucket flow.
 
         Retrieves the flow with the given id in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlow
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -454,14 +518,20 @@ class BucketFlowsApi(object):
 
     def get_flow_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
-        Get bucket flow
+        Get bucket flow.
 
         Retrieves the flow with the given id in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlow
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id']
@@ -526,16 +596,24 @@ class BucketFlowsApi(object):
 
     def get_flow_diff(self, bucket_id, flow_id, version_a, version_b, **kwargs):
         """
-        Get bucket flow diff
+        Get bucket flow diff.
 
         Computes the differences between two given versions of a flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param int version_a: The first version number (required)
-        :param int version_b: The second version number (required)
-        :return: VersionedFlowDifference
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            version_a (int): 
+                The first version number (required)
+            version_b (int): 
+                The second version number (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowDifference`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -546,16 +624,24 @@ class BucketFlowsApi(object):
 
     def get_flow_diff_with_http_info(self, bucket_id, flow_id, version_a, version_b, **kwargs):
         """
-        Get bucket flow diff
+        Get bucket flow diff.
 
         Computes the differences between two given versions of a flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param int version_a: The first version number (required)
-        :param int version_b: The second version number (required)
-        :return: VersionedFlowDifference
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            version_a (int): 
+                The first version number (required)
+            version_b (int): 
+                The second version number (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowDifference`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id', 'version_a', 'version_b']
@@ -632,15 +718,22 @@ class BucketFlowsApi(object):
 
     def get_flow_version(self, bucket_id, flow_id, version_number, **kwargs):
         """
-        Get bucket flow version
+        Get bucket flow version.
 
         Gets the given version of a flow, including the metadata and content for the version.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param int version_number: The version number (required)
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            version_number (int): 
+                The version number (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -651,15 +744,22 @@ class BucketFlowsApi(object):
 
     def get_flow_version_with_http_info(self, bucket_id, flow_id, version_number, **kwargs):
         """
-        Get bucket flow version
+        Get bucket flow version.
 
         Gets the given version of a flow, including the metadata and content for the version.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param int version_number: The version number (required)
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            version_number (int): 
+                The version number (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id', 'version_number']
@@ -730,14 +830,20 @@ class BucketFlowsApi(object):
 
     def get_flow_versions(self, bucket_id, flow_id, **kwargs):
         """
-        Get bucket flow versions
+        Get bucket flow versions.
 
         Gets summary information for all versions of a flow. Versions are ordered newest->oldest.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: list[VersionedFlowSnapshotMetadata]
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[VersionedFlowSnapshotMetadata]`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -748,14 +854,20 @@ class BucketFlowsApi(object):
 
     def get_flow_versions_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
-        Get bucket flow versions
+        Get bucket flow versions.
 
         Gets summary information for all versions of a flow. Versions are ordered newest->oldest.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: list[VersionedFlowSnapshotMetadata]
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[VersionedFlowSnapshotMetadata]`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id']
@@ -820,13 +932,18 @@ class BucketFlowsApi(object):
 
     def get_flows(self, bucket_id, **kwargs):
         """
-        Get bucket flows
+        Get bucket flows.
 
         Retrieves all flows in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :return: list[VersionedFlow]
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[VersionedFlow]`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -837,13 +954,18 @@ class BucketFlowsApi(object):
 
     def get_flows_with_http_info(self, bucket_id, **kwargs):
         """
-        Get bucket flows
+        Get bucket flows.
 
         Retrieves all flows in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :return: list[VersionedFlow]
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.list[VersionedFlow]`: The response object.
         """
 
         all_params = ['bucket_id']
@@ -902,14 +1024,20 @@ class BucketFlowsApi(object):
 
     def get_latest_flow_version(self, bucket_id, flow_id, **kwargs):
         """
-        Get latest bucket flow version content
+        Get latest bucket flow version content.
 
         Gets the latest version of a flow, including the metadata and content of the flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -920,14 +1048,20 @@ class BucketFlowsApi(object):
 
     def get_latest_flow_version_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
-        Get latest bucket flow version content
+        Get latest bucket flow version content.
 
         Gets the latest version of a flow, including the metadata and content of the flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id']
@@ -992,14 +1126,20 @@ class BucketFlowsApi(object):
 
     def get_latest_flow_version_metadata(self, bucket_id, flow_id, **kwargs):
         """
-        Get latest bucket flow version metadata
+        Get latest bucket flow version metadata.
 
         Gets the metadata for the latest version of a flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlowSnapshotMetadata
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshotMetadata`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1010,14 +1150,20 @@ class BucketFlowsApi(object):
 
     def get_latest_flow_version_metadata_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
-        Get latest bucket flow version metadata
+        Get latest bucket flow version metadata.
 
         Gets the metadata for the latest version of a flow.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlowSnapshotMetadata
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshotMetadata`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id']
@@ -1082,16 +1228,23 @@ class BucketFlowsApi(object):
 
     def import_versioned_flow(self, bucket_id, flow_id, **kwargs):
         """
-        Import flow version
+        Import flow version.
 
         Import the next version of a flow. The version number of the object being created will be the next available version integer. Flow versions are immutable after they are created.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param VersionedFlowSnapshot body: file
-        :param str comments:
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            body (:class:`~nipyapi.registry.models.VersionedFlowSnapshot`): 
+                file
+            comments (str):
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1102,16 +1255,23 @@ class BucketFlowsApi(object):
 
     def import_versioned_flow_with_http_info(self, bucket_id, flow_id, **kwargs):
         """
-        Import flow version
+        Import flow version.
 
         Import the next version of a flow. The version number of the object being created will be the next available version integer. Flow versions are immutable after they are created.
 
         This method makes a synchronous HTTP request.
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :param VersionedFlowSnapshot body: file
-        :param str comments:
-        :return: VersionedFlowSnapshot
+        
+        Args:
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+            body (:class:`~nipyapi.registry.models.VersionedFlowSnapshot`): 
+                file
+            comments (str):
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
         """
 
         all_params = ['bucket_id', 'flow_id', 'body', 'comments']
@@ -1186,15 +1346,22 @@ class BucketFlowsApi(object):
 
     def update_flow(self, body, bucket_id, flow_id, **kwargs):
         """
-        Update bucket flow
+        Update bucket flow.
 
         Updates the flow with the given id in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param VersionedFlow body: The updated flow (required)
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlow
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.VersionedFlow`): 
+                The updated flow (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1205,15 +1372,22 @@ class BucketFlowsApi(object):
 
     def update_flow_with_http_info(self, body, bucket_id, flow_id, **kwargs):
         """
-        Update bucket flow
+        Update bucket flow.
 
         Updates the flow with the given id in the given bucket.
 
         This method makes a synchronous HTTP request.
-        :param VersionedFlow body: The updated flow (required)
-        :param str bucket_id: The bucket identifier (required)
-        :param str flow_id: The flow identifier (required)
-        :return: VersionedFlow
+        
+        Args:
+            body (:class:`~nipyapi.registry.models.VersionedFlow`): 
+                The updated flow (required)
+            bucket_id (str): 
+                The bucket identifier (required)
+            flow_id (str): 
+                The flow identifier (required)
+                
+        Returns:
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
         """
 
         all_params = ['body', 'bucket_id', 'flow_id']

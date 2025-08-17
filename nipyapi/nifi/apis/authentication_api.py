@@ -36,7 +36,11 @@ class AuthenticationApi(object):
         """
         Retrieves the authentication configuration endpoint and status information
         This method makes a synchronous HTTP request.
-        :return: AuthenticationConfigurationEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AuthenticationConfigurationEntity`: The response object.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -49,7 +53,11 @@ class AuthenticationApi(object):
         """
         Retrieves the authentication configuration endpoint and status information
         This method makes a synchronous HTTP request.
-        :return: AuthenticationConfigurationEntity
+        
+        Args:
+                
+        Returns:
+            :class:`~nipyapi.nifi.models.AuthenticationConfigurationEntity`: The response object.
         """
 
         all_params = []
