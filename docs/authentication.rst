@@ -113,9 +113,9 @@ Default ports (Docker profile): NiFi ``https://localhost:9443/nifi-api``; Regist
 
     # Basic auth credentials (Docker profile defaults)
     config.nifi_config.username = "einstein"
-    config.nifi_config.password = "password1234"  # single-user NiFi default
+    config.nifi_config.password = "password1234"  # single-user default
     config.registry_config.username = "einstein"
-    config.registry_config.password = "password"   # registry default
+    config.registry_config.password = "password1234"  # single-user default
 
     # Establish sessions (uses credentials already set on config)
     utils.set_endpoint("https://localhost:9443/nifi-api", ssl=True, login=True)

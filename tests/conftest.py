@@ -166,7 +166,7 @@ elif _active_profile() == 'single-user':
     NIFI_USERNAME = NIFI_USERNAME or 'einstein'
     NIFI_PASSWORD = NIFI_PASSWORD or 'password1234'
     REGISTRY_USERNAME = REGISTRY_USERNAME or 'einstein'
-    REGISTRY_PASSWORD = REGISTRY_PASSWORD or 'password'
+    REGISTRY_PASSWORD = REGISTRY_PASSWORD or 'password1234'
  
 
 def _resolve_profile_defaults():
@@ -198,7 +198,7 @@ def _resolve_profile_defaults():
         nifi_user = NIFI_USERNAME or 'einstein'
         nifi_pass = NIFI_PASSWORD or 'password1234'
         reg_user = REGISTRY_USERNAME or 'einstein'
-        reg_pass = REGISTRY_PASSWORD or 'password'
+        reg_pass = REGISTRY_PASSWORD or 'password1234'
     else:
         nifi_user = NIFI_USERNAME or ''
         nifi_pass = NIFI_PASSWORD or ''

@@ -165,7 +165,7 @@ services:
     # No TLS env needed for single-user; default HTTP
     environment:
       - SINGLE_USER_CREDENTIALS_USERNAME=einstein
-      - SINGLE_USER_CREDENTIALS_PASSWORD=password
+      - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
       # Defaults to HTTP on 18080 in single-user mode
     networks: [nipynet]
 networks:

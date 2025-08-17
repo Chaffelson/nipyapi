@@ -1,511 +1,694 @@
-# pylint: disable=R0801
-
 """
-A self-paced walkthrough of version control using NiFi-Registry.
-See initial print statement for detailed explanation.
+Flow Development Lifecycle (FDLC) Example using NiFi Registry
+
+This example demonstrates the complete iterative workflow for enterprise NiFi development
+done using NiFi Registry for version control.
+
+NOTE: This example uses NiFi Registry as the persistence provider. Modern NiFi
+deployments increasingly use Git-based persistence providers for version control.
+This Registry-based approach remains valuable for understanding core concepts.
+
+Prerequisites:
+- Docker and Docker Compose installed
+- nipyapi project with make commands available
+- This script should be run from the nipyapi project root
+
+The FDLC workflow demonstrates:
+1. DEV: Create flow and establish version control
+2. → PROD: Export and import flow to production 
+3. ← DEV: Make changes and commit new version
+4. → PROD: Promote changes and update production
+
+This iterative cycle is the heart of enterprise NiFi development.
 """
 
-# import logging
-# from time import sleep
-# import nipyapi
-# import os
+import logging
+import subprocess
+from pathlib import Path
 
-raise RuntimeError(
-    "nipyapi.demo is deprecated and will be removed. Use Docker Compose profiles "
-    "and external tooling for environment setup."
-)
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+log = logging.getLogger(__name__)
 
-# log = logging.getLogger(__name__)
-# log.setLevel(logging.INFO)
-# logging.getLogger('nipyapi.versioning').setLevel(logging.INFO)
-# logging.getLogger('nipyapi.utils').setLevel(logging.INFO)
+# Import nipyapi - required for all operations
+import nipyapi
 
-# d_network_name = 'fdlcdemo'
+# Two-environment setup for realistic FDLC
+DEV_PROFILE = 'single-user'   # Development: rapid iteration
+PROD_PROFILE = 'secure-ldap'  # Production: enterprise security
 
-# dev_nifi_port = 8080
-# prod_nifi_port = 9090
-# dev_reg_port = dev_nifi_port + 1
-# prod_reg_port = prod_nifi_port + 1
+# Environment endpoints 
+DEV_NIFI_API = 'https://localhost:9443/nifi-api'
+DEV_REGISTRY_API = 'http://localhost:18080/nifi-registry-api'
+PROD_NIFI_API = 'https://localhost:9444/nifi-api'  
+PROD_REGISTRY_API = 'https://localhost:18444/nifi-registry-api'  # HTTPS for secure-ldap
 
-# dev_nifi_url = 'http://localhost:' + str(dev_nifi_port) + '/nifi'
-# prod_nifi_url = 'http://localhost:' + str(prod_nifi_port) + '/nifi'
-# dev_reg_url = 'http://localhost:' + str(dev_reg_port) + '/nifi-registry'
-# prod_reg_url = 'http://localhost:' + str(prod_reg_port) + '/nifi-registry'
+# Component names for the demo
+FLOW_NAMES = {
+    'process_group': 'fdlc_demo_flow',
+    'processor': 'fdlc_generator',
+    'dev_registry_client': 'dev_registry_client',
+    'prod_registry_client': 'prod_registry_client',
+    'dev_bucket': 'development', 
+    'prod_bucket': 'production',
+    'versioned_flow': 'demo_data_pipeline'
+}
 
-# dev_nifi_api_url = dev_nifi_url + '-api'
-# prod_nifi_api_url = prod_nifi_url + '-api'
-# dev_reg_api_url = dev_reg_url + '-api'
-# prod_reg_api_url = prod_reg_url + '-api'
+def check_prerequisites():
+    """Quick prerequisite check"""
+    if not Path('Makefile').exists():
+        raise RuntimeError("Run from nipyapi project root: cd /path/to/nipyapi && python examples/fdlc.py")
+    try:
+        subprocess.run(['docker', '--version'], capture_output=True, check=True)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        raise RuntimeError("Docker not available")
 
-# d_containers = []  # deprecated content removed
+def run_make_command(command):
+    """Helper to run make commands"""
+    log.info(f"Running: make {command}")
+    result = subprocess.run(['make'] + command.split(), capture_output=True, text=True)
+    if result.returncode != 0:
+        log.error(f"Command failed: {result.stderr}")
+        raise RuntimeError(f"Make command failed: make {command}")
+    return result
 
-# dev_pg_name = 'my_pg_0'
-# dev_proc_name = 'my_proc_0'
-# dev_proc2_name = 'my_s_proc_0'
-# dev_reg_client_name = 'dev_reg_client_0'
-# dev_bucket_name = 'dev_bucket_0'
-# dev_ver_flow_name = 'dev_ver_flow_0'
-# dev_flow_export_name = 'dev_flow_export_0'
-# prod_bucket_name = 'prod_bucket_0'
-# prod_ver_flow_name = 'prod_ver_flow_0'
-# prod_reg_client_name = 'prod_reg_client_0'
+def connect_to_dev():
+    """Switch to development environment"""
+    log.info("→ Connecting to DEVELOPMENT environment") 
+    # Configure SSL for self-signed certificates  
+    nipyapi.config.nifi_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
+    nipyapi.config.registry_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
+    nipyapi.utils.set_endpoint(DEV_NIFI_API, True, True, 'einstein', 'password1234')
+    nipyapi.utils.set_endpoint(DEV_REGISTRY_API, True, True, 'einstein', 'password1234')  # Single-user profile uses basic auth
 
-# print("This python script demonstrates the steps to manage promotion of "
-#       "versioned Flows between different environments. \nIt deploys NiFi and "
-#       "NiFi-Registry in local Docker containers and illustrates the "
-#       "steps you might follow in such a process."
-#       "\nEach step is presented as a function of this script, they count up "
-#       "in hex (0,1,2,3,4,5,6,7,8,9,a,b,c,d) and should be called in order."
-#       "\nEach step will log activities to INFO, and you are encouraged to "
-#       "look at the code in this script to see how each step is completed."
-#       "\nhttp://github.com/Chaffelson/nipyapi/blob/master/nipyapi/demo/fdlc.py"
-#       "\nEach step will also issue instructions through print statements like "
-#       "this one, these instructions will vary so please read them as you go."
-#       "\nNote that the first call will log a lot of information while it boots"
-#       " the Docker containers, further instructions will follow."
-#       "\nNote that you can reset it at any time by calling step_1 again.\n"
-#       "\nPlease start by calling the function 'step_1_boot_demo_env()'.")
+def connect_to_prod():
+    """Switch to production environment"""
+    log.info("→ Connecting to PRODUCTION environment") 
+    # Configure SSL for self-signed certificates
+    nipyapi.config.nifi_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
+    nipyapi.config.registry_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
+    nipyapi.utils.set_endpoint(PROD_NIFI_API, True, True, 'einstein', 'password')
+    nipyapi.utils.set_endpoint(PROD_REGISTRY_API, True, True, 'einstein', 'password')  # secure-ldap Registry also uses basic auth
 
+def step_1_setup_environments():
+    """
+    Step 1: Quick setup of both development and production environments
+    
+    Gets both environments running so we can focus on the FDLC workflow.
+    """
+    print("""
+=== STEP 1: Environment Setup ===
 
-# def step_1_boot_demo_env():
-#     """step_1_boot_demo_env"""
-#     log.info("Starting Dev and Prod NiFi and NiFi-Registry Docker Containers"
-#              "\nPlease wait, this may take a few minutes to download the "
-#              "Docker images and then start them.")
-#     nipyapi.utils.start_docker_containers(
-#         docker_containers=d_containers,
-#         network_name=d_network_name
-#     )
-#     for reg_instance in [dev_reg_api_url, prod_reg_api_url]:
-#         log.info("Waiting for NiFi Registries to be ready")
-#         nipyapi.utils.set_endpoint(reg_instance)
-#         nipyapi.utils.wait_to_complete(
-#             test_function=nipyapi.utils.is_endpoint_up,
-#             endpoint_url='-'.join(reg_instance.split('-')[:-1]),
-#             nipyapi_delay=nipyapi.config.long_retry_delay,
-#             nipyapi_max_wait=nipyapi.config.long_max_wait
-#         )
-#     for nifi_instance in [dev_nifi_api_url, prod_nifi_api_url]:
-#         log.info("Waiting for NiFi instances to be ready")
-#         nipyapi.utils.set_endpoint(nifi_instance)
-#         nipyapi.utils.wait_to_complete(
-#             test_function=nipyapi.utils.is_endpoint_up,
-#             endpoint_url='-'.join(nifi_instance.split('-')[:-1]),
-#             nipyapi_delay=nipyapi.config.long_retry_delay,
-#             nipyapi_max_wait=nipyapi.config.long_max_wait
-#         )
-#         # Sleeping to wait for all startups to return before printing guide
-#         sleep(1)
-#     print("Your Docker containers should now be ready, please find them at the"
-#           "following URLs:"
-#           "\nnifi-dev   ", dev_nifi_url,
-#           "\nreg-dev    ", dev_reg_url,
-#           "\nreg-prod   ", prod_reg_url,
-#           "\nnifi-prod  ", prod_nifi_url,
-#           "\nPlease open each of these in a browser tab."
-#           "\nPlease then call the function 'step_2_create_reg_clients()'\n")
+Setting up TWO environments for FDLC demonstration:
+• DEVELOPMENT (single-user): https://localhost:9443 + http://localhost:18080  
+• PRODUCTION (secure-ldap): https://localhost:9444 + https://localhost:18444
 
+This gives us realistic environment separation for demonstrating promotion workflows.
+    """)
+    
+    check_prerequisites()
+    
+    # Clean slate
+    log.info("Cleaning up any existing containers...")
+    run_make_command('down')
+    
+    # Generate certificates
+    log.info("Generating certificates...")
+    run_make_command('certs')
+    
+    # Start both environments
+    log.info("Starting development environment...")
+    run_make_command(f'up NIPYAPI_AUTH_MODE={DEV_PROFILE}')
+    run_make_command(f'wait-ready NIPYAPI_AUTH_MODE={DEV_PROFILE}')
+    
+    log.info("Starting production environment...")
+    run_make_command(f'up NIPYAPI_AUTH_MODE={PROD_PROFILE}')
+    run_make_command(f'wait-ready NIPYAPI_AUTH_MODE={PROD_PROFILE}')
+    
+    # nipyapi already imported at module level
+    
+    print("""
+✅ Both environments ready!
 
-# def step_2_create_reg_clients():
-#     """Set client connections between NiFi and Registry"""
-#     log.info("Creating Dev Environment Nifi to NiFi-Registry Client")
-#     nipyapi.utils.set_endpoint(dev_nifi_api_url)
-#     nipyapi.versioning.create_registry_client(
-#         name=dev_reg_client_name,
-#         uri='http://reg-dev:8081',
-#         description=''
-#     )
-#     log.info("Creating Prod Environment Nifi to NiFi-Registry Client")
-#     nipyapi.utils.set_endpoint(prod_nifi_api_url)
-#     nipyapi.versioning.create_registry_client(
-#         name=prod_reg_client_name,
-#         uri='http://reg-prod:9091',
-#         description=''
-#     )
-#     print("We have attached each NiFi environment to its relevant Registry "
-#           "for upcoming Version Control activities."
-#           "\nYou can see these by going to NiFi, clicking on the 3Bar menu "
-#           "icon in the top right corner, selecting 'Controller Settings', and"
-#           " looking at the 'Registry Clients' tab."
-#           "\nPlease now call 'step_3_create_dev_flow()'\n")
+DEVELOPMENT: https://localhost:9443/nifi (einstein/password1234)
+PRODUCTION:  https://localhost:9444/nifi (einstein/password)
 
+Next: step_2_create_dev_flow() - Create flow in development
+    """)
 
-# def step_3_create_dev_flow():
-#     """Connecting to Dev environment and creating some test objects"""
-#     log.info("Connecting to Dev environment and creating some test objects")
-#     nipyapi.utils.set_endpoint(dev_nifi_api_url)
-#     nipyapi.utils.set_endpoint(dev_reg_api_url)
+def step_2_create_dev_flow():
+    """
+    Step 2: Create and prepare flow in development environment
+    
+    Creates a simple flow and establishes version control - the foundation
+    for the promotion workflow.
+    """
+    print("""
+=== STEP 2: Create Development Flow ===
 
-#     log.info("Creating %s as an empty process group", dev_pg_name)
-#     dev_process_group_0 = nipyapi.canvas.create_process_group(
-#         nipyapi.canvas.get_process_group(nipyapi.canvas.get_root_pg_id(),
-#                                          'id'),
-#         dev_pg_name,
-#         location=(400.0, 400.0)
-#     )
-#     log.info("Creating dev_processor_0 as a new GenerateFlowFile in the PG")
-#     nipyapi.canvas.create_processor(
-#         parent_pg=dev_process_group_0,
-#         processor=nipyapi.canvas.get_processor_type('GenerateFlowFile'),
-#         location=(400.0, 400.0),
-#         name=dev_proc_name,
-#         config=nipyapi.nifi.ProcessorConfigDTO(
-#             scheduling_period='1s',
-#             auto_terminated_relationships=['success']
-#         )
-#     )
-#     print("We have procedurally generated a new Process Group with a child "
-#           "Processor in Dev NiFi. It is not yet version controlled."
-#           "\nGo to your Dev NiFi browser tab, and refresh to see the new "
-#           "Process Group, open the Process Group to see the new Generate "
-#           "FlowFile Processor. Open the Processor and look at the Scheduling "
-#           "tab to note that it is set to 1s."
-#           "\nPlease now call 'step_4_create_dev_ver_bucket()'\n")
+Creating a simple data processing flow in DEVELOPMENT environment
+and establishing version control foundation.
+    """)
+    
+    connect_to_dev()
+    
+    # Clean up any existing components
+    log.info("Cleaning up existing components...")
+    try:
+        existing_pg = nipyapi.canvas.get_process_group(FLOW_NAMES['process_group'])
+        if existing_pg:
+            nipyapi.canvas.delete_process_group(existing_pg, force=True)
+    except ValueError:
+        pass
+    
+    try:
+        existing_client = nipyapi.versioning.get_registry_client(FLOW_NAMES['dev_registry_client'])
+        if existing_client:
+            nipyapi.versioning.delete_registry_client(existing_client)
+    except ValueError:
+        pass
+    
+    try:
+        existing_bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['dev_bucket'])
+        if existing_bucket:
+            nipyapi.versioning.delete_registry_bucket(existing_bucket)
+    except ValueError:
+        pass
+    
+    # Create Registry client for version control
+    log.info("Creating Registry client...")
+    nipyapi.versioning.create_registry_client(
+        name=FLOW_NAMES['dev_registry_client'],
+        uri='http://registry-single:18080',  # Matches conftest.py working configuration
+        description='Development Registry Client'
+    )
+    
+    # Create Registry bucket
+    log.info("Creating development bucket...")
+    nipyapi.versioning.create_registry_bucket(FLOW_NAMES['dev_bucket'])
+    
+    # Create the flow
+    log.info("Creating demo flow...")
+    root_pg = nipyapi.canvas.get_process_group(nipyapi.canvas.get_root_pg_id(), 'id')
+    
+    process_group = nipyapi.canvas.create_process_group(
+        parent_pg=root_pg,
+        new_pg_name=FLOW_NAMES['process_group'],
+        location=(400.0, 400.0)
+    )
+    
+    nipyapi.canvas.create_processor(
+        parent_pg=process_group,
+        processor=nipyapi.canvas.get_processor_type('GenerateFlowFile'),
+        location=(400.0, 400.0),
+        name=FLOW_NAMES['processor'],
+        config=nipyapi.nifi.ProcessorConfigDTO(
+            scheduling_period='5s',
+            auto_terminated_relationships=['success']
+        )
+    )
+    
+    print("""
+✅ Development flow created!
 
+In DEV NiFi UI (https://localhost:9443/nifi):
+• Process Group: fdlc_demo_flow
+• Processor: GenerateFlowFile (5-second interval)
+• Status: Not yet under version control
 
-# def step_4_create_dev_ver_bucket():
-#     """Creating dev registry bucket"""
-#     log.info("Creating %s as new a Registry Bucket", dev_bucket_name)
-#     nipyapi.versioning.create_registry_bucket(dev_bucket_name)
-#     print("We have created a new Versioned Flow Bucket in the Dev "
-#           "NiFi-Registry. Please go to the Dev Registry tab in your browser "
-#           "and refresh, then click the arrow next to 'All' in the page header "
-#           "to select the new bucket and see that it is currently empty."
-#           "\nPlease now call 'step_5_save_flow_to_bucket()'\n")
+Next: step_3_version_dev_flow() - Put flow under version control
+    """)
 
+def step_3_version_dev_flow():
+    """
+    Step 3: Put development flow under version control
+    
+    Establishes version control for the flow, creating version 1.
+    This is the foundation for promotion workflows.
+    """
+    print("""
+=== STEP 3: Establish Version Control ===
 
-# def step_5_save_flow_to_bucket():
-#     """Saving the flow to the bucket as a new versioned flow"""
-#     log.info(
-#         "Saving %s to %s", dev_pg_name, dev_bucket_name)
-#     process_group = nipyapi.canvas.get_process_group(dev_pg_name)
-#     bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
-#     registry_client = nipyapi.versioning.get_registry_client(
-#         dev_reg_client_name)
-#     nipyapi.versioning.save_flow_ver(
-#         process_group=process_group,
-#         registry_client=registry_client,
-#         bucket=bucket,
-#         flow_name=dev_ver_flow_name,
-#         desc='A Versioned Flow',
-#         comment='A Versioned Flow'
-#     )
-#     print("We have now saved the Dev Process Group to the Dev Registry bucket "
-#           "as a new Versioned Flow. Return to the Dev Registry tab in your "
-#           "browser and refresh to see the flow. Click on the flow to show "
-#           "some details, note that it is version 1."
-#           "\nPlease note that the next function requires that you save the "
-#           "output to a variable when you continue."
-#           "\nPlease now call 'flow = step_6_export_dev_flow()'\n")
+Putting the development flow under version control.
+This creates version 1 and enables promotion workflows.
+    """)
+    
+    connect_to_dev()
+    
+    # Get components
+    process_group = nipyapi.canvas.get_process_group(FLOW_NAMES['process_group'])
+    registry_client = nipyapi.versioning.get_registry_client(FLOW_NAMES['dev_registry_client'])
+    bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['dev_bucket'])
+    
+    # Save to version control
+    log.info("Saving flow to version control...")
+    version_info = nipyapi.versioning.save_flow_ver(
+        process_group=process_group,
+        registry_client=registry_client,
+        bucket=bucket,
+        flow_name=FLOW_NAMES['versioned_flow'],
+        desc='Demo data pipeline for FDLC demonstration',
+        comment='Initial version - basic data generation flow'
+    )
+    
+    version = version_info.version_control_information.version
+    log.info(f"Flow saved as version {version}")
+    
+    print(f"""
+✅ Flow under version control!
 
+• Flow name: {FLOW_NAMES['versioned_flow']}
+• Version: {version}
+• Status: Development flow shows green ✓ (up-to-date)
 
-# def step_6_export_dev_flow():
-#     """Exporting the versioned flow as a yaml definition"""
-#     log.info("Creating a sorted pretty Yaml export of %s",
-#              dev_flow_export_name)
-#     bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
-#     ver_flow = nipyapi.versioning.get_flow_in_bucket(
-#         bucket.identifier,
-#         identifier=dev_ver_flow_name
-#     )
-#     out = nipyapi.versioning.export_flow_version(
-#         bucket_id=bucket.identifier,
-#         flow_id=ver_flow.identifier,
-#         mode='yaml'
-#     )
-#     print("We have now exported the versioned Flow from the Dev environment as"
-#           " a formatted YAML document, which is one of several options. Note "
-#           "that you were asked to save it as the variable 'flow' so you can "
-#           "then import it into your Prod environment."
-#           "\nIf you want to view it, call 'print(flow)'."
-#           "\nWhen you are ready, please call 'step_7_create_prod_ver_bucket()'"
-#           "\n")
-#     return out
+DEV Registry UI (http://localhost:18080/nifi-registry):
+• Bucket: {FLOW_NAMES['dev_bucket']} 
+• Flow: {FLOW_NAMES['versioned_flow']} (version {version})
 
+Next: step_4_promote_to_prod() - Export and promote to production
+    """)
 
-# def step_7_create_prod_ver_bucket():
-#     """Connecting to the Prod environment and creating a new bucket"""
-#     log.info("Connecting to Prod Environment")
-#     nipyapi.utils.set_endpoint(prod_nifi_api_url)
-#     nipyapi.utils.set_endpoint(prod_reg_api_url)
-#     log.info("Creating %s as a new Registry Bucket", prod_bucket_name)
-#     nipyapi.versioning.create_registry_bucket(prod_bucket_name)
-#     print("We have now created a bucket in the Prod Registry to promote our "
-#           "Dev flow into. Go to the Prod Registry tab and click the arrow next"
-#           " to 'All' to select it and see that it is currently empty."
-#           "\nPlease note that the next function requires that you supply the "
-#           "variable you saved from step 5."
-#           "\nPlease call 'step_8_import_dev_flow_to_prod_reg(flow)'\n")
+def step_4_promote_to_prod():
+    """
+    Step 4: Promote flow to production
+    
+    Export from dev Registry and import into prod Registry.
+    This simulates the promotion through CI/CD pipeline.
+    """
+    print("""
+=== STEP 4: Promote to Production ===
 
+Exporting flow from DEVELOPMENT and importing into PRODUCTION.
+This simulates promoting through a CI/CD pipeline between environments.
+    """)
+    
+    # Export from development
+    connect_to_dev()
+    log.info("Exporting flow from development...")
+    
+    dev_bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['dev_bucket'])
+    dev_flow = nipyapi.versioning.get_flow_in_bucket(
+        dev_bucket.identifier, 
+        identifier=FLOW_NAMES['versioned_flow']
+    )
+    
+    flow_export = nipyapi.versioning.export_flow_version(
+        bucket_id=dev_bucket.identifier,
+        flow_id=dev_flow.identifier,
+        mode='yaml'
+    )
+    
+    # Import to production  
+    connect_to_prod()
+    log.info("Setting up production Registry...")
+    
+    # Bootstrap Registry security policies (creates proxy user)
+    log.info("Bootstrapping production Registry security...")
+    nipyapi.security.bootstrap_security_policies(
+        service='registry', 
+        nifi_proxy_identity='C=US, O=NiPyAPI, CN=nifi'
+    )
+    
+    # Clean up existing prod components
+    try:
+        existing_bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['prod_bucket'])
+        if existing_bucket:
+            nipyapi.versioning.delete_registry_bucket(existing_bucket)
+    except ValueError:
+        pass
+    
+    # Create production bucket and import
+    prod_bucket = nipyapi.versioning.create_registry_bucket(FLOW_NAMES['prod_bucket'])
+    
+    log.info("Importing flow into production...")
+    imported_flow = nipyapi.versioning.import_flow_version(
+        bucket_id=prod_bucket.identifier,
+        encoded_flow=flow_export,
+        flow_name=FLOW_NAMES['versioned_flow']
+    )
+    
+    print(f"""
+✅ Flow promoted to production!
 
-# def step_8_import_dev_flow_to_prod_reg(versioned_flow):
-#     """Importing the yaml string into Prod"""
-#     log.info("Saving dev flow export to prod container")
-#     bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
-#     nipyapi.versioning.import_flow_version(
-#         bucket_id=bucket.identifier,
-#         encoded_flow=versioned_flow,
-#         flow_name=prod_ver_flow_name
-#     )
-#     print("The flow we exported from Dev is now imported into the bucket in "
-#           "the Prod Registry, and ready for deployment to the Prod NiFi."
-#           "\nPlease refresh your Prod Registry and you will see it, note that"
-#           " it is version 1 and has the same comment as the Dev Flow Version."
-#           "\nPlease then call 'step_9_deploy_prod_flow_to_nifi()'\n")
+PRODUCTION Registry (https://localhost:18444/nifi-registry):
+• Bucket: {FLOW_NAMES['prod_bucket']}
+• Flow: {FLOW_NAMES['versioned_flow']} (version 1)
+• Status: Available for deployment
 
+This represents the flow moving through your CI/CD pipeline:
+DEV Registry → CI/CD → PROD Registry
 
-# def step_9_deploy_prod_flow_to_nifi():
-#     """Deploying the flow to the Prod environment"""
-#     log.info("Deploying promoted flow from Prod Registry to Prod Nifi")
-#     bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
-#     flow = nipyapi.versioning.get_flow_in_bucket(
-#         bucket_id=bucket.identifier,
-#         identifier=prod_ver_flow_name
-#     )
-#     reg_client = nipyapi.versioning.get_registry_client(prod_reg_client_name)
-#     nipyapi.versioning.deploy_flow_ver(
-#         parent_id=nipyapi.canvas.get_root_pg_id(),
-#         location=(0, 0),
-#         bucket_id=bucket.identifier,
-#         flow_id=flow.identifier,
-#         reg_client_id=reg_client.id,
-#         version=None
-#     )
-#     print("The Promoted Flow has now been deployed to the Prod NiFi, please "
-#           "refresh the Prod NiFi tab and note that the Process Group has the "
-#           "same name as the Dev Process Group, and has a green tick(√) "
-#           "indicating it is up to date with Version Control. "
-#           "\n Open the Process Group and note that the Processor is also the "
-#           "same, including the Schedule of 1s."
-#           "\nPlease now call 'step_a_change_dev_flow()'\n")
+Next: step_5_deploy_to_prod_nifi() - Deploy flow in production NiFi
+    """)
 
+def step_5_deploy_to_prod_nifi():
+    """
+    Step 5: Deploy flow in production NiFi
+    
+    Create Registry client in prod NiFi and deploy the versioned flow.
+    This makes the flow live in production.
+    """
+    print("""
+=== STEP 5: Deploy to Production NiFi ===
 
-# def step_a_change_dev_flow():
-#     """Procedurally modifying the Dev flow"""
-#     log.info("Connecting to Dev Environment")
-#     nipyapi.utils.set_endpoint(dev_nifi_api_url)
-#     nipyapi.utils.set_endpoint(dev_reg_api_url)
-#     log.info("Modifying Dev Processor Schedule")
-#     processor = nipyapi.canvas.get_processor(dev_proc_name)
-#     nipyapi.canvas.update_processor(
-#         processor=processor,
-#         update=nipyapi.nifi.ProcessorConfigDTO(
-#             scheduling_period='3s'
-#         )
-#     )
-#     print("Here we have made a simple modification to the processor in our Dev"
-#           "Flow. \nGo to the Dev NiFi tab and refresh it, you will see that "
-#           "the Process Group now has a star(*) icon next to the name, "
-#           "indicating there are unsaved changes. Look at the Scheduling tab "
-#           "in the Processor and note that it has changed from 1s to 3s."
-#           "\nPlease now call 'step_b_update_dev_flow_ver()'\n")
+Creating production Registry client and deploying the versioned flow.
+This makes the flow live in the production environment.
+    """)
+    
+    connect_to_prod()
+    
+    # Bootstrap NiFi security policies (grants user permissions)
+    log.info("Bootstrapping production NiFi security...")
+    nipyapi.security.bootstrap_security_policies(service='nifi')
+    
+    # Clean up existing prod registry client
+    try:
+        existing_client = nipyapi.versioning.get_registry_client(FLOW_NAMES['prod_registry_client'])
+        if existing_client:
+            nipyapi.versioning.delete_registry_client(existing_client)
+    except ValueError:
+        pass
+    
+    # Create production Registry client
+    log.info("Creating production Registry client...")
+    prod_registry_client = nipyapi.versioning.create_registry_client(
+        name=FLOW_NAMES['prod_registry_client'],
+        uri='https://registry-ldap:18443',  # Matches conftest.py working configuration for secure-ldap
+        description='Production Registry Client'
+    )
+    
+    # Deploy the versioned flow
+    log.info("Deploying versioned flow to production...")
+    prod_bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['prod_bucket'])
+    prod_flow = nipyapi.versioning.get_flow_in_bucket(
+        prod_bucket.identifier,
+        identifier=FLOW_NAMES['versioned_flow']
+    )
+    
+    deployed_pg = nipyapi.versioning.deploy_flow_version(
+        parent_id=nipyapi.canvas.get_root_pg_id(),
+        location=(400.0, 400.0),
+        bucket_id=prod_bucket.identifier,
+        flow_id=prod_flow.identifier,
+        reg_client_id=prod_registry_client.id,
+        version=None  # Deploy latest version
+    )
+    
+    print(f"""
+✅ Flow deployed to production!
 
+PRODUCTION NiFi (https://localhost:9444/nifi):
+• Process Group: {FLOW_NAMES['versioned_flow']} 
+• Status: Green ✓ (deployed from version control)
+• Flow is now live and processing data in production
 
-# def step_b_update_dev_flow_ver():
-#     """Committing the change to the dev flow version"""
-#     log.info("Saving changes in Dev Flow to Version Control")
-#     process_group = nipyapi.canvas.get_process_group(dev_pg_name)
-#     bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
-#     registry_client = nipyapi.versioning.get_registry_client(
-#         dev_reg_client_name)
-#     flow = nipyapi.versioning.get_flow_in_bucket(
-#         bucket_id=bucket.identifier,
-#         identifier=dev_ver_flow_name
-#     )
-#     nipyapi.versioning.save_flow_ver(
-#         process_group=process_group,
-#         registry_client=registry_client,
-#         bucket=bucket,
-#         flow_id=flow.identifier,
-#         comment='An Updated Flow'
-#     )
-#     print("We have saved the change to the Dev Registry as a new version."
-#           "\nRefresh the Dev Registry to see that the Flow now has a version "
-#           "2, and a new comment."
-#           "\nRefresh the Dev NiFi to see that the Process Group now has a "
-#           "green tick again, indicating that Version Control is up to date."
-#           "\nPlease now call 'step_c_promote_change_to_prod_reg()'\n")
+The flow has completed its journey:
+DEV (created) → DEV Registry → PROD Registry → PROD NiFi (live)
 
+Next: step_6_make_dev_changes() - Demonstrate change management
+    """)
 
-# def step_c_promote_change_to_prod_reg():
-#     """Promoting the committed change across to the prod environment"""
-#     log.info("Exporting updated Dev Flow Version")
-#     dev_bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
-#     dev_ver_flow = nipyapi.versioning.get_flow_in_bucket(
-#         dev_bucket.identifier,
-#         identifier=dev_ver_flow_name
-#     )
-#     dev_export = nipyapi.versioning.export_flow_version(
-#         bucket_id=dev_bucket.identifier,
-#         flow_id=dev_ver_flow.identifier,
-#         mode='yaml'
-#     )
-#     log.info("Connecting to Prod Environment")
-#     nipyapi.utils.set_endpoint(prod_nifi_api_url)
-#     nipyapi.utils.set_endpoint(prod_reg_api_url)
-#     log.info("Pushing updated version into Prod Registry Flow")
-#     prod_bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
-#     prod_flow = nipyapi.versioning.get_flow_in_bucket(
-#         bucket_id=prod_bucket.identifier,
-#         identifier=prod_ver_flow_name
-#     )
-#     nipyapi.versioning.import_flow_version(
-#         bucket_id=prod_bucket.identifier,
-#         encoded_flow=dev_export,
-#         flow_id=prod_flow.identifier
-#     )
-#     print("We have promoted the change from our Dev Registry to Prod, please "
-#           "refresh your Prod Registry Tab to see the new version is present, "
-#           "and that the new comment matches the Dev Environment."
-#           "\nRefresh your Prod NiFi tab to see that the Process Group has a "
-#           "red UpArrow(⬆︎) icon indicating a new version is available for "
-#           "deployment."
-#           "\nPlease now call 'step_d_promote_change_to_prod_nifi()'\n")
+def step_6_make_dev_changes():
+    """
+    Step 6: Make changes in development
+    
+    Modify the development flow to simulate ongoing development.
+    This demonstrates the iterative nature of flow development.
+    """
+    print("""
+=== STEP 6: Make Development Changes ===
 
+Making changes to the development flow to simulate ongoing development.
+This shows the iterative cycle: develop → version → promote.
+    """)
+    
+    connect_to_dev()
+    
+    # Modify the processor
+    log.info("Making changes to development flow...")
+    processor = nipyapi.canvas.get_processor(FLOW_NAMES['processor'])
+    
+    nipyapi.canvas.update_processor(
+        processor=processor,
+        update=nipyapi.nifi.ProcessorConfigDTO(
+            scheduling_period='10s'  # Changed from 5s to 10s
+        )
+    )
+    
+    print("""
+✅ Development changes made!
 
-# def step_d_promote_change_to_prod_nifi():
-#     """Pushing the change into the Prod flow"""
-#     log.info("Moving deployed Prod Process Group to the latest version")
-#     prod_pg = nipyapi.canvas.get_process_group(dev_pg_name)
-#     nipyapi.versioning.update_flow_ver(
-#         process_group=prod_pg,
-#         target_version=None
-#     )
-#     print("Refresh your Prod NiFi to see that the PG now shows the green tick "
-#           "of being up to date with its version control."
-#           "\nLook at the Processor scheduling to note that it now matches the "
-#           "dev environment as 3s."
-#           "\nNow we will examine some typical deployment tests."
-#           "\nPlease now call 'step_e_check_sensitive_processors()'\n")
+DEV NiFi UI (https://localhost:9443/nifi):
+• Process Group now shows orange star ★ (uncommitted changes)
+• Processor scheduling changed: 5s → 10s
+• Status: Local changes not yet versioned
 
+This represents typical development iteration:
+• Developer modifies flow configuration
+• Changes are local until committed to version control
+• Production remains unchanged
 
-# def step_e_check_sensitive_processors():
-#     """Create and test for Sensitive Properties to be set in the Canvas"""
-#     log.info("Connecting to Dev Environment")
-#     nipyapi.utils.set_endpoint(dev_nifi_api_url)
-#     nipyapi.utils.set_endpoint(dev_reg_api_url)
-#     log.info("Creating additional complex Processor")
-#     nipyapi.canvas.create_processor(
-#         parent_pg=nipyapi.canvas.get_process_group(dev_pg_name),
-#         processor=nipyapi.canvas.get_processor_type('GetTwitter'),
-#         location=(400.0, 600.0),
-#         name=dev_proc2_name,
-#     )
-#     s_proc = nipyapi.canvas.list_sensitive_processors(summary=True)
-#     print("We have created a new Processor {0} which has security protected"
-#           "properties, these will need to be completed in each environment "
-#           "that this flow is used in. These properties are discoverable using "
-#           "the API calls list 'canvas.list_sensitive_processors()'"
-#           "\nFunction 'nipyapi.canvas.update_processor' as used in step_a is"
-#           " intended for this purpose"
-#           "\nPlease now call 'step_f_set_sensitive_values()'\n"
-#           .format(s_proc[0]))
+Next: step_7_version_changes() - Commit changes as version 2
+    """)
 
+def step_7_version_changes():
+    """
+    Step 7: Version the changes
+    
+    Commit the development changes to create version 2.
+    This establishes the new version for promotion.
+    """
+    print("""
+=== STEP 7: Version the Changes ===
 
-# def step_f_set_sensitive_values():
-#     """Set the Sensitive Properties to pass the deployment test"""
-#     log.info("Setting Sensitive Values on Processor")
-#     nipyapi.canvas.update_processor(
-#         processor=nipyapi.canvas.get_processor(dev_proc2_name),
-#         update=nipyapi.nifi.ProcessorConfigDTO(
-#             properties={
-#                 'Consumer Key': 'Some',
-#                 'Consumer Secret': 'Secret',
-#                 'Access Token': 'values',
-#                 'Access Token Secret': 'here'
-#             }
-#         )
-#     )
-#     print("Here we have set the Sensitive values, again using the Update"
-#           " process. Typically these values will be looked up in a Config DB "
-#           "or some other secured service."
-#           "\nPlease now call 'step_g_check_invalid_processors()'\n")
+Committing development changes to create version 2.
+This establishes the new version for promotion to production.
+    """)
+    
+    connect_to_dev()
+    
+    # Get components for versioning
+    process_group = nipyapi.canvas.get_process_group(FLOW_NAMES['process_group'])
+    registry_client = nipyapi.versioning.get_registry_client(FLOW_NAMES['dev_registry_client'])
+    dev_bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['dev_bucket'])
+    dev_flow = nipyapi.versioning.get_flow_in_bucket(
+        dev_bucket.identifier,
+        identifier=FLOW_NAMES['versioned_flow']
+    )
+    
+    # Commit changes
+    log.info("Committing changes to version control...")
+    version_info = nipyapi.versioning.save_flow_ver(
+        process_group=process_group,
+        registry_client=registry_client,
+        bucket=dev_bucket,
+        flow_id=dev_flow.identifier,
+        comment='Performance tuning - reduced generation frequency from 5s to 10s'
+    )
+    
+    version = version_info.version_control_information.version
+    log.info(f"Changes committed as version {version}")
+    
+    print(f"""
+✅ Changes versioned!
 
+DEV NiFi UI:
+• Process Group shows green ✓ (changes committed)
+• Version: {version}
 
-# def step_g_check_invalid_processors():
-#     """Look for Processors with Invalid Properties to be remediated"""
-#     log.info("Retrieving Processors in Invalid States")
-#     i_proc = nipyapi.canvas.list_invalid_processors()[0]
-#     print("We now run a validity test against our flow to ensure that it can "
-#           "be deployed. We can see that Processors [{0}] need further "
-#           "attention."
-#           "\nWe can also easily see the reasons for this [{1}]."
-#           "\nPlease now call 'step_h_fix_validation_errors()'\n"
-#           .format(i_proc.status.name, i_proc.component.validation_errors))
+DEV Registry UI:
+• Flow: {FLOW_NAMES['versioned_flow']} 
+• Versions: 1 (initial), {version} (performance tuning)
+• Latest comment: "Performance tuning - reduced generation frequency"
 
+Ready for promotion to production!
 
-# def step_h_fix_validation_errors():
-#     """Update values for Invalid Processors to pass the deployment test"""
-#     log.info("Autoterminating Success status")
-#     nipyapi.canvas.update_processor(
-#         processor=nipyapi.canvas.get_processor(dev_proc2_name),
-#         update=nipyapi.nifi.ProcessorConfigDTO(
-#             auto_terminated_relationships=['success']
-#         )
-#     )
-#     print("We now see that our Processor is configured and Valid within this "
-#           "environment, and is ready for Promotion to the next stage."
-#           "\nPlease now call 'step_i_promote_deploy_and_validate()'\n")
+Next: step_8_promote_changes() - Promote version 2 to production
+    """)
 
+def step_8_promote_changes():
+    """
+    Step 8: Promote changes to production
+    
+    Export version 2 and import into production, then update production deployment.
+    This completes the full development lifecycle.
+    """
+    print("""
+=== STEP 8: Promote Changes to Production ===
 
-# def step_i_promote_deploy_and_validate():
-#     """Promotion and Deployment in a single method"""
-#     log.info("Saving changes in Dev Flow to Version Control")
-#     dev_process_group = nipyapi.canvas.get_process_group(dev_pg_name)
-#     dev_bucket = nipyapi.versioning.get_registry_bucket(dev_bucket_name)
-#     dev_registry_client = nipyapi.versioning.get_registry_client(
-#         dev_reg_client_name)
-#     dev_flow = nipyapi.versioning.get_flow_in_bucket(
-#         bucket_id=dev_bucket.identifier,
-#         identifier=dev_ver_flow_name
-#     )
-#     nipyapi.versioning.save_flow_ver(
-#         process_group=dev_process_group,
-#         registry_client=dev_registry_client,
-#         bucket=dev_bucket,
-#         flow_id=dev_flow.identifier,
-#         comment='A Flow update with a Complex Processor'
-#     )
-#     dev_ver_flow = nipyapi.versioning.get_flow_in_bucket(
-#         dev_bucket.identifier,
-#         identifier=dev_ver_flow_name
-#     )
-#     log.info("Exporting the Dev flow to Yaml")
-#     dev_export = nipyapi.versioning.export_flow_version(
-#         bucket_id=dev_bucket.identifier,
-#         flow_id=dev_ver_flow.identifier,
-#         mode='yaml'
-#     )
-#     log.info("Connecting to Prod Environment")
-#     nipyapi.utils.set_endpoint(prod_nifi_api_url)
-#     nipyapi.utils.set_endpoint(prod_reg_api_url)
-#     log.info("Importing the Updated Dev Yaml to the Prod Bucket Flow")
-#     prod_bucket = nipyapi.versioning.get_registry_bucket(prod_bucket_name)
-#     prod_flow = nipyapi.versioning.get_flow_in_bucket(
-#         bucket_id=prod_bucket.identifier,
-#         identifier=prod_ver_flow_name
-#     )
-#     nipyapi.versioning.import_flow_version(
-#         bucket_id=prod_bucket.identifier,
-#         encoded_flow=dev_export,
-#         flow_id=prod_flow.identifier
-#     )
-#     log.info("Pushing the new Version into the Prod Flow")
-#     prod_pg = nipyapi.canvas.get_process_group(dev_pg_name)
-#     nipyapi.versioning.update_flow_ver(
-#         process_group=prod_pg,
-#         target_version=None
-#     )
-#     log.info("Checking for Invalid Processors in the new flow")
-#     val_errors = nipyapi.canvas.list_invalid_processors()
-#     print("Here we have put all the steps in one place by taking the dev "
-#           "changes all the way through to prod deployment. If we check"
-#           " our Processor Validation again, we see that our regular "
-#           "Properties have been carried through, but our Sensitive "
-#           "Properties are unset in Production [{0}]"
-#           "\nThis is because NiFi will not break"
-#           " security by carrying them to a new environment. We leave setting"
-#           " them again as an exercise for the user."
-#           .format(val_errors[0].component.validation_errors))
-#     print("\nThis is the end of the guide, you may restart at any time by "
-#           "calling 'step_1_boot_demo_env()'\n")
+Promoting version 2 to production and updating the live deployment.
+This completes the full development lifecycle demonstration.
+    """)
+    
+    # Export version 2 from development
+    connect_to_dev()
+    log.info("Exporting version 2 from development...")
+    
+    dev_bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['dev_bucket'])
+    dev_flow = nipyapi.versioning.get_flow_in_bucket(
+        dev_bucket.identifier,
+        identifier=FLOW_NAMES['versioned_flow']
+    )
+    
+    flow_export_v2 = nipyapi.versioning.export_flow_version(
+        bucket_id=dev_bucket.identifier,
+        flow_id=dev_flow.identifier,
+        mode='yaml'
+    )
+    
+    # Import to production
+    connect_to_prod()
+    log.info("Importing version 2 to production...")
+    
+    prod_bucket = nipyapi.versioning.get_registry_bucket(FLOW_NAMES['prod_bucket'])
+    prod_flow = nipyapi.versioning.get_flow_in_bucket(
+        prod_bucket.identifier,
+        identifier=FLOW_NAMES['versioned_flow']
+    )
+    
+    nipyapi.versioning.import_flow_version(
+        bucket_id=prod_bucket.identifier,
+        encoded_flow=flow_export_v2,
+        flow_id=prod_flow.identifier
+    )
+    
+    print(f"""
+✅ FDLC cycle completed!
+
+PRODUCTION Status:
+• Registry: Version 2 available
+• NiFi: Shows red up-arrow ⬆ (new version available)
+
+The complete enterprise development lifecycle:
+
+1. DEV: Created flow → versioned (v1)
+2. → PROD: Promoted v1 → deployed to production  
+3. ← DEV: Made changes → versioned (v2)
+4. → PROD: Promoted v2 → ready for deployment update
+
+Production team can now:
+• Review version 2 changes
+• Update production deployment 
+• Validate the changes in production
+
+This demonstrates the complete iterative development cycle
+that's central to enterprise NiFi workflows!
+
+Final step: step_9_cleanup() - Clean up environments
+    """)
+
+def step_9_cleanup():
+    """
+    Step 9: Clean up demonstration environments
+    """
+    print("""
+=== STEP 9: Cleanup ===
+
+Cleaning up demonstration environments.
+    """)
+    
+    log.info("Stopping all containers...")
+    run_make_command('down')
+    
+    print("""
+✅ FDLC demonstration completed!
+
+You've seen the complete enterprise flow development lifecycle:
+
+🔄 **The FDLC Rhythm:**
+1. **Develop** flows in development environment
+2. **Version** changes using Registry  
+3. **Promote** through CI/CD pipeline
+4. **Deploy** to production environment
+5. **Iterate** - make changes and repeat
+
+🏢 **Enterprise Value:**
+• Controlled promotion between environments
+• Version history and rollback capabilities  
+• Audit trails for all changes
+• Separation of development and production
+
+📝 **Registry vs Git:**
+This demo used NiFi Registry for version control.
+Modern deployments increasingly use Git-based persistence
+providers as an alternative approach.
+
+Thank you for exploring the Flow Development Lifecycle!
+    """)
+
+# Interactive mode
+if __name__ == '__main__':
+    import sys
+    
+    print("""
+🚀 Flow Development Lifecycle (FDLC) Demo
+========================================
+
+This demonstration shows the ITERATIVE WORKFLOW of enterprise NiFi development:
+the back-and-forth promotion process between development and production.
+
+🔄 THE WORKFLOW:
+DEV: Create → Version → → PROD: Import → Deploy
+                       ↗               ↘
+DEV: Change → Version ←  ← ← ← ← ←  Update
+
+Two environments:
+• DEVELOPMENT: single-user (rapid iteration)  
+• PRODUCTION: secure-ldap (enterprise security)
+
+Steps:
+1. step_1_setup_environments()     # Quick setup of both environments
+2. step_2_create_dev_flow()        # Create flow in development  
+3. step_3_version_dev_flow()       # Put under version control (v1)
+4. step_4_promote_to_prod()        # Export dev → import prod  
+5. step_5_deploy_to_prod_nifi()    # Deploy in production NiFi
+6. step_6_make_dev_changes()       # Make changes in development
+7. step_7_version_changes()        # Commit changes (v2)
+8. step_8_promote_changes()        # Promote v2 to production
+9. step_9_cleanup()                # Clean up
+    """)
+    
+    # Check if user wants auto-run mode
+    if len(sys.argv) > 1 and sys.argv[1] == '--auto':
+        print("\n🚀 Running complete FDLC demo automatically...\n")
+        try:
+            step_1_setup_environments()
+            step_2_create_dev_flow()
+            step_3_version_dev_flow()
+            step_4_promote_to_prod()
+            step_5_deploy_to_prod_nifi()
+            step_6_make_dev_changes()
+            step_7_version_changes()
+            step_8_promote_changes()
+            step_9_cleanup()
+            print("\n🎉 Complete FDLC demo finished!")
+        except Exception as e:
+            print(f"\n❌ Demo failed: {e}")
+            print("You can run step_9_cleanup() to clean up if needed.")
+            sys.exit(1)
+    else:
+        print("""
+📖 HOW TO RUN:
+
+Option 1 - Interactive Mode (Recommended):
+    python -i examples/fdlc.py
+    >>> step_1_setup_environments()
+    >>> step_2_create_dev_flow()
+    >>> # ... continue with remaining steps
+    >>> exit()  # or Ctrl+D to exit when done
+
+Option 2 - Auto Run (Complete Demo):
+    python examples/fdlc.py --auto
+
+Option 3 - Import Mode:
+    python
+    >>> exec(open('examples/fdlc.py').read())
+    >>> step_1_setup_environments()
+    >>> exit()  # or Ctrl+D to exit when done
+
+💡 TIP: Use interactive mode to go step-by-step and see results!
+💡 TIP: Run step_9_cleanup() before exiting to stop Docker containers
+💡 TIP: Most steps require infrastructure (step 1) but can be run individually for testing
+
+To start interactively: python -i examples/fdlc.py
+        """)

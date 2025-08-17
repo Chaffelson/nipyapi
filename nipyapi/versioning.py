@@ -276,6 +276,14 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
     Returns:
         (VersionControlInformationEntity)
     """
+    # Validate parameter types
+    assert isinstance(registry_client, nipyapi.nifi.FlowRegistryClientEntity), \
+        "registry_client must be a FlowRegistryClientEntity, got: {}".format(type(registry_client))
+    assert isinstance(bucket, nipyapi.registry.Bucket), \
+        "bucket must be a Registry Bucket, got: {}".format(type(bucket))
+    assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity), \
+        "process_group must be a ProcessGroupEntity, got: {}".format(type(process_group))
+
     if refresh:
         target_pg = nipyapi.canvas.get_process_group(process_group.id, 'id')
     else:

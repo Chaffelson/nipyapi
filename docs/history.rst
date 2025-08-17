@@ -84,6 +84,15 @@ History
 - Client utils:
   - Remove ad-hoc env reads in `utils.set_endpoint`; rely on preconfigured values only.
 
+- Examples and authentication improvements:
+  - Modernized ``examples/fdlc.py`` with proper multi-environment workflow (single-user dev, secure-ldap prod)
+  - Added security bootstrapping for both NiFi and Registry environments following test patterns
+  - Enhanced authentication using proven conftest.py configurations for reliable connectivity
+  - Added interactive mode support with clear step-by-step workflow guidance and exit instructions
+  - Fixed SSL certificate handling for self-signed certificates using repo-local CA certificates
+  - Standardized password consistency: ``password1234`` for single-user, ``password`` for secure-ldap
+  - Improved error handling in ``nipyapi.versioning.save_flow_ver`` with type validation and descriptive messages
+
 - Resource pruning:
   - Deleted legacy client-gen artifacts and old docker scaffolding under `resources/` no longer used in 2.x workflow.
 
