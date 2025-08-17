@@ -363,7 +363,6 @@ def generate_examples_docs(output_dir):
     
     content += "Available Examples\n"
     content += "------------------\n\n"
-    content += "* **console.py**: Interactive console examples\n"
     content += "* **fdlc.py**: Flow Development Life Cycle examples\n" 
     content += "* **secure_connection.py**: Secure connection setup examples\n\n"
     

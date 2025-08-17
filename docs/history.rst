@@ -92,6 +92,7 @@ History
   - Fixed SSL certificate handling for self-signed certificates using repo-local CA certificates
   - Standardized password consistency: ``password1234`` for single-user, ``password`` for secure-ldap
   - Improved error handling in ``nipyapi.versioning.save_flow_ver`` with type validation and descriptive messages
+  - Removed deprecated ``examples/console.py`` (all code was commented out and superseded by modernized examples)
 
 - Resource pruning:
   - Deleted legacy client-gen artifacts and old docker scaffolding under `resources/` no longer used in 2.x workflow.
