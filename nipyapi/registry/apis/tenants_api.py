@@ -35,7 +35,9 @@ class TenantsApi(object):
     def create_user(self, body, **kwargs):
         """
         Create user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param User body: The user configuration details. (required)
         :return: User
@@ -50,7 +52,9 @@ class TenantsApi(object):
     def create_user_with_http_info(self, body, **kwargs):
         """
         Create user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param User body: The user configuration details. (required)
         :return: User
@@ -117,7 +121,9 @@ class TenantsApi(object):
     def create_user_group(self, body, **kwargs):
         """
         Create user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param UserGroup body: The user group configuration details. (required)
         :return: UserGroup
@@ -132,7 +138,9 @@ class TenantsApi(object):
     def create_user_group_with_http_info(self, body, **kwargs):
         """
         Create user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param UserGroup body: The user group configuration details. (required)
         :return: UserGroup
@@ -199,7 +207,9 @@ class TenantsApi(object):
     def get_user(self, id, **kwargs):
         """
         Get user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str id: The user id. (required)
         :return: User
@@ -214,7 +224,9 @@ class TenantsApi(object):
     def get_user_with_http_info(self, id, **kwargs):
         """
         Get user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str id: The user id. (required)
         :return: User
@@ -277,7 +289,9 @@ class TenantsApi(object):
     def get_user_group(self, id, **kwargs):
         """
         Get user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str id: The user group id. (required)
         :return: UserGroup
@@ -292,7 +306,9 @@ class TenantsApi(object):
     def get_user_group_with_http_info(self, id, **kwargs):
         """
         Get user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str id: The user group id. (required)
         :return: UserGroup
@@ -355,7 +371,9 @@ class TenantsApi(object):
     def get_user_groups(self, **kwargs):
         """
         Get user groups
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :return: list[UserGroup]
         """
@@ -369,7 +387,9 @@ class TenantsApi(object):
     def get_user_groups_with_http_info(self, **kwargs):
         """
         Get user groups
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :return: list[UserGroup]
         """
@@ -425,7 +445,9 @@ class TenantsApi(object):
     def get_users(self, **kwargs):
         """
         Get all users
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :return: list[User]
         """
@@ -439,7 +461,9 @@ class TenantsApi(object):
     def get_users_with_http_info(self, **kwargs):
         """
         Get all users
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :return: list[User]
         """
@@ -495,7 +519,9 @@ class TenantsApi(object):
     def remove_user(self, version, id, **kwargs):
         """
         Delete user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str id: The user id. (required)
@@ -512,7 +538,9 @@ class TenantsApi(object):
     def remove_user_with_http_info(self, version, id, **kwargs):
         """
         Delete user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str id: The user id. (required)
@@ -586,7 +614,9 @@ class TenantsApi(object):
     def remove_user_group(self, version, id, **kwargs):
         """
         Delete user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str id: The user group id. (required)
@@ -603,7 +633,9 @@ class TenantsApi(object):
     def remove_user_group_with_http_info(self, version, id, **kwargs):
         """
         Delete user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str id: The user group id. (required)
@@ -677,7 +709,9 @@ class TenantsApi(object):
     def update_user(self, body, id, **kwargs):
         """
         Update user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param User body: The user configuration details. (required)
         :param str id: The user id. (required)
@@ -693,7 +727,9 @@ class TenantsApi(object):
     def update_user_with_http_info(self, body, id, **kwargs):
         """
         Update user
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param User body: The user configuration details. (required)
         :param str id: The user id. (required)
@@ -767,7 +803,9 @@ class TenantsApi(object):
     def update_user_group(self, body, id, **kwargs):
         """
         Update user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param UserGroup body: The user group configuration details. (required)
         :param str id: The user group id. (required)
@@ -783,7 +821,9 @@ class TenantsApi(object):
     def update_user_group_with_http_info(self, body, id, **kwargs):
         """
         Update user group
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param UserGroup body: The user group configuration details. (required)
         :param str id: The user group id. (required)

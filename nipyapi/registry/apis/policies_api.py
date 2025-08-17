@@ -259,7 +259,9 @@ class PoliciesApi(object):
     def get_access_policy_for_resource(self, action, resource, **kwargs):
         """
         Get access policy for resource
+
         Gets an access policy for the specified action and resource
+
         This method makes a synchronous HTTP request.
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
@@ -275,7 +277,9 @@ class PoliciesApi(object):
     def get_access_policy_for_resource_with_http_info(self, action, resource, **kwargs):
         """
         Get access policy for resource
+
         Gets an access policy for the specified action and resource
+
         This method makes a synchronous HTTP request.
         :param str action: The request action. (required)
         :param str resource: The resource of the policy. (required)
@@ -345,7 +349,9 @@ class PoliciesApi(object):
     def get_resources(self, **kwargs):
         """
         Get available resources
+
         Gets the available resources that support access/authorization policies
+
         This method makes a synchronous HTTP request.
         :return: list[Resource]
         """
@@ -359,7 +365,9 @@ class PoliciesApi(object):
     def get_resources_with_http_info(self, **kwargs):
         """
         Get available resources
+
         Gets the available resources that support access/authorization policies
+
         This method makes a synchronous HTTP request.
         :return: list[Resource]
         """

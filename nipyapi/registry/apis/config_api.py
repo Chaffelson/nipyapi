@@ -35,7 +35,9 @@ class ConfigApi(object):
     def get_configuration(self, **kwargs):
         """
         Get configration
+
         Gets the NiFi Registry configurations.
+
         This method makes a synchronous HTTP request.
         :return: RegistryConfiguration
         """
@@ -49,7 +51,9 @@ class ConfigApi(object):
     def get_configuration_with_http_info(self, **kwargs):
         """
         Get configration
+
         Gets the NiFi Registry configurations.
+
         This method makes a synchronous HTTP request.
         :return: RegistryConfiguration
         """

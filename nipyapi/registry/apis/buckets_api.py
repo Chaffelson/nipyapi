@@ -120,7 +120,9 @@ class BucketsApi(object):
     def delete_bucket(self, version, bucket_id, **kwargs):
         """
         Delete bucket
+
         Deletes the bucket with the given id, along with all objects stored in the bucket
+
         This method makes a synchronous HTTP request.
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str bucket_id: The bucket identifier (required)
@@ -137,7 +139,9 @@ class BucketsApi(object):
     def delete_bucket_with_http_info(self, version, bucket_id, **kwargs):
         """
         Delete bucket
+
         Deletes the bucket with the given id, along with all objects stored in the bucket
+
         This method makes a synchronous HTTP request.
         :param LongParameter version: The version is used to verify the client is working with the latest version of the entity. (required)
         :param str bucket_id: The bucket identifier (required)
@@ -211,7 +215,9 @@ class BucketsApi(object):
     def get_available_bucket_fields(self, **kwargs):
         """
         Get bucket fields
+
         Retrieves bucket field names for searching or sorting on buckets.
+
         This method makes a synchronous HTTP request.
         :return: Fields
         """
@@ -225,7 +231,9 @@ class BucketsApi(object):
     def get_available_bucket_fields_with_http_info(self, **kwargs):
         """
         Get bucket fields
+
         Retrieves bucket field names for searching or sorting on buckets.
+
         This method makes a synchronous HTTP request.
         :return: Fields
         """
@@ -281,7 +289,9 @@ class BucketsApi(object):
     def get_bucket(self, bucket_id, **kwargs):
         """
         Get bucket
+
         Gets the bucket with the given id.
+
         This method makes a synchronous HTTP request.
         :param str bucket_id: The bucket identifier (required)
         :return: Bucket
@@ -296,7 +306,9 @@ class BucketsApi(object):
     def get_bucket_with_http_info(self, bucket_id, **kwargs):
         """
         Get bucket
+
         Gets the bucket with the given id.
+
         This method makes a synchronous HTTP request.
         :param str bucket_id: The bucket identifier (required)
         :return: Bucket
@@ -359,7 +371,9 @@ class BucketsApi(object):
     def get_buckets(self, **kwargs):
         """
         Get all buckets
+
         The returned list will include only buckets for which the user is authorized.If the user is not authorized for any buckets, this returns an empty list.
+
         This method makes a synchronous HTTP request.
         :return: list[Bucket]
         """
@@ -373,7 +387,9 @@ class BucketsApi(object):
     def get_buckets_with_http_info(self, **kwargs):
         """
         Get all buckets
+
         The returned list will include only buckets for which the user is authorized.If the user is not authorized for any buckets, this returns an empty list.
+
         This method makes a synchronous HTTP request.
         :return: list[Bucket]
         """
@@ -429,7 +445,9 @@ class BucketsApi(object):
     def update_bucket(self, body, bucket_id, **kwargs):
         """
         Update bucket
+
         Updates the bucket with the given id.
+
         This method makes a synchronous HTTP request.
         :param Bucket body: The updated bucket (required)
         :param str bucket_id: The bucket identifier (required)
@@ -445,7 +463,9 @@ class BucketsApi(object):
     def update_bucket_with_http_info(self, body, bucket_id, **kwargs):
         """
         Update bucket
+
         Updates the bucket with the given id.
+
         This method makes a synchronous HTTP request.
         :param Bucket body: The updated bucket (required)
         :param str bucket_id: The bucket identifier (required)

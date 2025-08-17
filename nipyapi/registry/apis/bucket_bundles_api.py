@@ -35,7 +35,9 @@ class BucketBundlesApi(object):
     def create_extension_bundle_version(self, bucket_id, bundle_type, **kwargs):
         """
         Create extension bundle version
+
         Creates a version of an extension bundle by uploading a binary artifact. If an extension bundle already exists in the given bucket with the same group id and artifact id as that of the bundle being uploaded, then it will be added as a new version to the existing bundle. If an extension bundle does not already exist in the given bucket with the same group id and artifact id, then a new extension bundle will be created and this version will be added to the new bundle. Client's may optionally supply a SHA-256 in hex format through the multi-part form field 'sha256'. If supplied, then this value will be compared against the SHA-256 computed by the server, and the bundle will be rejected if the values do not match. If not supplied, the bundle will be accepted, but will be marked to indicate that the client did not supply a SHA-256 during creation.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_id: The bucket identifier (required)
         :param str bundle_type: The type of the bundle (required)
@@ -53,7 +55,9 @@ class BucketBundlesApi(object):
     def create_extension_bundle_version_with_http_info(self, bucket_id, bundle_type, **kwargs):
         """
         Create extension bundle version
+
         Creates a version of an extension bundle by uploading a binary artifact. If an extension bundle already exists in the given bucket with the same group id and artifact id as that of the bundle being uploaded, then it will be added as a new version to the existing bundle. If an extension bundle does not already exist in the given bucket with the same group id and artifact id, then a new extension bundle will be created and this version will be added to the new bundle. Client's may optionally supply a SHA-256 in hex format through the multi-part form field 'sha256'. If supplied, then this value will be compared against the SHA-256 computed by the server, and the bundle will be rejected if the values do not match. If not supplied, the bundle will be accepted, but will be marked to indicate that the client did not supply a SHA-256 during creation.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_id: The bucket identifier (required)
         :param str bundle_type: The type of the bundle (required)
@@ -135,7 +139,9 @@ class BucketBundlesApi(object):
     def get_extension_bundles(self, bucket_id, **kwargs):
         """
         Get extension bundles by bucket
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_id: The bucket identifier (required)
         :return: list[Bundle]
@@ -150,7 +156,9 @@ class BucketBundlesApi(object):
     def get_extension_bundles_with_http_info(self, bucket_id, **kwargs):
         """
         Get extension bundles by bucket
+
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_id: The bucket identifier (required)
         :return: list[Bundle]

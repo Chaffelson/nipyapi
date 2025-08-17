@@ -35,7 +35,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_artifacts(self, bucket_name, group_id, **kwargs):
         """
         Get extension repo artifacts
+
         Gets the artifacts in the extension repository in the given bucket and group.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group id (required)
@@ -51,7 +53,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_artifacts_with_http_info(self, bucket_name, group_id, **kwargs):
         """
         Get extension repo artifacts
+
         Gets the artifacts in the extension repository in the given bucket and group.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group id (required)
@@ -121,7 +125,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_buckets(self, **kwargs):
         """
         Get extension repo buckets
+
         Gets the names of the buckets the current user is authorized for in order to browse the repo by bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :return: list[ExtensionRepoBucket]
         """
@@ -135,7 +141,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_buckets_with_http_info(self, **kwargs):
         """
         Get extension repo buckets
+
         Gets the names of the buckets the current user is authorized for in order to browse the repo by bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :return: list[ExtensionRepoBucket]
         """
@@ -191,7 +199,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_groups(self, bucket_name, **kwargs):
         """
         Get extension repo groups
+
         Gets the groups in the extension repository in the given bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :return: list[ExtensionRepoGroup]
@@ -206,7 +216,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_groups_with_http_info(self, bucket_name, **kwargs):
         """
         Get extension repo groups
+
         Gets the groups in the extension repository in the given bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :return: list[ExtensionRepoGroup]
@@ -269,7 +281,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo version
+
         Gets information about the version in the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -287,7 +301,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_with_http_info(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo version
+
         Gets information about the version in the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -371,7 +387,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_content(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo version content
+
         Gets the binary content of the bundle with the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -389,7 +407,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_content_with_http_info(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo version content
+
         Gets the binary content of the bundle with the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -473,7 +493,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extension(self, bucket_name, group_id, artifact_id, version, name, **kwargs):
         """
         Get extension repo extension
+
         Gets information about the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -492,7 +514,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extension_with_http_info(self, bucket_name, group_id, artifact_id, version, name, **kwargs):
         """
         Get extension repo extension
+
         Gets information about the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -583,7 +607,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extension_additional_details_docs(self, bucket_name, group_id, artifact_id, version, name, **kwargs):
         """
         Get extension repo extension details
+
         Gets the additional details documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -602,7 +628,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extension_additional_details_docs_with_http_info(self, bucket_name, group_id, artifact_id, version, name, **kwargs):
         """
         Get extension repo extension details
+
         Gets the additional details documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -689,7 +717,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extension_docs(self, bucket_name, group_id, artifact_id, version, name, **kwargs):
         """
         Get extension repo extension docs
+
         Gets the documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -708,7 +738,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extension_docs_with_http_info(self, bucket_name, group_id, artifact_id, version, name, **kwargs):
         """
         Get extension repo extension docs
+
         Gets the documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -795,7 +827,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extensions(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo extensions
+
         Gets information about the extensions in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -813,7 +847,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_extensions_with_http_info(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo extensions
+
         Gets information about the extensions in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -897,7 +933,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_sha256(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo version checksum
+
         Gets the hex representation of the SHA-256 digest for the binary content of the bundle with the given bucket, group, artifact, and version.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -915,7 +953,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_version_sha256_with_http_info(self, bucket_name, group_id, artifact_id, version, **kwargs):
         """
         Get extension repo version checksum
+
         Gets the hex representation of the SHA-256 digest for the binary content of the bundle with the given bucket, group, artifact, and version.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -995,7 +1035,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_versions(self, bucket_name, group_id, artifact_id, **kwargs):
         """
         Get extension repo versions
+
         Gets the versions in the extension repository for the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -1012,7 +1054,9 @@ class ExtensionRepositoryApi(object):
     def get_extension_repo_versions_with_http_info(self, bucket_name, group_id, artifact_id, **kwargs):
         """
         Get extension repo versions
+
         Gets the versions in the extension repository for the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str bucket_name: The bucket name (required)
         :param str group_id: The group identifier (required)
@@ -1089,7 +1133,9 @@ class ExtensionRepositoryApi(object):
     def get_global_extension_repo_version_sha256(self, group_id, artifact_id, version, **kwargs):
         """
         Get global extension repo version checksum
+
         Gets the hex representation of the SHA-256 digest for the binary content with the given bucket, group, artifact, and version. Since the same group-artifact-version can exist in multiple buckets, this will return the checksum of the first one returned. This will be consistent since the checksum must be the same when existing in multiple buckets.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str group_id: The group identifier (required)
         :param str artifact_id: The artifact identifier (required)
@@ -1106,7 +1152,9 @@ class ExtensionRepositoryApi(object):
     def get_global_extension_repo_version_sha256_with_http_info(self, group_id, artifact_id, version, **kwargs):
         """
         Get global extension repo version checksum
+
         Gets the hex representation of the SHA-256 digest for the binary content with the given bucket, group, artifact, and version. Since the same group-artifact-version can exist in multiple buckets, this will return the checksum of the first one returned. This will be consistent since the checksum must be the same when existing in multiple buckets.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
+
         This method makes a synchronous HTTP request.
         :param str group_id: The group identifier (required)
         :param str artifact_id: The artifact identifier (required)

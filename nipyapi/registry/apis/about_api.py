@@ -35,7 +35,9 @@ class AboutApi(object):
     def get_version(self, **kwargs):
         """
         Get version
+
         Gets the NiFi Registry version.
+
         This method makes a synchronous HTTP request.
         :return: RegistryAbout
         """
@@ -49,7 +51,9 @@ class AboutApi(object):
     def get_version_with_http_info(self, **kwargs):
         """
         Get version
+
         Gets the NiFi Registry version.
+
         This method makes a synchronous HTTP request.
         :return: RegistryAbout
         """

@@ -35,7 +35,9 @@ class FlowsApi(object):
     def get_available_flow_fields(self, **kwargs):
         """
         Get flow fields
+
         Retrieves the flow field names that can be used for searching or sorting on flows.
+
         This method makes a synchronous HTTP request.
         :return: Fields
         """
@@ -49,7 +51,9 @@ class FlowsApi(object):
     def get_available_flow_fields_with_http_info(self, **kwargs):
         """
         Get flow fields
+
         Retrieves the flow field names that can be used for searching or sorting on flows.
+
         This method makes a synchronous HTTP request.
         :return: Fields
         """
@@ -105,7 +109,9 @@ class FlowsApi(object):
     def get_flow1(self, flow_id, **kwargs):
         """
         Get flow
+
         Gets a flow by id.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlow
@@ -120,7 +126,9 @@ class FlowsApi(object):
     def get_flow1_with_http_info(self, flow_id, **kwargs):
         """
         Get flow
+
         Gets a flow by id.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlow
@@ -183,7 +191,9 @@ class FlowsApi(object):
     def get_flow_version1(self, flow_id, version_number, **kwargs):
         """
         Get flow version
+
         Gets the given version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
@@ -199,7 +209,9 @@ class FlowsApi(object):
     def get_flow_version1_with_http_info(self, flow_id, version_number, **kwargs):
         """
         Get flow version
+
         Gets the given version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :param int version_number: The version number (required)
@@ -269,7 +281,9 @@ class FlowsApi(object):
     def get_flow_versions1(self, flow_id, **kwargs):
         """
         Get flow versions
+
         Gets summary information for all versions of a given flow. Versions are ordered newest->oldest.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: list[VersionedFlowSnapshotMetadata]
@@ -284,7 +298,9 @@ class FlowsApi(object):
     def get_flow_versions1_with_http_info(self, flow_id, **kwargs):
         """
         Get flow versions
+
         Gets summary information for all versions of a given flow. Versions are ordered newest->oldest.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: list[VersionedFlowSnapshotMetadata]
@@ -347,7 +363,9 @@ class FlowsApi(object):
     def get_latest_flow_version1(self, flow_id, **kwargs):
         """
         Get latest flow version
+
         Gets the latest version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshot
@@ -362,7 +380,9 @@ class FlowsApi(object):
     def get_latest_flow_version1_with_http_info(self, flow_id, **kwargs):
         """
         Get latest flow version
+
         Gets the latest version of a flow, including metadata and flow content.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshot
@@ -425,7 +445,9 @@ class FlowsApi(object):
     def get_latest_flow_version_metadata1(self, flow_id, **kwargs):
         """
         Get latest flow version metadata
+
         Gets the metadata for the latest version of a flow.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshotMetadata
@@ -440,7 +462,9 @@ class FlowsApi(object):
     def get_latest_flow_version_metadata1_with_http_info(self, flow_id, **kwargs):
         """
         Get latest flow version metadata
+
         Gets the metadata for the latest version of a flow.
+
         This method makes a synchronous HTTP request.
         :param str flow_id: The flow identifier (required)
         :return: VersionedFlowSnapshotMetadata
