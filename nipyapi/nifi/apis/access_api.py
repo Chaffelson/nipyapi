@@ -34,18 +34,21 @@ class AccessApi(object):
 
     def create_access_token(self, **kwargs):
         """
-        Creates a token for accessing the REST API via username/password
+        Creates a token for accessing the REST API via username/password.
 
         The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. It is stored in the browser as a cookie, but also returned inthe response body to be stored/used by third party client scripts.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_access_token_with_http_info()`` method instead.
         
         Args:
             password (str):
             username (str):
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -56,18 +59,21 @@ class AccessApi(object):
 
     def create_access_token_with_http_info(self, **kwargs):
         """
-        Creates a token for accessing the REST API via username/password
+        Creates a token for accessing the REST API via username/password.
 
         The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. It is stored in the browser as a cookie, but also returned inthe response body to be stored/used by third party client scripts.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_access_token()`` method instead.
         
         Args:
             password (str):
             username (str):
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['password', 'username']
@@ -130,11 +136,14 @@ class AccessApi(object):
 
     def log_out(self, **kwargs):
         """
-        Performs a logout for other providers that have been issued a JWT.
+        Performs a logout for other providers that have been issued a JWT..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``log_out_with_http_info()`` method instead.
         
         Args:
                 
@@ -150,16 +159,19 @@ class AccessApi(object):
 
     def log_out_with_http_info(self, **kwargs):
         """
-        Performs a logout for other providers that have been issued a JWT.
+        Performs a logout for other providers that have been issued a JWT..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``log_out()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -208,11 +220,14 @@ class AccessApi(object):
 
     def log_out_complete(self, **kwargs):
         """
-        Completes the logout sequence by removing the cached Logout Request and Cookie if they existed and redirects to /nifi/login.
+        Completes the logout sequence by removing the cached Logout Request and Cookie if they existed and redirects to /nifi/login..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``log_out_complete_with_http_info()`` method instead.
         
         Args:
                 
@@ -228,16 +243,19 @@ class AccessApi(object):
 
     def log_out_complete_with_http_info(self, **kwargs):
         """
-        Completes the logout sequence by removing the cached Logout Request and Cookie if they existed and redirects to /nifi/login.
+        Completes the logout sequence by removing the cached Logout Request and Cookie if they existed and redirects to /nifi/login..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``log_out_complete()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

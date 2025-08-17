@@ -34,13 +34,16 @@ class AuthenticationApi(object):
 
     def get_authentication_configuration(self, **kwargs):
         """
-        Retrieves the authentication configuration endpoint and status information
-        This method makes a synchronous HTTP request.
+        Retrieves the authentication configuration endpoint and status information.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_authentication_configuration_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AuthenticationConfigurationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.AuthenticationConfigurationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,13 +54,16 @@ class AuthenticationApi(object):
 
     def get_authentication_configuration_with_http_info(self, **kwargs):
         """
-        Retrieves the authentication configuration endpoint and status information
-        This method makes a synchronous HTTP request.
+        Retrieves the authentication configuration endpoint and status information.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_authentication_configuration()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AuthenticationConfigurationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.AuthenticationConfigurationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

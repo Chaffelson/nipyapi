@@ -34,15 +34,18 @@ class FunnelsApi(object):
 
     def get_funnel(self, id, **kwargs):
         """
-        Gets a funnel
-        This method makes a synchronous HTTP request.
+        Gets a funnel.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_funnel_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The funnel id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,15 +56,18 @@ class FunnelsApi(object):
 
     def get_funnel_with_http_info(self, id, **kwargs):
         """
-        Gets a funnel
-        This method makes a synchronous HTTP request.
+        Gets a funnel.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_funnel()`` method instead.
         
         Args:
             id (str): 
                 The funnel id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FunnelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -120,8 +126,11 @@ class FunnelsApi(object):
 
     def remove_funnel(self, id, **kwargs):
         """
-        Deletes a funnel
-        This method makes a synchronous HTTP request.
+        Deletes a funnel.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_funnel_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -134,7 +143,7 @@ class FunnelsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -145,8 +154,11 @@ class FunnelsApi(object):
 
     def remove_funnel_with_http_info(self, id, **kwargs):
         """
-        Deletes a funnel
-        This method makes a synchronous HTTP request.
+        Deletes a funnel.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_funnel()`` method instead.
         
         Args:
             id (str): 
@@ -159,7 +171,7 @@ class FunnelsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FunnelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -227,8 +239,11 @@ class FunnelsApi(object):
 
     def update_funnel(self, body, id, **kwargs):
         """
-        Updates a funnel
-        This method makes a synchronous HTTP request.
+        Updates a funnel.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_funnel_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
@@ -237,7 +252,7 @@ class FunnelsApi(object):
                 The funnel id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -248,8 +263,11 @@ class FunnelsApi(object):
 
     def update_funnel_with_http_info(self, body, id, **kwargs):
         """
-        Updates a funnel
-        This method makes a synchronous HTTP request.
+        Updates a funnel.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_funnel()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
@@ -258,7 +276,7 @@ class FunnelsApi(object):
                 The funnel id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FunnelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

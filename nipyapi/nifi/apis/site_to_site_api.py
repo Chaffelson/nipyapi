@@ -34,13 +34,16 @@ class SiteToSiteApi(object):
 
     def get_peers(self, **kwargs):
         """
-        Returns the available Peers and its status of this NiFi
-        This method makes a synchronous HTTP request.
+        Returns the available Peers and its status of this NiFi.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_peers_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PeersEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PeersEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,13 +54,16 @@ class SiteToSiteApi(object):
 
     def get_peers_with_http_info(self, **kwargs):
         """
-        Returns the available Peers and its status of this NiFi
-        This method makes a synchronous HTTP request.
+        Returns the available Peers and its status of this NiFi.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_peers()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PeersEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PeersEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -110,13 +116,16 @@ class SiteToSiteApi(object):
 
     def get_site_to_site_details(self, **kwargs):
         """
-        Returns the details about this NiFi necessary to communicate via site to site
-        This method makes a synchronous HTTP request.
+        Returns the details about this NiFi necessary to communicate via site to site.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_site_to_site_details_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -127,13 +136,16 @@ class SiteToSiteApi(object):
 
     def get_site_to_site_details_with_http_info(self, **kwargs):
         """
-        Returns the details about this NiFi necessary to communicate via site to site
-        This method makes a synchronous HTTP request.
+        Returns the details about this NiFi necessary to communicate via site to site.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_site_to_site_details()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

@@ -38,12 +38,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via auto-detected method of verifying client identity claim credentials. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_access_token_by_trying_all_providers_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,12 +61,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via auto-detected method of verifying client identity claim credentials. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_access_token_by_trying_all_providers()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -120,12 +126,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via username/password. The user credentials must be passed in standard HTTP Basic Auth format. That is: 'Authorization: Basic <credentials>', where <credentials> is the base64 encoded value of '<username>:<password>'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_access_token_using_basic_auth_credentials_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -140,12 +149,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via username/password. The user credentials must be passed in standard HTTP Basic Auth format. That is: 'Authorization: Basic <credentials>', where <credentials> is the base64 encoded value of '<username>:<password>'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_access_token_using_basic_auth_credentials()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -202,12 +214,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via a custom identity provider. The user credentials must be passed in a format understood by the custom identity provider, e.g., a third-party auth token in an HTTP header. The exact format of the user credentials expected by the custom identity provider can be discovered by 'GET /access/token/identity-provider/usage'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_access_token_using_identity_provider_credentials_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -222,12 +237,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via a custom identity provider. The user credentials must be passed in a format understood by the custom identity provider, e.g., a third-party auth token in an HTTP header. The exact format of the user credentials expected by the custom identity provider can be discovered by 'GET /access/token/identity-provider/usage'. The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_access_token_using_identity_provider_credentials()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -284,12 +302,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via Kerberos Service Tickets or SPNEGO Tokens (which includes Kerberos Service Tickets). The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_access_token_using_kerberos_ticket_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -304,12 +325,15 @@ class AccessApi(object):
 
         Creates a token for accessing the REST API via Kerberos Service Tickets or SPNEGO Tokens (which includes Kerberos Service Tickets). The token returned is formatted as a JSON Web Token (JWT). The token is base64 encoded and comprised of three parts. The header, the body, and the signature. The expiration of the token is a contained within the body. The token can be used in the Authorization header in the format 'Authorization: Bearer <token>'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_access_token_using_kerberos_ticket()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -366,12 +390,15 @@ class AccessApi(object):
 
         Returns the current client's authenticated identity and permissions to top-level resources
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_access_status_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.CurrentUser`: The response object.
+            :class:`~nipyapi.registry.models.CurrentUser`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -386,12 +413,15 @@ class AccessApi(object):
 
         Returns the current client's authenticated identity and permissions to top-level resources
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_access_status()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.CurrentUser`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.CurrentUser`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -448,12 +478,15 @@ class AccessApi(object):
 
         Provides a description of how the currently configured identity provider expects credentials to be passed to POST /access/token/identity-provider
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_identity_provider_usage_instructions_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -468,12 +501,15 @@ class AccessApi(object):
 
         Provides a description of how the currently configured identity provider expects credentials to be passed to POST /access/token/identity-provider
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_identity_provider_usage_instructions()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -530,7 +566,10 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``logout_with_http_info()`` method instead.
         
         Args:
                 
@@ -550,12 +589,15 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``logout()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -608,7 +650,10 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``logout_complete_with_http_info()`` method instead.
         
         Args:
                 
@@ -628,12 +673,15 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``logout_complete()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -686,7 +734,10 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``oidc_callback_with_http_info()`` method instead.
         
         Args:
                 
@@ -706,12 +757,15 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``oidc_callback()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -768,7 +822,10 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``oidc_exchange_with_http_info()`` method instead.
         
         Args:
                 
@@ -788,12 +845,15 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``oidc_exchange()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -850,7 +910,10 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``oidc_logout_with_http_info()`` method instead.
         
         Args:
                 
@@ -870,12 +933,15 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``oidc_logout()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -932,7 +998,10 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``oidc_logout_callback_with_http_info()`` method instead.
         
         Args:
                 
@@ -952,12 +1021,15 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``oidc_logout_callback()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1014,7 +1086,10 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``oidc_request_with_http_info()`` method instead.
         
         Args:
                 
@@ -1034,12 +1109,15 @@ class AccessApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``oidc_request()`` method instead.
         
         Args:
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1096,12 +1174,15 @@ class AccessApi(object):
 
         Tests the format of the credentials against this identity provider without preforming authentication on the credentials to validate them. The user credentials should be passed in a format understood by the custom identity provider as defined by 'GET /access/token/identity-provider/usage'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``test_identity_provider_recognizes_credentials_format_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1116,12 +1197,15 @@ class AccessApi(object):
 
         Tests the format of the credentials against this identity provider without preforming authentication on the credentials to validate them. The user credentials should be passed in a format understood by the custom identity provider as defined by 'GET /access/token/identity-provider/usage'.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``test_identity_provider_recognizes_credentials_format()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

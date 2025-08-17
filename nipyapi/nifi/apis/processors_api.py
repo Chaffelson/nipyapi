@@ -34,8 +34,11 @@ class ProcessorsApi(object):
 
     def analyze_configuration2(self, body, id, **kwargs):
         """
-        Performs analysis of the component's configuration, providing information about which attributes are referenced.
-        This method makes a synchronous HTTP request.
+        Performs analysis of the component's configuration, providing information about which attributes are referenced..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``analyze_configuration2_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
@@ -44,7 +47,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -55,8 +58,11 @@ class ProcessorsApi(object):
 
     def analyze_configuration2_with_http_info(self, body, id, **kwargs):
         """
-        Performs analysis of the component's configuration, providing information about which attributes are referenced.
-        This method makes a synchronous HTTP request.
+        Performs analysis of the component's configuration, providing information about which attributes are referenced..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``analyze_configuration2()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
@@ -65,7 +71,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -134,15 +140,18 @@ class ProcessorsApi(object):
 
     def clear_state3(self, id, **kwargs):
         """
-        Clears the state for a processor
-        This method makes a synchronous HTTP request.
+        Clears the state for a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``clear_state3_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -153,15 +162,18 @@ class ProcessorsApi(object):
 
     def clear_state3_with_http_info(self, id, **kwargs):
         """
-        Clears the state for a processor
-        This method makes a synchronous HTTP request.
+        Clears the state for a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``clear_state3()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentStateEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -220,8 +232,11 @@ class ProcessorsApi(object):
 
     def delete_processor(self, id, **kwargs):
         """
-        Deletes a processor
-        This method makes a synchronous HTTP request.
+        Deletes a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_processor_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -234,7 +249,7 @@ class ProcessorsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -245,8 +260,11 @@ class ProcessorsApi(object):
 
     def delete_processor_with_http_info(self, id, **kwargs):
         """
-        Deletes a processor
-        This method makes a synchronous HTTP request.
+        Deletes a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_processor()`` method instead.
         
         Args:
             id (str): 
@@ -259,7 +277,7 @@ class ProcessorsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -327,11 +345,14 @@ class ProcessorsApi(object):
 
     def delete_verification_request2(self, id, request_id, **kwargs):
         """
-        Deletes the Verification Request with the given ID
+        Deletes the Verification Request with the given ID.
 
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_verification_request2_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -340,7 +361,7 @@ class ProcessorsApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -351,11 +372,14 @@ class ProcessorsApi(object):
 
     def delete_verification_request2_with_http_info(self, id, request_id, **kwargs):
         """
-        Deletes the Verification Request with the given ID
+        Deletes the Verification Request with the given ID.
 
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_verification_request2()`` method instead.
         
         Args:
             id (str): 
@@ -364,7 +388,7 @@ class ProcessorsApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'request_id']
@@ -429,15 +453,18 @@ class ProcessorsApi(object):
 
     def get_processor(self, id, **kwargs):
         """
-        Gets a processor
-        This method makes a synchronous HTTP request.
+        Gets a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processor_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -448,15 +475,18 @@ class ProcessorsApi(object):
 
     def get_processor_with_http_info(self, id, **kwargs):
         """
-        Gets a processor
-        This method makes a synchronous HTTP request.
+        Gets a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processor()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -515,18 +545,21 @@ class ProcessorsApi(object):
 
     def get_processor_diagnostics(self, id, **kwargs):
         """
-        Gets diagnostics information about a processor
+        Gets diagnostics information about a processor.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processor_diagnostics_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -537,18 +570,21 @@ class ProcessorsApi(object):
 
     def get_processor_diagnostics_with_http_info(self, id, **kwargs):
         """
-        Gets diagnostics information about a processor
+        Gets diagnostics information about a processor.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processor_diagnostics()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -607,15 +643,18 @@ class ProcessorsApi(object):
 
     def get_processor_run_status_details(self, **kwargs):
         """
-        Submits a query to retrieve the run status details of all processors that are in the given list of Processor IDs
-        This method makes a synchronous HTTP request.
+        Submits a query to retrieve the run status details of all processors that are in the given list of Processor IDs.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processor_run_status_details_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RunStatusDetailsRequestEntity`): 
                 The request for the processors that should be included in the results
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorsRunStatusDetailsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorsRunStatusDetailsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -626,15 +665,18 @@ class ProcessorsApi(object):
 
     def get_processor_run_status_details_with_http_info(self, **kwargs):
         """
-        Submits a query to retrieve the run status details of all processors that are in the given list of Processor IDs
-        This method makes a synchronous HTTP request.
+        Submits a query to retrieve the run status details of all processors that are in the given list of Processor IDs.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processor_run_status_details()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RunStatusDetailsRequestEntity`): 
                 The request for the processors that should be included in the results
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorsRunStatusDetailsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorsRunStatusDetailsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -694,8 +736,11 @@ class ProcessorsApi(object):
 
     def get_property_descriptor3(self, id, property_name, **kwargs):
         """
-        Gets the descriptor for a processor property
-        This method makes a synchronous HTTP request.
+        Gets the descriptor for a processor property.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_property_descriptor3_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -708,7 +753,7 @@ class ProcessorsApi(object):
                 Property Descriptor requested sensitive status
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -719,8 +764,11 @@ class ProcessorsApi(object):
 
     def get_property_descriptor3_with_http_info(self, id, property_name, **kwargs):
         """
-        Gets the descriptor for a processor property
-        This method makes a synchronous HTTP request.
+        Gets the descriptor for a processor property.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_property_descriptor3()`` method instead.
         
         Args:
             id (str): 
@@ -733,7 +781,7 @@ class ProcessorsApi(object):
                 Property Descriptor requested sensitive status
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PropertyDescriptorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'property_name', 'client_id', 'sensitive']
@@ -804,15 +852,18 @@ class ProcessorsApi(object):
 
     def get_state2(self, id, **kwargs):
         """
-        Gets the state for a processor
-        This method makes a synchronous HTTP request.
+        Gets the state for a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_state2_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -823,15 +874,18 @@ class ProcessorsApi(object):
 
     def get_state2_with_http_info(self, id, **kwargs):
         """
-        Gets the state for a processor
-        This method makes a synchronous HTTP request.
+        Gets the state for a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_state2()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentStateEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -890,11 +944,14 @@ class ProcessorsApi(object):
 
     def get_verification_request2(self, id, request_id, **kwargs):
         """
-        Returns the Verification Request with the given ID
+        Returns the Verification Request with the given ID.
 
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_verification_request2_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -903,7 +960,7 @@ class ProcessorsApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -914,11 +971,14 @@ class ProcessorsApi(object):
 
     def get_verification_request2_with_http_info(self, id, request_id, **kwargs):
         """
-        Returns the Verification Request with the given ID
+        Returns the Verification Request with the given ID.
 
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_verification_request2()`` method instead.
         
         Args:
             id (str): 
@@ -927,7 +987,7 @@ class ProcessorsApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'request_id']
@@ -992,11 +1052,14 @@ class ProcessorsApi(object):
 
     def submit_processor_verification_request(self, body, id, **kwargs):
         """
-        Performs verification of the Processor's configuration
+        Performs verification of the Processor's configuration.
 
         This will initiate the process of verifying a given Processor configuration. This may be a long-running task. As a result, this endpoint will immediately return a ProcessorConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /processors/{processorId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /processors/{processorId}/verification-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_processor_verification_request_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
@@ -1005,7 +1068,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1016,11 +1079,14 @@ class ProcessorsApi(object):
 
     def submit_processor_verification_request_with_http_info(self, body, id, **kwargs):
         """
-        Performs verification of the Processor's configuration
+        Performs verification of the Processor's configuration.
 
         This will initiate the process of verifying a given Processor configuration. This may be a long-running task. As a result, this endpoint will immediately return a ProcessorConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /processors/{processorId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /processors/{processorId}/verification-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_processor_verification_request()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
@@ -1029,7 +1095,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -1098,15 +1164,18 @@ class ProcessorsApi(object):
 
     def terminate_processor(self, id, **kwargs):
         """
-        Terminates a processor, essentially \"deleting\" its threads and any active tasks
-        This method makes a synchronous HTTP request.
+        Terminates a processor, essentially \"deleting\" its threads and any active tasks.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``terminate_processor_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1117,15 +1186,18 @@ class ProcessorsApi(object):
 
     def terminate_processor_with_http_info(self, id, **kwargs):
         """
-        Terminates a processor, essentially \"deleting\" its threads and any active tasks
-        This method makes a synchronous HTTP request.
+        Terminates a processor, essentially \"deleting\" its threads and any active tasks.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``terminate_processor()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1184,8 +1256,11 @@ class ProcessorsApi(object):
 
     def update_processor(self, body, id, **kwargs):
         """
-        Updates a processor
-        This method makes a synchronous HTTP request.
+        Updates a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_processor_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessorEntity`): 
@@ -1194,7 +1269,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1205,8 +1280,11 @@ class ProcessorsApi(object):
 
     def update_processor_with_http_info(self, body, id, **kwargs):
         """
-        Updates a processor
-        This method makes a synchronous HTTP request.
+        Updates a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_processor()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessorEntity`): 
@@ -1215,7 +1293,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -1284,8 +1362,11 @@ class ProcessorsApi(object):
 
     def update_run_status4(self, body, id, **kwargs):
         """
-        Updates run status of a processor
-        This method makes a synchronous HTTP request.
+        Updates run status of a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_run_status4_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessorRunStatusEntity`): 
@@ -1294,7 +1375,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1305,8 +1386,11 @@ class ProcessorsApi(object):
 
     def update_run_status4_with_http_info(self, body, id, **kwargs):
         """
-        Updates run status of a processor
-        This method makes a synchronous HTTP request.
+        Updates run status of a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_run_status4()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessorRunStatusEntity`): 
@@ -1315,7 +1399,7 @@ class ProcessorsApi(object):
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

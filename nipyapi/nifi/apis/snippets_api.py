@@ -34,15 +34,18 @@ class SnippetsApi(object):
 
     def create_snippet(self, body, **kwargs):
         """
-        Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
-        This method makes a synchronous HTTP request.
+        Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_snippet_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
                 The snippet configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,15 +56,18 @@ class SnippetsApi(object):
 
     def create_snippet_with_http_info(self, body, **kwargs):
         """
-        Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute.
-        This method makes a synchronous HTTP request.
+        Creates a snippet. The snippet will be automatically discarded if not used in a subsequent request after 1 minute..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_snippet()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
                 The snippet configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.SnippetEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -124,8 +130,11 @@ class SnippetsApi(object):
 
     def delete_snippet(self, id, **kwargs):
         """
-        Deletes the components in a snippet and discards the snippet
-        This method makes a synchronous HTTP request.
+        Deletes the components in a snippet and discards the snippet.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_snippet_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -134,7 +143,7 @@ class SnippetsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -145,8 +154,11 @@ class SnippetsApi(object):
 
     def delete_snippet_with_http_info(self, id, **kwargs):
         """
-        Deletes the components in a snippet and discards the snippet
-        This method makes a synchronous HTTP request.
+        Deletes the components in a snippet and discards the snippet.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_snippet()`` method instead.
         
         Args:
             id (str): 
@@ -155,7 +167,7 @@ class SnippetsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.SnippetEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged']
@@ -217,8 +229,11 @@ class SnippetsApi(object):
 
     def update_snippet(self, body, id, **kwargs):
         """
-        Move's the components in this Snippet into a new Process Group and discards the snippet
-        This method makes a synchronous HTTP request.
+        Move's the components in this Snippet into a new Process Group and discards the snippet.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_snippet_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
@@ -227,7 +242,7 @@ class SnippetsApi(object):
                 The snippet id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
+            :class:`~nipyapi.nifi.models.SnippetEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -238,8 +253,11 @@ class SnippetsApi(object):
 
     def update_snippet_with_http_info(self, body, id, **kwargs):
         """
-        Move's the components in this Snippet into a new Process Group and discards the snippet
-        This method makes a synchronous HTTP request.
+        Move's the components in this Snippet into a new Process Group and discards the snippet.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_snippet()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.SnippetEntity`): 
@@ -248,7 +266,7 @@ class SnippetsApi(object):
                 The snippet id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SnippetEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.SnippetEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

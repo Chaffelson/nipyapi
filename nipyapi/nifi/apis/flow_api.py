@@ -34,8 +34,11 @@ class FlowApi(object):
 
     def activate_controller_services(self, body, id, **kwargs):
         """
-        Enable or disable Controller Services in the specified Process Group.
-        This method makes a synchronous HTTP request.
+        Enable or disable Controller Services in the specified Process Group..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``activate_controller_services_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`): 
@@ -44,7 +47,7 @@ class FlowApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -55,8 +58,11 @@ class FlowApi(object):
 
     def activate_controller_services_with_http_info(self, body, id, **kwargs):
         """
-        Enable or disable Controller Services in the specified Process Group.
-        This method makes a synchronous HTTP request.
+        Enable or disable Controller Services in the specified Process Group..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``activate_controller_services()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`): 
@@ -65,7 +71,7 @@ class FlowApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ActivateControllerServicesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -134,15 +140,18 @@ class FlowApi(object):
 
     def download_reporting_task_snapshot(self, **kwargs):
         """
-        Download a snapshot of the given reporting tasks and any controller services they use
-        This method makes a synchronous HTTP request.
+        Download a snapshot of the given reporting tasks and any controller services they use.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``download_reporting_task_snapshot_with_http_info()`` method instead.
         
         Args:
             reporting_task_id (str): 
                 Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -153,15 +162,18 @@ class FlowApi(object):
 
     def download_reporting_task_snapshot_with_http_info(self, **kwargs):
         """
-        Download a snapshot of the given reporting tasks and any controller services they use
-        This method makes a synchronous HTTP request.
+        Download a snapshot of the given reporting tasks and any controller services they use.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``download_reporting_task_snapshot()`` method instead.
         
         Args:
             reporting_task_id (str): 
                 Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['reporting_task_id']
@@ -217,13 +229,16 @@ class FlowApi(object):
 
     def generate_client_id(self, **kwargs):
         """
-        Generates a client id.
-        This method makes a synchronous HTTP request.
+        Generates a client id..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``generate_client_id_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -234,13 +249,16 @@ class FlowApi(object):
 
     def generate_client_id_with_http_info(self, **kwargs):
         """
-        Generates a client id.
-        This method makes a synchronous HTTP request.
+        Generates a client id..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``generate_client_id()`` method instead.
         
         Args:
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -293,13 +311,16 @@ class FlowApi(object):
 
     def get_about_info(self, **kwargs):
         """
-        Retrieves details about this NiFi to put in the About dialog
-        This method makes a synchronous HTTP request.
+        Retrieves details about this NiFi to put in the About dialog.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_about_info_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AboutEntity`: The response object.
+            :class:`~nipyapi.nifi.models.AboutEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -310,13 +331,16 @@ class FlowApi(object):
 
     def get_about_info_with_http_info(self, **kwargs):
         """
-        Retrieves details about this NiFi to put in the About dialog
-        This method makes a synchronous HTTP request.
+        Retrieves details about this NiFi to put in the About dialog.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_about_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AboutEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.AboutEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -369,18 +393,21 @@ class FlowApi(object):
 
     def get_action(self, id, **kwargs):
         """
-        Gets an action
+        Gets an action.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_action_with_http_info()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.IntegerParameter`): 
                 The action id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ActionEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ActionEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -391,18 +418,21 @@ class FlowApi(object):
 
     def get_action_with_http_info(self, id, **kwargs):
         """
-        Gets an action
+        Gets an action.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_action()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.IntegerParameter`): 
                 The action id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ActionEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ActionEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -461,11 +491,14 @@ class FlowApi(object):
 
     def get_additional_details(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the additional details for the specified component type.
+        Retrieves the additional details for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_additional_details_with_http_info()`` method instead.
         
         Args:
             group (str): 
@@ -478,7 +511,7 @@ class FlowApi(object):
                 The processor type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AdditionalDetailsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.AdditionalDetailsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -489,11 +522,14 @@ class FlowApi(object):
 
     def get_additional_details_with_http_info(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the additional details for the specified component type.
+        Retrieves the additional details for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_additional_details()`` method instead.
         
         Args:
             group (str): 
@@ -506,7 +542,7 @@ class FlowApi(object):
                 The processor type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AdditionalDetailsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.AdditionalDetailsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -583,13 +619,16 @@ class FlowApi(object):
 
     def get_all_flow_analysis_results(self, **kwargs):
         """
-        Returns all flow analysis results currently in effect
-        This method makes a synchronous HTTP request.
+        Returns all flow analysis results currently in effect.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_all_flow_analysis_results_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -600,13 +639,16 @@ class FlowApi(object):
 
     def get_all_flow_analysis_results_with_http_info(self, **kwargs):
         """
-        Returns all flow analysis results currently in effect
-        This method makes a synchronous HTTP request.
+        Returns all flow analysis results currently in effect.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_all_flow_analysis_results()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -659,13 +701,16 @@ class FlowApi(object):
 
     def get_banners(self, **kwargs):
         """
-        Retrieves the banners for this NiFi
-        This method makes a synchronous HTTP request.
+        Retrieves the banners for this NiFi.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_banners_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.BannerEntity`: The response object.
+            :class:`~nipyapi.nifi.models.BannerEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -676,13 +721,16 @@ class FlowApi(object):
 
     def get_banners_with_http_info(self, **kwargs):
         """
-        Retrieves the banners for this NiFi
-        This method makes a synchronous HTTP request.
+        Retrieves the banners for this NiFi.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_banners()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.BannerEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.BannerEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -735,15 +783,18 @@ class FlowApi(object):
 
     def get_branches(self, id, **kwargs):
         """
-        Gets the branches from the specified registry for the current user
-        This method makes a synchronous HTTP request.
+        Gets the branches from the specified registry for the current user.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_branches_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The registry id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryBranchesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryBranchesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -754,15 +805,18 @@ class FlowApi(object):
 
     def get_branches_with_http_info(self, id, **kwargs):
         """
-        Gets the branches from the specified registry for the current user
-        This method makes a synchronous HTTP request.
+        Gets the branches from the specified registry for the current user.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_branches()`` method instead.
         
         Args:
             id (str): 
                 The registry id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryBranchesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryBranchesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -821,15 +875,18 @@ class FlowApi(object):
 
     def get_breadcrumbs(self, id, **kwargs):
         """
-        Gets the breadcrumbs for a process group
-        This method makes a synchronous HTTP request.
+        Gets the breadcrumbs for a process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_breadcrumbs_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowBreadcrumbEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowBreadcrumbEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -840,15 +897,18 @@ class FlowApi(object):
 
     def get_breadcrumbs_with_http_info(self, id, **kwargs):
         """
-        Gets the breadcrumbs for a process group
-        This method makes a synchronous HTTP request.
+        Gets the breadcrumbs for a process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_breadcrumbs()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowBreadcrumbEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowBreadcrumbEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -907,8 +967,11 @@ class FlowApi(object):
 
     def get_buckets(self, id, **kwargs):
         """
-        Gets the buckets from the specified registry for the current user
-        This method makes a synchronous HTTP request.
+        Gets the buckets from the specified registry for the current user.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_buckets_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -917,7 +980,7 @@ class FlowApi(object):
                 The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -928,8 +991,11 @@ class FlowApi(object):
 
     def get_buckets_with_http_info(self, id, **kwargs):
         """
-        Gets the buckets from the specified registry for the current user
-        This method makes a synchronous HTTP request.
+        Gets the buckets from the specified registry for the current user.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_buckets()`` method instead.
         
         Args:
             id (str): 
@@ -938,7 +1004,7 @@ class FlowApi(object):
                 The name of a branch to get the buckets from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'branch']
@@ -1000,8 +1066,11 @@ class FlowApi(object):
 
     def get_bulletin_board(self, **kwargs):
         """
-        Gets current bulletins
-        This method makes a synchronous HTTP request.
+        Gets current bulletins.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bulletin_board_with_http_info()`` method instead.
         
         Args:
             after (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -1018,7 +1087,7 @@ class FlowApi(object):
                 The number of bulletins to limit the response to.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.BulletinBoardEntity`: The response object.
+            :class:`~nipyapi.nifi.models.BulletinBoardEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1029,8 +1098,11 @@ class FlowApi(object):
 
     def get_bulletin_board_with_http_info(self, **kwargs):
         """
-        Gets current bulletins
-        This method makes a synchronous HTTP request.
+        Gets current bulletins.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bulletin_board()`` method instead.
         
         Args:
             after (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -1047,7 +1119,7 @@ class FlowApi(object):
                 The number of bulletins to limit the response to.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.BulletinBoardEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.BulletinBoardEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['after', 'source_name', 'message', 'source_id', 'group_id', 'limit']
@@ -1118,13 +1190,16 @@ class FlowApi(object):
 
     def get_bulletins(self, **kwargs):
         """
-        Retrieves Controller level bulletins
-        This method makes a synchronous HTTP request.
+        Retrieves Controller level bulletins.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bulletins_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerBulletinsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerBulletinsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1135,13 +1210,16 @@ class FlowApi(object):
 
     def get_bulletins_with_http_info(self, **kwargs):
         """
-        Retrieves Controller level bulletins
-        This method makes a synchronous HTTP request.
+        Retrieves Controller level bulletins.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bulletins()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerBulletinsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerBulletinsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1194,13 +1272,16 @@ class FlowApi(object):
 
     def get_cluster_summary(self, **kwargs):
         """
-        The cluster summary for this NiFi
-        This method makes a synchronous HTTP request.
+        The cluster summary for this NiFi.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_cluster_summary_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ClusterSummaryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ClusterSummaryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1211,13 +1292,16 @@ class FlowApi(object):
 
     def get_cluster_summary_with_http_info(self, **kwargs):
         """
-        The cluster summary for this NiFi
-        This method makes a synchronous HTTP request.
+        The cluster summary for this NiFi.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_cluster_summary()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ClusterSummaryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ClusterSummaryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1270,18 +1354,21 @@ class FlowApi(object):
 
     def get_component_history(self, component_id, **kwargs):
         """
-        Gets configuration history for a component
+        Gets configuration history for a component.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_component_history_with_http_info()`` method instead.
         
         Args:
             component_id (str): 
                 The component id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1292,18 +1379,21 @@ class FlowApi(object):
 
     def get_component_history_with_http_info(self, component_id, **kwargs):
         """
-        Gets configuration history for a component
+        Gets configuration history for a component.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_component_history()`` method instead.
         
         Args:
             component_id (str): 
                 The component id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentHistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['component_id']
@@ -1362,8 +1452,11 @@ class FlowApi(object):
 
     def get_connection_statistics(self, id, **kwargs):
         """
-        Gets statistics for a connection
-        This method makes a synchronous HTTP request.
+        Gets statistics for a connection.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_connection_statistics_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1374,7 +1467,7 @@ class FlowApi(object):
                 The id of the node where to get the statistics.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionStatisticsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConnectionStatisticsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1385,8 +1478,11 @@ class FlowApi(object):
 
     def get_connection_statistics_with_http_info(self, id, **kwargs):
         """
-        Gets statistics for a connection
-        This method makes a synchronous HTTP request.
+        Gets statistics for a connection.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_connection_statistics()`` method instead.
         
         Args:
             id (str): 
@@ -1397,7 +1493,7 @@ class FlowApi(object):
                 The id of the node where to get the statistics.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionStatisticsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConnectionStatisticsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -1462,8 +1558,11 @@ class FlowApi(object):
 
     def get_connection_status(self, id, **kwargs):
         """
-        Gets status for a connection
-        This method makes a synchronous HTTP request.
+        Gets status for a connection.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_connection_status_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1474,7 +1573,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionStatusEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConnectionStatusEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1485,8 +1584,11 @@ class FlowApi(object):
 
     def get_connection_status_with_http_info(self, id, **kwargs):
         """
-        Gets status for a connection
-        This method makes a synchronous HTTP request.
+        Gets status for a connection.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_connection_status()`` method instead.
         
         Args:
             id (str): 
@@ -1497,7 +1599,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionStatusEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConnectionStatusEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -1562,15 +1664,18 @@ class FlowApi(object):
 
     def get_connection_status_history(self, id, **kwargs):
         """
-        Gets the status history for a connection
-        This method makes a synchronous HTTP request.
+        Gets the status history for a connection.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_connection_status_history_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1581,15 +1686,18 @@ class FlowApi(object):
 
     def get_connection_status_history_with_http_info(self, id, **kwargs):
         """
-        Gets the status history for a connection
-        This method makes a synchronous HTTP request.
+        Gets the status history for a connection.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_connection_status_history()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StatusHistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1648,13 +1756,16 @@ class FlowApi(object):
 
     def get_content_viewers(self, **kwargs):
         """
-        Retrieves the registered content viewers
-        This method makes a synchronous HTTP request.
+        Retrieves the registered content viewers.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_content_viewers_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ContentViewerEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ContentViewerEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1665,13 +1776,16 @@ class FlowApi(object):
 
     def get_content_viewers_with_http_info(self, **kwargs):
         """
-        Retrieves the registered content viewers
-        This method makes a synchronous HTTP request.
+        Retrieves the registered content viewers.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_content_viewers()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ContentViewerEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ContentViewerEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1724,11 +1838,14 @@ class FlowApi(object):
 
     def get_controller_service_definition(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Controller Service Definition for the specified component type.
+        Retrieves the Controller Service Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_controller_service_definition_with_http_info()`` method instead.
         
         Args:
             group (str): 
@@ -1741,7 +1858,7 @@ class FlowApi(object):
                 The controller service type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1752,11 +1869,14 @@ class FlowApi(object):
 
     def get_controller_service_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Controller Service Definition for the specified component type.
+        Retrieves the Controller Service Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_controller_service_definition()`` method instead.
         
         Args:
             group (str): 
@@ -1769,7 +1889,7 @@ class FlowApi(object):
                 The controller service type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerServiceDefinition`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -1846,11 +1966,14 @@ class FlowApi(object):
 
     def get_controller_service_types(self, **kwargs):
         """
-        Retrieves the types of controller services that this NiFi supports
+        Retrieves the types of controller services that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_controller_service_types_with_http_info()`` method instead.
         
         Args:
             service_type (str): 
@@ -1869,7 +1992,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceTypesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerServiceTypesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1880,11 +2003,14 @@ class FlowApi(object):
 
     def get_controller_service_types_with_http_info(self, **kwargs):
         """
-        Retrieves the types of controller services that this NiFi supports
+        Retrieves the types of controller services that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_controller_service_types()`` method instead.
         
         Args:
             service_type (str): 
@@ -1903,7 +2029,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceTypesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerServiceTypesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['service_type', 'service_bundle_group', 'service_bundle_artifact', 'service_bundle_version', 'bundle_group_filter', 'bundle_artifact_filter', 'type_filter']
@@ -1977,11 +2103,14 @@ class FlowApi(object):
 
     def get_controller_services_from_controller(self, **kwargs):
         """
-        Gets controller services for reporting tasks
+        Gets controller services for reporting tasks.
 
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_controller_services_from_controller_with_http_info()`` method instead.
         
         Args:
             ui_only (bool):
@@ -1989,7 +2118,7 @@ class FlowApi(object):
                 Whether or not to include services' referencing components in the response
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2000,11 +2129,14 @@ class FlowApi(object):
 
     def get_controller_services_from_controller_with_http_info(self, **kwargs):
         """
-        Gets controller services for reporting tasks
+        Gets controller services for reporting tasks.
 
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_controller_services_from_controller()`` method instead.
         
         Args:
             ui_only (bool):
@@ -2012,7 +2144,7 @@ class FlowApi(object):
                 Whether or not to include services' referencing components in the response
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerServicesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['ui_only', 'include_referencing_components']
@@ -2071,11 +2203,14 @@ class FlowApi(object):
 
     def get_controller_services_from_group(self, id, **kwargs):
         """
-        Gets all controller services
+        Gets all controller services.
 
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_controller_services_from_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2089,7 +2224,7 @@ class FlowApi(object):
             ui_only (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2100,11 +2235,14 @@ class FlowApi(object):
 
     def get_controller_services_from_group_with_http_info(self, id, **kwargs):
         """
-        Gets all controller services
+        Gets all controller services.
 
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_controller_services_from_group()`` method instead.
         
         Args:
             id (str): 
@@ -2118,7 +2256,7 @@ class FlowApi(object):
             ui_only (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServicesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerServicesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'include_ancestor_groups', 'include_descendant_groups', 'include_referencing_components', 'ui_only']
@@ -2189,13 +2327,16 @@ class FlowApi(object):
 
     def get_controller_status(self, **kwargs):
         """
-        Gets the current status of this NiFi
-        This method makes a synchronous HTTP request.
+        Gets the current status of this NiFi.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_controller_status_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerStatusEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerStatusEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2206,13 +2347,16 @@ class FlowApi(object):
 
     def get_controller_status_with_http_info(self, **kwargs):
         """
-        Gets the current status of this NiFi
-        This method makes a synchronous HTTP request.
+        Gets the current status of this NiFi.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_controller_status()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerStatusEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerStatusEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -2265,13 +2409,16 @@ class FlowApi(object):
 
     def get_current_user(self, **kwargs):
         """
-        Retrieves the user identity of the user making the request
-        This method makes a synchronous HTTP request.
+        Retrieves the user identity of the user making the request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_current_user_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CurrentUserEntity`: The response object.
+            :class:`~nipyapi.nifi.models.CurrentUserEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2282,13 +2429,16 @@ class FlowApi(object):
 
     def get_current_user_with_http_info(self, **kwargs):
         """
-        Retrieves the user identity of the user making the request
-        This method makes a synchronous HTTP request.
+        Retrieves the user identity of the user making the request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_current_user()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CurrentUserEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.CurrentUserEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -2341,8 +2491,11 @@ class FlowApi(object):
 
     def get_details(self, registry_id, bucket_id, flow_id, **kwargs):
         """
-        Gets the details of a flow from the specified registry and bucket for the specified flow for the current user
-        This method makes a synchronous HTTP request.
+        Gets the details of a flow from the specified registry and bucket for the specified flow for the current user.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_details_with_http_info()`` method instead.
         
         Args:
             registry_id (str): 
@@ -2355,7 +2508,7 @@ class FlowApi(object):
                 The name of a branch to get the flow from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2366,8 +2519,11 @@ class FlowApi(object):
 
     def get_details_with_http_info(self, registry_id, bucket_id, flow_id, **kwargs):
         """
-        Gets the details of a flow from the specified registry and bucket for the specified flow for the current user
-        This method makes a synchronous HTTP request.
+        Gets the details of a flow from the specified registry and bucket for the specified flow for the current user.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_details()`` method instead.
         
         Args:
             registry_id (str): 
@@ -2380,7 +2536,7 @@ class FlowApi(object):
                 The name of a branch to get the flow from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['registry_id', 'bucket_id', 'flow_id', 'branch']
@@ -2454,11 +2610,14 @@ class FlowApi(object):
 
     def get_flow(self, id, **kwargs):
         """
-        Gets a process group
+        Gets a process group.
 
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2466,7 +2625,7 @@ class FlowApi(object):
             ui_only (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2477,11 +2636,14 @@ class FlowApi(object):
 
     def get_flow_with_http_info(self, id, **kwargs):
         """
-        Gets a process group
+        Gets a process group.
 
         If the uiOnly query parameter is provided with a value of true, the returned entity may only contain fields that are necessary for rendering the NiFi User Interface. As such, the selected fields may change at any time, even during incremental releases, without warning. As a result, this parameter should not be provided by any client other than the UI.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow()`` method instead.
         
         Args:
             id (str): 
@@ -2489,7 +2651,7 @@ class FlowApi(object):
             ui_only (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'ui_only']
@@ -2551,15 +2713,18 @@ class FlowApi(object):
 
     def get_flow_analysis_results(self, process_group_id, **kwargs):
         """
-        Returns flow analysis results produced by the analysis of a given process group
-        This method makes a synchronous HTTP request.
+        Returns flow analysis results produced by the analysis of a given process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_results_with_http_info()`` method instead.
         
         Args:
             process_group_id (str): 
                 The id of the process group representing (a part of) the flow to be analyzed. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2570,15 +2735,18 @@ class FlowApi(object):
 
     def get_flow_analysis_results_with_http_info(self, process_group_id, **kwargs):
         """
-        Returns flow analysis results produced by the analysis of a given process group
-        This method makes a synchronous HTTP request.
+        Returns flow analysis results produced by the analysis of a given process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_results()`` method instead.
         
         Args:
             process_group_id (str): 
                 The id of the process group representing (a part of) the flow to be analyzed. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisResultEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['process_group_id']
@@ -2637,11 +2805,14 @@ class FlowApi(object):
 
     def get_flow_analysis_rule_definition(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Flow Analysis Rule Definition for the specified component type.
+        Retrieves the Flow Analysis Rule Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_rule_definition_with_http_info()`` method instead.
         
         Args:
             group (str): 
@@ -2654,7 +2825,7 @@ class FlowApi(object):
                 The flow analysis rule type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleDefinition`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleDefinition`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2665,11 +2836,14 @@ class FlowApi(object):
 
     def get_flow_analysis_rule_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Flow Analysis Rule Definition for the specified component type.
+        Retrieves the Flow Analysis Rule Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_rule_definition()`` method instead.
         
         Args:
             group (str): 
@@ -2682,7 +2856,7 @@ class FlowApi(object):
                 The flow analysis rule type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleDefinition`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRuleDefinition`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -2759,11 +2933,14 @@ class FlowApi(object):
 
     def get_flow_analysis_rule_types(self, **kwargs):
         """
-        Retrieves the types of available Flow Analysis Rules
+        Retrieves the types of available Flow Analysis Rules.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_rule_types_with_http_info()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -2774,7 +2951,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleTypesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleTypesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2785,11 +2962,14 @@ class FlowApi(object):
 
     def get_flow_analysis_rule_types_with_http_info(self, **kwargs):
         """
-        Retrieves the types of available Flow Analysis Rules
+        Retrieves the types of available Flow Analysis Rules.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_rule_types()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -2800,7 +2980,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleTypesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRuleTypesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -2862,13 +3042,16 @@ class FlowApi(object):
 
     def get_flow_config(self, **kwargs):
         """
-        Retrieves the configuration for this NiFi flow
-        This method makes a synchronous HTTP request.
+        Retrieves the configuration for this NiFi flow.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_config_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowConfigurationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowConfigurationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2879,13 +3062,16 @@ class FlowApi(object):
 
     def get_flow_config_with_http_info(self, **kwargs):
         """
-        Retrieves the configuration for this NiFi flow
-        This method makes a synchronous HTTP request.
+        Retrieves the configuration for this NiFi flow.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_config()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowConfigurationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowConfigurationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -2938,8 +3124,11 @@ class FlowApi(object):
 
     def get_flow_metrics(self, producer, **kwargs):
         """
-        Gets all metrics for the flow from a particular node
-        This method makes a synchronous HTTP request.
+        Gets all metrics for the flow from a particular node.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_metrics_with_http_info()`` method instead.
         
         Args:
             producer (str): 
@@ -2954,7 +3143,7 @@ class FlowApi(object):
                 Name of the first field of JSON object. Applicable for JSON producer only.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2965,8 +3154,11 @@ class FlowApi(object):
 
     def get_flow_metrics_with_http_info(self, producer, **kwargs):
         """
-        Gets all metrics for the flow from a particular node
-        This method makes a synchronous HTTP request.
+        Gets all metrics for the flow from a particular node.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_metrics()`` method instead.
         
         Args:
             producer (str): 
@@ -2981,7 +3173,7 @@ class FlowApi(object):
                 Name of the first field of JSON object. Applicable for JSON producer only.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StreamingOutput`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['producer', 'included_registries', 'sample_name', 'sample_label_value', 'root_field_name']
@@ -3053,8 +3245,11 @@ class FlowApi(object):
 
     def get_flows(self, registry_id, bucket_id, **kwargs):
         """
-        Gets the flows from the specified registry and bucket for the current user
-        This method makes a synchronous HTTP request.
+        Gets the flows from the specified registry and bucket for the current user.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flows_with_http_info()`` method instead.
         
         Args:
             registry_id (str): 
@@ -3065,7 +3260,7 @@ class FlowApi(object):
                 The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3076,8 +3271,11 @@ class FlowApi(object):
 
     def get_flows_with_http_info(self, registry_id, bucket_id, **kwargs):
         """
-        Gets the flows from the specified registry and bucket for the current user
-        This method makes a synchronous HTTP request.
+        Gets the flows from the specified registry and bucket for the current user.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flows()`` method instead.
         
         Args:
             registry_id (str): 
@@ -3088,7 +3286,7 @@ class FlowApi(object):
                 The name of a branch to get the flows from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['registry_id', 'bucket_id', 'branch']
@@ -3156,8 +3354,11 @@ class FlowApi(object):
 
     def get_input_port_status(self, id, **kwargs):
         """
-        Gets status for an input port
-        This method makes a synchronous HTTP request.
+        Gets status for an input port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_input_port_status_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -3168,7 +3369,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3179,8 +3380,11 @@ class FlowApi(object):
 
     def get_input_port_status_with_http_info(self, id, **kwargs):
         """
-        Gets status for an input port
-        This method makes a synchronous HTTP request.
+        Gets status for an input port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_input_port_status()`` method instead.
         
         Args:
             id (str): 
@@ -3191,7 +3395,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PortStatusEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -3256,8 +3460,11 @@ class FlowApi(object):
 
     def get_output_port_status(self, id, **kwargs):
         """
-        Gets status for an output port
-        This method makes a synchronous HTTP request.
+        Gets status for an output port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_output_port_status_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -3268,7 +3475,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3279,8 +3486,11 @@ class FlowApi(object):
 
     def get_output_port_status_with_http_info(self, id, **kwargs):
         """
-        Gets status for an output port
-        This method makes a synchronous HTTP request.
+        Gets status for an output port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_output_port_status()`` method instead.
         
         Args:
             id (str): 
@@ -3291,7 +3501,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortStatusEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PortStatusEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -3356,13 +3566,16 @@ class FlowApi(object):
 
     def get_parameter_contexts(self, **kwargs):
         """
-        Gets all Parameter Contexts
-        This method makes a synchronous HTTP request.
+        Gets all Parameter Contexts.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_contexts_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3373,13 +3586,16 @@ class FlowApi(object):
 
     def get_parameter_contexts_with_http_info(self, **kwargs):
         """
-        Gets all Parameter Contexts
-        This method makes a synchronous HTTP request.
+        Gets all Parameter Contexts.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_contexts()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -3432,11 +3648,14 @@ class FlowApi(object):
 
     def get_parameter_provider_definition(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Parameter Provider Definition for the specified component type.
+        Retrieves the Parameter Provider Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_provider_definition_with_http_info()`` method instead.
         
         Args:
             group (str): 
@@ -3449,7 +3668,7 @@ class FlowApi(object):
                 The parameter provider type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderDefinition`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderDefinition`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3460,11 +3679,14 @@ class FlowApi(object):
 
     def get_parameter_provider_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Parameter Provider Definition for the specified component type.
+        Retrieves the Parameter Provider Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_provider_definition()`` method instead.
         
         Args:
             group (str): 
@@ -3477,7 +3699,7 @@ class FlowApi(object):
                 The parameter provider type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderDefinition`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderDefinition`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -3554,11 +3776,14 @@ class FlowApi(object):
 
     def get_parameter_provider_types(self, **kwargs):
         """
-        Retrieves the types of parameter providers that this NiFi supports
+        Retrieves the types of parameter providers that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_provider_types_with_http_info()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -3569,7 +3794,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderTypesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderTypesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3580,11 +3805,14 @@ class FlowApi(object):
 
     def get_parameter_provider_types_with_http_info(self, **kwargs):
         """
-        Retrieves the types of parameter providers that this NiFi supports
+        Retrieves the types of parameter providers that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_provider_types()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -3595,7 +3823,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderTypesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderTypesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -3657,13 +3885,16 @@ class FlowApi(object):
 
     def get_parameter_providers(self, **kwargs):
         """
-        Gets all parameter providers
-        This method makes a synchronous HTTP request.
+        Gets all parameter providers.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_providers_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProvidersEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProvidersEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3674,13 +3905,16 @@ class FlowApi(object):
 
     def get_parameter_providers_with_http_info(self, **kwargs):
         """
-        Gets all parameter providers
-        This method makes a synchronous HTTP request.
+        Gets all parameter providers.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_providers()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProvidersEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProvidersEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -3733,16 +3967,19 @@ class FlowApi(object):
 
     def get_prioritizers(self, **kwargs):
         """
-        Retrieves the types of prioritizers that this NiFi supports
+        Retrieves the types of prioritizers that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_prioritizers_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PrioritizerTypesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PrioritizerTypesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3753,16 +3990,19 @@ class FlowApi(object):
 
     def get_prioritizers_with_http_info(self, **kwargs):
         """
-        Retrieves the types of prioritizers that this NiFi supports
+        Retrieves the types of prioritizers that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_prioritizers()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PrioritizerTypesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PrioritizerTypesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -3815,11 +4055,14 @@ class FlowApi(object):
 
     def get_process_group_status(self, id, **kwargs):
         """
-        Gets the status for a process group
+        Gets the status for a process group.
 
         The status for a process group includes status for all descendent components. When invoked on the root group with recursive set to true, it will return the current status of every component in the flow.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_process_group_status_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -3832,7 +4075,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupStatusEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupStatusEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3843,11 +4086,14 @@ class FlowApi(object):
 
     def get_process_group_status_with_http_info(self, id, **kwargs):
         """
-        Gets the status for a process group
+        Gets the status for a process group.
 
         The status for a process group includes status for all descendent components. When invoked on the root group with recursive set to true, it will return the current status of every component in the flow.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_process_group_status()`` method instead.
         
         Args:
             id (str): 
@@ -3860,7 +4106,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupStatusEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupStatusEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'recursive', 'nodewise', 'cluster_node_id']
@@ -3928,15 +4174,18 @@ class FlowApi(object):
 
     def get_process_group_status_history(self, id, **kwargs):
         """
-        Gets status history for a remote process group
-        This method makes a synchronous HTTP request.
+        Gets status history for a remote process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_process_group_status_history_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3947,15 +4196,18 @@ class FlowApi(object):
 
     def get_process_group_status_history_with_http_info(self, id, **kwargs):
         """
-        Gets status history for a remote process group
-        This method makes a synchronous HTTP request.
+        Gets status history for a remote process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_process_group_status_history()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StatusHistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -4014,11 +4266,14 @@ class FlowApi(object):
 
     def get_processor_definition(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Processor Definition for the specified component type.
+        Retrieves the Processor Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processor_definition_with_http_info()`` method instead.
         
         Args:
             group (str): 
@@ -4031,7 +4286,7 @@ class FlowApi(object):
                 The processor type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorDefinition`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorDefinition`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4042,11 +4297,14 @@ class FlowApi(object):
 
     def get_processor_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Processor Definition for the specified component type.
+        Retrieves the Processor Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processor_definition()`` method instead.
         
         Args:
             group (str): 
@@ -4059,7 +4317,7 @@ class FlowApi(object):
                 The processor type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorDefinition`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorDefinition`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -4136,8 +4394,11 @@ class FlowApi(object):
 
     def get_processor_status(self, id, **kwargs):
         """
-        Gets status for a processor
-        This method makes a synchronous HTTP request.
+        Gets status for a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processor_status_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -4148,7 +4409,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorStatusEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorStatusEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4159,8 +4420,11 @@ class FlowApi(object):
 
     def get_processor_status_with_http_info(self, id, **kwargs):
         """
-        Gets status for a processor
-        This method makes a synchronous HTTP request.
+        Gets status for a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processor_status()`` method instead.
         
         Args:
             id (str): 
@@ -4171,7 +4435,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorStatusEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorStatusEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -4236,15 +4500,18 @@ class FlowApi(object):
 
     def get_processor_status_history(self, id, **kwargs):
         """
-        Gets status history for a processor
-        This method makes a synchronous HTTP request.
+        Gets status history for a processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processor_status_history_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4255,15 +4522,18 @@ class FlowApi(object):
 
     def get_processor_status_history_with_http_info(self, id, **kwargs):
         """
-        Gets status history for a processor
-        This method makes a synchronous HTTP request.
+        Gets status history for a processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processor_status_history()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StatusHistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -4322,11 +4592,14 @@ class FlowApi(object):
 
     def get_processor_types(self, **kwargs):
         """
-        Retrieves the types of processors that this NiFi supports
+        Retrieves the types of processors that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processor_types_with_http_info()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -4337,7 +4610,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorTypesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorTypesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4348,11 +4621,14 @@ class FlowApi(object):
 
     def get_processor_types_with_http_info(self, **kwargs):
         """
-        Retrieves the types of processors that this NiFi supports
+        Retrieves the types of processors that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processor_types()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -4363,7 +4639,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorTypesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorTypesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -4425,13 +4701,16 @@ class FlowApi(object):
 
     def get_registry_clients(self, **kwargs):
         """
-        Gets the listing of available flow registry clients
-        This method makes a synchronous HTTP request.
+        Gets the listing of available flow registry clients.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_registry_clients_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4442,13 +4721,16 @@ class FlowApi(object):
 
     def get_registry_clients_with_http_info(self, **kwargs):
         """
-        Gets the listing of available flow registry clients
-        This method makes a synchronous HTTP request.
+        Gets the listing of available flow registry clients.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_registry_clients()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -4501,8 +4783,11 @@ class FlowApi(object):
 
     def get_remote_process_group_status(self, id, **kwargs):
         """
-        Gets status for a remote process group
-        This method makes a synchronous HTTP request.
+        Gets status for a remote process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_remote_process_group_status_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -4513,7 +4798,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupStatusEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupStatusEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4524,8 +4809,11 @@ class FlowApi(object):
 
     def get_remote_process_group_status_with_http_info(self, id, **kwargs):
         """
-        Gets status for a remote process group
-        This method makes a synchronous HTTP request.
+        Gets status for a remote process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_remote_process_group_status()`` method instead.
         
         Args:
             id (str): 
@@ -4536,7 +4824,7 @@ class FlowApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupStatusEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupStatusEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'nodewise', 'cluster_node_id']
@@ -4601,15 +4889,18 @@ class FlowApi(object):
 
     def get_remote_process_group_status_history(self, id, **kwargs):
         """
-        Gets the status history
-        This method makes a synchronous HTTP request.
+        Gets the status history.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_remote_process_group_status_history_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4620,15 +4911,18 @@ class FlowApi(object):
 
     def get_remote_process_group_status_history_with_http_info(self, id, **kwargs):
         """
-        Gets the status history
-        This method makes a synchronous HTTP request.
+        Gets the status history.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_remote_process_group_status_history()`` method instead.
         
         Args:
             id (str): 
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StatusHistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StatusHistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -4687,11 +4981,14 @@ class FlowApi(object):
 
     def get_reporting_task_definition(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Reporting Task Definition for the specified component type.
+        Retrieves the Reporting Task Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_reporting_task_definition_with_http_info()`` method instead.
         
         Args:
             group (str): 
@@ -4704,7 +5001,7 @@ class FlowApi(object):
                 The reporting task type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTaskDefinition`: The response object.
+            :class:`~nipyapi.nifi.models.ReportingTaskDefinition`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4715,11 +5012,14 @@ class FlowApi(object):
 
     def get_reporting_task_definition_with_http_info(self, group, artifact, version, type, **kwargs):
         """
-        Retrieves the Reporting Task Definition for the specified component type.
+        Retrieves the Reporting Task Definition for the specified component type..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_reporting_task_definition()`` method instead.
         
         Args:
             group (str): 
@@ -4732,7 +5032,7 @@ class FlowApi(object):
                 The reporting task type (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTaskDefinition`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ReportingTaskDefinition`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group', 'artifact', 'version', 'type']
@@ -4809,15 +5109,18 @@ class FlowApi(object):
 
     def get_reporting_task_snapshot(self, **kwargs):
         """
-        Get a snapshot of the given reporting tasks and any controller services they use
-        This method makes a synchronous HTTP request.
+        Get a snapshot of the given reporting tasks and any controller services they use.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_reporting_task_snapshot_with_http_info()`` method instead.
         
         Args:
             reporting_task_id (str): 
                 Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedReportingTaskSnapshot`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedReportingTaskSnapshot`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4828,15 +5131,18 @@ class FlowApi(object):
 
     def get_reporting_task_snapshot_with_http_info(self, **kwargs):
         """
-        Get a snapshot of the given reporting tasks and any controller services they use
-        This method makes a synchronous HTTP request.
+        Get a snapshot of the given reporting tasks and any controller services they use.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_reporting_task_snapshot()`` method instead.
         
         Args:
             reporting_task_id (str): 
                 Specifies a reporting task id to export. If not specified, all reporting tasks will be exported.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedReportingTaskSnapshot`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedReportingTaskSnapshot`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['reporting_task_id']
@@ -4892,11 +5198,14 @@ class FlowApi(object):
 
     def get_reporting_task_types(self, **kwargs):
         """
-        Retrieves the types of reporting tasks that this NiFi supports
+        Retrieves the types of reporting tasks that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_reporting_task_types_with_http_info()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -4907,7 +5216,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTaskTypesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ReportingTaskTypesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -4918,11 +5227,14 @@ class FlowApi(object):
 
     def get_reporting_task_types_with_http_info(self, **kwargs):
         """
-        Retrieves the types of reporting tasks that this NiFi supports
+        Retrieves the types of reporting tasks that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_reporting_task_types()`` method instead.
         
         Args:
             bundle_group_filter (str): 
@@ -4933,7 +5245,7 @@ class FlowApi(object):
                 If specified, will only return types whose fully qualified classname matches.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTaskTypesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ReportingTaskTypesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_group_filter', 'bundle_artifact_filter', 'type']
@@ -4995,13 +5307,16 @@ class FlowApi(object):
 
     def get_reporting_tasks(self, **kwargs):
         """
-        Gets all reporting tasks
-        This method makes a synchronous HTTP request.
+        Gets all reporting tasks.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_reporting_tasks_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTasksEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ReportingTasksEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5012,13 +5327,16 @@ class FlowApi(object):
 
     def get_reporting_tasks_with_http_info(self, **kwargs):
         """
-        Gets all reporting tasks
-        This method makes a synchronous HTTP request.
+        Gets all reporting tasks.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_reporting_tasks()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTasksEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ReportingTasksEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -5071,16 +5389,19 @@ class FlowApi(object):
 
     def get_runtime_manifest(self, **kwargs):
         """
-        Retrieves the runtime manifest for this NiFi instance.
+        Retrieves the runtime manifest for this NiFi instance..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_runtime_manifest_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RuntimeManifestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RuntimeManifestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5091,16 +5412,19 @@ class FlowApi(object):
 
     def get_runtime_manifest_with_http_info(self, **kwargs):
         """
-        Retrieves the runtime manifest for this NiFi instance.
+        Retrieves the runtime manifest for this NiFi instance..
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_runtime_manifest()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RuntimeManifestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RuntimeManifestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -5153,8 +5477,11 @@ class FlowApi(object):
 
     def get_version_differences(self, registry_id, branch_id_a, bucket_id_a, flow_id_a, version_a, branch_id_b, bucket_id_b, flow_id_b, version_b, **kwargs):
         """
-        Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version
-        This method makes a synchronous HTTP request.
+        Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_version_differences_with_http_info()`` method instead.
         
         Args:
             registry_id (str): 
@@ -5181,7 +5508,7 @@ class FlowApi(object):
                 Limits the number of differences listed. This might lead to partial result. 0 means no limitation is applied.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5192,8 +5519,11 @@ class FlowApi(object):
 
     def get_version_differences_with_http_info(self, registry_id, branch_id_a, bucket_id_a, flow_id_a, version_a, branch_id_b, bucket_id_b, flow_id_b, version_b, **kwargs):
         """
-        Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version
-        This method makes a synchronous HTTP request.
+        Gets the differences between two versions of the same versioned flow, the basis of the comparison will be the first version.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_version_differences()`` method instead.
         
         Args:
             registry_id (str): 
@@ -5220,7 +5550,7 @@ class FlowApi(object):
                 Limits the number of differences listed. This might lead to partial result. 0 means no limitation is applied.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowComparisonEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['registry_id', 'branch_id_a', 'bucket_id_a', 'flow_id_a', 'version_a', 'branch_id_b', 'bucket_id_b', 'flow_id_b', 'version_b', 'offset', 'limit']
@@ -5333,8 +5663,11 @@ class FlowApi(object):
 
     def get_versions(self, registry_id, bucket_id, flow_id, **kwargs):
         """
-        Gets the flow versions from the specified registry and bucket for the specified flow for the current user
-        This method makes a synchronous HTTP request.
+        Gets the flow versions from the specified registry and bucket for the specified flow for the current user.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_versions_with_http_info()`` method instead.
         
         Args:
             registry_id (str): 
@@ -5347,7 +5680,7 @@ class FlowApi(object):
                 The name of a branch to get the flow versions from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5358,8 +5691,11 @@ class FlowApi(object):
 
     def get_versions_with_http_info(self, registry_id, bucket_id, flow_id, **kwargs):
         """
-        Gets the flow versions from the specified registry and bucket for the specified flow for the current user
-        This method makes a synchronous HTTP request.
+        Gets the flow versions from the specified registry and bucket for the specified flow for the current user.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_versions()`` method instead.
         
         Args:
             registry_id (str): 
@@ -5372,7 +5708,7 @@ class FlowApi(object):
                 The name of a branch to get the flow versions from. If not specified the default branch of the registry client will be used.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['registry_id', 'bucket_id', 'flow_id', 'branch']
@@ -5446,11 +5782,14 @@ class FlowApi(object):
 
     def query_history(self, offset, count, **kwargs):
         """
-        Gets configuration history
+        Gets configuration history.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``query_history_with_http_info()`` method instead.
         
         Args:
             offset (:class:`~nipyapi.nifi.models.IntegerParameter`): 
@@ -5471,7 +5810,7 @@ class FlowApi(object):
                 Include actions on this component.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.HistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.HistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5482,11 +5821,14 @@ class FlowApi(object):
 
     def query_history_with_http_info(self, offset, count, **kwargs):
         """
-        Gets configuration history
+        Gets configuration history.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``query_history()`` method instead.
         
         Args:
             offset (:class:`~nipyapi.nifi.models.IntegerParameter`): 
@@ -5507,7 +5849,7 @@ class FlowApi(object):
                 Include actions on this component.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.HistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.HistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['offset', 'count', 'sort_column', 'sort_order', 'start_date', 'end_date', 'user_identity', 'source_id']
@@ -5590,8 +5932,11 @@ class FlowApi(object):
 
     def schedule_components(self, body, id, **kwargs):
         """
-        Schedule or unschedule components in the specified Process Group.
-        This method makes a synchronous HTTP request.
+        Schedule or unschedule components in the specified Process Group..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``schedule_components_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ScheduleComponentsEntity`): 
@@ -5600,7 +5945,7 @@ class FlowApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ScheduleComponentsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ScheduleComponentsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5611,8 +5956,11 @@ class FlowApi(object):
 
     def schedule_components_with_http_info(self, body, id, **kwargs):
         """
-        Schedule or unschedule components in the specified Process Group.
-        This method makes a synchronous HTTP request.
+        Schedule or unschedule components in the specified Process Group..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``schedule_components()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ScheduleComponentsEntity`): 
@@ -5621,7 +5969,7 @@ class FlowApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ScheduleComponentsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ScheduleComponentsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -5690,18 +6038,21 @@ class FlowApi(object):
 
     def search_cluster(self, q, **kwargs):
         """
-        Searches the cluster for a node with the specified address
+        Searches the cluster for a node with the specified address.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``search_cluster_with_http_info()`` method instead.
         
         Args:
             q (str): 
                 Node address to search for. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ClusterSearchResultsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ClusterSearchResultsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5712,18 +6063,21 @@ class FlowApi(object):
 
     def search_cluster_with_http_info(self, q, **kwargs):
         """
-        Searches the cluster for a node with the specified address
+        Searches the cluster for a node with the specified address.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``search_cluster()`` method instead.
         
         Args:
             q (str): 
                 Node address to search for. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ClusterSearchResultsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ClusterSearchResultsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['q']
@@ -5782,18 +6136,21 @@ class FlowApi(object):
 
     def search_flow(self, **kwargs):
         """
-        Performs a search against this NiFi using the specified search term
+        Performs a search against this NiFi using the specified search term.
 
         Only search results from authorized components will be returned.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``search_flow_with_http_info()`` method instead.
         
         Args:
             q (str):
             a (str):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SearchResultsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.SearchResultsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -5804,18 +6161,21 @@ class FlowApi(object):
 
     def search_flow_with_http_info(self, **kwargs):
         """
-        Performs a search against this NiFi using the specified search term
+        Performs a search against this NiFi using the specified search term.
 
         Only search results from authorized components will be returned.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``search_flow()`` method instead.
         
         Args:
             q (str):
             a (str):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SearchResultsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.SearchResultsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['q', 'a']

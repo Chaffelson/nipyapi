@@ -34,8 +34,11 @@ class ControllerApi(object):
 
     def analyze_flow_analysis_rule_configuration(self, body, id, **kwargs):
         """
-        Performs analysis of the component's configuration, providing information about which attributes are referenced.
-        This method makes a synchronous HTTP request.
+        Performs analysis of the component's configuration, providing information about which attributes are referenced..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``analyze_flow_analysis_rule_configuration_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
@@ -44,7 +47,7 @@ class ControllerApi(object):
                 The flow analysis rules id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -55,8 +58,11 @@ class ControllerApi(object):
 
     def analyze_flow_analysis_rule_configuration_with_http_info(self, body, id, **kwargs):
         """
-        Performs analysis of the component's configuration, providing information about which attributes are referenced.
-        This method makes a synchronous HTTP request.
+        Performs analysis of the component's configuration, providing information about which attributes are referenced..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``analyze_flow_analysis_rule_configuration()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
@@ -65,7 +71,7 @@ class ControllerApi(object):
                 The flow analysis rules id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -134,15 +140,18 @@ class ControllerApi(object):
 
     def clear_state(self, id, **kwargs):
         """
-        Clears the state for a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Clears the state for a flow analysis rule.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``clear_state_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -153,15 +162,18 @@ class ControllerApi(object):
 
     def clear_state_with_http_info(self, id, **kwargs):
         """
-        Clears the state for a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Clears the state for a flow analysis rule.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``clear_state()`` method instead.
         
         Args:
             id (str): 
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentStateEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -220,15 +232,18 @@ class ControllerApi(object):
 
     def create_bulletin(self, body, **kwargs):
         """
-        Creates a new bulletin
-        This method makes a synchronous HTTP request.
+        Creates a new bulletin.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_bulletin_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.BulletinEntity`): 
                 The reporting task configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.BulletinEntity`: The response object.
+            :class:`~nipyapi.nifi.models.BulletinEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -239,15 +254,18 @@ class ControllerApi(object):
 
     def create_bulletin_with_http_info(self, body, **kwargs):
         """
-        Creates a new bulletin
-        This method makes a synchronous HTTP request.
+        Creates a new bulletin.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_bulletin()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.BulletinEntity`): 
                 The reporting task configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.BulletinEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.BulletinEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -310,15 +328,18 @@ class ControllerApi(object):
 
     def create_controller_service(self, body, **kwargs):
         """
-        Creates a new controller service
-        This method makes a synchronous HTTP request.
+        Creates a new controller service.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_controller_service_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
                 The controller service configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -329,15 +350,18 @@ class ControllerApi(object):
 
     def create_controller_service_with_http_info(self, body, **kwargs):
         """
-        Creates a new controller service
-        This method makes a synchronous HTTP request.
+        Creates a new controller service.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_controller_service()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
                 The controller service configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerServiceEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -400,15 +424,18 @@ class ControllerApi(object):
 
     def create_flow_analysis_rule(self, body, **kwargs):
         """
-        Creates a new flow analysis rule
-        This method makes a synchronous HTTP request.
+        Creates a new flow analysis rule.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_flow_analysis_rule_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`): 
                 The flow analysis rule configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -419,15 +446,18 @@ class ControllerApi(object):
 
     def create_flow_analysis_rule_with_http_info(self, body, **kwargs):
         """
-        Creates a new flow analysis rule
-        This method makes a synchronous HTTP request.
+        Creates a new flow analysis rule.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_flow_analysis_rule()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`): 
                 The flow analysis rule configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -490,15 +520,18 @@ class ControllerApi(object):
 
     def create_flow_registry_client(self, body, **kwargs):
         """
-        Creates a new flow registry client
-        This method makes a synchronous HTTP request.
+        Creates a new flow registry client.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_flow_registry_client_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`): 
                 The flow registry client configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -509,15 +542,18 @@ class ControllerApi(object):
 
     def create_flow_registry_client_with_http_info(self, body, **kwargs):
         """
-        Creates a new flow registry client
-        This method makes a synchronous HTTP request.
+        Creates a new flow registry client.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_flow_registry_client()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`): 
                 The flow registry client configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -580,15 +616,18 @@ class ControllerApi(object):
 
     def create_parameter_provider(self, body, **kwargs):
         """
-        Creates a new parameter provider
-        This method makes a synchronous HTTP request.
+        Creates a new parameter provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_parameter_provider_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderEntity`): 
                 The parameter provider configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -599,15 +638,18 @@ class ControllerApi(object):
 
     def create_parameter_provider_with_http_info(self, body, **kwargs):
         """
-        Creates a new parameter provider
-        This method makes a synchronous HTTP request.
+        Creates a new parameter provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_parameter_provider()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderEntity`): 
                 The parameter provider configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -670,15 +712,18 @@ class ControllerApi(object):
 
     def create_reporting_task(self, body, **kwargs):
         """
-        Creates a new reporting task
-        This method makes a synchronous HTTP request.
+        Creates a new reporting task.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_reporting_task_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ReportingTaskEntity`): 
                 The reporting task configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -689,15 +734,18 @@ class ControllerApi(object):
 
     def create_reporting_task_with_http_info(self, body, **kwargs):
         """
-        Creates a new reporting task
-        This method makes a synchronous HTTP request.
+        Creates a new reporting task.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_reporting_task()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ReportingTaskEntity`): 
                 The reporting task configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReportingTaskEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ReportingTaskEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -760,11 +808,14 @@ class ControllerApi(object):
 
     def delete_flow_analysis_rule_verification_request(self, id, request_id, **kwargs):
         """
-        Deletes the Verification Request with the given ID
+        Deletes the Verification Request with the given ID.
 
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_flow_analysis_rule_verification_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -773,7 +824,7 @@ class ControllerApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -784,11 +835,14 @@ class ControllerApi(object):
 
     def delete_flow_analysis_rule_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
-        Deletes the Verification Request with the given ID
+        Deletes the Verification Request with the given ID.
 
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_flow_analysis_rule_verification_request()`` method instead.
         
         Args:
             id (str): 
@@ -797,7 +851,7 @@ class ControllerApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'request_id']
@@ -862,8 +916,11 @@ class ControllerApi(object):
 
     def delete_flow_registry_client(self, id, **kwargs):
         """
-        Deletes a flow registry client
-        This method makes a synchronous HTTP request.
+        Deletes a flow registry client.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_flow_registry_client_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -876,7 +933,7 @@ class ControllerApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -887,8 +944,11 @@ class ControllerApi(object):
 
     def delete_flow_registry_client_with_http_info(self, id, **kwargs):
         """
-        Deletes a flow registry client
-        This method makes a synchronous HTTP request.
+        Deletes a flow registry client.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_flow_registry_client()`` method instead.
         
         Args:
             id (str): 
@@ -901,7 +961,7 @@ class ControllerApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -969,15 +1029,18 @@ class ControllerApi(object):
 
     def delete_history(self, end_date, **kwargs):
         """
-        Purges history
-        This method makes a synchronous HTTP request.
+        Purges history.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_history_with_http_info()`` method instead.
         
         Args:
             end_date (:class:`~nipyapi.nifi.models.DateTimeParameter`): 
                 Purge actions before this date/time. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.HistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.HistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -988,15 +1051,18 @@ class ControllerApi(object):
 
     def delete_history_with_http_info(self, end_date, **kwargs):
         """
-        Purges history
-        This method makes a synchronous HTTP request.
+        Purges history.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_history()`` method instead.
         
         Args:
             end_date (:class:`~nipyapi.nifi.models.DateTimeParameter`): 
                 Purge actions before this date/time. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.HistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.HistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['end_date']
@@ -1055,8 +1121,11 @@ class ControllerApi(object):
 
     def delete_nar(self, id, **kwargs):
         """
-        Deletes an installed NAR
-        This method makes a synchronous HTTP request.
+        Deletes an installed NAR.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_nar_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1065,7 +1134,7 @@ class ControllerApi(object):
             force (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarSummaryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NarSummaryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1076,8 +1145,11 @@ class ControllerApi(object):
 
     def delete_nar_with_http_info(self, id, **kwargs):
         """
-        Deletes an installed NAR
-        This method makes a synchronous HTTP request.
+        Deletes an installed NAR.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_nar()`` method instead.
         
         Args:
             id (str): 
@@ -1086,7 +1158,7 @@ class ControllerApi(object):
             force (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarSummaryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NarSummaryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged', 'force']
@@ -1151,15 +1223,18 @@ class ControllerApi(object):
 
     def delete_node(self, id, **kwargs):
         """
-        Removes a node from the cluster
-        This method makes a synchronous HTTP request.
+        Removes a node from the cluster.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_node_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The node id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NodeEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NodeEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1170,15 +1245,18 @@ class ControllerApi(object):
 
     def delete_node_with_http_info(self, id, **kwargs):
         """
-        Removes a node from the cluster
-        This method makes a synchronous HTTP request.
+        Removes a node from the cluster.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_node()`` method instead.
         
         Args:
             id (str): 
                 The node id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NodeEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NodeEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1237,15 +1315,18 @@ class ControllerApi(object):
 
     def download_nar(self, id, **kwargs):
         """
-        Retrieves the content of the NAR with the given id
-        This method makes a synchronous HTTP request.
+        Retrieves the content of the NAR with the given id.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``download_nar_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The id of the NAR. (required)
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1256,15 +1337,18 @@ class ControllerApi(object):
 
     def download_nar_with_http_info(self, id, **kwargs):
         """
-        Retrieves the content of the NAR with the given id
-        This method makes a synchronous HTTP request.
+        Retrieves the content of the NAR with the given id.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``download_nar()`` method instead.
         
         Args:
             id (str): 
                 The id of the NAR. (required)
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1323,16 +1407,19 @@ class ControllerApi(object):
 
     def get_cluster(self, **kwargs):
         """
-        Gets the contents of the cluster
+        Gets the contents of the cluster.
 
         Returns the contents of the cluster including all nodes and their status.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_cluster_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ClusterEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ClusterEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1343,16 +1430,19 @@ class ControllerApi(object):
 
     def get_cluster_with_http_info(self, **kwargs):
         """
-        Gets the contents of the cluster
+        Gets the contents of the cluster.
 
         Returns the contents of the cluster including all nodes and their status.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_cluster()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ClusterEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ClusterEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1405,13 +1495,16 @@ class ControllerApi(object):
 
     def get_controller_config(self, **kwargs):
         """
-        Retrieves the configuration for this NiFi Controller
-        This method makes a synchronous HTTP request.
+        Retrieves the configuration for this NiFi Controller.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_controller_config_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerConfigurationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerConfigurationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1422,13 +1515,16 @@ class ControllerApi(object):
 
     def get_controller_config_with_http_info(self, **kwargs):
         """
-        Retrieves the configuration for this NiFi Controller
-        This method makes a synchronous HTTP request.
+        Retrieves the configuration for this NiFi Controller.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_controller_config()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerConfigurationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerConfigurationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1481,15 +1577,18 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule(self, id, **kwargs):
         """
-        Gets a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Gets a flow analysis rule.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_rule_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1500,15 +1599,18 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule_with_http_info(self, id, **kwargs):
         """
-        Gets a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Gets a flow analysis rule.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_rule()`` method instead.
         
         Args:
             id (str): 
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1567,8 +1669,11 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule_property_descriptor(self, id, property_name, **kwargs):
         """
-        Gets a flow analysis rule property descriptor
-        This method makes a synchronous HTTP request.
+        Gets a flow analysis rule property descriptor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_rule_property_descriptor_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1579,7 +1684,7 @@ class ControllerApi(object):
                 Property Descriptor requested sensitive status
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1590,8 +1695,11 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
-        Gets a flow analysis rule property descriptor
-        This method makes a synchronous HTTP request.
+        Gets a flow analysis rule property descriptor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_rule_property_descriptor()`` method instead.
         
         Args:
             id (str): 
@@ -1602,7 +1710,7 @@ class ControllerApi(object):
                 Property Descriptor requested sensitive status
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PropertyDescriptorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'property_name', 'sensitive']
@@ -1670,15 +1778,18 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule_state(self, id, **kwargs):
         """
-        Gets the state for a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Gets the state for a flow analysis rule.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_rule_state_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1689,15 +1800,18 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule_state_with_http_info(self, id, **kwargs):
         """
-        Gets the state for a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Gets the state for a flow analysis rule.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_rule_state()`` method instead.
         
         Args:
             id (str): 
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentStateEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1756,11 +1870,14 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule_verification_request(self, id, request_id, **kwargs):
         """
-        Returns the Verification Request with the given ID
+        Returns the Verification Request with the given ID.
 
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_rule_verification_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1769,7 +1886,7 @@ class ControllerApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1780,11 +1897,14 @@ class ControllerApi(object):
 
     def get_flow_analysis_rule_verification_request_with_http_info(self, id, request_id, **kwargs):
         """
-        Returns the Verification Request with the given ID
+        Returns the Verification Request with the given ID.
 
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_rule_verification_request()`` method instead.
         
         Args:
             id (str): 
@@ -1793,7 +1913,7 @@ class ControllerApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'request_id']
@@ -1858,13 +1978,16 @@ class ControllerApi(object):
 
     def get_flow_analysis_rules(self, **kwargs):
         """
-        Gets all flow analysis rules
-        This method makes a synchronous HTTP request.
+        Gets all flow analysis rules.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_analysis_rules_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRulesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRulesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1875,13 +1998,16 @@ class ControllerApi(object):
 
     def get_flow_analysis_rules_with_http_info(self, **kwargs):
         """
-        Gets all flow analysis rules
-        This method makes a synchronous HTTP request.
+        Gets all flow analysis rules.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_analysis_rules()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRulesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRulesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -1934,15 +2060,18 @@ class ControllerApi(object):
 
     def get_flow_registry_client(self, id, **kwargs):
         """
-        Gets a flow registry client
-        This method makes a synchronous HTTP request.
+        Gets a flow registry client.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_registry_client_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The flow registry client id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1953,15 +2082,18 @@ class ControllerApi(object):
 
     def get_flow_registry_client_with_http_info(self, id, **kwargs):
         """
-        Gets a flow registry client
-        This method makes a synchronous HTTP request.
+        Gets a flow registry client.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_registry_client()`` method instead.
         
         Args:
             id (str): 
                 The flow registry client id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2020,13 +2152,16 @@ class ControllerApi(object):
 
     def get_flow_registry_clients(self, **kwargs):
         """
-        Gets the listing of available flow registry clients
-        This method makes a synchronous HTTP request.
+        Gets the listing of available flow registry clients.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_registry_clients_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2037,13 +2172,16 @@ class ControllerApi(object):
 
     def get_flow_registry_clients_with_http_info(self, **kwargs):
         """
-        Gets the listing of available flow registry clients
-        This method makes a synchronous HTTP request.
+        Gets the listing of available flow registry clients.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_registry_clients()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryClientsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -2096,15 +2234,18 @@ class ControllerApi(object):
 
     def get_nar_details(self, id, **kwargs):
         """
-        Retrieves the component types available from the installed NARs
-        This method makes a synchronous HTTP request.
+        Retrieves the component types available from the installed NARs.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_nar_details_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The id of the NAR. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarDetailsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NarDetailsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2115,15 +2256,18 @@ class ControllerApi(object):
 
     def get_nar_details_with_http_info(self, id, **kwargs):
         """
-        Retrieves the component types available from the installed NARs
-        This method makes a synchronous HTTP request.
+        Retrieves the component types available from the installed NARs.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_nar_details()`` method instead.
         
         Args:
             id (str): 
                 The id of the NAR. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarDetailsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NarDetailsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2182,13 +2326,16 @@ class ControllerApi(object):
 
     def get_nar_summaries(self, **kwargs):
         """
-        Retrieves summary information for installed NARs
-        This method makes a synchronous HTTP request.
+        Retrieves summary information for installed NARs.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_nar_summaries_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarSummariesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NarSummariesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2199,13 +2346,16 @@ class ControllerApi(object):
 
     def get_nar_summaries_with_http_info(self, **kwargs):
         """
-        Retrieves summary information for installed NARs
-        This method makes a synchronous HTTP request.
+        Retrieves summary information for installed NARs.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_nar_summaries()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarSummariesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NarSummariesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -2258,15 +2408,18 @@ class ControllerApi(object):
 
     def get_nar_summary(self, id, **kwargs):
         """
-        Retrieves the summary information for the NAR with the given identifier
-        This method makes a synchronous HTTP request.
+        Retrieves the summary information for the NAR with the given identifier.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_nar_summary_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The id of the NAR. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarDetailsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NarDetailsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2277,15 +2430,18 @@ class ControllerApi(object):
 
     def get_nar_summary_with_http_info(self, id, **kwargs):
         """
-        Retrieves the summary information for the NAR with the given identifier
-        This method makes a synchronous HTTP request.
+        Retrieves the summary information for the NAR with the given identifier.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_nar_summary()`` method instead.
         
         Args:
             id (str): 
                 The id of the NAR. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarDetailsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NarDetailsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2344,15 +2500,18 @@ class ControllerApi(object):
 
     def get_node(self, id, **kwargs):
         """
-        Gets a node in the cluster
-        This method makes a synchronous HTTP request.
+        Gets a node in the cluster.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_node_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The node id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NodeEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NodeEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2363,15 +2522,18 @@ class ControllerApi(object):
 
     def get_node_with_http_info(self, id, **kwargs):
         """
-        Gets a node in the cluster
-        This method makes a synchronous HTTP request.
+        Gets a node in the cluster.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_node()`` method instead.
         
         Args:
             id (str): 
                 The node id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NodeEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NodeEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2430,16 +2592,19 @@ class ControllerApi(object):
 
     def get_node_status_history(self, **kwargs):
         """
-        Gets status history for the node
+        Gets status history for the node.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_node_status_history_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2450,16 +2615,19 @@ class ControllerApi(object):
 
     def get_node_status_history_with_http_info(self, **kwargs):
         """
-        Gets status history for the node
+        Gets status history for the node.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_node_status_history()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentHistoryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentHistoryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -2512,8 +2680,11 @@ class ControllerApi(object):
 
     def get_property_descriptor(self, id, property_name, **kwargs):
         """
-        Gets a flow registry client property descriptor
-        This method makes a synchronous HTTP request.
+        Gets a flow registry client property descriptor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_property_descriptor_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2524,7 +2695,7 @@ class ControllerApi(object):
                 Property Descriptor requested sensitive status
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2535,8 +2706,11 @@ class ControllerApi(object):
 
     def get_property_descriptor_with_http_info(self, id, property_name, **kwargs):
         """
-        Gets a flow registry client property descriptor
-        This method makes a synchronous HTTP request.
+        Gets a flow registry client property descriptor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_property_descriptor()`` method instead.
         
         Args:
             id (str): 
@@ -2547,7 +2721,7 @@ class ControllerApi(object):
                 Property Descriptor requested sensitive status
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PropertyDescriptorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'property_name', 'sensitive']
@@ -2615,16 +2789,19 @@ class ControllerApi(object):
 
     def get_registry_client_types(self, **kwargs):
         """
-        Retrieves the types of flow  that this NiFi supports
+        Retrieves the types of flow  that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_registry_client_types_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientTypesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryClientTypesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2635,16 +2812,19 @@ class ControllerApi(object):
 
     def get_registry_client_types_with_http_info(self, **kwargs):
         """
-        Retrieves the types of flow  that this NiFi supports
+        Retrieves the types of flow  that this NiFi supports.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_registry_client_types()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientTypesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryClientTypesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -2697,15 +2877,18 @@ class ControllerApi(object):
 
     def import_reporting_task_snapshot(self, body, **kwargs):
         """
-        Imports a reporting task snapshot
-        This method makes a synchronous HTTP request.
+        Imports a reporting task snapshot.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``import_reporting_task_snapshot_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionedReportingTaskImportRequestEntity`): 
                 The import request containing the reporting task snapshot to import. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedReportingTaskImportResponseEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedReportingTaskImportResponseEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2716,15 +2899,18 @@ class ControllerApi(object):
 
     def import_reporting_task_snapshot_with_http_info(self, body, **kwargs):
         """
-        Imports a reporting task snapshot
-        This method makes a synchronous HTTP request.
+        Imports a reporting task snapshot.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``import_reporting_task_snapshot()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionedReportingTaskImportRequestEntity`): 
                 The import request containing the reporting task snapshot to import. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedReportingTaskImportResponseEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedReportingTaskImportResponseEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -2787,8 +2973,11 @@ class ControllerApi(object):
 
     def remove_flow_analysis_rule(self, id, **kwargs):
         """
-        Deletes a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Deletes a flow analysis rule.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_flow_analysis_rule_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2801,7 +2990,7 @@ class ControllerApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2812,8 +3001,11 @@ class ControllerApi(object):
 
     def remove_flow_analysis_rule_with_http_info(self, id, **kwargs):
         """
-        Deletes a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Deletes a flow analysis rule.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_flow_analysis_rule()`` method instead.
         
         Args:
             id (str): 
@@ -2826,7 +3018,7 @@ class ControllerApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -2894,11 +3086,14 @@ class ControllerApi(object):
 
     def submit_flow_analysis_rule_config_verification_request(self, body, id, **kwargs):
         """
-        Performs verification of the Flow Analysis Rule's configuration
+        Performs verification of the Flow Analysis Rule's configuration.
 
         This will initiate the process of verifying a given Flow Analysis Rule configuration. This may be a long-running task. As a result, this endpoint will immediately return a FlowAnalysisRuleConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /flow-analysis-rules/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /flow-analysis-rules/{serviceId}/verification-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_flow_analysis_rule_config_verification_request_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
@@ -2907,7 +3102,7 @@ class ControllerApi(object):
                 The flow analysis rules id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2918,11 +3113,14 @@ class ControllerApi(object):
 
     def submit_flow_analysis_rule_config_verification_request_with_http_info(self, body, id, **kwargs):
         """
-        Performs verification of the Flow Analysis Rule's configuration
+        Performs verification of the Flow Analysis Rule's configuration.
 
         This will initiate the process of verifying a given Flow Analysis Rule configuration. This may be a long-running task. As a result, this endpoint will immediately return a FlowAnalysisRuleConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /flow-analysis-rules/{taskId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /flow-analysis-rules/{serviceId}/verification-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_flow_analysis_rule_config_verification_request()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
@@ -2931,7 +3129,7 @@ class ControllerApi(object):
                 The flow analysis rules id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -3000,15 +3198,18 @@ class ControllerApi(object):
 
     def update_controller_config(self, body, **kwargs):
         """
-        Retrieves the configuration for this NiFi
-        This method makes a synchronous HTTP request.
+        Retrieves the configuration for this NiFi.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_controller_config_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ControllerConfigurationEntity`): 
                 The controller configuration. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerConfigurationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerConfigurationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3019,15 +3220,18 @@ class ControllerApi(object):
 
     def update_controller_config_with_http_info(self, body, **kwargs):
         """
-        Retrieves the configuration for this NiFi
-        This method makes a synchronous HTTP request.
+        Retrieves the configuration for this NiFi.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_controller_config()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ControllerConfigurationEntity`): 
                 The controller configuration. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerConfigurationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerConfigurationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -3090,8 +3294,11 @@ class ControllerApi(object):
 
     def update_flow_analysis_rule(self, body, id, **kwargs):
         """
-        Updates a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Updates a flow analysis rule.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_flow_analysis_rule_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`): 
@@ -3100,7 +3307,7 @@ class ControllerApi(object):
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3111,8 +3318,11 @@ class ControllerApi(object):
 
     def update_flow_analysis_rule_with_http_info(self, body, id, **kwargs):
         """
-        Updates a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Updates a flow analysis rule.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_flow_analysis_rule()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`): 
@@ -3121,7 +3331,7 @@ class ControllerApi(object):
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -3190,8 +3400,11 @@ class ControllerApi(object):
 
     def update_flow_registry_client(self, body, id, **kwargs):
         """
-        Updates a flow registry client
-        This method makes a synchronous HTTP request.
+        Updates a flow registry client.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_flow_registry_client_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`): 
@@ -3200,7 +3413,7 @@ class ControllerApi(object):
                 The flow registry client id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3211,8 +3424,11 @@ class ControllerApi(object):
 
     def update_flow_registry_client_with_http_info(self, body, id, **kwargs):
         """
-        Updates a flow registry client
-        This method makes a synchronous HTTP request.
+        Updates a flow registry client.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_flow_registry_client()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`): 
@@ -3221,7 +3437,7 @@ class ControllerApi(object):
                 The flow registry client id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -3290,8 +3506,11 @@ class ControllerApi(object):
 
     def update_node(self, body, id, **kwargs):
         """
-        Updates a node in the cluster
-        This method makes a synchronous HTTP request.
+        Updates a node in the cluster.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_node_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.NodeEntity`): 
@@ -3300,7 +3519,7 @@ class ControllerApi(object):
                 The node id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NodeEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NodeEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3311,8 +3530,11 @@ class ControllerApi(object):
 
     def update_node_with_http_info(self, body, id, **kwargs):
         """
-        Updates a node in the cluster
-        This method makes a synchronous HTTP request.
+        Updates a node in the cluster.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_node()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.NodeEntity`): 
@@ -3321,7 +3543,7 @@ class ControllerApi(object):
                 The node id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NodeEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NodeEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -3390,8 +3612,11 @@ class ControllerApi(object):
 
     def update_run_status(self, body, id, **kwargs):
         """
-        Updates run status of a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Updates run status of a flow analysis rule.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_run_status_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowAnalysisRuleRunStatusEntity`): 
@@ -3400,7 +3625,7 @@ class ControllerApi(object):
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3411,8 +3636,11 @@ class ControllerApi(object):
 
     def update_run_status_with_http_info(self, body, id, **kwargs):
         """
-        Updates run status of a flow analysis rule
-        This method makes a synchronous HTTP request.
+        Updates run status of a flow analysis rule.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_run_status()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FlowAnalysisRuleRunStatusEntity`): 
@@ -3421,7 +3649,7 @@ class ControllerApi(object):
                 The flow analysis rule id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowAnalysisRuleEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -3490,8 +3718,11 @@ class ControllerApi(object):
 
     def upload_nar(self, body, **kwargs):
         """
-        Uploads a NAR and requests for it to be installed
-        This method makes a synchronous HTTP request.
+        Uploads a NAR and requests for it to be installed.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``upload_nar_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.object`): 
@@ -3499,7 +3730,7 @@ class ControllerApi(object):
             filename (str):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarSummaryEntity`: The response object.
+            :class:`~nipyapi.nifi.models.NarSummaryEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3510,8 +3741,11 @@ class ControllerApi(object):
 
     def upload_nar_with_http_info(self, body, **kwargs):
         """
-        Uploads a NAR and requests for it to be installed
-        This method makes a synchronous HTTP request.
+        Uploads a NAR and requests for it to be installed.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``upload_nar()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.object`): 
@@ -3519,7 +3753,7 @@ class ControllerApi(object):
             filename (str):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.NarSummaryEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.NarSummaryEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'filename']

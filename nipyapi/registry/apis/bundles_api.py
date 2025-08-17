@@ -38,14 +38,17 @@ class BundlesApi(object):
 
         Deletes the given extension bundle and all of it's versions.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_bundle_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
                 The extension bundle identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bundle`: The response object.
+            :class:`~nipyapi.registry.models.Bundle`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -60,14 +63,17 @@ class BundlesApi(object):
 
         Deletes the given extension bundle and all of it's versions.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_bundle()`` method instead.
         
         Args:
             bundle_id (str): 
                 The extension bundle identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bundle`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Bundle`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id']
@@ -130,7 +136,10 @@ class BundlesApi(object):
 
         Deletes the given extension bundle version and it's associated binary content.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_bundle_version_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -139,7 +148,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.BundleVersion`: The response object.
+            :class:`~nipyapi.registry.models.BundleVersion`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -154,7 +163,10 @@ class BundlesApi(object):
 
         Deletes the given extension bundle version and it's associated binary content.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_bundle_version()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -163,7 +175,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.BundleVersion`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.BundleVersion`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id', 'version']
@@ -232,14 +244,17 @@ class BundlesApi(object):
 
         Gets the metadata about an extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
                 The extension bundle identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bundle`: The response object.
+            :class:`~nipyapi.registry.models.Bundle`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -254,14 +269,17 @@ class BundlesApi(object):
 
         Gets the metadata about an extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle()`` method instead.
         
         Args:
             bundle_id (str): 
                 The extension bundle identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bundle`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Bundle`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id']
@@ -324,7 +342,10 @@ class BundlesApi(object):
 
         Gets the descriptor for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_version_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -333,7 +354,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.BundleVersion`: The response object.
+            :class:`~nipyapi.registry.models.BundleVersion`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -348,7 +369,10 @@ class BundlesApi(object):
 
         Gets the descriptor for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_version()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -357,7 +381,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.BundleVersion`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.BundleVersion`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id', 'version']
@@ -426,7 +450,10 @@ class BundlesApi(object):
 
         Gets the binary content for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_version_content_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -435,7 +462,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -450,7 +477,10 @@ class BundlesApi(object):
 
         Gets the binary content for the given version of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_version_content()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -459,7 +489,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id', 'version']
@@ -528,7 +558,10 @@ class BundlesApi(object):
 
         Gets the metadata about the extension with the given name in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_version_extension_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -539,7 +572,7 @@ class BundlesApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Extension]`: The response object.
+            :class:`~nipyapi.registry.models.list[Extension]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -554,7 +587,10 @@ class BundlesApi(object):
 
         Gets the metadata about the extension with the given name in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_version_extension()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -565,7 +601,7 @@ class BundlesApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Extension]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[Extension]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id', 'version', 'name']
@@ -640,7 +676,10 @@ class BundlesApi(object):
 
         Gets the additional details documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_version_extension_additional_details_docs_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -666,7 +705,10 @@ class BundlesApi(object):
 
         Gets the additional details documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_version_extension_additional_details_docs()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -677,7 +719,7 @@ class BundlesApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id', 'version', 'name']
@@ -748,7 +790,10 @@ class BundlesApi(object):
 
         Gets the documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_version_extension_docs_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -774,7 +819,10 @@ class BundlesApi(object):
 
         Gets the documentation for the given extension in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_version_extension_docs()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -785,7 +833,7 @@ class BundlesApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id', 'version', 'name']
@@ -856,7 +904,10 @@ class BundlesApi(object):
 
         Gets the metadata about the extensions in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_version_extensions_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -865,7 +916,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionMetadata]`: The response object.
+            :class:`~nipyapi.registry.models.list[ExtensionMetadata]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -880,7 +931,10 @@ class BundlesApi(object):
 
         Gets the metadata about the extensions in the given extension bundle version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_version_extensions()`` method instead.
         
         Args:
             bundle_id (str): 
@@ -889,7 +943,7 @@ class BundlesApi(object):
                 The version of the bundle (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionMetadata]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[ExtensionMetadata]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id', 'version']
@@ -958,14 +1012,17 @@ class BundlesApi(object):
 
         Gets the metadata for the versions of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_versions_with_http_info()`` method instead.
         
         Args:
             bundle_id (str): 
                 The extension bundle identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BundleVersionMetadata]`: The response object.
+            :class:`~nipyapi.registry.models.list[BundleVersionMetadata]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -980,14 +1037,17 @@ class BundlesApi(object):
 
         Gets the metadata for the versions of the given extension bundle.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_versions()`` method instead.
         
         Args:
             bundle_id (str): 
                 The extension bundle identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BundleVersionMetadata]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[BundleVersionMetadata]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_id']
@@ -1050,7 +1110,10 @@ class BundlesApi(object):
 
         Gets the metadata about extension bundle versions across all authorized buckets with optional filters applied. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundle_versions1_with_http_info()`` method instead.
         
         Args:
             group_id (str): 
@@ -1061,7 +1124,7 @@ class BundlesApi(object):
                 Optional version to filter results. The value maye be an exact match, or a wildcard, such as '1.0.%' to select all bundle versions where the version starts with '1.0.'.
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BundleVersionMetadata]`: The response object.
+            :class:`~nipyapi.registry.models.list[BundleVersionMetadata]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1076,7 +1139,10 @@ class BundlesApi(object):
 
         Gets the metadata about extension bundle versions across all authorized buckets with optional filters applied. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundle_versions1()`` method instead.
         
         Args:
             group_id (str): 
@@ -1087,7 +1153,7 @@ class BundlesApi(object):
                 Optional version to filter results. The value maye be an exact match, or a wildcard, such as '1.0.%' to select all bundle versions where the version starts with '1.0.'.
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BundleVersionMetadata]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[BundleVersionMetadata]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group_id', 'artifact_id', 'version']
@@ -1153,7 +1219,10 @@ class BundlesApi(object):
 
         Gets the metadata for all bundles across all authorized buckets with optional filters applied. The returned results will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bundles_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -1164,7 +1233,7 @@ class BundlesApi(object):
                 Optional artifactId to filter results. The value may be an exact match, or a wildcard, such as 'nifi-%' to select all bundles where the artifactId starts with 'nifi-'.
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Bundle]`: The response object.
+            :class:`~nipyapi.registry.models.list[Bundle]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1179,7 +1248,10 @@ class BundlesApi(object):
 
         Gets the metadata for all bundles across all authorized buckets with optional filters applied. The returned results will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bundles()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -1190,7 +1262,7 @@ class BundlesApi(object):
                 Optional artifactId to filter results. The value may be an exact match, or a wildcard, such as 'nifi-%' to select all bundles where the artifactId starts with 'nifi-'.
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Bundle]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[Bundle]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id']

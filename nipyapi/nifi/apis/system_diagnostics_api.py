@@ -34,18 +34,21 @@ class SystemDiagnosticsApi(object):
 
     def get_jmx_metrics(self, **kwargs):
         """
-        Retrieve available JMX metrics
+        Retrieve available JMX metrics.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_jmx_metrics_with_http_info()`` method instead.
         
         Args:
             bean_name_filter (str): 
                 Regular Expression Pattern to be applied against the ObjectName
                 
         Returns:
-            :class:`~nipyapi.nifi.models.JmxMetricsResultsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.JmxMetricsResultsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -56,18 +59,21 @@ class SystemDiagnosticsApi(object):
 
     def get_jmx_metrics_with_http_info(self, **kwargs):
         """
-        Retrieve available JMX metrics
+        Retrieve available JMX metrics.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_jmx_metrics()`` method instead.
         
         Args:
             bean_name_filter (str): 
                 Regular Expression Pattern to be applied against the ObjectName
                 
         Returns:
-            :class:`~nipyapi.nifi.models.JmxMetricsResultsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.JmxMetricsResultsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bean_name_filter']
@@ -123,8 +129,11 @@ class SystemDiagnosticsApi(object):
 
     def get_system_diagnostics(self, **kwargs):
         """
-        Gets the diagnostics for the system NiFi is running on
-        This method makes a synchronous HTTP request.
+        Gets the diagnostics for the system NiFi is running on.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_system_diagnostics_with_http_info()`` method instead.
         
         Args:
             nodewise (bool): 
@@ -135,7 +144,7 @@ class SystemDiagnosticsApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SystemDiagnosticsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.SystemDiagnosticsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -146,8 +155,11 @@ class SystemDiagnosticsApi(object):
 
     def get_system_diagnostics_with_http_info(self, **kwargs):
         """
-        Gets the diagnostics for the system NiFi is running on
-        This method makes a synchronous HTTP request.
+        Gets the diagnostics for the system NiFi is running on.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_system_diagnostics()`` method instead.
         
         Args:
             nodewise (bool): 
@@ -158,7 +170,7 @@ class SystemDiagnosticsApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.SystemDiagnosticsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.SystemDiagnosticsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['nodewise', 'diagnostic_level', 'cluster_node_id']

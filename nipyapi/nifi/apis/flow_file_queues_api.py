@@ -34,15 +34,18 @@ class FlowFileQueuesApi(object):
 
     def create_drop_request(self, id, **kwargs):
         """
-        Creates a request to drop the contents of the queue in this connection.
-        This method makes a synchronous HTTP request.
+        Creates a request to drop the contents of the queue in this connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_drop_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,15 +56,18 @@ class FlowFileQueuesApi(object):
 
     def create_drop_request_with_http_info(self, id, **kwargs):
         """
-        Creates a request to drop the contents of the queue in this connection.
-        This method makes a synchronous HTTP request.
+        Creates a request to drop the contents of the queue in this connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_drop_request()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.DropRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -120,15 +126,18 @@ class FlowFileQueuesApi(object):
 
     def create_flow_file_listing(self, id, **kwargs):
         """
-        Lists the contents of the queue in this connection.
-        This method makes a synchronous HTTP request.
+        Lists the contents of the queue in this connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_flow_file_listing_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -139,15 +148,18 @@ class FlowFileQueuesApi(object):
 
     def create_flow_file_listing_with_http_info(self, id, **kwargs):
         """
-        Lists the contents of the queue in this connection.
-        This method makes a synchronous HTTP request.
+        Lists the contents of the queue in this connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_flow_file_listing()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ListingRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -206,8 +218,11 @@ class FlowFileQueuesApi(object):
 
     def delete_listing_request(self, id, listing_request_id, **kwargs):
         """
-        Cancels and/or removes a request to list the contents of this connection.
-        This method makes a synchronous HTTP request.
+        Cancels and/or removes a request to list the contents of this connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_listing_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -216,7 +231,7 @@ class FlowFileQueuesApi(object):
                 The listing request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -227,8 +242,11 @@ class FlowFileQueuesApi(object):
 
     def delete_listing_request_with_http_info(self, id, listing_request_id, **kwargs):
         """
-        Cancels and/or removes a request to list the contents of this connection.
-        This method makes a synchronous HTTP request.
+        Cancels and/or removes a request to list the contents of this connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_listing_request()`` method instead.
         
         Args:
             id (str): 
@@ -237,7 +255,7 @@ class FlowFileQueuesApi(object):
                 The listing request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ListingRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'listing_request_id']
@@ -302,8 +320,11 @@ class FlowFileQueuesApi(object):
 
     def download_flow_file_content(self, id, flowfile_uuid, **kwargs):
         """
-        Gets the content for a FlowFile in a Connection.
-        This method makes a synchronous HTTP request.
+        Gets the content for a FlowFile in a Connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``download_flow_file_content_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -318,7 +339,7 @@ class FlowFileQueuesApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -329,8 +350,11 @@ class FlowFileQueuesApi(object):
 
     def download_flow_file_content_with_http_info(self, id, flowfile_uuid, **kwargs):
         """
-        Gets the content for a FlowFile in a Connection.
-        This method makes a synchronous HTTP request.
+        Gets the content for a FlowFile in a Connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``download_flow_file_content()`` method instead.
         
         Args:
             id (str): 
@@ -345,7 +369,7 @@ class FlowFileQueuesApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StreamingOutput`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'flowfile_uuid', 'range', 'client_id', 'cluster_node_id']
@@ -419,8 +443,11 @@ class FlowFileQueuesApi(object):
 
     def get_drop_request(self, id, drop_request_id, **kwargs):
         """
-        Gets the current status of a drop request for the specified connection.
-        This method makes a synchronous HTTP request.
+        Gets the current status of a drop request for the specified connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_drop_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -429,7 +456,7 @@ class FlowFileQueuesApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -440,8 +467,11 @@ class FlowFileQueuesApi(object):
 
     def get_drop_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
-        Gets the current status of a drop request for the specified connection.
-        This method makes a synchronous HTTP request.
+        Gets the current status of a drop request for the specified connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_drop_request()`` method instead.
         
         Args:
             id (str): 
@@ -450,7 +480,7 @@ class FlowFileQueuesApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.DropRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'drop_request_id']
@@ -515,8 +545,11 @@ class FlowFileQueuesApi(object):
 
     def get_flow_file(self, id, flowfile_uuid, **kwargs):
         """
-        Gets a FlowFile from a Connection.
-        This method makes a synchronous HTTP request.
+        Gets a FlowFile from a Connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_file_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -527,7 +560,7 @@ class FlowFileQueuesApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowFileEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowFileEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -538,8 +571,11 @@ class FlowFileQueuesApi(object):
 
     def get_flow_file_with_http_info(self, id, flowfile_uuid, **kwargs):
         """
-        Gets a FlowFile from a Connection.
-        This method makes a synchronous HTTP request.
+        Gets a FlowFile from a Connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_file()`` method instead.
         
         Args:
             id (str): 
@@ -550,7 +586,7 @@ class FlowFileQueuesApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowFileEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowFileEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'flowfile_uuid', 'cluster_node_id']
@@ -618,8 +654,11 @@ class FlowFileQueuesApi(object):
 
     def get_listing_request(self, id, listing_request_id, **kwargs):
         """
-        Gets the current status of a listing request for the specified connection.
-        This method makes a synchronous HTTP request.
+        Gets the current status of a listing request for the specified connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_listing_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -628,7 +667,7 @@ class FlowFileQueuesApi(object):
                 The listing request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -639,8 +678,11 @@ class FlowFileQueuesApi(object):
 
     def get_listing_request_with_http_info(self, id, listing_request_id, **kwargs):
         """
-        Gets the current status of a listing request for the specified connection.
-        This method makes a synchronous HTTP request.
+        Gets the current status of a listing request for the specified connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_listing_request()`` method instead.
         
         Args:
             id (str): 
@@ -649,7 +691,7 @@ class FlowFileQueuesApi(object):
                 The listing request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ListingRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ListingRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'listing_request_id']
@@ -714,8 +756,11 @@ class FlowFileQueuesApi(object):
 
     def remove_drop_request(self, id, drop_request_id, **kwargs):
         """
-        Cancels and/or removes a request to drop the contents of this connection.
-        This method makes a synchronous HTTP request.
+        Cancels and/or removes a request to drop the contents of this connection..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_drop_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -724,7 +769,7 @@ class FlowFileQueuesApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -735,8 +780,11 @@ class FlowFileQueuesApi(object):
 
     def remove_drop_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
-        Cancels and/or removes a request to drop the contents of this connection.
-        This method makes a synchronous HTTP request.
+        Cancels and/or removes a request to drop the contents of this connection..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_drop_request()`` method instead.
         
         Args:
             id (str): 
@@ -745,7 +793,7 @@ class FlowFileQueuesApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.DropRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'drop_request_id']

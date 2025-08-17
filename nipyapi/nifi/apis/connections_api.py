@@ -34,8 +34,11 @@ class ConnectionsApi(object):
 
     def delete_connection(self, id, **kwargs):
         """
-        Deletes a connection
-        This method makes a synchronous HTTP request.
+        Deletes a connection.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_connection_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -48,7 +51,7 @@ class ConnectionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -59,8 +62,11 @@ class ConnectionsApi(object):
 
     def delete_connection_with_http_info(self, id, **kwargs):
         """
-        Deletes a connection
-        This method makes a synchronous HTTP request.
+        Deletes a connection.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_connection()`` method instead.
         
         Args:
             id (str): 
@@ -73,7 +79,7 @@ class ConnectionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConnectionEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -141,15 +147,18 @@ class ConnectionsApi(object):
 
     def get_connection(self, id, **kwargs):
         """
-        Gets a connection
-        This method makes a synchronous HTTP request.
+        Gets a connection.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_connection_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -160,15 +169,18 @@ class ConnectionsApi(object):
 
     def get_connection_with_http_info(self, id, **kwargs):
         """
-        Gets a connection
-        This method makes a synchronous HTTP request.
+        Gets a connection.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_connection()`` method instead.
         
         Args:
             id (str): 
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConnectionEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -227,8 +239,11 @@ class ConnectionsApi(object):
 
     def update_connection(self, body, id, **kwargs):
         """
-        Updates a connection
-        This method makes a synchronous HTTP request.
+        Updates a connection.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_connection_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
@@ -237,7 +252,7 @@ class ConnectionsApi(object):
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -248,8 +263,11 @@ class ConnectionsApi(object):
 
     def update_connection_with_http_info(self, body, id, **kwargs):
         """
-        Updates a connection
-        This method makes a synchronous HTTP request.
+        Updates a connection.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_connection()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
@@ -258,7 +276,7 @@ class ConnectionsApi(object):
                 The connection id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConnectionEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

@@ -34,8 +34,11 @@ class ParameterProvidersApi(object):
 
     def analyze_configuration1(self, body, id, **kwargs):
         """
-        Performs analysis of the component's configuration, providing information about which attributes are referenced.
-        This method makes a synchronous HTTP request.
+        Performs analysis of the component's configuration, providing information about which attributes are referenced..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``analyze_configuration1_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
@@ -44,7 +47,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -55,8 +58,11 @@ class ParameterProvidersApi(object):
 
     def analyze_configuration1_with_http_info(self, body, id, **kwargs):
         """
-        Performs analysis of the component's configuration, providing information about which attributes are referenced.
-        This method makes a synchronous HTTP request.
+        Performs analysis of the component's configuration, providing information about which attributes are referenced..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``analyze_configuration1()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`): 
@@ -65,7 +71,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConfigurationAnalysisEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -134,15 +140,18 @@ class ParameterProvidersApi(object):
 
     def clear_state2(self, id, **kwargs):
         """
-        Clears the state for a parameter provider
-        This method makes a synchronous HTTP request.
+        Clears the state for a parameter provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``clear_state2_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -153,15 +162,18 @@ class ParameterProvidersApi(object):
 
     def clear_state2_with_http_info(self, id, **kwargs):
         """
-        Clears the state for a parameter provider
-        This method makes a synchronous HTTP request.
+        Clears the state for a parameter provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``clear_state2()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentStateEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -220,11 +232,14 @@ class ParameterProvidersApi(object):
 
     def delete_apply_parameters_request(self, provider_id, request_id, **kwargs):
         """
-        Deletes the Apply Parameters Request with the given ID
+        Deletes the Apply Parameters Request with the given ID.
 
         Deletes the Apply Parameters Request with the given ID. After a request is created via a POST to /nifi-api/parameter-providers/apply-parameters-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Apply process has completed. If the request is deleted before the request completes, then the Apply Parameters Request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_apply_parameters_request_with_http_info()`` method instead.
         
         Args:
             provider_id (str): 
@@ -235,7 +250,7 @@ class ParameterProvidersApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -246,11 +261,14 @@ class ParameterProvidersApi(object):
 
     def delete_apply_parameters_request_with_http_info(self, provider_id, request_id, **kwargs):
         """
-        Deletes the Apply Parameters Request with the given ID
+        Deletes the Apply Parameters Request with the given ID.
 
         Deletes the Apply Parameters Request with the given ID. After a request is created via a POST to /nifi-api/parameter-providers/apply-parameters-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Apply process has completed. If the request is deleted before the request completes, then the Apply Parameters Request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_apply_parameters_request()`` method instead.
         
         Args:
             provider_id (str): 
@@ -261,7 +279,7 @@ class ParameterProvidersApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['provider_id', 'request_id', 'disconnected_node_acknowledged']
@@ -329,11 +347,14 @@ class ParameterProvidersApi(object):
 
     def delete_verification_request1(self, id, request_id, **kwargs):
         """
-        Deletes the Verification Request with the given ID
+        Deletes the Verification Request with the given ID.
 
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_verification_request1_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -342,7 +363,7 @@ class ParameterProvidersApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -353,11 +374,14 @@ class ParameterProvidersApi(object):
 
     def delete_verification_request1_with_http_info(self, id, request_id, **kwargs):
         """
-        Deletes the Verification Request with the given ID
+        Deletes the Verification Request with the given ID.
 
         Deletes the Verification Request with the given ID. After a request is created, it is expected that the client will properly clean up the request by DELETE'ing it, once the Verification process has completed. If the request is deleted before the request completes, then the Verification request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_verification_request1()`` method instead.
         
         Args:
             id (str): 
@@ -366,7 +390,7 @@ class ParameterProvidersApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'request_id']
@@ -431,8 +455,11 @@ class ParameterProvidersApi(object):
 
     def fetch_parameters(self, body, id, **kwargs):
         """
-        Fetches and temporarily caches the parameters for a provider
-        This method makes a synchronous HTTP request.
+        Fetches and temporarily caches the parameters for a provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``fetch_parameters_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderParameterFetchEntity`): 
@@ -441,7 +468,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -452,8 +479,11 @@ class ParameterProvidersApi(object):
 
     def fetch_parameters_with_http_info(self, body, id, **kwargs):
         """
-        Fetches and temporarily caches the parameters for a provider
-        This method makes a synchronous HTTP request.
+        Fetches and temporarily caches the parameters for a provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``fetch_parameters()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderParameterFetchEntity`): 
@@ -462,7 +492,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -531,15 +561,18 @@ class ParameterProvidersApi(object):
 
     def get_parameter_provider(self, id, **kwargs):
         """
-        Gets a parameter provider
-        This method makes a synchronous HTTP request.
+        Gets a parameter provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_provider_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -550,15 +583,18 @@ class ParameterProvidersApi(object):
 
     def get_parameter_provider_with_http_info(self, id, **kwargs):
         """
-        Gets a parameter provider
-        This method makes a synchronous HTTP request.
+        Gets a parameter provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_provider()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -617,11 +653,14 @@ class ParameterProvidersApi(object):
 
     def get_parameter_provider_apply_parameters_request(self, provider_id, request_id, **kwargs):
         """
-        Returns the Apply Parameters Request with the given ID
+        Returns the Apply Parameters Request with the given ID.
 
         Returns the Apply Parameters Request with the given ID. Once an Apply Parameters Request has been created by performing a POST to /nifi-api/parameter-providers, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_provider_apply_parameters_request_with_http_info()`` method instead.
         
         Args:
             provider_id (str): 
@@ -630,7 +669,7 @@ class ParameterProvidersApi(object):
                 The ID of the Apply Parameters Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -641,11 +680,14 @@ class ParameterProvidersApi(object):
 
     def get_parameter_provider_apply_parameters_request_with_http_info(self, provider_id, request_id, **kwargs):
         """
-        Returns the Apply Parameters Request with the given ID
+        Returns the Apply Parameters Request with the given ID.
 
         Returns the Apply Parameters Request with the given ID. Once an Apply Parameters Request has been created by performing a POST to /nifi-api/parameter-providers, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_provider_apply_parameters_request()`` method instead.
         
         Args:
             provider_id (str): 
@@ -654,7 +696,7 @@ class ParameterProvidersApi(object):
                 The ID of the Apply Parameters Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['provider_id', 'request_id']
@@ -719,15 +761,18 @@ class ParameterProvidersApi(object):
 
     def get_parameter_provider_references(self, id, **kwargs):
         """
-        Gets all references to a parameter provider
-        This method makes a synchronous HTTP request.
+        Gets all references to a parameter provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_provider_references_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderReferencingComponentsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderReferencingComponentsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -738,15 +783,18 @@ class ParameterProvidersApi(object):
 
     def get_parameter_provider_references_with_http_info(self, id, **kwargs):
         """
-        Gets all references to a parameter provider
-        This method makes a synchronous HTTP request.
+        Gets all references to a parameter provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_provider_references()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderReferencingComponentsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderReferencingComponentsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -805,8 +853,11 @@ class ParameterProvidersApi(object):
 
     def get_property_descriptor2(self, id, property_name, **kwargs):
         """
-        Gets a parameter provider property descriptor
-        This method makes a synchronous HTTP request.
+        Gets a parameter provider property descriptor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_property_descriptor2_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -815,7 +866,7 @@ class ParameterProvidersApi(object):
                 The property name. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -826,8 +877,11 @@ class ParameterProvidersApi(object):
 
     def get_property_descriptor2_with_http_info(self, id, property_name, **kwargs):
         """
-        Gets a parameter provider property descriptor
-        This method makes a synchronous HTTP request.
+        Gets a parameter provider property descriptor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_property_descriptor2()`` method instead.
         
         Args:
             id (str): 
@@ -836,7 +890,7 @@ class ParameterProvidersApi(object):
                 The property name. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PropertyDescriptorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PropertyDescriptorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'property_name']
@@ -901,15 +955,18 @@ class ParameterProvidersApi(object):
 
     def get_state1(self, id, **kwargs):
         """
-        Gets the state for a parameter provider
-        This method makes a synchronous HTTP request.
+        Gets the state for a parameter provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_state1_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -920,15 +977,18 @@ class ParameterProvidersApi(object):
 
     def get_state1_with_http_info(self, id, **kwargs):
         """
-        Gets the state for a parameter provider
-        This method makes a synchronous HTTP request.
+        Gets the state for a parameter provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_state1()`` method instead.
         
         Args:
             id (str): 
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentStateEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -987,11 +1047,14 @@ class ParameterProvidersApi(object):
 
     def get_verification_request1(self, id, request_id, **kwargs):
         """
-        Returns the Verification Request with the given ID
+        Returns the Verification Request with the given ID.
 
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_verification_request1_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1000,7 +1063,7 @@ class ParameterProvidersApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1011,11 +1074,14 @@ class ParameterProvidersApi(object):
 
     def get_verification_request1_with_http_info(self, id, request_id, **kwargs):
         """
-        Returns the Verification Request with the given ID
+        Returns the Verification Request with the given ID.
 
         Returns the Verification Request with the given ID. Once an Verification Request has been created, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_verification_request1()`` method instead.
         
         Args:
             id (str): 
@@ -1024,7 +1090,7 @@ class ParameterProvidersApi(object):
                 The ID of the Verification Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'request_id']
@@ -1089,8 +1155,11 @@ class ParameterProvidersApi(object):
 
     def remove_parameter_provider(self, id, **kwargs):
         """
-        Deletes a parameter provider
-        This method makes a synchronous HTTP request.
+        Deletes a parameter provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_parameter_provider_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1103,7 +1172,7 @@ class ParameterProvidersApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1114,8 +1183,11 @@ class ParameterProvidersApi(object):
 
     def remove_parameter_provider_with_http_info(self, id, **kwargs):
         """
-        Deletes a parameter provider
-        This method makes a synchronous HTTP request.
+        Deletes a parameter provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_parameter_provider()`` method instead.
         
         Args:
             id (str): 
@@ -1128,7 +1200,7 @@ class ParameterProvidersApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -1196,11 +1268,14 @@ class ParameterProvidersApi(object):
 
     def submit_apply_parameters(self, body, provider_id, **kwargs):
         """
-        Initiate a request to apply the fetched parameters of a Parameter Provider
+        Initiate a request to apply the fetched parameters of a Parameter Provider.
 
         This will initiate the process of applying fetched parameters to all referencing Parameter Contexts. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterProviderApplyParametersRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/apply-parameters-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/apply-parameters-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_apply_parameters_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderParameterApplicationEntity`): 
@@ -1208,7 +1283,7 @@ class ParameterProvidersApi(object):
             provider_id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1219,11 +1294,14 @@ class ParameterProvidersApi(object):
 
     def submit_apply_parameters_with_http_info(self, body, provider_id, **kwargs):
         """
-        Initiate a request to apply the fetched parameters of a Parameter Provider
+        Initiate a request to apply the fetched parameters of a Parameter Provider.
 
         This will initiate the process of applying fetched parameters to all referencing Parameter Contexts. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterProviderApplyParametersRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/apply-parameters-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/apply-parameters-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_apply_parameters()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderParameterApplicationEntity`): 
@@ -1231,7 +1309,7 @@ class ParameterProvidersApi(object):
             provider_id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderApplyParametersRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'provider_id']
@@ -1300,11 +1378,14 @@ class ParameterProvidersApi(object):
 
     def submit_config_verification_request1(self, body, id, **kwargs):
         """
-        Performs verification of the Parameter Provider's configuration
+        Performs verification of the Parameter Provider's configuration.
 
         This will initiate the process of verifying a given Parameter Provider configuration. This may be a long-running task. As a result, this endpoint will immediately return a ParameterProviderConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/{providerId}/verification-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_config_verification_request1_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
@@ -1313,7 +1394,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1324,11 +1405,14 @@ class ParameterProvidersApi(object):
 
     def submit_config_verification_request1_with_http_info(self, body, id, **kwargs):
         """
-        Performs verification of the Parameter Provider's configuration
+        Performs verification of the Parameter Provider's configuration.
 
         This will initiate the process of verifying a given Parameter Provider configuration. This may be a long-running task. As a result, this endpoint will immediately return a ParameterProviderConfigVerificationRequestEntity, and the process of performing the verification will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-providers/{serviceId}/verification-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-providers/{providerId}/verification-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_config_verification_request1()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`): 
@@ -1337,7 +1421,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VerifyConfigRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -1406,8 +1490,11 @@ class ParameterProvidersApi(object):
 
     def update_parameter_provider(self, body, id, **kwargs):
         """
-        Updates a parameter provider
-        This method makes a synchronous HTTP request.
+        Updates a parameter provider.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_parameter_provider_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderEntity`): 
@@ -1416,7 +1503,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1427,8 +1514,11 @@ class ParameterProvidersApi(object):
 
     def update_parameter_provider_with_http_info(self, body, id, **kwargs):
         """
-        Updates a parameter provider
-        This method makes a synchronous HTTP request.
+        Updates a parameter provider.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_parameter_provider()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterProviderEntity`): 
@@ -1437,7 +1527,7 @@ class ParameterProvidersApi(object):
                 The parameter provider id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterProviderEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterProviderEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

@@ -38,12 +38,15 @@ class ItemsApi(object):
 
         Retrieves the item field names for searching or sorting on bucket items.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_available_bucket_item_fields_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.Fields`: The response object.
+            :class:`~nipyapi.registry.models.Fields`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,12 +61,15 @@ class ItemsApi(object):
 
         Retrieves the item field names for searching or sorting on bucket items.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_available_bucket_item_fields()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.Fields`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Fields`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -120,12 +126,15 @@ class ItemsApi(object):
 
         Get items across all buckets. The returned items will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_items_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
+            :class:`~nipyapi.registry.models.list[BucketItem]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -140,12 +149,15 @@ class ItemsApi(object):
 
         Get items across all buckets. The returned items will include only items from buckets for which the user is authorized. If the user is not authorized to any buckets, an empty list will be returned.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_items()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[BucketItem]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -202,14 +214,17 @@ class ItemsApi(object):
 
         Gets the items located in the given bucket.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_items1_with_http_info()`` method instead.
         
         Args:
             bucket_id (str): 
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
+            :class:`~nipyapi.registry.models.list[BucketItem]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -224,14 +239,17 @@ class ItemsApi(object):
 
         Gets the items located in the given bucket.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_items1()`` method instead.
         
         Args:
             bucket_id (str): 
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[BucketItem]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[BucketItem]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_id']

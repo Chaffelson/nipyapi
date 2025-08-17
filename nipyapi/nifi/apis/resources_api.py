@@ -34,13 +34,16 @@ class ResourcesApi(object):
 
     def get_resources(self, **kwargs):
         """
-        Gets the available resources that support access/authorization policies
-        This method makes a synchronous HTTP request.
+        Gets the available resources that support access/authorization policies.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_resources_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ResourcesEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ResourcesEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -51,13 +54,16 @@ class ResourcesApi(object):
 
     def get_resources_with_http_info(self, **kwargs):
         """
-        Gets the available resources that support access/authorization policies
-        This method makes a synchronous HTTP request.
+        Gets the available resources that support access/authorization policies.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_resources()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ResourcesEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ResourcesEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

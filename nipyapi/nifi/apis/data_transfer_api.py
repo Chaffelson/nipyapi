@@ -34,8 +34,11 @@ class DataTransferApi(object):
 
     def commit_input_port_transaction(self, response_code, port_id, transaction_id, **kwargs):
         """
-        Commit or cancel the specified transaction
-        This method makes a synchronous HTTP request.
+        Commit or cancel the specified transaction.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``commit_input_port_transaction_with_http_info()`` method instead.
         
         Args:
             response_code (int): 
@@ -47,7 +50,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,8 +61,11 @@ class DataTransferApi(object):
 
     def commit_input_port_transaction_with_http_info(self, response_code, port_id, transaction_id, **kwargs):
         """
-        Commit or cancel the specified transaction
-        This method makes a synchronous HTTP request.
+        Commit or cancel the specified transaction.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``commit_input_port_transaction()`` method instead.
         
         Args:
             response_code (int): 
@@ -71,7 +77,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.TransactionResultEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['response_code', 'port_id', 'transaction_id', 'body']
@@ -149,8 +155,11 @@ class DataTransferApi(object):
 
     def commit_output_port_transaction(self, response_code, checksum, port_id, transaction_id, **kwargs):
         """
-        Commit or cancel the specified transaction
-        This method makes a synchronous HTTP request.
+        Commit or cancel the specified transaction.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``commit_output_port_transaction_with_http_info()`` method instead.
         
         Args:
             response_code (int): 
@@ -164,7 +173,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -175,8 +184,11 @@ class DataTransferApi(object):
 
     def commit_output_port_transaction_with_http_info(self, response_code, checksum, port_id, transaction_id, **kwargs):
         """
-        Commit or cancel the specified transaction
-        This method makes a synchronous HTTP request.
+        Commit or cancel the specified transaction.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``commit_output_port_transaction()`` method instead.
         
         Args:
             response_code (int): 
@@ -190,7 +202,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.TransactionResultEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['response_code', 'checksum', 'port_id', 'transaction_id', 'body']
@@ -274,8 +286,11 @@ class DataTransferApi(object):
 
     def create_port_transaction(self, port_type, port_id, **kwargs):
         """
-        Create a transaction to the specified output port or input port
-        This method makes a synchronous HTTP request.
+        Create a transaction to the specified output port or input port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_port_transaction_with_http_info()`` method instead.
         
         Args:
             port_type (str): 
@@ -284,7 +299,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -295,8 +310,11 @@ class DataTransferApi(object):
 
     def create_port_transaction_with_http_info(self, port_type, port_id, **kwargs):
         """
-        Create a transaction to the specified output port or input port
-        This method makes a synchronous HTTP request.
+        Create a transaction to the specified output port or input port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_port_transaction()`` method instead.
         
         Args:
             port_type (str): 
@@ -305,7 +323,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.TransactionResultEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['port_type', 'port_id', 'body']
@@ -377,8 +395,11 @@ class DataTransferApi(object):
 
     def extend_input_port_transaction_ttl(self, port_id, transaction_id, **kwargs):
         """
-        Extend transaction TTL
-        This method makes a synchronous HTTP request.
+        Extend transaction TTL.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``extend_input_port_transaction_ttl_with_http_info()`` method instead.
         
         Args:
             port_id (str): (required)
@@ -386,7 +407,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -397,8 +418,11 @@ class DataTransferApi(object):
 
     def extend_input_port_transaction_ttl_with_http_info(self, port_id, transaction_id, **kwargs):
         """
-        Extend transaction TTL
-        This method makes a synchronous HTTP request.
+        Extend transaction TTL.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``extend_input_port_transaction_ttl()`` method instead.
         
         Args:
             port_id (str): (required)
@@ -406,7 +430,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.TransactionResultEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['port_id', 'transaction_id', 'body']
@@ -478,8 +502,11 @@ class DataTransferApi(object):
 
     def extend_output_port_transaction_ttl(self, port_id, transaction_id, **kwargs):
         """
-        Extend transaction TTL
-        This method makes a synchronous HTTP request.
+        Extend transaction TTL.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``extend_output_port_transaction_ttl_with_http_info()`` method instead.
         
         Args:
             port_id (str): (required)
@@ -487,7 +514,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -498,8 +525,11 @@ class DataTransferApi(object):
 
     def extend_output_port_transaction_ttl_with_http_info(self, port_id, transaction_id, **kwargs):
         """
-        Extend transaction TTL
-        This method makes a synchronous HTTP request.
+        Extend transaction TTL.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``extend_output_port_transaction_ttl()`` method instead.
         
         Args:
             port_id (str): (required)
@@ -507,7 +537,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TransactionResultEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.TransactionResultEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['port_id', 'transaction_id', 'body']
@@ -579,8 +609,11 @@ class DataTransferApi(object):
 
     def receive_flow_files(self, port_id, transaction_id, **kwargs):
         """
-        Transfer flow files to the input port
-        This method makes a synchronous HTTP request.
+        Transfer flow files to the input port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``receive_flow_files_with_http_info()`` method instead.
         
         Args:
             port_id (str): 
@@ -589,7 +622,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -600,8 +633,11 @@ class DataTransferApi(object):
 
     def receive_flow_files_with_http_info(self, port_id, transaction_id, **kwargs):
         """
-        Transfer flow files to the input port
-        This method makes a synchronous HTTP request.
+        Transfer flow files to the input port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``receive_flow_files()`` method instead.
         
         Args:
             port_id (str): 
@@ -610,7 +646,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['port_id', 'transaction_id', 'body']
@@ -682,8 +718,11 @@ class DataTransferApi(object):
 
     def transfer_flow_files(self, port_id, transaction_id, **kwargs):
         """
-        Transfer flow files from the output port
-        This method makes a synchronous HTTP request.
+        Transfer flow files from the output port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``transfer_flow_files_with_http_info()`` method instead.
         
         Args:
             port_id (str): 
@@ -703,8 +742,11 @@ class DataTransferApi(object):
 
     def transfer_flow_files_with_http_info(self, port_id, transaction_id, **kwargs):
         """
-        Transfer flow files from the output port
-        This method makes a synchronous HTTP request.
+        Transfer flow files from the output port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``transfer_flow_files()`` method instead.
         
         Args:
             port_id (str): 
@@ -713,7 +755,7 @@ class DataTransferApi(object):
             body (:class:`~nipyapi.nifi.models.object`):
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['port_id', 'transaction_id', 'body']

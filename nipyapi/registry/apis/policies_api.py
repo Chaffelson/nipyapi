@@ -35,14 +35,17 @@ class PoliciesApi(object):
     def create_access_policy(self, body, **kwargs):
         """
         Create access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_access_policy_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.AccessPolicy`): 
                 The access policy configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -54,14 +57,17 @@ class PoliciesApi(object):
     def create_access_policy_with_http_info(self, body, **kwargs):
         """
         Create access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_access_policy()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.AccessPolicy`): 
                 The access policy configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.AccessPolicy`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -125,12 +131,15 @@ class PoliciesApi(object):
     def get_access_policies(self, **kwargs):
         """
         Get all access policies.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_access_policies_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[AccessPolicy]`: The response object.
+            :class:`~nipyapi.registry.models.list[AccessPolicy]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -142,12 +151,15 @@ class PoliciesApi(object):
     def get_access_policies_with_http_info(self, **kwargs):
         """
         Get all access policies.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_access_policies()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[AccessPolicy]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[AccessPolicy]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -201,14 +213,17 @@ class PoliciesApi(object):
     def get_access_policy(self, id, **kwargs):
         """
         Get access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_access_policy_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The access policy id. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -220,14 +235,17 @@ class PoliciesApi(object):
     def get_access_policy_with_http_info(self, id, **kwargs):
         """
         Get access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_access_policy()`` method instead.
         
         Args:
             id (str): 
                 The access policy id. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.AccessPolicy`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -290,7 +308,10 @@ class PoliciesApi(object):
 
         Gets an access policy for the specified action and resource
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_access_policy_for_resource_with_http_info()`` method instead.
         
         Args:
             action (str): 
@@ -299,7 +320,7 @@ class PoliciesApi(object):
                 The resource of the policy. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -314,7 +335,10 @@ class PoliciesApi(object):
 
         Gets an access policy for the specified action and resource
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_access_policy_for_resource()`` method instead.
         
         Args:
             action (str): 
@@ -323,7 +347,7 @@ class PoliciesApi(object):
                 The resource of the policy. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.AccessPolicy`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['action', 'resource']
@@ -392,12 +416,15 @@ class PoliciesApi(object):
 
         Gets the available resources that support access/authorization policies
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_resources_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Resource]`: The response object.
+            :class:`~nipyapi.registry.models.list[Resource]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -412,12 +439,15 @@ class PoliciesApi(object):
 
         Gets the available resources that support access/authorization policies
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_resources()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Resource]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[Resource]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -471,7 +501,10 @@ class PoliciesApi(object):
     def remove_access_policy(self, version, id, **kwargs):
         """
         Delete access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_access_policy_with_http_info()`` method instead.
         
         Args:
             version (:class:`~nipyapi.registry.models.LongParameter`): 
@@ -482,7 +515,7 @@ class PoliciesApi(object):
                 If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -494,7 +527,10 @@ class PoliciesApi(object):
     def remove_access_policy_with_http_info(self, version, id, **kwargs):
         """
         Delete access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_access_policy()`` method instead.
         
         Args:
             version (:class:`~nipyapi.registry.models.LongParameter`): 
@@ -505,7 +541,7 @@ class PoliciesApi(object):
                 If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.AccessPolicy`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['version', 'id', 'client_id']
@@ -574,7 +610,10 @@ class PoliciesApi(object):
     def update_access_policy(self, body, id, **kwargs):
         """
         Update access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_access_policy_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.AccessPolicy`): 
@@ -583,7 +622,7 @@ class PoliciesApi(object):
                 The access policy id. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            :class:`~nipyapi.registry.models.AccessPolicy`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -595,7 +634,10 @@ class PoliciesApi(object):
     def update_access_policy_with_http_info(self, body, id, **kwargs):
         """
         Update access policy.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_access_policy()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.AccessPolicy`): 
@@ -604,7 +646,7 @@ class PoliciesApi(object):
                 The access policy id. (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.AccessPolicy`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.AccessPolicy`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

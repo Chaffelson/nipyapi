@@ -38,7 +38,10 @@ class BucketBundlesApi(object):
 
         Creates a version of an extension bundle by uploading a binary artifact. If an extension bundle already exists in the given bucket with the same group id and artifact id as that of the bundle being uploaded, then it will be added as a new version to the existing bundle. If an extension bundle does not already exist in the given bucket with the same group id and artifact id, then a new extension bundle will be created and this version will be added to the new bundle. Client's may optionally supply a SHA-256 in hex format through the multi-part form field 'sha256'. If supplied, then this value will be compared against the SHA-256 computed by the server, and the bundle will be rejected if the values do not match. If not supplied, the bundle will be accepted, but will be marked to indicate that the client did not supply a SHA-256 during creation.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_extension_bundle_version_with_http_info()`` method instead.
         
         Args:
             bucket_id (str): 
@@ -49,7 +52,7 @@ class BucketBundlesApi(object):
             sha256 (str):
                 
         Returns:
-            :class:`~nipyapi.registry.models.BundleVersion`: The response object.
+            :class:`~nipyapi.registry.models.BundleVersion`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -64,7 +67,10 @@ class BucketBundlesApi(object):
 
         Creates a version of an extension bundle by uploading a binary artifact. If an extension bundle already exists in the given bucket with the same group id and artifact id as that of the bundle being uploaded, then it will be added as a new version to the existing bundle. If an extension bundle does not already exist in the given bucket with the same group id and artifact id, then a new extension bundle will be created and this version will be added to the new bundle. Client's may optionally supply a SHA-256 in hex format through the multi-part form field 'sha256'. If supplied, then this value will be compared against the SHA-256 computed by the server, and the bundle will be rejected if the values do not match. If not supplied, the bundle will be accepted, but will be marked to indicate that the client did not supply a SHA-256 during creation.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_extension_bundle_version()`` method instead.
         
         Args:
             bucket_id (str): 
@@ -75,7 +81,7 @@ class BucketBundlesApi(object):
             sha256 (str):
                 
         Returns:
-            :class:`~nipyapi.registry.models.BundleVersion`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.BundleVersion`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_id', 'bundle_type', 'file', 'sha256']
@@ -154,14 +160,17 @@ class BucketBundlesApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_bundles_with_http_info()`` method instead.
         
         Args:
             bucket_id (str): 
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Bundle]`: The response object.
+            :class:`~nipyapi.registry.models.list[Bundle]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -176,14 +185,17 @@ class BucketBundlesApi(object):
 
           NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_bundles()`` method instead.
         
         Args:
             bucket_id (str): 
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Bundle]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[Bundle]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_id']

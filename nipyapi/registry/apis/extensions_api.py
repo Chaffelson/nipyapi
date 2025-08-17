@@ -38,7 +38,10 @@ class ExtensionsApi(object):
 
         Gets the metadata for all extensions that match the filter params and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extensions_with_http_info()`` method instead.
         
         Args:
             bundle_type (str): 
@@ -49,7 +52,7 @@ class ExtensionsApi(object):
                 The tags to filter on, will be used in an OR statement
                 
         Returns:
-            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
+            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -64,7 +67,10 @@ class ExtensionsApi(object):
 
         Gets the metadata for all extensions that match the filter params and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extensions()`` method instead.
         
         Args:
             bundle_type (str): 
@@ -75,7 +81,7 @@ class ExtensionsApi(object):
                 The tags to filter on, will be used in an OR statement
                 
         Returns:
-            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.ExtensionMetadataContainer`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bundle_type', 'extension_type', 'tag']
@@ -142,7 +148,10 @@ class ExtensionsApi(object):
 
         Gets the metadata for extensions that provide the specified API and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extensions_providing_service_api_with_http_info()`` method instead.
         
         Args:
             class_name (str): 
@@ -155,7 +164,7 @@ class ExtensionsApi(object):
                 The version of the bundle containing the service API class (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
+            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -170,7 +179,10 @@ class ExtensionsApi(object):
 
         Gets the metadata for extensions that provide the specified API and are part of bundles located in buckets the current user is authorized for. If the user is not authorized to any buckets, an empty result set will be returned.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extensions_providing_service_api()`` method instead.
         
         Args:
             class_name (str): 
@@ -183,7 +195,7 @@ class ExtensionsApi(object):
                 The version of the bundle containing the service API class (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.ExtensionMetadataContainer`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.ExtensionMetadataContainer`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['class_name', 'group_id', 'artifact_id', 'version']
@@ -264,12 +276,15 @@ class ExtensionsApi(object):
 
         Gets all the extension tags known to this NiFi Registry instance, along with the number of extensions that have the given tag.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_tags_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[TagCount]`: The response object.
+            :class:`~nipyapi.registry.models.list[TagCount]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -284,12 +299,15 @@ class ExtensionsApi(object):
 
         Gets all the extension tags known to this NiFi Registry instance, along with the number of extensions that have the given tag.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_tags()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[TagCount]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[TagCount]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

@@ -34,15 +34,18 @@ class RemoteProcessGroupsApi(object):
 
     def get_remote_process_group(self, id, **kwargs):
         """
-        Gets a remote process group
-        This method makes a synchronous HTTP request.
+        Gets a remote process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_remote_process_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,15 +56,18 @@ class RemoteProcessGroupsApi(object):
 
     def get_remote_process_group_with_http_info(self, id, **kwargs):
         """
-        Gets a remote process group
-        This method makes a synchronous HTTP request.
+        Gets a remote process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_remote_process_group()`` method instead.
         
         Args:
             id (str): 
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -120,15 +126,18 @@ class RemoteProcessGroupsApi(object):
 
     def get_state3(self, id, **kwargs):
         """
-        Gets the state for a RemoteProcessGroup
-        This method makes a synchronous HTTP request.
+        Gets the state for a RemoteProcessGroup.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_state3_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -139,15 +148,18 @@ class RemoteProcessGroupsApi(object):
 
     def get_state3_with_http_info(self, id, **kwargs):
         """
-        Gets the state for a RemoteProcessGroup
-        This method makes a synchronous HTTP request.
+        Gets the state for a RemoteProcessGroup.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_state3()`` method instead.
         
         Args:
             id (str): 
                 The processor id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ComponentStateEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ComponentStateEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -206,8 +218,11 @@ class RemoteProcessGroupsApi(object):
 
     def remove_remote_process_group(self, id, **kwargs):
         """
-        Deletes a remote process group
-        This method makes a synchronous HTTP request.
+        Deletes a remote process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_remote_process_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -220,7 +235,7 @@ class RemoteProcessGroupsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -231,8 +246,11 @@ class RemoteProcessGroupsApi(object):
 
     def remove_remote_process_group_with_http_info(self, id, **kwargs):
         """
-        Deletes a remote process group
-        This method makes a synchronous HTTP request.
+        Deletes a remote process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_remote_process_group()`` method instead.
         
         Args:
             id (str): 
@@ -245,7 +263,7 @@ class RemoteProcessGroupsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -313,8 +331,11 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group(self, body, id, **kwargs):
         """
-        Updates a remote process group
-        This method makes a synchronous HTTP request.
+        Updates a remote process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_remote_process_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
@@ -323,7 +344,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -334,8 +355,11 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_with_http_info(self, body, id, **kwargs):
         """
-        Updates a remote process group
-        This method makes a synchronous HTTP request.
+        Updates a remote process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_remote_process_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
@@ -344,7 +368,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -413,11 +437,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_input_port(self, body, id, port_id, **kwargs):
         """
-        Updates a remote port
+        Updates a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_remote_process_group_input_port_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
@@ -428,7 +455,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -439,11 +466,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_input_port_with_http_info(self, body, id, port_id, **kwargs):
         """
-        Updates a remote port
+        Updates a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_remote_process_group_input_port()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
@@ -454,7 +484,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -529,11 +559,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_input_port_run_status(self, body, id, port_id, **kwargs):
         """
-        Updates run status of a remote port
+        Updates run status of a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_remote_process_group_input_port_run_status_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -544,7 +577,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -555,11 +588,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_input_port_run_status_with_http_info(self, body, id, port_id, **kwargs):
         """
-        Updates run status of a remote port
+        Updates run status of a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_remote_process_group_input_port_run_status()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -570,7 +606,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -645,11 +681,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_output_port(self, body, id, port_id, **kwargs):
         """
-        Updates a remote port
+        Updates a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_remote_process_group_output_port_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
@@ -660,7 +699,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -671,11 +710,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_output_port_with_http_info(self, body, id, port_id, **kwargs):
         """
-        Updates a remote port
+        Updates a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_remote_process_group_output_port()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`): 
@@ -686,7 +728,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -761,11 +803,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_output_port_run_status(self, body, id, port_id, **kwargs):
         """
-        Updates run status of a remote port
+        Updates run status of a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_remote_process_group_output_port_run_status_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -776,7 +821,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -787,11 +832,14 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_output_port_run_status_with_http_info(self, body, id, port_id, **kwargs):
         """
-        Updates run status of a remote port
+        Updates run status of a remote port.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_remote_process_group_output_port_run_status()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -802,7 +850,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupPortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id', 'port_id']
@@ -877,8 +925,11 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_run_status(self, body, id, **kwargs):
         """
-        Updates run status of a remote process group
-        This method makes a synchronous HTTP request.
+        Updates run status of a remote process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_remote_process_group_run_status_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -887,7 +938,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -898,8 +949,11 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_run_status_with_http_info(self, body, id, **kwargs):
         """
-        Updates run status of a remote process group
-        This method makes a synchronous HTTP request.
+        Updates run status of a remote process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_remote_process_group_run_status()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -908,7 +962,7 @@ class RemoteProcessGroupsApi(object):
                 The remote process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -977,8 +1031,11 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_run_statuses(self, body, id, **kwargs):
         """
-        Updates run status of all remote process groups in a process group (recursively)
-        This method makes a synchronous HTTP request.
+        Updates run status of all remote process groups in a process group (recursively).
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_remote_process_group_run_statuses_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -987,7 +1044,7 @@ class RemoteProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -998,8 +1055,11 @@ class RemoteProcessGroupsApi(object):
 
     def update_remote_process_group_run_statuses_with_http_info(self, body, id, **kwargs):
         """
-        Updates run status of all remote process groups in a process group (recursively)
-        This method makes a synchronous HTTP request.
+        Updates run status of all remote process groups in a process group (recursively).
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_remote_process_group_run_statuses()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemotePortRunStatusEntity`): 
@@ -1008,7 +1068,7 @@ class RemoteProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

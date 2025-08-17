@@ -34,11 +34,14 @@ class ParameterContextsApi(object):
 
     def create_asset(self, body, context_id, **kwargs):
         """
-        Creates a new Asset in the given Parameter Context
+        Creates a new Asset in the given Parameter Context.
 
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_asset_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.object`): 
@@ -47,7 +50,7 @@ class ParameterContextsApi(object):
             filename (str):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AssetEntity`: The response object.
+            :class:`~nipyapi.nifi.models.AssetEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,11 +61,14 @@ class ParameterContextsApi(object):
 
     def create_asset_with_http_info(self, body, context_id, **kwargs):
         """
-        Creates a new Asset in the given Parameter Context
+        Creates a new Asset in the given Parameter Context.
 
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_asset()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.object`): 
@@ -71,7 +77,7 @@ class ParameterContextsApi(object):
             filename (str):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AssetEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.AssetEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'context_id', 'filename']
@@ -143,15 +149,18 @@ class ParameterContextsApi(object):
 
     def create_parameter_context(self, body, **kwargs):
         """
-        Create a Parameter Context
-        This method makes a synchronous HTTP request.
+        Create a Parameter Context.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_parameter_context_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextEntity`): 
                 The Parameter Context. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -162,15 +171,18 @@ class ParameterContextsApi(object):
 
     def create_parameter_context_with_http_info(self, body, **kwargs):
         """
-        Create a Parameter Context
-        This method makes a synchronous HTTP request.
+        Create a Parameter Context.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_parameter_context()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextEntity`): 
                 The Parameter Context. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -233,11 +245,14 @@ class ParameterContextsApi(object):
 
     def delete_asset(self, context_id, asset_id, **kwargs):
         """
-        Deletes an Asset from the given Parameter Context
+        Deletes an Asset from the given Parameter Context.
 
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_asset_with_http_info()`` method instead.
         
         Args:
             context_id (str): 
@@ -247,7 +262,7 @@ class ParameterContextsApi(object):
             disconnected_node_acknowledged (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AssetEntity`: The response object.
+            :class:`~nipyapi.nifi.models.AssetEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -258,11 +273,14 @@ class ParameterContextsApi(object):
 
     def delete_asset_with_http_info(self, context_id, asset_id, **kwargs):
         """
-        Deletes an Asset from the given Parameter Context
+        Deletes an Asset from the given Parameter Context.
 
         This endpoint will create a new Asset in the given Parameter Context. The Asset will be created with the given name and the contents of the file that is uploaded. The Asset will be created in the given Parameter Context, and will be available for use by any component that references the Parameter Context.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_asset()`` method instead.
         
         Args:
             context_id (str): 
@@ -272,7 +290,7 @@ class ParameterContextsApi(object):
             disconnected_node_acknowledged (bool):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AssetEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.AssetEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['context_id', 'asset_id', 'disconnected_node_acknowledged']
@@ -340,11 +358,14 @@ class ParameterContextsApi(object):
 
     def delete_parameter_context(self, id, **kwargs):
         """
-        Deletes the Parameter Context with the given ID
+        Deletes the Parameter Context with the given ID.
 
         Deletes the Parameter Context with the given ID.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_parameter_context_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -357,7 +378,7 @@ class ParameterContextsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -368,11 +389,14 @@ class ParameterContextsApi(object):
 
     def delete_parameter_context_with_http_info(self, id, **kwargs):
         """
-        Deletes the Parameter Context with the given ID
+        Deletes the Parameter Context with the given ID.
 
         Deletes the Parameter Context with the given ID.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_parameter_context()`` method instead.
         
         Args:
             id (str): 
@@ -385,7 +409,7 @@ class ParameterContextsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -453,11 +477,14 @@ class ParameterContextsApi(object):
 
     def delete_update_request(self, context_id, request_id, **kwargs):
         """
-        Deletes the Update Request with the given ID
+        Deletes the Update Request with the given ID.
 
         Deletes the Update Request with the given ID. After a request is created via a POST to /nifi-api/parameter-contexts/update-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Update process has completed. If the request is deleted before the request completes, then the Update request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_update_request_with_http_info()`` method instead.
         
         Args:
             context_id (str): 
@@ -468,7 +495,7 @@ class ParameterContextsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -479,11 +506,14 @@ class ParameterContextsApi(object):
 
     def delete_update_request_with_http_info(self, context_id, request_id, **kwargs):
         """
-        Deletes the Update Request with the given ID
+        Deletes the Update Request with the given ID.
 
         Deletes the Update Request with the given ID. After a request is created via a POST to /nifi-api/parameter-contexts/update-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Update process has completed. If the request is deleted before the request completes, then the Update request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_update_request()`` method instead.
         
         Args:
             context_id (str): 
@@ -494,7 +524,7 @@ class ParameterContextsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['context_id', 'request_id', 'disconnected_node_acknowledged']
@@ -562,11 +592,14 @@ class ParameterContextsApi(object):
 
     def delete_validation_request(self, context_id, id, **kwargs):
         """
-        Deletes the Validation Request with the given ID
+        Deletes the Validation Request with the given ID.
 
         Deletes the Validation Request with the given ID. After a request is created via a POST to /nifi-api/validation-contexts, it is expected that the client will properly clean up the request by DELETE'ing it, once the validation process has completed. If the request is deleted before the request completes, then the Validation request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_validation_request_with_http_info()`` method instead.
         
         Args:
             context_id (str): 
@@ -577,7 +610,7 @@ class ParameterContextsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -588,11 +621,14 @@ class ParameterContextsApi(object):
 
     def delete_validation_request_with_http_info(self, context_id, id, **kwargs):
         """
-        Deletes the Validation Request with the given ID
+        Deletes the Validation Request with the given ID.
 
         Deletes the Validation Request with the given ID. After a request is created via a POST to /nifi-api/validation-contexts, it is expected that the client will properly clean up the request by DELETE'ing it, once the validation process has completed. If the request is deleted before the request completes, then the Validation request will finish the step that it is currently performing and then will cancel any subsequent steps.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_validation_request()`` method instead.
         
         Args:
             context_id (str): 
@@ -603,7 +639,7 @@ class ParameterContextsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['context_id', 'id', 'disconnected_node_acknowledged']
@@ -671,8 +707,11 @@ class ParameterContextsApi(object):
 
     def get_asset_content(self, context_id, asset_id, **kwargs):
         """
-        Retrieves the content of the asset with the given id
-        This method makes a synchronous HTTP request.
+        Retrieves the content of the asset with the given id.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_asset_content_with_http_info()`` method instead.
         
         Args:
             context_id (str): 
@@ -681,7 +720,7 @@ class ParameterContextsApi(object):
                 The ID of the Asset (required)
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -692,8 +731,11 @@ class ParameterContextsApi(object):
 
     def get_asset_content_with_http_info(self, context_id, asset_id, **kwargs):
         """
-        Retrieves the content of the asset with the given id
-        This method makes a synchronous HTTP request.
+        Retrieves the content of the asset with the given id.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_asset_content()`` method instead.
         
         Args:
             context_id (str): 
@@ -702,7 +744,7 @@ class ParameterContextsApi(object):
                 The ID of the Asset (required)
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['context_id', 'asset_id']
@@ -767,18 +809,21 @@ class ParameterContextsApi(object):
 
     def get_assets(self, context_id, **kwargs):
         """
-        Lists the assets that belong to the Parameter Context with the given ID
+        Lists the assets that belong to the Parameter Context with the given ID.
 
         Lists the assets that belong to the Parameter Context with the given ID.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_assets_with_http_info()`` method instead.
         
         Args:
             context_id (str): 
                 The ID of the Parameter Context (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AssetsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.AssetsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -789,18 +834,21 @@ class ParameterContextsApi(object):
 
     def get_assets_with_http_info(self, context_id, **kwargs):
         """
-        Lists the assets that belong to the Parameter Context with the given ID
+        Lists the assets that belong to the Parameter Context with the given ID.
 
         Lists the assets that belong to the Parameter Context with the given ID.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_assets()`` method instead.
         
         Args:
             context_id (str): 
                 The ID of the Parameter Context (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.AssetsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.AssetsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['context_id']
@@ -859,11 +907,14 @@ class ParameterContextsApi(object):
 
     def get_parameter_context(self, id, **kwargs):
         """
-        Returns the Parameter Context with the given ID
+        Returns the Parameter Context with the given ID.
 
         Returns the Parameter Context with the given ID.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_context_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -872,7 +923,7 @@ class ParameterContextsApi(object):
                 Whether or not to include inherited parameters from other parameter contexts, and therefore also overridden values.  If true, the result will be the 'effective' parameter context.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -883,11 +934,14 @@ class ParameterContextsApi(object):
 
     def get_parameter_context_with_http_info(self, id, **kwargs):
         """
-        Returns the Parameter Context with the given ID
+        Returns the Parameter Context with the given ID.
 
         Returns the Parameter Context with the given ID.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_context()`` method instead.
         
         Args:
             id (str): 
@@ -896,7 +950,7 @@ class ParameterContextsApi(object):
                 Whether or not to include inherited parameters from other parameter contexts, and therefore also overridden values.  If true, the result will be the 'effective' parameter context.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'include_inherited_parameters']
@@ -958,11 +1012,14 @@ class ParameterContextsApi(object):
 
     def get_parameter_context_update(self, context_id, request_id, **kwargs):
         """
-        Returns the Update Request with the given ID
+        Returns the Update Request with the given ID.
 
         Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_parameter_context_update_with_http_info()`` method instead.
         
         Args:
             context_id (str): 
@@ -971,7 +1028,7 @@ class ParameterContextsApi(object):
                 The ID of the Update Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -982,11 +1039,14 @@ class ParameterContextsApi(object):
 
     def get_parameter_context_update_with_http_info(self, context_id, request_id, **kwargs):
         """
-        Returns the Update Request with the given ID
+        Returns the Update Request with the given ID.
 
         Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /nifi-api/parameter-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_parameter_context_update()`` method instead.
         
         Args:
             context_id (str): 
@@ -995,7 +1055,7 @@ class ParameterContextsApi(object):
                 The ID of the Update Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['context_id', 'request_id']
@@ -1060,11 +1120,14 @@ class ParameterContextsApi(object):
 
     def get_validation_request(self, context_id, id, **kwargs):
         """
-        Returns the Validation Request with the given ID
+        Returns the Validation Request with the given ID.
 
         Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_validation_request_with_http_info()`` method instead.
         
         Args:
             context_id (str): 
@@ -1073,7 +1136,7 @@ class ParameterContextsApi(object):
                 The ID of the Validation Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1084,11 +1147,14 @@ class ParameterContextsApi(object):
 
     def get_validation_request_with_http_info(self, context_id, id, **kwargs):
         """
-        Returns the Validation Request with the given ID
+        Returns the Validation Request with the given ID.
 
         Returns the Validation Request with the given ID. Once a Validation Request has been created by performing a POST to /nifi-api/validation-contexts, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. 
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_validation_request()`` method instead.
         
         Args:
             context_id (str): 
@@ -1097,7 +1163,7 @@ class ParameterContextsApi(object):
                 The ID of the Validation Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['context_id', 'id']
@@ -1162,11 +1228,14 @@ class ParameterContextsApi(object):
 
     def submit_parameter_context_update(self, body, context_id, **kwargs):
         """
-        Initiate the Update Request of a Parameter Context
+        Initiate the Update Request of a Parameter Context.
 
         This will initiate the process of updating a Parameter Context. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextUpdateRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/update-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/update-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_parameter_context_update_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextEntity`): 
@@ -1174,7 +1243,7 @@ class ParameterContextsApi(object):
             context_id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1185,11 +1254,14 @@ class ParameterContextsApi(object):
 
     def submit_parameter_context_update_with_http_info(self, body, context_id, **kwargs):
         """
-        Initiate the Update Request of a Parameter Context
+        Initiate the Update Request of a Parameter Context.
 
         This will initiate the process of updating a Parameter Context. Changing the value of a Parameter may require that one or more components be stopped and restarted, so this action may take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextUpdateRequestEntity, and the process of updating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/update-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/update-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_parameter_context_update()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextEntity`): 
@@ -1197,7 +1269,7 @@ class ParameterContextsApi(object):
             context_id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'context_id']
@@ -1266,11 +1338,14 @@ class ParameterContextsApi(object):
 
     def submit_validation_request(self, body, context_id, **kwargs):
         """
-        Initiate a Validation Request to determine how the validity of components will change if a Parameter Context were to be updated
+        Initiate a Validation Request to determine how the validity of components will change if a Parameter Context were to be updated.
 
         This will initiate the process of validating all components whose Process Group is bound to the specified Parameter Context. Performing validation against an arbitrary number of components may be expect and take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextValidationRequestEntity, and the process of validating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/validation-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/validation-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_validation_request_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`): 
@@ -1278,7 +1353,7 @@ class ParameterContextsApi(object):
             context_id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1289,11 +1364,14 @@ class ParameterContextsApi(object):
 
     def submit_validation_request_with_http_info(self, body, context_id, **kwargs):
         """
-        Initiate a Validation Request to determine how the validity of components will change if a Parameter Context were to be updated
+        Initiate a Validation Request to determine how the validity of components will change if a Parameter Context were to be updated.
 
         This will initiate the process of validating all components whose Process Group is bound to the specified Parameter Context. Performing validation against an arbitrary number of components may be expect and take significantly more time than many other REST API actions. As a result, this endpoint will immediately return a ParameterContextValidationRequestEntity, and the process of validating the necessary components will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /parameter-contexts/validation-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /parameter-contexts/validation-requests/{requestId}.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_validation_request()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`): 
@@ -1301,7 +1379,7 @@ class ParameterContextsApi(object):
             context_id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextValidationRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'context_id']
@@ -1370,11 +1448,14 @@ class ParameterContextsApi(object):
 
     def update_parameter_context(self, body, id, **kwargs):
         """
-        Modifies a Parameter Context
+        Modifies a Parameter Context.
 
         This endpoint will update a Parameter Context to match the provided entity. However, this request will fail if any component is running and is referencing a Parameter in the Parameter Context. Generally, this endpoint is not called directly. Instead, an update request should be submitted by making a POST to the /parameter-contexts/update-requests endpoint. That endpoint will, in turn, call this endpoint.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_parameter_context_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextEntity`): 
@@ -1382,7 +1463,7 @@ class ParameterContextsApi(object):
             id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1393,11 +1474,14 @@ class ParameterContextsApi(object):
 
     def update_parameter_context_with_http_info(self, body, id, **kwargs):
         """
-        Modifies a Parameter Context
+        Modifies a Parameter Context.
 
         This endpoint will update a Parameter Context to match the provided entity. However, this request will fail if any component is running and is referencing a Parameter in the Parameter Context. Generally, this endpoint is not called directly. Instead, an update request should be submitted by making a POST to the /parameter-contexts/update-requests endpoint. That endpoint will, in turn, call this endpoint.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_parameter_context()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ParameterContextEntity`): 
@@ -1405,7 +1489,7 @@ class ParameterContextsApi(object):
             id (str): (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ParameterContextEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ParameterContextEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

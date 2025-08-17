@@ -34,8 +34,11 @@ class ProvenanceEventsApi(object):
 
     def get_input_content(self, id, **kwargs):
         """
-        Gets the input content for a provenance event
-        This method makes a synchronous HTTP request.
+        Gets the input content for a provenance event.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_input_content_with_http_info()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -46,7 +49,7 @@ class ProvenanceEventsApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -57,8 +60,11 @@ class ProvenanceEventsApi(object):
 
     def get_input_content_with_http_info(self, id, **kwargs):
         """
-        Gets the input content for a provenance event
-        This method makes a synchronous HTTP request.
+        Gets the input content for a provenance event.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_input_content()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -69,7 +75,7 @@ class ProvenanceEventsApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StreamingOutput`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'range', 'cluster_node_id']
@@ -134,8 +140,11 @@ class ProvenanceEventsApi(object):
 
     def get_latest_provenance_events(self, component_id, **kwargs):
         """
-        Retrieves the latest cached Provenance Events for the specified component
-        This method makes a synchronous HTTP request.
+        Retrieves the latest cached Provenance Events for the specified component.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_latest_provenance_events_with_http_info()`` method instead.
         
         Args:
             component_id (str): 
@@ -144,7 +153,7 @@ class ProvenanceEventsApi(object):
                 The number of events to limit the response to. Defaults to 10.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LatestProvenanceEventsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.LatestProvenanceEventsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -155,8 +164,11 @@ class ProvenanceEventsApi(object):
 
     def get_latest_provenance_events_with_http_info(self, component_id, **kwargs):
         """
-        Retrieves the latest cached Provenance Events for the specified component
-        This method makes a synchronous HTTP request.
+        Retrieves the latest cached Provenance Events for the specified component.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_latest_provenance_events()`` method instead.
         
         Args:
             component_id (str): 
@@ -165,7 +177,7 @@ class ProvenanceEventsApi(object):
                 The number of events to limit the response to. Defaults to 10.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LatestProvenanceEventsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.LatestProvenanceEventsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['component_id', 'limit']
@@ -227,8 +239,11 @@ class ProvenanceEventsApi(object):
 
     def get_output_content(self, id, **kwargs):
         """
-        Gets the output content for a provenance event
-        This method makes a synchronous HTTP request.
+        Gets the output content for a provenance event.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_output_content_with_http_info()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -239,7 +254,7 @@ class ProvenanceEventsApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            :class:`~nipyapi.nifi.models.StreamingOutput`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -250,8 +265,11 @@ class ProvenanceEventsApi(object):
 
     def get_output_content_with_http_info(self, id, **kwargs):
         """
-        Gets the output content for a provenance event
-        This method makes a synchronous HTTP request.
+        Gets the output content for a provenance event.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_output_content()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -262,7 +280,7 @@ class ProvenanceEventsApi(object):
                 The id of the node where the content exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.StreamingOutput`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.StreamingOutput`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'range', 'cluster_node_id']
@@ -327,8 +345,11 @@ class ProvenanceEventsApi(object):
 
     def get_provenance_event(self, id, **kwargs):
         """
-        Gets a provenance event
-        This method makes a synchronous HTTP request.
+        Gets a provenance event.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_provenance_event_with_http_info()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -337,7 +358,7 @@ class ProvenanceEventsApi(object):
                 The id of the node where this event exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -348,8 +369,11 @@ class ProvenanceEventsApi(object):
 
     def get_provenance_event_with_http_info(self, id, **kwargs):
         """
-        Gets a provenance event
-        This method makes a synchronous HTTP request.
+        Gets a provenance event.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_provenance_event()`` method instead.
         
         Args:
             id (:class:`~nipyapi.nifi.models.LongParameter`): 
@@ -358,7 +382,7 @@ class ProvenanceEventsApi(object):
                 The id of the node where this event exists if clustered.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProvenanceEventEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'cluster_node_id']
@@ -420,15 +444,18 @@ class ProvenanceEventsApi(object):
 
     def submit_replay(self, body, **kwargs):
         """
-        Replays content from a provenance event
-        This method makes a synchronous HTTP request.
+        Replays content from a provenance event.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_replay_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.SubmitReplayRequestEntity`): 
                 The replay request. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -439,15 +466,18 @@ class ProvenanceEventsApi(object):
 
     def submit_replay_with_http_info(self, body, **kwargs):
         """
-        Replays content from a provenance event
-        This method makes a synchronous HTTP request.
+        Replays content from a provenance event.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_replay()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.SubmitReplayRequestEntity`): 
                 The replay request. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProvenanceEventEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProvenanceEventEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -510,15 +540,18 @@ class ProvenanceEventsApi(object):
 
     def submit_replay_latest_event(self, body, **kwargs):
         """
-        Replays content from a provenance event
-        This method makes a synchronous HTTP request.
+        Replays content from a provenance event.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``submit_replay_latest_event_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ReplayLastEventRequestEntity`): 
                 The replay request. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReplayLastEventResponseEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ReplayLastEventResponseEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -529,15 +562,18 @@ class ProvenanceEventsApi(object):
 
     def submit_replay_latest_event_with_http_info(self, body, **kwargs):
         """
-        Replays content from a provenance event
-        This method makes a synchronous HTTP request.
+        Replays content from a provenance event.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``submit_replay_latest_event()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ReplayLastEventRequestEntity`): 
                 The replay request. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ReplayLastEventResponseEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ReplayLastEventResponseEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']

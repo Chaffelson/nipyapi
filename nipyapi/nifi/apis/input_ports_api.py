@@ -34,15 +34,18 @@ class InputPortsApi(object):
 
     def get_input_port(self, id, **kwargs):
         """
-        Gets an input port
-        This method makes a synchronous HTTP request.
+        Gets an input port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_input_port_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The input port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,15 +56,18 @@ class InputPortsApi(object):
 
     def get_input_port_with_http_info(self, id, **kwargs):
         """
-        Gets an input port
-        This method makes a synchronous HTTP request.
+        Gets an input port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_input_port()`` method instead.
         
         Args:
             id (str): 
                 The input port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -120,8 +126,11 @@ class InputPortsApi(object):
 
     def remove_input_port(self, id, **kwargs):
         """
-        Deletes an input port
-        This method makes a synchronous HTTP request.
+        Deletes an input port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_input_port_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -134,7 +143,7 @@ class InputPortsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -145,8 +154,11 @@ class InputPortsApi(object):
 
     def remove_input_port_with_http_info(self, id, **kwargs):
         """
-        Deletes an input port
-        This method makes a synchronous HTTP request.
+        Deletes an input port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_input_port()`` method instead.
         
         Args:
             id (str): 
@@ -159,7 +171,7 @@ class InputPortsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -227,8 +239,11 @@ class InputPortsApi(object):
 
     def update_input_port(self, body, id, **kwargs):
         """
-        Updates an input port
-        This method makes a synchronous HTTP request.
+        Updates an input port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_input_port_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortEntity`): 
@@ -237,7 +252,7 @@ class InputPortsApi(object):
                 The input port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -248,8 +263,11 @@ class InputPortsApi(object):
 
     def update_input_port_with_http_info(self, body, id, **kwargs):
         """
-        Updates an input port
-        This method makes a synchronous HTTP request.
+        Updates an input port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_input_port()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortEntity`): 
@@ -258,7 +276,7 @@ class InputPortsApi(object):
                 The input port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -327,8 +345,11 @@ class InputPortsApi(object):
 
     def update_run_status2(self, body, id, **kwargs):
         """
-        Updates run status of an input-port
-        This method makes a synchronous HTTP request.
+        Updates run status of an input-port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_run_status2_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortRunStatusEntity`): 
@@ -337,7 +358,7 @@ class InputPortsApi(object):
                 The port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -348,8 +369,11 @@ class InputPortsApi(object):
 
     def update_run_status2_with_http_info(self, body, id, **kwargs):
         """
-        Updates run status of an input-port
-        This method makes a synchronous HTTP request.
+        Updates run status of an input-port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_run_status2()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortRunStatusEntity`): 
@@ -358,7 +382,7 @@ class InputPortsApi(object):
                 The port id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

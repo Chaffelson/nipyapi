@@ -38,7 +38,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the artifacts in the extension repository in the given bucket and group.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_artifacts_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -47,7 +50,7 @@ class ExtensionRepositoryApi(object):
                 The group id (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoArtifact]`: The response object.
+            :class:`~nipyapi.registry.models.list[ExtensionRepoArtifact]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -62,7 +65,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the artifacts in the extension repository in the given bucket and group.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_artifacts()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -71,7 +77,7 @@ class ExtensionRepositoryApi(object):
                 The group id (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoArtifact]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[ExtensionRepoArtifact]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id']
@@ -140,12 +146,15 @@ class ExtensionRepositoryApi(object):
 
         Gets the names of the buckets the current user is authorized for in order to browse the repo by bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_buckets_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoBucket]`: The response object.
+            :class:`~nipyapi.registry.models.list[ExtensionRepoBucket]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -160,12 +169,15 @@ class ExtensionRepositoryApi(object):
 
         Gets the names of the buckets the current user is authorized for in order to browse the repo by bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_buckets()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoBucket]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[ExtensionRepoBucket]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -222,14 +234,17 @@ class ExtensionRepositoryApi(object):
 
         Gets the groups in the extension repository in the given bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_groups_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
                 The bucket name (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoGroup]`: The response object.
+            :class:`~nipyapi.registry.models.list[ExtensionRepoGroup]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -244,14 +259,17 @@ class ExtensionRepositoryApi(object):
 
         Gets the groups in the extension repository in the given bucket.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_groups()`` method instead.
         
         Args:
             bucket_name (str): 
                 The bucket name (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoGroup]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[ExtensionRepoGroup]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name']
@@ -314,7 +332,10 @@ class ExtensionRepositoryApi(object):
 
         Gets information about the version in the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_version_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -327,7 +348,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.ExtensionRepoVersion`: The response object.
+            :class:`~nipyapi.registry.models.ExtensionRepoVersion`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -342,7 +363,10 @@ class ExtensionRepositoryApi(object):
 
         Gets information about the version in the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_version()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -355,7 +379,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.ExtensionRepoVersion`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.ExtensionRepoVersion`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id', 'version']
@@ -436,7 +460,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the binary content of the bundle with the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_version_content_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -449,7 +476,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -464,7 +491,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the binary content of the bundle with the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_version_content()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -477,7 +507,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id', 'version']
@@ -558,7 +588,10 @@ class ExtensionRepositoryApi(object):
 
         Gets information about the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_version_extension_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -573,7 +606,7 @@ class ExtensionRepositoryApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Extension`: The response object.
+            :class:`~nipyapi.registry.models.Extension`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -588,7 +621,10 @@ class ExtensionRepositoryApi(object):
 
         Gets information about the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_version_extension()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -603,7 +639,7 @@ class ExtensionRepositoryApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Extension`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Extension`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id', 'version', 'name']
@@ -690,7 +726,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the additional details documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_version_extension_additional_details_docs_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -720,7 +759,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the additional details documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_version_extension_additional_details_docs()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -735,7 +777,7 @@ class ExtensionRepositoryApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id', 'version', 'name']
@@ -818,7 +860,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_version_extension_docs_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -848,7 +893,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the documentation for the extension with the given name in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_version_extension_docs()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -863,7 +911,7 @@ class ExtensionRepositoryApi(object):
                 The fully qualified name of the extension (required)
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id', 'version', 'name']
@@ -946,7 +994,10 @@ class ExtensionRepositoryApi(object):
 
         Gets information about the extensions in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_version_extensions_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -959,7 +1010,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionMetadata]`: The response object.
+            :class:`~nipyapi.registry.models.list[ExtensionMetadata]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -974,7 +1025,10 @@ class ExtensionRepositoryApi(object):
 
         Gets information about the extensions in the given bucket, group, artifact, and version.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_version_extensions()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -987,7 +1041,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionMetadata]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[ExtensionMetadata]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id', 'version']
@@ -1068,7 +1122,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the hex representation of the SHA-256 digest for the binary content of the bundle with the given bucket, group, artifact, and version.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_version_sha256_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -1096,7 +1153,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the hex representation of the SHA-256 digest for the binary content of the bundle with the given bucket, group, artifact, and version.  NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_version_sha256()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -1109,7 +1169,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id', 'version']
@@ -1186,7 +1246,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the versions in the extension repository for the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_extension_repo_versions_with_http_info()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -1197,7 +1260,7 @@ class ExtensionRepositoryApi(object):
                 The artifact identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoVersionSummary]`: The response object.
+            :class:`~nipyapi.registry.models.list[ExtensionRepoVersionSummary]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1212,7 +1275,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the versions in the extension repository for the given bucket, group, and artifact.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_extension_repo_versions()`` method instead.
         
         Args:
             bucket_name (str): 
@@ -1223,7 +1289,7 @@ class ExtensionRepositoryApi(object):
                 The artifact identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[ExtensionRepoVersionSummary]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[ExtensionRepoVersionSummary]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_name', 'group_id', 'artifact_id']
@@ -1298,7 +1364,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the hex representation of the SHA-256 digest for the binary content with the given bucket, group, artifact, and version. Since the same group-artifact-version can exist in multiple buckets, this will return the checksum of the first one returned. This will be consistent since the checksum must be the same when existing in multiple buckets.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_global_extension_repo_version_sha256_with_http_info()`` method instead.
         
         Args:
             group_id (str): 
@@ -1324,7 +1393,10 @@ class ExtensionRepositoryApi(object):
 
         Gets the hex representation of the SHA-256 digest for the binary content with the given bucket, group, artifact, and version. Since the same group-artifact-version can exist in multiple buckets, this will return the checksum of the first one returned. This will be consistent since the checksum must be the same when existing in multiple buckets.   NOTE: This endpoint is subject to change as NiFi Registry and its REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_global_extension_repo_version_sha256()`` method instead.
         
         Args:
             group_id (str): 
@@ -1335,7 +1407,7 @@ class ExtensionRepositoryApi(object):
                 The version (required)
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['group_id', 'artifact_id', 'version']

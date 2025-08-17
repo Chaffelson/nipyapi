@@ -34,18 +34,21 @@ class VersionsApi(object):
 
     def create_version_control_request(self, body, **kwargs):
         """
-        Create a version control request
+        Create a version control request.
 
         Creates a request so that a Process Group can be placed under Version Control or have its Version Control configuration changed. Creating this request will prevent any other threads from simultaneously saving local changes to Version Control. It will not, however, actually save the local flow to the Flow Registry. A POST to /versions/process-groups/{id} should be used to initiate saving of the local flow to the Flow Registry. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_version_control_request_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.CreateActiveRequestEntity`): 
                 The versioned flow details. (required)
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -56,18 +59,21 @@ class VersionsApi(object):
 
     def create_version_control_request_with_http_info(self, body, **kwargs):
         """
-        Create a version control request
+        Create a version control request.
 
         Creates a request so that a Process Group can be placed under Version Control or have its Version Control configuration changed. Creating this request will prevent any other threads from simultaneously saving local changes to Version Control. It will not, however, actually save the local flow to the Flow Registry. A POST to /versions/process-groups/{id} should be used to initiate saving of the local flow to the Flow Registry. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_version_control_request()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.CreateActiveRequestEntity`): 
                 The versioned flow details. (required)
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -130,11 +136,14 @@ class VersionsApi(object):
 
     def delete_revert_request(self, id, **kwargs):
         """
-        Deletes the Revert Request with the given ID
+        Deletes the Revert Request with the given ID.
 
         Deletes the Revert Request with the given ID. After a request is created via a POST to /versions/revert-requests/process-groups/{id}, it is expected that the client will properly clean up the request by DELETE'ing it, once the Revert process has completed. If the request is deleted before the request completes, then the Revert request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_revert_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -143,7 +152,7 @@ class VersionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -154,11 +163,14 @@ class VersionsApi(object):
 
     def delete_revert_request_with_http_info(self, id, **kwargs):
         """
-        Deletes the Revert Request with the given ID
+        Deletes the Revert Request with the given ID.
 
         Deletes the Revert Request with the given ID. After a request is created via a POST to /versions/revert-requests/process-groups/{id}, it is expected that the client will properly clean up the request by DELETE'ing it, once the Revert process has completed. If the request is deleted before the request completes, then the Revert request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_revert_request()`` method instead.
         
         Args:
             id (str): 
@@ -167,7 +179,7 @@ class VersionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged']
@@ -229,11 +241,14 @@ class VersionsApi(object):
 
     def delete_update_request1(self, id, **kwargs):
         """
-        Deletes the Update Request with the given ID
+        Deletes the Update Request with the given ID.
 
         Deletes the Update Request with the given ID. After a request is created via a POST to /versions/update-requests/process-groups/{id}, it is expected that the client will properly clean up the request by DELETE'ing it, once the Update process has completed. If the request is deleted before the request completes, then the Update request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_update_request1_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -242,7 +257,7 @@ class VersionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -253,11 +268,14 @@ class VersionsApi(object):
 
     def delete_update_request1_with_http_info(self, id, **kwargs):
         """
-        Deletes the Update Request with the given ID
+        Deletes the Update Request with the given ID.
 
         Deletes the Update Request with the given ID. After a request is created via a POST to /versions/update-requests/process-groups/{id}, it is expected that the client will properly clean up the request by DELETE'ing it, once the Update process has completed. If the request is deleted before the request completes, then the Update request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_update_request1()`` method instead.
         
         Args:
             id (str): 
@@ -266,7 +284,7 @@ class VersionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged']
@@ -328,11 +346,14 @@ class VersionsApi(object):
 
     def delete_version_control_request(self, id, **kwargs):
         """
-        Deletes the version control request with the given ID
+        Deletes the version control request with the given ID.
 
         Deletes the Version Control Request with the given ID. This will allow other threads to save flows to the Flow Registry. See also the documentation for POSTing to /versions/active-requests for information regarding why this is done. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_version_control_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -352,11 +373,14 @@ class VersionsApi(object):
 
     def delete_version_control_request_with_http_info(self, id, **kwargs):
         """
-        Deletes the version control request with the given ID
+        Deletes the version control request with the given ID.
 
         Deletes the Version Control Request with the given ID. This will allow other threads to save flows to the Flow Registry. See also the documentation for POSTing to /versions/active-requests for information regarding why this is done. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_version_control_request()`` method instead.
         
         Args:
             id (str): 
@@ -365,7 +389,7 @@ class VersionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            None
+            tuple: (None, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged']
@@ -423,15 +447,18 @@ class VersionsApi(object):
 
     def export_flow_version(self, id, **kwargs):
         """
-        Gets the latest version of a Process Group for download
-        This method makes a synchronous HTTP request.
+        Gets the latest version of a Process Group for download.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``export_flow_version_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -442,15 +469,18 @@ class VersionsApi(object):
 
     def export_flow_version_with_http_info(self, id, **kwargs):
         """
-        Gets the latest version of a Process Group for download
-        This method makes a synchronous HTTP request.
+        Gets the latest version of a Process Group for download.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``export_flow_version()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -509,18 +539,21 @@ class VersionsApi(object):
 
     def get_revert_request(self, id, **kwargs):
         """
-        Returns the Revert Request with the given ID
+        Returns the Revert Request with the given ID.
 
         Returns the Revert Request with the given ID. Once a Revert Request has been created by performing a POST to /versions/revert-requests/process-groups/{id}, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_revert_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The ID of the Revert Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -531,18 +564,21 @@ class VersionsApi(object):
 
     def get_revert_request_with_http_info(self, id, **kwargs):
         """
-        Returns the Revert Request with the given ID
+        Returns the Revert Request with the given ID.
 
         Returns the Revert Request with the given ID. Once a Revert Request has been created by performing a POST to /versions/revert-requests/process-groups/{id}, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_revert_request()`` method instead.
         
         Args:
             id (str): 
                 The ID of the Revert Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -601,18 +637,21 @@ class VersionsApi(object):
 
     def get_update_request(self, id, **kwargs):
         """
-        Returns the Update Request with the given ID
+        Returns the Update Request with the given ID.
 
         Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /versions/update-requests/process-groups/{id}, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_update_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The ID of the Update Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -623,18 +662,21 @@ class VersionsApi(object):
 
     def get_update_request_with_http_info(self, id, **kwargs):
         """
-        Returns the Update Request with the given ID
+        Returns the Update Request with the given ID.
 
         Returns the Update Request with the given ID. Once an Update Request has been created by performing a POST to /versions/update-requests/process-groups/{id}, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_update_request()`` method instead.
         
         Args:
             id (str): 
                 The ID of the Update Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -693,18 +735,21 @@ class VersionsApi(object):
 
     def get_version_information(self, id, **kwargs):
         """
-        Gets the Version Control information for a process group
+        Gets the Version Control information for a process group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_version_information_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -715,18 +760,21 @@ class VersionsApi(object):
 
     def get_version_information_with_http_info(self, id, **kwargs):
         """
-        Gets the Version Control information for a process group
+        Gets the Version Control information for a process group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_version_information()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -785,11 +833,14 @@ class VersionsApi(object):
 
     def initiate_revert_flow_version(self, body, id, **kwargs):
         """
-        Initiate the Revert Request of a Process Group with the given ID
+        Initiate the Revert Request of a Process Group with the given ID.
 
         For a Process Group that is already under Version Control, this will initiate the action of reverting any local changes that have been made to the Process Group since it was last synchronized with the Flow Registry. This will result in the flow matching the Versioned Flow that exists in the Flow Registry. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a VersionedFlowUpdateRequestEntity, and the process of updating the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /versions/revert-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /versions/revert-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``initiate_revert_flow_version_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`): 
@@ -798,7 +849,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -809,11 +860,14 @@ class VersionsApi(object):
 
     def initiate_revert_flow_version_with_http_info(self, body, id, **kwargs):
         """
-        Initiate the Revert Request of a Process Group with the given ID
+        Initiate the Revert Request of a Process Group with the given ID.
 
         For a Process Group that is already under Version Control, this will initiate the action of reverting any local changes that have been made to the Process Group since it was last synchronized with the Flow Registry. This will result in the flow matching the Versioned Flow that exists in the Flow Registry. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a VersionedFlowUpdateRequestEntity, and the process of updating the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /versions/revert-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /versions/revert-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``initiate_revert_flow_version()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`): 
@@ -822,7 +876,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -891,11 +945,14 @@ class VersionsApi(object):
 
     def initiate_version_control_update(self, body, id, **kwargs):
         """
-        Initiate the Update Request of a Process Group with the given ID
+        Initiate the Update Request of a Process Group with the given ID.
 
         For a Process Group that is already under Version Control, this will initiate the action of changing from a specific version of the flow in the Flow Registry to a different version of the flow. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a VersionedFlowUpdateRequestEntity, and the process of updating the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /versions/update-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /versions/update-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``initiate_version_control_update_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`): 
@@ -904,7 +961,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -915,11 +972,14 @@ class VersionsApi(object):
 
     def initiate_version_control_update_with_http_info(self, body, id, **kwargs):
         """
-        Initiate the Update Request of a Process Group with the given ID
+        Initiate the Update Request of a Process Group with the given ID.
 
         For a Process Group that is already under Version Control, this will initiate the action of changing from a specific version of the flow in the Flow Registry to a different version of the flow. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a VersionedFlowUpdateRequestEntity, and the process of updating the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /versions/update-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /versions/update-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``initiate_version_control_update()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`): 
@@ -928,7 +988,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionedFlowUpdateRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -997,11 +1057,14 @@ class VersionsApi(object):
 
     def save_to_flow_registry(self, body, id, **kwargs):
         """
-        Save the Process Group with the given ID
+        Save the Process Group with the given ID.
 
         Begins version controlling the Process Group with the given ID or commits changes to the Versioned Flow, depending on if the provided VersionControlInformation includes a flowId. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``save_to_flow_registry_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.StartVersionControlRequestEntity`): 
@@ -1010,7 +1073,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1021,11 +1084,14 @@ class VersionsApi(object):
 
     def save_to_flow_registry_with_http_info(self, body, id, **kwargs):
         """
-        Save the Process Group with the given ID
+        Save the Process Group with the given ID.
 
         Begins version controlling the Process Group with the given ID or commits changes to the Versioned Flow, depending on if the provided VersionControlInformation includes a flowId. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``save_to_flow_registry()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.StartVersionControlRequestEntity`): 
@@ -1034,7 +1100,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -1103,11 +1169,14 @@ class VersionsApi(object):
 
     def stop_version_control(self, id, **kwargs):
         """
-        Stops version controlling the Process Group with the given ID
+        Stops version controlling the Process Group with the given ID.
 
         Stops version controlling the Process Group with the given ID. The Process Group will no longer track to any Versioned Flow. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``stop_version_control_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1120,7 +1189,7 @@ class VersionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1131,11 +1200,14 @@ class VersionsApi(object):
 
     def stop_version_control_with_http_info(self, id, **kwargs):
         """
-        Stops version controlling the Process Group with the given ID
+        Stops version controlling the Process Group with the given ID.
 
         Stops version controlling the Process Group with the given ID. The Process Group will no longer track to any Versioned Flow. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``stop_version_control()`` method instead.
         
         Args:
             id (str): 
@@ -1148,7 +1220,7 @@ class VersionsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -1216,11 +1288,14 @@ class VersionsApi(object):
 
     def update_flow_version(self, body, id, **kwargs):
         """
-        Update the version of a Process Group with the given ID
+        Update the version of a Process Group with the given ID.
 
         For a Process Group that is already under Version Control, this will update the version of the flow to a different version. This endpoint expects that the given snapshot will not modify any Processor that is currently running or any Controller Service that is enabled. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_flow_version_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionedFlowSnapshotEntity`): 
@@ -1229,7 +1304,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1240,11 +1315,14 @@ class VersionsApi(object):
 
     def update_flow_version_with_http_info(self, body, id, **kwargs):
         """
-        Update the version of a Process Group with the given ID
+        Update the version of a Process Group with the given ID.
 
         For a Process Group that is already under Version Control, this will update the version of the flow to a different version. This endpoint expects that the given snapshot will not modify any Processor that is currently running or any Controller Service that is enabled. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_flow_version()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionedFlowSnapshotEntity`): 
@@ -1253,7 +1331,7 @@ class VersionsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -1322,11 +1400,14 @@ class VersionsApi(object):
 
     def update_version_control_request(self, body, id, **kwargs):
         """
-        Updates the request with the given ID
+        Updates the request with the given ID.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_version_control_request_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionControlComponentMappingEntity`): 
@@ -1335,7 +1416,7 @@ class VersionsApi(object):
                 The request ID. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1346,11 +1427,14 @@ class VersionsApi(object):
 
     def update_version_control_request_with_http_info(self, body, id, **kwargs):
         """
-        Updates the request with the given ID
+        Updates the request with the given ID.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_version_control_request()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.VersionControlComponentMappingEntity`): 
@@ -1359,7 +1443,7 @@ class VersionsApi(object):
                 The request ID. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.VersionControlInformationEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.VersionControlInformationEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

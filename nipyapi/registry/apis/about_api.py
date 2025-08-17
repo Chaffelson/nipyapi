@@ -38,12 +38,15 @@ class AboutApi(object):
 
         Gets the NiFi Registry version.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_version_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.RegistryAbout`: The response object.
+            :class:`~nipyapi.registry.models.RegistryAbout`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,12 +61,15 @@ class AboutApi(object):
 
         Gets the NiFi Registry version.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_version()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.RegistryAbout`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.RegistryAbout`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

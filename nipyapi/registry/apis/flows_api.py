@@ -38,12 +38,15 @@ class FlowsApi(object):
 
         Retrieves the flow field names that can be used for searching or sorting on flows.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_available_flow_fields_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.Fields`: The response object.
+            :class:`~nipyapi.registry.models.Fields`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,12 +61,15 @@ class FlowsApi(object):
 
         Retrieves the flow field names that can be used for searching or sorting on flows.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_available_flow_fields()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.Fields`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Fields`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -120,14 +126,17 @@ class FlowsApi(object):
 
         Gets a flow by id.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow1_with_http_info()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
+            :class:`~nipyapi.registry.models.VersionedFlow`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -142,14 +151,17 @@ class FlowsApi(object):
 
         Gets a flow by id.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow1()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlow`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.VersionedFlow`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['flow_id']
@@ -212,7 +224,10 @@ class FlowsApi(object):
 
         Gets the given version of a flow, including metadata and flow content.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_version1_with_http_info()`` method instead.
         
         Args:
             flow_id (str): 
@@ -221,7 +236,7 @@ class FlowsApi(object):
                 The version number (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -236,7 +251,10 @@ class FlowsApi(object):
 
         Gets the given version of a flow, including metadata and flow content.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_version1()`` method instead.
         
         Args:
             flow_id (str): 
@@ -245,7 +263,7 @@ class FlowsApi(object):
                 The version number (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.VersionedFlowSnapshot`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['flow_id', 'version_number']
@@ -314,14 +332,17 @@ class FlowsApi(object):
 
         Gets summary information for all versions of a given flow. Versions are ordered newest->oldest.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_flow_versions1_with_http_info()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[VersionedFlowSnapshotMetadata]`: The response object.
+            :class:`~nipyapi.registry.models.list[VersionedFlowSnapshotMetadata]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -336,14 +357,17 @@ class FlowsApi(object):
 
         Gets summary information for all versions of a given flow. Versions are ordered newest->oldest.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_flow_versions1()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[VersionedFlowSnapshotMetadata]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[VersionedFlowSnapshotMetadata]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['flow_id']
@@ -406,14 +430,17 @@ class FlowsApi(object):
 
         Gets the latest version of a flow, including metadata and flow content.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_latest_flow_version1_with_http_info()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -428,14 +455,17 @@ class FlowsApi(object):
 
         Gets the latest version of a flow, including metadata and flow content.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_latest_flow_version1()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlowSnapshot`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.VersionedFlowSnapshot`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['flow_id']
@@ -498,14 +528,17 @@ class FlowsApi(object):
 
         Gets the metadata for the latest version of a flow.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_latest_flow_version_metadata1_with_http_info()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlowSnapshotMetadata`: The response object.
+            :class:`~nipyapi.registry.models.VersionedFlowSnapshotMetadata`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -520,14 +553,17 @@ class FlowsApi(object):
 
         Gets the metadata for the latest version of a flow.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_latest_flow_version_metadata1()`` method instead.
         
         Args:
             flow_id (str): 
                 The flow identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.VersionedFlowSnapshotMetadata`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.VersionedFlowSnapshotMetadata`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['flow_id']

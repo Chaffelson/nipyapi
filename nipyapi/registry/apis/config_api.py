@@ -38,12 +38,15 @@ class ConfigApi(object):
 
         Gets the NiFi Registry configurations.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_configuration_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.RegistryConfiguration`: The response object.
+            :class:`~nipyapi.registry.models.RegistryConfiguration`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,12 +61,15 @@ class ConfigApi(object):
 
         Gets the NiFi Registry configurations.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_configuration()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.RegistryConfiguration`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.RegistryConfiguration`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []

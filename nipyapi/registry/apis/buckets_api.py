@@ -35,7 +35,10 @@ class BucketsApi(object):
     def create_bucket(self, body, **kwargs):
         """
         Create bucket.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_bucket_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.Bucket`): 
@@ -44,7 +47,7 @@ class BucketsApi(object):
                 Whether source properties like identifier should be kept
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            :class:`~nipyapi.registry.models.Bucket`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -56,7 +59,10 @@ class BucketsApi(object):
     def create_bucket_with_http_info(self, body, **kwargs):
         """
         Create bucket.
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_bucket()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.Bucket`): 
@@ -65,7 +71,7 @@ class BucketsApi(object):
                 Whether source properties like identifier should be kept
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Bucket`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'preserve_source_properties']
@@ -135,7 +141,10 @@ class BucketsApi(object):
 
         Deletes the bucket with the given id, along with all objects stored in the bucket
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_bucket_with_http_info()`` method instead.
         
         Args:
             version (:class:`~nipyapi.registry.models.LongParameter`): 
@@ -146,7 +155,7 @@ class BucketsApi(object):
                 If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            :class:`~nipyapi.registry.models.Bucket`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -161,7 +170,10 @@ class BucketsApi(object):
 
         Deletes the bucket with the given id, along with all objects stored in the bucket
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_bucket()`` method instead.
         
         Args:
             version (:class:`~nipyapi.registry.models.LongParameter`): 
@@ -172,7 +184,7 @@ class BucketsApi(object):
                 If the client id is not specified, new one will be generated. This value (whether specified or generated) is included in the response.
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Bucket`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['version', 'bucket_id', 'client_id']
@@ -244,12 +256,15 @@ class BucketsApi(object):
 
         Retrieves bucket field names for searching or sorting on buckets.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_available_bucket_fields_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.Fields`: The response object.
+            :class:`~nipyapi.registry.models.Fields`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -264,12 +279,15 @@ class BucketsApi(object):
 
         Retrieves bucket field names for searching or sorting on buckets.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_available_bucket_fields()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.Fields`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Fields`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -326,14 +344,17 @@ class BucketsApi(object):
 
         Gets the bucket with the given id.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_bucket_with_http_info()`` method instead.
         
         Args:
             bucket_id (str): 
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            :class:`~nipyapi.registry.models.Bucket`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -348,14 +369,17 @@ class BucketsApi(object):
 
         Gets the bucket with the given id.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_bucket()`` method instead.
         
         Args:
             bucket_id (str): 
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Bucket`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['bucket_id']
@@ -418,12 +442,15 @@ class BucketsApi(object):
 
         The returned list will include only buckets for which the user is authorized.If the user is not authorized for any buckets, this returns an empty list.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_buckets_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Bucket]`: The response object.
+            :class:`~nipyapi.registry.models.list[Bucket]`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -438,12 +465,15 @@ class BucketsApi(object):
 
         The returned list will include only buckets for which the user is authorized.If the user is not authorized for any buckets, this returns an empty list.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_buckets()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.registry.models.list[Bucket]`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.list[Bucket]`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -500,7 +530,10 @@ class BucketsApi(object):
 
         Updates the bucket with the given id.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_bucket_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.Bucket`): 
@@ -509,7 +542,7 @@ class BucketsApi(object):
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            :class:`~nipyapi.registry.models.Bucket`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -524,7 +557,10 @@ class BucketsApi(object):
 
         Updates the bucket with the given id.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_bucket()`` method instead.
         
         Args:
             body (:class:`~nipyapi.registry.models.Bucket`): 
@@ -533,7 +569,7 @@ class BucketsApi(object):
                 The bucket identifier (required)
                 
         Returns:
-            :class:`~nipyapi.registry.models.Bucket`: The response object.
+            tuple: (:class:`~nipyapi.registry.models.Bucket`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'bucket_id']

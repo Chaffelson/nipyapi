@@ -34,18 +34,21 @@ class TenantsApi(object):
 
     def create_user(self, body, **kwargs):
         """
-        Creates a user
+        Creates a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_user_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserEntity`): 
                 The user configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -56,18 +59,21 @@ class TenantsApi(object):
 
     def create_user_with_http_info(self, body, **kwargs):
         """
-        Creates a user
+        Creates a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_user()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserEntity`): 
                 The user configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -130,18 +136,21 @@ class TenantsApi(object):
 
     def create_user_group(self, body, **kwargs):
         """
-        Creates a user group
+        Creates a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_user_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserGroupEntity`): 
                 The user group configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -152,18 +161,21 @@ class TenantsApi(object):
 
     def create_user_group_with_http_info(self, body, **kwargs):
         """
-        Creates a user group
+        Creates a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_user_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserGroupEntity`): 
                 The user group configuration details. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body']
@@ -226,18 +238,21 @@ class TenantsApi(object):
 
     def get_user(self, id, **kwargs):
         """
-        Gets a user
+        Gets a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_user_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The user id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -248,18 +263,21 @@ class TenantsApi(object):
 
     def get_user_with_http_info(self, id, **kwargs):
         """
-        Gets a user
+        Gets a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_user()`` method instead.
         
         Args:
             id (str): 
                 The user id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -318,18 +336,21 @@ class TenantsApi(object):
 
     def get_user_group(self, id, **kwargs):
         """
-        Gets a user group
+        Gets a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_user_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The user group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -340,18 +361,21 @@ class TenantsApi(object):
 
     def get_user_group_with_http_info(self, id, **kwargs):
         """
-        Gets a user group
+        Gets a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_user_group()`` method instead.
         
         Args:
             id (str): 
                 The user group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -410,16 +434,19 @@ class TenantsApi(object):
 
     def get_user_groups(self, **kwargs):
         """
-        Gets all user groups
+        Gets all user groups.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_user_groups_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserGroupsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -430,16 +457,19 @@ class TenantsApi(object):
 
     def get_user_groups_with_http_info(self, **kwargs):
         """
-        Gets all user groups
+        Gets all user groups.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_user_groups()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserGroupsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -492,16 +522,19 @@ class TenantsApi(object):
 
     def get_users(self, **kwargs):
         """
-        Gets all users
+        Gets all users.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_users_with_http_info()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UsersEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UsersEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -512,16 +545,19 @@ class TenantsApi(object):
 
     def get_users_with_http_info(self, **kwargs):
         """
-        Gets all users
+        Gets all users.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_users()`` method instead.
         
         Args:
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UsersEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UsersEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = []
@@ -574,11 +610,14 @@ class TenantsApi(object):
 
     def remove_user(self, id, **kwargs):
         """
-        Deletes a user
+        Deletes a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_user_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -591,7 +630,7 @@ class TenantsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -602,11 +641,14 @@ class TenantsApi(object):
 
     def remove_user_with_http_info(self, id, **kwargs):
         """
-        Deletes a user
+        Deletes a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_user()`` method instead.
         
         Args:
             id (str): 
@@ -619,7 +661,7 @@ class TenantsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -687,11 +729,14 @@ class TenantsApi(object):
 
     def remove_user_group(self, id, **kwargs):
         """
-        Deletes a user group
+        Deletes a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_user_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -704,7 +749,7 @@ class TenantsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -715,11 +760,14 @@ class TenantsApi(object):
 
     def remove_user_group_with_http_info(self, id, **kwargs):
         """
-        Deletes a user group
+        Deletes a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_user_group()`` method instead.
         
         Args:
             id (str): 
@@ -732,7 +780,7 @@ class TenantsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -800,18 +848,21 @@ class TenantsApi(object):
 
     def search_tenants(self, q, **kwargs):
         """
-        Searches for a tenant with the specified identity
+        Searches for a tenant with the specified identity.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``search_tenants_with_http_info()`` method instead.
         
         Args:
             q (str): 
                 Identity to search for. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TenantsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.TenantsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -822,18 +873,21 @@ class TenantsApi(object):
 
     def search_tenants_with_http_info(self, q, **kwargs):
         """
-        Searches for a tenant with the specified identity
+        Searches for a tenant with the specified identity.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``search_tenants()`` method instead.
         
         Args:
             q (str): 
                 Identity to search for. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.TenantsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.TenantsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['q']
@@ -892,11 +946,14 @@ class TenantsApi(object):
 
     def update_user(self, body, id, **kwargs):
         """
-        Updates a user
+        Updates a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_user_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserEntity`): 
@@ -905,7 +962,7 @@ class TenantsApi(object):
                 The user id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -916,11 +973,14 @@ class TenantsApi(object):
 
     def update_user_with_http_info(self, body, id, **kwargs):
         """
-        Updates a user
+        Updates a user.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_user()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserEntity`): 
@@ -929,7 +989,7 @@ class TenantsApi(object):
                 The user id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -998,11 +1058,14 @@ class TenantsApi(object):
 
     def update_user_group(self, body, id, **kwargs):
         """
-        Updates a user group
+        Updates a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_user_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserGroupEntity`): 
@@ -1011,7 +1074,7 @@ class TenantsApi(object):
                 The user group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1022,11 +1085,14 @@ class TenantsApi(object):
 
     def update_user_group_with_http_info(self, body, id, **kwargs):
         """
-        Updates a user group
+        Updates a user group.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_user_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.UserGroupEntity`): 
@@ -1035,7 +1101,7 @@ class TenantsApi(object):
                 The user group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.UserGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.UserGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

@@ -34,8 +34,11 @@ class ProcessGroupsApi(object):
 
     def copy(self, body, id, **kwargs):
         """
-        Generates a copy response for the given copy request
-        This method makes a synchronous HTTP request.
+        Generates a copy response for the given copy request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``copy_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.CopyRequestEntity`): 
@@ -44,7 +47,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CopyResponseEntity`: The response object.
+            :class:`~nipyapi.nifi.models.CopyResponseEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -55,8 +58,11 @@ class ProcessGroupsApi(object):
 
     def copy_with_http_info(self, body, id, **kwargs):
         """
-        Generates a copy response for the given copy request
-        This method makes a synchronous HTTP request.
+        Generates a copy response for the given copy request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``copy()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.CopyRequestEntity`): 
@@ -65,7 +71,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CopyResponseEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.CopyResponseEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -134,8 +140,11 @@ class ProcessGroupsApi(object):
 
     def copy_snippet(self, body, id, **kwargs):
         """
-        Copies a snippet and discards it.
-        This method makes a synchronous HTTP request.
+        Copies a snippet and discards it..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``copy_snippet_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.CopySnippetRequestEntity`): 
@@ -144,7 +153,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -155,8 +164,11 @@ class ProcessGroupsApi(object):
 
     def copy_snippet_with_http_info(self, body, id, **kwargs):
         """
-        Copies a snippet and discards it.
-        This method makes a synchronous HTTP request.
+        Copies a snippet and discards it..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``copy_snippet()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.CopySnippetRequestEntity`): 
@@ -165,7 +177,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -234,8 +246,11 @@ class ProcessGroupsApi(object):
 
     def create_connection(self, body, id, **kwargs):
         """
-        Creates a connection
-        This method makes a synchronous HTTP request.
+        Creates a connection.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_connection_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
@@ -244,7 +259,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -255,8 +270,11 @@ class ProcessGroupsApi(object):
 
     def create_connection_with_http_info(self, body, id, **kwargs):
         """
-        Creates a connection
-        This method makes a synchronous HTTP request.
+        Creates a connection.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_connection()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ConnectionEntity`): 
@@ -265,7 +283,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConnectionEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -334,8 +352,11 @@ class ProcessGroupsApi(object):
 
     def create_controller_service1(self, body, id, **kwargs):
         """
-        Creates a new controller service
-        This method makes a synchronous HTTP request.
+        Creates a new controller service.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_controller_service1_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
@@ -344,7 +365,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -355,8 +376,11 @@ class ProcessGroupsApi(object):
 
     def create_controller_service1_with_http_info(self, body, id, **kwargs):
         """
-        Creates a new controller service
-        This method makes a synchronous HTTP request.
+        Creates a new controller service.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_controller_service1()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ControllerServiceEntity`): 
@@ -365,7 +389,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ControllerServiceEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -434,15 +458,18 @@ class ProcessGroupsApi(object):
 
     def create_empty_all_connections_request(self, id, **kwargs):
         """
-        Creates a request to drop all flowfiles of all connection queues in this process group.
-        This method makes a synchronous HTTP request.
+        Creates a request to drop all flowfiles of all connection queues in this process group..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_empty_all_connections_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -453,15 +480,18 @@ class ProcessGroupsApi(object):
 
     def create_empty_all_connections_request_with_http_info(self, id, **kwargs):
         """
-        Creates a request to drop all flowfiles of all connection queues in this process group.
-        This method makes a synchronous HTTP request.
+        Creates a request to drop all flowfiles of all connection queues in this process group..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_empty_all_connections_request()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.DropRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -520,8 +550,11 @@ class ProcessGroupsApi(object):
 
     def create_funnel(self, body, id, **kwargs):
         """
-        Creates a funnel
-        This method makes a synchronous HTTP request.
+        Creates a funnel.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_funnel_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
@@ -530,7 +563,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FunnelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -541,8 +574,11 @@ class ProcessGroupsApi(object):
 
     def create_funnel_with_http_info(self, body, id, **kwargs):
         """
-        Creates a funnel
-        This method makes a synchronous HTTP request.
+        Creates a funnel.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_funnel()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.FunnelEntity`): 
@@ -551,7 +587,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FunnelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -620,8 +656,11 @@ class ProcessGroupsApi(object):
 
     def create_input_port(self, body, id, **kwargs):
         """
-        Creates an input port
-        This method makes a synchronous HTTP request.
+        Creates an input port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_input_port_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortEntity`): 
@@ -630,7 +669,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -641,8 +680,11 @@ class ProcessGroupsApi(object):
 
     def create_input_port_with_http_info(self, body, id, **kwargs):
         """
-        Creates an input port
-        This method makes a synchronous HTTP request.
+        Creates an input port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_input_port()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortEntity`): 
@@ -651,7 +693,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -720,8 +762,11 @@ class ProcessGroupsApi(object):
 
     def create_label(self, body, id, **kwargs):
         """
-        Creates a label
-        This method makes a synchronous HTTP request.
+        Creates a label.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_label_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.LabelEntity`): 
@@ -730,7 +775,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.LabelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -741,8 +786,11 @@ class ProcessGroupsApi(object):
 
     def create_label_with_http_info(self, body, id, **kwargs):
         """
-        Creates a label
-        This method makes a synchronous HTTP request.
+        Creates a label.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_label()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.LabelEntity`): 
@@ -751,7 +799,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.LabelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -820,8 +868,11 @@ class ProcessGroupsApi(object):
 
     def create_output_port(self, body, id, **kwargs):
         """
-        Creates an output port
-        This method makes a synchronous HTTP request.
+        Creates an output port.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_output_port_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortEntity`): 
@@ -830,7 +881,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PortEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -841,8 +892,11 @@ class ProcessGroupsApi(object):
 
     def create_output_port_with_http_info(self, body, id, **kwargs):
         """
-        Creates an output port
-        This method makes a synchronous HTTP request.
+        Creates an output port.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_output_port()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PortEntity`): 
@@ -851,7 +905,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PortEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PortEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -920,8 +974,11 @@ class ProcessGroupsApi(object):
 
     def create_process_group(self, body, id, **kwargs):
         """
-        Creates a process group
-        This method makes a synchronous HTTP request.
+        Creates a process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_process_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
@@ -932,7 +989,7 @@ class ProcessGroupsApi(object):
                 Handling Strategy controls whether to keep or replace Parameter Contexts
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -943,8 +1000,11 @@ class ProcessGroupsApi(object):
 
     def create_process_group_with_http_info(self, body, id, **kwargs):
         """
-        Creates a process group
-        This method makes a synchronous HTTP request.
+        Creates a process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_process_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
@@ -955,7 +1015,7 @@ class ProcessGroupsApi(object):
                 Handling Strategy controls whether to keep or replace Parameter Contexts
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id', 'parameter_context_handling_strategy']
@@ -1027,8 +1087,11 @@ class ProcessGroupsApi(object):
 
     def create_processor(self, body, id, **kwargs):
         """
-        Creates a new processor
-        This method makes a synchronous HTTP request.
+        Creates a new processor.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_processor_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessorEntity`): 
@@ -1037,7 +1100,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1048,8 +1111,11 @@ class ProcessGroupsApi(object):
 
     def create_processor_with_http_info(self, body, id, **kwargs):
         """
-        Creates a new processor
-        This method makes a synchronous HTTP request.
+        Creates a new processor.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_processor()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessorEntity`): 
@@ -1058,7 +1124,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -1127,8 +1193,11 @@ class ProcessGroupsApi(object):
 
     def create_remote_process_group(self, body, id, **kwargs):
         """
-        Creates a new process group
-        This method makes a synchronous HTTP request.
+        Creates a new process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``create_remote_process_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
@@ -1137,7 +1206,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1148,8 +1217,11 @@ class ProcessGroupsApi(object):
 
     def create_remote_process_group_with_http_info(self, body, id, **kwargs):
         """
-        Creates a new process group
-        This method makes a synchronous HTTP request.
+        Creates a new process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``create_remote_process_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`): 
@@ -1158,7 +1230,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -1227,11 +1299,14 @@ class ProcessGroupsApi(object):
 
     def delete_replace_process_group_request(self, id, **kwargs):
         """
-        Deletes the Replace Request with the given ID
+        Deletes the Replace Request with the given ID.
 
         Deletes the Replace Request with the given ID. After a request is created via a POST to /process-groups/{id}/replace-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Replace process has completed. If the request is deleted before the request completes, then the Replace request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``delete_replace_process_group_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1240,7 +1315,7 @@ class ProcessGroupsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1251,11 +1326,14 @@ class ProcessGroupsApi(object):
 
     def delete_replace_process_group_request_with_http_info(self, id, **kwargs):
         """
-        Deletes the Replace Request with the given ID
+        Deletes the Replace Request with the given ID.
 
         Deletes the Replace Request with the given ID. After a request is created via a POST to /process-groups/{id}/replace-requests, it is expected that the client will properly clean up the request by DELETE'ing it, once the Replace process has completed. If the request is deleted before the request completes, then the Replace request will finish the step that it is currently performing and then will cancel any subsequent steps. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``delete_replace_process_group_request()`` method instead.
         
         Args:
             id (str): 
@@ -1264,7 +1342,7 @@ class ProcessGroupsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'disconnected_node_acknowledged']
@@ -1326,8 +1404,11 @@ class ProcessGroupsApi(object):
 
     def export_process_group(self, id, **kwargs):
         """
-        Gets a process group for download
-        This method makes a synchronous HTTP request.
+        Gets a process group for download.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``export_process_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1336,7 +1417,7 @@ class ProcessGroupsApi(object):
                 If referenced services from outside the target group should be included
                 
         Returns:
-            str: The response object.
+            str: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1347,8 +1428,11 @@ class ProcessGroupsApi(object):
 
     def export_process_group_with_http_info(self, id, **kwargs):
         """
-        Gets a process group for download
-        This method makes a synchronous HTTP request.
+        Gets a process group for download.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``export_process_group()`` method instead.
         
         Args:
             id (str): 
@@ -1357,7 +1441,7 @@ class ProcessGroupsApi(object):
                 If referenced services from outside the target group should be included
                 
         Returns:
-            str: The response object.
+            tuple: (str, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'include_referenced_services']
@@ -1419,15 +1503,18 @@ class ProcessGroupsApi(object):
 
     def get_connections(self, id, **kwargs):
         """
-        Gets all connections
-        This method makes a synchronous HTTP request.
+        Gets all connections.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_connections_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ConnectionsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1438,15 +1525,18 @@ class ProcessGroupsApi(object):
 
     def get_connections_with_http_info(self, id, **kwargs):
         """
-        Gets all connections
-        This method makes a synchronous HTTP request.
+        Gets all connections.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_connections()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ConnectionsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ConnectionsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1505,8 +1595,11 @@ class ProcessGroupsApi(object):
 
     def get_drop_all_flowfiles_request(self, id, drop_request_id, **kwargs):
         """
-        Gets the current status of a drop all flowfiles request.
-        This method makes a synchronous HTTP request.
+        Gets the current status of a drop all flowfiles request..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_drop_all_flowfiles_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -1515,7 +1608,7 @@ class ProcessGroupsApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1526,8 +1619,11 @@ class ProcessGroupsApi(object):
 
     def get_drop_all_flowfiles_request_with_http_info(self, id, drop_request_id, **kwargs):
         """
-        Gets the current status of a drop all flowfiles request.
-        This method makes a synchronous HTTP request.
+        Gets the current status of a drop all flowfiles request..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_drop_all_flowfiles_request()`` method instead.
         
         Args:
             id (str): 
@@ -1536,7 +1632,7 @@ class ProcessGroupsApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.DropRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'drop_request_id']
@@ -1601,15 +1697,18 @@ class ProcessGroupsApi(object):
 
     def get_funnels(self, id, **kwargs):
         """
-        Gets all funnels
-        This method makes a synchronous HTTP request.
+        Gets all funnels.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_funnels_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FunnelsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1620,15 +1719,18 @@ class ProcessGroupsApi(object):
 
     def get_funnels_with_http_info(self, id, **kwargs):
         """
-        Gets all funnels
-        This method makes a synchronous HTTP request.
+        Gets all funnels.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_funnels()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FunnelsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FunnelsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1687,15 +1789,18 @@ class ProcessGroupsApi(object):
 
     def get_input_ports(self, id, **kwargs):
         """
-        Gets all input ports
-        This method makes a synchronous HTTP request.
+        Gets all input ports.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_input_ports_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.InputPortsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.InputPortsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1706,15 +1811,18 @@ class ProcessGroupsApi(object):
 
     def get_input_ports_with_http_info(self, id, **kwargs):
         """
-        Gets all input ports
-        This method makes a synchronous HTTP request.
+        Gets all input ports.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_input_ports()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.InputPortsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.InputPortsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1773,15 +1881,18 @@ class ProcessGroupsApi(object):
 
     def get_labels(self, id, **kwargs):
         """
-        Gets all labels
-        This method makes a synchronous HTTP request.
+        Gets all labels.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_labels_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.LabelsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1792,15 +1903,18 @@ class ProcessGroupsApi(object):
 
     def get_labels_with_http_info(self, id, **kwargs):
         """
-        Gets all labels
-        This method makes a synchronous HTTP request.
+        Gets all labels.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_labels()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.LabelsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1859,15 +1973,18 @@ class ProcessGroupsApi(object):
 
     def get_local_modifications(self, id, **kwargs):
         """
-        Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry
-        This method makes a synchronous HTTP request.
+        Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_local_modifications_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
+            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1878,15 +1995,18 @@ class ProcessGroupsApi(object):
 
     def get_local_modifications_with_http_info(self, id, **kwargs):
         """
-        Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry
-        This method makes a synchronous HTTP request.
+        Gets a list of local modifications to the Process Group since it was last synchronized with the Flow Registry.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_local_modifications()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.FlowComparisonEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.FlowComparisonEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -1945,15 +2065,18 @@ class ProcessGroupsApi(object):
 
     def get_output_ports(self, id, **kwargs):
         """
-        Gets all output ports
-        This method makes a synchronous HTTP request.
+        Gets all output ports.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_output_ports_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.OutputPortsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.OutputPortsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -1964,15 +2087,18 @@ class ProcessGroupsApi(object):
 
     def get_output_ports_with_http_info(self, id, **kwargs):
         """
-        Gets all output ports
-        This method makes a synchronous HTTP request.
+        Gets all output ports.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_output_ports()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.OutputPortsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.OutputPortsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2031,15 +2157,18 @@ class ProcessGroupsApi(object):
 
     def get_process_group(self, id, **kwargs):
         """
-        Gets a process group
-        This method makes a synchronous HTTP request.
+        Gets a process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_process_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2050,15 +2179,18 @@ class ProcessGroupsApi(object):
 
     def get_process_group_with_http_info(self, id, **kwargs):
         """
-        Gets a process group
-        This method makes a synchronous HTTP request.
+        Gets a process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_process_group()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2117,15 +2249,18 @@ class ProcessGroupsApi(object):
 
     def get_process_groups(self, id, **kwargs):
         """
-        Gets all process groups
-        This method makes a synchronous HTTP request.
+        Gets all process groups.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_process_groups_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2136,15 +2271,18 @@ class ProcessGroupsApi(object):
 
     def get_process_groups_with_http_info(self, id, **kwargs):
         """
-        Gets all process groups
-        This method makes a synchronous HTTP request.
+        Gets all process groups.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_process_groups()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2203,8 +2341,11 @@ class ProcessGroupsApi(object):
 
     def get_processors(self, id, **kwargs):
         """
-        Gets all processors
-        This method makes a synchronous HTTP request.
+        Gets all processors.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_processors_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2213,7 +2354,7 @@ class ProcessGroupsApi(object):
                 Whether or not to include processors from descendant process groups
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessorsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2224,8 +2365,11 @@ class ProcessGroupsApi(object):
 
     def get_processors_with_http_info(self, id, **kwargs):
         """
-        Gets all processors
-        This method makes a synchronous HTTP request.
+        Gets all processors.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_processors()`` method instead.
         
         Args:
             id (str): 
@@ -2234,7 +2378,7 @@ class ProcessGroupsApi(object):
                 Whether or not to include processors from descendant process groups
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessorsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessorsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'include_descendant_groups']
@@ -2296,15 +2440,18 @@ class ProcessGroupsApi(object):
 
     def get_remote_process_groups(self, id, **kwargs):
         """
-        Gets all remote process groups
-        This method makes a synchronous HTTP request.
+        Gets all remote process groups.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_remote_process_groups_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupsEntity`: The response object.
+            :class:`~nipyapi.nifi.models.RemoteProcessGroupsEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2315,15 +2462,18 @@ class ProcessGroupsApi(object):
 
     def get_remote_process_groups_with_http_info(self, id, **kwargs):
         """
-        Gets all remote process groups
-        This method makes a synchronous HTTP request.
+        Gets all remote process groups.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_remote_process_groups()`` method instead.
         
         Args:
             id (str): 
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.RemoteProcessGroupsEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.RemoteProcessGroupsEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2382,18 +2532,21 @@ class ProcessGroupsApi(object):
 
     def get_replace_process_group_request(self, id, **kwargs):
         """
-        Returns the Replace Request with the given ID
+        Returns the Replace Request with the given ID.
 
         Returns the Replace Request with the given ID. Once a Replace Request has been created by performing a POST to /process-groups/{id}/replace-requests, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_replace_process_group_request_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The ID of the Replace Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2404,18 +2557,21 @@ class ProcessGroupsApi(object):
 
     def get_replace_process_group_request_with_http_info(self, id, **kwargs):
         """
-        Returns the Replace Request with the given ID
+        Returns the Replace Request with the given ID.
 
         Returns the Replace Request with the given ID. Once a Replace Request has been created by performing a POST to /process-groups/{id}/replace-requests, that request can subsequently be retrieved via this endpoint, and the request that is fetched will contain the updated state, such as percent complete, the current state of the request, and any failures. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_replace_process_group_request()`` method instead.
         
         Args:
             id (str): 
                 The ID of the Replace Request (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -2474,8 +2630,11 @@ class ProcessGroupsApi(object):
 
     def import_process_group(self, id, **kwargs):
         """
-        Imports a specified process group
-        This method makes a synchronous HTTP request.
+        Imports a specified process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``import_process_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2483,7 +2642,7 @@ class ProcessGroupsApi(object):
             body (:class:`~nipyapi.nifi.models.ProcessGroupUploadEntity`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2494,8 +2653,11 @@ class ProcessGroupsApi(object):
 
     def import_process_group_with_http_info(self, id, **kwargs):
         """
-        Imports a specified process group
-        This method makes a synchronous HTTP request.
+        Imports a specified process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``import_process_group()`` method instead.
         
         Args:
             id (str): 
@@ -2503,7 +2665,7 @@ class ProcessGroupsApi(object):
             body (:class:`~nipyapi.nifi.models.ProcessGroupUploadEntity`):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'body']
@@ -2569,11 +2731,14 @@ class ProcessGroupsApi(object):
 
     def initiate_replace_process_group(self, body, id, **kwargs):
         """
-        Initiate the Replace Request of a Process Group with the given ID
+        Initiate the Replace Request of a Process Group with the given ID.
 
         This will initiate the action of replacing a process group with the given process group. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a ProcessGroupReplaceRequestEntity, and the process of replacing the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /process-groups/replace-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /process-groups/replace-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``initiate_replace_process_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
@@ -2582,7 +2747,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2593,11 +2758,14 @@ class ProcessGroupsApi(object):
 
     def initiate_replace_process_group_with_http_info(self, body, id, **kwargs):
         """
-        Initiate the Replace Request of a Process Group with the given ID
+        Initiate the Replace Request of a Process Group with the given ID.
 
         This will initiate the action of replacing a process group with the given process group. This can be a lengthy process, as it will stop any Processors and disable any Controller Services necessary to perform the action and then restart them. As a result, the endpoint will immediately return a ProcessGroupReplaceRequestEntity, and the process of replacing the flow will occur asynchronously in the background. The client may then periodically poll the status of the request by issuing a GET request to /process-groups/replace-requests/{requestId}. Once the request is completed, the client is expected to issue a DELETE request to /process-groups/replace-requests/{requestId}. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``initiate_replace_process_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
@@ -2606,7 +2774,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupReplaceRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -2675,8 +2843,11 @@ class ProcessGroupsApi(object):
 
     def paste(self, body, id, **kwargs):
         """
-        Pastes into the specified process group
-        This method makes a synchronous HTTP request.
+        Pastes into the specified process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``paste_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PasteRequestEntity`): 
@@ -2685,7 +2856,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PasteResponseEntity`: The response object.
+            :class:`~nipyapi.nifi.models.PasteResponseEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2696,8 +2867,11 @@ class ProcessGroupsApi(object):
 
     def paste_with_http_info(self, body, id, **kwargs):
         """
-        Pastes into the specified process group
-        This method makes a synchronous HTTP request.
+        Pastes into the specified process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``paste()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.PasteRequestEntity`): 
@@ -2706,7 +2880,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.PasteResponseEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.PasteResponseEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -2775,8 +2949,11 @@ class ProcessGroupsApi(object):
 
     def remove_drop_request1(self, id, drop_request_id, **kwargs):
         """
-        Cancels and/or removes a request to drop all flowfiles.
-        This method makes a synchronous HTTP request.
+        Cancels and/or removes a request to drop all flowfiles..
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_drop_request1_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2785,7 +2962,7 @@ class ProcessGroupsApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2796,8 +2973,11 @@ class ProcessGroupsApi(object):
 
     def remove_drop_request1_with_http_info(self, id, drop_request_id, **kwargs):
         """
-        Cancels and/or removes a request to drop all flowfiles.
-        This method makes a synchronous HTTP request.
+        Cancels and/or removes a request to drop all flowfiles..
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_drop_request1()`` method instead.
         
         Args:
             id (str): 
@@ -2806,7 +2986,7 @@ class ProcessGroupsApi(object):
                 The drop request id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.DropRequestEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.DropRequestEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'drop_request_id']
@@ -2871,8 +3051,11 @@ class ProcessGroupsApi(object):
 
     def remove_process_group(self, id, **kwargs):
         """
-        Deletes a process group
-        This method makes a synchronous HTTP request.
+        Deletes a process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_process_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -2885,7 +3068,7 @@ class ProcessGroupsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -2896,8 +3079,11 @@ class ProcessGroupsApi(object):
 
     def remove_process_group_with_http_info(self, id, **kwargs):
         """
-        Deletes a process group
-        This method makes a synchronous HTTP request.
+        Deletes a process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_process_group()`` method instead.
         
         Args:
             id (str): 
@@ -2910,7 +3096,7 @@ class ProcessGroupsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -2978,11 +3164,14 @@ class ProcessGroupsApi(object):
 
     def replace_process_group(self, body, id, **kwargs):
         """
-        Replace Process Group contents with the given ID with the specified Process Group contents
+        Replace Process Group contents with the given ID with the specified Process Group contents.
 
         This endpoint is used for replication within a cluster, when replacing a flow with a new flow. It expects that the flow beingreplaced is not under version control and that the given snapshot will not modify any Processor that is currently running or any Controller Service that is enabled. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``replace_process_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
@@ -2991,7 +3180,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupImportEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupImportEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3002,11 +3191,14 @@ class ProcessGroupsApi(object):
 
     def replace_process_group_with_http_info(self, body, id, **kwargs):
         """
-        Replace Process Group contents with the given ID with the specified Process Group contents
+        Replace Process Group contents with the given ID with the specified Process Group contents.
 
         This endpoint is used for replication within a cluster, when replacing a flow with a new flow. It expects that the flow beingreplaced is not under version control and that the given snapshot will not modify any Processor that is currently running or any Controller Service that is enabled. Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``replace_process_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`): 
@@ -3015,7 +3207,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupImportEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupImportEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -3084,8 +3276,11 @@ class ProcessGroupsApi(object):
 
     def update_process_group(self, body, id, **kwargs):
         """
-        Updates a process group
-        This method makes a synchronous HTTP request.
+        Updates a process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_process_group_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
@@ -3094,7 +3289,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3105,8 +3300,11 @@ class ProcessGroupsApi(object):
 
     def update_process_group_with_http_info(self, body, id, **kwargs):
         """
-        Updates a process group
-        This method makes a synchronous HTTP request.
+        Updates a process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_process_group()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): 
@@ -3115,7 +3313,7 @@ class ProcessGroupsApi(object):
                 The process group id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']
@@ -3184,8 +3382,11 @@ class ProcessGroupsApi(object):
 
     def upload_process_group(self, id, **kwargs):
         """
-        Uploads a versioned flow definition and creates a process group
-        This method makes a synchronous HTTP request.
+        Uploads a versioned flow definition and creates a process group.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``upload_process_group_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -3198,7 +3399,7 @@ class ProcessGroupsApi(object):
             position_y (float):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -3209,8 +3410,11 @@ class ProcessGroupsApi(object):
 
     def upload_process_group_with_http_info(self, id, **kwargs):
         """
-        Uploads a versioned flow definition and creates a process group
-        This method makes a synchronous HTTP request.
+        Uploads a versioned flow definition and creates a process group.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``upload_process_group()`` method instead.
         
         Args:
             id (str): 
@@ -3223,7 +3427,7 @@ class ProcessGroupsApi(object):
             position_y (float):
                 
         Returns:
-            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.ProcessGroupEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'client_id', 'disconnected_node_acknowledged', 'file', 'group_name', 'position_x', 'position_y']

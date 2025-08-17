@@ -34,15 +34,18 @@ class LabelsApi(object):
 
     def get_label(self, id, **kwargs):
         """
-        Gets a label
-        This method makes a synchronous HTTP request.
+        Gets a label.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_label_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The label id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.LabelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -53,15 +56,18 @@ class LabelsApi(object):
 
     def get_label_with_http_info(self, id, **kwargs):
         """
-        Gets a label
-        This method makes a synchronous HTTP request.
+        Gets a label.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_label()`` method instead.
         
         Args:
             id (str): 
                 The label id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.LabelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
@@ -120,8 +126,11 @@ class LabelsApi(object):
 
     def remove_label(self, id, **kwargs):
         """
-        Deletes a label
-        This method makes a synchronous HTTP request.
+        Deletes a label.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``remove_label_with_http_info()`` method instead.
         
         Args:
             id (str): 
@@ -134,7 +143,7 @@ class LabelsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.LabelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -145,8 +154,11 @@ class LabelsApi(object):
 
     def remove_label_with_http_info(self, id, **kwargs):
         """
-        Deletes a label
-        This method makes a synchronous HTTP request.
+        Deletes a label.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``remove_label()`` method instead.
         
         Args:
             id (str): 
@@ -159,7 +171,7 @@ class LabelsApi(object):
                 Acknowledges that this node is disconnected to allow for mutable requests to proceed.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.LabelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id', 'version', 'client_id', 'disconnected_node_acknowledged']
@@ -227,8 +239,11 @@ class LabelsApi(object):
 
     def update_label(self, body, id, **kwargs):
         """
-        Updates a label
-        This method makes a synchronous HTTP request.
+        Updates a label.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_label_with_http_info()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.LabelEntity`): 
@@ -237,7 +252,7 @@ class LabelsApi(object):
                 The label id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            :class:`~nipyapi.nifi.models.LabelEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -248,8 +263,11 @@ class LabelsApi(object):
 
     def update_label_with_http_info(self, body, id, **kwargs):
         """
-        Updates a label
-        This method makes a synchronous HTTP request.
+        Updates a label.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_label()`` method instead.
         
         Args:
             body (:class:`~nipyapi.nifi.models.LabelEntity`): 
@@ -258,7 +276,7 @@ class LabelsApi(object):
                 The label id. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.LabelEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.LabelEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['body', 'id']

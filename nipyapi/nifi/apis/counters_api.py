@@ -34,11 +34,14 @@ class CountersApi(object):
 
     def get_counters(self, **kwargs):
         """
-        Gets the current counters for this NiFi
+        Gets the current counters for this NiFi.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``get_counters_with_http_info()`` method instead.
         
         Args:
             nodewise (bool): 
@@ -47,7 +50,7 @@ class CountersApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CountersEntity`: The response object.
+            :class:`~nipyapi.nifi.models.CountersEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -58,11 +61,14 @@ class CountersApi(object):
 
     def get_counters_with_http_info(self, **kwargs):
         """
-        Gets the current counters for this NiFi
+        Gets the current counters for this NiFi.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``get_counters()`` method instead.
         
         Args:
             nodewise (bool): 
@@ -71,7 +77,7 @@ class CountersApi(object):
                 The id of the node where to get the status.
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CountersEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.CountersEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['nodewise', 'cluster_node_id']
@@ -130,18 +136,21 @@ class CountersApi(object):
 
     def update_counter(self, id, **kwargs):
         """
-        Updates the specified counter. This will reset the counter value to 0
+        Updates the specified counter. This will reset the counter value to 0.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``update_counter_with_http_info()`` method instead.
         
         Args:
             id (str): 
                 The id of the counter. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CounterEntity`: The response object.
+            :class:`~nipyapi.nifi.models.CounterEntity`: The response data.
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -152,18 +161,21 @@ class CountersApi(object):
 
     def update_counter_with_http_info(self, id, **kwargs):
         """
-        Updates the specified counter. This will reset the counter value to 0
+        Updates the specified counter. This will reset the counter value to 0.
 
         Note: This endpoint is subject to change as NiFi and it's REST API evolve.
 
-        This method makes a synchronous HTTP request.
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``update_counter()`` method instead.
         
         Args:
             id (str): 
                 The id of the counter. (required)
                 
         Returns:
-            :class:`~nipyapi.nifi.models.CounterEntity`: The response object.
+            tuple: (:class:`~nipyapi.nifi.models.CounterEntity`, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = ['id']
