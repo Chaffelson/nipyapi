@@ -15,6 +15,7 @@ History
   - Enhanced ``clean-all`` target to remove ALL artifacts: build, clients, docs, coverage, temporary files
   - Optimized rebuild flow to avoid unnecessary infrastructure cycling during client generation
   - Streamlined client generation workflow using existing scripts in ``resources/client_gen/``
+  - Smart certificate regeneration: ``make certs`` auto-detects and stops running containers to prevent SSL timing issues
 
 - Documentation modernization and restructuring:
 

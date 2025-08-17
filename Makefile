@@ -88,7 +88,13 @@ docs-install: ## install docs extras
 	pip install -e ".[docs]"
 
 certs: ## generate PKCS12 certs and env for docker profiles
+	@if $(DC) ps -q 2>/dev/null | grep -q .; then \
+		echo "⚠️  Active containers detected - stopping before certificate regeneration..."; \
+		$(MAKE) down; \
+		echo ""; \
+	fi
 	cd resources/certs && bash gen_certs.sh
+	@echo "✅ Fresh certificates generated - containers will use new certs on next startup"
 
 fetch-openapi-base: ## refresh base OpenAPI specs for current NIFI_VERSION (always overwrite base)
 	@echo "Refreshing base specs for NIFI_VERSION=$(NIFI_VERSION)"
