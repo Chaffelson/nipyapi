@@ -9,6 +9,7 @@ Contents:
    readme
    installation
    authentication
+   migration
    nipyapi-docs/api_reference
    contributing
    devnotes

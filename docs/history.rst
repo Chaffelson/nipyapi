@@ -101,6 +101,11 @@ History
   - Updated playground recommendations to default to single-user profile for optimal new user experience (no complex Registry security policies)
   - Created dedicated ``resources/scripts/setup_playground.py`` script following ``conftest.py`` patterns for reliable environment setup
 
+- Documentation and migration improvements:
+  - Created comprehensive migration guide (``docs/migration.rst``) for upgrading from NiPyAPI 0.x/NiFi 1.x to 1.x/2.x
+  - Updated developer notes (``docs/devnotes.rst``) for 2.x development practices including modern testing, client generation, and release workflows
+  - Removed outdated Python 2.7 references and legacy build tool instructions
+
 - Resource pruning:
   - Deleted legacy client-gen artifacts and old docker scaffolding under `resources/` no longer used in 2.x workflow.
 
