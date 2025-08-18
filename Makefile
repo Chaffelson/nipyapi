@@ -268,8 +268,7 @@ smoke: ## quick version probe without bootstrap (use NIPYAPI_AUTH_MODE=single-us
 # 5. make down
 # Note: CI runs full integration tests with Docker infrastructure using single-user profile
 
-release: clean dist ## package and upload a release
-	python -m twine upload dist/*
+
 
 #################################################################################
 ## Meta Targets ##
@@ -305,26 +304,28 @@ playground: check-certs ## set up ready-to-use environment with sample objects: 
 	@echo "🎯 Your NiPyAPI playground is ready for experimentation!"
 	@echo "   Run 'make down' when finished to clean up"
 
-rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> docs
+rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> validate -> docs
 	@echo "🚀 Starting comprehensive rebuild from clean slate..."
-	@echo "=== 1/8: Clean All Artifacts ==="
+	@echo "=== 1/9: Clean All Artifacts ==="
 	$(MAKE) clean-all
-	@echo "=== 2/8: Generate Certificates ==="
+	@echo "=== 2/9: Generate Certificates ==="
 	$(MAKE) certs
-	@echo "=== 3/8: Extract OpenAPI Specs ==="
+	@echo "=== 3/9: Extract OpenAPI Specs ==="
 	$(MAKE) up NIPYAPI_AUTH_MODE=single-user
 	$(MAKE) wait-ready NIPYAPI_AUTH_MODE=single-user
 	$(MAKE) fetch-openapi
-	@echo "=== 4/8: Augment OpenAPI Specs ==="
+	@echo "=== 4/9: Augment OpenAPI Specs ==="
 	$(MAKE) augment-openapi
-	@echo "=== 5/8: Generate Fresh Clients ==="
+	@echo "=== 5/9: Generate Fresh Clients ==="
 	$(MAKE) gen-clients
-	@echo "=== 6/8: Test All Profiles with Fresh Clients ==="
+	@echo "=== 6/9: Test All Profiles with Fresh Clients ==="
 	$(MAKE) test-all
-	@echo "=== 7/8: Build Distribution Packages ==="
+	@echo "=== 7/9: Build Distribution Packages ==="
 	$(MAKE) dist
-	@echo "=== 8/8: Generate Documentation ==="
+	@echo "=== 8/9: Validate Distribution Packages ==="
+	$(MAKE) check-dist
+	$(MAKE) test-dist
+	@echo "=== 9/9: Generate Documentation ==="
 	$(MAKE) docs
 	@echo "✅ Comprehensive rebuild completed successfully!"
 
-full-e2e: certs test-all ## complete e2e workflow: generate certs + run all tests
