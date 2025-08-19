@@ -416,6 +416,6 @@ Testing Your Migration
 For additional support:
 
 - **Examples**: See ``examples/fdlc.py`` for modern patterns
-- **Playground**: Use ``make playground NIPYAPI_AUTH_MODE=single-user`` for experimentation
+- **sandbox**: Use ``make sandbox NIPYAPI_AUTH_MODE=single-user`` for experimentation
 - **Documentation**: Updated authentication guide at ``docs/authentication.rst``
 - **Issues**: Please raise an issue on `GitHub <https://github.com/Chaffelson/nipyapi/issues>`_ if you encounter any problems.

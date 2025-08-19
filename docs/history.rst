@@ -93,13 +93,32 @@ History
   - Standardized password consistency: ``password1234`` for single-user, ``password`` for secure-ldap
   - Improved error handling in ``nipyapi.versioning.save_flow_ver`` with type validation and descriptive messages
   - Removed deprecated ``examples/console.py`` (all code was commented out and superseded by modernized examples)
-  - Removed deprecated ``examples/secure_connection.py`` and legacy ``examples/keys/`` directory (replaced by ``make playground`` target with modern patterns)
-  - Added ``make playground`` target for instant experimentation environments with sample objects and proper security
-  - Fixed security bootstrapping in playground script: Registry policies now correctly applied to all profiles including single-user
+  - Removed deprecated ``examples/secure_connection.py`` and legacy ``examples/keys/`` directory (replaced by ``make sandbox`` target with modern patterns)
+  - Added ``make sandbox`` target for instant experimentation environments with sample objects and proper security
+  - Fixed security bootstrapping in sandbox script: Registry policies now correctly applied to all profiles including single-user
   - Enhanced authentication documentation to clearly distinguish between test certificates and production deployments
   - Added comprehensive Safari keychain authentication guidance with "Allow" vs "Always Allow" options and security considerations
-  - Updated playground recommendations to default to single-user profile for optimal new user experience (no complex Registry security policies)
-  - Created dedicated ``resources/scripts/setup_playground.py`` script following ``conftest.py`` patterns for reliable environment setup
+  - Updated sandbox recommendations to default to single-user profile for optimal new user experience (no complex Registry security policies)
+  - Created dedicated ``resources/scripts/setup_sandbox.py`` script following ``conftest.py`` patterns for reliable environment setup
+
+- OIDC robustness and professional improvements:
+  - **Major OIDC UUID extraction overhaul**: Replaced brittle subprocess Docker logs parsing with robust JWT token analysis
+  - Added ``return_token_info`` parameter to ``service_login_oidc()`` for backwards compatibility while exposing full OAuth2 token data
+  - Created ``nipyapi.utils.extract_oidc_user_identity()`` utility for industry-standard JWT ``sub`` field extraction
+  - Fixed OIDC sandbox setup to gracefully reuse existing artifacts instead of failing on conflicts
+  - Fixed Registry hostname resolution for OIDC profile in test configuration (localhost -> registry-oidc:18080)
+  - **Professional terminology**: Renamed "playground" to "sandbox" throughout codebase for enterprise-appropriate language
+  - Moved sandbox script from ``resources/scripts/`` to ``examples/sandbox.py`` as comprehensive user-facing example
+  - Updated all documentation and Makefile targets to use professional "sandbox" terminology
+
+- Code quality and tooling improvements:
+  - Restored missing linting targets: ``make lint``, ``make flake8``, ``make pylint``, ``make pre-commit``
+  - Fixed code quality issues: line length, trailing whitespace, missing timeouts, unnecessary else clauses
+  - Achieved 10.0/10 pylint score for core nipyapi modules (excludes generated clients)
+  - Enhanced ``make coverage`` target to ensure infrastructure availability before running analysis
+  - Fixed coverage configuration to exclude generated API clients (industry best practice)
+  - Added proper token validation for ``make coverage-upload`` (CI-only with helpful local development guidance)
+  - Removed obsolete smoke test infrastructure (incompatible with security-first design)
 
 - Documentation and migration improvements:
   - Created comprehensive migration guide (``docs/migration.rst``) for upgrading from NiPyAPI 0.x/NiFi 1.x to 1.x/2.x

@@ -6,6 +6,7 @@ import logging
 import json
 import io
 import time
+import base64
 from copy import copy
 from functools import reduce, wraps
 import operator
@@ -21,7 +22,7 @@ __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
            'infer_object_label_from_class', 'bypass_slash_encoding',
            'exception_handler', 'enforce_min_ver', 'check_version',
-           'validate_parameters_versioning_support'
+           'validate_parameters_versioning_support', 'extract_oidc_user_identity'
            ]
 
 log = logging.getLogger(__name__)
@@ -448,6 +449,51 @@ def validate_parameters_versioning_support(verify_nifi=True,  # pylint: disable=
     # Legacy warnings for <1.10 (NiFi) or <0.6 (Registry) removed as we no
     # longer support those platform versions.
     return None
+
+
+def extract_oidc_user_identity(token_data):
+    """
+    Extract user identity (UUID) from OIDC token response.
+
+    This function decodes the JWT access token to extract the 'sub' (subject) field,
+    which contains the user's unique identifier that NiFi uses for policy assignment.
+
+    Args:
+        token_data (dict): The full OAuth2 token response from service_login_oidc()
+                          when called with return_token_info=True
+
+    Returns:
+        str: The user identity UUID from the token's 'sub' field
+
+    Raises:
+        ValueError: If the token cannot be decoded or doesn't contain expected fields
+    """
+    try:
+        access_token = token_data.get('access_token')
+        if not access_token:
+            raise ValueError("No access_token found in token data")
+
+        # JWT tokens have 3 parts separated by dots: header.payload.signature
+        parts = access_token.split('.')
+        if len(parts) < 2:
+            raise ValueError("Invalid JWT token format")
+
+        # Decode the payload (second part)
+        payload = parts[1]
+        # Add padding for base64 decoding if needed
+        payload += '=' * (4 - len(payload) % 4)
+        decoded_payload = base64.b64decode(payload)
+        payload_json = json.loads(decoded_payload)
+
+        # Extract the 'sub' (subject) field which contains the user UUID
+        user_uuid = payload_json.get('sub')
+        if not user_uuid:
+            raise ValueError("No 'sub' field found in JWT token payload")
+
+        return user_uuid
+
+    except Exception as e:
+        raise ValueError(f"Failed to extract user identity from OIDC token: {e}") from e
 
 
 def validate_templates_version_support():

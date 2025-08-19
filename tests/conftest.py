@@ -17,6 +17,7 @@ Profile controls how tests connect to NiFi and Registry:
   - single-user: HTTPS NiFi with username/password; Registry over HTTP
   - secure-ldap: HTTPS NiFi and Registry with username/password; TLS CA required
   - secure-mtls: HTTPS NiFi and Registry with mutual TLS (client certs)
+  - secure-oidc: HTTPS NiFi with OIDC + basic Registry (requires manual setup)
 
 Defaults are applied for URLs, credentials, and TLS assets suitable for local
 Docker-based testing. Environment variables override all defaults.
@@ -33,11 +34,13 @@ def _flag(name: str, default: bool = False) -> bool:
 TEST_SINGLE_USER = _flag('TEST_SINGLE_USER', default=(PROFILE == 'single-user'))
 TEST_LDAP = _flag('TEST_LDAP', default=(PROFILE == 'secure-ldap'))
 TEST_MTLS = _flag('TEST_MTLS', default=(PROFILE == 'secure-mtls'))
+TEST_OIDC = _flag('TEST_OIDC', default=(PROFILE == 'secure-oidc'))
 SKIP_TEARDOWN = _flag('SKIP_TEARDOWN', default=False)
 
 # Backward-compatible names used elsewhere in tests
 test_ldap = TEST_LDAP
 test_mtls = TEST_MTLS
+test_oidc = TEST_OIDC
 
 # API endpoints and credentials; env overrides take precedence, otherwise default by NIPYAPI_AUTH_MODE below
 NIFI_API_ENDPOINT = os.getenv('NIFI_API_ENDPOINT')
@@ -58,7 +61,9 @@ CERT_PASSWORD = os.getenv('CERT_PASSWORD', 'changeit')
 # ---- Profile helpers -------------------------------------------------------
 
 def _active_profile() -> str:
-    """Return one of 'single-user', 'secure-ldap', 'secure-mtls'."""
+    """Return one of 'single-user', 'secure-ldap', 'secure-mtls', 'secure-oidc'."""
+    if TEST_OIDC:
+        return 'secure-oidc'
     if TEST_MTLS:
         return 'secure-mtls'
     if TEST_LDAP:
@@ -78,6 +83,10 @@ _PROFILE_DEFAULT_URLS = {
     'secure-mtls': {
         'nifi': 'https://localhost:9445/nifi-api',
         'registry': 'https://localhost:18445/nifi-registry-api',
+    },
+    'secure-oidc': {
+        'nifi': 'https://localhost:9446/nifi-api',
+        'registry': 'http://localhost:18446/nifi-registry-api',
     },
 }
 
@@ -167,6 +176,11 @@ elif _active_profile() == 'single-user':
     NIFI_PASSWORD = NIFI_PASSWORD or 'password1234'
     REGISTRY_USERNAME = REGISTRY_USERNAME or 'einstein'
     REGISTRY_PASSWORD = REGISTRY_PASSWORD or 'password1234'
+elif _active_profile() == 'secure-oidc':
+    NIFI_USERNAME = NIFI_USERNAME or 'einstein'
+    NIFI_PASSWORD = NIFI_PASSWORD or 'password1234'
+    REGISTRY_USERNAME = REGISTRY_USERNAME or 'einstein'
+    REGISTRY_PASSWORD = REGISTRY_PASSWORD or 'password1234'
  
 
 def _resolve_profile_defaults():
@@ -199,6 +213,12 @@ def _resolve_profile_defaults():
         nifi_pass = NIFI_PASSWORD or 'password1234'
         reg_user = REGISTRY_USERNAME or 'einstein'
         reg_pass = REGISTRY_PASSWORD or 'password1234'
+    elif profile_key == 'secure-oidc':
+        # OIDC uses token-based authentication for NiFi, basic auth for Registry
+        nifi_user = NIFI_USERNAME or 'einstein'
+        nifi_pass = NIFI_PASSWORD or 'password1234'
+        reg_user = REGISTRY_USERNAME or 'einstein'
+        reg_pass = REGISTRY_PASSWORD or 'password1234'
     else:
         nifi_user = NIFI_USERNAME or ''
         nifi_pass = NIFI_PASSWORD or ''
@@ -206,7 +226,7 @@ def _resolve_profile_defaults():
         reg_pass = REGISTRY_PASSWORD or (REGISTRY_PASSWORD or '')
 
     ca_path = TLS_CA_CERT_PATH
-    if not ca_path and profile_key in ('secure-ldap', 'secure-mtls') and os.path.exists(local_ca):
+    if not ca_path and profile_key in ('secure-ldap', 'secure-mtls', 'secure-oidc') and os.path.exists(local_ca):
         ca_path = local_ca
 
     client_cert = MTLS_CLIENT_CERT or (client_crt if os.path.exists(client_crt) else None)
@@ -259,6 +279,8 @@ def ensure_registry_client(uri):
                 internal_uri = 'https://registry-ldap:18443'
             elif TEST_MTLS:
                 internal_uri = 'https://registry-mtls:18443'
+            elif TEST_OIDC:
+                internal_uri = 'http://registry-oidc:18080'
     except Exception:
         internal_uri = uri
 
@@ -385,6 +407,25 @@ def _setup_nifi_secure_mtls():
     nipyapi.utils.set_endpoint(NIFI_API_ENDPOINT, True, False)
 
 
+def _setup_nifi_secure_oidc():
+    # Set up TLS CA cert for HTTPS connections
+    _ensure_tls_for('nifi', NIFI_API_ENDPOINT or '')
+    
+    # Configure host endpoint without login (OIDC uses bearer tokens)
+    nipyapi.config.nifi_config.host = NIFI_API_ENDPOINT.rstrip('/')
+    nipyapi.config.nifi_config.api_client = None  # Force new client creation
+    
+    # Use the standard OIDC login function
+    nipyapi.security.service_login_oidc(
+        service='nifi',
+        username=NIFI_USERNAME,
+        password=NIFI_PASSWORD,
+        oidc_token_endpoint='http://localhost:8080/realms/nipyapi/protocol/openid-connect/token',
+        client_id='nipyapi-client',
+        client_secret='nipyapi-secret'
+    )
+
+
 def _setup_registry_single_user():
     _ensure_tls_for('registry', REGISTRY_API_ENDPOINT or '')
     nipyapi.utils.set_endpoint(REGISTRY_API_ENDPOINT, True, True, REGISTRY_USERNAME, REGISTRY_PASSWORD)
@@ -410,16 +451,23 @@ def _setup_registry_secure_mtls():
     nipyapi.utils.set_endpoint(REGISTRY_API_ENDPOINT, True, False)
 
 
+def _setup_registry_secure_oidc():
+    # OIDC Registry uses single-user mode (basic auth)
+    _setup_registry_single_user()
+
+
 _NIFI_SETUP_MAP = {
     'single-user': _setup_nifi_single_user,
     'secure-ldap': _setup_nifi_secure_ldap,
     'secure-mtls': _setup_nifi_secure_mtls,
+    'secure-oidc': _setup_nifi_secure_oidc,
 }
 
 _REGISTRY_SETUP_MAP = {
     'single-user': _setup_registry_single_user,
     'secure-ldap': _setup_registry_secure_ldap,
     'secure-mtls': _setup_registry_secure_mtls,
+    'secure-oidc': _setup_registry_secure_oidc,
 }
 
 
@@ -465,9 +513,30 @@ def session_setup(request):
     _wait_until_service_up(NIFI_API_ENDPOINT.replace('-api', ''))
     if not nipyapi.canvas.get_root_pg_id():
         raise ValueError("No Response from NiFi test call")
-    if profile_key in ('secure-ldap', 'secure-mtls'):
+    if profile_key in ('secure-ldap', 'secure-mtls', 'secure-oidc'):
         try:
             nipyapi.security.bootstrap_security_policies(service='nifi')
+            
+            # For OIDC: also grant admin policies to the UI user (einstein@example.com)
+            # since the above bootstrap only grants to the OAuth2 app identity
+            if profile_key == 'secure-oidc':
+                ui_user_identity = 'einstein@example.com'
+                try:
+                    # Get or create the UI user entity
+                    ui_user = nipyapi.security.get_service_user(ui_user_identity, service="nifi")
+                    if not ui_user:
+                        ui_user = nipyapi.security.create_service_user(
+                            identity=ui_user_identity, service="nifi", strict=False
+                        )
+                    
+                    # Bootstrap policies for the UI user as well
+                    nipyapi.security.bootstrap_security_policies(
+                        service='nifi', user_identity=ui_user
+                    )
+                    log.info("✅ OIDC UI user (%s) also granted admin policies", ui_user_identity)
+                except Exception as ui_bootstrap_e:
+                    log.warning("⚠️  Could not grant admin policies to UI user %s: %s", 
+                              ui_user_identity, ui_bootstrap_e)
         except Exception:
             pass
     cleanup_nifi()
@@ -490,6 +559,8 @@ def session_setup(request):
         _ = ensure_registry_client('https://registry-ldap:18443')
     elif profile_key == 'secure-mtls':
         _ = ensure_registry_client('https://registry-mtls:18443')
+    elif profile_key == 'secure-oidc':
+        _ = ensure_registry_client('http://registry-oidc:18080')
 
     request.addfinalizer(final_cleanup)
     log.info("Completing Test Session Setup")
