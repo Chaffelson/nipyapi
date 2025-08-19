@@ -111,9 +111,18 @@ def resolve_profile_config(profile):
 
 def setup_ssl_config(config):
     """Configure SSL certificates (from conftest.py patterns)."""
+    # Disable SSL verification for sandbox environments (all use self-signed certificates)
+    nipyapi.config.nifi_config.verify_ssl = False
+    nipyapi.config.registry_config.verify_ssl = False
+    
+    # Use project's established pathway for disabling SSL warnings
+    nipyapi.config.disable_insecure_request_warnings = True
+    nipyapi.config.apply_ssl_warning_settings()  # Apply the warning setting
+    
+    log.info("✅ SSL verification disabled (sandbox uses self-signed certificates)")
+    
     if config['ca_path']:
-        nipyapi.config.nifi_config.ssl_ca_cert = config['ca_path']
-        nipyapi.config.registry_config.ssl_ca_cert = config['ca_path']
+        nipyapi.config.set_shared_ca_cert(config['ca_path'])
         log.info("✅ SSL CA certificate configured: %s", config['ca_path'])
     
     # mTLS client certificates for secure-mtls profile
@@ -199,11 +208,11 @@ def setup_authentication(config):
                 log.info("💡 After manual setup, the same command will work automatically")
                 
                 # Don't proceed with sample objects - manual setup required
-                return config
+                raise OIDCManualSetupRequired("OIDC manual setup needed")
                 
         except Exception as e:
             log.error("❌ OIDC authentication setup failed: %s", e)
-            return config
+            raise
         
         # Registry uses basic auth (single-user mode)
         setup_registry_basic_auth(config)
@@ -501,7 +510,8 @@ def main():
         
     except OIDCManualSetupRequired:
         # Expected OIDC flow - manual setup instructions already shown
-        # (Instructions and retry message already displayed in OIDC auth section)
+        print("\n🔧 OIDC manual setup required - follow instructions above")
+        print("   After completing setup, re-run: make sandbox NIPYAPI_AUTH_MODE=secure-oidc")
         sys.exit(0)  # Clean exit, not an error
     except Exception as e:
         log.error("❌ Sandbox setup failed: %s", e)

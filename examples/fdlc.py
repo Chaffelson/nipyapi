@@ -76,8 +76,7 @@ def connect_to_dev():
     """Switch to development environment"""
     log.info("→ Connecting to DEVELOPMENT environment") 
     # Configure SSL for self-signed certificates  
-    nipyapi.config.nifi_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
-    nipyapi.config.registry_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
+    nipyapi.config.set_shared_ca_cert('resources/certs/ca/ca.crt')
     nipyapi.utils.set_endpoint(DEV_NIFI_API, True, True, 'einstein', 'password1234')
     nipyapi.utils.set_endpoint(DEV_REGISTRY_API, True, True, 'einstein', 'password1234')  # Single-user profile uses basic auth
 
@@ -85,8 +84,7 @@ def connect_to_prod():
     """Switch to production environment"""
     log.info("→ Connecting to PRODUCTION environment") 
     # Configure SSL for self-signed certificates
-    nipyapi.config.nifi_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
-    nipyapi.config.registry_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
+    nipyapi.config.set_shared_ca_cert('resources/certs/ca/ca.crt')
     nipyapi.utils.set_endpoint(PROD_NIFI_API, True, True, 'einstein', 'password')
     nipyapi.utils.set_endpoint(PROD_REGISTRY_API, True, True, 'einstein', 'password')  # secure-ldap Registry also uses basic auth
 

@@ -245,10 +245,8 @@ test-ldap: ## shortcut: NIPYAPI_AUTH_MODE=secure-ldap pytest
 test-mtls: ## shortcut: NIPYAPI_AUTH_MODE=secure-mtls pytest
 	NIPYAPI_AUTH_MODE=secure-mtls $(MAKE) test-profile
 
-test-oidc: check-certs ## MANUAL: test OIDC profile (uses sandbox for setup)
-	@echo "🧪 Testing OIDC profile using sandbox setup..."
-	$(MAKE) sandbox NIPYAPI_AUTH_MODE=secure-oidc
-	$(MAKE) test-profile NIPYAPI_AUTH_MODE=secure-oidc
+test-oidc: check-certs ## shortcut: NIPYAPI_AUTH_MODE=secure-oidc pytest (requires: make sandbox NIPYAPI_AUTH_MODE=secure-oidc)
+	NIPYAPI_AUTH_MODE=secure-oidc $(MAKE) test-profile
 
 test-specific: ## run specific pytest with provided NIPYAPI_AUTH_MODE and TEST_ARGS
 	@if [ -z "$(NIPYAPI_AUTH_MODE)" ]; then echo "NIPYAPI_AUTH_MODE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
