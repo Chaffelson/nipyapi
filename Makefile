@@ -35,7 +35,7 @@ for line in sys.stdin:
 		current_section = section_match.group(1)
 		sections[current_section] = []
 		continue
-	
+
 	# Check for targets
 	target_match = re.match(r'^([a-zA-Z_-]+):.*?## (.*)$$', line)
 	if target_match:
@@ -290,8 +290,6 @@ test-all: check-certs ## run full e2e tests across automated profiles (requires:
 		$(MAKE) wait-ready NIPYAPI_AUTH_MODE=$$profile && \
 		$(MAKE) test-profile NIPYAPI_AUTH_MODE=$$profile; \
 		test_result=$$?; \
-		echo "=== Cleaning up profile: $$profile ==="; \
-		$(MAKE) down; \
 		if [ $$test_result -ne 0 ]; then \
 			echo "Tests failed for profile: $$profile"; \
 			exit $$test_result; \
@@ -333,4 +331,3 @@ rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen cli
 	@echo "=== 9/9: Generate Documentation ==="
 	$(MAKE) docs
 	@echo "✅ Comprehensive rebuild completed successfully!"
-

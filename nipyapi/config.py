@@ -29,8 +29,6 @@ Deprecated (kept for backward compatibility; prefer explicit configuration):
 
 import os
 import warnings
-import ssl
-import urllib3
 from nipyapi.nifi import configuration as nifi_config
 from nipyapi.registry import configuration as registry_config
 
@@ -105,60 +103,25 @@ registered_filters = {
 cache = {}
 
 
-# --- SSL Configuration Functions ---
+# --- SSL Configuration Values ---
 
-def apply_ssl_warning_settings():
-    """Apply current SSL warning settings.
-
-    Can be called after changing disable_insecure_request_warnings.
-    """
-    if not global_ssl_verify or disable_insecure_request_warnings:
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-
-def set_shared_ca_cert(ca_cert_path):
-    """Set CA certificate for both NiFi and Registry services.
-
-    This is the typical pattern since both services usually trust the same
-    Certificate Authority.
-
-    Args:
-        ca_cert_path (str): Path to the CA certificate file
-    """
-    nifi_config.ssl_ca_cert = ca_cert_path
-    registry_config.ssl_ca_cert = ca_cert_path
-
-
-def _disable_verify(cfg):
-    """Disable SSL verification via ssl_context when verify_ssl is False."""
-    cfg.ssl_context = ssl.create_default_context()
-    cfg.ssl_context.check_hostname = False
-    cfg.ssl_context.verify_mode = ssl.CERT_NONE
-
-
-# --- SSL Configuration Setup ---
-
-# Read environment variables
+# Read environment variables and set intelligent defaults
 _verify_env = os.getenv("NIPYAPI_VERIFY_SSL")
 _host_env = os.getenv("NIPYAPI_CHECK_HOSTNAME")
 
-# Set global SSL settings based on environment (defaults: verify=True, check_hostname=True)
+# Global SSL settings based on environment (defaults: verify=True, check_hostname=True)
 global_ssl_verify = True if _verify_env is None else _verify_env.lower() not in ("0", "false", "no")
 global_ssl_host_check = True if _host_env is None else _host_env.lower() not in ("0", "false", "no")
 disable_insecure_request_warnings = False
 
-# Apply settings to individual service configs
+# Set default values for individual service configs (no application logic)
 nifi_config.verify_ssl = global_ssl_verify
 registry_config.verify_ssl = global_ssl_verify
 
-# Apply SSL context changes when verification is disabled
-if not nifi_config.verify_ssl:
-    _disable_verify(nifi_config)
-if not registry_config.verify_ssl:
-    _disable_verify(registry_config)
+# Note: SSL contexts and warnings are NOT automatically applied at import.
+# Call nipyapi.security.apply_ssl_configuration() to apply current settings.
 
-# Apply warning settings
-apply_ssl_warning_settings()
+# --- Environment Variable Certificate Setup ---
 
 # Back-compat TLS envs (DEPRECATED): prefer REQUESTS_CA_BUNDLE or direct config
 _nifi_ca = os.getenv("NIFI_CA_CERT")
@@ -189,9 +152,12 @@ if _reg_ca is not None:
 # Fallback: shared TLS CA for both services (e.g., local test CA)
 _shared_ca = os.getenv("TLS_CA_CERT_PATH") or os.getenv("REQUESTS_CA_BUNDLE")
 if _shared_ca:
-    # Only set if not already configured
+    # Only set if not already configured from deprecated variables above
     if not nifi_config.ssl_ca_cert and not registry_config.ssl_ca_cert:
-        set_shared_ca_cert(_shared_ca)
+        nifi_config.ssl_ca_cert = _shared_ca
+        registry_config.ssl_ca_cert = _shared_ca
+        # Enable SSL verification when CA is provided via environment
+        global_ssl_verify = True
         nifi_config.verify_ssl = True
         registry_config.verify_ssl = True
 

@@ -12,8 +12,12 @@ def test_create_registry_client():
      li in versioning.list_registry_clients().registries
              if conftest.test_registry_client_name in li.component.name
      ]
-    # Delegate URL and SSL handling to conftest helper (profile-aware)
-    r = conftest.ensure_registry_client(conftest.REGISTRY_API_ENDPOINT)
+    # Use versioning.ensure_registry_client directly
+    r = versioning.ensure_registry_client(
+        name=conftest.test_registry_client_name,
+        uri=conftest.active_config['registry_internal_url'],
+        description=f"Test Registry Client -> {conftest.active_config['registry_internal_url']}"
+    )
     assert isinstance(r, nifi.FlowRegistryClientEntity)
     # # test duplicate catch result
     # with pytest.raises(ValueError):
@@ -98,8 +102,10 @@ def test_get_registry_bucket(fix_bucket):
 
 
 def test_save_flow_ver(fix_bucket, fix_pg, fix_proc):
-    f_reg_client = conftest.ensure_registry_client(
-        conftest.REGISTRY_API_ENDPOINT
+    f_reg_client = versioning.ensure_registry_client(
+        name=conftest.test_registry_client_name,
+        uri=conftest.active_config['registry_internal_url'],
+        description=f"Test Registry Client -> {conftest.active_config['registry_internal_url']}"
     )
     f_bucket = fix_bucket()
     f_pg = fix_pg.generate()
@@ -393,7 +399,11 @@ def test_import_flow_version(fix_flow_serde):
 
 def test_issue_229(fix_bucket, fix_pg, fix_context):
     # test we can deploy an imported flow, issue 229
-    reg_client = conftest.ensure_registry_client(conftest.REGISTRY_API_ENDPOINT)
+    reg_client = versioning.ensure_registry_client(
+        name=conftest.test_registry_client_name,
+        uri=conftest.active_config['registry_internal_url'],
+        description=f"Test Registry Client -> {conftest.active_config['registry_internal_url']}"
+    )
     bucket = fix_bucket()
     pg = fix_pg.generate()
     context = fix_context.generate()
@@ -429,7 +439,7 @@ def test_issue_229(fix_bucket, fix_pg, fix_context):
     assert isinstance(deployed_flow, nifi.ProcessGroupEntity)
 
 
-def test_deploy_flow_version(regress_flow_reg, fix_ver_flow):
+def test_deploy_flow_version(fix_ver_flow):
     r1 = versioning.deploy_flow_version(
         parent_id=canvas.get_root_pg_id(),
         location=(0, 0),

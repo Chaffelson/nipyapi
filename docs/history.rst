@@ -2,7 +2,34 @@
 History
 =======
 
- 
+
+
+1.0.1 (2025-01-19)
+-------------------
+
+- Test suite performance optimization and reliability improvements:
+
+  - **29% faster test execution** (17.37s → 12.37s) through intelligent fixture optimization
+  - Replace arbitrary ``sleep(0.5)`` with condition-based ``wait_to_complete`` polling in versioning fixtures
+  - Simplify bucket fixture to use ``ensure_registry_bucket`` instead of manual try/catch logic
+  - Fix SSL certificate verification for single-user profile (was excluded from CA certificate setup)
+  - Fix missing fixture reference in ``test_deploy_flow_version``
+
+- Configuration architecture improvements:
+
+  - Consolidate test configuration in ``tests/conftest.py`` from scattered globals to centralized ``active_config`` dictionary
+  - Eliminate circular dependencies and redundant logic in profile detection and certificate handling
+  - Simplify test flags to use direct ``ACTIVE_PROFILE`` checks instead of intermediate boolean flags
+  - Centralize all environment variable resolution into single configuration function
+
+- Documentation and troubleshooting:
+
+  - Rename ``docs/authentication.rst`` to ``docs/security.rst`` with expanded SSL/TLS guidance
+  - Add troubleshooting reference to ``debug_registry.py`` script for connectivity issues
+  - Document development vs production security practices and certificate management
+  - Add convenience function examples (``set_shared_ca_cert``, ``apply_ssl_configuration``)
+
+- All authentication profiles validated: single-user, secure-ldap, secure-mtls pass full test suites
 
 1.0.0 (2025-01-15)
 -------------------
@@ -53,7 +80,7 @@ History
 
 - Canvas (2.x API): use `ProcessGroupsApi.create_controller_service1(id=...)`; controller scheduling via `ControllerServicesApi.update_run_status1(...)`; update renamed APIs `FlowFileQueuesApi`, `FunnelsApi`
 - Security (2.x): replace removed `AccessApi.get_access_status` with `FlowApi.get_current_user()`; Registry readiness via `AboutApi.get_version()`
- 
+
  - Authentication and client generation:
 
    - Switch to spec-driven `bearerAuth`; removed template-injected `tokenAuth`; `set_service_auth_token()` now targets `bearerAuth` by default
@@ -154,9 +181,9 @@ History
 * issue-360: handle -9 error messages better by @ottobackwards in https://github.com/Chaffelson/nipyapi/pull/361
 * Handle plain text response types so json values are correctly returned by @michaelarnauts in https://github.com/Chaffelson/nipyapi/pull/358
 * update clients to 1.27.0 by @Chaffelson in https://github.com/Chaffelson/nipyapi/pull/365
-* Simplified the use of setattr in recurse_flow, flatten, and list_all_by_kind methods in nipyapi/canvas.py. 
-* Added support for key_password in the Configuration class and its usage in nipyapi/nifi/rest.py and nipyapi/registry/rest.py. 
-* Fixed the method to retrieve HTTP headers in nipyapi/nifi/rest.py and nipyapi/registry/rest.py. 
+* Simplified the use of setattr in recurse_flow, flatten, and list_all_by_kind methods in nipyapi/canvas.py.
+* Added support for key_password in the Configuration class and its usage in nipyapi/nifi/rest.py and nipyapi/registry/rest.py.
+* Fixed the method to retrieve HTTP headers in nipyapi/nifi/rest.py and nipyapi/registry/rest.py.
 * Fixed issue #326 where the latest flow version was not being deployed by default
 * Updated pylintrc to match more modern python standards
 * Fixes nipyapi.nifi.ProcessGroupsApi.upload_process_group_with_http_info() incomplete #310

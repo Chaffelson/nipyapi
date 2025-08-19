@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 import os
 import json
-import sys
 import nipyapi
-import socket
-import ssl as _ssl
 import time
 
 
@@ -18,7 +15,7 @@ def main() -> int:
     ca_path = getenv('TLS_CA_CERT_PATH') or os.path.join(os.getcwd(), 'resources', 'certs', 'client', 'ca.pem')
     nifi_user = getenv('NIFI_USERNAME', 'einstein')
     nifi_pass = getenv('NIFI_PASSWORD', 'password1234')
-    profile = (getenv('PROFILE', 'single-user') or 'single-user').strip()
+    profile = (getenv('NIPYAPI_AUTH_MODE', 'single-user') or 'single-user').strip()
     reg_user = getenv('REGISTRY_USERNAME', 'einstein')
     reg_pass = getenv('REGISTRY_PASSWORD', 'password')
     cert_password = getenv('CERT_PASSWORD', 'changeit')
@@ -421,5 +418,3 @@ def main() -> int:
 
 if __name__ == '__main__':
     raise SystemExit(main())
-
-

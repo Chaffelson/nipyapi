@@ -1,23 +1,134 @@
 .. highlight:: python
 
-=============================
-Authentication with NiPyAPI 2
-=============================
+======================
+Security with NiPyAPI 2
+======================
 
 NiPyAPI 1.x targets Apache NiFi 2.x and NiFi Registry 2.x, which prefer secure-by-default deployments.
-This page shows how to configure the client for the three common modes we test via Docker Compose profiles.
+This page covers authentication methods, SSL/TLS configuration, certificate management, and security practices
+for both development and production environments.
 
 .. note::
    **Test vs Production Certificates:**
-   
-   Example snippets below use the NiPyAPI repository's generated test certificates (``resources/certs/``) 
+
+   Example snippets below use the NiPyAPI repository's generated test certificates (``resources/certs/``)
    and localhost URLs for demonstration with the provided Docker profiles.
-   
-   **For production deployments:** Replace certificate/key/CA bundle paths with your own production 
-   credentials and endpoints. The authentication patterns remain the same, only the paths and URLs change.
+
+   **For production deployments:** Replace certificate/key/CA bundle paths with your own production
+   credentials and endpoints. The authentication patterns remain largely the same, only the paths and URLs change.
+
+Development vs Production Security
+==================================
+
+Understanding the security model differences between development and production environments is crucial for proper NiPyAPI usage.
+
+Development Environment Security
+--------------------------------
+
+**Self-Signed Certificate Infrastructure**
+
+The NiPyAPI development environment uses self-signed certificates generated via ``make certs``:
+
+- **Root CA**: ``resources/certs/ca/ca.crt`` - Custom certificate authority for all test certificates
+- **Server Certificates**: Generated with proper Subject Alternative Names (SANs) for localhost, container names
+- **Client Certificates**: ``resources/certs/client/client.crt`` - For mTLS authentication testing
+- **Unified Trust**: All certificates signed by the same root CA for simplified testing
+
+**SSL Warning Suppression**
+
+Development environments deliberately disable SSL verification warnings:
+
+.. code-block:: python
+
+    # In development/testing code
+    nipyapi.config.disable_insecure_request_warnings = True
+
+**Why this is safe in development:**
+
+- Certificates are **properly signed** by our controlled root CA
+- **Subject Alternative Names** correctly match hostnames (localhost, container names)
+- **Trust chain is valid** - only the root CA is self-signed
+- **Controlled environment** - no risk of man-in-the-middle attacks
+- **Consistent test results** - eliminates noise from certificate warnings
+
+**Why warnings are suppressed:**
+
+SSL libraries correctly identify the root CA as "self-signed" and issue warnings, even though:
+
+- The certificate chain is cryptographically valid
+- Hostname verification passes
+- The certificates provide real security within the controlled environment
+
+Production Environment Security
+-------------------------------
+
+**Enterprise PKI Integration**
+
+Production deployments should use certificates from trusted certificate authorities:
+
+- **Commercial CAs** (DigiCert, Let's Encrypt, etc.)
+- **Enterprise PKI** (internal certificate authorities)
+- **Cloud Provider CAs** (AWS Certificate Manager, Azure Key Vault, etc.)
+
+**SSL Verification Best Practices**
+
+.. code-block:: python
+
+    # In production code - NEVER disable SSL verification
+    nipyapi.config.nifi_config.verify_ssl = True
+    nipyapi.config.registry_config.verify_ssl = True
+
+    # Use proper CA bundles
+    nipyapi.config.nifi_config.ssl_ca_cert = "/etc/ssl/certs/ca-bundle.crt"
+    nipyapi.config.registry_config.ssl_ca_cert = "/etc/ssl/certs/ca-bundle.crt"
+
+**Security Configuration Guidelines**
+
+1. **Never disable SSL verification** in production
+2. **Use proper certificate validation** with trusted CAs
+3. **Rotate certificates regularly** according to your security policy
+4. **Monitor certificate expiration** and automate renewal
+5. **Use least privilege access** for service accounts
+6. **Audit authentication events** and API access
+
+Certificate Generation and Management
+====================================
+
+**Development Certificate Generation**
+
+The NiPyAPI repository includes scripts for generating development certificates::
+
+    # Generate complete certificate infrastructure
+    make certs
+
+    # Manual generation (if needed)
+    ./resources/certs/gen_certs.sh
+
+**Certificate Structure**
+
+Generated certificates include:
+
+- **ca/ca.crt** - Root certificate authority (self-signed)
+- **ca/ca.key** - Root CA private key
+- **nifi/keystore.p12** - NiFi server certificate (PKCS#12)
+- **registry/keystore.p12** - Registry server certificate (PKCS#12)
+- **client/client.crt** - Client certificate for mTLS (PEM)
+- **client/client.key** - Client private key for mTLS (PEM)
+- **client/client.p12** - Client certificate for browser import (PKCS#12)
+- **truststore/truststore.p12** - Java truststore with root CA
+
+**Production Certificate Requirements**
+
+For production deployments:
+
+1. **Obtain certificates from trusted CAs**
+2. **Include proper Subject Alternative Names** for all hostnames/IPs
+3. **Use appropriate key lengths** (2048-bit RSA minimum, 256-bit ECDSA preferred)
+4. **Implement certificate lifecycle management**
+5. **Store private keys securely** (HSM, encrypted storage)
 
 Prerequisites
--------------
+=============
 
 If you want to use the provided Docker profiles, you need to:
 
@@ -36,7 +147,7 @@ If you want to use the provided Docker profiles, you need to:
     make up NIPYAPI_AUTH_MODE=secure-oidc && make wait-ready NIPYAPI_AUTH_MODE=secure-oidc
 
 Environment variables
----------------------
+=====================
 
 You can optionally configure endpoints and TLS via environment variables. Standard names are
 ``NIFI_API_ENDPOINT`` and ``REGISTRY_API_ENDPOINT``:
@@ -45,8 +156,6 @@ You can optionally configure endpoints and TLS via environment variables. Standa
 
     export NIFI_API_ENDPOINT=https://localhost:9443/nifi-api
     export REGISTRY_API_ENDPOINT=http://localhost:18080/nifi-registry-api
-    # CA bundle for TLS verification (preferred over disabling verify)
-    export REQUESTS_CA_BUNDLE=/path/to/ca.pem
     # Provide a CA bundle for TLS verification (preferred over disabling verify)
     export REQUESTS_CA_BUNDLE=/path/to/ca.pem
     # Optional toggles
@@ -62,7 +171,6 @@ variables are recognized by the test harness (`tests/conftest.py`) and commonly 
 
     export TLS_CA_CERT_PATH=/path/to/ca.pem
     # or use the standard Python variable recognized by requests/urllib3
-    export REQUESTS_CA_BUNDLE=/path/to/ca.pem
     export MTLS_CLIENT_CERT=/path/to/client.crt
     export MTLS_CLIENT_KEY=/path/to/client.key
     export MTLS_CLIENT_KEY_PASSWORD=yourKeyPassword
@@ -73,41 +181,45 @@ already set on the configuration objects (CA bundle, client cert/key). Prefer pa
 the endpoint string to ``set_endpoint`` and setting credentials/certs explicitly on
 ``nipyapi.config``.
 
-Recommended usage patterns
---------------------------
-
-- Minimal env + explicit calls:
-
-  - Optionally set ``REQUESTS_CA_BUNDLE`` (shared CA) and
-    ``NIFI_API_ENDPOINT``/``REGISTRY_API_ENDPOINT`` for defaults.
-  - Set credentials/certs on ``nipyapi.config``.
-  - Call ``utils.set_endpoint(endpoint, ssl=True, login=...)`` for each service.
-
-- Fully programmatic (no env):
-  - Set ``config.nifi_config.ssl_ca_cert`` and/or client cert/key.
-  - Set ``config.nifi_config.username/password`` (and registry equivalents) when using basic auth.
-  - Call ``utils.set_endpoint(endpoint, ssl=True, login=...)`` and pass username/password if desired.
+Authentication Methods
+======================
 
 Common Setup
 ------------
 
-Using the library-level configuration objects is preferred. For TLS verification, either set
-``REQUESTS_CA_BUNDLE`` to your CA bundle file or set ``configuration.ssl_ca_cert`` directly.
+NiPyAPI provides several approaches for SSL/TLS configuration, from environment variables to convenient helper functions.
+
+**Option A: Environment Variables (simplest)**
+
+.. code-block:: shell
+
+    # Set CA bundle for both services via standard environment variable
+    export REQUESTS_CA_BUNDLE=/path/to/ca.pem
+
+**Option B: Convenience Functions (recommended)**
 
 .. code-block:: python
 
-    import os
     import nipyapi
-    from nipyapi import utils
 
-    # Option A: via env for both services
-    # For NiPyAPI test environment: "resources/certs/ca/ca.crt"
-    # For production: use your own CA bundle path
-    os.environ["REQUESTS_CA_BUNDLE"] = "/path/to/ca.pem"
+    # Set CA certificate for both NiFi and Registry services at once
+    nipyapi.security.set_shared_ca_cert("/path/to/ca.pem")
 
-    # Option B: explicit per-service config
-    nipyapi.config.nifi_config.ssl_ca_cert = "/path/to/ca.pem"
-    nipyapi.config.registry_config.ssl_ca_cert = "/path/to/ca.pem"
+    # Apply all SSL configuration changes (forces client recreation)
+    nipyapi.security.apply_ssl_configuration()
+
+**Option C: Manual Per-Service Configuration**
+
+.. code-block:: python
+
+    import nipyapi
+
+    # Explicit per-service config (when services use different CAs)
+    nipyapi.config.nifi_config.ssl_ca_cert = "/path/to/nifi-ca.pem"
+    nipyapi.config.registry_config.ssl_ca_cert = "/path/to/registry-ca.pem"
+
+    # Apply changes
+    nipyapi.security.apply_ssl_configuration()
 
 
 Single-user (basic auth)
@@ -185,7 +297,7 @@ For mTLS web UI access, you must import the client certificate into your browser
 **Using NiPyAPI test certificates:** The NiPyAPI Docker environment generates a browser-compatible PKCS#12 certificate at:
 ``resources/certs/client/client.p12`` (password: ``changeit``)
 
-**Using production certificates:** Convert your client certificate and key to PKCS#12 format for browser import:
+**Using production certificates:** Convert your client certificate and key to PKCS#12 format for browser import as required:
 
 .. code-block:: shell
 
@@ -212,20 +324,20 @@ For mTLS web UI access, you must import the client certificate into your browser
 
 **After Import:**
 
-Visit https://localhost:9445/nifi or https://localhost:18445/nifi-registry and your browser 
-will prompt to select the "client" certificate. The certificate subject ``CN=user1`` is 
+Visit https://localhost:9445/nifi or https://localhost:18445/nifi-registry and your browser
+will prompt to select the "client" certificate. The certificate subject ``CN=user1`` is
 pre-configured with admin access in the Docker environment.
 
 **Safari Keychain Authentication:**
 
-After selecting the certificate, Safari will prompt for your macOS user/admin password to access 
+After selecting the certificate, Safari will prompt for your macOS user/admin password to access
 the keychain. You have two options:
 
 - **"Allow"** - Enter password each time you access the NiFi/Registry site
 - **"Always Allow"** - Grant permanent access (no password prompt on subsequent visits)
 
-Choose based on your security requirements and company policy. For development environments, 
-"Always Allow" provides convenience. For production access, consider the security implications 
+Choose based on your security requirements and company policy. For development environments,
+"Always Allow" provides convenience. For production access, consider the security implications
 of storing keychain access permissions.
 
 OpenID Connect (OIDC)
@@ -240,7 +352,7 @@ OIDC provides modern OAuth2-based authentication for NiFi using external identit
 The Docker profile includes a pre-configured Keycloak instance with:
 
 - **Realm:** ``nipyapi``
-- **Client ID:** ``nipyapi-client`` 
+- **Client ID:** ``nipyapi-client``
 - **Client Secret:** ``nipyapi-secret``
 - **Test User:** ``einstein@example.com`` / ``password1234``
 - **Admin Console:** http://localhost:8080/admin (admin/password)
@@ -258,9 +370,10 @@ For browser-based access:
 
 .. important::
    **One-Time Manual Setup Required:**
-   
-   Programmatic OIDC access requires a one-time manual setup due to NiFi's security architecture. 
+
+   Programmatic OIDC access requires a one-time manual setup due to NiFi's security architecture.
    The OAuth2 password flow creates a separate application identity that needs admin policies.
+   So the initial admin identity (einstein) manually authorizes the OIDC application identity (a UUID), which then bootstraps policies for both identities.
 
 **Step 1: Initial Discovery**
 
@@ -274,13 +387,16 @@ This will attempt OAuth2 authentication and display the required manual steps, i
 
 **Step 2: Manual Policy Configuration**
 
+.. note::
+    The script will print these instructions in the console along with the generated UUID.
+
 1. Open your browser and navigate to the NiFi UI (https://localhost:9446/nifi)
 2. Login via OIDC with your credentials (``einstein`` / ``password1234``)
 3. Go to **Settings → Users** (hamburger menu → Settings)
 4. Click **"Add User"** and create a new user with the exact OIDC application UUID displayed in Step 1
 5. Go to **Settings → Policies**
 6. Grant these policies to the OIDC application UUID:
-   
+
    - **"view the user interface"** (view + modify access)
    - **"view users"** (view access)
    - **"view policies"** (view access)
@@ -291,8 +407,8 @@ This will attempt OAuth2 authentication and display the required manual steps, i
    The bootstrap script will grant the remaining policies automatically if you run it.
 
 .. note::
-   **User Creation Required**: You must create the user (Step 4) before assigning policies (Step 6). 
-   The OIDC application UUID is dynamically generated and won't exist until you create it manually.
+   **User Creation Required**: You must create the user (Step 4) before assigning policies (Step 6).
+   The OIDC application UUID is dynamically generated and the user won't exist until you create it manually.
 
 **Step 3: Retry Setup**
 
@@ -307,7 +423,7 @@ After setup, programmatic access works seamlessly:
 .. code-block:: python
 
     import nipyapi
-    
+
     # Authenticate via OAuth2 password flow
     nipyapi.security.service_login_oidc(
         service='nifi',
@@ -317,7 +433,7 @@ After setup, programmatic access works seamlessly:
         client_id='nipyapi-client',
         client_secret='nipyapi-secret'
     )
-    
+
     # All API calls now work with full admin privileges
     about_info = nipyapi.nifi.FlowApi().get_about_info()
     current_user = nipyapi.nifi.FlowApi().get_current_user()
@@ -333,7 +449,7 @@ The OAuth2 application identity is dynamically generated by the OIDC provider an
 
 .. tip::
    **Automated Bootstrap**: The sandbox script automatically handles policy assignment for both identities:
-   the browser user (``einstein@example.com``) AND the OAuth2 application identity. This ensures 
+   the browser user (``einstein@example.com``) AND the OAuth2 application identity. This ensures
    both browser and programmatic access work seamlessly after the one-time manual setup.
 
 **Troubleshooting OIDC**
@@ -342,7 +458,7 @@ The OAuth2 application identity is dynamically generated by the OIDC provider an
 
 **Solution**: Ensure both user creation AND policy assignment steps were completed:
 
-1. Verify the user exists: **Settings → Users** → Search for your UUID  
+1. Verify the user exists: **Settings → Users** → Search for your UUID
 2. Verify policies assigned: **Settings → Policies** → Check each required policy contains your UUID
 3. Clear browser cache and retry authentication
 
@@ -350,7 +466,7 @@ The OAuth2 application identity is dynamically generated by the OIDC provider an
 
 **Solution**: This indicates NiFi → Registry communication issues. Verify:
 
-1. Registry is accessible: ``curl http://localhost:18446/nifi-registry-api/about`` 
+1. Registry is accessible: ``curl http://localhost:18446/nifi-registry-api/about``
 2. NiFi is using the correct URL for the Registry client in your environment
 3. Registry authentication works independently
 4. Registry proxy user policies are configured (handled automatically by sandbox script)
@@ -365,8 +481,19 @@ The OAuth2 application identity is dynamically generated by the OIDC provider an
     nipyapi.config.nifi_config.api_client = None  # Clear cached client
     # Retry authentication
 
+**General Debugging**
+
+For complex connectivity or authentication issues, especially with Registry, the debug script can help identify specific blockers:
+
+.. code-block:: shell
+
+    # Run the debug script to analyze Registry connectivity and policies
+    python resources/scripts/debug_registry.py
+
+This script performs comprehensive checks of Registry connectivity, authentication, proxy policies, and common configuration issues across all authentication profiles.
+
 Quick connection checks
------------------------
+=======================
 
 After configuring endpoints and credentials/certificates as above, you can verify connectivity without
 needing any policy bootstrap using lightweight version probes:
@@ -380,10 +507,78 @@ needing any policy bootstrap using lightweight version probes:
     print(system.get_registry_version_info())
 
 
-Notes
------
+NiFi Registry Client SSL Configuration
+======================================
 
-- Prefer setting CA bundles and client certs programmatically rather than via environment variables in application code.
-- The Makefile targets `test-su`, `test-ldap`, `test-mtls`, and `test-oidc` run the full test suite with profile-appropriate TLS and credentials via `tests/conftest.py`.
-- For OIDC profiles, test infrastructure automatically handles token acquisition via the built-in token helper.
+Understanding SSL trust relationships is important when configuring NiFi Registry clients for flow version control. NiFi and Registry can interact through implicit trust (shared CA) or explicit SSL Context Services.
 
+Implicit Trust (Shared Root CA)
+--------------------------------
+
+When NiFi and Registry share a common root certificate authority, they automatically trust each other through NiFi's global SSL configuration:
+
+**How it works:**
+- When Registry Client's `ssl-context-service` property is `null`, NiFi falls back to global SSL configuration
+- NiFi's global truststore (configured via environment variables) contains the shared root CA
+- Registry's certificate is signed by the same root CA
+- NiFi automatically trusts Registry connections through this fallback mechanism
+- Registry Client components work immediately without explicit SSL Context Services
+
+**Benefits:**
+- Simplified configuration and reduced complexity
+- No additional SSL Context Services required
+- Automatic trust relationship establishment
+- Lower operational overhead
+
+**Example: Simple Registry Client (implicit trust)**::
+
+    # No SSL Context Service needed - uses NiFi's global SSL configuration
+    registry_client = nipyapi.versioning.ensure_registry_client(
+        name='my_registry_client',
+        uri='https://registry.example.com/nifi-registry-api',
+        description='Registry Client using implicit SSL trust'
+    )
+
+Explicit SSL Context Services
+-----------------------------
+
+When NiFi and Registry have different certificate authorities or specific PKI requirements, explicit SSL Context Services provide per-component SSL configuration:
+
+**When required:**
+- **Different certificate authorities** (NiFi and Registry use different root CAs)
+- **Enterprise PKI integration** (complex trust hierarchies, intermediate CAs)
+- **Component-specific certificates** (different keystores per Registry Client)
+- **Granular security policies** (different SSL requirements per component)
+- **Cloud platform requirements** (e.g., Cloudera DataHub NiFi implementations)
+
+**Example: Explicit SSL Context Service**::
+
+    # Create SSL Context Service for specific PKI requirements
+    ssl_context = nipyapi.security.ensure_ssl_context(
+        name='registry_ssl_context',
+        parent_pg=parent_pg,
+        keystore_file='/path/to/specific/keystore.p12',
+        keystore_password='password',
+        truststore_file='/path/to/specific/truststore.p12',
+        truststore_password='password'
+    )
+
+    # Registry Client with explicit SSL Context
+    registry_client = nipyapi.versioning.ensure_registry_client(
+        name='secure_registry_client',
+        uri='https://secure-registry.example.com/nifi-registry-api',
+        description='Registry Client with explicit SSL Context',
+        ssl_context_service=ssl_context
+    )
+
+NiPyAPI Testing Implementation
+------------------------------
+
+The NiPyAPI test infrastructure uses the **implicit trust** approach:
+
+- All test certificates share a common root CA (``resources/certs/ca/ca.crt``)
+- NiFi containers are configured with global truststore containing the shared CA
+- Registry Clients work automatically without SSL Context Services
+- Simplified test setup and maintenance
+
+This approach is suitable for development, testing, and deployments where certificate management is centralized. Enterprise deployments with complex PKI requirements may require explicit SSL Context Services.

@@ -5,13 +5,7 @@ from tests import conftest
 import nipyapi
 
 # LDAP profile integration tests
-pytestmark = pytest.mark.skipif(not conftest.TEST_LDAP, reason='LDAP profile not enabled')
-
-# Useful for manual testing
-# if conftest.test_ldap:
-#     test_host = nipyapi.config.default_host
-#     nipyapi.utils.set_endpoint('https://' + test_host + ':18443/nifi-registry-api', True, True)
-#     nipyapi.utils.set_endpoint('https://' + test_host + ':9443/nifi-api', True, True)
+pytestmark = pytest.mark.skipif(conftest.ACTIVE_PROFILE != 'secure-ldap', reason='LDAP profile not enabled')
 
 
 def test_create_service_user_integration(fix_users):
@@ -48,13 +42,13 @@ def test_create_service_user_group_integration(fix_user_groups):
     # Test that groups have users (they were added by the fixture)
     assert len(n_user_group.component.users) > 0
     assert len(r_user_group.users) > 0
-    
+
     # Test that we can retrieve the created groups
     retrieved_nifi_group = nipyapi.security.get_service_user_group(
         n_user_group.component.identity, service="nifi"
     )
     assert retrieved_nifi_group.id == n_user_group.id
-    
+
     retrieved_registry_group = nipyapi.security.get_service_user_group(
         r_user_group.identity, service="registry"
     )
@@ -69,7 +63,7 @@ def test_list_service_user_groups_integration(fix_user_groups):
     # Compare by ID instead of direct object comparison
     group_ids = [group.id for group in r1]
     assert n_user_group.id in group_ids
-    
+
     r2 = nipyapi.security.list_service_user_groups('registry')
     assert isinstance(r2, list)
     # Compare by identifier for registry groups
@@ -126,14 +120,14 @@ def test_set_service_auth_token_integration():
     current_config = nipyapi.config.nifi_config
     original_api_key = current_config.api_key.copy()
     original_api_key_prefix = current_config.api_key_prefix.copy()
-    
+
     try:
         # Test setting a token temporarily
         nipyapi.security.set_service_auth_token('test_value')
         # Test that the token was set (this is a basic smoke test)
         assert current_config.api_key.get('bearerAuth') == 'test_value'
         assert current_config.api_key_prefix.get('bearerAuth') == 'Bearer'
-        
+
     finally:
         # CRITICAL: Always restore the original authentication state completely
         current_config.api_key.clear()
@@ -148,14 +142,14 @@ def test_service_logout_integration():
     current_config = nipyapi.config.nifi_config
     original_api_key = current_config.api_key.copy()
     original_api_key_prefix = current_config.api_key_prefix.copy()
-    
+
     try:
         # Test logout functionality
         r1 = nipyapi.security.service_logout()
         assert r1 is True
         # Verify token was actually cleared
         assert 'bearerAuth' not in current_config.api_key
-        
+
     finally:
         # CRITICAL: Restore authentication for subsequent tests
         current_config.api_key.clear()
@@ -206,17 +200,17 @@ def test_create_access_policy_integration():
 def test_set_service_ssl_context_integration():
     """Integration test for setting SSL context on LDAP profile"""
     import os
-    
+
     # CRITICAL: Save the original SSL context to restore later
     original_ssl_context = nipyapi.config.nifi_config.ssl_context
-    
+
     try:
-        # Get the CA file path from the repository 
+        # Get the CA file path from the repository
         repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
         ca_file = os.path.join(repo_root, 'resources', 'certs', 'client', 'ca.pem')
         client_cert = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
         client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
-        
+
         # Only test if certificate files exist (don't create fallback scenarios)
         if os.path.exists(ca_file) and os.path.exists(client_cert) and os.path.exists(client_key):
             nipyapi.security.set_service_ssl_context(
@@ -231,7 +225,7 @@ def test_set_service_ssl_context_integration():
         else:
             # Skip test if required certificates are not available
             pytest.skip("Required certificate files not found for SSL context test")
-            
+
     finally:
         # CRITICAL: Always restore the original SSL context to avoid breaking subsequent tests
         nipyapi.config.nifi_config.ssl_context = original_ssl_context

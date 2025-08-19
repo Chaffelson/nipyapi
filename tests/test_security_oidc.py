@@ -5,30 +5,30 @@ from tests import conftest
 import nipyapi
 
 # OIDC profile integration tests
-pytestmark = pytest.mark.skipif(not conftest.TEST_OIDC, reason='OIDC profile not enabled')
+pytestmark = pytest.mark.skipif(conftest.ACTIVE_PROFILE != 'secure-oidc', reason='OIDC profile not enabled')
 
 
 def test_service_login_oidc_integration():
     """Integration test for OIDC login with real infrastructure"""
     # This would test actual OIDC authentication against running Keycloak
     # Currently relies on conftest.py setup for OIDC authentication
-    
+
     # CRITICAL: Save the original authentication state before logout
     current_config = nipyapi.config.nifi_config
     original_api_key = current_config.api_key.copy()
     original_api_key_prefix = current_config.api_key_prefix.copy()
-    
+
     try:
         # Test that OIDC authentication was successful (through conftest setup)
         status = nipyapi.security.get_service_access_status(service="nifi", bool_response=True)
         assert status is not False  # False indicates failure, anything else indicates success
-        
+
         # Test logout functionality
         result = nipyapi.security.service_logout(service="nifi")
         assert result is True
         # Verify token was actually cleared
         assert 'bearerAuth' not in current_config.api_key
-        
+
     finally:
         # CRITICAL: Always restore the original authentication state
         current_config.api_key.clear()
@@ -41,7 +41,7 @@ def test_oidc_user_bootstrap_integration():
     """Integration test for OIDC user bootstrapping"""
     # This test verifies that OIDC users can be properly bootstrapped
     # with the necessary policies through conftest.py setup
-    
+
     # Verify we can access the system (indicating proper policy setup)
     try:
         users = nipyapi.security.list_service_users(service="nifi")
@@ -54,7 +54,7 @@ def test_oidc_token_info_integration():
     """Integration test for OIDC token info extraction"""
     # This test would verify the return_token_info functionality
     # in a real OIDC environment, but requires manual setup
-    
+
     # For now, just verify the function exists and is callable
     # Real integration testing requires the full OIDC flow
     assert hasattr(nipyapi.security, 'service_login_oidc')
@@ -64,13 +64,13 @@ def test_oidc_token_info_integration():
 def test_oidc_registry_basic_auth_integration():
     """Integration test verifying Registry uses basic auth in OIDC profile"""
     # In OIDC profile, Registry should still use basic auth, not OIDC
-    
+
     # Verify Registry is accessible (through conftest.py setup)
     try:
         # This call should work with basic auth credentials
         # as configured in conftest.py for OIDC profile
         status = nipyapi.security.get_service_access_status(
-            service="registry", 
+            service="registry",
             bool_response=True
         )
         # When successful, returns the response object, not a boolean
@@ -83,7 +83,7 @@ def test_oidc_registry_basic_auth_integration():
 def test_oidc_ssl_context_integration():
     """Integration test for SSL context in OIDC profile"""
     # Test that SSL context is properly configured for OIDC
-    
+
     # This should work without throwing SSL errors
     # if conftest.py properly configured SSL for OIDC
     try:

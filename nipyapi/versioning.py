@@ -10,8 +10,9 @@ from nipyapi.registry import VersionedFlowSnapshotMetadata as VfsMd
 
 __all__ = [
     'create_registry_client', 'list_registry_clients',
-    'delete_registry_client', 'get_registry_client', 'list_registry_buckets',
-    'create_registry_bucket', 'delete_registry_bucket', 'get_registry_bucket',
+    'delete_registry_client', 'get_registry_client', 'ensure_registry_client',
+    'list_registry_buckets', 'create_registry_bucket', 'delete_registry_bucket',
+    'get_registry_bucket', 'ensure_registry_bucket',
     'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
     'get_latest_flow_ver', 'update_flow_ver', 'get_version_info',
     'create_flow', 'create_flow_version', 'get_flow_version',
@@ -30,7 +31,8 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
         name (str): The name of the new Client
         uri (str): The URI for the connection
         description (str): A description for the Client
-        reg_type (str): The type of registry client to create
+        reg_type (str): The type of registry client to create.
+            Defaults to 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'
         ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
 
     Returns:
@@ -40,21 +42,15 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
     assert isinstance(name, str) and name is not False
     assert isinstance(description, str)
 
-    if nipyapi.utils.check_version('2', service='nifi') == 1:
-        component = {
-            'uri': uri,
-            'name': name,
-            'description': description
+    # NiFi 2.x registry client format
+    component = {
+        'name': name,
+        'description': description,
+        'type': reg_type or 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient',
+        'properties': {
+            'url': uri
         }
-    else:
-        component = {
-            'name': name,
-            'description': description,
-            'type': reg_type or 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient',
-            'properties': {
-                'url': uri
-            }
-        }
+    }
 
     with nipyapi.utils.rest_exceptions():
         controller = nipyapi.nifi.ControllerApi().create_flow_registry_client(
@@ -67,7 +63,6 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
         )
 
     # Update with SSL context if provided
-    # Will be ignored in 1.x if set in original creation request
     if ssl_context_service:
         update_component = dict(controller.component.to_dict())
         update_component['properties'] = {
@@ -142,6 +137,58 @@ def get_registry_client(identifier, identifier_type='name'):
     return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
+def ensure_registry_client(name, uri, description, reg_type=None,
+                           ssl_context_service=None):
+    """
+    Ensures a Registry Client exists, creating it if necessary.
+
+    This is a convenience function that implements the common pattern of:
+    1. Try to get existing client by name
+    2. If not found, create it
+    3. Handle race conditions gracefully
+
+    Args:
+        name (str): The name of the Client
+        uri (str): The URI for the connection
+        description (str): A description for the Client
+        reg_type (str): The type of registry client to create.
+            Defaults to 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'
+        ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
+
+    Returns:
+        (FlowRegistryClientEntity): The registry client object (existing or new)
+    """
+    # Try to get existing client first
+    try:
+        existing = get_registry_client(name)
+        if existing:
+            log.debug("Found existing registry client: %s", name)
+            return existing
+    except ValueError:
+        # Client doesn't exist, we'll create it below
+        pass
+
+    # Try to create new client
+    try:
+        client = create_registry_client(name, uri, description, reg_type,
+                                        ssl_context_service)
+        log.debug("Created new registry client: %s", name)
+        return client
+    except Exception as e:
+        # Handle race condition where client was created between check and creation
+        error_msg = str(e).lower()
+        if "already exists" in error_msg or "duplicate" in error_msg:
+            try:
+                existing = get_registry_client(name)
+                log.debug("Found existing registry client after race condition: %s", name)
+                return existing
+            except ValueError:
+                # If we still can't find it, something else is wrong
+                pass
+        # Re-raise the original exception if we can't handle it
+        raise e
+
+
 def list_registry_buckets():
     """
     Lists all available Buckets in the NiFi Registry
@@ -173,6 +220,51 @@ def create_registry_bucket(name):
                   bucket.identifier,
                   nipyapi.config.registry_config.api_client.host)
         return bucket
+
+
+def ensure_registry_bucket(name):
+    """
+    Ensures a Registry Bucket exists, creating it if necessary.
+
+    This is a convenience function that implements the common pattern of:
+    1. Try to get existing bucket by name
+    2. If not found, create it
+    3. Handle race conditions gracefully
+
+    Args:
+        name (str): name for the bucket, must be unique in the Registry
+
+    Returns:
+        (Bucket): The bucket object (existing or new)
+    """
+    # Try to get existing bucket first
+    try:
+        existing = get_registry_bucket(name)
+        if existing:
+            log.debug("Found existing registry bucket: %s", name)
+            return existing
+    except ValueError:
+        # Bucket doesn't exist, we'll create it below
+        pass
+
+    # Try to create new bucket
+    try:
+        bucket = create_registry_bucket(name)
+        log.debug("Created new registry bucket: %s", name)
+        return bucket
+    except Exception as e:
+        # Handle race condition where bucket was created between check and creation
+        error_msg = str(e).lower()
+        if "already exists" in error_msg or "duplicate" in error_msg:
+            try:
+                existing = get_registry_bucket(name)
+                log.debug("Found existing registry bucket after race condition: %s", name)
+                return existing
+            except ValueError:
+                # If we still can't find it, something else is wrong
+                pass
+        # Re-raise the original exception if we can't handle it
+        raise e
 
 
 def delete_registry_bucket(bucket):

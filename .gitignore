@@ -183,5 +183,8 @@ htmlcov/
 # VSCode
 *.code-workspace
 
+# Cursor AI rules (personal AI assistant configuration)
+.cursorrules
+
 # setuptools-scm generated version file
 nipyapi/_version.py

@@ -297,53 +297,6 @@ def test_update_processor(fix_proc):
         _ = canvas.update_processor(f_p1, 'FakeNews')
 
 
-def test_get_variable_registry(fix_pg):
-    if utils.check_version('2', service='nifi') <= 0:
-        pytest.skip("Not supported in NiFi 2.x")
-    test_pg = fix_pg.generate()
-    r1 = canvas.get_variable_registry(test_pg)
-    assert isinstance(r1, nifi.VariableRegistryEntity)
-    with pytest.raises(ValueError, match='Unable to locate group with id'):
-        canvas.delete_process_group(test_pg)
-        _ = canvas.get_variable_registry(test_pg)
-
-
-def test_update_variable_registry(fix_pg):
-    if utils.check_version('2', service='nifi') <= 0:
-        pytest.skip("Not supported in NiFi 2.x")
-    test_pg = fix_pg.generate()
-    r1 = canvas.update_variable_registry(
-        test_pg,
-        conftest.test_variable_registry_entry
-    )
-    assert isinstance(r1, nifi.VariableRegistryEntity)
-    with pytest.raises(ValueError, match='not the most up-to-date revision'):
-        _ = canvas.update_variable_registry(
-            test_pg,
-            conftest.test_variable_registry_entry,
-            refresh=False
-        )
-    r2 = canvas.update_variable_registry(
-        test_pg,
-        conftest.test_variable_registry_entry,
-        refresh=True
-    )
-    assert isinstance(r2, nifi.VariableRegistryEntity)
-    r3 = canvas.update_variable_registry(
-        test_pg,
-        [
-            ('key1', 'value1'),
-            ('key2', 'value2')
-        ],
-        refresh=True
-    )
-    assert isinstance(r3, nifi.VariableRegistryEntity)
-    with pytest.raises(ValueError,
-                       match='param update is not a valid list of'
-                       ):
-        _ = canvas.update_variable_registry(test_pg, '')
-
-
 def test_purge_connection():
     # TODO: Waiting for create_connection to generate fixture
     pass

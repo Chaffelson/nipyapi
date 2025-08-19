@@ -14,6 +14,9 @@ log = logging.getLogger(__name__)
 
 
 __all__ = [
+    "apply_ssl_configuration",
+    "apply_authentication",
+    "set_shared_ca_cert",
     "create_service_user",
     "create_service_user_group",
     "set_service_auth_token",
@@ -34,12 +37,94 @@ __all__ = [
     "list_service_user_groups",
     "get_service_user_group",
     "remove_service_user_group",
+    "create_ssl_context_controller_service",
+    "ensure_ssl_context"
 ]
 
 # These are the known-valid policy actions
 _valid_actions = ["read", "write", "delete"]
 # These are the services that these functions know how to configure
 _valid_services = ["nifi", "registry"]
+
+
+# --- Configuration Application Functions ---
+
+def apply_ssl_configuration():
+    """Apply current SSL configuration by forcing client recreation.
+
+    This function applies SSL settings that were changed in nipyapi.config
+    by forcing recreation of API clients. Call this after modifying SSL
+    configuration values like verify_ssl, ssl_ca_cert, cert_file, etc.
+
+    The function:
+    1. Forces client recreation to pick up new SSL settings
+    2. Applies SSL context changes based on current verification settings
+    3. Applies SSL warning settings based on current configuration
+    """
+    log.info("Applying SSL configuration changes")
+
+    # Force client recreation to pick up new SSL settings
+    nipyapi.config.nifi_config.api_client = None
+    nipyapi.config.registry_config.api_client = None
+
+    # Apply SSL context changes for disabled verification
+    _update_ssl_contexts()
+
+    # Apply SSL warning settings
+    _apply_ssl_warnings()
+
+    log.info("SSL configuration applied successfully")
+
+
+def apply_authentication():
+    """Apply authentication changes by forcing re-login.
+
+    This function clears current authentication tokens, forcing users
+    to re-authenticate. Call this after changing authentication settings.
+
+    After calling this function, you must call service_login() again
+    to establish new authentication.
+    """
+    log.info("Applying authentication changes")
+
+    # Clear current authentication tokens
+    service_logout('nifi')
+    service_logout('registry')
+
+    log.info("Authentication cleared - call service_login() to re-authenticate")
+
+
+def set_shared_ca_cert(ca_cert_path):
+    """Set CA certificate for both NiFi and Registry services.
+
+    This is the typical pattern since both services usually trust the same
+    Certificate Authority.
+
+    Args:
+        ca_cert_path (str): Path to the CA certificate file
+    """
+    nipyapi.config.nifi_config.ssl_ca_cert = ca_cert_path
+    nipyapi.config.registry_config.ssl_ca_cert = ca_cert_path
+
+
+def _update_ssl_contexts():
+    """Internal: Update SSL contexts based on current configuration."""
+    for config in [nipyapi.config.nifi_config, nipyapi.config.registry_config]:
+        if not config.verify_ssl:
+            _disable_verify(config)
+
+
+def _disable_verify(cfg):
+    """Internal: Disable SSL verification via ssl_context when verify_ssl is False."""
+    cfg.ssl_context = ssl.create_default_context()
+    cfg.ssl_context.check_hostname = False
+    cfg.ssl_context.verify_mode = ssl.CERT_NONE
+
+
+def _apply_ssl_warnings():
+    """Internal: Apply SSL warning settings based on current configuration."""
+    if not nipyapi.config.global_ssl_verify or nipyapi.config.disable_insecure_request_warnings:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 def list_service_users(service="nifi"):
@@ -1166,3 +1251,106 @@ def create_ssl_context_controller_service(
                     type=ssl_service_type or default_ssl_service_type,
                     name=name,
                     properties=props)))
+
+
+def ensure_ssl_context(name, parent_pg, keystore_file=None, keystore_password=None,
+                       truststore_file=None, truststore_password=None,
+                       key_password=None, keystore_type=None, truststore_type=None,
+                       ssl_protocol=None, ssl_service_type=None):
+    """
+    Ensures an SSL Context Service exists, creating it if necessary.
+
+    This is a convenience function that implements the common pattern of:
+    1. Try to get existing SSL context service by name
+    2. If not found, create it
+    3. Ensure it's scheduled/enabled
+    4. Handle race conditions gracefully
+
+    Args:
+        name (str): Name for the SSL Context Service
+        parent_pg (ProcessGroupEntity): The Process Group to create the service in
+        keystore_file (str): Path to the client certificate/keystore file
+        keystore_password (str): Password for the keystore
+        truststore_file (str): Path to the truststore file
+        truststore_password (str): Password for the truststore
+        key_password (Optional[str]): Password for the key, defaults to keystore_password
+            if not set
+        keystore_type (Optional[str]): Type of keystore (JKS, PKCS12), defaults to JKS
+        truststore_type (Optional[str]): Type of truststore (JKS, PKCS12), defaults to JKS
+        ssl_protocol (Optional[str]): SSL protocol version, defaults to TLS
+        ssl_service_type (Optional[str]): SSL service type, defaults to
+            StandardRestrictedSSLContextService
+
+    Returns:
+        (ControllerServiceEntity): The SSL context service (existing or new)
+    """
+    # Try to get existing SSL context first
+    try:
+        existing = nipyapi.canvas.get_controller(name, 'name')
+        if existing:
+            log.debug("Found existing SSL context service: %s", name)
+            # Ensure it's scheduled/enabled
+            try:
+                nipyapi.canvas.schedule_controller(existing, scheduled=True,
+                                                   refresh=True)
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                log.debug("SSL context service scheduling: %s", e)
+            return existing
+    except Exception:  # pylint: disable=broad-exception-caught
+        # Service doesn't exist, we'll create it below
+        pass
+
+    # Try to create new SSL context service
+    try:
+        ssl_context = create_ssl_context_controller_service(
+            parent_pg=parent_pg,
+            name=name,
+            keystore_file=keystore_file,
+            keystore_password=keystore_password,
+            truststore_file=truststore_file,
+            truststore_password=truststore_password,
+            key_password=key_password,
+            keystore_type=keystore_type,
+            truststore_type=truststore_type,
+            ssl_protocol=ssl_protocol,
+            ssl_service_type=ssl_service_type
+        )
+
+        # Enable the SSL context service
+        try:
+            nipyapi.canvas.schedule_controller(ssl_context, scheduled=True,
+                                               refresh=True)
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            # Log validation errors for easier debugging
+            try:
+                api = nipyapi.nifi.ControllerServicesApi()
+                svc = api.get_controller_service(ssl_context.id)
+                verrs = getattr(svc.component, 'validation_errors', None)
+                log.warning('SSL context service validation errors: %s', verrs)
+            except Exception:  # pylint: disable=broad-exception-caught
+                pass
+            raise e
+
+        log.debug("Created and enabled SSL context service: %s", name)
+        return ssl_context
+
+    except Exception as e:
+        # Handle race condition where service was created between check and creation
+        error_msg = str(e).lower()
+        if "already exists" in error_msg or "duplicate" in error_msg:
+            try:
+                existing = nipyapi.canvas.get_controller(name, 'name')
+                log.debug("Found existing SSL context service after race condition: %s",
+                          name)
+                # Ensure it's scheduled/enabled
+                try:
+                    nipyapi.canvas.schedule_controller(existing, scheduled=True,
+                                                       refresh=True)
+                except Exception:  # pylint: disable=broad-exception-caught
+                    pass
+                return existing
+            except Exception:  # pylint: disable=broad-exception-caught
+                # If we still can't find it, something else is wrong
+                pass
+        # Re-raise the original exception if we can't handle it
+        raise e
