@@ -77,6 +77,8 @@ EOF
   # Create PKCS12 keystore
   openssl pkcs12 -export -name "$name-server" -inkey "$name/server.key" -in "$name/server.crt" -certfile ca/ca.crt \
     -out "$name/keystore.p12" -passout pass:"$PASS"
+  # Make keystore readable by container users (openssl creates with 600 by default)
+  chmod 644 "$name/keystore.p12"
 }
 
 # Create truststore from CA
@@ -85,6 +87,8 @@ create_truststore() {
   # Force stronger PBE to avoid RC2 issues on some platforms
   openssl pkcs12 -export -name "nipytca" -in ca/ca.crt -nokeys \
     -certpbe PBE-SHA1-3DES -out truststore/truststore.p12 -passout pass:"$PASS"
+  # Make truststore readable by container users (openssl creates with 600 by default)
+  chmod 644 truststore/truststore.p12
   # Ensure Java sees a trustedCertEntry inside the PKCS12 (some PKCS12 variants with only certBag show 0 entries)
   if command -v keytool >/dev/null 2>&1; then
     keytool -importcert -noprompt -alias nipyca \
@@ -123,12 +127,15 @@ if command -v keytool >/dev/null 2>&1; then
   keytool -importkeystore -noprompt \
     -srckeystore nifi/keystore.p12 -srcstoretype PKCS12 -srcstorepass "$PASS" \
     -destkeystore nifi/keystore.jks -deststoretype JKS -deststorepass "$PASS" >/dev/null 2>&1 || true
+  chmod 644 nifi/keystore.jks 2>/dev/null || true
   keytool -importkeystore -noprompt \
     -srckeystore registry/keystore.p12 -srcstoretype PKCS12 -srcstorepass "$PASS" \
     -destkeystore registry/keystore.jks -deststoretype JKS -deststorepass "$PASS" >/dev/null 2>&1 || true
+  chmod 644 registry/keystore.jks 2>/dev/null || true
   keytool -importkeystore -noprompt \
     -srckeystore truststore/truststore.p12 -srcstoretype PKCS12 -srcstorepass "$PASS" \
     -destkeystore truststore/truststore.jks -deststoretype JKS -deststorepass "$PASS" >/dev/null 2>&1 || true
+  chmod 644 truststore/truststore.jks 2>/dev/null || true
 fi
 
 cat > ./certs.env <<ENV
@@ -189,4 +196,3 @@ ENV
 
 echo "Certificates and stores generated under: $script_dir"
 echo "Keystore/Truststore password: $PASS"
-
