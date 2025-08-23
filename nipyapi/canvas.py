@@ -56,7 +56,7 @@ def recurse_flow(pg_id='root'):
         pg_id (str): The Process Group UUID
 
     Returns:
-         (ProcessGroupFlowEntity): enriched NiFi Flow object
+         :class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`: enriched NiFi Flow object
     """
     assert isinstance(pg_id, str), "pg_id should be a string"
 
@@ -83,7 +83,7 @@ def get_flow(pg_id='root'):
             process group if not set
 
     Returns:
-         (ProcessGroupFlowEntity): The Process Group object
+         :class:`~nipyapi.nifi.models.ProcessGroupFlowEntity`: The Process Group object
     """
     assert isinstance(pg_id, str), "pg_id should be a string"
     with nipyapi.utils.rest_exceptions():
@@ -104,7 +104,8 @@ def get_process_group_status(pg_id='root', detail='names'):
             name:id pairings, or the full details. Defaults to 'names'
 
     Returns:
-         (ProcessGroupEntity): The Process Group Entity including the status
+         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The Process Group Entity including
+         the status
     """
     assert isinstance(pg_id, str), "pg_id should be a string"
     assert detail in ['names', 'all']
@@ -430,7 +431,7 @@ def create_process_group(parent_pg, new_pg_name, location, comment=''):
         comment (str): Entry for the Comments field
 
     Returns:
-         (ProcessGroupEntity): The new Process Group
+         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The new Process Group
 
     """
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
@@ -503,7 +504,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
             new processor
 
     Returns:
-         (ProcessorEntity): The new Processor
+         :class:`~nipyapi.nifi.models.ProcessorEntity`: The new Processor
 
     """
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
@@ -573,7 +574,7 @@ def delete_processor(processor, refresh=True, force=False):
             Processor before deletion. Behavior may change in future releases.
 
     Returns:
-         (ProcessorEntity): The updated ProcessorEntity
+         :class:`~nipyapi.nifi.models.ProcessorEntity`: The updated ProcessorEntity
 
     """
     assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
@@ -729,7 +730,7 @@ def update_process_group(pg, update, refresh=True):
               applying the update
 
         Returns:
-            (ProcessGroupEntity): The updated ProcessorEntity
+            :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated ProcessorEntity
 
         """
     assert isinstance(pg, nipyapi.nifi.ProcessGroupEntity)
@@ -763,7 +764,7 @@ def update_processor(processor, update, refresh=True):
           before applying the update
 
     Returns:
-        (ProcessorEntity): The updated ProcessorEntity
+        :class:`~nipyapi.nifi.models.ProcessorEntity`: The updated ProcessorEntity
 
     """
     if not isinstance(update, nipyapi.nifi.ProcessorConfigDTO):
@@ -796,7 +797,7 @@ def get_variable_registry(process_group, ancestors=True):
             Process Groups
 
     Returns:
-        (VariableRegistryEntity): The Variable Registry
+        :class:`~nipyapi.nifi.models.VariableRegistryEntity`: The Variable Registry
 
     """
     with nipyapi.utils.rest_exceptions():
@@ -866,7 +867,7 @@ def create_connection(source, target, relationships=None, name=None):
         name (str): Defaults to None, String of Name for Connection (optional)
 
     Returns:
-        (ConnectionEntity): for the created connection
+        :class:`~nipyapi.nifi.models.ConnectionEntity`: for the created connection
 
     """
     # determine source and destination strings by class supplied
@@ -928,7 +929,7 @@ def delete_connection(connection, purge=False):
         purge (bool): True to Purge, Defaults to False
 
     Returns:
-        (ConnectionEntity): the modified Connection
+        :class:`~nipyapi.nifi.models.ConnectionEntity`: the modified Connection
 
     """
     assert isinstance(connection, nipyapi.nifi.ConnectionEntity)
@@ -987,7 +988,7 @@ def purge_connection(con_id):
         con_id (str): The UUID of the Connection to be purged
 
     Returns:
-        (DropRequestEntity): The status reporting object for the drop
+        :class:`~nipyapi.nifi.models.DropRequestEntity`: The status reporting object for the drop
         request.
 
     """
@@ -1562,7 +1563,7 @@ def create_funnel(pg_id, position=None):
         position (tuple[int, int]): Position on canvas
 
     Returns:
-        (FunnelEntity) Created Funnel
+        :class:`~nipyapi.nifi.models.FunnelEntity`: Created Funnel
     """
     position = position if position else (400, 400)
     assert isinstance(position, tuple)
@@ -1592,7 +1593,7 @@ def delete_funnel(funnel, refresh=True):
             before execution
 
     Returns:
-        (FunnelEntity) Deleted FunnelEntity reference
+        :class:`~nipyapi.nifi.models.FunnelEntity`: Deleted FunnelEntity reference
     """
     assert isinstance(funnel, nipyapi.nifi.FunnelEntity)
     with nipyapi.utils.rest_exceptions():

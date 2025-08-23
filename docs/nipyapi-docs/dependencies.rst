@@ -34,6 +34,7 @@ Optional Dependencies
 - ``coverage>=7.0`` - Coverage analysis and reporting
 - ``deepdiff>=3.3.0`` - Deep data structure comparison for testing
 - ``flake8>=3.6.0`` - Code style and syntax checking
+- ``pre-commit>=3.0.0`` - Development tool
 - ``pylint>=3.3.0`` - Advanced code analysis and linting
 - ``pytest-cov>=5.0.0`` - Test coverage measurement
 - ``pytest>=8.4`` - Testing framework

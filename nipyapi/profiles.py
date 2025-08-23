@@ -266,6 +266,7 @@ def switch(profile_name, profiles_file=None, login=True):
     parameters rather than profile names, making it flexible for custom profiles.
 
         Supported authentication methods:
+
     - OIDC: Requires oidc_token_endpoint, oidc_client_id, oidc_client_secret,
             nifi_user, nifi_pass
     - mTLS: Requires client_cert, client_key (+ optional client_key_password)
@@ -302,6 +303,7 @@ def switch(profile_name, profiles_file=None, login=True):
         >>> # Custom profiles file
         >>> nipyapi.profiles.switch('production',
         ...                          profiles_file='/home/user/.nipyapi/profiles.yml')
+
     """
 
     # 1. Resolve target profile configuration

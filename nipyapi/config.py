@@ -17,9 +17,10 @@ Notes for NiFi/Registry 2.x:
   - REQUESTS_CA_BUNDLE (CA bundle)
   - NIPYAPI_VERIFY_SSL (0/1) and NIPYAPI_CHECK_HOSTNAME (0/1)
 
-For a step-by-step guide on configuring NiFi/Registry authentication (single-user, LDAP, mTLS),
-see the project documentation: docs/authentication.rst or the online guide at
-https://nipyapi.readthedocs.io/en/latest/authentication.html
+For a step-by-step guide on configuring NiFi/Registry authentication
+(single-user, LDAP, mTLS, OIDC),
+see the project documentation: docs/profiles.rst and docs/security.rst or the online guide at
+https://nipyapi.readthedocs.io/en/latest/profiles.html
 
 Deprecated (kept for backward compatibility; prefer explicit configuration):
 - NIFI_CA_CERT / NIFI_CLIENT_CERT / NIFI_CLIENT_KEY

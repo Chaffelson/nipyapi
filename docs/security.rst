@@ -157,6 +157,20 @@ Environment variables
 =====================
 
 Environment variables provide a way to override profile configurations or configure NiPyAPI directly.
+
+.. important::
+   **Recommended Approach**: Use the **Profiles System** (``nipyapi.profiles.switch()``) for configuration management.
+
+   The profiles system supports multiple configuration sources:
+
+   - **YAML/JSON files**: ``examples/profiles.yml`` or custom profile files
+   - **Environment variables**: Override any profile setting (e.g., ``NIFI_API_ENDPOINT``, ``NIFI_USERNAME``)
+   - **Programmatic overrides**: Direct configuration object manipulation
+
+   All approaches use the same profiles system under the hood and provide automatic authentication
+   method detection. Environment variables are a **valid and supported** way to use profiles,
+   especially useful for CI/CD and containerized deployments.
+
 For complete environment variable documentation including profiles system integration, see `Environment Profiles <profiles.html>`_.
 
 **Core Configuration Variables**
@@ -169,10 +183,28 @@ These variables are read at import time to seed defaults (see ``nipyapi/config.p
     export NIFI_API_ENDPOINT=https://localhost:9443/nifi-api
     export REGISTRY_API_ENDPOINT=http://localhost:18080/nifi-registry-api
 
-    # SSL configuration
+    # SSL configuration (current)
     export REQUESTS_CA_BUNDLE=/path/to/ca.pem                    # Standard Python/requests CA bundle
+    export TLS_CA_CERT_PATH=/path/to/ca.pem                      # Shared CA for both NiFi and Registry
     export NIPYAPI_VERIFY_SSL=1                                  # Global SSL verification toggle
     export NIPYAPI_CHECK_HOSTNAME=1                              # Hostname verification toggle
+
+.. warning::
+   **Deprecated Environment Variables**
+
+   These variables are deprecated and will show warnings in NiPyAPI 1.x:
+
+   .. code-block:: shell
+
+       # DEPRECATED - Use REQUESTS_CA_BUNDLE or direct configuration instead
+       export NIFI_CA_CERT=/path/to/ca.pem
+       export NIFI_CLIENT_CERT=/path/to/client.crt
+       export NIFI_CLIENT_KEY=/path/to/client.key
+       export REGISTRY_CA_CERT=/path/to/ca.pem
+       export REGISTRY_CLIENT_CERT=/path/to/client.crt
+       export REGISTRY_CLIENT_KEY=/path/to/client.key
+
+   **Migration**: Use the profiles system or set ``configuration.ssl_ca_cert/cert_file/key_file`` directly.
 
 **Profile System Variables**
 
@@ -190,20 +222,34 @@ When using the profiles system, these variables can override any profile configu
     export MTLS_CLIENT_CERT=/path/to/client.crt
     export MTLS_CLIENT_KEY=/path/to/client.key
 
-**Direct Configuration (when not using profiles)**
+**Direct Configuration**
 
-For manual configuration without profiles:
+For programmatic configuration:
 
 .. code-block:: python
 
-    # Note: utils.set_endpoint() does not read environment variables directly.
-    # It relies on parameters you pass and values already set on configuration objects.
-    # Prefer using the profiles system or setting credentials/certs explicitly:
-
+    # Modern approach: Set configuration directly (NiPyAPI 1.x)
     import nipyapi
-    nipyapi.config.nifi_config.username = "user"
-    nipyapi.config.nifi_config.password = "password"
-    nipyapi.utils.set_endpoint("https://nifi.company.com/nifi-api", ssl=True, login=True)
+    from nipyapi import config
+
+    # Configure endpoints
+    config.nifi_config.host = "https://nifi.company.com/nifi-api"
+    config.registry_config.host = "https://registry.company.com/nifi-registry-api"
+
+    # Configure SSL certificates
+    config.nifi_config.ssl_ca_cert = "/path/to/ca.pem"
+    config.nifi_config.cert_file = "/path/to/client.crt"  # For mTLS
+    config.nifi_config.key_file = "/path/to/client.key"   # For mTLS
+
+    # Configure authentication
+    config.nifi_config.username = "user"
+    config.nifi_config.password = "password"
+
+    # Establish connection
+    nipyapi.utils.set_endpoint(config.nifi_config.host, ssl=True, login=True)
+
+.. note::
+   **Recommendation**: Use the profiles system instead of manual configuration for better maintainability and environment management.
 
 Authentication Methods
 ======================
@@ -254,7 +300,7 @@ Environment variables can override any profile configuration or provide direct c
     # Apply all SSL configuration changes (forces client recreation)
     nipyapi.security.apply_ssl_configuration()
 
-**Option D: Manual Per-Service Configuration**
+**Option D: Per-Service Configuration**
 
 .. code-block:: python
 
@@ -464,13 +510,29 @@ Simply re-run the same sandbox command to now complete the bootstrap::
 
 **Programmatic Access After Setup**
 
-After setup, programmatic access works seamlessly:
+After setup, programmatic access works seamlessly using the profiles system:
 
 .. code-block:: python
 
     import nipyapi
 
-    # Authenticate via OAuth2 password flow
+    # Use the secure-oidc profile (handles all OIDC configuration automatically)
+    nipyapi.profiles.switch('secure-oidc')
+
+    # All API calls now work with full admin privileges
+    about_info = nipyapi.nifi.FlowApi().get_about_info()
+    current_user = nipyapi.nifi.FlowApi().get_current_user()
+    flows = nipyapi.canvas.list_all_process_groups()
+
+**Manual OIDC Configuration**
+
+For direct programmatic control:
+
+.. code-block:: python
+
+    import nipyapi
+
+    # Manual OAuth2 password flow configuration
     nipyapi.security.service_login_oidc(
         service='nifi',
         username='einstein',
@@ -480,7 +542,7 @@ After setup, programmatic access works seamlessly:
         client_secret='nipyapi-secret'
     )
 
-    # All API calls now work with full admin privileges
+    # API calls work the same way
     about_info = nipyapi.nifi.FlowApi().get_about_info()
     current_user = nipyapi.nifi.FlowApi().get_current_user()
 

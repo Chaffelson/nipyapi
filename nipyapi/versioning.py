@@ -36,7 +36,7 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
         ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
 
     Returns:
-        (FlowRegistryClientEntity): The new registry client object
+        :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The new registry client object
     """
     assert isinstance(uri, str) and uri is not False
     assert isinstance(name, str) and name is not False
@@ -114,7 +114,7 @@ def list_registry_clients():
     Lists the available Registry Clients in the NiFi Controller Services
 
     Returns:
-        (list[FlowRegistryClientEntity]) objects
+        list[:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`]: objects
     """
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ControllerApi().get_flow_registry_clients()
@@ -215,7 +215,7 @@ def list_registry_buckets():
     Lists all available Buckets in the NiFi Registry
 
     Returns:
-        (list[Bucket]) objects
+        list[:class:`~nipyapi.registry.models.Bucket`]: objects
     """
     with nipyapi.utils.rest_exceptions():
         return nipyapi.registry.BucketsApi().get_buckets()
@@ -230,7 +230,7 @@ def create_registry_bucket(name, description=None):
         description (str, optional): description for the bucket
 
     Returns:
-        (Bucket): The new Bucket object
+        :class:`~nipyapi.registry.models.Bucket`: The new Bucket object
     """
     with nipyapi.utils.rest_exceptions():
         # Create a proper Bucket object with all supported fields
@@ -388,7 +388,7 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
         force (bool): Whether to Force Commit, or just regular Commit
 
     Returns:
-        (VersionControlInformationEntity)
+        :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
     """
     # Validate parameter types
     assert isinstance(registry_client, nipyapi.nifi.FlowRegistryClientEntity), \
@@ -433,7 +433,7 @@ def stop_flow_ver(process_group, refresh=True):
         refresh (bool): Whether to refresh the object status before actioning
 
     Returns:
-        (VersionControlInformationEntity)
+        :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
     """
     with nipyapi.utils.rest_exceptions():
         if refresh:
@@ -595,7 +595,7 @@ def get_version_info(process_group):
         process_group (ProcessGroupEntity): the ProcessGroup to work with
 
     Returns:
-        (VersionControlInformationEntity)
+        :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
     """
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
     with nipyapi.utils.rest_exceptions():

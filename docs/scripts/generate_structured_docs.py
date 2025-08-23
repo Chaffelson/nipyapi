@@ -339,15 +339,6 @@ def generate_main_api_reference(output_dir):
     content += "   registry_models/index\n"
     content += "   examples\n\n"
 
-    content += "Overview\n"
-    content += "--------\n\n"
-    content += "**Core Modules**: High-level Python interfaces for common operations\n\n"
-    content += "**NiFi APIs**: Complete generated client for all NiFi REST endpoints\n\n"
-    content += "**NiFi Models**: Data structures and DTOs used by NiFi APIs\n\n"
-    content += "**Registry APIs**: Complete generated client for NiFi Registry\n\n"
-    content += "**Registry Models**: Data structures used by Registry APIs\n\n"
-    content += "**Examples**: Example scripts and tutorials\n\n"
-
     filepath = os.path.join(output_dir, "api_reference.rst")
     write_rst_file(filepath, content)
 
@@ -363,7 +354,19 @@ def generate_examples_docs(output_dir):
 
     content += "Available Examples\n"
     content += "------------------\n\n"
-    content += "* **fdlc.py**: Flow Development Life Cycle examples\n\n"
+    content += "* **fdlc.py**: **Flow Development Life Cycle (FDLC)** - A comprehensive example demonstrating enterprise NiFi development workflow using NiFi Registry for version control. Shows the complete cycle: DEV environment flow creation → PROD environment deployment → iterative development → production updates. Includes multi-environment authentication, flow versioning, and Registry integration patterns.\n\n"
+    content += "* **sandbox.py**: **Multi-Profile Authentication Demo** - Interactive script showcasing all NiPyAPI authentication methods (single-user, LDAP, mTLS, OIDC) with real Docker environments. Demonstrates SSL/TLS configuration, security bootstrapping, Registry client setup, and sample object creation. Perfect for learning authentication patterns and testing different security configurations.\n\n"
+    content += "* **profiles.yml**: **Configuration Templates** - Complete YAML configuration file with working profiles for all supported authentication methods. Includes detailed comments explaining certificate paths, environment variable overrides, and per-service vs shared certificate configurations. Use as a starting template for your own deployments.\n\n"
+    content += "Quick Start\n"
+    content += "-----------\n\n"
+    content += "**New to NiPyAPI?** Start with the sandbox environment:\n\n"
+    content += ".. code-block:: console\n\n"
+    content += "    $ make sandbox NIPYAPI_PROFILE=single-user\n"
+    content += "    $ python examples/sandbox.py single-user\n\n"
+    content += "**Ready for enterprise patterns?** Try the FDLC workflow:\n\n"
+    content += ".. code-block:: console\n\n"
+    content += "    $ python examples/fdlc.py\n\n"
+    content += "**Need authentication setup?** Copy and customize ``profiles.yml`` for your environment.\n\n"
 
     content += "Sandbox Environment\n"
     content += "-------------------\n\n"

@@ -10,6 +10,7 @@ Requirements
 - **Python**: 3.9 or higher
 - **Apache NiFi**: 2.0.0 or higher (for target NiFi instances)
 - **Apache NiFi Registry**: 2.0.0 or higher (optional, for local versioning features)
+- **Docker Desktop**: Optional, for local development and testing with provided profiles
 
 Stable Release
 --------------
@@ -48,7 +49,7 @@ To install NiPyAPI for development or to get the latest features:
     # Clone the repository
     $ git clone https://github.com/Chaffelson/nipyapi.git
     $ cd nipyapi
-    
+
     # Install in development mode with all dependencies
     $ pip install -e ".[dev,docs]"
 
@@ -69,10 +70,10 @@ You can download and install from a source archive:
     $ curl -OL https://github.com/Chaffelson/nipyapi/tarball/main
     $ tar -xzf main
     $ cd Chaffelson-nipyapi-*
-    
+
     # Install using pip (recommended)
     $ pip install .
-    
+
     # Or build and install manually
     $ python -m build
     $ pip install dist/*.whl
@@ -86,21 +87,75 @@ To verify that NiPyAPI is installed correctly:
 
     $ python -c "import nipyapi; print(f'NiPyAPI {nipyapi.__version__} installed successfully')"
 
-For a quick connection test (requires running NiFi):
+Next Steps
+----------
+
+**Option 1: Quick Test with Docker (Recommended for New Users)**
+
+If you have Docker Desktop, you can test with our provided environment:
+
+.. code-block:: console
+
+    # Clone repository for Docker profiles
+    $ git clone https://github.com/Chaffelson/nipyapi.git
+    $ cd nipyapi
+
+    # Start test environment
+    $ make certs && make up NIPYAPI_PROFILE=single-user && make wait-ready NIPYAPI_PROFILE=single-user
+
+Then test the connection:
 
 .. code-block:: python
 
     import nipyapi
-    
-    # Configure for your NiFi instance, see docs/authentication.rst for more details
-    nipyapi.config.nifi_config.host = 'http://localhost:8080/nifi-api'
-    
+
+    # Use built-in profile (no manual configuration needed)
+    nipyapi.profiles.switch('single-user')
+
     # Test connection
     try:
         version = nipyapi.system.get_nifi_version_info()
-        print(f"Connected to NiFi {version.ni_fi_version}")
+        print(f"✓ Connected to NiFi {version}")
     except Exception as e:
-        print(f"Connection failed: {e}")
+        print(f"✗ Connection failed: {e}")
+
+**Option 2: Connect to Your Existing NiFi**
+
+If you have NiFi already running, create a custom profile:
+
+.. code-block:: python
+
+    import nipyapi
+
+    # Create custom profile configuration
+    custom_config = {
+        'nifi_url': 'https://your-nifi.com/nifi-api',  # NiFi 2.x typically uses HTTPS
+        'nifi_user': 'your_username',
+        'nifi_pass': 'your_password',
+        'nifi_verify_ssl': True
+    }
+
+    # Test connection
+    try:
+        # Manual configuration (advanced)
+        nipyapi.config.nifi_config.host = custom_config['nifi_url']
+        nipyapi.utils.set_endpoint(custom_config['nifi_url'], ssl=True, login=True,
+                                  username=custom_config['nifi_user'],
+                                  password=custom_config['nifi_pass'])
+
+        version = nipyapi.system.get_nifi_version_info()
+        print(f"✓ Connected to NiFi {version}")
+    except Exception as e:
+        print(f"✗ Connection failed: {e}")
+
+**Learn More**
+
+For complete configuration options and authentication methods:
+
+- **Profiles System**: See ``docs/profiles.rst`` for centralized configuration management
+- **Authentication**: See ``docs/security.rst`` for all supported authentication methods
+- **Migration**: See ``docs/migration.rst`` if upgrading from NiPyAPI 0.x
+- **Quick Start**: See ``README.rst`` for step-by-step setup instructions
 
 
 .. include:: nipyapi-docs/dependencies.rst

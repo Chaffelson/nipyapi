@@ -207,7 +207,8 @@ def create_service_user(identity, service="nifi", strict=True):
         strict (bool): If Strict, will error if user already exists
 
     Returns:
-        The new (User) or (UserEntity) object
+        The new :class:`~nipyapi.registry.models.User` or
+        :class:`~nipyapi.nifi.models.UserEntity` object
 
     """
     assert service in _valid_services
@@ -244,7 +245,8 @@ def create_service_user_group(identity, service="nifi", users=None,
         strict (bool): Whether to throw an error on already exists
 
     Returns:
-        The new (UserGroup) or (UserGroupEntity) object
+        The new :class:`~nipyapi.registry.models.UserGroup` or
+        :class:`~nipyapi.nifi.models.UserGroupEntity` object
 
     """
     assert service in _valid_services
@@ -803,7 +805,7 @@ def update_access_policy(policy, service="nifi"):
         service (str): 'nifi' or 'registry' to indicate the target service
 
     Returns:
-        (PolicyEntity): The updated policy if successful
+        :class:`~nipyapi.nifi.models.AccessPolicyEntity`: The updated policy if successful
 
     """
     assert service in _valid_services
@@ -1209,7 +1211,8 @@ def create_ssl_context_controller_service(
     Note that once created it can be listed and deleted using the standard canvas functions.
 
     Args:
-        parent_pg (ProcessGroupEntity): The Process Group to create the service in
+        parent_pg (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): The Process Group to
+            create the service in
         name (str): Name for the SSL Context Service
         keystore_file (str): Path to the client certificate/keystore file
         keystore_password (str): Password for the keystore
@@ -1277,7 +1280,8 @@ def ensure_ssl_context(name, parent_pg, keystore_file=None, keystore_password=No
 
     Args:
         name (str): Name for the SSL Context Service
-        parent_pg (ProcessGroupEntity): The Process Group to create the service in
+        parent_pg (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): The Process Group to
+            create the service in
         keystore_file (str): Path to the client certificate/keystore file
         keystore_password (str): Password for the keystore
         truststore_file (str): Path to the truststore file

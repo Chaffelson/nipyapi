@@ -75,7 +75,7 @@ def create_parameter_context(name, description=None, parameters=None,
             inherited Parameter Contexts
 
     Returns:
-        (ParameterContextEntity) The New Parameter Context
+        :class:`~nipyapi.nifi.models.ParameterContextEntity`: The New Parameter Context
 
     """
     enforce_min_ver('1.10.0')
@@ -109,7 +109,7 @@ def update_parameter_context(context):
         refresh (bool): Whether to refresh the object before Updating
 
     Returns:
-        (ParameterContextEntity) The updated Parameter Context
+        :class:`~nipyapi.nifi.models.ParameterContextEntity`: The updated Parameter Context
     """
     enforce_min_ver('1.10.0')
 
@@ -153,7 +153,7 @@ def delete_parameter_context(context, refresh=True):
         refresh (bool): Whether to refresh the Context before Deletion
 
     Returns:
-        (ParameterContextEntity) The removed Parameter Context
+        :class:`~nipyapi.nifi.models.ParameterContextEntity`: The removed Parameter Context
     """
     enforce_min_ver('1.10.0')
     assert isinstance(context, nipyapi.nifi.ParameterContextEntity)
@@ -177,7 +177,7 @@ def prepare_parameter(name, value, description=None, sensitive=False):
         sensitive (bool): Whether to mark the Parameter Value as sensitive
 
     Returns:
-        (ParameterEntity) The ParameterEntity ready for use
+        :class:`~nipyapi.nifi.models.ParameterEntity`: The ParameterEntity ready for use
     """
     enforce_min_ver('1.10.0')
     assert all(x is None or isinstance(x, str) for x in [name, description])
@@ -200,7 +200,7 @@ def delete_parameter_from_context(context, parameter_name):
         parameter_name (str): The Parameter to delete
 
     Returns:
-        (ParameterContextEntity) The updated Parameter Context
+        :class:`~nipyapi.nifi.models.ParameterContextEntity`: The updated Parameter Context
     """
     enforce_min_ver('1.10.0')
     context.component.parameters = [
@@ -224,7 +224,7 @@ def upsert_parameter_to_context(context, parameter):
         parameter(ParameterEntity): The ParameterEntity to insert or update
 
     Returns:
-        (ParameterContextEntity) The updated Parameter Context
+        :class:`~nipyapi.nifi.models.ParameterContextEntity`: The updated Parameter Context
     """
     enforce_min_ver('1.10.0')
     context.component.parameters = [parameter]
@@ -242,7 +242,7 @@ def assign_context_to_process_group(pg, context_id, cascade=False):
         cascade (bool): Cascade Parameter Context down to child Process Groups?
 
     Returns:
-        (ProcessGroupEntity) The updated Process Group
+        :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated Process Group
     """
     assert isinstance(context_id, str)
     if cascade:
@@ -275,7 +275,7 @@ def remove_context_from_process_group(pg):
         pg (ProcessGroupEntity): The Process Group to target
 
     Returns:
-        (ProcessGroupEntity) The updated Process Group
+        :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated Process Group
     """
     return nipyapi.canvas.update_process_group(
         pg=pg,

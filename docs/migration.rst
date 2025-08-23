@@ -11,6 +11,10 @@ This guide helps you migrate existing code from NiPyAPI 0.x (targeting Apache Ni
    **Breaking Changes**: This is a major version upgrade with significant breaking changes.
    Plan for code updates and testing when migrating.
 
+.. note::
+   **New in 1.x**: The **Profiles System** provides centralized configuration management.
+   You can use profiles, environment variables, or direct configuration - all approaches work with the same underlying system.
+
 Version Overview
 ----------------
 
@@ -23,18 +27,85 @@ Version Overview
 +------------------+----------------------+----------------------+
 | **NiFi Registry**| 0.x, 1.x             | 2.x (tested: 2.5.0)  |
 +------------------+----------------------+----------------------+
-| **Python**       | 2.7, 3.6+           | 3.9+                  |
+| **Python**       | 2.7, 3.6+            | 3.9+                 |
 +------------------+----------------------+----------------------+
+
+Understanding Migration Scope
+------------------------------
+
+.. important::
+   **NiPyAPI Migration ≠ NiFi Flow Migration**
+
+   Upgrading NiPyAPI from 0.x to 1.x **does not automatically migrate your NiFi flows** from NiFi 1.x to 2.x.
+   These are separate migration processes:
+
+**What NiPyAPI 1.x Migration Covers:**
+
+- Python client library compatibility with NiFi 2.x APIs
+- Authentication and connection management
+- SDK function names and parameters
+- Configuration and deployment automation
+
+**What NiFi Flow Migration Requires Separately:**
+
+- **Processor Updates**: Many processors have new names, properties, or behaviors in NiFi 2.x
+- **Controller Service Changes**: Connection pool configurations, SSL contexts, and service properties
+- **Expression Language**: Some expression language functions and syntax have changed
+- **Flow Structure**: Deprecated components need replacement with 2.x equivalents
+- **Property Validation**: New validation rules and required properties
+- **Deprecations**: Variable Registry and Templates are deprecated, use Parameters and Git versioning instead.
+
+**How NiPyAPI 1.x Can Help Your Flow Migration:**
+
+NiPyAPI 1.x provides powerful automation tools for flow migration tasks:
+
+- **Flow Analysis**: Inventory processors, controller services, and configurations across environments
+- **Bulk Updates**: Programmatically update processor properties and relationships
+- **Version Control**: Export, modify, and import flows through NiFi Registry
+- **Environment Promotion**: Move updated flows between development, staging, and production
+- **Migration Scripts**: Automate repetitive flow update tasks
+- **Validation Functions**: Report on invalid processors, controller services, and connections
+- **Sandbox Environment**: Test different authentication mechanisms with ``make sandbox`` target
+- **Parameter Management**: Manage parameters across environments
+
+You can continue to use NiPyAPI 0.x with NiFi 1.x, and NiPyAPI 1.x with NiFi 2.x to assist with the migration process.
+
+For NiFi-specific migration guidance, consult the `Apache NiFi Migration Guide <https://cwiki.apache.org/confluence/display/NIFI/Migrating+Deprecated+Components+and+Features+for+2.0.0>`_ and your organization's NiFi administrators.
 
 Major Changes Summary
 ---------------------
 
+**Breaking Changes - Action Required**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Function renaming**: Upstream API specification changes result in operation IDs now using suffixed names (e.g., ``update_run_status1``) and some other functions are also renamed
+- **Authentication and configuration overhaul**: Significant changes to align with modern API standards and upstream API changes
+- **Users must review and update authentication patterns** - legacy configuration methods will be different
+
 **Removed Features**
 ~~~~~~~~~~~~~~~~~~~~
 
-- **Templates API**: Deprecated in NiFi 2.x
+- **Templates API**: Deprecated in NiFi 2.x - use Process Groups and Git or Flow Registry instead
 - **Python 2.7 Support**: EOL, dropped in favor of modern Python 3.9+
 - **Legacy Authentication**: Simplified to modern bearer token approach
+
+**NEW: Profile Management System**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Extensible file format** (YAML/JSON) with **environment variable overrides** and **sane defaults** - familiar workflow like AWS CLI
+- **Intelligent authentication method detection**: OIDC, mTLS, and Basic authentication based on available configuration parameters
+- **Built-in profiles** for common deployment patterns: ``single-user``, ``secure-ldap``, ``secure-mtls``, ``secure-oidc``
+- **Extensible profiles** with provided ``examples/profiles.yml`` as a starting point, or create your own
+- **15+ configurable parameters** (URLs, credentials, certificates, SSL settings) with environment variable overrides
+- **Profile switching** with ``nipyapi.profiles.switch()`` configures endpoints, authentication, and SSL settings in single function call configurable directly or with ``NIPYAPI_PROFILE`` environment variable
+
+**Enhanced Development Workflow**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Comprehensive Makefile targets** for all key development and release processes
+- **End-to-end automation**: entire client generation and testing sequence from test certificates to final integration tests
+- **GitHub Actions CI** with full Docker NiFi integration tests and coverage reporting
+- **Sandbox Docker environment** for testing different authentication mechanisms with ``make sandbox`` target
 
 **Updated APIs**
 ~~~~~~~~~~~~~~~~
@@ -50,6 +121,108 @@ Major Changes Summary
 - **Security**: Enhanced certificate management and authentication flows
 - **Documentation**: Completely restructured with individual API pages
 - **Build System**: Modern Python packaging with ``pyproject.toml`` and ``Makefile``
+
+Understanding the Profiles System
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NiPyAPI 1.x introduces a **centralized configuration system** that eliminates the need for complex manual setup. The system revolves around two key components:
+
+1. **Configuration File**: ``examples/profiles.yml`` (or your custom file)
+2. **Python Interface**: ``nipyapi.profiles.switch('profile-name')``
+
+**How it works:**
+
+.. code-block:: python
+
+    # 1. Profiles file defines your environments
+    # examples/profiles.yml contains: single-user, secure-ldap, secure-mtls, secure-oidc
+
+    # 2. Switch to any environment with one function call
+    import nipyapi
+    nipyapi.profiles.switch('single-user')  # Configures everything automatically
+
+    # 3. Use NiPyAPI normally - authentication and SSL are handled
+    about = nipyapi.system.get_nifi_version_info()
+
+**Why this matters for migration:**
+
+- **0.x approach**: 10+ lines of manual configuration per environment
+- **1.x approach**: 1 line switches entire environment configuration
+- **Zero code changes** needed to switch between dev/staging/production
+
+Working with profiles.yml
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The profiles system depends on a YAML configuration file that defines your environments. You have two main options:
+
+**Option A: Use the Provided File (Recommended for Getting Started)**
+
+NiPyAPI includes ``examples/profiles.yml`` with 4 working profiles:
+
+.. code-block:: yaml
+
+    # examples/profiles.yml (excerpt)
+    single-user:
+      nifi_url: https://localhost:9443/nifi-api
+      registry_url: http://localhost:18080/nifi-registry-api
+      nifi_user: einstein
+      nifi_pass: password1234
+      nifi_verify_ssl: false  # Self-signed certs OK in development
+
+    secure-ldap:
+      nifi_url: https://localhost:9444/nifi-api
+      registry_url: https://localhost:18444/nifi-registry-api
+      nifi_user: einstein
+      nifi_pass: password
+      ca_path: "resources/certs/client/ca.pem"
+
+**Quick test with provided profiles:**
+
+.. code-block:: python
+
+    # These profiles work immediately with NiPyAPI Docker environment
+    nipyapi.profiles.switch('single-user')      # HTTP Basic auth
+    nipyapi.profiles.switch('secure-ldap')      # LDAP over TLS
+    nipyapi.profiles.switch('secure-mtls')      # Certificate auth
+    nipyapi.profiles.switch('secure-oidc')      # OAuth2/OIDC auth
+
+**Option B: Create Your Own profiles.yml (Production Use)**
+
+For your actual environments, create a custom profiles file:
+
+.. code-block:: yaml
+
+    # /etc/nipyapi/profiles.yml or ~/.nipyapi/profiles.yml
+    my-dev:
+      nifi_url: https://nifi-dev.company.com/nifi-api
+      registry_url: https://registry-dev.company.com/nifi-registry-api
+      nifi_user: dev_user
+      nifi_pass: dev_password
+      nifi_verify_ssl: true
+      ca_path: /etc/ssl/certs/company-ca.pem
+
+    my-production:
+      nifi_url: https://nifi.company.com/nifi-api
+      registry_url: https://registry.company.com/nifi-registry-api
+      # Use environment variables for production secrets
+      # NIFI_USERNAME and NIFI_PASSWORD will override
+      nifi_verify_ssl: true
+      ca_path: /etc/ssl/certs/company-ca.pem
+
+**Use your custom profiles:**
+
+.. code-block:: python
+
+    # Method 1: Set default file location
+    nipyapi.config.default_profiles_file = '/etc/nipyapi/profiles.yml'
+    nipyapi.profiles.switch('my-production')
+
+    # Method 2: Specify file per call
+    nipyapi.profiles.switch('my-production', profiles_file='/etc/nipyapi/profiles.yml')
+
+    # Method 3: Environment variable (global)
+    # export NIPYAPI_PROFILES_FILE=/etc/nipyapi/profiles.yml
+    nipyapi.profiles.switch('my-production')
 
 Breaking Changes
 ----------------
@@ -73,23 +246,43 @@ Authentication and Configuration
      - ``config.nifi_config.ssl_ca_cert``
      - Programmatic configuration preferred
 
-**Authentication Setup**
+**Authentication Migration Strategy**
 
-Old approach (0.x)::
+The 1.x authentication approach is **profiles-first**. Instead of manually configuring each service, define your authentication in profiles.yml and let the system handle the complexity. The old calls are still present, but the new method is intended to remove the complexity of understanding the underlying authentication mechanisms.
 
+**Old approach (0.x) - Manual configuration**:
+
+.. code-block:: python
+
+    # 0.x: Complex manual setup (DO NOT USE in 1.x)
     import nipyapi
-
-    # Default endpoints were HTTP
-    # nifi_config.host = "http://localhost:8080/nifi-api"  (default)
-    # registry_config.host = "http://localhost:18080/nifi-registry-api"  (default)
-
-    # For secure endpoints, manual SSL context setup was required
     nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
     nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True,
                               username="nobel", password="supersecret1!")
 
-New approach (1.x)::
+**New approach (1.x) - Profiles-based configuration**:
 
+.. code-block:: python
+
+    # 1.x: Profiles handle everything automatically (RECOMMENDED)
+    import nipyapi
+
+    # For development/testing (uses examples/profiles.yml)
+    nipyapi.profiles.switch('single-user')
+
+    # For your production environment (uses custom profiles.yml)
+    nipyapi.profiles.switch('production', profiles_file='/etc/nipyapi/profiles.yml')
+
+    # Environment variables can override any profile setting
+    # export NIFI_API_ENDPOINT=https://special.endpoint.com/nifi-api
+    # export NIFI_USERNAME=override_user
+    nipyapi.profiles.switch('single-user')  # Uses environment overrides
+
+**Manual Configuration**:
+
+.. code-block:: python
+
+    # 1.x: Manual configuration still supported but more verbose
     import nipyapi
     from nipyapi import config, utils
 
@@ -100,21 +293,64 @@ New approach (1.x)::
     utils.set_endpoint("https://localhost:9443/nifi-api", ssl=True, login=True,
                       username="einstein", password="password1234")
 
-**Docker Environment**
+**What profiles.yml handles for you:**
 
-We now use the ``Makefile`` to start and stop the Docker environment, and the profiles do not conflict.
+- **Endpoints**: NiFi and Registry URLs
+- **Authentication**: Username/password, certificates, OIDC tokens
+- **SSL Configuration**: CA certificates, hostname verification
+- **Service Integration**: NiFi → Registry proxy identity
+- **Environment Flexibility**: Development vs production settings
 
-Old commands::
+**Docker Environment and Testing**
+
+We now use the ``Makefile`` to start and stop the Docker environment, with integrated profiles support.
+
+**Integrated Docker + Profiles Workflow**
+
+.. code-block:: shell
+
+   # One-command environment setup
+   make certs && make up NIPYAPI_PROFILE=secure-ldap && make wait-ready NIPYAPI_PROFILE=secure-ldap
+
+   # Python code matches the environment
+   nipyapi.profiles.switch('secure-ldap')
+
+   # Testing with the same profile
+   make test NIPYAPI_PROFILE=secure-ldap
+
+**Old commands**::
 
     # 0.x approach
     cd resources/docker/some_profile
     docker-compose up -d
 
-New commands::
+**New commands**::
 
     # 1.x approach
     make up NIPYAPI_PROFILE=secure-ldap
     make wait-ready NIPYAPI_PROFILE=secure-ldap
+
+**Development vs Production Security**
+
+**Development (Self-signed certificates)**::
+
+    # Quick setup for learning and testing
+    make certs
+    make up NIPYAPI_PROFILE=single-user
+    nipyapi.profiles.switch('single-user')
+
+    # SSL warnings are safely suppressed in development
+    nipyapi.config.disable_insecure_request_warnings = True
+
+**Production (Trusted certificates)**::
+
+    # Use trusted CA certificates
+    export TLS_CA_CERT_PATH=/etc/ssl/certs/ca-bundle.crt
+    export NIFI_API_ENDPOINT=https://nifi.company.com/nifi-api
+    export NIFI_USERNAME=service_account
+
+    # SSL verification is always enabled in production
+    nipyapi.profiles.switch('production')
 
 API Changes
 ~~~~~~~~~~~
@@ -138,7 +374,7 @@ Migration strategy::
 
 **Updated: Operation Names**
 
-Some operation IDs have changed to match NiFi 2.x:
+Due to upstream NiFi 2.x API changes, many operation IDs now use suffixed names. **You must update your code**:
 
 .. list-table::
    :header-rows: 1
@@ -149,10 +385,27 @@ Some operation IDs have changed to match NiFi 2.x:
      - Status
    * - ``update_run_status``
      - ``update_run_status1``
-     - Renamed
+     - **Renamed - Action Required**
    * - ``FlowfileQueuesApi``
      - ``FlowFileQueuesApi``
      - Case change
+   * - Various processor operations
+     - Many now have ``1`` suffix
+     - **Check your API calls**
+
+.. important::
+   **Function Renaming**: Upstream API specification changes result in operation IDs now using suffixed names.
+   If you get ``AttributeError`` exceptions, check for renamed operations - many now have '1' suffix.
+
+**Common Migration Pattern**:
+
+.. code-block:: python
+
+    # Before (0.x)
+    api.update_run_status(processor_id, request_body)
+
+    # After (1.x) - Note the '1' suffix
+    api.update_run_status1(processor_id, request_body)
 
 **Updated: Controller Service Management**
 
@@ -166,6 +419,8 @@ New approach (1.x)::
     # 1.x pattern - uses different underlying API endpoint
     nipyapi.canvas.schedule_controller_service(service_id, scheduled=True)
     # Implementation uses ControllerServicesApi.update_run_status1()
+
+.. Note:: Behavior of the new mthods may be the same, but you should test carefully.
 
 Configuration Changes
 ~~~~~~~~~~~~~~~~~~~~~
@@ -199,6 +454,30 @@ New commands::
 
 See the ``devnotes.rst`` guide for more details.
 
+New Authentication Methods
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+NiPyAPI 1.x adds support for modern authentication:
+
+**OpenID Connect (OIDC)**::
+
+    # OAuth2 with external identity providers
+    nipyapi.profiles.switch('secure-oidc')
+    # Supports Keycloak, Okta, Azure AD, etc.
+
+**Enhanced mTLS**::
+
+    # Certificate-based authentication
+    nipyapi.profiles.switch('secure-mtls')
+    # Simplified certificate management
+
+**Environment Variable Integration**::
+
+    # Override any profile setting
+    export NIFI_API_ENDPOINT=https://production.company.com/nifi-api
+    export NIFI_USERNAME=production_user
+    nipyapi.profiles.switch('single-user')  # Uses overrides
+
 Migration Steps
 ---------------
 
@@ -215,35 +494,103 @@ Update your ``requirements.txt`` or ``pyproject.toml``:
    # New
    nipyapi>=1.0,<2.0
 
-2. **Update Authentication Code**
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2. **Choose Your Profiles Strategy**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The 0.x approach used hardcoded SSL context and different default endpoints:
+**Strategy A: Start with Built-in Profiles (Recommended)**
+
+Use the provided ``examples/profiles.yml`` for immediate compatibility:
 
 .. code-block:: python
 
-   # 0.x approach (with default_ssl_context)
+   # Test with development Docker environment
+   nipyapi.profiles.switch('single-user')
+
+   # Validate connection
+   version = nipyapi.system.get_nifi_version_info()
+   print(f"Connected to NiFi {version}")
+
+**Strategy B: Create Custom Profiles**
+
+Create your own ``profiles.yml`` for your environments:
+
+.. code-block:: bash
+
+   # Copy the example as a starting point
+   cp examples/profiles.yml ~/.nipyapi/profiles.yml
+
+   # Edit for your environments
+   vim ~/.nipyapi/profiles.yml
+
+**Strategy C: Environment-Driven Configuration**
+
+Use profiles with environment variable overrides:
+
+.. code-block:: python
+
+   # Code stays the same across environments
+   nipyapi.profiles.switch('base-profile')
+
+   # Environment variables control the actual connection
+   # export NIFI_API_ENDPOINT=https://nifi.staging.com/nifi-api  # staging
+   # export NIFI_API_ENDPOINT=https://nifi.company.com/nifi-api  # production
+
+3. **Test Your Profile Configuration**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Validate your profiles work before migrating production code:
+
+.. code-block:: python
+
    import nipyapi
-   # Used demo/keys/ certificates and HTTP by default
-   nipyapi.utils.set_endpoint("http://localhost:8080/nifi-api")
 
-   # 0.x with SSL (manual cert paths)
-   nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
-   nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True,
-                             username="nobel", password="supersecret1!")
+   # Test profile loading
+   try:
+       nipyapi.profiles.switch('your-profile-name')
+       print("✓ Profile loaded successfully")
+   except Exception as e:
+       print(f"✗ Profile error: {e}")
 
-   # 1.x preferred approach
+   # Test connectivity
+   try:
+       version = nipyapi.system.get_nifi_version_info()
+       print(f"✓ Connected to NiFi {version}")
+   except Exception as e:
+       print(f"✗ Connection error: {e}")
+
+4. **Update Your Application Code**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Replace manual configuration with profile switching:**
+
+.. code-block:: python
+
+   # Before (0.x) - Complex setup
    import nipyapi
-   from nipyapi import config, utils
+   nipyapi.config.nifi_config.ssl_ca_cert = "/path/to/ca.pem"
+   nipyapi.utils.set_endpoint("https://nifi.com/nifi-api", ssl=True, login=True,
+                             username="user", password="pass")
+   # ... 10+ more configuration lines ...
 
-   # New certificate structure and HTTPS by default
-   config.nifi_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
-   utils.set_endpoint("https://localhost:9443/nifi-api", ssl=True, login=True,
-                     username="einstein", password="password1234")
+   # After (1.x) - Simple profile switch
+   import nipyapi
+   nipyapi.profiles.switch('production')
 
-See the ``authentication.rst`` guide for more details.
+   # Your existing business logic stays the same
+   flows = nipyapi.canvas.list_all_process_groups()
+   about = nipyapi.system.get_nifi_version_info()
 
-3. **Update Testing Environment**
+**Fix renamed function calls:**
+
+.. code-block:: python
+
+   # Before (0.x)
+   api.update_run_status(processor_id, request_body)
+
+   # After (1.x) - Note the '1' suffix
+   api.update_run_status1(processor_id, request_body)
+
+5. **Update Testing Environment**
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The 0.x testing used hardcoded boolean flags in ``conftest.py``, not environment variables:
@@ -270,7 +617,7 @@ The 1.x approach uses environment-driven profiles:
 
 See the ``devnotes.rst`` guide for more details.
 
-4. **Remove Templates Usage**
+6. **Remove Templates Usage**
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Replace template-based workflows with Process Groups and Registry:
@@ -291,7 +638,10 @@ Replace template-based workflows with Process Groups and Registry:
        parent_pg_id, registry_client.id, bucket.identifier, flow_ver.flow.identifier
    )
 
-5. **Update Configuration and Ports**
+.. Note:: An example of using NiFi Registry is provided in ``examples/fdlc.py``
+
+
+7. **Update Configuration and Ports**
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Key configuration changes between NiPyAPI 0.x and 1.x:
@@ -349,7 +699,7 @@ See the ``authentication.rst`` guide for more details.
 
 .. code-block:: python
 
-   utils.set_endpoint(url, ssl=True, login=True, username='user', password='pass')
+   nipyapi.profiles.switch('production')
 
 **Issue: Operation Not Found**
 
@@ -363,6 +713,22 @@ See the ``authentication.rst`` guide for more details.
 
    # Old: update_run_status
    # New: update_run_status1
+
+.. important::
+   **Function Renaming**: This is the most common migration issue. Upstream API specification changes result in operation IDs now using suffixed names. If you get AttributeError exceptions, check for renamed operations.
+
+**Systematic approach to find renamed functions:**
+
+.. code-block:: python
+
+   # Use dir() to find available methods
+   import nipyapi
+   api = nipyapi.nifi.ProcessGroupsApi()
+   methods = [m for m in dir(api) if 'update' in m.lower()]
+   print(methods)  # Will show: ['update_run_status1', ...]
+
+   # Or check the API documentation
+   help(api.update_run_status1)
 
 **Issue: Authorization Failures After Authentication**
 
@@ -386,6 +752,8 @@ Note: NiFi 2.x is more strict by default about Authentication and Authorization.
        nifi_proxy_identity='C=US, O=NiPyAPI, CN=nifi'
    )
 
+.. Note:: You can find examples of using the boostrap functions in ``examples/sandbox.py``
+
 **Issue: Registry Proxy Identity Not Authorized**
 
 .. code-block:: text
@@ -405,17 +773,65 @@ Note: NiFi 2.x is more strict by default about Authentication and Authorization.
 
 The proxy identity must match the NiFi certificate subject DN when using secure profiles.
 
+.. Important:: Reversing the DN will not work, as it's an exact match.
+
+**Issue: OIDC Authentication Setup**
+
+.. code-block:: text
+
+   No applicable policies could be found
+   Untrusted proxy identity
+
+**Solution**: OIDC requires one-time manual setup due to NiFi's security architecture:
+
+.. code-block:: shell
+
+   # 1. Use sandbox to discover your OIDC application UUID
+   make sandbox NIPYAPI_PROFILE=secure-oidc
+
+   # 2. Follow the printed instructions to create the user and assign policies in NiFi UI
+   # 3. Re-run sandbox to complete bootstrap
+   make sandbox NIPYAPI_PROFILE=secure-oidc
+
+See the ``security.rst`` guide for detailed OIDC setup instructions, or follow the sandbox.
+
+Quick Migration Checklist
+--------------------------
+
+☐ **Update dependencies**: ``nipyapi>=1.0,<2.0``
+
+☐ **Choose migration approach**:
+   - ✅ **Recommended**: Use profiles (``nipyapi.profiles.switch('single-user')``)
+   - **Manual**: Direct programmatic configuration (more control)
+
+☐ **Test with Docker environment**:
+   - ``make certs && make up NIPYAPI_PROFILE=single-user`` for development
+   - ``make test NIPYAPI_PROFILE=single-user`` to validate
+
+☐ **Handle breaking changes**:
+   - Replace ``update_run_status`` with ``update_run_status1`` (check all API calls)
+   - Remove templates usage → use Registry flows
+   - Remove variable registry usage → use Parameters
+   - Replace invalid Processors/Controller Services → use replacement components
+   - Update certificate paths (``demo/keys/`` → ``resources/certs/``)
+   - Update default ports (8080 → 9443 for NiFi, credentials: nobel → einstein)
+
+☐ **Production deployment**:
+   - Set environment variables or Profiles for credentials/endpoints
+   - Use trusted certificates (not self-signed)
+   - Enable SSL verification (default in production profiles)
+
 Testing Your Migration
 -----------------------
 
 1. **Start Simple**: Begin with single-user profile testing
 2. **Incremental Migration**: Migrate one authentication mode at a time
-3. **Integration Testing**: Use ``make test-all`` for comprehensive validation
+3. **Integration Testing**: Use ``make test NIPYAPI_PROFILE=single-user`` for comprehensive validation
 4. **Docker Environment**: Test with provided Docker profiles before production
 
 For additional support:
 
 - **Examples**: See ``examples/fdlc.py`` for modern patterns
-- **sandbox**: Use ``make sandbox NIPYAPI_PROFILE=single-user`` for experimentation
-- **Documentation**: Updated authentication guide at ``docs/authentication.rst``
+- **Sandbox**: Use ``make sandbox NIPYAPI_PROFILE=single-user`` for experimentation
+- **Documentation**: Updated profiles guide at ``docs/profiles.rst`` and security guide at ``docs/security.rst``
 - **Issues**: Please raise an issue on `GitHub <https://github.com/Chaffelson/nipyapi/issues>`_ if you encounter any problems.
