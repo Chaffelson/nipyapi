@@ -370,3 +370,112 @@ class TestIsEndpointUp:
 
             result = utils.is_endpoint_up('http://test-url')
             assert result is False, "Empty status code should return False"
+
+
+class TestGetenvBool:
+    """Tests for the getenv_bool utility function."""
+
+    def setup_method(self):
+        """Clean up environment variables before each test."""
+        self.test_var = 'NIPYAPI_TEST_BOOL_VAR'
+        if self.test_var in os.environ:
+            del os.environ[self.test_var]
+
+    def teardown_method(self):
+        """Clean up environment variables after each test."""
+        if self.test_var in os.environ:
+            del os.environ[self.test_var]
+
+    def test_falsy_values_return_false(self):
+        """Test that standard falsy string values return False."""
+        falsy_values = ['0', 'false', 'False', 'FALSE', 'no', 'No', 'NO', 'off', 'Off', 'OFF']
+
+        for value in falsy_values:
+            os.environ[self.test_var] = value
+            result = utils.getenv_bool(self.test_var)
+            assert result is False, f"'{value}' should return False"
+
+    def test_empty_string_returns_false(self):
+        """Test that empty string returns False."""
+        os.environ[self.test_var] = ''
+        result = utils.getenv_bool(self.test_var)
+        assert result is False, "Empty string should return False"
+
+    def test_truthy_values_return_true(self):
+        """Test that non-falsy string values return True."""
+        truthy_values = ['1', 'true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'on', 'On', 'ON', 'anything']
+
+        for value in truthy_values:
+            os.environ[self.test_var] = value
+            result = utils.getenv_bool(self.test_var)
+            assert result is True, f"'{value}' should return True"
+
+    def test_unset_variable_returns_none(self):
+        """Test that unset variable returns None."""
+        result = utils.getenv_bool(self.test_var)
+        assert result is None, "Unset variable should return None"
+
+    def test_unset_variable_with_default_returns_default(self):
+        """Test that unset variable returns default value when provided."""
+        result = utils.getenv_bool(self.test_var, default=True)
+        assert result is True, "Unset variable should return default True"
+
+        result = utils.getenv_bool(self.test_var, default=False)
+        assert result is False, "Unset variable should return default False"
+
+    def test_set_variable_ignores_default(self):
+        """Test that set variable ignores default value."""
+        os.environ[self.test_var] = '1'
+        result = utils.getenv_bool(self.test_var, default=False)
+        assert result is True, "Set variable should ignore default"
+
+        os.environ[self.test_var] = '0'
+        result = utils.getenv_bool(self.test_var, default=True)
+        assert result is False, "Set variable should ignore default"
+
+    def test_case_insensitive_parsing(self):
+        """Test that boolean parsing is case-insensitive."""
+        test_cases = [
+            ('false', False), ('FALSE', False), ('False', False),
+            ('true', True), ('TRUE', True), ('True', True),
+            ('no', False), ('NO', False), ('No', False),
+            ('yes', True), ('YES', True), ('Yes', True),
+            ('off', False), ('OFF', False), ('Off', False),
+            ('on', True), ('ON', True), ('On', True),
+        ]
+
+        for value, expected in test_cases:
+            os.environ[self.test_var] = value
+            result = utils.getenv_bool(self.test_var)
+            assert result is expected, f"'{value}' should return {expected}"
+
+    def test_whitespace_handling(self):
+        """Test that whitespace doesn't affect parsing."""
+        test_cases = [
+            (' 0 ', False),
+            (' false ', False),
+            (' 1 ', True),
+            (' true ', True),
+            ('   ', False),  # whitespace-only string should be False
+        ]
+
+        for value, expected in test_cases:
+            os.environ[self.test_var] = value
+            result = utils.getenv_bool(self.test_var)
+            assert result is expected, f"'{value}' should return {expected}"
+
+    def test_real_world_ssl_verification_examples(self):
+        """Test with real-world SSL verification scenarios."""
+        # Common ways to disable SSL verification
+        disable_values = ['0', 'false', 'no', 'off', 'False', 'NO', 'OFF']
+        for value in disable_values:
+            os.environ[self.test_var] = value
+            result = utils.getenv_bool(self.test_var)
+            assert result is False, f"SSL verification should be disabled for '{value}'"
+
+        # Common ways to enable SSL verification
+        enable_values = ['1', 'true', 'yes', 'on', 'True', 'YES', 'ON', 'enable']
+        for value in enable_values:
+            os.environ[self.test_var] = value
+            result = utils.getenv_bool(self.test_var)
+            assert result is True, f"SSL verification should be enabled for '{value}'"

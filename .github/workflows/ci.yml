@@ -203,8 +203,20 @@ jobs:
     - name: Start NiFi infrastructure (secure-ldap)
       run: make up NIPYAPI_PROFILE=secure-ldap
 
+    - name: Debug SSL environment
+      run: |
+        python -c "import ssl; print('OpenSSL version:', ssl.OPENSSL_VERSION)"
+        python -c "import ssl; print('SSL context flags:', ssl.create_default_context().verify_flags)"
+
     - name: Wait for NiFi to be ready
       run: make wait-ready NIPYAPI_PROFILE=secure-ldap
+      env:
+        PYTHONHTTPSVERIFY: "0"
+        CURL_CA_BUNDLE: ""
+        REQUESTS_CA_BUNDLE: ""
+        NIFI_VERIFY_SSL: "0"
+        REGISTRY_VERIFY_SSL: "0"
+        NIPYAPI_CHECK_HOSTNAME: "0"
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=secure-ldap PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
@@ -212,6 +224,9 @@ jobs:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
+        NIFI_VERIFY_SSL: "0"
+        REGISTRY_VERIFY_SSL: "0"
+        NIPYAPI_CHECK_HOSTNAME: "0"
 
     - name: Stop NiFi infrastructure
       if: always()
@@ -242,8 +257,20 @@ jobs:
     - name: Start NiFi infrastructure (secure-mtls)
       run: make up NIPYAPI_PROFILE=secure-mtls
 
+    - name: Debug SSL environment
+      run: |
+        python -c "import ssl; print('OpenSSL version:', ssl.OPENSSL_VERSION)"
+        python -c "import ssl; print('SSL context flags:', ssl.create_default_context().verify_flags)"
+
     - name: Wait for NiFi to be ready
       run: make wait-ready NIPYAPI_PROFILE=secure-mtls
+      env:
+        PYTHONHTTPSVERIFY: "0"
+        CURL_CA_BUNDLE: ""
+        REQUESTS_CA_BUNDLE: ""
+        NIFI_VERIFY_SSL: "0"
+        REGISTRY_VERIFY_SSL: "0"
+        NIPYAPI_CHECK_HOSTNAME: "0"
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=secure-mtls PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
@@ -251,6 +278,9 @@ jobs:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
+        NIFI_VERIFY_SSL: "0"
+        REGISTRY_VERIFY_SSL: "0"
+        NIPYAPI_CHECK_HOSTNAME: "0"
 
     - name: Stop NiFi infrastructure
       if: always()

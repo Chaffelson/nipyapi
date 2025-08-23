@@ -25,7 +25,7 @@ __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'infer_object_label_from_class', 'bypass_slash_encoding',
            'exception_handler', 'enforce_min_ver', 'check_version',
            'validate_parameters_versioning_support', 'extract_oidc_user_identity',
-           'getenv', 'resolve_relative_paths'
+           'getenv', 'getenv_bool', 'resolve_relative_paths'
            ]
 
 log = logging.getLogger(__name__)
@@ -698,3 +698,43 @@ def getenv(name: str, default: Optional[str] = None) -> Optional[str]:
     """
     val = os.getenv(name)
     return val if val is not None else default
+
+
+def getenv_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
+    """
+    Parse environment variable as boolean using JSON-style interpretation.
+
+    Handles common boolean environment variable patterns and uses json.loads()
+    for the standard 'true'/'false' cases that most programmers understand.
+
+    Args:
+        name (str): Environment variable name
+        default (Optional[bool]): Default value if variable not set
+
+    Returns:
+        Optional[bool]: Boolean value or default if not set
+
+    Example:
+        >>> os.environ['MY_FLAG'] = '0'
+        >>> getenv_bool('MY_FLAG')  # False
+        >>> os.environ['MY_FLAG'] = 'true'
+        >>> getenv_bool('MY_FLAG')  # True
+        >>> getenv_bool('UNSET_FLAG', False)  # False
+    """
+    val = os.getenv(name)
+    if val is None:
+        return default
+
+    # Clean and normalize the value
+    val_clean = val.strip().lower()
+
+    # Handle JSON-style booleans directly
+    if val_clean in ('true', 'false'):
+        return json.loads(val_clean)
+
+    # Handle common falsy patterns
+    if val_clean in ('0', 'no', 'off', 'n', ''):
+        return False
+
+    # Everything else is truthy (including '1', 'yes', 'on', 'y', etc.)
+    return True

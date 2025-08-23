@@ -54,6 +54,8 @@ Issues = "https://github.com/Chaffelson/nipyapi/issues"
 
 [project.optional-dependencies]
 dev = [
+  "build>=1.0.0",
+  "setuptools-scm[toml]>=8",
   "flake8>=3.6.0",
   "pylint>=3.3.0",
   "coverage>=7.0",

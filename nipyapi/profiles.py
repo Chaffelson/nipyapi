@@ -224,32 +224,33 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
 
     # Apply all environment variable overrides
     for config_key, env_var in ENV_VAR_MAPPINGS:
-        config[config_key] = utils.getenv(env_var) or config[config_key]
+        # Use boolean parsing for SSL verification flags
+        if config_key in ('nifi_verify_ssl', 'registry_verify_ssl'):
+            env_value = utils.getenv_bool(env_var)
+            if env_value is not None:
+                config[config_key] = env_value
+        else:
+            config[config_key] = utils.getenv(env_var) or config[config_key]
 
     # Normalize URLs by removing trailing slashes (standard REST API practice)
-    url_fields = ['nifi_url', 'registry_url', 'registry_internal_url', 'oidc_token_endpoint']
-    for url_field in url_fields:
+    for url_field in ['nifi_url', 'registry_url', 'registry_internal_url', 'oidc_token_endpoint']:
         if config.get(url_field):
             config[url_field] = config[url_field].rstrip('/')
 
     # Resolve final certificate paths: per-service takes precedence over shared
     # Generate resolved_{service}_{cert_type} = {service}_{cert_type} or {cert_type}
-    # We end up with a cartesian product of services and cert_types
     for service in CERTIFICATE_SERVICES:
         for cert_type in CERTIFICATE_TYPES:
-            resolved_key = f'resolved_{service}_{cert_type}'
-            service_key = f'{service}_{cert_type}'
-            shared_key = cert_type
-            config[resolved_key] = config[service_key] or config[shared_key]
+            config[f'resolved_{service}_{cert_type}'] = (
+                config[f'{service}_{cert_type}'] or config[cert_type]
+            )
 
     # Convert relative paths to absolute using utility function
     # SSL libraries generally require absolute paths for certificate files
-
     # Check for environment variable override of root path
-    custom_root = utils.getenv('NIPYAPI_CERTS_ROOT_PATH')
-
+    cert_root = utils.getenv('NIPYAPI_CERTS_ROOT_PATH')
     for path_key in PATH_RESOLUTION_KEYS:
-        config[path_key] = utils.resolve_relative_paths(config[path_key], custom_root)
+        config[path_key] = utils.resolve_relative_paths(config[path_key], cert_root)
 
     # Add profile name for reference
     config['profile'] = profile_name
