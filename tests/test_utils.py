@@ -65,18 +65,19 @@ def test_fs_write(tmpdir):
         file_path=f_fpath
     )
     assert r1 == test_obj
-    # Test writing to an invalid location
+    # Test writing to an invalid location - use a path that fails for both root and non-root
+    invalid_path = '/nonexistent/directory/structure/that/cannot/exist/file.txt'
     if sys.version_info >= (3,3):
         with pytest.raises((OSError, IOError, PermissionError)):
             _ = utils.fs_write(
                 obj=test_obj,
-                file_path='/dev/AlmostCertainlyNotAValidWriteDevice'
+                file_path=invalid_path
             )
     else:
         with pytest.raises((OSError, IOError)):
             _ = utils.fs_write(
                 obj=test_obj,
-                file_path='/dev/AlmostCertainlyNotAValidWriteDevice'
+                file_path=invalid_path
             )
     # Test writing an invalid object
     with pytest.raises((TypeError,AttributeError)):
