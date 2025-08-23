@@ -2,203 +2,52 @@
 History
 =======
 
-1.0.2 (2025-08-22)
--------------------
-
-- **Profile management system for environment configuration**:
-
-  - Added ``nipyapi.profiles`` module with centralized configuration management for multiple Apache NiFi/Registry environments
-  - Intelligent authentication method detection: OIDC, mTLS, and Basic authentication based on available configuration parameters
-  - Comprehensive environment variable override system with 15+ configurable parameters (URLs, credentials, certificates, SSL settings)
-  - Support for both YAML and JSON profile configuration files with sparse profile definitions
-  - Built-in profiles for common deployment patterns: ``single-user``, ``secure-ldap``, ``secure-mtls``, ``secure-oidc``
-  - Flexible certificate management supporting both shared PKI (simple) and per-service PKI (complex enterprise) configurations
-  - Path resolution system converting relative certificate paths to absolute paths with custom root directory support
-  - Profile switching with ``nipyapi.profiles.switch()`` configures endpoints, authentication, and SSL settings in single function call
-  - Standardized ``NIPYAPI_PROFILE`` environment variable usage across all modules and tests for consistent profile selection
-
-- **API enhancements for Registry bucket and client management**:
-
-  - ``create_registry_bucket()`` and ``ensure_registry_bucket()`` support ``description`` parameter
-  - ``ensure_registry_client()`` includes URI mismatch detection and automatic client recreation for configuration drift
-  - ``ensure_registry_client()`` handles multiple return types from filter operations (None, single object, list)
-
-- **Python 3.9 compatibility**:
-
-  - Fixed Python 3.9+ compatibility with appropriate type hints (``Optional[str]`` instead of ``str | None``)
-  - Compatible type annotations in ``nipyapi/utils.py`` and ``resources/scripts/wait_ready.py``
-  - Complete test suite verification with Python 3.9 (163 tests passing)
-
-- **Documentation and examples**:
-
-  - Comprehensive profiles documentation in ``docs/profiles.rst`` with usage examples, configuration reference, and integration patterns
-  - Updated examples to demonstrate profile usage: FDLC workflow shows environment switching
-
-- **Development infrastructure**:
-
-  - ``pre-commit>=3.0.0`` added to dev dependencies for automated code quality checks
-  - Pre-commit hooks for trailing whitespace, end-of-file fixes, debug statements, flake8, and pylint
-  - Comprehensive test suite for ``nipyapi.profiles`` module with 25+ test cases covering all functionality
-
-1.0.1 (2025-01-19)
--------------------
-
-- Test suite performance optimization and reliability improvements:
-
-  - Sped up tests through intelligent fixture optimization
-  - Replace arbitrary ``sleep(0.5)`` with condition-based ``wait_to_complete`` polling in versioning fixtures
-  - Simplify bucket fixture to use ``ensure_registry_bucket`` instead of manual try/catch logic
-  - Fix SSL certificate verification for single-user profile (was excluded from CA certificate setup)
-  - Fix missing fixture reference in ``test_deploy_flow_version``
-
-- Configuration architecture improvements:
-
-  - Consolidate test configuration in ``tests/conftest.py`` from scattered globals to centralized ``active_config`` dictionary
-  - Eliminate circular dependencies and redundant logic in profile detection and certificate handling
-  - Simplify test flags to use direct ``ACTIVE_PROFILE`` checks instead of intermediate boolean flags
-  - Centralize all environment variable resolution into single configuration function
-
-- Documentation and troubleshooting:
-
-  - Rename ``docs/authentication.rst`` to ``docs/security.rst`` with expanded SSL/TLS guidance
-  - Add troubleshooting guidance for Registry connectivity issues
-  - Document development vs production security practices and certificate management
-  - Add convenience function examples (``set_shared_ca_cert``, ``apply_ssl_configuration``)
-
-- All authentication profiles validated: single-user, secure-ldap, secure-mtls pass full test suites
-
-1.0.0 (2025-01-15)
+1.0 (2025-08-23)
 -------------------
 
 | Major migration to Apache NiFi/Registry 2.x (tested against 2.5.0). Drops 1.x support on main.
 
-- Build system and workflow improvements:
+**Breaking Changes - Action Required**
 
-  - Added comprehensive Makefile targets for many key devlopment and release processes
-  - Optimized rebuild flow to avoid unnecessary infrastructure cycling during client generation
-  - Streamlined client generation workflow using existing scripts in ``resources/client_gen/``
-  - Smart certificate regeneration: ``make certs`` auto-detects and stops running containers to prevent SSL timing issues
+- **Function renaming**: Upstream API specification changes result in operation IDs now using suffixed names (e.g., ``update_run_status1``) and some other functions are also renamed
+- **Authentication and configuration overhaul**: Significant changes to align with modern API standards and upstream API changes
+- **Users must review and update authentication patterns** - legacy configuration methods will be different
 
-- Documentation modernization and restructuring:
+**Profile Management System**
 
-  - Complete overhaul of Sphinx documentation generation with custom structured approach
-  - Replace monolithic API reference pages with modular, navigable structure addressing GitHub issue #376
-  - Flat API structure with individual pages for all 39 NiFi APIs and 13 Registry APIs for optimal navigation
-  - Comprehensive models documentation with all 394 NiFi and 85 Registry model classes auto-discovered
-  - Individual documentation pages for each core module improving navigation and maintainability
-  - Template-level docstring formatting fixes ensuring Sphinx-compliant generated client code
-  - Enhanced generated docstrings with proper Google-style formatting, primitive type handling, and method distinction
-  - Added client architecture documentation explaining base vs _with_http_info methods, callbacks, and error handling
-  - Direct GitHub source code links for all functions and classes with line-level precision
-  - Modern installation guide with current best practices, virtual environments, and dependency management
-  - Auto-generated dependencies documentation from actual requirements files eliminating maintenance burden
-  - Zero Sphinx warnings achieved through systematic docstring and formatting improvements
-  - Enhanced Sphinx configuration with modern extensions and improved navigation depth
+- **Extensible file format** (YAML/JSON) with **environment variable overrides** and **sane defaults** - familiar workflow like AWS CLI
+- Intelligent authentication method detection: OIDC, mTLS, and Basic authentication based on available configuration parameters
+- Built-in profiles for common deployment patterns: ``single-user``, ``secure-ldap``, ``secure-mtls``, ``secure-oidc``
+- 15+ configurable parameters (URLs, credentials, certificates, SSL settings) with ``NIPYAPI_PROFILE`` environment variable
+- Profile switching with ``nipyapi.profiles.switch()`` configures endpoints, authentication, and SSL settings in single function call
 
-- Client generation improvements:
+**Automated Development Workflow**
 
-  - Fix Mustache template formatting to produce clean, Sphinx-compliant docstrings in generated code
-  - Correct parameter documentation spacing and structure in API templates
-  - Remove invalid template syntax causing generation errors
+- **Comprehensive Makefile targets** for all key development and release processes
+- **End-to-end automation**: entire client generation and testing sequence from test certificates to final integration tests
+- **GitHub Actions CI** with full Docker NiFi integration tests and coverage reporting
+- Smart certificate regeneration and optimized rebuild flows to avoid unnecessary infrastructure cycling
 
-- Core: switch low-level clients to NiFi/Registry 2.5.0 OpenAPI 3 specs (swagger-codegen 3.0.68)
-- Remove Templates feature (deprecated in NiFi 2.x): delete `nipyapi/templates.py`, related tests/resources; remove imports; adapt fixtures
-- Docker: update images to NiFi/Registry 2.5.0
-  - Secure docker setups (secure-ldap, secure-mtls) now use generated PKCS12 keystore/truststore via certs.env
-- OperationIds: adopt upstream suffixed names from OAS 3 (e.g., `update_run_status1`)
+**Quick Start and Migration Tools**
 
-- Generator: consolidate NiFi/Registry generation (`resources/client_gen/generate_api_client.sh`); add JSON enum normalizer (`resources/client_gen/normalize_openapi_enums.py`) as temporary workaround for upstream enum issues
-- Templates: `api_client.mustache` use raw regex strings to avoid DeprecationWarnings; `model.mustache` fix enum allowed_values; skip None-checks for required readOnly fields; remove callback/threading artifacts and vendor regex modifiers
-- Dependencies: replace ruamel.yaml with PyYAML (reduces dependency count while maintaining full compatibility)
-- Build: modernize build system using python -m build instead of deprecated setup.py; add comprehensive make targets (dist, wheel, sdist, check-dist, test-dist) with proper validation; add distribution import validation script for release process; remove legacy 1.x API definitions and temporary files (saves ~13MB)
-- Testing: add Codecov integration with pytest-cov for modern coverage reporting; add GitHub Actions CI workflow with full Docker NiFi integration tests and coverage upload
+- **Sandbox Docker environment** for testing different authentication mechanisms with ``make sandbox`` target
+- **FDLC example retained** and modernized to demonstrate proper multi-environment workflows (single-user dev, secure-ldap prod)
+- **Comprehensive migration guide** (``docs/migration.rst``) for upgrading from NiPyAPI 0.x/NiFi 1.x to 1.x/2.x
 
-- Canvas (2.x API): use `ProcessGroupsApi.create_controller_service1(id=...)`; controller scheduling via `ControllerServicesApi.update_run_status1(...)`; update renamed APIs `FlowFileQueuesApi`, `FunnelsApi`
-- Security (2.x): replace removed `AccessApi.get_access_status` with `FlowApi.get_current_user()`; Registry readiness via `AboutApi.get_version()`
+**Core Technical Improvements**
 
- - Authentication and client generation:
-
-   - Switch to spec-driven `bearerAuth`; removed template-injected `tokenAuth`; `set_service_auth_token()` now targets `bearerAuth` by default
-   - Temporary augmentation scripts declare securitySchemes and per-operation security until upstream specs are fixed:
-
-     - `resources/client_gen/augment_nifi_security.py`
-     - `resources/client_gen/augment_registry_security.py`
-
-   - Once upstream fixes land, augmentation scripts will be removed and clients regenerated without local workarounds
-   - Upstream tracking for NiFi Core bearer scheme: [NIFI-14852](https://issues.apache.org/jira/browse/NIFI-14852)
-
-- Utils: YAML dump now forces block style to avoid ruamel parsing of inline flow mappings; `dump`/`load` continue safe YAML
-
-- Dependencies: explicitly include `urllib3`, `certifi`, `requests` used by generated clients
-  - Prune template-era deps (e.g., `lxml`, `xmltodict`) as Templates are removed
-
-- Tests: remove Templates tests; adapt for 2.x behavior; full suite green across profiles
-  - single-user: 88 passed, 22 skipped
-  - secure-ldap: 107 passed, 3 skipped
-  - secure-mtls: 88 passed, 22 skipped
-
-- Tests / Profiles:
-  - Centralize profile configuration in `tests/conftest.py` with clear docstrings; env overrides respected.
-  - Support `NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
-  - Remove duplicate TLS logic; consistent one-time setup and safe teardown.
-  - `Makefile`: simplified `make test` runner; defers configuration to conftest; Docker targets use stable COMPOSE_PROJECT_NAME, quiet down with --remove-orphans.
-
-- Client utils:
-  - Remove ad-hoc env reads in `utils.set_endpoint`; rely on preconfigured values only.
-
-- Examples and authentication improvements:
-  - Modernized ``examples/fdlc.py`` with proper multi-environment workflow (single-user dev, secure-ldap prod)
-  - Added security bootstrapping for both NiFi and Registry environments following test patterns
-  - Enhanced authentication using proven conftest.py configurations for reliable connectivity
-  - Added interactive mode support with clear step-by-step workflow guidance and exit instructions
-  - Fixed SSL certificate handling for self-signed certificates using repo-local CA certificates
-  - Standardized password consistency: ``password1234`` for single-user, ``password`` for secure-ldap
-  - Improved error handling in ``nipyapi.versioning.save_flow_ver`` with type validation and descriptive messages
-  - Removed deprecated ``examples/console.py`` (all code was commented out and superseded by modernized examples)
-  - Removed deprecated ``examples/secure_connection.py`` and legacy ``examples/keys/`` directory (replaced by ``make sandbox`` target with modern patterns)
-  - Added ``make sandbox`` target for instant experimentation environments with sample objects and proper security
-  - Fixed security bootstrapping in sandbox script: Registry policies now correctly applied to all profiles including single-user
-  - Enhanced authentication documentation to clearly distinguish between test certificates and production deployments
-  - Added comprehensive Safari keychain authentication guidance with "Allow" vs "Always Allow" options and security considerations
-  - Updated sandbox recommendations to default to single-user profile for optimal new user experience (no complex Registry security policies)
-  - Created dedicated ``resources/scripts/setup_sandbox.py`` script following ``conftest.py`` patterns for reliable environment setup
-
-- OIDC robustness and professional improvements:
-  - **Major OIDC UUID extraction overhaul**: Replaced brittle subprocess Docker logs parsing with robust JWT token analysis
-  - Added ``return_token_info`` parameter to ``service_login_oidc()`` for backwards compatibility while exposing full OAuth2 token data
-  - Created ``nipyapi.utils.extract_oidc_user_identity()`` utility for industry-standard JWT ``sub`` field extraction
-  - Fixed OIDC sandbox setup to gracefully reuse existing artifacts instead of failing on conflicts
-  - Fixed Registry hostname resolution for OIDC profile in test configuration (localhost -> registry-oidc:18080)
-  - **Professional terminology**: Renamed "playground" to "sandbox" throughout codebase for enterprise-appropriate language
-  - Moved sandbox script from ``resources/scripts/`` to ``examples/sandbox.py`` as comprehensive user-facing example
-  - Updated all documentation and Makefile targets to use professional "sandbox" terminology
-
-- Code quality and tooling improvements:
-  - Restored missing linting targets: ``make lint``, ``make flake8``, ``make pylint``, ``make pre-commit``
-  - Fixed code quality issues: line length, trailing whitespace, missing timeouts, unnecessary else clauses
-  - Achieved 10.0/10 pylint score for core nipyapi modules (excludes generated clients)
-  - Enhanced ``make coverage`` target to ensure infrastructure availability before running analysis
-  - Fixed coverage configuration to exclude generated API clients (industry best practice)
-  - Added proper token validation for ``make coverage-upload`` (CI-only with helpful local development guidance)
-  - Removed obsolete smoke test infrastructure (incompatible with security-first design)
-
-- Documentation and migration improvements:
-  - Created comprehensive migration guide (``docs/migration.rst``) for upgrading from NiPyAPI 0.x/NiFi 1.x to 1.x/2.x
-  - Updated developer notes (``docs/devnotes.rst``) for 2.x development practices including modern testing, client generation, and release workflows
-  - Removed outdated Python 2.7 references and legacy build tool instructions
-
-- Resource pruning:
-  - Deleted legacy client-gen artifacts and old docker scaffolding under `resources/` no longer used in 2.x workflow.
-
-- Pruning: removed deprecated docker and test scaffolding
-  - Deleted `resources/docker/tox-full/` and `resources/test_setup/setup_centos7.sh`
-  - Removed docker/localdev variant (upstream provides official images)
-  - Consolidation to a single docker-compose with profiles is planned (current secure-ldap and secure-mtls updated)
-  - Removed tox from development flow; deleted top-level `tox.ini`, replaced docs with Makefile-based testing
-  - Removed legacy dev deps (nose, pluggy, coveralls, randomize, cryptography) from requirements_dev; dropped Coveralls badge from README
-
-- Upstream: track enum inconsistencies in [NIFI-14850](https://issues.apache.org/jira/browse/NIFI-14850)
-  - Track missing bearer security scheme in NiFi Core OpenAPI: [NIFI-14852](https://issues.apache.org/jira/browse/NIFI-14852)
+- **Documentation system rebuild**: Complete Sphinx overhaul with individual pages for all Core client, NiFi APIs and Registry APIs - with a flat API structure with optimal navigation
+- **Test coverage expansion**: Comprehensive test suite with profile-driven automation rather than manual reconfiguration
+- **Pre-commit checks**: Automated code quality with trailing whitespace, debug statements, flake8, and pylint hooks
+- **Modern dependency management**: Migrated to ``python -m build``, replaced ruamel.yaml with PyYAML, explicit urllib3/certifi/requests inclusion
+- **Enhanced documentation**: Direct GitHub source code links with line-level precision, standardized docstrings throughout generated clients
+- **Profile-driven testing**: Deprecated complex tox regression suite in favor of spec-driven single version testing
+- **Legacy pruning**: Removed Python 2.7 and NiFi 1.x references, deprecated template-era dependencies (lxml, xmltodict)
+- **Codecov migration**: Switched from Coveralls with pytest-cov integration and build process automation
+- **Enhanced convenience functions**: Improved ``set_endpoint`` and various ``ensure_*`` object functions
+- **Certificate handling improvements**: Resolved user complexity with automatic CA certificate setup and validation
+- **Extensive authentication documentation**: OIDC setup instructions, Safari keychain guidance, development vs production practices
+- **API augmentation system**: Client build-time patching for upstream API issues (currently: enum handling and missing security schemes)
 
 0.22.0 (2025-03-25)
 --------------------
