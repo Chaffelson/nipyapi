@@ -117,10 +117,10 @@ docs-install: ## install docs extras
 coverage: check-certs ## run pytest with coverage and generate report (set coverage-min=NN to enforce; requires infrastructure)
 	@echo "🧪 Running coverage analysis (single-user profile)..."
 	@echo "Ensuring single-user infrastructure is ready..."
-	$(MAKE) up NIPYAPI_AUTH_MODE=single-user
-	$(MAKE) wait-ready NIPYAPI_AUTH_MODE=single-user
+	$(MAKE) up NIPYAPI_PROFILE=single-user
+	$(MAKE) wait-ready NIPYAPI_PROFILE=single-user
 	@echo "Running pytest with coverage..."
-	NIPYAPI_AUTH_MODE=single-user PYTHONPATH=$(PWD):$$PYTHONPATH pytest --cov=nipyapi --cov-report=term-missing --cov-report=html
+	NIPYAPI_PROFILE=single-user PYTHONPATH=$(PWD):$$PYTHONPATH pytest --cov=nipyapi --cov-report=term-missing --cov-report=html
 	@if [ -n "$(coverage-min)" ]; then coverage report --fail-under=$(coverage-min); fi
 	@echo "✅ Coverage analysis complete. See htmlcov/index.html for detailed report."
 
@@ -158,9 +158,17 @@ check-certs:
 	@test -f resources/certs/certs.env || \
 		(echo "❌ Certificates missing. Run: make certs" && exit 1)
 
+ensure-certs: ## generate certificates only if they don't already exist
+	@if [ ! -f resources/certs/certs.env ]; then \
+		echo "📝 Certificates not found - generating fresh certificates..."; \
+		$(MAKE) certs; \
+	else \
+		echo "✅ Certificates already exist - skipping generation"; \
+	fi
+
 check-infra:
 	@$(DC) ps -q 2>/dev/null | grep -q . || \
-		(echo "❌ Infrastructure not running. Run: make up NIPYAPI_AUTH_MODE=<profile>" && exit 1)
+		(echo "❌ Infrastructure not running. Run: make up NIPYAPI_PROFILE=<profile>" && exit 1)
 
 # Infrastructure operations
 certs: ## generate PKCS12 certs and env for docker profiles
@@ -172,9 +180,9 @@ certs: ## generate PKCS12 certs and env for docker profiles
 	cd resources/certs && bash gen_certs.sh
 	@echo "✅ Fresh certificates generated - containers will use new certs on next startup"
 
-up: ## bring up docker profile: make up NIPYAPI_AUTH_MODE=single-user|secure-ldap|secure-mtls|secure-oidc (uses NIFI_VERSION=$(NIFI_VERSION))
-	@if [ -z "$(NIPYAPI_AUTH_MODE)" ]; then echo "NIPYAPI_AUTH_MODE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
-	$(DC) --profile $(NIPYAPI_AUTH_MODE) up -d
+up: ## bring up docker profile: make up NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc (uses NIFI_VERSION=$(NIFI_VERSION))
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
+	$(DC) --profile $(NIPYAPI_PROFILE) up -d
 
 down: ## bring down all docker services
 	@echo "Bringing down Docker services (NIFI_VERSION=$(NIFI_VERSION))"
@@ -182,27 +190,10 @@ down: ## bring down all docker services
 	@echo "Verifying expected containers are stopped/removed:"
 	@COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE) ps --format "table {{.Name}}\t{{.State}}" | tail -n +2 | awk '{print " - " $$1 ": " $$2}' || true
 
-wait-ready: ## wait for readiness; accepts NIPYAPI_AUTH_MODE=single-user|secure-ldap|secure-mtls|secure-oidc or explicit *_API_ENDPOINT envs
-	@if [ -n "$(NIPYAPI_AUTH_MODE)" ]; then \
-		if [ "$(NIPYAPI_AUTH_MODE)" = "single-user" ]; then \
-			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9443/nifi-api}"; \
-			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-http://localhost:18080/nifi-registry-api}"; \
-			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
-		elif [ "$(NIPYAPI_AUTH_MODE)" = "secure-ldap" ]; then \
-			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9444/nifi-api}"; \
-			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-https://localhost:18444/nifi-registry-api}"; \
-			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
-		elif [ "$(NIPYAPI_AUTH_MODE)" = "secure-mtls" ]; then \
-			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9445/nifi-api}"; \
-			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-https://localhost:18445/nifi-registry-api}"; \
-			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
-		elif [ "$(NIPYAPI_AUTH_MODE)" = "secure-oidc" ]; then \
-			NIFI_API_ENDPOINT="$${NIFI_API_ENDPOINT:-https://localhost:9446/nifi-api}"; \
-			REGISTRY_API_ENDPOINT="$${REGISTRY_API_ENDPOINT:-http://localhost:18446/nifi-registry-api}"; \
-			export NIFI_API_ENDPOINT REGISTRY_API_ENDPOINT; \
-		else echo "Unknown NIPYAPI_AUTH_MODE $(NIPYAPI_AUTH_MODE)"; exit 1; fi; \
-	fi; \
-	python resources/scripts/wait_ready.py
+wait-ready: ## wait for readiness using profile configuration; requires NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "❌ NIPYAPI_PROFILE is required"; exit 1; fi
+	@echo "⏳ Waiting for $(NIPYAPI_PROFILE) infrastructure to be ready..."
+	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) python resources/scripts/wait_ready.py
 
 # API & Client generation
 fetch-openapi-base: ## refresh base OpenAPI specs for current NIFI_VERSION (always overwrite base)
@@ -229,29 +220,27 @@ gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_varia
 	WV_SPEC_VARIANT=augmented bash resources/client_gen/generate_api_client.sh
 
 # Individual testing
-test: ## run tests quickly with the default Python (env handled by tests/conftest.py)
-	NIPYAPI_AUTH_MODE=single-user PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
 
-test-profile: ## run pytest with provided NIPYAPI_AUTH_MODE; config resolved by tests/conftest.py
-	@if [ -z "$(NIPYAPI_AUTH_MODE)" ]; then echo "NIPYAPI_AUTH_MODE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
-	NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
+test: ## run pytest with provided NIPYAPI_PROFILE; config resolved by tests/conftest.py
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
+	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
 
-test-su: ## shortcut: NIPYAPI_AUTH_MODE=single-user pytest
-	NIPYAPI_AUTH_MODE=single-user $(MAKE) test-profile
+test-su: ## shortcut: NIPYAPI_PROFILE=single-user pytest
+	NIPYAPI_PROFILE=single-user $(MAKE) test-profile
 
-test-ldap: ## shortcut: NIPYAPI_AUTH_MODE=secure-ldap pytest
-	NIPYAPI_AUTH_MODE=secure-ldap $(MAKE) test-profile
+test-ldap: ## shortcut: NIPYAPI_PROFILE=secure-ldap pytest
+	NIPYAPI_PROFILE=secure-ldap $(MAKE) test-profile
 
-test-mtls: ## shortcut: NIPYAPI_AUTH_MODE=secure-mtls pytest
-	NIPYAPI_AUTH_MODE=secure-mtls $(MAKE) test-profile
+test-mtls: ## shortcut: NIPYAPI_PROFILE=secure-mtls pytest
+	NIPYAPI_PROFILE=secure-mtls $(MAKE) test-profile
 
-test-oidc: check-certs ## shortcut: NIPYAPI_AUTH_MODE=secure-oidc pytest (requires: make sandbox NIPYAPI_AUTH_MODE=secure-oidc)
-	NIPYAPI_AUTH_MODE=secure-oidc $(MAKE) test-profile
+test-oidc: check-certs ## shortcut: NIPYAPI_PROFILE=secure-oidc pytest (requires: make sandbox NIPYAPI_PROFILE=secure-oidc)
+	NIPYAPI_PROFILE=secure-oidc $(MAKE) test-profile
 
-test-specific: ## run specific pytest with provided NIPYAPI_AUTH_MODE and TEST_ARGS
-	@if [ -z "$(NIPYAPI_AUTH_MODE)" ]; then echo "NIPYAPI_AUTH_MODE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
+test-specific: ## run specific pytest with provided NIPYAPI_PROFILE and TEST_ARGS
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
 	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required (e.g., tests/test_utils.py::test_dump -v)"; exit 1; fi; \
-	NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
+	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
 
 
 # Build & Documentation
@@ -282,13 +271,13 @@ docs: ## generate Sphinx HTML documentation with improved navigation
 ## Meta Targets ##
 #################################################################################
 
-test-all: check-certs ## run full e2e tests across automated profiles (requires: make certs)
+test-all: ensure-certs ## run full e2e tests across automated profiles (requires: make certs)
 	@echo "Running full e2e tests across automated profiles..."
 	@for profile in single-user secure-ldap secure-mtls; do \
 		echo "=== Running e2e test for profile: $$profile ==="; \
-		$(MAKE) up NIPYAPI_AUTH_MODE=$$profile && \
-		$(MAKE) wait-ready NIPYAPI_AUTH_MODE=$$profile && \
-		$(MAKE) test-profile NIPYAPI_AUTH_MODE=$$profile; \
+		$(MAKE) up NIPYAPI_PROFILE=$$profile && \
+		$(MAKE) wait-ready NIPYAPI_PROFILE=$$profile && \
+		$(MAKE) test NIPYAPI_PROFILE=$$profile; \
 		test_result=$$?; \
 		if [ $$test_result -ne 0 ]; then \
 			echo "Tests failed for profile: $$profile"; \
@@ -297,15 +286,15 @@ test-all: check-certs ## run full e2e tests across automated profiles (requires:
 	done
 	@echo "✅ All profiles tested successfully"
 
-sandbox: check-certs ## create isolated environment with sample objects: make sandbox NIPYAPI_AUTH_MODE=single-user|secure-ldap|secure-mtls|secure-oidc
-	@if [ -z "$(NIPYAPI_AUTH_MODE)" ]; then echo "❌ NIPYAPI_AUTH_MODE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
-	@echo "🏗️ Setting up NiPyAPI sandbox with profile: $(NIPYAPI_AUTH_MODE)"
+sandbox: ensure-certs ## create isolated environment with sample objects: make sandbox NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "❌ NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
+	@echo "🏗️ Setting up NiPyAPI sandbox with profile: $(NIPYAPI_PROFILE)"
 	@echo "=== 1/4: Starting infrastructure ==="
-	$(MAKE) up NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE)
+	$(MAKE) up NIPYAPI_PROFILE=$(NIPYAPI_PROFILE)
 	@echo "=== 2/4: Waiting for readiness ==="
-	$(MAKE) wait-ready NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE)
+	$(MAKE) wait-ready NIPYAPI_PROFILE=$(NIPYAPI_PROFILE)
 	@echo "=== 3/4: Setting up authentication and sample objects ==="
-	@NIPYAPI_AUTH_MODE=$(NIPYAPI_AUTH_MODE) python examples/sandbox.py $(NIPYAPI_AUTH_MODE)
+	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) python examples/sandbox.py $(NIPYAPI_PROFILE)
 
 rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> validate -> docs
 	@echo "🚀 Starting comprehensive rebuild from clean slate..."
@@ -314,8 +303,8 @@ rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen cli
 	@echo "=== 2/9: Generate Certificates ==="
 	$(MAKE) certs
 	@echo "=== 3/9: Extract OpenAPI Specs ==="
-	$(MAKE) up NIPYAPI_AUTH_MODE=single-user
-	$(MAKE) wait-ready NIPYAPI_AUTH_MODE=single-user
+	$(MAKE) up NIPYAPI_PROFILE=single-user
+	$(MAKE) wait-ready NIPYAPI_PROFILE=single-user
 	$(MAKE) fetch-openapi
 	@echo "=== 4/9: Augment OpenAPI Specs ==="
 	$(MAKE) augment-openapi

@@ -15,8 +15,8 @@ def test_create_registry_client():
     # Use versioning.ensure_registry_client directly
     r = versioning.ensure_registry_client(
         name=conftest.test_registry_client_name,
-        uri=conftest.active_config['registry_internal_url'],
-        description=f"Test Registry Client -> {conftest.active_config['registry_internal_url']}"
+        uri=conftest.ACTIVE_CONFIG['registry_internal_url'],
+        description=f"Test Registry Client -> {conftest.ACTIVE_CONFIG['registry_internal_url']}"
     )
     assert isinstance(r, nifi.FlowRegistryClientEntity)
     # # test duplicate catch result
@@ -104,8 +104,8 @@ def test_get_registry_bucket(fix_bucket):
 def test_save_flow_ver(fix_bucket, fix_pg, fix_proc):
     f_reg_client = versioning.ensure_registry_client(
         name=conftest.test_registry_client_name,
-        uri=conftest.active_config['registry_internal_url'],
-        description=f"Test Registry Client -> {conftest.active_config['registry_internal_url']}"
+        uri=conftest.ACTIVE_CONFIG['registry_internal_url'],
+        description=f"Test Registry Client -> {conftest.ACTIVE_CONFIG['registry_internal_url']}"
     )
     f_bucket = fix_bucket()
     f_pg = fix_pg.generate()
@@ -401,8 +401,8 @@ def test_issue_229(fix_bucket, fix_pg, fix_context):
     # test we can deploy an imported flow, issue 229
     reg_client = versioning.ensure_registry_client(
         name=conftest.test_registry_client_name,
-        uri=conftest.active_config['registry_internal_url'],
-        description=f"Test Registry Client -> {conftest.active_config['registry_internal_url']}"
+        uri=conftest.ACTIVE_CONFIG['registry_internal_url'],
+        description=f"Test Registry Client -> {conftest.ACTIVE_CONFIG['registry_internal_url']}"
     )
     bucket = fix_bucket()
     pg = fix_pg.generate()
@@ -468,3 +468,179 @@ def test_deploy_flow_version(fix_ver_flow):
             reg_client_id=fix_ver_flow.client.id,
             version=None
         )
+
+
+def test_ensure_registry_client_create_new():
+    """Test ensure_registry_client creates new client when none exists."""
+    client_name = conftest.test_registry_client_name + '_ensure_new'
+
+    # Clean up any existing client (following established pattern)
+    existing_clients = versioning.list_registry_clients().registries
+    for client in existing_clients:
+        if client_name in client.component.name:
+            versioning.delete_registry_client(client)
+
+    # Test creating new client
+    result = versioning.ensure_registry_client(
+        name=client_name,
+        uri=conftest.ACTIVE_CONFIG['registry_internal_url'],
+        description='Test ensure function'
+    )
+
+    assert isinstance(result, nifi.FlowRegistryClientEntity)
+    assert result.component.name == client_name
+    assert conftest.ACTIVE_CONFIG['registry_internal_url'] in result.component.properties['url']
+
+    # Clean up (following established pattern)
+    versioning.delete_registry_client(result)
+
+
+def test_ensure_registry_client_return_existing():
+    """Test ensure_registry_client returns existing client."""
+    client_name = conftest.test_registry_client_name + '_ensure_existing'
+
+    # Clean up any existing client
+    existing_clients = versioning.list_registry_clients().registries
+    for client in existing_clients:
+        if client_name in client.component.name:
+            versioning.delete_registry_client(client)
+
+    # Create initial client
+    original = versioning.create_registry_client(
+        name=client_name,
+        uri=conftest.ACTIVE_CONFIG['registry_internal_url'],
+        description='Original client'
+    )
+
+    # Test ensure returns existing
+    result = versioning.ensure_registry_client(
+        name=client_name,
+        uri=conftest.ACTIVE_CONFIG['registry_internal_url'],
+        description='This should not overwrite'
+    )
+
+    assert result.id == original.id
+    assert result.component.description == 'Original client'  # Should not be overwritten
+
+    # Clean up
+    versioning.delete_registry_client(result)
+
+
+def test_ensure_registry_client_update_uri_mismatch():
+    """Test ensure_registry_client updates when URI differs."""
+    client_name = conftest.test_registry_client_name + '_ensure_update'
+
+    # Clean up
+    existing_clients = versioning.list_registry_clients().registries
+    for client in existing_clients:
+        if client_name in client.component.name:
+            versioning.delete_registry_client(client)
+
+    # Create client with different URI
+    original = versioning.create_registry_client(
+        name=client_name,
+        uri='http://different-registry:18080',
+        description='Original with different URI'
+    )
+
+    # Ensure with correct URI should update
+    result = versioning.ensure_registry_client(
+        name=client_name,
+        uri=conftest.ACTIVE_CONFIG['registry_internal_url'],
+        description='Updated client'
+    )
+
+    # Should be different instance (recreated)
+    assert result.id != original.id
+    assert conftest.ACTIVE_CONFIG['registry_internal_url'] in result.component.properties['url']
+
+    # Clean up
+    versioning.delete_registry_client(result)
+
+
+def test_ensure_registry_bucket_create_new(fix_bucket):
+    """Test ensure_registry_bucket creates new bucket when none exists."""
+    bucket_name = conftest.test_bucket_name + '_ensure_new'
+
+    # Clean up any existing bucket
+    try:
+        existing = versioning.get_registry_bucket(bucket_name)
+        if existing:
+            versioning.delete_registry_bucket(existing)
+    except ValueError:
+        pass  # Bucket doesn't exist, which is what we want
+
+    # Test creating new bucket
+    result = versioning.ensure_registry_bucket(
+        name=bucket_name,
+        description='Test ensure bucket function'
+    )
+
+    assert isinstance(result, registry.Bucket)
+    assert result.name == bucket_name
+    assert result.description == 'Test ensure bucket function'
+
+    # Clean up
+    versioning.delete_registry_bucket(result)
+
+
+def test_ensure_registry_bucket_return_existing(fix_bucket):
+    """Test ensure_registry_bucket returns existing bucket."""
+    bucket_name = conftest.test_bucket_name + '_ensure_existing'
+
+    # Clean up
+    try:
+        existing = versioning.get_registry_bucket(bucket_name)
+        if existing:
+            versioning.delete_registry_bucket(existing)
+    except ValueError:
+        pass
+
+    # Create initial bucket
+    original = versioning.create_registry_bucket(
+        name=bucket_name,
+        description='Original bucket'
+    )
+
+    # Test ensure returns existing
+    result = versioning.ensure_registry_bucket(
+        name=bucket_name,
+        description='This should not overwrite'
+    )
+
+    assert result.identifier == original.identifier
+    assert result.description == 'Original bucket'  # Should not be overwritten
+
+    # Clean up
+    versioning.delete_registry_bucket(result)
+
+
+def test_ensure_registry_bucket_race_condition_handling(fix_bucket):
+    """Test that ensure_registry_bucket handles race conditions gracefully."""
+    bucket_name = conftest.test_bucket_name + '_ensure_race'
+
+    # Clean up
+    try:
+        existing = versioning.get_registry_bucket(bucket_name)
+        if existing:
+            versioning.delete_registry_bucket(existing)
+    except ValueError:
+        pass
+
+    # This test simulates the race condition by creating the bucket
+    # and then immediately calling ensure again
+    result1 = versioning.ensure_registry_bucket(
+        name=bucket_name,
+        description='First call'
+    )
+
+    # Second call should return the existing bucket, not fail
+    result2 = versioning.ensure_registry_bucket(
+        name=bucket_name,
+        description='Second call'
+    )
+
+    assert result1.identifier == result2.identifier
+
+    # Clean up
+    versioning.delete_registry_bucket(result1)

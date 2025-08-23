@@ -73,7 +73,16 @@ def apply_ssl_configuration():
     # Apply SSL warning settings
     _apply_ssl_warnings()
 
+    # Log what SSL configuration was actually applied
     log.info("SSL configuration applied successfully")
+    log.debug("NiFi SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
+              nipyapi.config.nifi_config.verify_ssl,
+              nipyapi.config.nifi_config.ssl_ca_cert,
+              nipyapi.config.nifi_config.cert_file)
+    log.debug("Registry SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
+              nipyapi.config.registry_config.verify_ssl,
+              nipyapi.config.registry_config.ssl_ca_cert,
+              nipyapi.config.registry_config.cert_file)
 
 
 def apply_authentication():

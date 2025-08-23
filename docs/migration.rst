@@ -1,6 +1,6 @@
-=============
+===============
 Migration Guide
-=============
+===============
 
 Upgrading from NiPyAPI 0.x/NiFi 1.x to NiPyAPI 1.x/NiFi 2.x
 -------------------------------------------------------------
@@ -8,7 +8,7 @@ Upgrading from NiPyAPI 0.x/NiFi 1.x to NiPyAPI 1.x/NiFi 2.x
 This guide helps you migrate existing code from NiPyAPI 0.x (targeting Apache NiFi/Registry 1.x) to NiPyAPI 1.x (targeting Apache NiFi/Registry 2.x).
 
 .. note::
-   **Breaking Changes**: This is a major version upgrade with significant breaking changes. 
+   **Breaking Changes**: This is a major version upgrade with significant breaking changes.
    Plan for code updates and testing when migrating.
 
 Version Overview
@@ -19,11 +19,11 @@ Version Overview
 +==================+======================+======================+
 | **NiPyAPI**      | 0.x                  | 1.x                  |
 +------------------+----------------------+----------------------+
-| **Apache NiFi**  | 1.x (tested: 1.28.1)| 2.x (tested: 2.5.0) |
+| **Apache NiFi**  | 1.x (tested: 1.28.1)| 2.x (tested: 2.5.0)   |
 +------------------+----------------------+----------------------+
-| **NiFi Registry**| 0.x, 1.x             | 2.x (tested: 2.5.0) |
+| **NiFi Registry**| 0.x, 1.x             | 2.x (tested: 2.5.0)  |
 +------------------+----------------------+----------------------+
-| **Python**       | 2.7, 3.6+           | 3.9+                 |
+| **Python**       | 2.7, 3.6+           | 3.9+                  |
 +------------------+----------------------+----------------------+
 
 Major Changes Summary
@@ -67,7 +67,7 @@ Authentication and Configuration
      - New (1.x)
      - Notes
    * - ``test_default = True`` (in conftest.py)
-     - ``NIPYAPI_AUTH_MODE``
+     - ``NIPYAPI_PROFILE``
      - Environment variable replaces file editing
    * - ``NIFI_CA_CERT``
      - ``config.nifi_config.ssl_ca_cert``
@@ -78,11 +78,11 @@ Authentication and Configuration
 Old approach (0.x)::
 
     import nipyapi
-    
+
     # Default endpoints were HTTP
     # nifi_config.host = "http://localhost:8080/nifi-api"  (default)
     # registry_config.host = "http://localhost:18080/nifi-registry-api"  (default)
-    
+
     # For secure endpoints, manual SSL context setup was required
     nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
     nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True,
@@ -92,10 +92,10 @@ New approach (1.x)::
 
     import nipyapi
     from nipyapi import config, utils
-    
+
     # HTTPS is now the default with proper certificate management
     config.nifi_config.ssl_ca_cert = "resources/certs/ca/ca.crt"
-    
+
     # Establish authenticated endpoint
     utils.set_endpoint("https://localhost:9443/nifi-api", ssl=True, login=True,
                       username="einstein", password="password1234")
@@ -112,9 +112,9 @@ Old commands::
 
 New commands::
 
-    # 1.x approach  
-    make up NIPYAPI_AUTH_MODE=secure-ldap
-    make wait-ready NIPYAPI_AUTH_MODE=secure-ldap
+    # 1.x approach
+    make up NIPYAPI_PROFILE=secure-ldap
+    make wait-ready NIPYAPI_PROFILE=secure-ldap
 
 API Changes
 ~~~~~~~~~~~
@@ -132,7 +132,7 @@ Migration strategy::
     # Use Process Groups and Flow Registry instead:
     import nipyapi.canvas
     import nipyapi.versioning
-    
+
     # Create reusable flows in Registry
     flow = nipyapi.versioning.save_flow_ver(process_group, registry_client, bucket)
 
@@ -145,7 +145,7 @@ Some operation IDs have changed to match NiFi 2.x:
    :widths: 40 40 20
 
    * - Old Method (0.x)
-     - New Method (1.x) 
+     - New Method (1.x)
      - Status
    * - ``update_run_status``
      - ``update_run_status1``
@@ -193,9 +193,9 @@ Old commands::
 
 New commands::
 
-    make test NIPYAPI_AUTH_MODE=secure-ldap
+    make test NIPYAPI_PROFILE=secure-ldap
     # or
-    NIPYAPI_AUTH_MODE=secure-ldap pytest tests/
+    NIPYAPI_PROFILE=secure-ldap pytest tests/
 
 See the ``devnotes.rst`` guide for more details.
 
@@ -212,7 +212,7 @@ Update your ``requirements.txt`` or ``pyproject.toml``:
    # Old
    nipyapi>=0.22,<1.0
 
-   # New  
+   # New
    nipyapi>=1.0,<2.0
 
 2. **Update Authentication Code**
@@ -226,16 +226,16 @@ The 0.x approach used hardcoded SSL context and different default endpoints:
    import nipyapi
    # Used demo/keys/ certificates and HTTP by default
    nipyapi.utils.set_endpoint("http://localhost:8080/nifi-api")
-   
+
    # 0.x with SSL (manual cert paths)
    nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
-   nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True, 
+   nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True,
                              username="nobel", password="supersecret1!")
 
    # 1.x preferred approach
    import nipyapi
    from nipyapi import config, utils
-   
+
    # New certificate structure and HTTPS by default
    config.nifi_config.ssl_ca_cert = 'resources/certs/ca/ca.crt'
    utils.set_endpoint("https://localhost:9443/nifi-api", ssl=True, login=True,
@@ -255,7 +255,7 @@ The 0.x testing used hardcoded boolean flags in ``conftest.py``, not environment
    test_default = True   # Test against default endpoints
    test_ldap = False     # Enable LDAP testing
    test_mtls = False     # Enable mTLS testing
-   
+
    # Then run tests directly
    pytest tests/
 
@@ -264,9 +264,9 @@ The 1.x approach uses environment-driven profiles:
 .. code-block:: shell
 
    # 1.x approach (environment-driven)
-   make up NIPYAPI_AUTH_MODE=secure-ldap
-   make wait-ready NIPYAPI_AUTH_MODE=secure-ldap  
-   make test NIPYAPI_AUTH_MODE=secure-ldap
+   make up NIPYAPI_PROFILE=secure-ldap
+   make wait-ready NIPYAPI_PROFILE=secure-ldap
+   make test NIPYAPI_PROFILE=secure-ldap
 
 See the ``devnotes.rst`` guide for more details.
 
@@ -292,7 +292,7 @@ Replace template-based workflows with Process Groups and Registry:
    )
 
 5. **Update Configuration and Ports**
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Key configuration changes between NiPyAPI 0.x and 1.x:
 
@@ -379,10 +379,10 @@ Note: NiFi 2.x is more strict by default about Authentication and Authorization.
 
    # For NiFi operations
    nipyapi.security.bootstrap_security_policies(service='nifi')
-   
+
    # For Registry operations (with proxy identity)
    nipyapi.security.bootstrap_security_policies(
-       service='registry', 
+       service='registry',
        nifi_proxy_identity='C=US, O=NiPyAPI, CN=nifi'
    )
 
@@ -399,7 +399,7 @@ Note: NiFi 2.x is more strict by default about Authentication and Authorization.
 
    # Registry must trust NiFi as a proxy
    nipyapi.security.bootstrap_security_policies(
-       service='registry', 
+       service='registry',
        nifi_proxy_identity='C=US, O=NiPyAPI, CN=nifi'
    )
 
@@ -409,13 +409,13 @@ Testing Your Migration
 -----------------------
 
 1. **Start Simple**: Begin with single-user profile testing
-2. **Incremental Migration**: Migrate one authentication mode at a time  
+2. **Incremental Migration**: Migrate one authentication mode at a time
 3. **Integration Testing**: Use ``make test-all`` for comprehensive validation
 4. **Docker Environment**: Test with provided Docker profiles before production
 
 For additional support:
 
 - **Examples**: See ``examples/fdlc.py`` for modern patterns
-- **sandbox**: Use ``make sandbox NIPYAPI_AUTH_MODE=single-user`` for experimentation
+- **sandbox**: Use ``make sandbox NIPYAPI_PROFILE=single-user`` for experimentation
 - **Documentation**: Updated authentication guide at ``docs/authentication.rst``
 - **Issues**: Please raise an issue on `GitHub <https://github.com/Chaffelson/nipyapi/issues>`_ if you encounter any problems.

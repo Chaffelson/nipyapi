@@ -9,49 +9,49 @@ on:
 jobs:
   test-python-312-single-user:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
         python-version: "3.12"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    
+
     - name: Lint with flake8 and pylint
       run: make lint
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Generate certificates
       run: make certs
-    
+
     - name: Start NiFi infrastructure (single-user)
-      run: make up NIPYAPI_AUTH_MODE=single-user
-        
+      run: make up NIPYAPI_PROFILE=single-user
+
     - name: Wait for NiFi to be ready
-      run: make wait-ready NIPYAPI_AUTH_MODE=single-user
-    
+      run: make wait-ready NIPYAPI_PROFILE=single-user
+
     - name: Run integration tests with coverage
-      run: NIPYAPI_AUTH_MODE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest --cov=nipyapi --cov-report=xml --cov-report=term-missing
+      run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest --cov=nipyapi --cov-report=xml --cov-report=term-missing
       env:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
-    
+
     - name: Test distribution build and import
       run: make test-dist
-    
+
     - name: Stop NiFi infrastructure
       if: always()
       run: make down
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
       with:
@@ -63,195 +63,195 @@ jobs:
 
   test-python-311-single-user:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.11
       uses: actions/setup-python@v4
       with:
         python-version: "3.11"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Generate certificates
       run: make certs
-    
+
     - name: Start NiFi infrastructure (single-user)
-      run: make up NIPYAPI_AUTH_MODE=single-user
-        
+      run: make up NIPYAPI_PROFILE=single-user
+
     - name: Wait for NiFi to be ready
-      run: make wait-ready NIPYAPI_AUTH_MODE=single-user
-    
+      run: make wait-ready NIPYAPI_PROFILE=single-user
+
     - name: Run integration tests
-      run: NIPYAPI_AUTH_MODE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
+      run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
       env:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
-    
+
     - name: Stop NiFi infrastructure
       if: always()
       run: make down
 
   test-python-310-single-user:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
         python-version: "3.10"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Generate certificates
       run: make certs
-    
+
     - name: Start NiFi infrastructure (single-user)
-      run: make up NIPYAPI_AUTH_MODE=single-user
-        
+      run: make up NIPYAPI_PROFILE=single-user
+
     - name: Wait for NiFi to be ready
-      run: make wait-ready NIPYAPI_AUTH_MODE=single-user
-    
+      run: make wait-ready NIPYAPI_PROFILE=single-user
+
     - name: Run integration tests
-      run: NIPYAPI_AUTH_MODE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
+      run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
       env:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
-    
+
     - name: Stop NiFi infrastructure
       if: always()
       run: make down
 
   test-python-39-single-user:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
         python-version: "3.9"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Generate certificates
       run: make certs
-    
+
     - name: Start NiFi infrastructure (single-user)
-      run: make up NIPYAPI_AUTH_MODE=single-user
-        
+      run: make up NIPYAPI_PROFILE=single-user
+
     - name: Wait for NiFi to be ready
-      run: make wait-ready NIPYAPI_AUTH_MODE=single-user
-    
+      run: make wait-ready NIPYAPI_PROFILE=single-user
+
     - name: Run integration tests
-      run: NIPYAPI_AUTH_MODE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
+      run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
       env:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
-    
+
     - name: Stop NiFi infrastructure
       if: always()
       run: make down
 
   test-python-312-secure-ldap:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
         python-version: "3.12"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Generate certificates
       run: make certs
-    
+
     - name: Start NiFi infrastructure (secure-ldap)
-      run: make up NIPYAPI_AUTH_MODE=secure-ldap
-        
+      run: make up NIPYAPI_PROFILE=secure-ldap
+
     - name: Wait for NiFi to be ready
-      run: make wait-ready NIPYAPI_AUTH_MODE=secure-ldap
-    
+      run: make wait-ready NIPYAPI_PROFILE=secure-ldap
+
     - name: Run integration tests
-      run: NIPYAPI_AUTH_MODE=secure-ldap PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
+      run: NIPYAPI_PROFILE=secure-ldap PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
       env:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
-    
+
     - name: Stop NiFi infrastructure
       if: always()
       run: make down
 
   test-python-312-secure-mtls:
     runs-on: ubuntu-latest
-    
+
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v4
       with:
         python-version: "3.12"
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e .[dev]
-    
+
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
-    
+
     - name: Generate certificates
       run: make certs
-    
+
     - name: Start NiFi infrastructure (secure-mtls)
-      run: make up NIPYAPI_AUTH_MODE=secure-mtls
-        
+      run: make up NIPYAPI_PROFILE=secure-mtls
+
     - name: Wait for NiFi to be ready
-      run: make wait-ready NIPYAPI_AUTH_MODE=secure-mtls
-    
+      run: make wait-ready NIPYAPI_PROFILE=secure-mtls
+
     - name: Run integration tests
-      run: NIPYAPI_AUTH_MODE=secure-mtls PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
+      run: NIPYAPI_PROFILE=secure-mtls PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
       env:
         PYTHONHTTPSVERIFY: "0"
         CURL_CA_BUNDLE: ""
         REQUESTS_CA_BUNDLE: ""
-    
+
     - name: Stop NiFi infrastructure
       if: always()
       run: make down

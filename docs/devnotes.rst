@@ -33,22 +33,22 @@ When running tests on new code, start with the single-user profile, then test se
 
     # Full test suite with infrastructure setup/teardown (recommended)
     make test-all
-    
+
     # Manual workflow for individual profile testing:
     # 1. Set up infrastructure
     make certs
-    make up NIPYAPI_AUTH_MODE=single-user
-    make wait-ready NIPYAPI_AUTH_MODE=single-user
-    
+    make up NIPYAPI_PROFILE=single-user
+    make wait-ready NIPYAPI_PROFILE=single-user
+
     # 2. Run tests (assumes infrastructure is running)
-    make test NIPYAPI_AUTH_MODE=single-user
-    
+    make test NIPYAPI_PROFILE=single-user
+
     # 3. Clean up
     make down
-    
+
     # Other profiles follow the same pattern:
-    make up NIPYAPI_AUTH_MODE=secure-ldap && make wait-ready NIPYAPI_AUTH_MODE=secure-ldap
-    make test NIPYAPI_AUTH_MODE=secure-ldap
+    make up NIPYAPI_PROFILE=secure-ldap && make wait-ready NIPYAPI_PROFILE=secure-ldap
+    make test NIPYAPI_PROFILE=secure-ldap
     make down
 
 Because of the way errors are propagated, you may have code failures which cause a teardown that then fails because of security controls, which can obscure the original error. Starting with single-user helps isolate functional issues from authentication complexities.
@@ -65,24 +65,24 @@ For OS-specific GPG setup instructions, see the `GitHub documentation on commit 
 
     # Install GPG via Homebrew (recommended)
     brew install gnupg
-    
+
     # Alternative: Install GPG Suite (GUI option)
     # Download from https://gpgtools.org/
-    
+
     # Generate signing keys (use a strong passphrase)
     gpg --full-generate-key
-    
+
     # Configure git to use GPG signing
     git config --global user.signingkey <your-key-id>
     git config --global commit.gpgsign true
-    
+
     # Add GPG TTY setting to shell profile
     echo 'export GPG_TTY=$(tty)' >> ~/.zshrc
     source ~/.zshrc
 
 **For other operating systems:**
 
-- **Ubuntu/Debian**: ``sudo apt install gnupg`` 
+- **Ubuntu/Debian**: ``sudo apt install gnupg``
 - **Windows**: Use Git for Windows with GPG4Win or WSL
 
 Ensure your GPG public key is added to your GitHub account under Settings → SSH and GPG keys.
@@ -108,25 +108,25 @@ The complete client regeneration process:
 
     # Full regeneration (clean -> certs -> infra -> fetch specs -> generate clients)
     make rebuild-all
-    
+
     # Individual steps for targeted updates:
-    
+
     # 1. Start NiFi infrastructure (single-user sufficient for spec extraction)
     make certs
-    make up NIPYAPI_AUTH_MODE=single-user && make wait-ready NIPYAPI_AUTH_MODE=single-user
-    
+    make up NIPYAPI_PROFILE=single-user && make wait-ready NIPYAPI_PROFILE=single-user
+
     # 2. Extract OpenAPI specifications from running instances
     make fetch-openapi
-    
+
     # 3. Apply authentication augmentations (temporary workaround until upstream fixes)
     make augment-openapi
-    
+
     # 4. Generate Python clients using swagger-codegen + custom templates
     make gen-clients
-    
+
     # 5. Test generated clients
     make test-all
-    
+
     # 6. Clean up infrastructure
     make down
 
@@ -150,23 +150,23 @@ Pre-release Preparation
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 1. **Update Release Notes**:
-   
+
    Update ``docs/history.rst`` with comprehensive release notes including new features, breaking changes, bug fixes, and migration guidance.
 
 2. **Validate Project State**:
-   
+
    .. code-block:: shell
-   
+
        # Ensure clean working directory
        git status
-       
+
        # Full rebuild: clean -> certs -> specs -> client generation -> tests -> build -> validate -> docs
        make rebuild-all
 
 3. **Commit Release Preparation**:
-   
+
    .. code-block:: shell
-   
+
        git add docs/history.rst
        git commit -S -m "Prepare release: update history and documentation"
 
@@ -186,7 +186,7 @@ Create Release
 
     # Tag the release (triggers version detection via setuptools-scm)
     git tag -a -s v1.0.0 -m "Release 1.0.0"
-    
+
     # Push commit and tags to GitHub (triggers CI validation)
     git push origin main
     git push --tags
@@ -198,7 +198,7 @@ Publish to PyPI
 
     # Upload to PyPI (requires PyPI API token configured)
     twine upload dist/*
-    
+
     # Alternative: Upload to TestPyPI first for validation
     # twine upload --repository testpypi dist/*
 
@@ -207,11 +207,11 @@ Post-release Verification
 
 1. **GitHub**: Verify release appears in GitHub Releases page
 2. **PyPI**: Check package page, metadata, and download links
-3. **Documentation**: Confirm ReadTheDocs rebuild triggered and succeeded  
-4. **Installation Test**: 
+3. **Documentation**: Confirm ReadTheDocs rebuild triggered and succeeded
+4. **Installation Test**:
 
    .. code-block:: shell
-   
+
        # Test installation in clean environment
        pip install nipyapi=={version}
        python -c "import nipyapi; print(nipyapi.__version__)"

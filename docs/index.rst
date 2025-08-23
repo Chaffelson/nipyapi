@@ -8,7 +8,8 @@ Contents:
 
    readme
    installation
-   authentication
+   profiles
+   security
    migration
    nipyapi-docs/api_reference
    contributing

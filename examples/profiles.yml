@@ -1,0 +1,82 @@
+# Development and testing profiles for NiPyAPI
+# These profiles provide working configurations for Docker-based development
+#
+# Format Support: This file uses YAML, but JSON is also supported since JSON is a subset of YAML
+#
+# Certificate Configuration:
+# - Simple configuration: Use shared ca_path, client_cert, client_key for both NiFi and Registry
+# - Complex PKI: Use per-service nifi_ca_path/registry_ca_path, nifi_client_cert/registry_client_cert, etc.
+# - Per-service values take precedence over shared values if specified
+# - Environment variables can override any certificate path (see security.rst docs)
+#
+# Examples:
+# - Shared CA, different client certs: Set ca_path, then nifi_client_cert + registry_client_cert
+# - Different CAs: Set nifi_ca_path + registry_ca_path (ca_path becomes fallback)
+# - Environment override: NIFI_CA_CERT_PATH=/custom/nifi-ca.pem overrides nifi_ca_path
+
+single-user:
+  nifi_url: https://localhost:9443/nifi-api
+  registry_url: http://localhost:18080/nifi-registry-api
+  registry_internal_url: http://registry-single:18080
+  nifi_user: einstein
+  nifi_pass: password1234
+  registry_user: einstein
+  registry_pass: password1234
+  # NiFi uses HTTPS with self-signed certs, Registry uses HTTP
+  nifi_verify_ssl: false  # Accept self-signed certificates
+  registry_verify_ssl: false
+  # No client certificates needed for single-user basic auth
+  ca_path: null
+  client_cert: null
+  client_key: null
+  client_key_password: null
+  # Per-service certificates (complex PKI) - defaults to shared if not specified
+  nifi_ca_path: null
+  registry_ca_path: null
+  nifi_client_cert: null
+  registry_client_cert: null
+  nifi_client_key: null
+  registry_client_key: null
+  nifi_client_key_password: null
+  registry_client_key_password: null
+  # NiFi proxy identity for Registry communication (null = no proxy needed)
+  nifi_proxy_identity: null
+  # OIDC-specific configuration (OAuth2 Resource Owner Password Credentials flow)
+  oidc_token_endpoint: null
+  oidc_client_id: null
+  oidc_client_secret: null
+
+secure-ldap:
+  nifi_url: https://localhost:9444/nifi-api
+  registry_url: https://localhost:18444/nifi-registry-api
+  registry_internal_url: https://registry-ldap:18443
+  nifi_user: einstein
+  nifi_pass: password
+  registry_user: einstein
+  registry_pass: password
+  ca_path: "resources/certs/client/ca.pem"
+  nifi_proxy_identity: "C=US, O=NiPyAPI, CN=nifi"
+
+secure-mtls:
+  nifi_url: https://localhost:9445/nifi-api
+  registry_url: https://localhost:18445/nifi-registry-api
+  registry_internal_url: https://registry-mtls:18443
+  ca_path: "resources/certs/client/ca.pem"
+  client_cert: "resources/certs/client/client.crt"
+  client_key: "resources/certs/client/client.key"
+  client_key_password: ""
+  nifi_proxy_identity: "C=US, O=NiPyAPI, CN=nifi"
+
+secure-oidc:
+  nifi_url: https://localhost:9446/nifi-api
+  registry_url: http://localhost:18446/nifi-registry-api
+  registry_internal_url: http://registry-oidc:18080
+  nifi_user: einstein
+  nifi_pass: password1234
+  registry_user: einstein
+  registry_pass: password1234
+  ca_path: "resources/certs/client/ca.pem"
+  # OIDC-specific configuration (OAuth2 Resource Owner Password Credentials flow)
+  oidc_token_endpoint: "http://localhost:8080/realms/nipyapi/protocol/openid-connect/token"
+  oidc_client_id: "nipyapi-client"
+  oidc_client_secret: "nipyapi-secret"

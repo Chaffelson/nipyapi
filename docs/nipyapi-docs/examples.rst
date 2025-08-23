@@ -8,20 +8,18 @@ of the source repository.
 Available Examples
 ------------------
 
-* **fdlc.py**: Flow Development Life Cycle examples demonstrating flow version management, deployment across environments, and Registry integration
+* **fdlc.py**: Flow Development Life Cycle examples
 
-* **sandbox.py**: Comprehensive setup example showing multi-profile authentication, security bootstrapping, and sample object creation. This script demonstrates NiPyAPI best practices for automation and environment setup.
-
-Sandbox Environment
--------------------
+Playground Environment
+---------------------
 
 For quick experimentation, use the sandbox make target to set up a ready-to-use environment:
 
 .. code-block:: console
 
-    $ make sandbox NIPYAPI_AUTH_MODE=single-user     # Recommended - simple setup
-    $ make sandbox NIPYAPI_AUTH_MODE=secure-ldap     # LDAP authentication  
-    $ make sandbox NIPYAPI_AUTH_MODE=secure-mtls     # Certificate authentication (advanced)
+    $ make sandbox NIPYAPI_PROFILE=single-user     # Recommended - simple setup
+    $ make sandbox NIPYAPI_PROFILE=secure-ldap     # LDAP authentication
+    $ make sandbox NIPYAPI_PROFILE=secure-mtls     # Certificate authentication (advanced)
 
 The sandbox automatically creates:
 

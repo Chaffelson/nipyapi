@@ -122,7 +122,7 @@ services:
       - NIFI_REGISTRY_SECURITY_ALLOW_ANONYMOUS_AUTHENTICATION=false
     networks: [nipynet]
 
-  # Secure single-user (basic credentials) profile
+  # Simple single-user profile (HTTP with basic credentials)
   nifi-single:
     image: apache/nifi:${NIFI_VERSION}
     container_name: nifi-single
@@ -130,26 +130,9 @@ services:
     profiles: ["single-user"]
     ports:
       - "9443:8443"
-    volumes:
-      - ../certs:/certs:ro
-    env_file:
-      - ../certs/nifi.env
     environment:
-      - AUTH=tls
-      # Map generic TLS vars consumed by /opt/nifi/scripts/secure.sh
-      - KEYSTORE_PATH=/certs/nifi/keystore.p12
-      - KEYSTORE_TYPE=PKCS12
-      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
-      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
-      - TRUSTSTORE_TYPE=PKCS12
-      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
       - SINGLE_USER_CREDENTIALS_USERNAME=einstein
       - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
-      # Ensure single-user auth remains active under TLS
-      - NIFI_SECURITY_USER_AUTHORIZER=single-user-authorizer
-      - NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER=single-user-provider
-      - NIFI_WEB_HTTPS_PORT=8443
-      - NIFI_WEB_HTTPS_HOST=0.0.0.0
       - NIFI_WEB_PROXY_HOST=localhost:9443,localhost:8443
     networks: [nipynet]
 
@@ -160,9 +143,6 @@ services:
     profiles: ["single-user"]
     ports:
       - "18080:18080"
-    volumes:
-      - ../certs:/certs:ro
-    # No TLS env needed for single-user; default HTTP
     environment:
       - SINGLE_USER_CREDENTIALS_USERNAME=einstein
       - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
@@ -197,7 +177,7 @@ services:
       retries: 3
       start_period: 90s
 
-  # NiFi with OIDC authentication  
+  # NiFi with OIDC authentication
   nifi-oidc:
     image: apache/nifi:${NIFI_VERSION}
     container_name: nifi-oidc
@@ -247,4 +227,3 @@ services:
 networks:
   nipynet:
     driver: bridge
-

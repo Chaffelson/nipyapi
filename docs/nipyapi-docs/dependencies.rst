@@ -65,6 +65,6 @@ For a complete development environment with all optional dependencies:
 NiPyAPI requires only 7 runtime dependencies for basic functionality.
 
 .. note::
-   This dependency information is automatically generated from the project's 
+   This dependency information is automatically generated from the project's
    ``requirements.txt`` and ``pyproject.toml`` files during documentation build.
 

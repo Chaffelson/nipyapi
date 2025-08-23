@@ -23,14 +23,14 @@ def test_get_service_user_validation():
             identifier="test",
             service="invalid_service"
         )
-    
+
     # Test invalid identifier type
     with pytest.raises(AssertionError):
         nipyapi.security.get_service_user(
             identifier=123,  # Should be string
             service="nifi"
         )
-    
+
     # Test invalid identifier_type
     with pytest.raises(AssertionError):
         nipyapi.security.get_service_user(
@@ -45,11 +45,11 @@ def test_create_service_user_validation():
     # Test invalid service
     with pytest.raises(AssertionError):
         nipyapi.security.create_service_user(service='invalid_service', identity='test')
-    
+
     # Test invalid identity type
     with pytest.raises(AssertionError):
         nipyapi.security.create_service_user(service='nifi', identity=dict())
-    
+
     # Test invalid strict type
     with pytest.raises(AssertionError):
         nipyapi.security.create_service_user(service='nifi', identity='test', strict=str())
@@ -74,7 +74,7 @@ def test_create_service_user_group_validation():
             identity="test_group",
             service="invalid_service"
         )
-    
+
     # Test invalid identity type
     with pytest.raises(AssertionError):
         nipyapi.security.create_service_user_group(
@@ -105,11 +105,11 @@ def test_service_login_validation():
     # Test invalid service
     with pytest.raises(AssertionError):
         nipyapi.security.service_login(service="invalid_service")
-    
+
     # Test invalid username type
     with pytest.raises(AssertionError):
         nipyapi.security.service_login(service="nifi", username=123)
-    
+
     # Test invalid password type
     with pytest.raises(AssertionError):
         nipyapi.security.service_login(service="nifi", password=123)
@@ -120,11 +120,11 @@ def test_service_login_oidc_validation():
     # Test registry service rejection
     with pytest.raises(ValueError, match="not supported for Registry"):
         nipyapi.security.service_login_oidc(service='registry')
-    
+
     # Test invalid service assertion
     with pytest.raises(AssertionError):
         nipyapi.security.service_login_oidc(service='invalid_service')
-    
+
     # Test missing parameters
     with pytest.raises(ValueError, match="requires username"):
         nipyapi.security.service_login_oidc(
@@ -135,7 +135,7 @@ def test_service_login_oidc_validation():
             client_id='test',
             client_secret='test'
         )
-    
+
     with pytest.raises(ValueError, match="requires username"):
         nipyapi.security.service_login_oidc(
             service='nifi',
@@ -154,7 +154,7 @@ def test_service_login_oidc_success_mocked(mock_post):
     current_config = nipyapi.config.nifi_config
     original_api_key = current_config.api_key.copy()
     original_api_key_prefix = current_config.api_key_prefix.copy()
-    
+
     try:
         # Mock successful response
         mock_response = MagicMock()
@@ -165,7 +165,7 @@ def test_service_login_oidc_success_mocked(mock_post):
             'expires_in': 3600
         }
         mock_post.return_value = mock_response
-        
+
         result = nipyapi.security.service_login_oidc(
             service='nifi',
             username='test_user',
@@ -174,12 +174,12 @@ def test_service_login_oidc_success_mocked(mock_post):
             client_id='test_client',
             client_secret='test_secret'
         )
-        
+
         assert result is True
         mock_post.assert_called_once()
         # Verify the mock token was actually set
         assert current_config.api_key.get('bearerAuth') == 'test_access_token'
-        
+
     finally:
         # CRITICAL: Always restore the original authentication state
         current_config.api_key.clear()
@@ -195,7 +195,7 @@ def test_service_login_oidc_return_token_info_mocked(mock_post):
     current_config = nipyapi.config.nifi_config
     original_api_key = current_config.api_key.copy()
     original_api_key_prefix = current_config.api_key_prefix.copy()
-    
+
     try:
         # Mock successful response
         mock_response = MagicMock()
@@ -208,7 +208,7 @@ def test_service_login_oidc_return_token_info_mocked(mock_post):
         }
         mock_response.json.return_value = token_data
         mock_post.return_value = mock_response
-        
+
         result = nipyapi.security.service_login_oidc(
             service='nifi',
             username='test_user',
@@ -218,13 +218,13 @@ def test_service_login_oidc_return_token_info_mocked(mock_post):
             client_secret='test_secret',
             return_token_info=True
         )
-        
+
         assert result == token_data
         assert 'access_token' in result
         assert 'expires_in' in result
         # Verify the mock token was actually set
         assert current_config.api_key.get('bearerAuth') == 'test_access_token'
-        
+
     finally:
         # CRITICAL: Always restore the original authentication state
         current_config.api_key.clear()
@@ -241,7 +241,7 @@ def test_service_login_oidc_failure_mocked(mock_post):
     mock_response.status_code = 400
     mock_response.text = "Invalid credentials"
     mock_post.return_value = mock_response
-    
+
     # Test with bool_response=True
     result = nipyapi.security.service_login_oidc(
         service='nifi',
@@ -252,9 +252,9 @@ def test_service_login_oidc_failure_mocked(mock_post):
         client_secret='test_secret',
         bool_response=True
     )
-    
+
     assert result is False
-    
+
     # Test with bool_response=False (should raise exception)
     with pytest.raises(ValueError, match="OIDC token acquisition failed"):
         nipyapi.security.service_login_oidc(
@@ -273,7 +273,7 @@ def test_service_login_oidc_exception_handling_mocked(mock_post):
     """Test OIDC exception handling with mocked failure"""
     # Mock exception
     mock_post.side_effect = Exception("Network error")
-    
+
     # Test with bool_response=True
     result = nipyapi.security.service_login_oidc(
         service='nifi',
@@ -284,9 +284,9 @@ def test_service_login_oidc_exception_handling_mocked(mock_post):
         client_secret='test_secret',
         bool_response=True
     )
-    
+
     assert result is False
-    
+
     # Test with bool_response=False (should raise exception)
     with pytest.raises(ValueError, match="OIDC authentication error"):
         nipyapi.security.service_login_oidc(
@@ -308,14 +308,14 @@ def test_set_service_auth_token_validation():
             token="test_token",
             service="invalid_service"
         )
-    
+
     # Test invalid token type
     with pytest.raises(AssertionError):
         nipyapi.security.set_service_auth_token(
             token=123,  # Should be string
             service="nifi"
         )
-    
+
     # Test invalid token_name type
     with pytest.raises(AssertionError):
         nipyapi.security.set_service_auth_token(
@@ -348,7 +348,7 @@ def test_create_access_policy_validation():
             action="invalid_action",  # Should be read/write/delete
             service="nifi"
         )
-    
+
     # Test invalid service
     with pytest.raises(AssertionError):
         nipyapi.security.create_access_policy(
@@ -383,6 +383,85 @@ def test_bootstrap_security_policies_validation():
         nipyapi.security.bootstrap_security_policies(
             service=["invalid_service"]
         )
+
+
+class TestEnsureSSLContext:
+    """Test ensure_ssl_context convenience function."""
+
+    @patch('nipyapi.canvas.get_controller')
+    @patch('nipyapi.security.create_ssl_context_controller_service')
+    @patch('nipyapi.canvas.schedule_controller')
+    def test_ensure_ssl_context_create_new(self, mock_schedule, mock_create, mock_get):
+        """Test ensure_ssl_context creates new SSL context when none exists."""
+        # Mock no existing SSL context found
+        mock_get.return_value = None
+
+        # Mock SSL context creation
+        mock_ssl_context = MagicMock()
+        mock_ssl_context.id = 'test-ssl-context-id'
+        mock_create.return_value = mock_ssl_context
+
+        # Test creating new SSL context
+        result = nipyapi.security.ensure_ssl_context(
+            parent_pg=MagicMock(),
+            name='test-ssl-context',
+            keystore_file='/test/keystore.p12',
+            keystore_password='password',
+            truststore_file='/test/truststore.p12',
+            truststore_password='password'
+        )
+
+        assert result == mock_ssl_context
+        mock_create.assert_called_once()
+        mock_schedule.assert_called_once_with(mock_ssl_context, scheduled=True, refresh=True)
+
+    @patch('nipyapi.canvas.get_controller')
+    @patch('nipyapi.canvas.schedule_controller')
+    def test_ensure_ssl_context_return_existing(self, mock_schedule, mock_get):
+        """Test ensure_ssl_context returns existing SSL context."""
+        # Mock existing SSL context found
+        mock_existing = MagicMock()
+        mock_existing.id = 'existing-ssl-context-id'
+        mock_get.return_value = mock_existing
+
+        # Test returning existing SSL context
+        result = nipyapi.security.ensure_ssl_context(
+            parent_pg=MagicMock(),
+            name='existing-ssl-context',
+            keystore_file='/test/keystore.p12',
+            keystore_password='password',
+            truststore_file='/test/truststore.p12',
+            truststore_password='password'
+        )
+
+        assert result == mock_existing
+        # Should ensure it's scheduled but not create new one
+        mock_schedule.assert_called_once_with(mock_existing, scheduled=True, refresh=True)
+
+    @patch('nipyapi.canvas.get_controller')
+    @patch('nipyapi.security.create_ssl_context_controller_service')
+    @patch('nipyapi.canvas.schedule_controller')
+    def test_ensure_ssl_context_race_condition(self, mock_schedule, mock_create, mock_get):
+        """Test ensure_ssl_context handles race condition gracefully."""
+        # Mock race condition: service created between check and creation
+        mock_get.side_effect = [None, MagicMock()]  # First call finds none, second finds existing
+
+        # Mock creation failure due to duplicate
+        mock_create.side_effect = Exception("already exists")
+
+        # Should handle race condition and return existing service
+        result = nipyapi.security.ensure_ssl_context(
+            parent_pg=MagicMock(),
+            name='race-ssl-context',
+            keystore_file='/test/keystore.p12',
+            keystore_password='password',
+            truststore_file='/test/truststore.p12',
+            truststore_password='password'
+        )
+
+        assert result is not None
+        # Should have tried to create but then handled the race condition
+        mock_create.assert_called_once()
 
 
 # TODO: Add more edge case tests for policy manipulation functions

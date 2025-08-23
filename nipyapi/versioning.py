@@ -162,8 +162,23 @@ def ensure_registry_client(name, uri, description, reg_type=None,
     try:
         existing = get_registry_client(name)
         if existing:
-            log.debug("Found existing registry client: %s", name)
-            return existing
+            # Handle both single object and list of objects
+            if isinstance(existing, list):
+                # Multiple matches - use the first one
+                log.warning("Multiple registry clients found with name '%s', using first match",
+                            name)
+                existing = existing[0]
+
+            # Check if existing client's URI matches the desired URI
+            existing_uri = existing.component.properties.get('url', '')
+            if existing_uri == uri:
+                log.debug("Found existing registry client with matching URI: %s", name)
+                return existing
+
+            # URI mismatch - delete existing and create new one
+            log.debug("Registry client %s URI mismatch (existing: %s, desired: %s) - "
+                      "recreating", name, existing_uri, uri)
+            delete_registry_client(existing)
     except ValueError:
         # Client doesn't exist, we'll create it below
         pass
@@ -180,8 +195,14 @@ def ensure_registry_client(name, uri, description, reg_type=None,
         if "already exists" in error_msg or "duplicate" in error_msg:
             try:
                 existing = get_registry_client(name)
-                log.debug("Found existing registry client after race condition: %s", name)
-                return existing
+                if existing:
+                    # Handle both single object and list of objects
+                    if isinstance(existing, list):
+                        log.warning("Multiple registry clients found with name '%s' "
+                                    "after race condition, using first match", name)
+                        existing = existing[0]
+                    log.debug("Found existing registry client after race condition: %s", name)
+                    return existing
             except ValueError:
                 # If we still can't find it, something else is wrong
                 pass
@@ -200,29 +221,29 @@ def list_registry_buckets():
         return nipyapi.registry.BucketsApi().get_buckets()
 
 
-def create_registry_bucket(name):
+def create_registry_bucket(name, description=None):
     """
     Creates a new Registry Bucket
 
     Args:
         name (str): name for the bucket, must be unique in the Registry
+        description (str, optional): description for the bucket
 
     Returns:
         (Bucket): The new Bucket object
     """
     with nipyapi.utils.rest_exceptions():
-        bucket = nipyapi.registry.BucketsApi().create_bucket(
-            body={
-                'name': name
-            }
-        )
+        # Create a proper Bucket object with all supported fields
+        bucket_obj = nipyapi.registry.models.Bucket(name=name, description=description)
+
+        bucket = nipyapi.registry.BucketsApi().create_bucket(body=bucket_obj)
         log.debug("Created bucket %s against registry connection at %s",
                   bucket.identifier,
                   nipyapi.config.registry_config.api_client.host)
         return bucket
 
 
-def ensure_registry_bucket(name):
+def ensure_registry_bucket(name, description=None):
     """
     Ensures a Registry Bucket exists, creating it if necessary.
 
@@ -233,6 +254,7 @@ def ensure_registry_bucket(name):
 
     Args:
         name (str): name for the bucket, must be unique in the Registry
+        description (str, optional): description for the bucket (only used if creating new)
 
     Returns:
         (Bucket): The bucket object (existing or new)
@@ -249,7 +271,7 @@ def ensure_registry_bucket(name):
 
     # Try to create new bucket
     try:
-        bucket = create_registry_bucket(name)
+        bucket = create_registry_bucket(name, description)
         log.debug("Created new registry bucket: %s", name)
         return bucket
     except Exception as e:

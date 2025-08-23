@@ -5,12 +5,14 @@ Convenience utility functions for NiPyApi, not really intended for external use
 import logging
 import json
 import io
+import os
 import time
 import base64
 from copy import copy
 from functools import reduce, wraps
 import operator
 from contextlib import contextmanager
+from typing import Optional
 from packaging import version
 import yaml
 import requests
@@ -22,7 +24,8 @@ __all__ = ['dump', 'load', 'fs_read', 'fs_write', 'filter_obj',
            'wait_to_complete', 'is_endpoint_up', 'set_endpoint',
            'infer_object_label_from_class', 'bypass_slash_encoding',
            'exception_handler', 'enforce_min_ver', 'check_version',
-           'validate_parameters_versioning_support', 'extract_oidc_user_identity'
+           'validate_parameters_versioning_support', 'extract_oidc_user_identity',
+           'getenv', 'resolve_relative_paths'
            ]
 
 log = logging.getLogger(__name__)
@@ -249,14 +252,21 @@ def wait_to_complete(test_function, *args, **kwargs):
         test_function.__name__))
 
 
-def is_endpoint_up(endpoint_url):
+def is_endpoint_up(endpoint_url):  # pylint: disable=too-many-return-statements
     """
     Tests if a URL is available for requests
+
+    A service is considered "up" if it responds with:
+    - Success codes (200-399)
+    - Authentication required codes (401, 403) - service is ready for auth
+    - SSL certificate verification errors - service up but cert issues
+
+    SSL handshake failures (UNEXPECTED_EOF, etc.) indicate service not ready.
 
     Args:
         endpoint_url (str): The URL to test
 
-    Returns (bool): True for a 200 response, False for not
+    Returns (bool): True if service is ready for requests, False if not
 
     """
     log.info("Called is_endpoint_up with args %s", locals())
@@ -266,18 +276,40 @@ def is_endpoint_up(endpoint_url):
             timeout=nipyapi.config.short_max_wait
         )
         if response.status_code:
-            if response.status_code == 200:
-                log.info("Got 200 response from endpoint, returning True")
+            # Service ready: success codes or auth required
+            if (200 <= response.status_code < 400) or response.status_code in (401, 403):
+                log.info("Got status %s from endpoint, service ready", response.status_code)
                 return True
-            log.info("Got status code %s from endpoint, returning False",
+            log.info("Got status code %s from endpoint, service not ready",
                      response.status_code)
         return False
-    except (requests.ConnectionError, requests.exceptions.SSLError) as e:
+    except (
+        requests.ConnectionError,
+        requests.exceptions.SSLError,
+        requests.exceptions.ReadTimeout
+    ) as e:
         log.info("Got Error of type %s with details %s", type(e), str(e))
         if 'SSLError' in str(type(e)):
-            log.info("Got OpenSSL error, port is probably up but needs Cert")
-            return True
-        log.info("Got ConnectionError, returning False")
+            error_str = str(e)
+            # Only treat specific SSL errors as "service ready"
+            if any(indicator in error_str for indicator in [
+                'CERTIFICATE_VERIFY_FAILED',
+                'WRONG_VERSION_NUMBER',
+                'certificate verify failed'
+            ]):
+                log.info("Got SSL cert error, service up but certificate issues")
+                return True
+            log.info("Got SSL handshake error, service not ready yet")
+            return False
+        if 'ReadTimeout' in str(type(e)):
+            # Check if this is an SSL handshake timeout
+            error_str = str(e)
+            if 'handshake' in error_str.lower() or 'ssl' in error_str.lower():
+                log.info("Got SSL handshake timeout, service not ready yet")
+                return False
+            log.info("Got read timeout, service not ready")
+            return False
+        log.info("Got ConnectionError, service not ready")
         return False
 
 
@@ -615,3 +647,54 @@ def exception_handler(status_code=None, response=None):
                 raise ValueError(e.body) from e
         return wrapper
     return func_wrapper
+
+
+def resolve_relative_paths(file_path, root_path=None):
+    """
+    Convert a relative path to absolute, leave absolute paths unchanged.
+
+    Essential for SSL/TLS certificate configuration where libraries typically
+    require absolute paths to avoid ambiguity about file locations.
+
+    Args:
+        file_path (str or None): File path to resolve
+        root_path (str, optional): Root directory for relative path resolution.
+                                  Defaults to PROJECT_ROOT_DIR if not specified.
+
+    Returns:
+        str or None: Absolute path if input was a relative path string,
+                    unchanged if input was absolute path or None.
+
+    Example:
+        >>> resolve_relative_paths('certs/ca.pem', '/project')
+        '/project/certs/ca.pem'
+        >>> resolve_relative_paths('/etc/ssl/ca.pem')
+        '/etc/ssl/ca.pem'
+        >>> resolve_relative_paths(None)
+        None
+    """
+
+    if file_path is None or not isinstance(file_path, str) or not file_path.strip():
+        return file_path
+
+    if os.path.isabs(file_path):
+        return file_path
+
+    # Use provided root or default to package root directory
+    effective_root = root_path or os.path.dirname(nipyapi.config.PROJECT_ROOT_DIR)
+    return os.path.join(effective_root, file_path)
+
+
+def getenv(name: str, default: Optional[str] = None) -> Optional[str]:
+    """
+    Enhanced environment variable getter with None handling.
+
+    Args:
+        name (str): Environment variable name
+        default (Optional[str]): Default value if variable not set
+
+    Returns:
+        Optional[str]: Environment variable value or default
+    """
+    val = os.getenv(name)
+    return val if val is not None else default

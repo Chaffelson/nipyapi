@@ -56,6 +56,11 @@ registry_config.host = os.getenv(
 PROJECT_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+# --- Profiles Configuration ------
+# Default path to profiles file (can be overridden programmatically or via environment)
+default_profiles_file = 'examples/profiles.yml'
+
+
 # --- Task wait delays ------
 # Set how fast to recheck for completion of a short running task in seconds
 short_retry_delay = 0.5

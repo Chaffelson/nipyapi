@@ -37,11 +37,9 @@ import nipyapi
 DEV_PROFILE = 'single-user'   # Development: rapid iteration
 PROD_PROFILE = 'secure-ldap'  # Production: enterprise security
 
-# Environment endpoints
-DEV_NIFI_API = 'https://localhost:9443/nifi-api'
-DEV_REGISTRY_API = 'http://localhost:18080/nifi-registry-api'
-PROD_NIFI_API = 'https://localhost:9444/nifi-api'
-PROD_REGISTRY_API = 'https://localhost:18444/nifi-registry-api'  # HTTPS for secure-ldap
+# Environment profiles (endpoints now managed by profiles system)
+# DEV: single-user profile (rapid iteration)
+# PROD: secure-ldap profile (enterprise security)
 
 # Component names for the demo
 FLOW_NAMES = {
@@ -75,20 +73,12 @@ def run_make_command(command):
 def connect_to_dev():
     """Switch to development environment"""
     log.info("→ Connecting to DEVELOPMENT environment")
-    # Configure SSL for self-signed certificates
-    nipyapi.security.set_shared_ca_cert('resources/certs/ca/ca.crt')
-    nipyapi.security.apply_ssl_configuration()  # Apply SSL changes (1.x pattern)
-    nipyapi.utils.set_endpoint(DEV_NIFI_API, True, True, 'einstein', 'password1234')
-    nipyapi.utils.set_endpoint(DEV_REGISTRY_API, True, True, 'einstein', 'password1234')  # Single-user profile uses basic auth
+    nipyapi.profiles.switch('single-user')
 
 def connect_to_prod():
     """Switch to production environment"""
     log.info("→ Connecting to PRODUCTION environment")
-    # Configure SSL for self-signed certificates
-    nipyapi.security.set_shared_ca_cert('resources/certs/ca/ca.crt')
-    nipyapi.security.apply_ssl_configuration()  # Apply SSL changes (1.x pattern)
-    nipyapi.utils.set_endpoint(PROD_NIFI_API, True, True, 'einstein', 'password')
-    nipyapi.utils.set_endpoint(PROD_REGISTRY_API, True, True, 'einstein', 'password')  # secure-ldap Registry also uses basic auth
+    nipyapi.profiles.switch('secure-ldap')
 
 def step_1_setup_environments():
     """
@@ -112,26 +102,39 @@ This gives us realistic environment separation for demonstrating promotion workf
     log.info("Cleaning up any existing containers...")
     run_make_command('down')
 
-    # Generate certificates
-    log.info("Generating certificates...")
-    run_make_command('certs')
+    # Ensure certificates exist (don't regenerate if already present)
+    log.info("Ensuring certificates are available...")
+    run_make_command('ensure-certs')
 
     # Start both environments
     log.info("Starting development environment...")
-    run_make_command(f'up NIPYAPI_AUTH_MODE={DEV_PROFILE}')
-    run_make_command(f'wait-ready NIPYAPI_AUTH_MODE={DEV_PROFILE}')
+    run_make_command(f'up NIPYAPI_PROFILE={DEV_PROFILE}')
+    run_make_command(f'wait-ready NIPYAPI_PROFILE={DEV_PROFILE}')
 
     log.info("Starting production environment...")
-    run_make_command(f'up NIPYAPI_AUTH_MODE={PROD_PROFILE}')
-    run_make_command(f'wait-ready NIPYAPI_AUTH_MODE={PROD_PROFILE}')
+    run_make_command(f'up NIPYAPI_PROFILE={PROD_PROFILE}')
+    run_make_command(f'wait-ready NIPYAPI_PROFILE={PROD_PROFILE}')
 
-    # nipyapi already imported at module level
+    # Bootstrap security policies for production environment (one-time setup)
+    log.info("Bootstrapping production environment security...")
+    connect_to_prod()
+
+    log.info("Bootstrapping production NiFi security policies...")
+    nipyapi.security.bootstrap_security_policies(service='nifi')
+
+    log.info("Bootstrapping production Registry security policies...")
+    nipyapi.security.bootstrap_security_policies(
+        service='registry',
+        nifi_proxy_identity='C=US, O=NiPyAPI, CN=nifi'
+    )
 
     print("""
-✅ Both environments ready!
+✅ Both environments ready with security bootstrapped!
 
 DEVELOPMENT: https://localhost:9443/nifi (einstein/password1234)
 PRODUCTION:  https://localhost:9444/nifi (einstein/password)
+  • Security policies: Bootstrapped for secure operations
+  • Registry proxy: Configured for NiFi → Registry communication
 
 Next: step_2_create_dev_flow() - Create flow in development
     """)
@@ -293,14 +296,7 @@ This simulates promoting through a CI/CD pipeline between environments.
 
     # Import to production
     connect_to_prod()
-    log.info("Setting up production Registry...")
-
-    # Bootstrap Registry security policies (creates proxy user)
-    log.info("Bootstrapping production Registry security...")
-    nipyapi.security.bootstrap_security_policies(
-        service='registry',
-        nifi_proxy_identity='C=US, O=NiPyAPI, CN=nifi'
-    )
+    log.info("Importing flow to production Registry...")
 
     # Clean up existing prod components
     try:
@@ -349,10 +345,6 @@ This makes the flow live in the production environment.
     """)
 
     connect_to_prod()
-
-    # Bootstrap NiFi security policies (grants user permissions)
-    log.info("Bootstrapping production NiFi security...")
-    nipyapi.security.bootstrap_security_policies(service='nifi')
 
     # Ensure production Registry client
     log.info("Ensuring production Registry client...")

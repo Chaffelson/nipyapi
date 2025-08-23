@@ -62,11 +62,10 @@ dev = [
   "codecov>=2.1.13",
   "deepdiff>=3.3.0",
   "twine>=6.0.0",
+  "pre-commit>=3.0.0",
 ]
 docs = [
   "Sphinx>=7.4.0",
   "sphinx_rtd_theme>=3.0.0",
   "sphinxcontrib-jquery>=4.1",
 ]
-
-

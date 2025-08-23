@@ -30,33 +30,8 @@ clear instructions for manual setup steps (especially OIDC).
 """
 
 import sys
-import os
 import logging
 import nipyapi
-
-# Profile configurations (from conftest.py)
-PROFILE_ENDPOINTS = {
-    'single-user': {
-        'nifi': 'https://localhost:9443/nifi-api',
-        'registry': 'http://localhost:18080/nifi-registry-api',
-        'registry_internal': 'http://registry-single:18080',
-    },
-    'secure-ldap': {
-        'nifi': 'https://localhost:9444/nifi-api',
-        'registry': 'https://localhost:18444/nifi-registry-api',
-        'registry_internal': 'https://registry-ldap:18443',
-    },
-    'secure-mtls': {
-        'nifi': 'https://localhost:9445/nifi-api',
-        'registry': 'https://localhost:18445/nifi-registry-api',
-        'registry_internal': 'https://registry-mtls:18443',
-    },
-    'secure-oidc': {
-        'nifi': 'https://localhost:9446/nifi-api',
-        'registry': 'http://localhost:18446/nifi-registry-api',
-        'registry_internal': 'http://registry-oidc:18080',
-    },
-}
 
 # Sandbox object names
 SANDBOX_PREFIX = "sandbox"
@@ -67,200 +42,39 @@ SANDBOX_FLOW = f"{SANDBOX_PREFIX}_demo_flow"
 log = logging.getLogger(__name__)
 
 
-def resolve_profile_config(profile):
-    """Resolve configuration for the given profile (from conftest.py patterns)."""
-    endpoints = PROFILE_ENDPOINTS.get(profile)
-    if not endpoints:
-        raise ValueError(f"Unknown profile: {profile}. Must be one of: {list(PROFILE_ENDPOINTS.keys())}")
-
-    # Default credentials (from conftest.py)
-    if profile == 'secure-ldap':
-        nifi_user, nifi_pass = 'einstein', 'password'
-        reg_user, reg_pass = 'einstein', 'password'
-    elif profile == 'single-user':
-        nifi_user, nifi_pass = 'einstein', 'password1234'
-        reg_user, reg_pass = 'einstein', 'password1234'
-    elif profile == 'secure-mtls':
-        nifi_user, nifi_pass = 'einstein', 'password'
-        reg_user, reg_pass = 'einstein', 'password'
-    elif profile == 'secure-oidc':
-        nifi_user, nifi_pass = 'einstein', 'password1234'
-        reg_user, reg_pass = 'einstein', 'password1234'
-
-    # Certificate paths (calculate repo root from package root for development)
-    repo_root = os.path.dirname(nipyapi.config.PROJECT_ROOT_DIR)
-    ca_path = os.path.join(repo_root, 'resources', 'certs', 'client', 'ca.pem')
-    client_cert = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
-    client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
-
-    return {
-        'profile': profile,
-        'nifi_url': endpoints['nifi'],
-        'registry_url': endpoints['registry'],
-        'registry_internal': endpoints['registry_internal'],
-        'nifi_user': nifi_user,
-        'nifi_pass': nifi_pass,
-        'registry_user': reg_user,
-        'registry_pass': reg_pass,
-        'ca_path': ca_path if os.path.exists(ca_path) else None,
-        'client_cert': client_cert if os.path.exists(client_cert) else None,
-        'client_key': client_key if os.path.exists(client_key) else None,
-    }
+def get_profile_config(profile):
+    """Get resolved configuration for the given profile."""
+    profiles_path = nipyapi.utils.resolve_relative_paths('examples/profiles.yml')
+    return nipyapi.profiles.resolve_profile_config(profile_name=profile, profiles_file_path=profiles_path)
 
 
-def setup_ssl_config(config):
-    """Configure SSL certificates using helper functions."""
-    # Set SSL verification enabled (we have properly signed certificates)
-    nipyapi.config.nifi_config.verify_ssl = True
-    nipyapi.config.registry_config.verify_ssl = True
-    nipyapi.config.disable_insecure_request_warnings = True
+def bootstrap_security_policies(profile, auth_metadata=None):
+    """Bootstrap security policies for secure profiles.
 
-    # Set shared CA certificate using helper function
-    if config['ca_path']:
-        nipyapi.security.set_shared_ca_cert(config['ca_path'])
-        log.info("SSL CA certificate configured: %s", config['ca_path'])
-
-    # mTLS client certificates for secure-mtls profile
-    if config['profile'] == 'secure-mtls':
-        if config['client_cert'] and config['client_key']:
-            nipyapi.config.nifi_config.cert_file = config['client_cert']
-            nipyapi.config.nifi_config.key_file = config['client_key']
-            nipyapi.config.registry_config.cert_file = config['client_cert']
-            nipyapi.config.registry_config.key_file = config['client_key']
-            log.info("mTLS client certificates configured")
-
-    # Apply all configuration changes using helper function
-    nipyapi.security.apply_ssl_configuration()
-
-    log.info("SSL configuration applied (verification enabled with CA, warnings suppressed)")
-
-
-def setup_registry_basic_auth(config):
-    """Setup Registry authentication using username/password (for non-mTLS profiles)."""
-    ssl_enabled = config['registry_url'].startswith('https')
-    nipyapi.utils.set_endpoint(
-        config['registry_url'],
-        ssl_enabled, True,
-        config['registry_user'],
-        config['registry_pass']
-    )
-    log.info(
-        "Registry authentication configured: %s@%s",
-        config['registry_user'],
-        config['registry_url'],
-    )
-
-
-def setup_authentication(config):
-    """Setup NiFi and Registry authentication (from conftest.py patterns).
-
-    Returns:
-        str: 'success' or 'manual_setup_required' for OIDC first-run
-    """
-    if config['profile'] == 'secure-mtls':
-        # For secure-mtls, authentication is purely certificate-based (no username/password)
-        nipyapi.utils.set_endpoint(config['nifi_url'], True, False)  # ssl=True, login=False
-        log.info("NiFi mTLS authentication configured: %s", config['nifi_url'])
-
-        # Registry authentication - certificates only
-        nipyapi.utils.set_endpoint(config['registry_url'], True, False)  # ssl=True, login=False
-        log.info("Registry mTLS authentication configured: %s", config['registry_url'])
-        return 'success'
-    elif config['profile'] == 'secure-oidc':
-        # OIDC requires a multi-step manual setup process
-        log.info("OIDC Profile requires manual policy configuration...")
-
-        # Step 1: Attempt OAuth2 to discover the OIDC app UUID
-        nipyapi.config.nifi_config.host = config['nifi_url'].rstrip('/')
-        nipyapi.config.nifi_config.api_client = None  # Force new client creation
-
-        try:
-            # Get OIDC token information including user identity
-            token_data = nipyapi.security.service_login_oidc(
-                service='nifi',
-                username=config['nifi_user'],
-                password=config['nifi_pass'],
-                oidc_token_endpoint='http://localhost:8080/realms/nipyapi/protocol/openid-connect/token',
-                client_id='nipyapi-client',
-                client_secret='nipyapi-secret',
-                return_token_info=True  # Get full token data instead of just boolean
-            )
-
-            # Extract user UUID from JWT token (much more robust than parsing logs)
-            try:
-                oidc_uuid = nipyapi.utils.extract_oidc_user_identity(token_data)
-                log.info("OIDC user identity extracted from token: %s", oidc_uuid)
-            except Exception as e:
-                log.error("Failed to extract OIDC user identity: %s", e)
-                return 'error'
-
-            # Test access - will fail (403) on first run but succeed on retry
-            try:
-                nipyapi.nifi.FlowApi().get_about_info()
-                log.info("NiFi OIDC authentication successful - proceeding with setup")
-                # Success - continue to registry setup below
-
-            except Exception:
-                # Expected 403 on first run - show manual setup instructions
-                log.info("WARNING: OIDC authentication requires one-time manual policy setup")
-                log.info("MANUAL SETUP REQUIRED (one-time only):")
-                log.info("   1. Open browser: %s", config['nifi_url'].replace('/nifi-api', '/nifi'))
-                log.info("   2. Login via OIDC as: %s / %s", config['nifi_user'], config['nifi_pass'])
-                log.info("   3. Go to: Settings → Users → Add User")
-                log.info("   4. Create user: %s", oidc_uuid)
-                log.info("   5. Go to: Settings → Policies")
-                log.info("   6. Grant these policies to UUID: %s", oidc_uuid)
-                log.info("      • 'view the user interface'")
-                log.info("      • 'view users' (view)")
-                log.info("      • 'view policies' (view)")
-                log.info("      • 'modify policies' (modify)")
-                log.info("   7. Re-run: make sandbox NIPYAPI_AUTH_MODE=secure-oidc")
-                log.info("TIP: After manual setup, the same command will work automatically")
-
-                # Don't proceed with sample objects - manual setup required
-                return 'manual_setup_required'
-
-        except Exception as e:
-            log.error("OIDC authentication setup failed: %s", e)
-            raise
-
-        # Registry uses basic auth (single-user mode)
-        setup_registry_basic_auth(config)
-        return 'success'
-    else:
-        # For single-user and secure-ldap, use username/password authentication
-        nipyapi.utils.set_endpoint(
-            config['nifi_url'],
-            True, True,
-            config['nifi_user'],
-            config['nifi_pass']
-        )
-        log.info("NiFi authentication configured: %s@%s", config['nifi_user'], config['nifi_url'])
-
-        # Registry authentication
-        setup_registry_basic_auth(config)
-        return 'success'
-
-
-def bootstrap_security_policies(config):
-    """Bootstrap security policies (from conftest.py patterns).
+    Args:
+        profile (str): Name of the profile being used
+        auth_metadata: Authentication metadata from profile switch:
+                      - OIDC: token_data dict for UUID extraction
+                      - Basic: username string
+                      - mTLS: None
 
     Returns:
         str: 'success', 'manual_setup_required', or 'error'
     """
     # NiFi security policies
-    if config['profile'] in ('secure-ldap', 'secure-mtls'):
+    if profile in ('secure-ldap', 'secure-mtls'):
         nipyapi.security.bootstrap_security_policies(service='nifi')
         log.info("NiFi security policies bootstrapped")
-    elif config['profile'] == 'secure-oidc':
-        result = _bootstrap_oidc_security_policies()
+    elif profile == 'secure-oidc':
+        result = _bootstrap_oidc_security_policies(auth_metadata)
         if result != 'success':
             return result  # Return early for manual setup or error
 
     # Registry security policies
-    if config['profile'] in ('secure-ldap', 'secure-mtls'):
+    if profile in ('secure-ldap', 'secure-mtls'):
         # NiFi always needs to be a trusted proxy in secure deployments
-        nifi_proxy_identity = 'C=US, O=NiPyAPI, CN=nifi'
+        config = get_profile_config(profile)
+        nifi_proxy_identity = config.get('nifi_proxy_identity')
         nipyapi.security.bootstrap_security_policies(service='registry', nifi_proxy_identity=nifi_proxy_identity)
         log.info("Registry security policies bootstrapped")
     else:
@@ -269,12 +83,15 @@ def bootstrap_security_policies(config):
     return 'success'
 
 
-def _bootstrap_oidc_security_policies():
+def _bootstrap_oidc_security_policies(auth_metadata=None):
     """
     OIDC bootstrap is a two-phase process:
 
     Phase 1 (first run): OIDC app has no rights → 403 → manual setup instructions
     Phase 2 (second run): Bootstrap both OIDC app + Einstein with full admin rights
+
+    Args:
+        auth_metadata: OIDC token data from profile switch for UUID extraction
 
     Returns:
         str: 'success', 'manual_setup_required', or 'error'
@@ -299,39 +116,58 @@ def _bootstrap_oidc_security_policies():
         if '403' in str(e):
             # Phase 1: Expected on first run - manual setup required
             log.info("OIDC authentication requires one-time manual policy setup")
-            _print_oidc_manual_setup_instructions()
+
+            # Extract UUID from auth_metadata if available
+            oidc_uuid = None
+            if auth_metadata:
+                try:
+                    oidc_uuid = nipyapi.utils.extract_oidc_user_identity(auth_metadata)
+                except Exception as extract_error:
+                    log.warning("Could not extract OIDC UUID from metadata: %s", extract_error)
+
+            _print_oidc_manual_setup_instructions(oidc_uuid)
             return 'manual_setup_required'
         else:
             log.warning("OIDC security policy bootstrapping error: %s", e)
             return 'error'
 
 
-def _print_oidc_manual_setup_instructions():
-    """Print OIDC manual setup instructions."""
+
+def _print_oidc_manual_setup_instructions(oidc_uuid=None):
+    """Print OIDC manual setup instructions with the extracted UUID."""
     log.info("MANUAL SETUP REQUIRED (one-time only):")
     log.info("   1. Open browser: %s", nipyapi.config.nifi_config.host.replace('/nifi-api', '/nifi'))
     log.info("   2. Login via OIDC as: einstein / password1234")
     log.info("   3. Go to: Settings → Users → Add User")
-    log.info("   4. Create user with extracted UUID from token")
+
+    if oidc_uuid:
+        log.info("   4. Create user with this exact UUID: %s", oidc_uuid)
+    else:
+        log.info("   4. Create user with extracted UUID from token (see error above)")
+
     log.info("   5. Go to: Settings → Policies")
-    log.info("   6. Grant these policies to the UUID:")
+    if oidc_uuid:
+        log.info("   6. Grant these policies to UUID %s:", oidc_uuid)
+    else:
+        log.info("   6. Grant these policies to the UUID:")
     log.info("      • 'view the user interface'")
     log.info("      • 'view users' (view)")
     log.info("      • 'view policies' (view)")
     log.info("      • 'modify policies' (modify)")
-    log.info("   7. Re-run: make sandbox NIPYAPI_AUTH_MODE=secure-oidc")
+    log.info("   7. Re-run: make sandbox NIPYAPI_PROFILE=secure-oidc")
     log.info("TIP: After manual setup, the same command will work automatically")
 
 
-def _print_setup_complete_summary(config, profile):
+def _print_setup_complete_summary(profile):
     """Print detailed setup completion summary with profile-specific instructions."""
     print("\nSandbox setup complete!")
     print(f"  Profile: {profile}")
 
-    if config['profile'] == 'secure-mtls':
-        _print_mtls_certificate_instructions(config)
+    if profile == 'secure-mtls':
+        _print_mtls_certificate_instructions()
     else:
-        # Username/password authentication for single-user and secure-ldap
+        # Get config for UI URLs and credentials
+        config = get_profile_config(profile)
         nifi_ui = config['nifi_url'].replace('/nifi-api', '/nifi')
         registry_ui = config['registry_url'].replace('/nifi-registry-api', '/nifi-registry')
         print(f"  NiFi UI: {nifi_ui} ({config['nifi_user']}/{config['nifi_pass']})")
@@ -343,8 +179,9 @@ def _print_setup_complete_summary(config, profile):
     print("\nReady for experimentation! Run 'make down' when finished.")
 
 
-def _print_mtls_certificate_instructions(config):
+def _print_mtls_certificate_instructions():
     """Print detailed mTLS certificate setup instructions."""
+    config = get_profile_config('secure-mtls')
     cert_p12_path = config['client_cert'].replace('.crt', '.p12')
     nifi_ui = config['nifi_url'].replace('/nifi-api', '/nifi')
     registry_ui = config['registry_url'].replace('/nifi-registry-api', '/nifi-registry')
@@ -354,8 +191,8 @@ def _print_mtls_certificate_instructions(config):
     print(f"  Authentication: Client certificate required (ADVANCED)")
     print()
     print("  TIP: For easier setup, try:")
-    print("      make sandbox NIPYAPI_AUTH_MODE=single-user  (recommended - simple setup)")
-    print("      make sandbox NIPYAPI_AUTH_MODE=secure-ldap  (more complex security)")
+    print("      make sandbox NIPYAPI_PROFILE=single-user  (recommended - simple setup)")
+    print("      make sandbox NIPYAPI_PROFILE=secure-ldap  (more complex security)")
     print()
     print("  IMPORT CLIENT CERTIFICATE FIRST:")
     print(f"      Certificate file: {cert_p12_path}")
@@ -383,14 +220,14 @@ def _print_mtls_certificate_instructions(config):
     print("  WARNING: THEN visit URLs above - browser will prompt to select 'client' certificate")
 
 
-def create_registry_client(config):
+def create_registry_client(registry_internal_url):
     """Create registry client using ensure pattern for robust automation."""
     registry_client = nipyapi.versioning.ensure_registry_client(
         name=SANDBOX_REGISTRY_CLIENT,
-        uri=config['registry_internal'],  # Use internal Docker hostname
+        uri=registry_internal_url,
         description='NiPyAPI Sandbox Registry Client'
     )
-    log.info("Registry client ready: %s → %s", SANDBOX_REGISTRY_CLIENT, config['registry_internal'])
+    log.info("Registry client ready: %s → %s", SANDBOX_REGISTRY_CLIENT, registry_internal_url)
     return registry_client
 
 
@@ -468,8 +305,18 @@ def create_sample_flow(registry_client, bucket):
 def main():
     """Main sandbox setup function."""
     if len(sys.argv) != 2:
+        # Load available profiles from the profiles system
+        try:
+            profiles_path = nipyapi.utils.resolve_relative_paths('examples/profiles.yml')
+            profiles = nipyapi.profiles.load_profiles_from_file(profiles_path)
+            available_profiles = ', '.join(sorted(profiles.keys()))
+        except Exception as e:
+            available_profiles = "Error loading profiles"
+            print(f"Warning: Could not load profiles: {e}")
+
         print(f"Usage: {sys.argv[0]} <profile>")
-        print(f"Profiles: {', '.join(PROFILE_ENDPOINTS.keys())}")
+        print(f"Available profiles: {available_profiles}")
+        print(f"Profile 'single-user' recommended for new users")
         sys.exit(1)
 
     profile = sys.argv[1]
@@ -480,43 +327,35 @@ def main():
     try:
         log.info("Setting up NiPyAPI sandbox for profile: %s", profile)
 
-        # 1. Resolve configuration
-        config = resolve_profile_config(profile)
+        # 1. Use centralized profile switching (replaces config resolution, SSL setup, authentication)
+        profiles_path = nipyapi.utils.resolve_relative_paths('examples/profiles.yml')
+        profile_name, auth_metadata = nipyapi.profiles.switch(profile, profiles_path)
+        log.info("Profile switching complete: %s", profile_name)
 
-        # 2. Setup SSL certificates
-        setup_ssl_config(config)
+        # 2. Get config for sample object creation
+        config = get_profile_config(profile)
 
-        # 3. Setup authentication
-        auth_result = setup_authentication(config)
-        if auth_result == 'manual_setup_required':
-            print("\nOIDC manual setup required - follow instructions above")
-            print("   After completing setup, re-run: make sandbox NIPYAPI_AUTH_MODE=secure-oidc")
-            sys.exit(0)  # Clean exit, not an error
-        elif auth_result == 'error':
-            log.error("Authentication setup failed")
-            sys.exit(1)
-
-        # 4. Bootstrap security policies (for secure profiles)
-        bootstrap_result = bootstrap_security_policies(config)
+        # 3. Bootstrap security policies (server-side setup)
+        bootstrap_result = bootstrap_security_policies(profile, auth_metadata)
         if bootstrap_result == 'manual_setup_required':
             print("\nOIDC manual setup required - follow instructions above")
-            print("   After completing setup, re-run: make sandbox NIPYAPI_AUTH_MODE=secure-oidc")
+            print("   After completing setup, re-run: make sandbox NIPYAPI_PROFILE=secure-oidc")
             sys.exit(0)  # Clean exit, not an error
         elif bootstrap_result == 'error':
             log.error("Security policy bootstrap failed")
             sys.exit(1)
 
-        # 5. Create registry client
-        registry_client = create_registry_client(config)
+        # 4. Create registry client
+        registry_client = create_registry_client(config['registry_internal_url'])
 
-        # 6. Create sample bucket
+        # 5. Create sample bucket
         bucket = create_sample_bucket()
 
-        # 7. Create sample flow
+        # 6. Create sample flow
         _, _ = create_sample_flow(registry_client, bucket)
 
         # Success summary
-        _print_setup_complete_summary(config, profile)
+        _print_setup_complete_summary(profile)
 
         # Final success message (only shown when setup actually completes)
         print("\n=== 4/4: Sandbox ready! ===")

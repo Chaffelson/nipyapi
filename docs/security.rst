@@ -1,12 +1,19 @@
 .. highlight:: python
 
-======================
+=======================
 Security with NiPyAPI 2
-======================
+=======================
 
 NiPyAPI 1.x targets Apache NiFi 2.x and NiFi Registry 2.x, which prefer secure-by-default deployments.
 This page covers authentication methods, SSL/TLS configuration, certificate management, and security practices
 for both development and production environments.
+
+.. note::
+   **Quick Environment Switching:**
+
+   For simplified workflow-focused configuration management, see `Environment Profiles <profiles.html>`_.
+   Profiles provide a centralized way to switch between development, testing, and production environments
+   with a single function call. This page focuses on the underlying technical authentication mechanisms.
 
 .. note::
    **Test vs Production Certificates:**
@@ -92,7 +99,7 @@ Production deployments should use certificates from trusted certificate authorit
 6. **Audit authentication events** and API access
 
 Certificate Generation and Management
-====================================
+=====================================
 
 **Development Certificate Generation**
 
@@ -138,65 +145,104 @@ If you want to use the provided Docker profiles, you need to:
 
 - Bring up a set of Docker containers for a profile and wait for readiness (examples)::
 
-    make up NIPYAPI_AUTH_MODE=single-user && make wait-ready NIPYAPI_AUTH_MODE=single-user
+    make up NIPYAPI_PROFILE=single-user && make wait-ready NIPYAPI_PROFILE=single-user
     # or
-    make up NIPYAPI_AUTH_MODE=secure-ldap && make wait-ready NIPYAPI_AUTH_MODE=secure-ldap
+    make up NIPYAPI_PROFILE=secure-ldap && make wait-ready NIPYAPI_PROFILE=secure-ldap
     # or
-    make up NIPYAPI_AUTH_MODE=secure-mtls && make wait-ready NIPYAPI_AUTH_MODE=secure-mtls
+    make up NIPYAPI_PROFILE=secure-mtls && make wait-ready NIPYAPI_PROFILE=secure-mtls
     # or
-    make up NIPYAPI_AUTH_MODE=secure-oidc && make wait-ready NIPYAPI_AUTH_MODE=secure-oidc
+    make up NIPYAPI_PROFILE=secure-oidc && make wait-ready NIPYAPI_PROFILE=secure-oidc
 
 Environment variables
 =====================
 
-You can optionally configure endpoints and TLS via environment variables. Standard names are
-``NIFI_API_ENDPOINT`` and ``REGISTRY_API_ENDPOINT``:
+Environment variables provide a way to override profile configurations or configure NiPyAPI directly.
+For complete environment variable documentation including profiles system integration, see `Environment Profiles <profiles.html>`_.
+
+**Core Configuration Variables**
+
+These variables are read at import time to seed defaults (see ``nipyapi/config.py``):
 
 .. code-block:: shell
 
+    # Service endpoints (used by both profiles and direct configuration)
     export NIFI_API_ENDPOINT=https://localhost:9443/nifi-api
     export REGISTRY_API_ENDPOINT=http://localhost:18080/nifi-registry-api
-    # Provide a CA bundle for TLS verification (preferred over disabling verify)
-    export REQUESTS_CA_BUNDLE=/path/to/ca.pem
-    # Optional toggles
-    export NIPYAPI_VERIFY_SSL=1
-    export NIPYAPI_CHECK_HOSTNAME=1
 
-These are read at import time to seed defaults (see `nipyapi/config.py`).
+    # SSL configuration
+    export REQUESTS_CA_BUNDLE=/path/to/ca.pem                    # Standard Python/requests CA bundle
+    export NIPYAPI_VERIFY_SSL=1                                  # Global SSL verification toggle
+    export NIPYAPI_CHECK_HOSTNAME=1                              # Hostname verification toggle
 
-For mTLS-driven test setups (and for convenience in local scripts), these additional
-variables are recognized by the test harness (`tests/conftest.py`) and commonly used:
+**Profile System Variables**
+
+When using the profiles system, these variables can override any profile configuration:
 
 .. code-block:: shell
 
+    # Profiles system configuration
+    export NIPYAPI_PROFILES_FILE=/path/to/custom/profiles.yml    # Custom profiles file location
+
+    # Authentication overrides (see profiles.rst for complete list)
+    export NIFI_USERNAME=production_user
+    export NIFI_PASSWORD=production_password
     export TLS_CA_CERT_PATH=/path/to/ca.pem
-    # or use the standard Python variable recognized by requests/urllib3
     export MTLS_CLIENT_CERT=/path/to/client.crt
     export MTLS_CLIENT_KEY=/path/to/client.key
-    export MTLS_CLIENT_KEY_PASSWORD=yourKeyPassword
 
-Note: ``utils.set_endpoint(...)`` does not read these environment variables directly.
-It relies on parameters you pass (endpoint, login, username/password) and any values
-already set on the configuration objects (CA bundle, client cert/key). Prefer passing
-the endpoint string to ``set_endpoint`` and setting credentials/certs explicitly on
-``nipyapi.config``.
+**Direct Configuration (when not using profiles)**
+
+For manual configuration without profiles:
+
+.. code-block:: python
+
+    # Note: utils.set_endpoint() does not read environment variables directly.
+    # It relies on parameters you pass and values already set on configuration objects.
+    # Prefer using the profiles system or setting credentials/certs explicitly:
+
+    import nipyapi
+    nipyapi.config.nifi_config.username = "user"
+    nipyapi.config.nifi_config.password = "password"
+    nipyapi.utils.set_endpoint("https://nifi.company.com/nifi-api", ssl=True, login=True)
 
 Authentication Methods
 ======================
 
-Common Setup
-------------
+NiPyAPI provides several approaches for configuring authentication and SSL/TLS, from high-level profiles to low-level configuration.
 
-NiPyAPI provides several approaches for SSL/TLS configuration, from environment variables to convenient helper functions.
+**Option A: Profiles System (recommended for most users)**
 
-**Option A: Environment Variables (simplest)**
+The profiles system provides centralized configuration management for different environments:
+
+.. code-block:: python
+
+    import nipyapi
+
+    # Switch to pre-configured profile
+    nipyapi.profiles.switch('single-user')      # Development environment
+    nipyapi.profiles.switch('secure-ldap')      # LDAP authentication
+    nipyapi.profiles.switch('secure-mtls')      # Certificate authentication
+    nipyapi.profiles.switch('secure-oidc')      # OAuth2/OIDC authentication
+
+    # Custom profiles file
+    nipyapi.profiles.switch('production', profiles_file='/etc/nipyapi/profiles.yml')
+
+For complete profiles documentation, see `Environment Profiles <profiles.html>`_.
+
+**Option B: Environment Variables (simple overrides)**
+
+Environment variables can override any profile configuration or provide direct configuration:
 
 .. code-block:: shell
 
     # Set CA bundle for both services via standard environment variable
     export REQUESTS_CA_BUNDLE=/path/to/ca.pem
 
-**Option B: Convenience Functions (recommended)**
+    # Override profile settings
+    export NIFI_API_ENDPOINT=https://production.company.com/nifi-api
+    export NIFI_USERNAME=service_account
+
+**Option C: Convenience Functions (manual configuration)**
 
 .. code-block:: python
 
@@ -208,7 +254,7 @@ NiPyAPI provides several approaches for SSL/TLS configuration, from environment 
     # Apply all SSL configuration changes (forces client recreation)
     nipyapi.security.apply_ssl_configuration()
 
-**Option C: Manual Per-Service Configuration**
+**Option D: Manual Per-Service Configuration**
 
 .. code-block:: python
 
@@ -379,7 +425,7 @@ For browser-based access:
 
 Use the sandbox script to discover your OIDC application UUID::
 
-    make sandbox NIPYAPI_AUTH_MODE=secure-oidc
+    make sandbox NIPYAPI_PROFILE=secure-oidc
 
 Note: This leverages the comprehensive example script ``examples/sandbox.py`` which demonstrates robust JWT token parsing to extract the OIDC application UUID.
 
@@ -414,7 +460,7 @@ This will attempt OAuth2 authentication and display the required manual steps, i
 
 Simply re-run the same sandbox command to now complete the bootstrap::
 
-    make sandbox NIPYAPI_AUTH_MODE=secure-oidc
+    make sandbox NIPYAPI_PROFILE=secure-oidc
 
 **Programmatic Access After Setup**
 
@@ -483,14 +529,15 @@ The OAuth2 application identity is dynamically generated by the OIDC provider an
 
 **General Debugging**
 
-For complex connectivity or authentication issues, especially with Registry, the debug script can help identify specific blockers:
+For complex connectivity or authentication issues, especially with Registry, scripts can help identify specific blockers:
+
+Use the sandbox script and test suite to validate Registry connectivity and troubleshoot configuration issues:
 
 .. code-block:: shell
 
-    # Run the debug script to analyze Registry connectivity and policies
-    python resources/scripts/debug_registry.py
-
-This script performs comprehensive checks of Registry connectivity, authentication, proxy policies, and common configuration issues across all authentication profiles.
+    # Test complete Registry integration
+    make sandbox NIPYAPI_PROFILE=secure-ldap
+    make test NIPYAPI_PROFILE=secure-ldap
 
 Quick connection checks
 =======================
@@ -582,3 +629,43 @@ The NiPyAPI test infrastructure uses the **implicit trust** approach:
 - Simplified test setup and maintenance
 
 This approach is suitable for development, testing, and deployments where certificate management is centralized. Enterprise deployments with complex PKI requirements may require explicit SSL Context Services.
+
+Security Module Organization
+=============================
+
+Understanding where to find different types of security functionality:
+
+**nipyapi.security** - Taking Security Actions
+-----------------------------------------------
+
+The security module performs active security operations:
+
+- **Authentication functions**: ``service_login_oidc()``, ``set_service_auth_token()``
+- **SSL configuration**: ``set_shared_ca_cert()``, ``apply_ssl_configuration()``
+- **Security bootstrapping**: Policy creation, user setup, admin access management
+- **Trust management**: Certificate verification, SSL context services
+
+*Use this module when you need to perform security operations or configure authentication.*
+
+**nipyapi.profiles** - Configuration Management
+------------------------------------------------
+
+The profiles module handles configuration definitions and validation:
+
+- **Environment switching**: ``switch()`` function for changing between environments
+- **Configuration validation**: Ensuring certificate paths exist, URLs are valid
+- **Environment variable mapping**: How ``NIFI_API_ENDPOINT`` maps to internal config
+- **Profile definitions**: Built-in and custom profile management
+
+*Use this module when you want to switch environments or manage configuration centrally.*
+
+**nipyapi.utils** - Supporting Utilities
+-----------------------------------------
+
+The utils module provides supporting functions:
+
+- **Path resolution**: Converting relative certificate paths to absolute paths
+- **Endpoint management**: Lower-level endpoint configuration functions
+- **Data transformation**: Helper functions for security-related data handling
+
+*Use this module when you need utility functions for path handling and data transformation.*

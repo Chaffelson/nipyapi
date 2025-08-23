@@ -6,25 +6,16 @@ import os
 from collections import namedtuple
 
 import nipyapi
+import nipyapi.profiles
 
 log = logging.getLogger(__name__)
 
-# Environment-driven test configuration
-PROFIlE_DOC = """
-Profile controls how tests connect to NiFi and Registry:
-  - single-user: HTTPS NiFi with username/password; Registry over HTTP (default)
-  - secure-ldap: HTTPS NiFi and Registry with username/password; TLS CA required
-  - secure-mtls: HTTPS NiFi and Registry with mutual TLS (client certs)
-  - secure-oidc: HTTPS NiFi with OIDC + basic Registry (requires manual setup)
 
-Defaults are applied for URLs, credentials, and TLS assets suitable for local
-Docker-based testing. Environment variables override all defaults.
-"""
-ACTIVE_PROFILE = os.getenv('NIPYAPI_AUTH_MODE', 'single-user').strip()
+ACTIVE_PROFILE = os.getenv('NIPYAPI_PROFILE', 'single-user').strip()
 
 # Validate profile early and fail fast
 if ACTIVE_PROFILE not in ('single-user', 'secure-ldap', 'secure-mtls', 'secure-oidc'):
-    raise ValueError(f"Invalid NIPYAPI_AUTH_MODE: {ACTIVE_PROFILE}. Must be one of: single-user, secure-ldap, secure-mtls, secure-oidc")
+    raise ValueError(f"Invalid NIPYAPI_PROFILE: {ACTIVE_PROFILE}. Must be one of: single-user, secure-ldap, secure-mtls, secure-oidc")
 
 def _flag(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
@@ -33,95 +24,7 @@ def _flag(name: str, default: bool = False) -> bool:
     return str(val).strip().lower() in ("1", "true", "yes", "on")
 
 SKIP_TEARDOWN = _flag('SKIP_TEARDOWN', default=False)
-
-
-# ---- Profile Configuration ------------------------------------------------
-
-# All profile defaults in one place - URLs, credentials, internal URLs
-test_conf = {
-    'single-user': {
-        'nifi_url': 'https://localhost:9443/nifi-api',
-        'registry_url': 'http://localhost:18080/nifi-registry-api',
-        'registry_internal_url': 'http://registry-single:18080',
-        'nifi_user': 'einstein',
-        'nifi_pass': 'password1234',
-        'registry_user': 'einstein',
-        'registry_pass': 'password1234',
-    },
-    'secure-ldap': {
-        'nifi_url': 'https://localhost:9444/nifi-api',
-        'registry_url': 'https://localhost:18444/nifi-registry-api',
-        'registry_internal_url': 'https://registry-ldap:18443',
-        'nifi_user': 'einstein',
-        'nifi_pass': 'password',
-        'registry_user': 'einstein',
-        'registry_pass': 'password',
-    },
-    'secure-mtls': {
-        'nifi_url': 'https://localhost:9445/nifi-api',
-        'registry_url': 'https://localhost:18445/nifi-registry-api',
-        'registry_internal_url': 'https://registry-mtls:18443',
-        'nifi_user': '',
-        'nifi_pass': '',
-        'registry_user': '',
-        'registry_pass': '',
-    },
-    'secure-oidc': {
-        'nifi_url': 'https://localhost:9446/nifi-api',
-        'registry_url': 'http://localhost:18446/nifi-registry-api',
-        'registry_internal_url': 'http://registry-oidc:18080',
-        'nifi_user': 'einstein',
-        'nifi_pass': 'password1234',
-        'registry_user': 'einstein',
-        'registry_pass': 'password1234',
-    },
-}
-
-# Session-resolved configuration (set once during session_setup)
-active_config = None
-
-
-def _resolve_active_config():
-    """Resolve the active configuration for the current session.
-
-    Applies env var overrides to profile defaults and adds computed paths.
-    Sets the global active_config for use throughout the session.
-    """
-    global active_config
-
-    # Start with profile defaults
-    profile_defaults = test_conf[ACTIVE_PROFILE]
-    active_config = profile_defaults.copy()
-
-    # Apply environment variable overrides
-    active_config['nifi_url'] = os.getenv('NIFI_API_ENDPOINT') or active_config['nifi_url']
-    active_config['registry_url'] = os.getenv('REGISTRY_API_ENDPOINT') or active_config['registry_url']
-    active_config['nifi_user'] = os.getenv('NIFI_USERNAME') or active_config['nifi_user']
-    active_config['nifi_pass'] = os.getenv('NIFI_PASSWORD') or active_config['nifi_pass']
-    active_config['registry_user'] = os.getenv('REGISTRY_USERNAME') or active_config['registry_user']
-    active_config['registry_pass'] = os.getenv('REGISTRY_PASSWORD') or active_config['registry_pass']
-
-    # Add computed certificate paths
-    repo_root = os.path.dirname(nipyapi.config.PROJECT_ROOT_DIR)
-    local_ca = os.path.join(repo_root, 'resources', 'certs', 'client', 'ca.pem')
-    client_crt = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.crt')
-    client_key = os.path.join(repo_root, 'resources', 'certs', 'client', 'client.key')
-
-    # Certificate paths with env var overrides and fallbacks
-    active_config['ca_path'] = os.getenv('TLS_CA_CERT_PATH')
-    # All profiles use our generated CA for localhost HTTPS connections
-    if not active_config['ca_path'] and os.path.exists(local_ca):
-        active_config['ca_path'] = local_ca
-
-    active_config['client_cert'] = os.getenv('MTLS_CLIENT_CERT') or (client_crt if os.path.exists(client_crt) else None)
-    active_config['client_key'] = os.getenv('MTLS_CLIENT_KEY') or (client_key if os.path.exists(client_key) else None)
-    active_config['client_key_password'] = os.getenv('MTLS_CLIENT_KEY_PASSWORD') or ''
-
-    # Security configuration
-    active_config['nifi_proxy_identity'] = os.getenv('NIFI_PROXY_IDENTITY', 'C=US, O=NiPyAPI, CN=nifi')
-
-    # Add profile for reference
-    active_config['profile'] = ACTIVE_PROFILE
+ACTIVE_CONFIG = None
 
 
 # Test Configuration parameters
@@ -155,81 +58,6 @@ def remove_test_registry_client():
          ]
 
 
-def _setup_nifi_single_user():
-    # SSL configuration (including verification) already applied in session_setup
-    nipyapi.utils.set_endpoint(active_config['nifi_url'], True, True, active_config['nifi_user'], active_config['nifi_pass'])
-
-
-def _setup_nifi_secure_ldap():
-    # LDAP behaves the same as single-user for client auth (username/password)
-    _setup_nifi_single_user()
-
-
-def _setup_nifi_secure_mtls():
-    # Apply certificates (CA cert and SSL verification already applied in session_setup)
-    if active_config['client_cert'] and active_config['client_key']:
-        nipyapi.config.nifi_config.cert_file = active_config['client_cert']
-        nipyapi.config.nifi_config.key_file = active_config['client_key']
-
-    nipyapi.utils.set_endpoint(active_config['nifi_url'], True, False)
-
-
-def _setup_nifi_secure_oidc():
-    # SSL configuration (including verification) already applied in session_setup
-
-    # Configure host endpoint without login (OIDC uses bearer tokens)
-    nipyapi.config.nifi_config.host = active_config['nifi_url'].rstrip('/')
-    nipyapi.config.nifi_config.api_client = None  # Force new client creation
-
-    # Use the standard OIDC login function
-    nipyapi.security.service_login_oidc(
-        service='nifi',
-        username=active_config['nifi_user'],
-        password=active_config['nifi_pass'],
-        oidc_token_endpoint='http://localhost:8080/realms/nipyapi/protocol/openid-connect/token',
-        client_id='nipyapi-client',
-        client_secret='nipyapi-secret'
-    )
-
-
-def _setup_registry_single_user():
-    # SSL configuration (including verification) already applied in session_setup
-    nipyapi.utils.set_endpoint(active_config['registry_url'], True, True, active_config['registry_user'], active_config['registry_pass'])
-
-
-def _setup_registry_secure_ldap():
-    _setup_registry_single_user()
-
-
-def _setup_registry_secure_mtls():
-    # Apply certificates (CA cert and SSL verification already applied in session_setup)
-    if active_config['client_cert'] and active_config['client_key']:
-        nipyapi.config.registry_config.cert_file = active_config['client_cert']
-        nipyapi.config.registry_config.key_file = active_config['client_key']
-
-    nipyapi.utils.set_endpoint(active_config['registry_url'], True, False)
-
-
-def _setup_registry_secure_oidc():
-    # OIDC Registry uses single-user mode (basic auth)
-    _setup_registry_single_user()
-
-
-_NIFI_SETUP_MAP = {
-    'single-user': _setup_nifi_single_user,
-    'secure-ldap': _setup_nifi_secure_ldap,
-    'secure-mtls': _setup_nifi_secure_mtls,
-    'secure-oidc': _setup_nifi_secure_oidc,
-}
-
-_REGISTRY_SETUP_MAP = {
-    'single-user': _setup_registry_single_user,
-    'secure-ldap': _setup_registry_secure_ldap,
-    'secure-mtls': _setup_registry_secure_mtls,
-    'secure-oidc': _setup_registry_secure_oidc,
-}
-
-
 def _wait_until_service_up(gui_url: str):
     if not nipyapi.utils.wait_to_complete(
         nipyapi.utils.is_endpoint_up,
@@ -243,29 +71,24 @@ def _wait_until_service_up(gui_url: str):
 @pytest.fixture(scope="session", autouse=True)
 def session_setup(request):
     log.info("Commencing test session setup")
+    global ACTIVE_CONFIG
+
     # Resolve configuration once for the entire session
-    _resolve_active_config()
-    # Apply CA bundle to both configs if present
-    if active_config['ca_path']:
-        nipyapi.security.set_shared_ca_cert(active_config['ca_path'])
+    profiles_path = nipyapi.utils.resolve_relative_paths('examples/profiles.yml')
+    ACTIVE_CONFIG = nipyapi.profiles.resolve_profile_config(
+        profile_name=ACTIVE_PROFILE, profiles_file_path=profiles_path
+    )
 
-    # Enable SSL verification for HTTPS endpoints (we provide CA certs for verification)
-    if active_config['nifi_url'] and active_config['nifi_url'].startswith('https://'):
-        nipyapi.config.nifi_config.verify_ssl = True
-    if active_config['registry_url'] and active_config['registry_url'].startswith('https://'):
-        nipyapi.config.registry_config.verify_ssl = True
+    # Configure authentication and SSL using standardized profiles system
+    nipyapi.profiles.switch(ACTIVE_PROFILE, profiles_file=profiles_path)
+    log.info("Profile configured: %s", ACTIVE_PROFILE)
 
-    # Apply all SSL configuration changes once
-    nipyapi.security.apply_ssl_configuration()
-
-    # NiFi setup and readiness
-    if ACTIVE_PROFILE == 'secure-mtls':
-        _NIFI_SETUP_MAP[ACTIVE_PROFILE]()
-    else:
-        _NIFI_SETUP_MAP[ACTIVE_PROFILE]()
-    _wait_until_service_up(active_config['nifi_url'].replace('-api', ''))
+    # NiFi readiness check
+    _wait_until_service_up(nipyapi.config.nifi_config.host.replace('/nifi-api', '/nifi'))
     if not nipyapi.canvas.get_root_pg_id():
         raise ValueError("No Response from NiFi test call")
+
+    # NiFi security bootstrapping for secure profiles
     if ACTIVE_PROFILE in ('secure-ldap', 'secure-mtls', 'secure-oidc'):
         try:
             nipyapi.security.bootstrap_security_policies(service='nifi')
@@ -273,31 +96,31 @@ def session_setup(request):
         except Exception as e:
             log.warning("Security policy bootstrap failed (environment may need setup): %s", e)
             if ACTIVE_PROFILE == 'secure-oidc':
-                log.info("For OIDC: Run 'make sandbox NIPYAPI_AUTH_MODE=secure-oidc' first")
+                log.info("For OIDC: Run 'make sandbox NIPYAPI_PROFILE=secure-oidc' first")
             raise
     cleanup_nifi()
 
-    # Registry setup and readiness
-    if ACTIVE_PROFILE == 'secure-mtls':
-        _REGISTRY_SETUP_MAP[ACTIVE_PROFILE]()
-    else:
-        _REGISTRY_SETUP_MAP[ACTIVE_PROFILE]()
-    _wait_until_service_up(active_config['registry_url'].replace('-api', ''))
-    try:
-        # Baseline registry bootstrap handles proxy and global bucket policies
-        nipyapi.security.bootstrap_security_policies(
-            service='registry', nifi_proxy_identity=active_config['nifi_proxy_identity']
-        )
-    except Exception:
-        pass
-    cleanup_reg()
+    # Registry setup (authentication already configured by profiles.switch above)
+    if nipyapi.config.registry_config.host:
+        registry_ui_url = nipyapi.config.registry_config.host.replace('/nifi-registry-api', '/nifi-registry')
+        _wait_until_service_up(registry_ui_url)
 
-    # Ensure a registry client exists for all profiles (uses global SSL config)
-    _ = nipyapi.versioning.ensure_registry_client(
-        name=test_registry_client_name,
-        uri=active_config['registry_internal_url'],
-        description=f"Test Registry Client -> {active_config['registry_internal_url']}"
-    )
+        # Registry security bootstrapping
+        try:
+            nipyapi.security.bootstrap_security_policies(
+                service='registry', nifi_proxy_identity=ACTIVE_CONFIG.get('nifi_proxy_identity')
+            )
+        except Exception:
+            pass
+        cleanup_reg()
+
+        # Ensure a registry client exists for all profiles
+        registry_internal_url = ACTIVE_CONFIG.get('registry_internal_url') or nipyapi.config.registry_config.host
+        _ = nipyapi.versioning.ensure_registry_client(
+            name=test_registry_client_name,
+            uri=registry_internal_url,
+            description=f"Test Registry Client -> {registry_internal_url}"
+        )
 
     request.addfinalizer(final_cleanup)
     log.info("Completing Test Session Setup")
@@ -364,15 +187,25 @@ def final_cleanup():
     if SKIP_TEARDOWN:
         log.info("SKIP_TEARDOWN is true; skipping final cleanup")
         return None
-    # Cleanup NiFi using the existing authenticated session
+
+    # Re-authenticate before cleanup to ensure we have a valid session
+    # (Some tests may have modified authentication state)
+    try:
+        nipyapi.profiles.switch(ACTIVE_PROFILE)
+        log.debug("Re-authenticated for final cleanup")
+    except Exception as e:
+        log.warning("Failed to re-authenticate for cleanup, skipping: %s", e)
+        return None
+
+    # Cleanup NiFi using authenticated session
     cleanup_nifi()
-    if ACTIVE_PROFILE in ('secure-ldap', 'secure-mtls') and 'https' in active_config['nifi_url']:
+    if ACTIVE_PROFILE in ('secure-ldap', 'secure-mtls') and 'https' in ACTIVE_CONFIG['nifi_url']:
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')
         remove_test_controllers(include_reporting_tasks=True)
-    # Cleanup Registry using the existing authenticated session
+    # Cleanup Registry using authenticated session
     cleanup_reg()
-    if ACTIVE_PROFILE in ('secure-ldap', 'secure-mtls') and 'https' in active_config['registry_url']:
+    if ACTIVE_PROFILE in ('secure-ldap', 'secure-mtls') and 'https' in ACTIVE_CONFIG['registry_url']:
         remove_test_service_user_groups('registry')
         remove_test_service_users('registry')
 
@@ -603,8 +436,8 @@ def fixture_ver_flow(request, fix_bucket, fix_pg, fix_proc):
     )
     f_reg_client = nipyapi.versioning.ensure_registry_client(
         name=test_registry_client_name,
-        uri=active_config['registry_internal_url'],
-        description=f"Test Registry Client -> {active_config['registry_internal_url']}"
+        uri=ACTIVE_CONFIG['registry_internal_url'],
+        description=f"Test Registry Client -> {ACTIVE_CONFIG['registry_internal_url']}"
     )
     assert f_reg_client is not None
     f_pg = fix_pg.generate()
@@ -760,3 +593,20 @@ def fixture_user_groups(request, fix_users):
             )
     request.addfinalizer(remove_test_service_user_groups)
     return Dummy()
+
+
+@pytest.fixture(name='fix_profiles', scope='function')
+def fixture_profiles():
+    """Fixture providing test profile data for profile tests."""
+    return {
+        'complete': {
+            'nifi_url': 'https://localhost:9444/nifi-api',
+            'nifi_user': 'einstein',
+            'nifi_pass': 'password',
+            'oidc_token_endpoint': 'https://keycloak/token'
+        },
+        'sparse': {
+            'nifi_url': 'https://localhost:9444/nifi-api'
+            # Missing many keys
+        }
+    }

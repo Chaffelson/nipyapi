@@ -13,11 +13,6 @@ def test_service_login_oidc_integration():
     # This would test actual OIDC authentication against running Keycloak
     # Currently relies on conftest.py setup for OIDC authentication
 
-    # CRITICAL: Save the original authentication state before logout
-    current_config = nipyapi.config.nifi_config
-    original_api_key = current_config.api_key.copy()
-    original_api_key_prefix = current_config.api_key_prefix.copy()
-
     try:
         # Test that OIDC authentication was successful (through conftest setup)
         status = nipyapi.security.get_service_access_status(service="nifi", bool_response=True)
@@ -27,14 +22,11 @@ def test_service_login_oidc_integration():
         result = nipyapi.security.service_logout(service="nifi")
         assert result is True
         # Verify token was actually cleared
-        assert 'bearerAuth' not in current_config.api_key
+        assert 'bearerAuth' not in nipyapi.config.nifi_config.api_key
 
     finally:
-        # CRITICAL: Always restore the original authentication state
-        current_config.api_key.clear()
-        current_config.api_key.update(original_api_key)
-        current_config.api_key_prefix.clear()
-        current_config.api_key_prefix.update(original_api_key_prefix)
+        # CRITICAL: Re-authenticate using profiles system to restore valid OIDC tokens
+        nipyapi.profiles.switch(conftest.ACTIVE_PROFILE)
 
 
 def test_oidc_user_bootstrap_integration():

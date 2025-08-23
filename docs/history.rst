@@ -2,14 +2,50 @@
 History
 =======
 
+1.0.2 (2025-08-22)
+-------------------
 
+- **Profile management system for environment configuration**:
+
+  - Added ``nipyapi.profiles`` module with centralized configuration management for multiple Apache NiFi/Registry environments
+  - Intelligent authentication method detection: OIDC, mTLS, and Basic authentication based on available configuration parameters
+  - Comprehensive environment variable override system with 15+ configurable parameters (URLs, credentials, certificates, SSL settings)
+  - Support for both YAML and JSON profile configuration files with sparse profile definitions
+  - Built-in profiles for common deployment patterns: ``single-user``, ``secure-ldap``, ``secure-mtls``, ``secure-oidc``
+  - Flexible certificate management supporting both shared PKI (simple) and per-service PKI (complex enterprise) configurations
+  - Path resolution system converting relative certificate paths to absolute paths with custom root directory support
+  - Profile switching with ``nipyapi.profiles.switch()`` configures endpoints, authentication, and SSL settings in single function call
+  - Standardized ``NIPYAPI_PROFILE`` environment variable usage across all modules and tests for consistent profile selection
+
+- **API enhancements for Registry bucket and client management**:
+
+  - ``create_registry_bucket()`` and ``ensure_registry_bucket()`` support ``description`` parameter
+  - ``ensure_registry_client()`` includes URI mismatch detection and automatic client recreation for configuration drift
+  - ``ensure_registry_client()`` handles multiple return types from filter operations (None, single object, list)
+
+- **Python 3.9 compatibility**:
+
+  - Fixed Python 3.9+ compatibility with appropriate type hints (``Optional[str]`` instead of ``str | None``)
+  - Compatible type annotations in ``nipyapi/utils.py`` and ``resources/scripts/wait_ready.py``
+  - Complete test suite verification with Python 3.9 (163 tests passing)
+
+- **Documentation and examples**:
+
+  - Comprehensive profiles documentation in ``docs/profiles.rst`` with usage examples, configuration reference, and integration patterns
+  - Updated examples to demonstrate profile usage: FDLC workflow shows environment switching
+
+- **Development infrastructure**:
+
+  - ``pre-commit>=3.0.0`` added to dev dependencies for automated code quality checks
+  - Pre-commit hooks for trailing whitespace, end-of-file fixes, debug statements, flake8, and pylint
+  - Comprehensive test suite for ``nipyapi.profiles`` module with 25+ test cases covering all functionality
 
 1.0.1 (2025-01-19)
 -------------------
 
 - Test suite performance optimization and reliability improvements:
 
-  - **29% faster test execution** (17.37s → 12.37s) through intelligent fixture optimization
+  - Sped up tests through intelligent fixture optimization
   - Replace arbitrary ``sleep(0.5)`` with condition-based ``wait_to_complete`` polling in versioning fixtures
   - Simplify bucket fixture to use ``ensure_registry_bucket`` instead of manual try/catch logic
   - Fix SSL certificate verification for single-user profile (was excluded from CA certificate setup)
@@ -25,7 +61,7 @@ History
 - Documentation and troubleshooting:
 
   - Rename ``docs/authentication.rst`` to ``docs/security.rst`` with expanded SSL/TLS guidance
-  - Add troubleshooting reference to ``debug_registry.py`` script for connectivity issues
+  - Add troubleshooting guidance for Registry connectivity issues
   - Document development vs production security practices and certificate management
   - Add convenience function examples (``set_shared_ca_cert``, ``apply_ssl_configuration``)
 
@@ -38,8 +74,7 @@ History
 
 - Build system and workflow improvements:
 
-  - Added comprehensive ``rebuild-all`` Makefile target for complete project regeneration from clean slate
-  - Enhanced ``clean-all`` target to remove ALL artifacts: build, clients, docs, coverage, temporary files
+  - Added comprehensive Makefile targets for many key devlopment and release processes
   - Optimized rebuild flow to avoid unnecessary infrastructure cycling during client generation
   - Streamlined client generation workflow using existing scripts in ``resources/client_gen/``
   - Smart certificate regeneration: ``make certs`` auto-detects and stops running containers to prevent SSL timing issues
@@ -104,7 +139,7 @@ History
 
 - Tests / Profiles:
   - Centralize profile configuration in `tests/conftest.py` with clear docstrings; env overrides respected.
-  - Support `NIPYAPI_AUTH_MODE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
+  - Support `NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls` with sensible defaults and repo-local TLS assets for secure profiles.
   - Remove duplicate TLS logic; consistent one-time setup and safe teardown.
   - `Makefile`: simplified `make test` runner; defers configuration to conftest; Docker targets use stable COMPOSE_PROJECT_NAME, quiet down with --remove-orphans.
 

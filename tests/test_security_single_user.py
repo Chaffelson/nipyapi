@@ -15,11 +15,10 @@ def test_service_auth_token_single_user():
     login_result = nipyapi.security.service_login(service="nifi", bool_response=True)
     if not login_result:
         # If login fails, try with explicit credentials
-        from tests import conftest
         login_result = nipyapi.security.service_login(
             service="nifi",
-            username=conftest.active_config['nifi_user'],
-            password=conftest.active_config['nifi_pass'],
+            username=conftest.ACTIVE_CONFIG['nifi_user'],
+            password=conftest.ACTIVE_CONFIG['nifi_pass'],
             bool_response=True
         )
 
@@ -29,23 +28,17 @@ def test_service_auth_token_single_user():
     # bool_response=True only affects error handling (returns False instead of raising)
     assert status is not False  # False indicates failure, anything else indicates success
 
-    # Test that we can manually set a token (save current one first)
-    current_config = nipyapi.config.nifi_config
-    original_token = current_config.api_key.get('bearerAuth', None)
-
+    # Test that we can manually set a token
     # Set a test token temporarily
     nipyapi.security.set_service_auth_token(token="test_token", service="nifi")
 
-    # Test logout on single-user profile (this should clear the token)
-    result = nipyapi.security.service_logout(service="nifi")
-    assert result is True
-
-    # Restore original authentication for other tests
-    if original_token:
-        nipyapi.security.set_service_auth_token(token=original_token, service="nifi")
-    else:
-        # Re-authenticate if no original token
-        nipyapi.security.service_login(service="nifi", bool_response=True)
+    try:
+        # Test logout on single-user profile (this should clear the token)
+        result = nipyapi.security.service_logout(service="nifi")
+        assert result is True
+    finally:
+        # CRITICAL: Re-authenticate using profiles system
+        nipyapi.profiles.switch(conftest.ACTIVE_PROFILE)
 
 
 def test_single_user_basic_auth_integration():

@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover - version file not present in editable c
     except PackageNotFoundError:  # package metadata not available (e.g., source checkout)
         __version__ = "0.0.0+unknown"
 __all__ = ['canvas', 'system', 'config', 'nifi', 'registry',
-           'versioning', 'utils', 'security', 'parameters']
+           'versioning', 'utils', 'security', 'parameters', 'profiles']
 
 for sub_module in __all__:
     importlib.import_module('nipyapi.' + sub_module)

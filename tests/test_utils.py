@@ -1,5 +1,6 @@
 """Tests for `nipyapi` _utils package."""
 
+import os
 import sys
 import pytest
 from tests import conftest
@@ -175,3 +176,196 @@ def test_platform_minimum_versions():
     # Both services should be 2.x or newer in supported environments
     assert utils.check_version('2', service='nifi') <= 0
     assert utils.check_version('2', service='registry') <= 0
+
+
+class TestResolveRelativePaths:
+    """Test path resolution utility function."""
+
+    def test_resolve_relative_path(self):
+        """Test resolving relative path to absolute."""
+        result = utils.resolve_relative_paths('certs/ca.pem')
+
+        # Should be absolute path
+        assert os.path.isabs(result)
+        # Should end with our relative path
+        assert result.endswith('certs/ca.pem')
+
+    def test_preserve_absolute_path(self):
+        """Test that absolute paths are preserved unchanged."""
+        absolute_path = '/etc/ssl/certs/ca.pem'
+        result = utils.resolve_relative_paths(absolute_path)
+
+        assert result == absolute_path
+
+    def test_handle_none_input(self):
+        """Test that None input returns None."""
+        result = utils.resolve_relative_paths(None)
+        assert result is None
+
+    def test_handle_empty_string(self):
+        """Test that empty string input returns empty string."""
+        result = utils.resolve_relative_paths('')
+        assert result == ''
+
+    def test_handle_whitespace_only(self):
+        """Test that whitespace-only string returns unchanged."""
+        whitespace_path = '   '
+        result = utils.resolve_relative_paths(whitespace_path)
+        assert result == whitespace_path
+
+    def test_custom_root_path(self):
+        """Test using custom root path."""
+        custom_root = '/custom/root'
+        result = utils.resolve_relative_paths('certs/ca.pem', custom_root)
+
+        expected = os.path.join(custom_root, 'certs/ca.pem')
+        assert result == expected
+
+    def test_custom_root_preserves_absolute(self):
+        """Test that custom root doesn't affect absolute paths."""
+        absolute_path = '/etc/ssl/certs/ca.pem'
+        custom_root = '/custom/root'
+        result = utils.resolve_relative_paths(absolute_path, custom_root)
+
+        assert result == absolute_path
+
+    @pytest.mark.skipif(sys.platform == "win32", reason="Unix path tests")
+    def test_unix_path_resolution(self):
+        """Test Unix-style path resolution."""
+        result = utils.resolve_relative_paths('resources/certs/ca.pem')
+
+        # Should be absolute Unix path
+        assert result.startswith('/')
+        assert 'resources/certs/ca.pem' in result
+
+    def test_project_root_default(self):
+        """Test that default root uses PROJECT_ROOT_DIR parent."""
+        import nipyapi.config
+
+        result = utils.resolve_relative_paths('test/path')
+        expected_root = os.path.dirname(nipyapi.config.PROJECT_ROOT_DIR)
+        expected = os.path.join(expected_root, 'test/path')
+
+        assert result == expected
+
+
+class TestIsEndpointUp:
+    """Test the is_endpoint_up function with various response scenarios."""
+
+    def test_success_status_codes(self):
+        """Test that success status codes (200-399) return True."""
+        import unittest.mock
+        import requests
+
+        test_cases = [200, 201, 204, 301, 302, 399]
+
+        for status_code in test_cases:
+            with unittest.mock.patch('requests.get') as mock_get:
+                mock_response = unittest.mock.Mock()
+                mock_response.status_code = status_code
+                mock_get.return_value = mock_response
+
+                result = utils.is_endpoint_up('http://test-url')
+                assert result is True, f"Status {status_code} should return True"
+
+    def test_auth_error_status_codes(self):
+        """Test that auth error codes (401, 403) return True (service ready for auth)."""
+        import unittest.mock
+        import requests
+
+        test_cases = [401, 403]
+
+        for status_code in test_cases:
+            with unittest.mock.patch('requests.get') as mock_get:
+                mock_response = unittest.mock.Mock()
+                mock_response.status_code = status_code
+                mock_get.return_value = mock_response
+
+                result = utils.is_endpoint_up('http://test-url')
+                assert result is True, f"Auth error {status_code} should return True"
+
+    def test_server_error_status_codes(self):
+        """Test that server error codes (4xx except 401/403, 5xx) return False."""
+        import unittest.mock
+        import requests
+
+        test_cases = [400, 404, 405, 500, 502, 503]
+
+        for status_code in test_cases:
+            with unittest.mock.patch('requests.get') as mock_get:
+                mock_response = unittest.mock.Mock()
+                mock_response.status_code = status_code
+                mock_get.return_value = mock_response
+
+                result = utils.is_endpoint_up('http://test-url')
+                assert result is False, f"Error status {status_code} should return False"
+
+    def test_ssl_cert_error_returns_true(self):
+        """Test that SSL certificate errors return True (service up, cert issues)."""
+        import unittest.mock
+        import requests
+
+        cert_errors = [
+            "CERTIFICATE_VERIFY_FAILED",
+            "certificate verify failed",
+            "WRONG_VERSION_NUMBER"
+        ]
+
+        for error_msg in cert_errors:
+            with unittest.mock.patch('requests.get') as mock_get:
+                mock_get.side_effect = requests.exceptions.SSLError(error_msg)
+
+                result = utils.is_endpoint_up('https://test-url')
+                assert result is True, f"SSL cert error '{error_msg}' should return True"
+
+    def test_ssl_handshake_error_returns_false(self):
+        """Test that SSL handshake errors return False (service not ready)."""
+        import unittest.mock
+        import requests
+
+        handshake_errors = [
+            "UNEXPECTED_EOF_WHILE_READING",
+            "CONNECTION_RESET_BY_PEER",
+            "SSL handshake failed"
+        ]
+
+        for error_msg in handshake_errors:
+            with unittest.mock.patch('requests.get') as mock_get:
+                mock_get.side_effect = requests.exceptions.SSLError(error_msg)
+
+                result = utils.is_endpoint_up('https://test-url')
+                assert result is False, f"SSL handshake error '{error_msg}' should return False"
+
+    def test_read_timeout_error_returns_false(self):
+        """Test that read timeout errors return False (service not ready)."""
+        import unittest.mock
+        import requests
+
+        with unittest.mock.patch('requests.get') as mock_get:
+            mock_get.side_effect = requests.exceptions.ReadTimeout("Read timeout")
+
+            result = utils.is_endpoint_up('https://test-url')
+            assert result is False, "Read timeout should return False"
+
+    def test_connection_error_returns_false(self):
+        """Test that connection errors return False (service down)."""
+        import unittest.mock
+        import requests
+
+        with unittest.mock.patch('requests.get') as mock_get:
+            mock_get.side_effect = requests.ConnectionError("Connection failed")
+
+            result = utils.is_endpoint_up('http://test-url')
+            assert result is False, "Connection errors should return False"
+
+    def test_empty_status_code(self):
+        """Test that empty/None status codes return False."""
+        import unittest.mock
+
+        with unittest.mock.patch('requests.get') as mock_get:
+            mock_response = unittest.mock.Mock()
+            mock_response.status_code = None
+            mock_get.return_value = mock_response
+
+            result = utils.is_endpoint_up('http://test-url')
+            assert result is False, "Empty status code should return False"
