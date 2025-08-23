@@ -114,7 +114,7 @@ dev-install: ## install dev extras for local development
 docs-install: ## install docs extras
 	pip install -e ".[docs]"
 
-coverage: check-certs ## run pytest with coverage and generate report (set coverage-min=NN to enforce; requires infrastructure)
+coverage: ensure-certs ## run pytest with coverage and generate report (set coverage-min=NN to enforce; requires infrastructure)
 	@echo "🧪 Running coverage analysis (single-user profile)..."
 	@echo "Ensuring single-user infrastructure is ready..."
 	$(MAKE) up NIPYAPI_PROFILE=single-user
