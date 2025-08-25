@@ -32,12 +32,12 @@ Features
 --------
 
 **Three layers of Python support for working with Apache NiFi:**
- - Top-level examples (see `examples/` in the repo)
+ - Top-level examples (see `examples directory <examples/>`_ with usage guide)
  - Mid-level Client SDK for typical complex tasks
  - Low-level Client SDKs for the full API implementation of NiFi and selected sub-projects
 
 **Functionality Highlights:**
- - **Profiles System**: One-command environment switching with ``nipyapi.profiles.switch('single-user')``
+ - **Profiles System**: One-command environment switching with ``nipyapi.profiles.switch('single-user')`` (see `profiles documentation <docs/profiles.rst>`_)
  - **Modern Authentication**: Built-in support for Basic Auth, mTLS, OIDC/OAuth2, and LDAP
  - **Environment Management**: YAML/JSON configuration with environment variable overrides
  - **Detailed documentation** of the full SDK at all levels
