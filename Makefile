@@ -4,6 +4,10 @@
 # Default NiFi/Registry version for docker compose profiles
 NIFI_VERSION ?= 2.5.0
 
+# Python command for cross-platform compatibility
+# Defaults to 'python' for conda/venv users, override with PYTHON=python3 for system installs
+PYTHON ?= python
+
 # Paths and docker compose helpers (avoid cd by using -f)
 COMPOSE_DIR := $(abspath resources/docker)
 COMPOSE_FILE := $(COMPOSE_DIR)/compose.yml
@@ -61,10 +65,10 @@ for section, targets in sections.items():
 			print(f"  {target:<18} {help_text}")
 endef
 export PRINT_HELP_PYSCRIPT
-BROWSER := python -c "$$BROWSER_PYSCRIPT"
+BROWSER := $(PYTHON) -c "$$BROWSER_PYSCRIPT"
 
 help:
-	@python -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
+	@$(PYTHON) -c "$$PRINT_HELP_PYSCRIPT" < $(MAKEFILE_LIST)
 
 #################################################################################
 ## Operational Targets ##
@@ -193,7 +197,7 @@ down: ## bring down all docker services
 wait-ready: ## wait for readiness using profile configuration; requires NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "❌ NIPYAPI_PROFILE is required"; exit 1; fi
 	@echo "⏳ Waiting for $(NIPYAPI_PROFILE) infrastructure to be ready..."
-	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) python resources/scripts/wait_ready.py
+	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) $(PYTHON) resources/scripts/wait_ready.py
 
 # API & Client generation
 fetch-openapi-base: ## refresh base OpenAPI specs for current NIFI_VERSION (always overwrite base)
@@ -245,22 +249,22 @@ test-specific: ## run specific pytest with provided NIPYAPI_PROFILE and TEST_ARG
 
 # Build & Documentation
 dist: clean ## builds source and wheel package using modern build system
-	python -m build
+	$(PYTHON) -m build
 
 wheel: clean ## builds wheel package only
-	python -m build --wheel
+	$(PYTHON) -m build --wheel
 
 sdist: clean ## builds source distribution only
-	python -m build --sdist
+	$(PYTHON) -m build --sdist
 
 check-dist: dist ## validate distribution files
-	python -m twine check dist/*
+	$(PYTHON) -m twine check dist/*
 
 test-dist: dist ## test that built distribution can be imported and used
-	python resources/scripts/test_distribution.py
+	$(PYTHON) resources/scripts/test_distribution.py
 
 docs: ## generate Sphinx HTML documentation with improved navigation
-	python docs/scripts/generate_structured_docs.py
+	$(PYTHON) docs/scripts/generate_structured_docs.py
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	@echo ""
@@ -294,7 +298,7 @@ sandbox: ensure-certs ## create isolated environment with sample objects: make s
 	@echo "=== 2/4: Waiting for readiness ==="
 	$(MAKE) wait-ready NIPYAPI_PROFILE=$(NIPYAPI_PROFILE)
 	@echo "=== 3/4: Setting up authentication and sample objects ==="
-	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) python examples/sandbox.py $(NIPYAPI_PROFILE)
+	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) $(PYTHON) examples/sandbox.py $(NIPYAPI_PROFILE)
 
 rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> validate -> docs
 	@echo "🚀 Starting comprehensive rebuild from clean slate..."
