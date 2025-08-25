@@ -30,9 +30,9 @@ Deprecated (kept for backward compatibility; prefer explicit configuration):
 
 import os
 import warnings
+
 from nipyapi.nifi import configuration as nifi_config
 from nipyapi.registry import configuration as registry_config
-
 
 # --- Default Host URLs -----
 # Note that changing the default hosts below will not
@@ -43,9 +43,7 @@ from nipyapi.registry import configuration as registry_config
 # Set Default Host for NiFi
 default_host = "localhost"  # Default to localhost for release
 #
-nifi_config.host = os.getenv(
-    "NIFI_API_ENDPOINT", "https://" + default_host + ":9443/nifi-api"
-)
+nifi_config.host = os.getenv("NIFI_API_ENDPOINT", "https://" + default_host + ":9443/nifi-api")
 # Set Default Host for NiFi-Registry (default secure in 2.x single/ldap profiles use
 # 18444/18445; single-user registry is http 18080)
 registry_config.host = os.getenv(
@@ -59,7 +57,7 @@ PROJECT_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 # --- Profiles Configuration ------
 # Default path to profiles file (can be overridden programmatically or via environment)
-default_profiles_file = 'examples/profiles.yml'
+default_profiles_file = "examples/profiles.yml"
 
 
 # --- Task wait delays ------
@@ -83,22 +81,20 @@ long_max_wait = 120
 # Note that 'id' is used for UUID by convention, but should not be confused
 # with 'identity' in security contexts.
 registered_filters = {
-    'Bucket': {'id': ['identifier'], 'name': ['name']},
-    'VersionedFlow': {'id': ['identifier'], 'name': ['name']},
-    'FlowRegistryClientEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
-                          'name': ['type'],
-                          'tag': ['tags']},
-    'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'User': {'identity': ['identity'], 'id': ['identifier']},
-    'UserGroupEntity': {'identity': ['component', 'identity'], 'id': ['id']},
-    'UserGroup': {'identity': ['identity'], 'id': ['identifier']},
-    'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
-    'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
-    'ControllerServiceEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ParameterContextEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ReportingTaskEntity': {'id': ['id'], 'name': ['component', 'name']}
+    "Bucket": {"id": ["identifier"], "name": ["name"]},
+    "VersionedFlow": {"id": ["identifier"], "name": ["name"]},
+    "FlowRegistryClientEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ProcessGroupEntity": {"id": ["id"], "name": ["status", "name"]},
+    "DocumentedTypeDTO": {"bundle": ["bundle", "artifact"], "name": ["type"], "tag": ["tags"]},
+    "ProcessorEntity": {"id": ["id"], "name": ["status", "name"]},
+    "User": {"identity": ["identity"], "id": ["identifier"]},
+    "UserGroupEntity": {"identity": ["component", "identity"], "id": ["id"]},
+    "UserGroup": {"identity": ["identity"], "id": ["identifier"]},
+    "UserEntity": {"identity": ["component", "identity"], "id": ["id"]},
+    "TemplateEntity": {"id": ["id"], "name": ["template", "name"]},
+    "ControllerServiceEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ParameterContextEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ReportingTaskEntity": {"id": ["id"], "name": ["component", "name"]},
 }
 
 

@@ -46,6 +46,27 @@ exclude = ["nipyapi.demo", "nipyapi.demo.*"]
 [tool.setuptools.exclude-package-data]
 "nipyapi.demo" = ["keys/*"]
 
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ['py39']
+include = '^nipyapi/.*\.py$'
+exclude = '''
+/(
+    nipyapi/(nifi|registry)
+    | nipyapi/_version\.py
+)/
+'''
+
+# isort configuration (compatible with black)
+[tool.isort]
+profile = "black"
+line_length = 100
+include_trailing_comma = true
+multi_line_output = 3
+src_paths = ["nipyapi"]
+skip_glob = ["nipyapi/nifi/*", "nipyapi/registry/*", "nipyapi/_version.py"]
+
 [project.urls]
 Homepage = "https://github.com/Chaffelson/nipyapi"
 Repository = "https://github.com/Chaffelson/nipyapi.git"
@@ -58,6 +79,8 @@ dev = [
   "setuptools-scm[toml]>=8",
   "flake8>=3.6.0",
   "pylint>=3.3.0",
+  "black>=24.8.0",
+  "isort>=5.13.2",
   "coverage>=7.0",
   "pytest>=8.4",
   "pytest-cov>=5.0.0",

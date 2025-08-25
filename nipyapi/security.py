@@ -6,8 +6,10 @@ Secure connectivity management for NiPyApi
 import logging
 import ssl
 from copy import copy
-import urllib3
+
 import requests
+import urllib3
+
 import nipyapi
 
 log = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ __all__ = [
     "get_service_user_group",
     "remove_service_user_group",
     "create_ssl_context_controller_service",
-    "ensure_ssl_context"
+    "ensure_ssl_context",
 ]
 
 # These are the known-valid policy actions
@@ -48,6 +50,7 @@ _valid_services = ["nifi", "registry"]
 
 
 # --- Configuration Application Functions ---
+
 
 def apply_ssl_configuration():
     """Apply current SSL configuration by forcing client recreation.
@@ -75,14 +78,18 @@ def apply_ssl_configuration():
 
     # Log what SSL configuration was actually applied
     log.info("SSL configuration applied successfully")
-    log.debug("NiFi SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
-              nipyapi.config.nifi_config.verify_ssl,
-              nipyapi.config.nifi_config.ssl_ca_cert,
-              nipyapi.config.nifi_config.cert_file)
-    log.debug("Registry SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
-              nipyapi.config.registry_config.verify_ssl,
-              nipyapi.config.registry_config.ssl_ca_cert,
-              nipyapi.config.registry_config.cert_file)
+    log.debug(
+        "NiFi SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
+        nipyapi.config.nifi_config.verify_ssl,
+        nipyapi.config.nifi_config.ssl_ca_cert,
+        nipyapi.config.nifi_config.cert_file,
+    )
+    log.debug(
+        "Registry SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
+        nipyapi.config.registry_config.verify_ssl,
+        nipyapi.config.registry_config.ssl_ca_cert,
+        nipyapi.config.registry_config.cert_file,
+    )
 
 
 def apply_authentication():
@@ -97,8 +104,8 @@ def apply_authentication():
     log.info("Applying authentication changes")
 
     # Clear current authentication tokens
-    service_logout('nifi')
-    service_logout('registry')
+    service_logout("nifi")
+    service_logout("registry")
 
     log.info("Authentication cleared - call service_login() to re-authenticate")
 
@@ -163,8 +170,7 @@ def get_service_user(identifier, identifier_type="identity", service="nifi"):
     assert isinstance(identifier, str)
     assert isinstance(identifier_type, str)
     obj = list_service_users(service)
-    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type,
-                                   greedy=False)
+    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=False)
     return out
 
 
@@ -224,15 +230,13 @@ def create_service_user(identity, service="nifi", strict=True):
         )
     try:
         return getattr(nipyapi, service).TenantsApi().create_user(user_obj)
-    except (nipyapi.nifi.rest.ApiException,
-            nipyapi.registry.rest.ApiException) as e:
+    except (nipyapi.nifi.rest.ApiException, nipyapi.registry.rest.ApiException) as e:
         if "already exists" in e.body and not strict:
             return get_service_user(identity, service=service)
         raise ValueError(e.body) from e
 
 
-def create_service_user_group(identity, service="nifi", users=None,
-                              strict=True):
+def create_service_user_group(identity, service="nifi", users=None, strict=True):
     """
     Attempts to create a user with the provided identity and member users in
     the given service
@@ -256,26 +260,20 @@ def create_service_user_group(identity, service="nifi", users=None,
 
     if service == "nifi":
         if users:
-            assert all(isinstance(user, nipyapi.nifi.UserEntity)
-                       for user in users)
+            assert all(isinstance(user, nipyapi.nifi.UserEntity) for user in users)
             users_ids = [{"id": user.id} for user in users]
         user_group_obj = nipyapi.nifi.UserGroupEntity(
             revision=nipyapi.nifi.RevisionDTO(version=0),
-            component=nipyapi.nifi.UserGroupDTO(identity=identity,
-                                                users=users_ids),
+            component=nipyapi.nifi.UserGroupDTO(identity=identity, users=users_ids),
         )
     else:
         if users:
-            assert all(isinstance(user, nipyapi.registry.User)
-                       for user in users)
+            assert all(isinstance(user, nipyapi.registry.User) for user in users)
             users_ids = [{"identifier": user.identifier} for user in users]
-        user_group_obj = nipyapi.registry.UserGroup(identity=identity,
-                                                    users=users_ids)
+        user_group_obj = nipyapi.registry.UserGroup(identity=identity, users=users_ids)
     try:
-        return getattr(nipyapi, service).TenantsApi().create_user_group(
-            user_group_obj)
-    except (nipyapi.nifi.rest.ApiException,
-            nipyapi.registry.rest.ApiException) as e:
+        return getattr(nipyapi, service).TenantsApi().create_user_group(user_group_obj)
+    except (nipyapi.nifi.rest.ApiException, nipyapi.registry.rest.ApiException) as e:
         if "already exists" in e.body:
             if not strict:
                 return get_service_user_group(identity, service=service)
@@ -300,8 +298,7 @@ def list_service_user_groups(service="nifi"):
     return out
 
 
-def get_service_user_group(identifier, identifier_type="identity",
-                           service="nifi"):
+def get_service_user_group(identifier, identifier_type="identity", service="nifi"):
     """
     Gets the unique group matching to the given identifier and type.
 
@@ -318,8 +315,7 @@ def get_service_user_group(identifier, identifier_type="identity",
     assert isinstance(identifier, str)
     assert isinstance(identifier_type, str)
     obj = list_service_user_groups(service)
-    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type,
-                                   greedy=False)
+    out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=False)
     return out
 
 
@@ -344,8 +340,7 @@ def remove_service_user_group(group, service="nifi", strict=True):
         submit = {"id": group.id, "version": group.revision.version}
     assert isinstance(strict, bool)
     try:
-        return getattr(nipyapi, service).TenantsApi().remove_user_group(
-            **submit)
+        return getattr(nipyapi, service).TenantsApi().remove_user_group(**submit)
     except getattr(nipyapi, service).rest.ApiException as e:
         if "Unable to find user" in e.body or "does not exist" in e.body:
             if not strict:
@@ -353,8 +348,7 @@ def remove_service_user_group(group, service="nifi", strict=True):
         raise ValueError(e.body) from e
 
 
-def service_login(service="nifi", username=None, password=None,
-                  bool_response=False):
+def service_login(service="nifi", username=None, password=None, bool_response=False):
     """
     Login to the currently configured NiFi or NiFi-Registry server.
 
@@ -397,34 +391,32 @@ def service_login(service="nifi", username=None, password=None,
     default_pword = getattr(nipyapi.config, "default_" + service + "_password", None)
     default_uname = getattr(nipyapi.config, "default_" + service + "_username", None)
     # Prefer explicitly provided credentials, then configuration-set creds, then deprecated defaults
-    cfg_uname = getattr(configuration, 'username', None)
-    cfg_pword = getattr(configuration, 'password', None)
-    uname = (username if username is not None
-             else (copy(cfg_uname) if cfg_uname else copy(default_uname)))
-    pword = (password if password is not None
-             else (copy(cfg_pword) if cfg_pword else copy(default_pword)))
+    cfg_uname = getattr(configuration, "username", None)
+    cfg_pword = getattr(configuration, "password", None)
+    uname = (
+        username
+        if username is not None
+        else (copy(cfg_uname) if cfg_uname else copy(default_uname))
+    )
+    pword = (
+        password
+        if password is not None
+        else (copy(cfg_pword) if cfg_pword else copy(default_pword))
+    )
     assert pword, "Password must be set or in default config"
     assert uname, "Username must be set or in default config"
     # set username/password in configuration for initial login
     # Registry pulls from config, NiFi allows submission
     configuration.username = uname
     configuration.password = pword
-    log.info(
-        "Attempting bearerAuth login with user identity [%s]",
-        configuration.username
-    )
+    log.info("Attempting bearerAuth login with user identity [%s]", configuration.username)
     try:
         if service == "nifi":
-            token = nipyapi.nifi.AccessApi().create_access_token(
-                username=uname, password=pword
-            )
+            token = nipyapi.nifi.AccessApi().create_access_token(username=uname, password=pword)
             set_service_auth_token(token=token, service=service)
             return True
         # else:
-        token = (
-            nipyapi.registry.AccessApi()
-            .create_access_token_using_basic_auth_credentials()
-        )
+        token = nipyapi.registry.AccessApi().create_access_token_using_basic_auth_credentials()
         set_service_auth_token(token=token, service=service)
         return True
     except getattr(nipyapi, service).rest.ApiException as e:
@@ -434,9 +426,16 @@ def service_login(service="nifi", username=None, password=None,
 
 
 # pylint: disable=too-many-arguments,too-many-positional-arguments
-def service_login_oidc(service="nifi", username=None, password=None,
-                       oidc_token_endpoint=None, client_id=None, client_secret=None,
-                       bool_response=False, return_token_info=False):
+def service_login_oidc(
+    service="nifi",
+    username=None,
+    password=None,
+    oidc_token_endpoint=None,
+    client_id=None,
+    client_secret=None,
+    bool_response=False,
+    return_token_info=False,
+):
     """
     Login to NiFi using OpenID Connect (OIDC) OAuth2 password flow.
 
@@ -491,20 +490,20 @@ def service_login_oidc(service="nifi", username=None, password=None,
     try:
         token_response = requests.post(
             oidc_token_endpoint,
-            headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
             timeout=30,
             data={
-                'grant_type': 'password',
-                'client_id': client_id,
-                'client_secret': client_secret,
-                'username': username,
-                'password': password
-            }
+                "grant_type": "password",
+                "client_id": client_id,
+                "client_secret": client_secret,
+                "username": username,
+                "password": password,
+            },
         )
 
         if token_response.status_code == 200:
             token_data = token_response.json()
-            access_token = token_data['access_token']
+            access_token = token_data["access_token"]
             set_service_auth_token(token=access_token, service=service)
 
             if return_token_info:
@@ -619,8 +618,7 @@ def get_service_access_status(service="nifi", bool_response=False):
         log.debug("- Caught exception %s", type(e))
         if bool_response:
             log.debug(
-                "Connection failed with error %s and bool_response is "
-                "True, returning False",
+                "Connection failed with error %s and bool_response is True, returning False",
                 e,
             )
             return False
@@ -637,8 +635,7 @@ def get_service_access_status(service="nifi", bool_response=False):
             raise e
 
 
-def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
-                              strict=True):
+def add_user_to_access_policy(user, policy, service="nifi", refresh=True, strict=True):
     """
     Attempts to add the given user object to the given access policy
 
@@ -665,8 +662,7 @@ def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
     )
     assert isinstance(
         user,
-        nipyapi.registry.User if service == "registry"
-        else nipyapi.nifi.UserEntity,
+        nipyapi.registry.User if service == "registry" else nipyapi.nifi.UserEntity,
     )
 
     user_id = user.id if service == "nifi" else user.identifier
@@ -675,8 +671,7 @@ def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
         policy_tgt = (
             getattr(nipyapi, service)
             .PoliciesApi()
-            .get_access_policy(policy.id if service == "nifi"
-                               else policy.identifier)
+            .get_access_policy(policy.id if service == "nifi" else policy.identifier)
         )
     else:
         policy_tgt = policy
@@ -690,13 +685,8 @@ def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
         ),
     )
 
-    policy_users = (
-        policy_tgt.users if service == "registry"
-        else policy_tgt.component.users
-    )
-    policy_user_ids = [
-        i.identifier if service == "registry" else i.id for i in policy_users
-    ]
+    policy_users = policy_tgt.users if service == "registry" else policy_tgt.component.users
+    policy_user_ids = [i.identifier if service == "registry" else i.id for i in policy_users]
     # Add concise debug context to help trace registry bootstrap activity
     try:
         pol_resource = getattr(policy_tgt, "resource", None)
@@ -710,7 +700,10 @@ def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
     if user_id not in policy_user_ids:
         log.info(
             "add_user_to_access_policy: service=%s action=%s resource=%s add user=%s",
-            service, pol_action, pol_resource, getattr(user, "identity", user_id)
+            service,
+            pol_action,
+            pol_resource,
+            getattr(user, "identity", user_id),
         )
         if service == "registry":
             policy_tgt.users.append(user)
@@ -722,8 +715,7 @@ def add_user_to_access_policy(user, policy, service="nifi", refresh=True,
         raise ValueError("Strict is True and User ID already in Policy")
 
 
-def add_user_group_to_access_policy(user_group, policy, service="nifi",
-                                    refresh=True):
+def add_user_group_to_access_policy(user_group, policy, service="nifi", refresh=True):
     """
     Attempts to add the given user group object to the given access policy
 
@@ -748,22 +740,15 @@ def add_user_group_to_access_policy(user_group, policy, service="nifi",
     )
     assert isinstance(
         user_group,
-        (
-            nipyapi.registry.UserGroup
-            if service == "registry"
-            else nipyapi.nifi.UserGroupEntity
-        ),
+        (nipyapi.registry.UserGroup if service == "registry" else nipyapi.nifi.UserGroupEntity),
     )
-    user_group_id = (
-        user_group.id if service == "nifi" else user_group.identifier
-    )
+    user_group_id = user_group.id if service == "nifi" else user_group.identifier
 
     if refresh:
         policy_tgt = (
             getattr(nipyapi, service)
             .PoliciesApi()
-            .get_access_policy(policy.id if service == "nifi"
-                               else policy.identifier)
+            .get_access_policy(policy.id if service == "nifi" else policy.identifier)
         )
     else:
         policy_tgt = policy
@@ -778,12 +763,10 @@ def add_user_group_to_access_policy(user_group, policy, service="nifi",
     )
 
     policy_user_groups = (
-        policy_tgt.users if service == "registry"
-        else policy_tgt.component.user_groups
+        policy_tgt.users if service == "registry" else policy_tgt.component.user_groups
     )
     policy_user_group_ids = [
-        i.identifier if service == "registry" else i.id
-        for i in policy_user_groups
+        i.identifier if service == "registry" else i.id for i in policy_user_groups
     ]
 
     assert user_group_id not in policy_user_group_ids
@@ -822,15 +805,12 @@ def update_access_policy(policy, service="nifi"):
             getattr(nipyapi, service)
             .PoliciesApi()
             .update_access_policy(
-                id=policy.id if service == "nifi" else policy.identifier,
-                body=policy
+                id=policy.id if service == "nifi" else policy.identifier, body=policy
             )
         )
 
 
-def get_access_policy_for_resource(
-    resource, action, r_id=None, service="nifi", auto_create=False
-):
+def get_access_policy_for_resource(resource, action, r_id=None, service="nifi", auto_create=False):
     """
     Attempts to retrieve the access policy for a given resource and action,
     and optionally resource_id if targeting NiFi. Optionally creates the policy
@@ -858,8 +838,7 @@ def get_access_policy_for_resource(
 
     # Strip leading '/' from resource as lookup endpoint prepends a '/'
     resource = resource[1:] if resource.startswith("/") else resource
-    log.info("Getting %s Policy for %s:%s:%s", service, action, resource,
-             str(r_id))
+    log.info("Getting %s Policy for %s:%s:%s", service, action, resource, str(r_id))
     if service == "nifi":
         pol_api = nipyapi.nifi.PoliciesApi()
     else:
@@ -867,8 +846,7 @@ def get_access_policy_for_resource(
     try:
         nipyapi.utils.bypass_slash_encoding(service, True)
         response = pol_api.get_access_policy_for_resource(
-            action=action,
-            resource="/".join([resource, r_id]) if r_id else resource
+            action=action, resource="/".join([resource, r_id]) if r_id else resource
         )
         nipyapi.utils.bypass_slash_encoding(service, False)
         return response
@@ -884,9 +862,7 @@ def get_access_policy_for_resource(
             log.info("Access policy not found")
             if not auto_create:
                 return None
-            return nipyapi.security.create_access_policy(
-                resource, action, r_id, service
-            )
+            return nipyapi.security.create_access_policy(resource, action, r_id, service)
         log.info("Unexpected Error, raising...")
         raise ValueError(e.body) from e
     finally:
@@ -923,8 +899,7 @@ def create_access_policy(resource, action, r_id=None, service="nifi"):
                 body=nipyapi.nifi.AccessPolicyEntity(
                     revision=nipyapi.nifi.RevisionDTO(version=0),
                     component=nipyapi.nifi.AccessPolicyDTO(
-                        action=action,
-                        resource="/".join([r, r_id]) if r_id else r
+                        action=action, resource="/".join([r, r_id]) if r_id else r
                     ),
                 )
             )
@@ -977,9 +952,7 @@ def set_service_ssl_context(
         (None)
     """
     assert service in ["nifi", "registry"]
-    ssl_context = ssl.create_default_context(
-        purpose=purpose or ssl.Purpose.SERVER_AUTH
-        )
+    ssl_context = ssl.create_default_context(purpose=purpose or ssl.Purpose.SERVER_AUTH)
     if client_cert_file is not None and client_key_file is not None:
         try:
             ssl_context.load_cert_chain(
@@ -996,8 +969,7 @@ def set_service_ssl_context(
         except ssl.SSLError as e:
             if e.errno == 9:
                 raise ssl.SSLError(
-                    "This error possibly pertains to a mis-typed or "
-                    "incorrect key password"
+                    "This error possibly pertains to a mis-typed or incorrect key password"
                 ) from e
 
     if ca_file is not None:
@@ -1016,7 +988,8 @@ def set_service_ssl_context(
 
 # pylint: disable=W0702,R0912,r0914,R0915
 def bootstrap_security_policies(
-        service, user_identity=None, group_identity=None, nifi_proxy_identity=None):
+    service, user_identity=None, group_identity=None, nifi_proxy_identity=None
+):
     """Creates a default security context within NiFi or Nifi-Registry.
 
     Args:
@@ -1040,7 +1013,7 @@ def bootstrap_security_policies(
             # Prefer currently authenticated user for policy bootstrapping
             current_user = nipyapi.nifi.FlowApi().get_current_user()
             current_identity = None
-            if current_user and not getattr(current_user, 'anonymous', True):
+            if current_user and not getattr(current_user, "anonymous", True):
                 current_identity = current_user.identity
             # Resolve or create a NiFi user entity for the current identity
             nifi_user_identity = None
@@ -1088,18 +1061,13 @@ def bootstrap_security_policies(
                 # break the server :-) )
                 try:
                     nipyapi.security.add_user_group_to_access_policy(
-                        user_group=group_identity,
-                        policy=ap,
-                        service="nifi"
+                        user_group=group_identity, policy=ap, service="nifi"
                     )
                 except:  # noqa
                     pass
             else:
                 nipyapi.security.add_user_to_access_policy(
-                    user=nifi_user_identity,
-                    policy=ap,
-                    service="nifi",
-                    strict=False
+                    user=nifi_user_identity, policy=ap, service="nifi", strict=False
                 )
     else:
         log.info("bootstrap_security_policies: starting registry bootstrap")
@@ -1122,28 +1090,22 @@ def bootstrap_security_policies(
             ]
             for action, resource in all_buckets_access_policies:
                 pol = nipyapi.security.get_access_policy_for_resource(
-                    resource=resource,
-                    action=action,
-                    service="registry",
-                    auto_create=True
+                    resource=resource, action=action, service="registry", auto_create=True
                 )
                 log.info(
                     "bootstrap_registry: ensure policy action=%s resource=%s id=%s",
-                    action, resource, getattr(pol, "identifier", None),
+                    action,
+                    resource,
+                    getattr(pol, "identifier", None),
                 )
                 if reg_user_identity is None:
                     if group_identity:  # Only try to add group if it exists
                         nipyapi.security.add_user_group_to_access_policy(
-                            user_group=group_identity,
-                            policy=pol,
-                            service="registry"
+                            user_group=group_identity, policy=pol, service="registry"
                         )
                 else:
                     nipyapi.security.add_user_to_access_policy(
-                        user=reg_user_identity,
-                        policy=pol,
-                        service="registry",
-                        strict=False
+                        user=reg_user_identity, policy=pol, service="registry", strict=False
                     )
         except Exception as e:  # pylint: disable=broad-exception-caught
             log.warning("Registry bucket policy bootstrap skipped due to error: %s", e)
@@ -1154,9 +1116,7 @@ def bootstrap_security_policies(
                 nifi_proxy_identity,
             )
             nifi_proxy_user = nipyapi.security.create_service_user(
-                identity=nifi_proxy_identity,
-                service="registry",
-                strict=False
+                identity=nifi_proxy_identity, service="registry", strict=False
             )
             # Grant global buckets read/write so proxy can operate across all buckets
             for action in ("read", "write"):
@@ -1168,7 +1128,8 @@ def bootstrap_security_policies(
                 )
                 log.info(
                     "bootstrap_registry: attach proxy to /buckets action=%s policy id=%s",
-                    action, getattr(pol, "identifier", None),
+                    action,
+                    getattr(pol, "identifier", None),
                 )
                 nipyapi.security.add_user_to_access_policy(
                     user=nifi_proxy_user,
@@ -1183,29 +1144,32 @@ def bootstrap_security_policies(
             ]
             for action, resource in proxy_access_policies:
                 pol = nipyapi.security.get_access_policy_for_resource(
-                    resource=resource,
-                    action=action,
-                    service="registry",
-                    auto_create=True
+                    resource=resource, action=action, service="registry", auto_create=True
                 )
                 log.info(
                     "bootstrap_registry: attach proxy to %s action=%s policy id=%s",
-                    resource, action, getattr(pol, "identifier", None),
+                    resource,
+                    action,
+                    getattr(pol, "identifier", None),
                 )
                 nipyapi.security.add_user_to_access_policy(
-                    user=nifi_proxy_user,
-                    policy=pol,
-                    service="registry",
-                    strict=False
+                    user=nifi_proxy_user, policy=pol, service="registry", strict=False
                 )
 
 
 def create_ssl_context_controller_service(
-        parent_pg, name,
-        keystore_file=None, keystore_password=None,
-        truststore_file=None, truststore_password=None,
-        key_password=None, keystore_type=None, truststore_type=None, ssl_protocol=None,
-        ssl_service_type=None):
+    parent_pg,
+    name,
+    keystore_file=None,
+    keystore_password=None,
+    truststore_file=None,
+    truststore_password=None,
+    key_password=None,
+    keystore_type=None,
+    truststore_type=None,
+    ssl_protocol=None,
+    ssl_service_type=None,
+):
     """
     Creates and configures an SSL Context Service for secure client connections.
     Note that once created it can be listed and deleted using the standard canvas functions.
@@ -1239,36 +1203,46 @@ def create_ssl_context_controller_service(
     assert truststore_type is None or isinstance(truststore_type, str)
     assert ssl_protocol is None or isinstance(ssl_protocol, str)
 
-    default_ssl_service_type = 'org.apache.nifi.ssl.StandardRestrictedSSLContextService'
+    default_ssl_service_type = "org.apache.nifi.ssl.StandardRestrictedSSLContextService"
     with nipyapi.utils.rest_exceptions():
         props = {
-            'Truststore Filename': truststore_file,
-            'Truststore Password': truststore_password,
-            'Truststore Type': truststore_type or 'JKS',
-            'SSL Protocol': ssl_protocol or 'TLS'
+            "Truststore Filename": truststore_file,
+            "Truststore Password": truststore_password,
+            "Truststore Type": truststore_type or "JKS",
+            "SSL Protocol": ssl_protocol or "TLS",
         }
         if keystore_file:
-            props.update({
-                'Keystore Filename': keystore_file,
-                'Keystore Password': keystore_password or '',
-                'key-password': key_password or keystore_password or '',
-                'Keystore Type': keystore_type or 'JKS',
-            })
+            props.update(
+                {
+                    "Keystore Filename": keystore_file,
+                    "Keystore Password": keystore_password or "",
+                    "key-password": key_password or keystore_password or "",
+                    "Keystore Type": keystore_type or "JKS",
+                }
+            )
         return nipyapi.nifi.ControllerApi().create_controller_service(
             body=nipyapi.nifi.ControllerServiceEntity(
-                revision=nipyapi.nifi.RevisionDTO(
-                    version=0
-                ),
+                revision=nipyapi.nifi.RevisionDTO(version=0),
                 component=nipyapi.nifi.ControllerServiceDTO(
-                    type=ssl_service_type or default_ssl_service_type,
-                    name=name,
-                    properties=props)))
+                    type=ssl_service_type or default_ssl_service_type, name=name, properties=props
+                ),
+            )
+        )
 
 
-def ensure_ssl_context(name, parent_pg, keystore_file=None, keystore_password=None,
-                       truststore_file=None, truststore_password=None,
-                       key_password=None, keystore_type=None, truststore_type=None,
-                       ssl_protocol=None, ssl_service_type=None):
+def ensure_ssl_context(
+    name,
+    parent_pg,
+    keystore_file=None,
+    keystore_password=None,
+    truststore_file=None,
+    truststore_password=None,
+    key_password=None,
+    keystore_type=None,
+    truststore_type=None,
+    ssl_protocol=None,
+    ssl_service_type=None,
+):
     """
     Ensures an SSL Context Service exists, creating it if necessary.
 
@@ -1299,13 +1273,12 @@ def ensure_ssl_context(name, parent_pg, keystore_file=None, keystore_password=No
     """
     # Try to get existing SSL context first
     try:
-        existing = nipyapi.canvas.get_controller(name, 'name')
+        existing = nipyapi.canvas.get_controller(name, "name")
         if existing:
             log.debug("Found existing SSL context service: %s", name)
             # Ensure it's scheduled/enabled
             try:
-                nipyapi.canvas.schedule_controller(existing, scheduled=True,
-                                                   refresh=True)
+                nipyapi.canvas.schedule_controller(existing, scheduled=True, refresh=True)
             except Exception as e:  # pylint: disable=broad-exception-caught
                 log.debug("SSL context service scheduling: %s", e)
             return existing
@@ -1326,20 +1299,19 @@ def ensure_ssl_context(name, parent_pg, keystore_file=None, keystore_password=No
             keystore_type=keystore_type,
             truststore_type=truststore_type,
             ssl_protocol=ssl_protocol,
-            ssl_service_type=ssl_service_type
+            ssl_service_type=ssl_service_type,
         )
 
         # Enable the SSL context service
         try:
-            nipyapi.canvas.schedule_controller(ssl_context, scheduled=True,
-                                               refresh=True)
+            nipyapi.canvas.schedule_controller(ssl_context, scheduled=True, refresh=True)
         except Exception as e:  # pylint: disable=broad-exception-caught
             # Log validation errors for easier debugging
             try:
                 api = nipyapi.nifi.ControllerServicesApi()
                 svc = api.get_controller_service(ssl_context.id)
-                verrs = getattr(svc.component, 'validation_errors', None)
-                log.warning('SSL context service validation errors: %s', verrs)
+                verrs = getattr(svc.component, "validation_errors", None)
+                log.warning("SSL context service validation errors: %s", verrs)
             except Exception:  # pylint: disable=broad-exception-caught
                 pass
             raise e
@@ -1352,13 +1324,11 @@ def ensure_ssl_context(name, parent_pg, keystore_file=None, keystore_password=No
         error_msg = str(e).lower()
         if "already exists" in error_msg or "duplicate" in error_msg:
             try:
-                existing = nipyapi.canvas.get_controller(name, 'name')
-                log.debug("Found existing SSL context service after race condition: %s",
-                          name)
+                existing = nipyapi.canvas.get_controller(name, "name")
+                log.debug("Found existing SSL context service after race condition: %s", name)
                 # Ensure it's scheduled/enabled
                 try:
-                    nipyapi.canvas.schedule_controller(existing, scheduled=True,
-                                                       refresh=True)
+                    nipyapi.canvas.schedule_controller(existing, scheduled=True, refresh=True)
                 except Exception:  # pylint: disable=broad-exception-caught
                     pass
                 return existing

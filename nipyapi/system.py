@@ -5,10 +5,12 @@ Services
 
 import nipyapi
 
-
 __all__ = [
-    "get_system_diagnostics", "get_cluster", "get_node",
-    "get_nifi_version_info", "get_registry_version_info"
+    "get_system_diagnostics",
+    "get_cluster",
+    "get_node",
+    "get_nifi_version_info",
+    "get_registry_version_info",
 ]
 
 
@@ -81,23 +83,26 @@ def get_registry_version_info():
     # Always return a plain version string.
     try:
         # Direct attribute on the model (current generator)
-        ver = getattr(details, 'registry_about_version', None)
+        ver = getattr(details, "registry_about_version", None)
         if ver:
             return ver
         # Sometimes models expose a top-level `version`
-        ver = getattr(details, 'version', None)
+        ver = getattr(details, "version", None)
         if ver:
             return ver
         # Attempt dict conversion and look for common keys
-        if hasattr(details, 'to_dict'):
+        if hasattr(details, "to_dict"):
             d = details.to_dict() or {}
         elif isinstance(details, dict):
             d = details
         else:
             d = {}
         for key in (
-            'registry_about_version', 'registryAboutVersion', 'version',
-            'registry_version', 'registryVersion'
+            "registry_about_version",
+            "registryAboutVersion",
+            "version",
+            "registry_version",
+            "registryVersion",
         ):
             if key in d and d[key]:
                 return d[key]
@@ -107,4 +112,4 @@ def get_registry_version_info():
     except Exception:  # pylint: disable=broad-exception-caught
         pass
     # Could not determine; raise to allow caller to handle defaults
-    raise ValueError('Unable to determine NiFi Registry version from About API response')
+    raise ValueError("Unable to determine NiFi Registry version from About API response")
