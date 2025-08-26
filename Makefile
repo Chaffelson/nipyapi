@@ -230,16 +230,16 @@ test: ## run pytest with provided NIPYAPI_PROFILE; config resolved by tests/conf
 	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
 
 test-su: ## shortcut: NIPYAPI_PROFILE=single-user pytest
-	NIPYAPI_PROFILE=single-user $(MAKE) test-profile
+	NIPYAPI_PROFILE=single-user $(MAKE) test
 
 test-ldap: ## shortcut: NIPYAPI_PROFILE=secure-ldap pytest
-	NIPYAPI_PROFILE=secure-ldap $(MAKE) test-profile
+	NIPYAPI_PROFILE=secure-ldap $(MAKE) test
 
 test-mtls: ## shortcut: NIPYAPI_PROFILE=secure-mtls pytest
-	NIPYAPI_PROFILE=secure-mtls $(MAKE) test-profile
+	NIPYAPI_PROFILE=secure-mtls $(MAKE) test
 
 test-oidc: check-certs ## shortcut: NIPYAPI_PROFILE=secure-oidc pytest (requires: make sandbox NIPYAPI_PROFILE=secure-oidc)
-	NIPYAPI_PROFILE=secure-oidc $(MAKE) test-profile
+	NIPYAPI_PROFILE=secure-oidc $(MAKE) test
 
 test-specific: ## run specific pytest with provided NIPYAPI_PROFILE and TEST_ARGS
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
