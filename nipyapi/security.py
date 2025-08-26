@@ -16,8 +16,8 @@ log = logging.getLogger(__name__)
 
 
 __all__ = [
-    "apply_ssl_configuration",
-    "apply_authentication",
+    "set_ssl_warning_suppression",
+    "reset_service_connections",
     "set_shared_ca_cert",
     "create_service_user",
     "create_service_user_group",
@@ -52,64 +52,6 @@ _valid_services = ["nifi", "registry"]
 # --- Configuration Application Functions ---
 
 
-def apply_ssl_configuration():
-    """Apply current SSL configuration by forcing client recreation.
-
-    This function applies SSL settings that were changed in nipyapi.config
-    by forcing recreation of API clients. Call this after modifying SSL
-    configuration values like verify_ssl, ssl_ca_cert, cert_file, etc.
-
-    The function:
-    1. Forces client recreation to pick up new SSL settings
-    2. Applies SSL context changes based on current verification settings
-    3. Applies SSL warning settings based on current configuration
-    """
-    log.info("Applying SSL configuration changes")
-
-    # Force client recreation to pick up new SSL settings
-    nipyapi.config.nifi_config.api_client = None
-    nipyapi.config.registry_config.api_client = None
-
-    # Apply SSL context changes for disabled verification
-    _update_ssl_contexts()
-
-    # Apply SSL warning settings
-    _apply_ssl_warnings()
-
-    # Log what SSL configuration was actually applied
-    log.info("SSL configuration applied successfully")
-    log.debug(
-        "NiFi SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
-        nipyapi.config.nifi_config.verify_ssl,
-        nipyapi.config.nifi_config.ssl_ca_cert,
-        nipyapi.config.nifi_config.cert_file,
-    )
-    log.debug(
-        "Registry SSL config - verify_ssl: %s, ca_cert: %s, cert_file: %s",
-        nipyapi.config.registry_config.verify_ssl,
-        nipyapi.config.registry_config.ssl_ca_cert,
-        nipyapi.config.registry_config.cert_file,
-    )
-
-
-def apply_authentication():
-    """Apply authentication changes by forcing re-login.
-
-    This function clears current authentication tokens, forcing users
-    to re-authenticate. Call this after changing authentication settings.
-
-    After calling this function, you must call service_login() again
-    to establish new authentication.
-    """
-    log.info("Applying authentication changes")
-
-    # Clear current authentication tokens
-    service_logout("nifi")
-    service_logout("registry")
-
-    log.info("Authentication cleared - call service_login() to re-authenticate")
-
-
 def set_shared_ca_cert(ca_cert_path):
     """Set CA certificate for both NiFi and Registry services.
 
@@ -123,24 +65,54 @@ def set_shared_ca_cert(ca_cert_path):
     nipyapi.config.registry_config.ssl_ca_cert = ca_cert_path
 
 
-def _update_ssl_contexts():
-    """Internal: Update SSL contexts based on current configuration."""
-    for config in [nipyapi.config.nifi_config, nipyapi.config.registry_config]:
-        if not config.verify_ssl:
-            _disable_verify(config)
+def set_ssl_warning_suppression(suppress_warnings):
+    """Control SSL warning suppression.
 
+    Args:
+        suppress_warnings (bool): Whether to suppress SSL warnings.
+                                 True = suppress warnings (development/self-signed certs)
+                                 False = show warnings (production/security audit)
+    """
+    assert isinstance(suppress_warnings, bool), "suppress_warnings must be boolean"
 
-def _disable_verify(cfg):
-    """Internal: Disable SSL verification via ssl_context when verify_ssl is False."""
-    cfg.ssl_context = ssl.create_default_context()
-    cfg.ssl_context.check_hostname = False
-    cfg.ssl_context.verify_mode = ssl.CERT_NONE
-
-
-def _apply_ssl_warnings():
-    """Internal: Apply SSL warning settings based on current configuration."""
-    if not nipyapi.config.global_ssl_verify or nipyapi.config.disable_insecure_request_warnings:
+    if suppress_warnings:
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        log.debug("SSL warnings suppressed")
+    else:
+        # Note: urllib3 warnings cannot be re-enabled once disabled
+        # This is a limitation of urllib3 itself
+        log.debug("SSL warnings should be enabled (urllib3 limitation: cannot re-enable)")
+
+
+def reset_service_connections(service=None):
+    """Reset service connections by logging out and clearing API clients.
+
+    Args:
+        service (str, optional): 'nifi', 'registry', or None for both services.
+                                Defaults to None (both services).
+    """
+    services = []
+    if service is None:
+        services = _valid_services
+    elif service in _valid_services:
+        services = [service]
+    else:
+        raise ValueError(f"Invalid service '{service}'. Must be 'nifi', 'registry', or None.")
+
+    for svc in services:
+        log.debug("Resetting %s connection...", svc)
+
+        # Best effort logout
+        try:
+            service_logout(svc)
+            log.debug("%s logout successful", svc.title())
+        except Exception as e:  # pylint: disable=broad-exception-caught
+            log.debug("%s logout failed (expected if not logged in): %s", svc.title(), e)
+
+        # Force API client reset
+        config_obj = getattr(nipyapi.config, f"{svc}_config")
+        config_obj.api_client = None
+        log.debug("%s API client reset", svc.title())
 
 
 def list_service_users(service="nifi"):
@@ -916,7 +888,7 @@ def set_service_ssl_context(
     client_cert_file=None,
     client_key_file=None,
     client_key_password=None,
-    check_hostname=None,
+    disable_host_check=None,
     purpose=None,
 ):
     """
@@ -945,7 +917,7 @@ def set_service_ssl_context(
         client_key_file (str): An encrypted (password-protected) PEM file
             containing the client's secret key
         client_key_password (str): The password to decrypt the client_key_file
-        check_hostname (bool): Enable or Disable hostname checking
+        disable_host_check (bool): Set to True to disable hostname checking
         purpose (ssl.Purpose): The purpose of the SSLContext
 
     Returns:
@@ -975,10 +947,7 @@ def set_service_ssl_context(
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)
 
-    if check_hostname is not None:
-        ssl_context.check_hostname = check_hostname
-    else:
-        ssl_context.check_hostname = nipyapi.config.global_ssl_host_check
+    ssl_context.check_hostname = not (disable_host_check or False)
 
     if service == "registry":
         nipyapi.config.registry_config.ssl_context = ssl_context

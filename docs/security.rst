@@ -297,8 +297,8 @@ Environment variables can override any profile configuration or provide direct c
     # Set CA certificate for both NiFi and Registry services at once
     nipyapi.security.set_shared_ca_cert("/path/to/ca.pem")
 
-    # Apply all SSL configuration changes (forces client recreation)
-    nipyapi.security.apply_ssl_configuration()
+    # Reset connections to apply SSL changes
+    nipyapi.security.reset_service_connections()
 
 **Option D: Per-Service Configuration**
 
@@ -310,8 +310,8 @@ Environment variables can override any profile configuration or provide direct c
     nipyapi.config.nifi_config.ssl_ca_cert = "/path/to/nifi-ca.pem"
     nipyapi.config.registry_config.ssl_ca_cert = "/path/to/registry-ca.pem"
 
-    # Apply changes
-    nipyapi.security.apply_ssl_configuration()
+    # Reset connections to apply changes
+    nipyapi.security.reset_service_connections()
 
 
 Single-user (basic auth)
@@ -489,7 +489,7 @@ This will attempt OAuth2 authentication and display the required manual steps, i
 5. Go to **Settings → Policies**
 6. Grant these policies to the OIDC application UUID:
 
-   - **"view the user interface"** (view + modify access)
+   - **"view the user interface"** (view access)
    - **"view users"** (view access)
    - **"view policies"** (view access)
    - **"modify policies"** (modify access)
@@ -703,7 +703,7 @@ Understanding where to find different types of security functionality:
 The security module performs active security operations:
 
 - **Authentication functions**: ``service_login_oidc()``, ``set_service_auth_token()``
-- **SSL configuration**: ``set_shared_ca_cert()``, ``apply_ssl_configuration()``
+- **SSL configuration**: ``set_shared_ca_cert()``, ``set_service_ssl_context()``, ``reset_service_connections()``
 - **Security bootstrapping**: Policy creation, user setup, admin access management
 - **Trust management**: Certificate verification, SSL context services
 

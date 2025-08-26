@@ -25,6 +25,9 @@ single-user:
   # NiFi uses HTTPS with self-signed certs, Registry uses HTTP
   nifi_verify_ssl: false  # Accept self-signed certificates
   registry_verify_ssl: false
+  nifi_disable_host_check: true  # Self-signed certs often have wrong hostnames
+  registry_disable_host_check: null # Registry is HTTP, so no host check
+  suppress_ssl_warnings: true  # Suppress warnings in development
   # No client certificates needed for single-user basic auth
   ca_path: null
   client_cert: null
@@ -55,6 +58,7 @@ secure-ldap:
   registry_user: einstein
   registry_pass: password
   ca_path: "resources/certs/client/ca.pem"
+  suppress_ssl_warnings: true  # Supress self-signed certificate warnings
   nifi_proxy_identity: "C=US, O=NiPyAPI, CN=nifi"
 
 secure-mtls:
@@ -65,6 +69,7 @@ secure-mtls:
   client_cert: "resources/certs/client/client.crt"
   client_key: "resources/certs/client/client.key"
   client_key_password: ""
+  suppress_ssl_warnings: true  # Supress self-signed certificate warnings
   nifi_proxy_identity: "C=US, O=NiPyAPI, CN=nifi"
 
 secure-oidc:
@@ -76,6 +81,7 @@ secure-oidc:
   registry_user: einstein
   registry_pass: password1234
   ca_path: "resources/certs/client/ca.pem"
+  suppress_ssl_warnings: true  # Supress self-signed certificate warnings
   # OIDC-specific configuration (OAuth2 Resource Owner Password Credentials flow)
   oidc_token_endpoint: "http://localhost:8080/realms/nipyapi/protocol/openid-connect/token"
   oidc_client_id: "nipyapi-client"

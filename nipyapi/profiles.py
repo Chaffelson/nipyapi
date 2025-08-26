@@ -33,6 +33,9 @@ DEFAULT_PROFILE_CONFIG = {
     "nifi_proxy_identity": None,
     "nifi_verify_ssl": None,
     "registry_verify_ssl": None,
+    "nifi_disable_host_check": None,
+    "registry_disable_host_check": None,
+    "suppress_ssl_warnings": None,
     "oidc_token_endpoint": None,
     "oidc_client_id": None,
     "oidc_client_secret": None,
@@ -56,6 +59,11 @@ ENV_VAR_MAPPINGS = [
     # SSL verification control
     ("nifi_verify_ssl", "NIFI_VERIFY_SSL"),
     ("registry_verify_ssl", "REGISTRY_VERIFY_SSL"),
+    # SSL hostname checking control
+    ("nifi_disable_host_check", "NIFI_DISABLE_HOST_CHECK"),
+    ("registry_disable_host_check", "REGISTRY_DISABLE_HOST_CHECK"),
+    # SSL warning suppression
+    ("suppress_ssl_warnings", "NIPYAPI_SUPPRESS_SSL_WARNINGS"),
     # OIDC configuration
     ("oidc_token_endpoint", "OIDC_TOKEN_ENDPOINT"),
     ("oidc_client_id", "OIDC_CLIENT_ID"),
@@ -202,6 +210,7 @@ def load_profiles_from_file(file_path=None):
 
 
 def resolve_profile_config(profile_name, profiles_file_path=None):
+    # pylint: disable=too-many-branches
     """
     Complete profile configuration resolution with environment overrides and absolute paths.
 
@@ -231,13 +240,34 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
 
     # Apply all environment variable overrides
     for config_key, env_var in ENV_VAR_MAPPINGS:
-        # Use boolean parsing for SSL verification flags
-        if config_key in ("nifi_verify_ssl", "registry_verify_ssl"):
+        # Use boolean parsing for SSL and warning flags
+        if config_key in (
+            "nifi_verify_ssl",
+            "registry_verify_ssl",
+            "nifi_disable_host_check",
+            "registry_disable_host_check",
+            "suppress_ssl_warnings",
+        ):
             env_value = utils.getenv_bool(env_var)
             if env_value is not None:
                 config[config_key] = env_value
         else:
             config[config_key] = utils.getenv(env_var) or config[config_key]
+
+    # Apply smart defaults for SSL settings based on URL protocol
+    if config.get("nifi_url") and config.get("nifi_verify_ssl") is None:
+        config["nifi_verify_ssl"] = config["nifi_url"].startswith("https://")
+
+    if config.get("registry_url") and config.get("registry_verify_ssl") is None:
+        config["registry_verify_ssl"] = config["registry_url"].startswith("https://")
+
+    # For HTTP URLs, force disable_host_check=None (hostname checking not applicable)
+    # For HTTPS URLs, respect user configuration or use secure defaults
+    if config.get("nifi_url") and not config["nifi_url"].startswith("https://"):
+        config["nifi_disable_host_check"] = None  # Force None for HTTP connections
+
+    if config.get("registry_url") and not config["registry_url"].startswith("https://"):
+        config["registry_disable_host_check"] = None  # Force None for HTTP connections
 
     # Normalize URLs by removing trailing slashes (standard REST API practice)
     for url_field in ["nifi_url", "registry_url", "registry_internal_url", "oidc_token_endpoint"]:
@@ -335,54 +365,30 @@ def switch(profile_name, profiles_file=None, login=True):
         )
 
     # 3. Clean teardown of existing connections (best effort)
-    if connect_to_nifi:
-        log.debug("Attempting NiFi logout...")
-        try:
-            security.service_logout("nifi")
-            log.debug("NiFi logout successful")
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            log.debug("NiFi logout failed (expected if not logged in): %s", e)
-
-    if connect_to_registry:
-        log.debug("Attempting Registry logout...")
-        try:
-            security.service_logout("registry")
-            log.debug("Registry logout successful")
-        except Exception as e:  # pylint: disable=broad-exception-caught
-            log.debug("Registry logout failed (expected if not logged in): %s", e)
-
-    # Force fresh API clients after logout to ensure clean state
-    if connect_to_nifi:
-        nipy_config.nifi_config.api_client = None
-        log.debug("Reset NiFi API client")
-    if connect_to_registry:
-        nipy_config.registry_config.api_client = None
-        log.debug("Reset Registry API client")
+    if connect_to_nifi and connect_to_registry:
+        security.reset_service_connections()  # Reset both services
+    elif connect_to_nifi:
+        security.reset_service_connections("nifi")  # Reset only NiFi
+    elif connect_to_registry:
+        security.reset_service_connections("registry")  # Reset only Registry
 
     # 4. Apply SSL configuration (exactly matching conftest.py pattern)
     # Apply CA certificate first if provided
     if config.get("ca_path"):
         security.set_shared_ca_cert(config["ca_path"])
 
-    # Set SSL verification - user override or smart default based on protocol
+    # Set SSL verification and hostname checking from resolved config
     if connect_to_nifi:
-        if config.get("nifi_verify_ssl") is not None:
-            # User explicitly set verification preference
-            nipy_config.nifi_config.verify_ssl = config["nifi_verify_ssl"]
-        else:
-            # Smart default: True for HTTPS, False for HTTP
-            nipy_config.nifi_config.verify_ssl = config["nifi_url"].startswith("https://")
+        nipy_config.nifi_config.verify_ssl = config["nifi_verify_ssl"]
+        nipy_config.nifi_config.disable_host_check = config["nifi_disable_host_check"]
 
     if connect_to_registry:
-        if config.get("registry_verify_ssl") is not None:
-            # User explicitly set verification preference
-            nipy_config.registry_config.verify_ssl = config["registry_verify_ssl"]
-        else:
-            # Smart default: True for HTTPS, False for HTTP
-            nipy_config.registry_config.verify_ssl = config["registry_url"].startswith("https://")
+        nipy_config.registry_config.verify_ssl = config["registry_verify_ssl"]
+        nipy_config.registry_config.disable_host_check = config["registry_disable_host_check"]
 
-    # Apply all SSL configuration changes once
-    security.apply_ssl_configuration()
+    # Apply SSL warning suppression from profile config
+    if config.get("suppress_ssl_warnings") is not None:
+        security.set_ssl_warning_suppression(config["suppress_ssl_warnings"])
 
     # 5. Configuration-driven NiFi setup
     if connect_to_nifi:
@@ -437,11 +443,11 @@ def switch(profile_name, profiles_file=None, login=True):
             if login:
                 # Standard HTTP Basic authentication using set_endpoint's login capability
                 utils.set_endpoint(
-                    config["nifi_url"],
-                    True,
-                    True,  # SSL enabled, auth enabled
-                    nifi_auth_params["nifi_user"],
-                    nifi_auth_params["nifi_pass"],
+                    endpoint_url=config["nifi_url"],
+                    ssl=True,
+                    login=True,
+                    username=nifi_auth_params["nifi_user"],
+                    password=nifi_auth_params["nifi_pass"],
                 )
                 # For basic auth, return the logged-in username as metadata
                 auth_metadata = nifi_auth_params["nifi_user"]
@@ -482,11 +488,11 @@ def switch(profile_name, profiles_file=None, login=True):
                 # Basic username/password authentication for Registry using
                 # set_endpoint's login capability
                 utils.set_endpoint(
-                    config["registry_url"],
-                    True,
-                    True,  # SSL enabled, auth enabled
-                    registry_auth_params["registry_user"],
-                    registry_auth_params["registry_pass"],
+                    endpoint_url=config["registry_url"],
+                    ssl=True,
+                    login=True,
+                    username=registry_auth_params["registry_user"],
+                    password=registry_auth_params["registry_pass"],
                 )
                 log.debug("Registry basic authentication completed")
             else:

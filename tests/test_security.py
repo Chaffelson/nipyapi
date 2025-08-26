@@ -464,5 +464,108 @@ class TestEnsureSSLContext:
         mock_create.assert_called_once()
 
 
+def test_set_ssl_warning_suppression():
+    """Test SSL warning suppression control"""
+    # Test enabling suppression
+    nipyapi.security.set_ssl_warning_suppression(True)
+    # No exception should be raised
+
+    # Test disabling suppression (note: urllib3 limitation means we can't re-enable)
+    nipyapi.security.set_ssl_warning_suppression(False)
+    # No exception should be raised
+
+    # Test invalid parameter
+    with pytest.raises(AssertionError, match="suppress_warnings must be boolean"):
+        nipyapi.security.set_ssl_warning_suppression("invalid")
+
+
+@patch('nipyapi.security.service_logout')
+def test_reset_service_connections_both_services(mock_logout):
+    """Test resetting connections for both services"""
+    # Store original API clients
+    original_nifi_client = nipyapi.config.nifi_config.api_client
+    original_registry_client = nipyapi.config.registry_config.api_client
+
+    try:
+        # Set mock clients to verify they get reset
+        nipyapi.config.nifi_config.api_client = MagicMock()
+        nipyapi.config.registry_config.api_client = MagicMock()
+
+        # Test reset all services (default)
+        nipyapi.security.reset_service_connections()
+
+        # Should have called logout for both services
+        assert mock_logout.call_count == 2
+        mock_logout.assert_any_call('nifi')
+        mock_logout.assert_any_call('registry')
+
+        # Should have reset both API clients
+        assert nipyapi.config.nifi_config.api_client is None
+        assert nipyapi.config.registry_config.api_client is None
+
+    finally:
+        # Restore original clients
+        nipyapi.config.nifi_config.api_client = original_nifi_client
+        nipyapi.config.registry_config.api_client = original_registry_client
+
+
+@patch('nipyapi.security.service_logout')
+def test_reset_service_connections_single_service(mock_logout):
+    """Test resetting connections for a single service"""
+    # Store original API clients
+    original_nifi_client = nipyapi.config.nifi_config.api_client
+    original_registry_client = nipyapi.config.registry_config.api_client
+
+    try:
+        # Set mock clients to verify selective reset
+        nipyapi.config.nifi_config.api_client = MagicMock()
+        nipyapi.config.registry_config.api_client = MagicMock()
+
+        # Test reset only NiFi service
+        nipyapi.security.reset_service_connections(service='nifi')
+
+        # Should have called logout only for NiFi
+        mock_logout.assert_called_once_with('nifi')
+
+        # Should have reset only NiFi API client
+        assert nipyapi.config.nifi_config.api_client is None
+        assert nipyapi.config.registry_config.api_client is not None  # Should remain
+
+    finally:
+        # Restore original clients
+        nipyapi.config.nifi_config.api_client = original_nifi_client
+        nipyapi.config.registry_config.api_client = original_registry_client
+
+
+def test_reset_service_connections_invalid_service():
+    """Test reset with invalid service parameter"""
+    with pytest.raises(ValueError, match="Invalid service 'invalid'"):
+        nipyapi.security.reset_service_connections(service='invalid')
+
+
+@patch('nipyapi.security.service_logout')
+def test_reset_service_connections_logout_error_handling(mock_logout):
+    """Test that reset continues even if logout fails"""
+    # Store original API clients
+    original_nifi_client = nipyapi.config.nifi_config.api_client
+
+    try:
+        # Set mock client
+        nipyapi.config.nifi_config.api_client = MagicMock()
+
+        # Make logout raise an exception
+        mock_logout.side_effect = Exception("Logout failed")
+
+        # Should not raise exception despite logout failure
+        nipyapi.security.reset_service_connections(service='nifi')
+
+        # Should still reset the API client
+        assert nipyapi.config.nifi_config.api_client is None
+
+    finally:
+        # Restore original client
+        nipyapi.config.nifi_config.api_client = original_nifi_client
+
+
 # TODO: Add more edge case tests for policy manipulation functions
 # TODO: Add tests for SSL error conditions (wrong password, etc.)

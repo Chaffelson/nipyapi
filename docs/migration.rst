@@ -167,7 +167,8 @@ NiPyAPI includes ``examples/profiles.yml`` with 4 working profiles:
       registry_url: http://localhost:18080/nifi-registry-api
       nifi_user: einstein
       nifi_pass: password1234
-      nifi_verify_ssl: false  # Self-signed certs OK in development
+      nifi_disable_host_check: true  # Disable hostname verification for self-signed certs
+      suppress_ssl_warnings: true    # Suppress SSL warnings in development
 
     secure-ldap:
       nifi_url: https://localhost:9444/nifi-api
@@ -198,7 +199,6 @@ For your actual environments, create a custom profiles file:
       registry_url: https://registry-dev.company.com/nifi-registry-api
       nifi_user: dev_user
       nifi_pass: dev_password
-      nifi_verify_ssl: true
       ca_path: /etc/ssl/certs/company-ca.pem
 
     my-production:
@@ -206,7 +206,8 @@ For your actual environments, create a custom profiles file:
       registry_url: https://registry.company.com/nifi-registry-api
       # Use environment variables for production secrets
       # NIFI_USERNAME and NIFI_PASSWORD will override
-      nifi_verify_ssl: true
+      # nifi_verify_ssl: true (smart default for HTTPS URLs)
+      # nifi_disable_host_check: null (secure default - hostname verification enabled)
       ca_path: /etc/ssl/certs/company-ca.pem
 
 **Use your custom profiles:**
@@ -297,9 +298,9 @@ The 1.x authentication approach is **profiles-first**. Instead of manually confi
 
 - **Endpoints**: NiFi and Registry URLs
 - **Authentication**: Username/password, certificates, OIDC tokens
-- **SSL Configuration**: CA certificates, hostname verification
+- **SSL Configuration**: CA certificates, SSL verification, hostname checking, warning suppression
 - **Service Integration**: NiFi → Registry proxy identity
-- **Environment Flexibility**: Development vs production settings
+- **Environment Flexibility**: Development vs production settings with smart SSL defaults
 
 **Docker Environment and Testing**
 
@@ -427,18 +428,179 @@ Configuration Changes
 
 **SSL/TLS Configuration**
 
+NiPyAPI 1.x introduces **smart SSL defaults** and **granular SSL controls**:
+
+**Smart SSL Defaults (NEW in 1.x)**::
+
+    # SSL verification automatically enabled for HTTPS URLs
+    nifi_url: https://nifi.company.com/nifi-api     # verify_ssl=true (automatic)
+    registry_url: http://registry.company.com/      # verify_ssl=false (automatic)
+
+**Granular SSL Controls (NEW in 1.x)**::
+
+    # Development profile with self-signed certificates
+    nifi_disable_host_check: true      # Disable hostname verification for HTTPS
+    suppress_ssl_warnings: true        # Suppress urllib3 warnings for development
+
+    # Production profile with trusted certificates
+    nifi_disable_host_check: null      # Enable hostname verification (default)
+    suppress_ssl_warnings: false       # Show all SSL warnings
+
+**Key SSL Behavior Changes from 0.x to 1.x:**
+
+**1. SSL Parameter in set_endpoint()**
+
+Old behavior (0.x)::
+
+    # ssl=True parameter enabled SSL verification with default system behavior
+    nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True,
+                              username="nobel", password="supersecret1!")
+    # SSL verification was system-dependent and not granularly controlled
+
+New behavior (1.x)::
+
+    # ssl=True still works, but now respects granular configuration
+    nipyapi.config.nifi_config.verify_ssl = True           # Explicit SSL verification control
+    nipyapi.config.nifi_config.disable_host_check = False  # Hostname verification control
+    nipyapi.utils.set_endpoint("https://localhost:9443/nifi-api", ssl=True, login=True,
+                              username="einstein", password="password1234")
+
+**2. SSL Context Configuration**
+
 Old approach (0.x)::
 
     import os
-    # Only applied to NiFi, not Registry
+    # Environment variables + default_ssl_context pattern
     os.environ['NIFI_CA_CERT'] = '/path/to/ca.pem'
+    nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
 
-New approach (1.x)::
+New approach (1.x) - Direct Configuration::
 
     import nipyapi
-    # Now applies to both NiFi and Registry
+    # Direct configuration (no default_ssl_context needed)
     nipyapi.config.nifi_config.ssl_ca_cert = '/path/to/ca.pem'
-    nipyapi.config.registry_config.ssl_ca_cert = '/path/to/ca.pem'
+    nipyapi.config.registry_config.ssl_ca_cert = '/path/to/ca.pem'  # Per-service control
+    nipyapi.config.nifi_config.verify_ssl = True
+    nipyapi.config.nifi_config.disable_host_check = False  # Hostname verification
+
+New approach (1.x) - Profiles (Recommended)::
+
+    # Use profiles with smart defaults - handles all SSL complexity
+    nipyapi.profiles.switch('production')  # All SSL settings configured automatically
+
+**3. SSL Configuration Complexity Reduction**
+
+SSL configuration approach changes:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 30 30
+
+   * - Aspect
+     - 0.x Approach
+     - 1.x Approach
+   * - **SSL Configuration**
+     - Complex: global settings + env vars + manual config
+     - Simple: profiles with smart defaults
+   * - **Per-Service Control**
+     - Global ``global_ssl_verify`` affects both services
+     - Independent ``nifi_verify_ssl`` / ``registry_verify_ssl``
+   * - **Hostname Checking**
+     - Global ``global_ssl_host_check`` setting
+     - Per-service ``nifi_disable_host_check`` / ``registry_disable_host_check``
+   * - **Certificate Management**
+     - Environment variables (``NIFI_CA_CERT``) + ``default_ssl_context``
+     - Profiles with shared/per-service certificates + smart resolution
+   * - **Configuration Style**
+     - Manual: Set globals, env vars, then configure each service
+     - Declarative: Define environment in profile, apply with one call
+
+**4. Enhanced SSL Controls (1.x)**
+
+**0.x approach - Global settings affecting both services:**
+
+.. code-block:: python
+
+    # 0.x: Global SSL settings affected both NiFi and Registry
+    nipyapi.config.global_ssl_verify = True            # Applied to both services
+    nipyapi.config.global_ssl_host_check = True        # Applied to both services
+    nipyapi.config.disable_insecure_request_warnings = False
+
+    # Complex environment variable setup
+    os.environ['NIFI_CA_CERT'] = '/path/to/ca.pem'
+    nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
+
+**1.x approach - Per-service granular control:**
+
+.. code-block:: yaml
+
+    # 1.x: Fine-grained per-service SSL control in profiles
+    nifi_verify_ssl: true              # Independent NiFi SSL verification
+    registry_verify_ssl: false         # Independent Registry SSL control
+    nifi_disable_host_check: true      # Per-service hostname verification control
+    registry_disable_host_check: null  # Different setting per service
+    suppress_ssl_warnings: true        # Global warning suppression (cleaner than 0.x)
+
+**Complexity Comparison Example:**
+
+.. code-block:: python
+
+    # 0.x: Complex multi-step configuration (10+ lines)
+    import os
+    import nipyapi
+
+    # Step 1: Set global SSL settings
+    nipyapi.config.global_ssl_verify = True
+    nipyapi.config.global_ssl_host_check = False  # But this affects BOTH services!
+    nipyapi.config.disable_insecure_request_warnings = True
+
+    # Step 2: Set environment variables
+    os.environ['NIFI_CA_CERT'] = '/path/to/ca.pem'
+
+    # Step 3: Apply to NiFi config
+    nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
+
+    # Step 4: Manually configure each service endpoint
+    nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True)
+    # Registry SSL settings? More complex configuration needed...
+
+    # vs.
+
+    # 1.x: Simple declarative configuration (1 line)
+    nipyapi.profiles.switch('single-user')  # Everything configured automatically
+
+**Common SSL Migration Issues and Solutions:**
+
+**Issue: "ssl=True doesn't work like it used to"**
+
+In 0.x, ``ssl=True`` behavior was system-dependent. In 1.x, it respects explicit configuration:
+
+.. code-block:: python
+
+   # 1.x: Configure SSL explicitly before calling set_endpoint
+   nipyapi.config.nifi_config.verify_ssl = True
+   nipyapi.config.nifi_config.ssl_ca_cert = '/path/to/ca.pem'
+   nipyapi.utils.set_endpoint(url, ssl=True, login=True)
+
+**Issue: "Self-signed certificates cause hostname errors"**
+
+0.x had system-dependent hostname checking. 1.x provides granular control:
+
+.. code-block:: python
+
+   # For development with self-signed certificates
+   nipyapi.config.nifi_config.disable_host_check = True   # NEW in 1.x
+   nipyapi.config.nifi_config.verify_ssl = False          # Accept self-signed certs
+
+**Issue: "Different SSL requirements for NiFi vs Registry"**
+
+0.x primarily supported NiFi. 1.x supports independent SSL configuration:
+
+.. code-block:: python
+
+   # 1.x: Independent SSL control per service
+   nipyapi.config.nifi_config.verify_ssl = True           # HTTPS with trusted certs
+   nipyapi.config.registry_config.verify_ssl = False      # HTTP or self-signed
 
 **Testing Profiles**
 
@@ -476,6 +638,8 @@ NiPyAPI 1.x adds support for modern authentication:
     # Override any profile setting
     export NIFI_API_ENDPOINT=https://production.company.com/nifi-api
     export NIFI_USERNAME=production_user
+    export NIFI_DISABLE_HOST_CHECK=true         # Disable hostname verification
+    export NIPYAPI_SUPPRESS_SSL_WARNINGS=true   # Suppress SSL warnings
     nipyapi.profiles.switch('single-user')  # Uses overrides
 
 Migration Steps
@@ -815,6 +979,14 @@ Quick Migration Checklist
    - Replace invalid Processors/Controller Services → use replacement components
    - Update certificate paths (``demo/keys/`` → ``resources/certs/``)
    - Update default ports (8080 → 9443 for NiFi, credentials: nobel → einstein)
+
+☐ **Migrate SSL configuration**:
+   - Replace ``nipyapi.config.default_ssl_context`` pattern with profile configuration
+   - Update ``ssl=True`` usage to explicitly configure ``verify_ssl`` and ``disable_host_check``
+   - Replace ``NIFI_CA_CERT`` environment variables with ``REQUESTS_CA_BUNDLE`` or direct config
+   - Consider disabling hostname verification for self-signed certificates (``disable_host_check: true``)
+   - Configure per-service SSL settings for NiFi and Registry independently
+   - Use profiles for centralized SSL management (recommended)
 
 ☐ **Production deployment**:
    - Set environment variables or Profiles for credentials/endpoints

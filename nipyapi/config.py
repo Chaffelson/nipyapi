@@ -107,21 +107,13 @@ cache = {}
 
 # --- SSL Configuration Values ---
 
-# Read environment variables and set intelligent defaults
-_verify_env = os.getenv("NIPYAPI_VERIFY_SSL")
-_host_env = os.getenv("NIPYAPI_CHECK_HOSTNAME")
+# Global SSL settings (DEPRECATED - use profiles for per-service control)
+global_ssl_verify = True  # Deprecated: Use profiles with nifi_verify_ssl/registry_verify_ssl
+global_ssl_host_check = (
+    True  # Deprecated: Use profiles with nifi_disable_host_check/registry_disable_host_check
+)
+disable_insecure_request_warnings = False  # Deprecated: Use profiles with suppress_ssl_warnings
 
-# Global SSL settings based on environment (defaults: verify=True, check_hostname=True)
-global_ssl_verify = True if _verify_env is None else _verify_env.lower() not in ("0", "false", "no")
-global_ssl_host_check = True if _host_env is None else _host_env.lower() not in ("0", "false", "no")
-disable_insecure_request_warnings = False
-
-# Set default values for individual service configs (no application logic)
-nifi_config.verify_ssl = global_ssl_verify
-registry_config.verify_ssl = global_ssl_verify
-
-# Note: SSL contexts and warnings are NOT automatically applied at import.
-# Call nipyapi.security.apply_ssl_configuration() to apply current settings.
 
 # --- Environment Variable Certificate Setup ---
 

@@ -89,7 +89,7 @@ def test_single_user_ssl_context_nifi():
             nipyapi.security.set_service_ssl_context(
                 service='nifi',
                 ca_file=ca_file,
-                check_hostname=False  # Common in development setups
+                disable_host_check=True  # Common in development setups
             )
             assert nipyapi.config.nifi_config.ssl_context is not None
             assert nipyapi.config.nifi_config.ssl_context != original_ssl_context

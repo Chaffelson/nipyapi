@@ -64,7 +64,7 @@ class RESTClientObject(object):
         cert_reqs = ssl.CERT_REQUIRED if config.verify_ssl else ssl.CERT_NONE
 
         # ca_certs
-        ca_certs = (config.ssl_ca_cert if config.ssl_ca_cert 
+        ca_certs = (config.ssl_ca_cert if config.ssl_ca_cert
                     else certifi.where())
 
         # cert_file
@@ -82,42 +82,30 @@ class RESTClientObject(object):
         # proxy
         proxy = config.proxy
 
-        # https pool manager
+        # Common pool manager parameters
+        pool_kwargs = {
+            'num_pools': pools_size,
+            'maxsize': maxsize,
+            'cert_reqs': cert_reqs,
+            'ca_certs': ca_certs,
+            'cert_file': cert_file,
+            'key_file': key_file,
+            'key_password': key_password,
+            'ssl_context': ssl_context,
+        }
+
+        # Only override hostname checking when user explicitly disables it
+        # Default urllib3 behavior (secure hostname checking) is used otherwise
+        if config.disable_host_check is True:
+            pool_kwargs['assert_hostname'] = False
+
+        # Create appropriate pool manager based on proxy configuration
         if proxy and "socks" not in str(proxy):
-            self.pool_manager = urllib3.ProxyManager(
-                num_pools=pools_size,
-                maxsize=maxsize,
-                cert_reqs=cert_reqs,
-                ca_certs=ca_certs,
-                cert_file=cert_file,
-                key_file=key_file,
-                key_password=key_password,
-                ssl_context=ssl_context,
-                proxy_url=proxy
-            )
+            self.pool_manager = urllib3.ProxyManager(proxy_url=proxy, **pool_kwargs)
         elif proxy and "socks" in str(proxy):
-            self.pool_manager = urllib3.contrib.socks.SOCKSProxyManager(
-                num_pools=pools_size,
-                maxsize=maxsize,
-                cert_reqs=cert_reqs,
-                ca_certs=ca_certs,
-                cert_file=cert_file,
-                key_file=key_file,
-                key_password=key_password,
-                ssl_context=ssl_context,
-                proxy_url=proxy
-            )
+            self.pool_manager = urllib3.contrib.socks.SOCKSProxyManager(proxy_url=proxy, **pool_kwargs)
         else:
-            self.pool_manager = urllib3.PoolManager(
-                num_pools=pools_size,
-                maxsize=maxsize,
-                cert_reqs=cert_reqs,
-                ca_certs=ca_certs,
-                cert_file=cert_file,
-                key_file=key_file,
-                key_password=key_password,
-                ssl_context=ssl_context
-            )
+            self.pool_manager = urllib3.PoolManager(**pool_kwargs)
 
 
     def request(self, method, url, query_params=None, headers=None,
@@ -299,7 +287,7 @@ class ApiException(Exception):
             self.status = http_resp.status
             self.reason = http_resp.reason
             self.body = http_resp.data
-            self.headers = (http_resp.headers if hasattr(http_resp, 'headers') 
+            self.headers = (http_resp.headers if hasattr(http_resp, 'headers')
                             else http_resp.getheaders())
         else:
             self.status = status

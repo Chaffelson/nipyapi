@@ -106,10 +106,15 @@ Default profiles are defined in ``examples/profiles.yml`` (JSON is also supporte
       nifi_client_key_password: null
       registry_client_key_password: null
 
-      # Advanced settings
-      nifi_proxy_identity: null
+      # SSL/TLS security settings
       nifi_verify_ssl: null
       registry_verify_ssl: null
+      nifi_disable_host_check: null
+      registry_disable_host_check: null
+      suppress_ssl_warnings: null
+
+      # Advanced settings
+      nifi_proxy_identity: null
 
       # OIDC configuration
       oidc_token_endpoint: null
@@ -139,8 +144,12 @@ Per-service SSL/TLS certificates (complex PKI):
   - ``nifi_client_key`` / ``registry_client_key`` - Service-specific client key paths
   - ``nifi_client_key_password`` / ``registry_client_key_password`` - Service-specific key passwords
 
-Security settings:
-  - ``nifi_verify_ssl`` / ``registry_verify_ssl`` - SSL certificate verification (true/false)
+SSL/TLS security settings:
+  - ``nifi_verify_ssl`` / ``registry_verify_ssl`` - SSL certificate verification (true/false/null). Smart defaults: true for HTTPS URLs, false for HTTP URLs
+  - ``nifi_disable_host_check`` / ``registry_disable_host_check`` - Disable SSL hostname verification (true/false/null). Only applies to HTTPS connections. Default: null (secure hostname checking enabled)
+  - ``suppress_ssl_warnings`` - Suppress SSL warnings for development with self-signed certificates (true/false/null)
+
+Advanced settings:
   - ``nifi_proxy_identity`` - Identity for NiFi → Registry proxied requests
 
 OIDC authentication:
@@ -189,6 +198,8 @@ HTTP Basic authentication with HTTPS NiFi and HTTP Registry:
   - ``client_cert: resources/certs/client/client.crt``
   - ``client_key: resources/certs/client/client.key``
   - ``client_key_password: ""``
+  - ``nifi_disable_host_check: true`` (development with self-signed certificates)
+  - ``suppress_ssl_warnings: true`` (suppress warnings for development)
 
 **Use case**: Development, testing, learning NiPyAPI
 
@@ -329,10 +340,15 @@ Basic certificate paths:
   - ``MTLS_CLIENT_KEY`` → ``client_key``
   - ``MTLS_CLIENT_KEY_PASSWORD`` → ``client_key_password``
 
-Security settings:
-  - ``NIFI_PROXY_IDENTITY`` → ``nifi_proxy_identity``
+SSL/TLS security settings:
   - ``NIFI_VERIFY_SSL`` → ``nifi_verify_ssl``
   - ``REGISTRY_VERIFY_SSL`` → ``registry_verify_ssl``
+  - ``NIFI_DISABLE_HOST_CHECK`` → ``nifi_disable_host_check``
+  - ``REGISTRY_DISABLE_HOST_CHECK`` → ``registry_disable_host_check``
+  - ``NIPYAPI_SUPPRESS_SSL_WARNINGS`` → ``suppress_ssl_warnings``
+
+Advanced settings:
+  - ``NIFI_PROXY_IDENTITY`` → ``nifi_proxy_identity``
 
 OIDC configuration:
   - ``OIDC_TOKEN_ENDPOINT`` → ``oidc_token_endpoint``
@@ -417,7 +433,11 @@ The system resolves the profiles file path in this priority order:
 
 **Sparse Profile Definitions**
 
-You don't have to specify values that are otherwise null unless required for that given authentication method. System defaults will be used (e.g., ``verify_ssl`` defaults to true when https is found in the ``nifi_url``):
+You don't have to specify values that are otherwise null unless required for that given authentication method. **Smart SSL defaults** are automatically applied:
+
+- ``verify_ssl``: Defaults to ``true`` for HTTPS URLs, ``false`` for HTTP URLs
+- ``disable_host_check``: Defaults to ``null`` (secure hostname checking), forced to ``null`` for HTTP URLs (not applicable)
+- ``suppress_ssl_warnings``: Defaults to ``null`` (show warnings)
 
 .. code-block:: yaml
 
