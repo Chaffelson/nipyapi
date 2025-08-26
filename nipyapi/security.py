@@ -947,7 +947,18 @@ def set_service_ssl_context(
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)
 
-    ssl_context.check_hostname = not (disable_host_check or False)
+    # CRITICAL SSL constraint: hostname checking requires certificate verification
+    # When no CA file is provided, we cannot verify certificates, so hostname checking is disabled
+    if ca_file is None:
+        # No CA file = no certificate verification possible, force disable hostname checking
+        ssl_context.check_hostname = False
+        if disable_host_check is None:
+            log.warning(
+                "No CA file provided - force disabling hostname checking for SSL compatibility"
+            )
+    else:
+        # CA file provided = certificate verification possible, respect user configuration
+        ssl_context.check_hostname = not (disable_host_check or False)
 
     if service == "registry":
         nipyapi.config.registry_config.ssl_context = ssl_context

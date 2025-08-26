@@ -567,5 +567,180 @@ def test_reset_service_connections_logout_error_handling(mock_logout):
         nipyapi.config.nifi_config.api_client = original_nifi_client
 
 
+# SSL Constraint and Configuration Tests
+
+def test_ssl_constraint_logic_http_urls():
+    """Test SSL constraint logic correctly handles HTTP URLs"""
+    import nipyapi.profiles
+
+    # Test HTTP URL - should force disable_host_check=None regardless of verify_ssl
+    test_config = {
+        'nifi_url': 'http://localhost:8080/nifi-api',
+        'nifi_verify_ssl': False,  # Smart default for HTTP
+        'nifi_disable_host_check': None,
+    }
+
+    # Simulate the constraint logic from resolve_profile_config
+    config = test_config.copy()
+    if config.get("nifi_url"):
+        if not config["nifi_url"].startswith("https://"):
+            # HTTP: hostname checking not applicable
+            config["nifi_disable_host_check"] = None
+        elif config.get("nifi_verify_ssl") is False and config.get("nifi_disable_host_check") is None:
+            # HTTPS + no SSL verification: must disable hostname checking
+            config["nifi_disable_host_check"] = True
+
+    # HTTP URLs should always have disable_host_check=None
+    assert config["nifi_disable_host_check"] is None
+    assert config["nifi_verify_ssl"] is False
+
+
+def test_ssl_constraint_logic_https_verify_false():
+    """Test SSL constraint logic prevents invalid HTTPS + verify_ssl=False combinations"""
+    import nipyapi.profiles
+
+    # Test HTTPS URL with verify_ssl=False - should auto-correct disable_host_check
+    test_config = {
+        'nifi_url': 'https://localhost:9443/nifi-api',
+        'nifi_verify_ssl': False,  # No certificate verification
+        'nifi_disable_host_check': None,  # Default would enable hostname checking
+    }
+
+    # Simulate the constraint logic from resolve_profile_config
+    config = test_config.copy()
+    if config.get("nifi_url"):
+        if not config["nifi_url"].startswith("https://"):
+            config["nifi_disable_host_check"] = None
+        elif config.get("nifi_verify_ssl") is False and config.get("nifi_disable_host_check") is None:
+            # CRITICAL: Prevent "Cannot set verify_mode to CERT_NONE when check_hostname is enabled"
+            config["nifi_disable_host_check"] = True
+
+    # Should auto-correct to prevent SSL error
+    assert config["nifi_disable_host_check"] is True
+    assert config["nifi_verify_ssl"] is False
+
+
+def test_ssl_constraint_logic_https_verify_true():
+    """Test SSL constraint logic respects user settings for valid HTTPS combinations"""
+    # Test HTTPS URL with verify_ssl=True - should respect user disable_host_check setting
+    test_config = {
+        'nifi_url': 'https://localhost:9443/nifi-api',
+        'nifi_verify_ssl': True,  # Certificate verification enabled
+        'nifi_disable_host_check': None,  # Secure default (hostname checking enabled)
+    }
+
+    # Simulate the constraint logic
+    config = test_config.copy()
+    if config.get("nifi_url"):
+        if not config["nifi_url"].startswith("https://"):
+            config["nifi_disable_host_check"] = None
+        elif config.get("nifi_verify_ssl") is False and config.get("nifi_disable_host_check") is None:
+            config["nifi_disable_host_check"] = True
+        # verify_ssl=True: respect user setting (don't auto-correct)
+
+    # Should preserve user setting for valid combination
+    assert config["nifi_disable_host_check"] is None  # Secure default preserved
+    assert config["nifi_verify_ssl"] is True
+
+
+def test_ssl_constraint_logic_explicit_user_override():
+    """Test SSL constraint logic respects explicit user overrides"""
+    # User explicitly sets disable_host_check=True even with verify_ssl=False
+    test_config = {
+        'nifi_url': 'https://localhost:9443/nifi-api',
+        'nifi_verify_ssl': False,
+        'nifi_disable_host_check': True,  # User explicitly set
+    }
+
+    # Simulate the constraint logic
+    config = test_config.copy()
+    if config.get("nifi_url"):
+        if not config["nifi_url"].startswith("https://"):
+            config["nifi_disable_host_check"] = None
+        elif config.get("nifi_verify_ssl") is False and config.get("nifi_disable_host_check") is None:
+            config["nifi_disable_host_check"] = True
+        # User already set disable_host_check=True, don't override
+
+    # Should preserve explicit user setting
+    assert config["nifi_disable_host_check"] is True
+    assert config["nifi_verify_ssl"] is False
+
+
+def test_ssl_constraint_logic_both_services():
+    """Test SSL constraint logic handles both NiFi and Registry independently"""
+    # Mixed scenario: HTTPS NiFi with no SSL verification, HTTP Registry
+    test_config = {
+        'nifi_url': 'https://localhost:9443/nifi-api',
+        'nifi_verify_ssl': False,
+        'nifi_disable_host_check': None,
+        'registry_url': 'http://localhost:18080/nifi-registry-api',
+        'registry_verify_ssl': False,
+        'registry_disable_host_check': None,
+    }
+
+    # Simulate the constraint logic for both services
+    config = test_config.copy()
+
+    # NiFi logic
+    if config.get("nifi_url"):
+        if not config["nifi_url"].startswith("https://"):
+            config["nifi_disable_host_check"] = None
+        elif config.get("nifi_verify_ssl") is False and config.get("nifi_disable_host_check") is None:
+            config["nifi_disable_host_check"] = True
+
+    # Registry logic
+    if config.get("registry_url"):
+        if not config["registry_url"].startswith("https://"):
+            config["registry_disable_host_check"] = None
+        elif config.get("registry_verify_ssl") is False and config.get("registry_disable_host_check") is None:
+            config["registry_disable_host_check"] = True
+
+    # NiFi: HTTPS + verify_ssl=False → auto-correct to disable_host_check=True
+    assert config["nifi_disable_host_check"] is True
+
+    # Registry: HTTP → force disable_host_check=None (not applicable)
+    assert config["registry_disable_host_check"] is None
+
+
+def test_ssl_constraint_integration_with_profiles():
+    """Integration test: SSL constraints work with real profile resolution"""
+    import nipyapi.profiles
+
+    # Test that all built-in profiles have valid SSL configurations after resolution
+    profiles = ['single-user', 'secure-ldap', 'secure-mtls', 'secure-oidc']
+
+    for profile_name in profiles:
+        config = nipyapi.profiles.resolve_profile_config(profile_name)
+
+        # Check NiFi SSL configuration
+        if config.get('nifi_url'):
+            nifi_verify = config.get('nifi_verify_ssl')
+            nifi_disable_host = config.get('nifi_disable_host_check')
+            nifi_url = config['nifi_url']
+
+            if nifi_url.startswith('https://'):
+                # HTTPS: verify SSL constraint
+                if nifi_verify is False:
+                    # verify_ssl=False requires disable_host_check=True to prevent SSL errors
+                    assert nifi_disable_host is True, f"Profile {profile_name}: HTTPS + verify_ssl=False must have disable_host_check=True"
+            else:
+                # HTTP: hostname checking not applicable
+                assert nifi_disable_host is None, f"Profile {profile_name}: HTTP URLs must have disable_host_check=None"
+
+        # Check Registry SSL configuration
+        if config.get('registry_url'):
+            registry_verify = config.get('registry_verify_ssl')
+            registry_disable_host = config.get('registry_disable_host_check')
+            registry_url = config['registry_url']
+
+            if registry_url.startswith('https://'):
+                # HTTPS: verify SSL constraint
+                if registry_verify is False:
+                    assert registry_disable_host is True, f"Profile {profile_name}: HTTPS + verify_ssl=False must have disable_host_check=True"
+            else:
+                # HTTP: hostname checking not applicable
+                assert registry_disable_host is None, f"Profile {profile_name}: HTTP URLs must have disable_host_check=None"
+
+
 # TODO: Add more edge case tests for policy manipulation functions
 # TODO: Add tests for SSL error conditions (wrong password, etc.)

@@ -261,13 +261,34 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
     if config.get("registry_url") and config.get("registry_verify_ssl") is None:
         config["registry_verify_ssl"] = config["registry_url"].startswith("https://")
 
-    # For HTTP URLs, force disable_host_check=None (hostname checking not applicable)
-    # For HTTPS URLs, respect user configuration or use secure defaults
-    if config.get("nifi_url") and not config["nifi_url"].startswith("https://"):
-        config["nifi_disable_host_check"] = None  # Force None for HTTP connections
+    # Apply SSL constraints and URL-based logic with proper precedence
+    # Rule 1: For HTTP URLs, hostname checking is not applicable (force None)
+    # Rule 2: For HTTPS URLs with verify_ssl=False, hostname checking must be disabled (force True)
+    # Rule 3: For HTTPS URLs with verify_ssl=True, respect user config (None = secure default)
+    # This works around urllib3 not filtering host check settings for HTTP Schemes
 
-    if config.get("registry_url") and not config["registry_url"].startswith("https://"):
-        config["registry_disable_host_check"] = None  # Force None for HTTP connections
+    if config.get("nifi_url"):
+        if not config["nifi_url"].startswith("https://"):
+            # HTTP: hostname checking not applicable
+            config["nifi_disable_host_check"] = None
+        elif (
+            config.get("nifi_verify_ssl") is False and config.get("nifi_disable_host_check") is None
+        ):
+            # HTTPS + no SSL verification: must disable hostname checking to avoid SSL errors
+            config["nifi_disable_host_check"] = True
+        # HTTPS + SSL verification: respect user setting (None = secure default)
+
+    if config.get("registry_url"):
+        if not config["registry_url"].startswith("https://"):
+            # HTTP: hostname checking not applicable
+            config["registry_disable_host_check"] = None
+        elif (
+            config.get("registry_verify_ssl") is False
+            and config.get("registry_disable_host_check") is None
+        ):
+            # HTTPS + no SSL verification: must disable hostname checking to avoid SSL errors
+            config["registry_disable_host_check"] = True
+        # HTTPS + SSL verification: respect user setting (None = secure default)
 
     # Normalize URLs by removing trailing slashes (standard REST API practice)
     for url_field in ["nifi_url", "registry_url", "registry_internal_url", "oidc_token_endpoint"]:
