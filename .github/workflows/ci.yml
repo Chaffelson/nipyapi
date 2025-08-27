@@ -40,10 +40,6 @@ jobs:
 
     - name: Run integration tests with coverage
       run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest --cov=nipyapi --cov-report=xml --cov-report=term-missing
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
 
     - name: Test distribution build and import
       run: make test-dist
@@ -91,10 +87,6 @@ jobs:
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
 
     - name: Stop NiFi infrastructure
       if: always()
@@ -130,10 +122,6 @@ jobs:
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
 
     - name: Stop NiFi infrastructure
       if: always()
@@ -169,10 +157,6 @@ jobs:
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=single-user PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
 
     - name: Stop NiFi infrastructure
       if: always()
@@ -211,47 +195,11 @@ jobs:
         python -c "import ssl; print('OpenSSL version:', ssl.OPENSSL_VERSION)"
         python -c "import ssl; print('SSL context flags:', ssl.create_default_context().verify_flags)"
 
-    - name: Debug environment variables
-      run: |
-        echo "=== Environment Variables ==="
-        echo "NIFI_VERIFY_SSL: ${NIFI_VERIFY_SSL:-unset}"
-        echo "REGISTRY_VERIFY_SSL: ${REGISTRY_VERIFY_SSL:-unset}"
-        echo "NIPYAPI_CHECK_HOSTNAME: ${NIPYAPI_CHECK_HOSTNAME:-unset}"
-        echo "=== Testing getenv_bool parsing ==="
-        python -c "
-        import os
-        os.environ['NIFI_VERIFY_SSL'] = '0'
-        os.environ['REGISTRY_VERIFY_SSL'] = '0'
-        os.environ['NIPYAPI_CHECK_HOSTNAME'] = '0'
-        import nipyapi
-        print('NIFI_VERIFY_SSL via getenv_bool:', nipyapi.utils.getenv_bool('NIFI_VERIFY_SSL'))
-        print('REGISTRY_VERIFY_SSL via getenv_bool:', nipyapi.utils.getenv_bool('REGISTRY_VERIFY_SSL'))
-        print('NIPYAPI_CHECK_HOSTNAME via getenv_bool:', nipyapi.utils.getenv_bool('NIPYAPI_CHECK_HOSTNAME'))
-        "
-      env:
-        NIFI_VERIFY_SSL: "0"
-        REGISTRY_VERIFY_SSL: "0"
-        NIPYAPI_CHECK_HOSTNAME: "0"
-
     - name: Wait for NiFi to be ready
       run: make wait-ready NIPYAPI_PROFILE=secure-ldap
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
-        NIFI_VERIFY_SSL: "0"
-        REGISTRY_VERIFY_SSL: "0"
-        NIPYAPI_CHECK_HOSTNAME: "0"
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=secure-ldap PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
-        NIFI_VERIFY_SSL: "0"
-        REGISTRY_VERIFY_SSL: "0"
-        NIPYAPI_CHECK_HOSTNAME: "0"
 
     - name: Dump running containers and logs on failure
       if: failure()
@@ -302,47 +250,12 @@ jobs:
         python -c "import ssl; print('OpenSSL version:', ssl.OPENSSL_VERSION)"
         python -c "import ssl; print('SSL context flags:', ssl.create_default_context().verify_flags)"
 
-    - name: Debug environment variables
-      run: |
-        echo "=== Environment Variables ==="
-        echo "NIFI_VERIFY_SSL: ${NIFI_VERIFY_SSL:-unset}"
-        echo "REGISTRY_VERIFY_SSL: ${REGISTRY_VERIFY_SSL:-unset}"
-        echo "NIPYAPI_CHECK_HOSTNAME: ${NIPYAPI_CHECK_HOSTNAME:-unset}"
-        echo "=== Testing getenv_bool parsing ==="
-        python -c "
-        import os
-        os.environ['NIFI_VERIFY_SSL'] = '0'
-        os.environ['REGISTRY_VERIFY_SSL'] = '0'
-        os.environ['NIPYAPI_CHECK_HOSTNAME'] = '0'
-        import nipyapi
-        print('NIFI_VERIFY_SSL via getenv_bool:', nipyapi.utils.getenv_bool('NIFI_VERIFY_SSL'))
-        print('REGISTRY_VERIFY_SSL via getenv_bool:', nipyapi.utils.getenv_bool('REGISTRY_VERIFY_SSL'))
-        print('NIPYAPI_CHECK_HOSTNAME via getenv_bool:', nipyapi.utils.getenv_bool('NIPYAPI_CHECK_HOSTNAME'))
-        "
-      env:
-        NIFI_VERIFY_SSL: "0"
-        REGISTRY_VERIFY_SSL: "0"
-        NIPYAPI_CHECK_HOSTNAME: "0"
-
     - name: Wait for NiFi to be ready
       run: make wait-ready NIPYAPI_PROFILE=secure-mtls
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
-        NIFI_VERIFY_SSL: "0"
-        REGISTRY_VERIFY_SSL: "0"
-        NIPYAPI_CHECK_HOSTNAME: "0"
+
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=secure-mtls PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest
-      env:
-        PYTHONHTTPSVERIFY: "0"
-        CURL_CA_BUNDLE: ""
-        REQUESTS_CA_BUNDLE: ""
-        NIFI_VERIFY_SSL: "0"
-        REGISTRY_VERIFY_SSL: "0"
-        NIPYAPI_CHECK_HOSTNAME: "0"
 
     - name: Dump running containers and logs on failure
       if: failure()

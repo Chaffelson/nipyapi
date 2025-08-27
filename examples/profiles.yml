@@ -25,8 +25,6 @@ single-user:
   # NiFi uses HTTPS with self-signed certs, Registry uses HTTP
   nifi_verify_ssl: false  # Accept self-signed certificates
   registry_verify_ssl: false
-  nifi_disable_host_check: true  # Self-signed certs often have wrong hostnames
-  registry_disable_host_check: null # Registry is HTTP, so no host check
   suppress_ssl_warnings: true  # Suppress warnings in development
   # No client certificates needed for single-user basic auth
   ca_path: null

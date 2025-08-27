@@ -105,16 +105,6 @@ registered_filters = {
 cache = {}
 
 
-# --- SSL Configuration Values ---
-
-# Global SSL settings (DEPRECATED - use profiles for per-service control)
-global_ssl_verify = True  # Deprecated: Use profiles with nifi_verify_ssl/registry_verify_ssl
-global_ssl_host_check = (
-    True  # Deprecated: Use profiles with nifi_disable_host_check/registry_disable_host_check
-)
-disable_insecure_request_warnings = False  # Deprecated: Use profiles with suppress_ssl_warnings
-
-
 # --- Environment Variable Certificate Setup ---
 
 # Back-compat TLS envs (DEPRECATED): prefer REQUESTS_CA_BUNDLE or direct config

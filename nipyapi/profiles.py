@@ -33,8 +33,6 @@ DEFAULT_PROFILE_CONFIG = {
     "nifi_proxy_identity": None,
     "nifi_verify_ssl": None,
     "registry_verify_ssl": None,
-    "nifi_disable_host_check": None,
-    "registry_disable_host_check": None,
     "suppress_ssl_warnings": None,
     "oidc_token_endpoint": None,
     "oidc_client_id": None,
@@ -59,9 +57,6 @@ ENV_VAR_MAPPINGS = [
     # SSL verification control
     ("nifi_verify_ssl", "NIFI_VERIFY_SSL"),
     ("registry_verify_ssl", "REGISTRY_VERIFY_SSL"),
-    # SSL hostname checking control
-    ("nifi_disable_host_check", "NIFI_DISABLE_HOST_CHECK"),
-    ("registry_disable_host_check", "REGISTRY_DISABLE_HOST_CHECK"),
     # SSL warning suppression
     ("suppress_ssl_warnings", "NIPYAPI_SUPPRESS_SSL_WARNINGS"),
     # OIDC configuration
@@ -244,8 +239,6 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
         if config_key in (
             "nifi_verify_ssl",
             "registry_verify_ssl",
-            "nifi_disable_host_check",
-            "registry_disable_host_check",
             "suppress_ssl_warnings",
         ):
             env_value = utils.getenv_bool(env_var)
@@ -260,35 +253,6 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
 
     if config.get("registry_url") and config.get("registry_verify_ssl") is None:
         config["registry_verify_ssl"] = config["registry_url"].startswith("https://")
-
-    # Apply SSL constraints and URL-based logic with proper precedence
-    # Rule 1: For HTTP URLs, hostname checking is not applicable (force None)
-    # Rule 2: For HTTPS URLs with verify_ssl=False, hostname checking must be disabled (force True)
-    # Rule 3: For HTTPS URLs with verify_ssl=True, respect user config (None = secure default)
-    # This works around urllib3 not filtering host check settings for HTTP Schemes
-
-    if config.get("nifi_url"):
-        if not config["nifi_url"].startswith("https://"):
-            # HTTP: hostname checking not applicable
-            config["nifi_disable_host_check"] = None
-        elif (
-            config.get("nifi_verify_ssl") is False and config.get("nifi_disable_host_check") is None
-        ):
-            # HTTPS + no SSL verification: must disable hostname checking to avoid SSL errors
-            config["nifi_disable_host_check"] = True
-        # HTTPS + SSL verification: respect user setting (None = secure default)
-
-    if config.get("registry_url"):
-        if not config["registry_url"].startswith("https://"):
-            # HTTP: hostname checking not applicable
-            config["registry_disable_host_check"] = None
-        elif (
-            config.get("registry_verify_ssl") is False
-            and config.get("registry_disable_host_check") is None
-        ):
-            # HTTPS + no SSL verification: must disable hostname checking to avoid SSL errors
-            config["registry_disable_host_check"] = True
-        # HTTPS + SSL verification: respect user setting (None = secure default)
 
     # Normalize URLs by removing trailing slashes (standard REST API practice)
     for url_field in ["nifi_url", "registry_url", "registry_internal_url", "oidc_token_endpoint"]:
@@ -393,19 +357,17 @@ def switch(profile_name, profiles_file=None, login=True):
     elif connect_to_registry:
         security.reset_service_connections("registry")  # Reset only Registry
 
-    # 4. Apply SSL configuration (exactly matching conftest.py pattern)
+    # 4. Apply SSL configuration
     # Apply CA certificate first if provided
     if config.get("ca_path"):
         security.set_shared_ca_cert(config["ca_path"])
 
-    # Set SSL verification and hostname checking from resolved config
+    # Set SSL verification from resolved config
     if connect_to_nifi:
         nipy_config.nifi_config.verify_ssl = config["nifi_verify_ssl"]
-        nipy_config.nifi_config.disable_host_check = config["nifi_disable_host_check"]
 
     if connect_to_registry:
         nipy_config.registry_config.verify_ssl = config["registry_verify_ssl"]
-        nipy_config.registry_config.disable_host_check = config["registry_disable_host_check"]
 
     # Apply SSL warning suppression from profile config
     if config.get("suppress_ssl_warnings") is not None:

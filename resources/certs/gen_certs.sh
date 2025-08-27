@@ -69,6 +69,8 @@ create_server() {
 basicConstraints=CA:FALSE
 keyUsage=digitalSignature, keyEncipherment
 extendedKeyUsage=serverAuth, clientAuth
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid,issuer
 subjectAltName=$san_list
 EOF
   openssl x509 -req -in "$name/server.csr" -CA ca/ca.crt -CAkey ca/ca.key -CAcreateserial \

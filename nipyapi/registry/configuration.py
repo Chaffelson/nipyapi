@@ -81,8 +81,7 @@ class Configuration(object):
         self.key_file = None
         # client key password
         self.key_password = None
-        # Set this to false to skip hostname verification when calling API from https server.
-        self.disable_host_check = None
+
         # Alternative TLS configuration: set this to an instance of ssl.SSLContext or urllib3.util.ssl_.SSLContext
         self.ssl_context = None
 

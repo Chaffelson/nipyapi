@@ -888,7 +888,6 @@ def set_service_ssl_context(
     client_cert_file=None,
     client_key_file=None,
     client_key_password=None,
-    disable_host_check=None,
     purpose=None,
 ):
     """
@@ -917,7 +916,7 @@ def set_service_ssl_context(
         client_key_file (str): An encrypted (password-protected) PEM file
             containing the client's secret key
         client_key_password (str): The password to decrypt the client_key_file
-        disable_host_check (bool): Set to True to disable hostname checking
+
         purpose (ssl.Purpose): The purpose of the SSLContext
 
     Returns:
@@ -947,18 +946,9 @@ def set_service_ssl_context(
     if ca_file is not None:
         ssl_context.load_verify_locations(cafile=ca_file)
 
-    # CRITICAL SSL constraint: hostname checking requires certificate verification
-    # When no CA file is provided, we cannot verify certificates, so hostname checking is disabled
-    if ca_file is None:
-        # No CA file = no certificate verification possible, force disable hostname checking
-        ssl_context.check_hostname = False
-        if disable_host_check is None:
-            log.warning(
-                "No CA file provided - force disabling hostname checking for SSL compatibility"
-            )
-    else:
-        # CA file provided = certificate verification possible, respect user configuration
-        ssl_context.check_hostname = not (disable_host_check or False)
+    # Use default SSL context behavior for hostname checking
+    # When ca_file is provided, certificates and hostnames are verified
+    # When ca_file is None, no verification occurs (handled by verify_ssl setting)
 
     if service == "registry":
         nipyapi.config.registry_config.ssl_context = ssl_context

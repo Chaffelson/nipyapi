@@ -63,9 +63,11 @@ class RESTClientObject(object):
         # cert_reqs
         cert_reqs = ssl.CERT_REQUIRED if config.verify_ssl else ssl.CERT_NONE
 
-        # ca_certs
-        ca_certs = (config.ssl_ca_cert if config.ssl_ca_cert
-                    else certifi.where())
+        # ca_certs - only when SSL verification is enabled
+        ca_certs = None
+        if config.verify_ssl:
+            ca_certs = (config.ssl_ca_cert if config.ssl_ca_cert
+                        else certifi.where())
 
         # cert_file
         cert_file = config.cert_file
@@ -93,11 +95,6 @@ class RESTClientObject(object):
             'key_password': key_password,
             'ssl_context': ssl_context,
         }
-
-        # Only override hostname checking when user explicitly disables it
-        # Default urllib3 behavior (secure hostname checking) is used otherwise
-        if config.disable_host_check is True:
-            pool_kwargs['assert_hostname'] = False
 
         # Create appropriate pool manager based on proxy configuration
         if proxy and "socks" not in str(proxy):
