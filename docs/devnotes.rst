@@ -61,13 +61,10 @@ Setup Code Signing
 
 For OS-specific GPG setup instructions, see the `GitHub documentation on commit signature verification <https://docs.github.com/en/authentication/managing-commit-signature-verification>`_.
 
-**Setup for macOS**::
+**Quick Setup for macOS**::
 
     # Install GPG via Homebrew (recommended)
     brew install gnupg
-
-    # Alternative: Install GPG Suite (GUI option)
-    # Download from https://gpgtools.org/
 
     # Generate signing keys (use a strong passphrase)
     gpg --full-generate-key
@@ -86,6 +83,78 @@ For OS-specific GPG setup instructions, see the `GitHub documentation on commit 
 - **Windows**: Use Git for Windows with GPG4Win or WSL
 
 Ensure your GPG public key is added to your GitHub account under Settings → SSH and GPG keys.
+
+
+Troubleshooting Development Issues
+----------------------------------
+
+Docker and Certificate Issues
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Problem**: SSL certificate chain errors or "authority and subject key identifier mismatch" during testing
+
+**Cause**: Docker volume caching can serve stale certificates, especially when using ``act`` for local CI testing.
+
+**Solution**: Clean Docker containers and volumes to force fresh certificate generation:
+
+.. code-block:: shell
+
+    # Quick fix for act certificate caching
+    make clean-act
+
+    # Comprehensive Docker cleanup (containers + volumes + networks)
+    make clean-docker
+
+    # Then regenerate certificates and restart testing
+    make certs
+    make test-mtls
+
+**Problem**: ``act`` (GitHub Actions local runner) shows certificate errors that don't occur in local Docker testing
+
+**Root Cause**: ``act`` maintains persistent Docker volumes between runs, which can cache stale certificates even after ``make certs`` regenerates fresh ones.
+
+**Solution**: Always run ``make clean-act`` before testing with ``act``:
+
+.. code-block:: shell
+
+    # Clean act cache and test
+    make clean-act
+    act --job test-python-312-secure-mtls
+
+    # Or use the comprehensive cleanup
+    make clean-docker
+
+**Problem**: Connection drops during test execution in CI environments while local testing works
+
+**Known**: Local Docker testing works fine with same configuration. Issue appears specific to CI execution environment.
+
+**Error Pattern**: "Connection aborted" or "Remote end closed connection without response" errors in CI (both ``act`` and GitHub Actions) while local tests pass typically indicate infrastructure/timing issues rather than configuration problems. The SSL handshake succeeds but HTTP requests return empty responses.
+
+act (GitHub Actions Local Testing)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Best Practices for act Testing**:
+
+.. code-block:: shell
+
+    # Always clean before testing to avoid cache issues
+    make clean-act
+    make clean-docker
+
+    # Run specific job with proper platform
+    act --job test-python-312-secure-mtls \
+        --platform ubuntu-latest=catthehacker/ubuntu:act-latest \
+        --container-architecture linux/amd64
+
+    # Use clean flags for completely fresh environment
+    act --bind --rm --job <job-name>
+
+**Known Issues**:
+- Certificate caching in Docker volumes
+- Different behavior compared to real GitHub Actions (timing, resource limits)
+- Docker-in-Docker networking complexities
+
+For critical CI validation, prefer testing on actual GitHub Actions when ``act`` shows persistent issues.
 
 
 Generate API Clients

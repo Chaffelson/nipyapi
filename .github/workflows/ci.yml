@@ -219,6 +219,7 @@ jobs:
 
   test-python-312-secure-mtls:
     runs-on: ubuntu-latest
+    # Note: This test can be flakey in local CI environments
 
     steps:
     - uses: actions/checkout@v4
@@ -237,22 +238,16 @@ jobs:
       uses: docker/setup-buildx-action@v3
 
     - name: Generate certificates
-      run: make certs
+      run: |
+        make certs
+        echo "Ensuring certificate files are fully written..."
+        sync
 
     - name: Start NiFi infrastructure (secure-mtls)
       run: make up NIPYAPI_PROFILE=secure-mtls
 
-    - name: Wait for containers to stabilize
-      run: sleep 5 && docker ps -a
-
-    - name: Debug SSL environment
-      run: |
-        python -c "import ssl; print('OpenSSL version:', ssl.OPENSSL_VERSION)"
-        python -c "import ssl; print('SSL context flags:', ssl.create_default_context().verify_flags)"
-
     - name: Wait for NiFi to be ready
       run: make wait-ready NIPYAPI_PROFILE=secure-mtls
-
 
     - name: Run integration tests
       run: NIPYAPI_PROFILE=secure-mtls PYTHONPATH=${{ github.workspace }}:$PYTHONPATH pytest

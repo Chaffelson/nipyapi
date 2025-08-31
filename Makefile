@@ -1,4 +1,4 @@
-.PHONY: clean clean-pyc clean-build docs help
+.PHONY: clean clean-pyc clean-build clean-act clean-docker test docs help
 .DEFAULT_GOAL := help
 
 # Default NiFi/Registry version for docker compose profiles
@@ -89,7 +89,7 @@ clean-all: clean-build clean-pyc openapi-clean ## comprehensive clean: ALL artif
 	rm -rf resources/client_gen/_tmp/* || true
 	# Auto-generated version file
 	rm -f nipyapi/_version.py || true
-	@echo "✅ ALL artifacts removed: build, Python, OpenAPI, clients, docs, coverage, temp files."
+	@echo "ALL artifacts removed: build, Python, OpenAPI, clients, docs, coverage, temp files."
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -109,6 +109,25 @@ openapi-clean: ## remove generated augmented/backup OpenAPI artifacts
 	      resources/client_gen/api_defs/*.normalized.backup.json
 	@echo "Cleaned generated OpenAPI artifacts."
 
+clean-act: ## remove act containers and volumes (fixes certificate caching issues)
+	@echo "=== Cleaning act containers and volumes ==="
+	@# Remove act containers
+	docker ps -a --filter 'name=act-' -q | xargs -r docker rm -f || true
+	@# Remove act volumes (this fixes certificate caching issues)
+	docker volume ls --format '{{.Name}}' | grep -i act | xargs -r docker volume rm || true
+	@echo "Act containers and volumes cleaned (certificate cache reset)"
+
+clean-docker: clean-act ## comprehensive Docker cleanup: act + containers + volumes + networks
+	@echo "=== Comprehensive Docker cleanup ==="
+	@# Clean up nipyapi-specific containers
+	docker ps -a --filter 'label=com.docker.compose.project=nipyapi' -q | xargs -r docker rm -f || true
+	@# Clean up nipyapi networks
+	docker network ls --filter 'name=nipyapi' -q | xargs -r docker network rm || true
+	@# Clean up unused volumes (be careful!)
+	@echo "Removing unused Docker volumes..."
+	docker volume prune -f || true
+	@echo "Comprehensive Docker cleanup complete"
+
 install: clean ## install the package to the active Python's site-packages
 	pip install .
 
@@ -119,19 +138,19 @@ docs-install: ## install docs extras
 	pip install -e ".[docs]"
 
 coverage: ensure-certs ## run pytest with coverage and generate report (set coverage-min=NN to enforce; requires infrastructure)
-	@echo "🧪 Running coverage analysis (single-user profile)..."
+	@echo "Running coverage analysis (single-user profile)..."
 	@echo "Ensuring single-user infrastructure is ready..."
 	$(MAKE) up NIPYAPI_PROFILE=single-user
 	$(MAKE) wait-ready NIPYAPI_PROFILE=single-user
 	@echo "Running pytest with coverage..."
 	NIPYAPI_PROFILE=single-user PYTHONPATH=$(PWD):$$PYTHONPATH pytest --cov=nipyapi --cov-report=term-missing --cov-report=html
 	@if [ -n "$(coverage-min)" ]; then coverage report --fail-under=$(coverage-min); fi
-	@echo "✅ Coverage analysis complete. See htmlcov/index.html for detailed report."
+	@echo "Coverage analysis complete. See htmlcov/index.html for detailed report."
 
 coverage-upload: coverage ## run coverage and upload to codecov (CI only - requires CODECOV_TOKEN)
 	@echo "📤 Uploading coverage to codecov..."
 	@if [ -z "$$CODECOV_TOKEN" ] && [ -z "$$CI" ]; then \
-		echo "❌ codecov upload requires CODECOV_TOKEN environment variable or CI environment"; \
+		echo "ERROR: codecov upload requires CODECOV_TOKEN environment variable or CI environment"; \
 		echo "💡 For local development, use 'make coverage' to view reports in htmlcov/index.html"; \
 		exit 1; \
 	fi
@@ -142,7 +161,7 @@ lint: ## run all linting checks (flake8 + pylint on core nipyapi files only)
 	flake8 nipyapi/ --config=setup.cfg --exclude=nipyapi/nifi,nipyapi/registry,nipyapi/_version.py
 	@echo "Running pylint..."
 	pylint nipyapi/ --rcfile=pylintrc --ignore=nifi,registry,_version.py
-	@echo "✅ All linting checks passed"
+	@echo "All linting checks passed"
 
 flake8: ## run flake8 linter on core nipyapi files
 	flake8 nipyapi/ --config=setup.cfg --exclude=nipyapi/nifi,nipyapi/registry,nipyapi/_version.py
@@ -160,19 +179,19 @@ pre-commit: ## run pre-commit hooks on all files
 # Dependency checking functions
 check-certs:
 	@test -f resources/certs/certs.env || \
-		(echo "❌ Certificates missing. Run: make certs" && exit 1)
+		(echo "ERROR: Certificates missing. Run: make certs" && exit 1)
 
 ensure-certs: ## generate certificates only if they don't already exist
 	@if [ ! -f resources/certs/certs.env ]; then \
 		echo "📝 Certificates not found - generating fresh certificates..."; \
 		$(MAKE) certs; \
 	else \
-		echo "✅ Certificates already exist - skipping generation"; \
+		echo "Certificates already exist - skipping generation"; \
 	fi
 
 check-infra:
 	@$(DC) ps -q 2>/dev/null | grep -q . || \
-		(echo "❌ Infrastructure not running. Run: make up NIPYAPI_PROFILE=<profile>" && exit 1)
+		(echo "ERROR: Infrastructure not running. Run: make up NIPYAPI_PROFILE=<profile>" && exit 1)
 
 # Infrastructure operations
 certs: ## generate PKCS12 certs and env for docker profiles
@@ -182,7 +201,7 @@ certs: ## generate PKCS12 certs and env for docker profiles
 		echo ""; \
 	fi
 	cd resources/certs && bash gen_certs.sh
-	@echo "✅ Fresh certificates generated - containers will use new certs on next startup"
+	@echo "Fresh certificates generated - containers will use new certs on next startup"
 
 up: ## bring up docker profile: make up NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc (uses NIFI_VERSION=$(NIFI_VERSION))
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
@@ -195,8 +214,8 @@ down: ## bring down all docker services
 	@COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE) ps --format "table {{.Name}}\t{{.State}}" | tail -n +2 | awk '{print " - " $$1 ": " $$2}' || true
 
 wait-ready: ## wait for readiness using profile configuration; requires NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "❌ NIPYAPI_PROFILE is required"; exit 1; fi
-	@echo "⏳ Waiting for $(NIPYAPI_PROFILE) infrastructure to be ready..."
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "ERROR: NIPYAPI_PROFILE is required"; exit 1; fi
+	@echo "Waiting for $(NIPYAPI_PROFILE) infrastructure to be ready..."
 	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) $(PYTHON) resources/scripts/wait_ready.py
 
 # API & Client generation
@@ -288,10 +307,10 @@ test-all: ensure-certs ## run full e2e tests across automated profiles (requires
 			exit $$test_result; \
 		fi; \
 	done
-	@echo "✅ All profiles tested successfully"
+	@echo "All profiles tested successfully"
 
 sandbox: ensure-certs ## create isolated environment with sample objects: make sandbox NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "❌ NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "ERROR: NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
 	@echo "🏗️ Setting up NiPyAPI sandbox with profile: $(NIPYAPI_PROFILE)"
 	@echo "=== 1/4: Starting infrastructure ==="
 	$(MAKE) up NIPYAPI_PROFILE=$(NIPYAPI_PROFILE)
@@ -301,7 +320,7 @@ sandbox: ensure-certs ## create isolated environment with sample objects: make s
 	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) $(PYTHON) examples/sandbox.py $(NIPYAPI_PROFILE)
 
 rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> validate -> docs
-	@echo "🚀 Starting comprehensive rebuild from clean slate..."
+	@echo "Starting comprehensive rebuild from clean slate..."
 	@echo "=== 1/9: Clean All Artifacts ==="
 	$(MAKE) clean-all
 	@echo "=== 2/9: Generate Certificates ==="
@@ -323,4 +342,4 @@ rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen cli
 	$(MAKE) test-dist
 	@echo "=== 9/9: Generate Documentation ==="
 	$(MAKE) docs
-	@echo "✅ Comprehensive rebuild completed successfully!"
+	@echo "Comprehensive rebuild completed successfully!"
