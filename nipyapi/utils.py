@@ -319,6 +319,7 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
     Returns (bool): True for success
     """
     log.info("Called set_endpoint with args %s", locals())
+
     if "nifi-api" in endpoint_url:
         configuration = nipyapi.config.nifi_config
         service = "nifi"
@@ -336,42 +337,22 @@ def set_endpoint(endpoint_url, ssl=False, login=False, username=None, password=N
     # remove any trailing slash to avoid hard to spot errors
     configuration.host = endpoint_url.rstrip("/")
 
-    # Respect preconfigured CA only; environment integration should be handled by callers
-    shared_ca = getattr(configuration, "ssl_ca_cert", None)
-    if shared_ca and login:
-        # For username/password (one-way TLS) flows, prefer CA bundle over any pre-set SSLContext
-        configuration.ssl_context = None
-        # Recreate API client to pick up new CA
-        configuration.api_client = None
+    # Handle authentication - maintain backwards compatibility with ssl parameter
+    if ssl and login and "https://" in endpoint_url:
+        # Original behavior: only login when ssl=True, login=True, AND HTTPS URL
+        # Registry HTTP doesn't require authentication, only HTTPS does
+        nipyapi.security.service_login(service, username=username, password=password)
+    elif login and not endpoint_url.startswith("https://"):
+        # Warn about insecure login attempts over HTTP
+        log.warning(
+            "Login requested for HTTP URL %s. Consider using HTTPS for secure authentication.",
+            endpoint_url,
+        )
 
-    # Set up SSL context if using HTTPS
-    if ssl and "https://" in endpoint_url:
-        if login:
-            # For one-way TLS with username/password, rely on ssl_ca_cert and verify_ssl
-            # Avoid setting a custom SSLContext here
-            nipyapi.security.service_login(service, username=username, password=password)
-        else:
-            # mTLS auth with client certificates; require preconfigured values
-            client_cert = getattr(configuration, "cert_file", None)
-            client_key = getattr(configuration, "key_file", None)
-            client_key_password = getattr(configuration, "key_password", None)
-            if not (client_cert and client_key):
-                raise ValueError(
-                    f"mTLS requires cert_file and key_file to be set on {service} configuration"
-                )
-            nipyapi.security.set_service_ssl_context(
-                service=service,
-                ca_file=shared_ca,
-                client_cert_file=client_cert,
-                client_key_file=client_key,
-                client_key_password=client_key_password,
-            )
-
-    # One-time supported-version enforcement: check once using existing helper.
+    # One-time supported-version enforcement
     try:
         enforce_min_ver("2", service=service)
     except Exception as e:  # pylint: disable=broad-except
-        # Do not block connection for unreachable About in secured setups; log instead
         log.debug("Version check skipped or failed for %s: %s", service, e)
     return True
 

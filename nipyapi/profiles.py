@@ -34,6 +34,9 @@ DEFAULT_PROFILE_CONFIG = {
     "nifi_verify_ssl": None,
     "registry_verify_ssl": None,
     "suppress_ssl_warnings": None,
+    # Explicit authentication method control (None = auto-detection)
+    "nifi_auth_method": None,
+    "registry_auth_method": None,
     "oidc_token_endpoint": None,
     "oidc_client_id": None,
     "oidc_client_secret": None,
@@ -59,6 +62,9 @@ ENV_VAR_MAPPINGS = [
     ("registry_verify_ssl", "REGISTRY_VERIFY_SSL"),
     # SSL warning suppression
     ("suppress_ssl_warnings", "NIPYAPI_SUPPRESS_SSL_WARNINGS"),
+    # Explicit authentication method control
+    ("nifi_auth_method", "NIPYAPI_NIFI_AUTH_METHOD"),
+    ("registry_auth_method", "NIPYAPI_REGISTRY_AUTH_METHOD"),
     # OIDC configuration
     ("oidc_token_endpoint", "OIDC_TOKEN_ENDPOINT"),
     ("oidc_client_id", "OIDC_CLIENT_ID"),
@@ -133,6 +139,11 @@ REGISTRY_AUTH_METHODS = {
         "required_keys": ["registry_user", "registry_pass"],
         "optional_keys": [],
     },
+    "unauthenticated": {
+        "detection_keys": [],  # No keys required for detection
+        "required_keys": [],  # No parameters required
+        "optional_keys": [],  # No optional parameters
+    },
 }
 
 
@@ -140,8 +151,8 @@ def _detect_and_validate_auth(config, auth_methods, service_name):
     """
     Generic authentication detection and validation.
 
-    Detects the appropriate authentication method based on available configuration
-    and validates that all required parameters are present.
+    First checks for explicit authentication method specification, then falls back
+    to auto-detection based on available configuration parameters.
 
     Args:
         config (dict): Configuration dictionary
@@ -155,7 +166,34 @@ def _detect_and_validate_auth(config, auth_methods, service_name):
         ValueError: If no valid authentication method is detected or required parameters
                    are missing
     """
-    # Try each method in priority order (OIDC first, then mTLS, then password)
+    # Check for explicit authentication method specification first
+    explicit_auth_key = f"{service_name.lower()}_auth_method"
+    explicit_method = config.get(explicit_auth_key)
+
+    if explicit_method:
+        # Validate explicit method is supported
+        if explicit_method not in auth_methods:
+            available_method_names = list(auth_methods.keys())
+            raise ValueError(
+                f"Invalid {service_name} authentication method '{explicit_method}'. "
+                f"Available methods: {available_method_names}"
+            )
+
+        # Validate required parameters for explicit method
+        method_def = auth_methods[explicit_method]
+        missing = [k for k in method_def["required_keys"] if not config.get(k)]
+        if missing:
+            raise ValueError(f"{service_name} {explicit_method} authentication requires: {missing}")
+
+        # Collect validated parameters (required + any present optional)
+        params = {k: config[k] for k in method_def["required_keys"]}
+        for k in method_def["optional_keys"]:
+            if config.get(k):
+                params[k] = config[k]
+
+        return explicit_method, params
+
+    # Fall back to auto-detection: try each method in priority order
     for method_name, method_def in auth_methods.items():
         # Check if all detection keys are present and non-empty
         if all(config.get(key) for key in method_def["detection_keys"]):
@@ -391,10 +429,12 @@ def switch(profile_name, profiles_file=None, login=True):
         log.info("Using NiFi authentication method: %s", nifi_auth_method)
         log.debug("Auth params: %s", list(nifi_auth_params.keys()))
 
+        # Set NiFi endpoint URL once (regardless of authentication method)
+        nipy_config.nifi_config.host = config["nifi_url"].rstrip("/")
+
         if nifi_auth_method == "oidc":
             log.debug("Configuring OIDC authentication for NiFi...")
             # OIDC requires special setup
-            nipy_config.nifi_config.host = config["nifi_url"]
 
             if login:
                 # Always capture token data for OIDC (needed for UUID extraction)
@@ -415,20 +455,17 @@ def switch(profile_name, profiles_file=None, login=True):
             # Apply client certificates for mTLS
             nipy_config.nifi_config.cert_file = nifi_auth_params["client_cert"]
             nipy_config.nifi_config.key_file = nifi_auth_params["client_key"]
-            # mTLS uses certificate auth, not username/password
-            utils.set_endpoint(config["nifi_url"], True, False)  # SSL enabled, auth disabled
             log.debug("mTLS authentication completed")
         elif nifi_auth_method == "basic":
             log.debug(
                 "Configuring basic authentication for NiFi with user: %s",
                 nifi_auth_params["nifi_user"],
             )
+
             if login:
-                # Standard HTTP Basic authentication using set_endpoint's login capability
-                utils.set_endpoint(
-                    endpoint_url=config["nifi_url"],
-                    ssl=True,
-                    login=True,
+                # Perform basic authentication directly
+                security.service_login(
+                    service="nifi",
                     username=nifi_auth_params["nifi_user"],
                     password=nifi_auth_params["nifi_pass"],
                 )
@@ -436,9 +473,6 @@ def switch(profile_name, profiles_file=None, login=True):
                 auth_metadata = nifi_auth_params["nifi_user"]
                 log.debug("Basic authentication completed")
             else:
-                # For readiness checks, just configure the host and let SSL be
-                # handled by ssl_ca_cert
-                nipy_config.nifi_config.host = config["nifi_url"]
                 log.debug("Basic auth configuration completed (no login attempted)")
         else:
             log.debug("No authentication method detected for NiFi")
@@ -446,6 +480,7 @@ def switch(profile_name, profiles_file=None, login=True):
     # 6. Configuration-driven Registry setup
     if connect_to_registry:
         log.debug("Detecting Registry authentication method...")
+
         registry_auth_method, registry_auth_params = _detect_and_validate_auth(
             config, REGISTRY_AUTH_METHODS, "Registry"
         )
@@ -453,36 +488,38 @@ def switch(profile_name, profiles_file=None, login=True):
         log.info("Using Registry authentication method: %s", registry_auth_method)
         log.debug("Auth params: %s", list(registry_auth_params.keys()))
 
+        # Set Registry endpoint URL once (regardless of authentication method)
+        nipy_config.registry_config.host = config["registry_url"].rstrip("/")
+
         if registry_auth_method == "mtls":
             log.debug("Configuring mTLS authentication for Registry...")
             # Apply client certificates for mTLS
             nipy_config.registry_config.cert_file = registry_auth_params["client_cert"]
             nipy_config.registry_config.key_file = registry_auth_params["client_key"]
-            # mTLS uses certificate auth, not username/password
-            # SSL enabled, auth disabled
-            utils.set_endpoint(config["registry_url"], True, False)
             log.debug("Registry mTLS authentication completed")
         elif registry_auth_method == "basic":
             log.debug(
                 "Configuring basic authentication for Registry with user: %s",
                 registry_auth_params["registry_user"],
             )
+
             if login:
-                # Basic username/password authentication for Registry using
-                # set_endpoint's login capability
-                utils.set_endpoint(
-                    endpoint_url=config["registry_url"],
-                    ssl=True,
-                    login=True,
-                    username=registry_auth_params["registry_user"],
-                    password=registry_auth_params["registry_pass"],
-                )
-                log.debug("Registry basic authentication completed")
+                # Registry HTTP doesn't require authentication, only HTTPS does
+                if config["registry_url"].startswith("https://"):
+                    # Perform basic authentication for HTTPS Registry
+                    security.service_login(
+                        service="registry",
+                        username=registry_auth_params["registry_user"],
+                        password=registry_auth_params["registry_pass"],
+                    )
+                    log.debug("Registry HTTPS basic authentication completed")
+                else:
+                    log.debug("Registry HTTP - no authentication required")
             else:
-                # For readiness checks, just configure the host and let SSL be
-                # handled by ssl_ca_cert
-                nipy_config.registry_config.host = config["registry_url"]
                 log.debug("Registry basic auth configuration completed (no login attempted)")
+        elif registry_auth_method == "unauthenticated":
+            log.debug("Registry configured for unauthenticated HTTP access")
+            # No authentication configuration or login needed
         else:
             log.debug("No authentication method detected for Registry")
 

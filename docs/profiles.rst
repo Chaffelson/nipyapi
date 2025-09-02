@@ -114,6 +114,10 @@ Default profiles are defined in ``examples/profiles.yml`` (JSON is also supporte
       # Advanced settings
       nifi_proxy_identity: null
 
+      # Authentication method control (explicit override)
+      nifi_auth_method: null
+      registry_auth_method: null
+
       # OIDC configuration
       oidc_token_endpoint: null
       oidc_client_id: null
@@ -149,6 +153,10 @@ SSL/TLS security settings:
 Advanced settings:
   - ``nifi_proxy_identity`` - Identity for NiFi → Registry proxied requests
 
+Authentication method control:
+  - ``nifi_auth_method`` - Explicit authentication method for NiFi (overrides auto-detection). Valid values: ``oidc``, ``mtls``, ``basic``
+  - ``registry_auth_method`` - Explicit authentication method for Registry (overrides auto-detection). Valid values: ``mtls``, ``basic``, ``unauthenticated``
+
 OIDC authentication:
   - ``oidc_token_endpoint`` - OAuth2 token endpoint URL
   - ``oidc_client_id`` / ``oidc_client_secret`` - OAuth2 client credentials
@@ -156,9 +164,22 @@ OIDC authentication:
 Profile Switching Behavior
 ===========================
 
-**Authentication Method Precedence**: When multiple authentication methods are present in a profile, the system uses this priority order: **1) OIDC** (``oidc_token_endpoint``), **2) mTLS** (``client_cert`` + ``client_key``), **3) Basic Auth** (``nifi_user`` + ``nifi_pass``). To ensure predictable behavior, design profiles with only one authentication method per environment.
+**Authentication Method Selection**: Authentication methods are determined using this precedence:
+
+1. **Explicit method specification** (highest priority): If ``nifi_auth_method`` or ``registry_auth_method`` are set, that method is used regardless of other available credentials.
+2. **Auto-detection** (fallback): When no explicit method is specified, the system auto-detects based on available credentials. Detection order varies by service:
+
+   - **NiFi**: **1) OIDC** (``oidc_token_endpoint``), **2) mTLS** (``client_cert`` + ``client_key``), **3) Basic Auth** (``nifi_user`` + ``nifi_pass``)
+   - **Registry**: **1) mTLS** (``client_cert`` + ``client_key``), **2) Basic Auth** (``registry_user`` + ``registry_pass``), **3) Unauthenticated** (no credentials required)
+
+For predictable behavior, either use explicit method specification or design profiles with only one authentication method per environment.
 
 **Service Connection Logic**: Performing a switch to NiFi or Registry is based on whether the ``nifi_url`` or ``registry_url`` is present in the profile. You can have a profile that contains only a ``nifi_url`` and it would not attempt to authenticate to Registry.
+
+**Registry Authentication Behavior**: Registry authentication depends on the URL protocol:
+
+- **HTTP Registry URLs** (``http://...``): No authentication is performed, even if ``login=True`` and credentials are provided. Registry allows unauthenticated API access over HTTP.
+- **HTTPS Registry URLs** (``https://...``): Authentication is required and will be attempted using the configured method (basic auth, mTLS, etc.).
 
 **OIDC Authentication Note**: For OIDC profiles, the presence of an ``oidc_token_endpoint`` means that the basic credentials (``nifi_user``/``nifi_pass``) will be applied to the OIDC service rather than directly to the NiFi or Registry service.
 
@@ -344,6 +365,10 @@ SSL/TLS security settings:
 
 Advanced settings:
   - ``NIFI_PROXY_IDENTITY`` → ``nifi_proxy_identity``
+
+Authentication method control:
+  - ``NIPYAPI_NIFI_AUTH_METHOD`` → ``nifi_auth_method``
+  - ``NIPYAPI_REGISTRY_AUTH_METHOD`` → ``registry_auth_method``
 
 OIDC configuration:
   - ``OIDC_TOKEN_ENDPOINT`` → ``oidc_token_endpoint``

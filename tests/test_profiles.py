@@ -181,6 +181,121 @@ class TestDetectAndValidateAuth:
         assert params['registry_user'] == 'reg_user'
         assert params['registry_pass'] == 'reg_pass'
 
+    def test_registry_unauthenticated_explicit(self):
+        """Test explicit unauthenticated method specification for Registry."""
+        config = {
+            'registry_url': 'http://localhost:18080/nifi-registry-api',
+            'registry_auth_method': 'unauthenticated'
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.REGISTRY_AUTH_METHODS, 'Registry'
+        )
+
+        assert method == 'unauthenticated'
+        assert params == {}
+
+    def test_registry_unauthenticated_fallback(self):
+        """Test auto-detection falls back to unauthenticated when no credentials."""
+        config = {
+            'registry_url': 'http://localhost:18080/nifi-registry-api',
+            'registry_user': None,
+            'registry_pass': None
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.REGISTRY_AUTH_METHODS, 'Registry'
+        )
+
+        assert method == 'unauthenticated'
+        assert params == {}
+
+    def test_explicit_method_overrides_auto_detection(self):
+        """Test that explicit method specification overrides auto-detection."""
+        config = {
+            'registry_url': 'http://localhost:18080/nifi-registry-api',
+            'registry_auth_method': 'unauthenticated',
+            'registry_user': 'testuser',  # These should be ignored
+            'registry_pass': 'testpass'
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.REGISTRY_AUTH_METHODS, 'Registry'
+        )
+
+        assert method == 'unauthenticated'
+        assert params == {}  # Credentials ignored when explicit method specified
+
+    def test_registry_method_resolution_order_mtls_beats_unauthenticated(self):
+        """Test mTLS is detected over unauthenticated when both could apply."""
+        config = {
+            'registry_url': 'https://localhost:18443/nifi-registry-api',
+            'client_cert': '/path/to/cert.pem',
+            'client_key': '/path/to/key.pem',
+            # No registry_user/registry_pass, so unauthenticated could also match
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.REGISTRY_AUTH_METHODS, 'Registry'
+        )
+
+        # mTLS should win over unauthenticated
+        assert method == 'mtls'
+        assert 'client_cert' in params
+
+    def test_registry_method_resolution_order_basic_beats_unauthenticated(self):
+        """Test basic auth is detected over unauthenticated when both could apply."""
+        config = {
+            'registry_url': 'https://localhost:18443/nifi-registry-api',
+            'registry_user': 'testuser',
+            'registry_pass': 'testpass',
+            # No client certs, so unauthenticated could also match
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.REGISTRY_AUTH_METHODS, 'Registry'
+        )
+
+        # Basic should win over unauthenticated
+        assert method == 'basic'
+        assert 'registry_user' in params
+
+    def test_registry_method_resolution_order_mtls_beats_basic(self):
+        """Test that when both mTLS and basic credentials are present, mTLS wins."""
+        config = {
+            'registry_url': 'https://localhost:18443/nifi-registry-api',
+            'client_cert': '/path/to/cert.pem',
+            'client_key': '/path/to/key.pem',
+            'registry_user': 'testuser',
+            'registry_pass': 'testpass'
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.REGISTRY_AUTH_METHODS, 'Registry'
+        )
+
+        # mTLS should win when both are present (depends on dictionary iteration order)
+        assert method == 'mtls'
+        assert 'client_cert' in params
+        assert 'registry_user' not in params
+
+    def test_unauthenticated_only_when_no_other_method_matches(self):
+        """Test unauthenticated is only selected when no other method can be detected."""
+        config = {
+            'registry_url': 'http://localhost:18080/nifi-registry-api',
+            # Deliberately incomplete credentials that don't match any method
+            'registry_user': 'testuser',  # Missing registry_pass
+            'client_cert': '/path/to/cert.pem',  # Missing client_key
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.REGISTRY_AUTH_METHODS, 'Registry'
+        )
+
+        # Should fall back to unauthenticated since other methods can't be fully detected
+        assert method == 'unauthenticated'
+        assert params == {}
+
 
 class TestResolveProfileConfig:
     """Test complete profile configuration resolution with environment variables."""

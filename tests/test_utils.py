@@ -3,10 +3,11 @@
 import os
 import sys
 import pytest
+from unittest.mock import patch
 from tests import conftest
 import json
 from deepdiff import DeepDiff
-from nipyapi import utils, nifi, system
+from nipyapi import utils, nifi, system, config, profiles
 from nipyapi.config import default_string_encoding as DEF_ENCODING
 
 
@@ -479,3 +480,119 @@ class TestGetenvBool:
             os.environ[self.test_var] = value
             result = utils.getenv_bool(self.test_var)
             assert result is True, f"SSL verification should be enabled for '{value}'"
+
+
+class TestSetEndpoint:
+    """Test class for set_endpoint function."""
+
+    def teardown_method(self):
+        """Restore authentication state after each test."""
+        # CRITICAL: Always restore authentication state to avoid breaking subsequent tests
+        profiles.switch(conftest.ACTIVE_PROFILE)
+
+    def test_basic_nifi_endpoint_setting(self):
+        """Test basic NiFi endpoint setting functionality."""
+        result = utils.set_endpoint("http://localhost:8080/nifi-api", ssl=False, login=False)
+        assert result is True
+        assert config.nifi_config.host == "http://localhost:8080/nifi-api"
+
+    def test_basic_registry_endpoint_setting(self):
+        """Test basic Registry endpoint setting functionality."""
+        result = utils.set_endpoint("http://localhost:18080/nifi-registry-api", ssl=False, login=False)
+        assert result is True
+        assert config.registry_config.host == "http://localhost:18080/nifi-registry-api"
+
+    def test_trailing_slash_removal(self):
+        """Test that trailing slashes are removed from endpoints."""
+        result = utils.set_endpoint("http://localhost:8080/nifi-api/", ssl=False, login=False)
+        assert result is True
+        assert config.nifi_config.host == "http://localhost:8080/nifi-api"
+
+    def test_invalid_endpoint_error(self):
+        """Test error handling for invalid endpoints."""
+        with pytest.raises(ValueError, match="Endpoint not recognised"):
+            utils.set_endpoint("http://localhost:8080/invalid-api", ssl=False, login=False)
+
+    def test_backwards_compatibility_positional_args(self):
+        """Test backwards compatibility with positional arguments."""
+        result = utils.set_endpoint("http://localhost:8080/nifi-api", False, False)
+        assert result is True
+        assert config.nifi_config.host == "http://localhost:8080/nifi-api"
+
+    def test_mixed_positional_and_keyword_args(self):
+        """Test mixing positional and keyword arguments."""
+        result = utils.set_endpoint("http://localhost:8080/nifi-api", False, login=False)
+        assert result is True
+        assert config.nifi_config.host == "http://localhost:8080/nifi-api"
+
+    def test_service_detection_nifi_vs_registry(self):
+        """Test that nifi vs registry endpoints are detected correctly."""
+        # Test NiFi detection
+        utils.set_endpoint("http://localhost:8080/nifi-api", ssl=False, login=False)
+        assert config.nifi_config.host == "http://localhost:8080/nifi-api"
+
+        # Test Registry detection
+        utils.set_endpoint("http://localhost:18080/nifi-registry-api", ssl=False, login=False)
+        assert config.registry_config.host == "http://localhost:18080/nifi-registry-api"
+
+    def test_http_login_warning(self):
+        """Test that HTTP login attempts show warnings."""
+        import unittest.mock
+
+        with unittest.mock.patch('nipyapi.utils.log') as mock_log:
+            utils.set_endpoint(
+                "http://localhost:18080/nifi-registry-api",
+                ssl=False,
+                login=True,
+                username="test",
+                password="test"
+            )
+
+            # Should log warning about HTTP login
+            mock_log.warning.assert_called_once()
+            warning_msg = mock_log.warning.call_args[0][0]
+            assert "Consider using HTTPS" in warning_msg
+
+    @patch('nipyapi.security.service_login')
+    def test_https_ssl_login_behavior(self, mock_login):
+        """Test that HTTPS + ssl=True + login=True calls service_login."""
+        mock_login.return_value = True
+
+        utils.set_endpoint(
+            "https://localhost:9443/nifi-api",
+            ssl=True,
+            login=True,
+            username="test",
+            password="test"
+        )
+
+        mock_login.assert_called_once_with("nifi", username="test", password="test")
+
+    @patch('nipyapi.security.service_login')
+    def test_https_no_ssl_no_login(self, mock_login):
+        """Test that HTTPS + ssl=False + login=True does not call service_login."""
+        utils.set_endpoint(
+            "https://localhost:9443/nifi-api",
+            ssl=False,
+            login=True,
+            username="test",
+            password="test"
+        )
+
+        # Should NOT call service_login when ssl=False
+        mock_login.assert_not_called()
+
+    @patch('nipyapi.utils.enforce_min_ver')
+    def test_version_check_called(self, mock_enforce_ver):
+        """Test that version enforcement is called."""
+        result = utils.set_endpoint("http://localhost:8080/nifi-api", ssl=False, login=False)
+        assert result is True
+        mock_enforce_ver.assert_called_once_with("2", service="nifi")
+
+    @patch('nipyapi.utils.enforce_min_ver')
+    def test_version_check_failure_ignored(self, mock_enforce_ver):
+        """Test that version check failures don't break set_endpoint."""
+        mock_enforce_ver.side_effect = Exception("Version check failed")
+
+        result = utils.set_endpoint("http://localhost:8080/nifi-api", ssl=False, login=False)
+        assert result is True  # Should still succeed despite version check failure

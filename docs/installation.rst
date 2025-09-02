@@ -121,41 +121,12 @@ Then test the connection:
 
 **Option 2: Connect to Your Existing NiFi**
 
-If you have NiFi already running, create a custom profile:
+For connecting to your own NiFi instances, see:
 
-.. code-block:: python
-
-    import nipyapi
-
-    # Create custom profile configuration
-    custom_config = {
-        'nifi_url': 'https://your-nifi.com/nifi-api',  # NiFi 2.x typically uses HTTPS
-        'nifi_user': 'your_username',
-        'nifi_pass': 'your_password',
-        'nifi_verify_ssl': True
-    }
-
-    # Test connection
-    try:
-        # Manual configuration (advanced)
-        nipyapi.config.nifi_config.host = custom_config['nifi_url']
-        nipyapi.utils.set_endpoint(custom_config['nifi_url'], ssl=True, login=True,
-                                  username=custom_config['nifi_user'],
-                                  password=custom_config['nifi_pass'])
-
-        version = nipyapi.system.get_nifi_version_info()
-        print(f"✓ Connected to NiFi {version}")
-    except Exception as e:
-        print(f"✗ Connection failed: {e}")
-
-**Learn More**
-
-For complete configuration options and authentication methods:
-
-- **Profiles System**: See ``docs/profiles.rst`` for centralized configuration management
-- **Authentication**: See ``docs/security.rst`` for all supported authentication methods
-- **Migration**: See ``docs/migration.rst`` if upgrading from NiPyAPI 0.x
-- **Quick Start**: See ``README.rst`` for step-by-step setup instructions
+- **Environment Profiles**: ``docs/profiles.rst`` - Centralized configuration management
+- **Authentication Methods**: ``docs/security.rst`` - All supported authentication options
+- **Migration Guide**: ``docs/migration.rst`` - Upgrading from NiPyAPI 0.x
+- **Quick Start**: ``README.rst`` - Step-by-step setup instructions
 
 
 .. include:: nipyapi-docs/dependencies.rst

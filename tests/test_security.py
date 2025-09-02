@@ -571,23 +571,27 @@ def test_reset_service_connections_logout_error_handling(mock_logout):
 
 def test_simplified_ssl_approach():
     """Test simplified SSL approach: verify_ssl=True/False controls everything"""
-    import nipyapi.config
     from nipyapi.nifi.rest import RESTClientObject
 
-    # Test verify_ssl=False: should use CERT_NONE with no ca_certs
-    nipyapi.config.nifi_config.host = 'https://localhost:8443/nifi-api'
-    nipyapi.config.nifi_config.verify_ssl = False
+    try:
+        # Test verify_ssl=False: should use CERT_NONE with no ca_certs
+        nipyapi.config.nifi_config.host = 'https://localhost:8443/nifi-api'
+        nipyapi.config.nifi_config.verify_ssl = False
 
-    client = RESTClientObject()
-    assert client.pool_manager.connection_pool_kw.get("cert_reqs") == 0  # ssl.CERT_NONE
-    assert client.pool_manager.connection_pool_kw.get("ca_certs") is None
+        client = RESTClientObject()
+        assert client.pool_manager.connection_pool_kw.get("cert_reqs") == 0  # ssl.CERT_NONE
+        assert client.pool_manager.connection_pool_kw.get("ca_certs") is None
 
-    # Test verify_ssl=True: should use CERT_REQUIRED with ca_certs
-    nipyapi.config.nifi_config.verify_ssl = True
+        # Test verify_ssl=True: should use CERT_REQUIRED with ca_certs
+        nipyapi.config.nifi_config.verify_ssl = True
 
-    client = RESTClientObject()
-    assert client.pool_manager.connection_pool_kw.get("cert_reqs") == 2  # ssl.CERT_REQUIRED
-    assert client.pool_manager.connection_pool_kw.get("ca_certs") is not None
+        client = RESTClientObject()
+        assert client.pool_manager.connection_pool_kw.get("cert_reqs") == 2  # ssl.CERT_REQUIRED
+        assert client.pool_manager.connection_pool_kw.get("ca_certs") is not None
+
+    finally:
+        # CRITICAL: Always restore configuration using profiles system to avoid breaking subsequent tests
+        nipyapi.profiles.switch(conftest.ACTIVE_PROFILE)
 
 
 # TODO: Add more edge case tests for policy manipulation functions

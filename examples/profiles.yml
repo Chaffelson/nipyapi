@@ -20,9 +20,9 @@ single-user:
   registry_internal_url: http://registry-single:18080
   nifi_user: einstein
   nifi_pass: password1234
-  registry_user: einstein
-  registry_pass: password1234
-  # NiFi uses HTTPS with self-signed certs, Registry uses HTTP
+  registry_user: null  # Not used for HTTP Registry (no auth required)
+  registry_pass: null  # Not used for HTTP Registry (no auth required)
+  # NiFi uses HTTPS with self-signed certs, Registry uses HTTP (no auth needed)
   nifi_verify_ssl: false  # Accept self-signed certificates
   registry_verify_ssl: false
   suppress_ssl_warnings: true  # Suppress warnings in development

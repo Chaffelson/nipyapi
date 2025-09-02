@@ -150,79 +150,16 @@ NiPyAPI 1.x introduces a **centralized configuration system** that eliminates th
 - **1.x approach**: 1 line switches entire environment configuration
 - **Zero code changes** needed to switch between dev/staging/production
 
-Working with profiles.yml
-~~~~~~~~~~~~~~~~~~~~~~~~~
+**Understanding the Profiles System**
 
-The profiles system depends on a YAML configuration file that defines your environments. You have two main options:
+The profiles system was introduced to solve environment configuration complexity in 0.x. Instead of manually configuring multiple services, certificates, and authentication for each environment, profiles provide centralized configuration management through YAML files.
 
-**Option A: Use the Provided File (Recommended for Getting Started)**
+For complete profile configuration and usage details, see ``docs/profiles.rst``.
 
-NiPyAPI includes ``examples/profiles.yml`` with 4 working profiles:
-
-.. code-block:: yaml
-
-    # examples/profiles.yml (excerpt)
-    single-user:
-      nifi_url: https://localhost:9443/nifi-api
-      registry_url: http://localhost:18080/nifi-registry-api
-      nifi_user: einstein
-      nifi_pass: password1234
-      nifi_verify_ssl: false  # Accept self-signed certificates (disables both cert and hostname verification)
-      suppress_ssl_warnings: true    # Suppress SSL warnings in development
-
-    secure-ldap:
-      nifi_url: https://localhost:9444/nifi-api
-      registry_url: https://localhost:18444/nifi-registry-api
-      nifi_user: einstein
-      nifi_pass: password
-      ca_path: "resources/certs/client/ca.pem"
-
-**Quick test with provided profiles:**
-
-.. code-block:: python
-
-    # These profiles work immediately with NiPyAPI Docker environment
-    nipyapi.profiles.switch('single-user')      # HTTP Basic auth
-    nipyapi.profiles.switch('secure-ldap')      # LDAP over TLS
-    nipyapi.profiles.switch('secure-mtls')      # Certificate auth
-    nipyapi.profiles.switch('secure-oidc')      # OAuth2/OIDC auth
-
-**Option B: Create Your Own profiles.yml (Production Use)**
-
-For your actual environments, create a custom profiles file:
-
-.. code-block:: yaml
-
-    # /etc/nipyapi/profiles.yml or ~/.nipyapi/profiles.yml
-    my-dev:
-      nifi_url: https://nifi-dev.company.com/nifi-api
-      registry_url: https://registry-dev.company.com/nifi-registry-api
-      nifi_user: dev_user
-      nifi_pass: dev_password
-      ca_path: /etc/ssl/certs/company-ca.pem
-
-    my-production:
-      nifi_url: https://nifi.company.com/nifi-api
-      registry_url: https://registry.company.com/nifi-registry-api
-      # Use environment variables for production secrets
-      # NIFI_USERNAME and NIFI_PASSWORD will override
-      # nifi_verify_ssl: true (smart default for HTTPS URLs - enables both cert and hostname verification)
-      ca_path: /etc/ssl/certs/company-ca.pem
-
-**Use your custom profiles:**
-
-.. code-block:: python
-
-    # Method 1: Set default file location
-    nipyapi.config.default_profiles_file = '/etc/nipyapi/profiles.yml'
-    nipyapi.profiles.switch('my-production')
-
-    # Method 2: Specify file per call
-    nipyapi.profiles.switch('my-production', profiles_file='/etc/nipyapi/profiles.yml')
-
-    # Method 3: Environment variable (global)
-    # export NIPYAPI_PROFILES_FILE=/etc/nipyapi/profiles.yml
-    nipyapi.profiles.switch('my-production')
+**Migration Strategy:**
+1. Create profiles.yml defining your environments (or use ``examples/profiles.yml`` for testing)
+2. Replace manual configuration blocks with ``nipyapi.profiles.switch('profile-name')`` calls
+3. Test each environment switch to ensure authentication and SSL work correctly
 
 Breaking Changes
 ----------------
@@ -243,8 +180,8 @@ Authentication and Configuration
      - ``NIPYAPI_PROFILE``
      - Environment variable replaces file editing
    * - ``NIFI_CA_CERT``
-     - ``config.nifi_config.ssl_ca_cert``
-     - Programmatic configuration preferred
+     - ``NIFI_CA_CERT_PATH`` (profiles) or ``TLS_CA_CERT_PATH`` (shared)
+     - **REMOVED** - Use profiles system or direct config
 
 **Authentication Migration Strategy**
 
@@ -467,10 +404,9 @@ New behavior (1.x)::
 
 Old approach (0.x)::
 
-    import os
-    # Environment variables + default_ssl_context pattern
-    os.environ['NIFI_CA_CERT'] = '/path/to/ca.pem'
-    nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
+    # NIFI_CA_CERT is no longer supported in 1.x
+    # Use direct configuration instead
+    nipyapi.config.nifi_config.ssl_ca_cert = '/path/to/ca.pem'
 
 New approach (1.x) - Direct Configuration::
 
@@ -506,7 +442,7 @@ SSL configuration approach changes:
      - Global ``global_ssl_host_check`` setting
      - Integrated with ``nifi_verify_ssl`` / ``registry_verify_ssl`` (when false, hostname checking is disabled)
    * - **Certificate Management**
-     - Environment variables (``NIFI_CA_CERT``) + ``default_ssl_context``
+     - Environment variables (``NIFI_CA_CERT`` - **REMOVED**) + ``default_ssl_context``
      - Profiles with shared/per-service certificates + smart resolution
    * - **Configuration Style**
      - Manual: Set globals, env vars, then configure each service
@@ -523,9 +459,8 @@ SSL configuration approach changes:
     nipyapi.config.global_ssl_host_check = True        # Applied to both services
     nipyapi.config.disable_insecure_request_warnings = False
 
-    # Complex environment variable setup
-    os.environ['NIFI_CA_CERT'] = '/path/to/ca.pem'
-    nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
+    # Direct certificate configuration (NIFI_CA_CERT no longer supported)
+    nipyapi.config.nifi_config.ssl_ca_cert = '/path/to/ca.pem'
 
 **1.x approach - Per-service granular control:**
 
@@ -549,11 +484,8 @@ SSL configuration approach changes:
     nipyapi.config.global_ssl_host_check = False  # But this affects BOTH services!
     nipyapi.config.disable_insecure_request_warnings = True
 
-    # Step 2: Set environment variables
-    os.environ['NIFI_CA_CERT'] = '/path/to/ca.pem'
-
-    # Step 3: Apply to NiFi config
-    nipyapi.config.nifi_config.ssl_ca_cert = nipyapi.config.default_ssl_context["ca_file"]
+    # Step 2: Direct configuration (NIFI_CA_CERT no longer supported)
+    nipyapi.config.nifi_config.ssl_ca_cert = '/path/to/ca.pem'
 
     # Step 4: Manually configure each service endpoint
     nipyapi.utils.set_endpoint("https://localhost:8443/nifi-api", ssl=True, login=True)
@@ -977,7 +909,7 @@ Quick Migration Checklist
 ☐ **Migrate SSL configuration**:
    - Replace ``nipyapi.config.default_ssl_context`` pattern with profile configuration
    - Update ``ssl=True`` usage to explicitly configure ``verify_ssl`` per service
-   - Replace ``NIFI_CA_CERT`` environment variables with ``REQUESTS_CA_BUNDLE`` or direct config
+   - Replace ``NIFI_CA_CERT`` environment variables (**REMOVED**) with ``NIFI_CA_CERT_PATH`` (profiles), ``TLS_CA_CERT_PATH`` (shared), ``REQUESTS_CA_BUNDLE`` (standard), or direct config
    - For self-signed certificates, set ``verify_ssl: false`` (disables both cert and hostname verification)
    - Configure per-service SSL settings for NiFi and Registry independently
    - Use profiles for centralized SSL management (recommended)

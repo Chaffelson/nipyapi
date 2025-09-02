@@ -189,22 +189,24 @@ These variables are read at import time to seed defaults (see ``nipyapi/config.p
     export NIPYAPI_VERIFY_SSL=1                                  # Global SSL verification toggle
     export NIPYAPI_CHECK_HOSTNAME=1                              # Hostname verification toggle
 
-.. warning::
-   **Deprecated Environment Variables**
+.. note::
+   **Environment Variable Changes**
 
-   These variables are deprecated and will show warnings in NiPyAPI 1.x:
+   **Variables with name changes:**
 
-   .. code-block:: shell
+   - ``NIFI_CA_CERT`` → **Renamed** to ``NIFI_CA_CERT_PATH`` (profiles) or use ``TLS_CA_CERT_PATH`` (shared)
+   - ``REGISTRY_CA_CERT`` → **Renamed** to ``REGISTRY_CA_CERT_PATH`` (profiles) or use ``TLS_CA_CERT_PATH`` (shared)
 
-       # DEPRECATED - Use REQUESTS_CA_BUNDLE or direct configuration instead
-       export NIFI_CA_CERT=/path/to/ca.pem
-       export NIFI_CLIENT_CERT=/path/to/client.crt
-       export NIFI_CLIENT_KEY=/path/to/client.key
-       export REGISTRY_CA_CERT=/path/to/ca.pem
-       export REGISTRY_CLIENT_CERT=/path/to/client.crt
-       export REGISTRY_CLIENT_KEY=/path/to/client.key
+   **Variables moved to profiles system:**
 
-   **Migration**: Use the profiles system or set ``configuration.ssl_ca_cert/cert_file/key_file`` directly.
+   These variables still work the same way but are now managed through the profiles system:
+
+   - ``NIFI_CLIENT_CERT`` → Now handled via profiles system (same variable name)
+   - ``NIFI_CLIENT_KEY`` → Now handled via profiles system (same variable name)
+   - ``REGISTRY_CLIENT_CERT`` → Now handled via profiles system (same variable name)
+   - ``REGISTRY_CLIENT_KEY`` → Now handled via profiles system (same variable name)
+
+   **Migration**: For CA certificates, update variable names. For client certificates, no changes needed - the same environment variables work but are now processed through the profiles system instead of direct configuration.
 
 **Profile System Variables**
 
@@ -250,6 +252,39 @@ For programmatic configuration:
 
 .. note::
    **Recommendation**: Use the profiles system instead of manual configuration for better maintainability and environment management.
+
+Registry vs NiFi Authentication Requirements
+===========================================
+
+**Important:** NiFi Registry and NiFi have different authentication requirements depending on their deployment mode:
+
+**NiFi Registry Authentication:**
+
+- **HTTP Deployments** (``http://...``): **No authentication required**. Registry allows unauthenticated API access for development and testing environments.
+- **HTTPS Deployments** (``https://...``): **Authentication required** via username/password or client certificates.
+
+**NiFi Authentication:**
+
+- **All Deployments**: **Authentication always required** when using secure connection methods (``ssl=True`` or ``https://`` URLs).
+
+**Practical Implications:**
+
+.. code-block:: python
+
+    # Registry HTTP - No authentication needed
+    nipyapi.config.registry_config.host = "http://localhost:18080/nifi-registry-api"
+    # Can immediately make API calls without login
+
+    # Registry HTTPS - Authentication required
+    nipyapi.config.registry_config.host = "https://localhost:18443/nifi-registry-api"
+    nipyapi.security.service_login("registry", username="user", password="pass")
+
+    # NiFi - Authentication required for secure connections
+    nipyapi.config.nifi_config.host = "https://localhost:9443/nifi-api"
+    nipyapi.security.service_login("nifi", username="user", password="pass")
+
+.. note::
+   The profiles system and ``set_endpoint()`` function automatically handle these authentication differences. When using Registry over HTTP, no login attempt will be made even if ``login=True`` is specified.
 
 Authentication Methods
 ======================
@@ -326,12 +361,11 @@ Default ports (Docker profile): NiFi ``https://localhost:9443/nifi-api``; Regist
     # Basic auth credentials (Docker profile defaults)
     config.nifi_config.username = "einstein"
     config.nifi_config.password = "password1234"  # single-user default
-    config.registry_config.username = "einstein"
-    config.registry_config.password = "password1234"  # single-user default
+    # Note: Registry HTTP credentials not needed (unauthenticated access)
 
-    # Establish sessions (uses credentials already set on config)
+    # Establish sessions using legacy set_endpoint command instead of new profiles.switch() system.
     utils.set_endpoint("https://localhost:9443/nifi-api", ssl=True, login=True)
-    utils.set_endpoint("http://localhost:18080/nifi-registry-api", ssl=True, login=True)
+    utils.set_endpoint("http://localhost:18080/nifi-registry-api", ssl=False, login=False)  # HTTP Registry - no auth needed
 
 
 Secure LDAP (basic auth over TLS)
