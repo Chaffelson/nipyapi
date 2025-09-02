@@ -74,22 +74,30 @@ help:
 ## Operational Targets ##
 #################################################################################
 
-clean: clean-build clean-pyc ## remove all build, test, coverage and Python artifacts
+clean: clean-build clean-pyc clean-temp ## remove all build, test, coverage and Python artifacts
 
-clean-all: clean-build clean-pyc openapi-clean ## comprehensive clean: ALL artifacts (build + clients + specs + docs + coverage)
-	@echo "=== Comprehensive Clean: ALL Artifacts ==="
-	# Generated clients
-	rm -rf nipyapi/nifi/apis/* nipyapi/nifi/models/* || true
-	rm -rf nipyapi/registry/apis/* nipyapi/registry/models/* || true
-	# Generated documentation
-	rm -rf docs/nipyapi-docs docs/_build/* || true
+clean-all: clean-build clean-pyc clean-temp openapi-clean ## nuclear clean: removes ALL artifacts including committed generated code
+	@echo "=== Nuclear Clean: Removing ALL Artifacts ==="
+	@echo "WARNING: This removes committed generated code (API clients, docs)!"
+	# Generated API clients (committed code)
+	rm -rf nipyapi/nifi/* nipyapi/registry/* || true
+	# Generated documentation (committed code)
+	rm -rf docs/nipyapi-docs || true
+	@echo "ALL artifacts removed: build, Python, OpenAPI, committed code, test certificates."
+	@echo "Use 'make openapi-generate' and 'make docs' to regenerate committed code."
+
+clean-temp: ## remove temporary artifacts but preserve committed code
 	# Coverage artifacts
 	rm -rf htmlcov/ .coverage coverage.xml .pytest_cache || true
-	# Temporary generation files
-	rm -rf resources/client_gen/_tmp/* || true
+	# Documentation build artifacts
+	rm -rf docs/_build/* || true
+	# Temporary generation files and cache
+	rm -rf resources/client_gen/_tmp/* resources/client_gen/_cache/* || true
+	# Test certificates and configuration (non-committed test artifacts)
+	rm -rf resources/certs/ca/ resources/certs/nifi/ resources/certs/registry/ resources/certs/client/ resources/certs/truststore/ || true
+	rm -f resources/certs/certs.env resources/certs/nifi.env resources/certs/registry.env || true
 	# Auto-generated version file
 	rm -f nipyapi/_version.py || true
-	@echo "ALL artifacts removed: build, Python, OpenAPI, clients, docs, coverage, temp files."
 
 clean-build: ## remove build artifacts
 	rm -fr build/
@@ -203,7 +211,7 @@ certs: ## generate PKCS12 certs and env for docker profiles
 	cd resources/certs && bash gen_certs.sh
 	@echo "Fresh certificates generated - containers will use new certs on next startup"
 
-up: ## bring up docker profile: make up NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc (uses NIFI_VERSION=$(NIFI_VERSION))
+up: ensure-certs # bring up docker profile: make up NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc (uses NIFI_VERSION=$(NIFI_VERSION))
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
 	$(DC) --profile $(NIPYAPI_PROFILE) up -d
 

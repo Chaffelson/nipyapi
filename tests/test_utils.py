@@ -535,9 +535,13 @@ class TestSetEndpoint:
         utils.set_endpoint("http://localhost:18080/nifi-registry-api", ssl=False, login=False)
         assert config.registry_config.host == "http://localhost:18080/nifi-registry-api"
 
-    def test_http_login_warning(self):
+    @patch('nipyapi.utils.enforce_min_ver')
+    def test_http_login_warning(self, mock_enforce_ver):
         """Test that HTTP login attempts show warnings."""
         import unittest.mock
+
+        # Mock the version check to isolate the HTTP login warning
+        mock_enforce_ver.return_value = False
 
         with unittest.mock.patch('nipyapi.utils.log') as mock_log:
             utils.set_endpoint(
