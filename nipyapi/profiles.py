@@ -40,6 +40,8 @@ DEFAULT_PROFILE_CONFIG = {
     "oidc_token_endpoint": None,
     "oidc_client_id": None,
     "oidc_client_secret": None,
+    # NiFi CLI properties file integration
+    "nifi_cli_properties_file": None,
 }
 
 # Environment variable mappings - maps config keys to their env var names
@@ -78,6 +80,8 @@ ENV_VAR_MAPPINGS = [
     ("registry_client_key", "REGISTRY_CLIENT_KEY"),
     ("nifi_client_key_password", "NIFI_CLIENT_KEY_PASSWORD"),
     ("registry_client_key_password", "REGISTRY_CLIENT_KEY_PASSWORD"),
+    # NiFi CLI properties file integration
+    ("nifi_cli_properties_file", "NIPYAPI_NIFI_CLI_PROPERTIES_FILE"),
 ]
 
 # Certificate management configuration
@@ -111,10 +115,9 @@ NIFI_AUTH_METHODS = {
             "oidc_token_endpoint",
             "oidc_client_id",
             "oidc_client_secret",
-            "nifi_user",
-            "nifi_pass",
         ],
-        "optional_keys": [],
+        # Optional keys are required for OIDC authentication as Resource Owner
+        "optional_keys": ["nifi_user", "nifi_pass"],
     },
     "mtls": {
         "detection_keys": ["client_cert", "client_key"],
@@ -145,6 +148,72 @@ REGISTRY_AUTH_METHODS = {
         "optional_keys": [],  # No optional parameters
     },
 }
+
+# NiFi CLI properties to NiPyAPI profile key mappings
+NIFI_CLI_PROPERTY_MAPPINGS = {
+    "baseUrl": "nifi_url",
+    "oidcTokenUrl": "oidc_token_endpoint",
+    "oidcClientId": "oidc_client_id",
+    "oidcClientSecret": "oidc_client_secret",
+    # Note: truststore/keystore handled via certificate extraction utility
+    # "truststore": handled separately via extract_jks_certs.sh
+    # "keystore": handled separately via extract_jks_certs.sh
+}
+
+
+def _load_nifi_cli_properties(properties_file_path):
+    """
+    Load NiFi CLI properties file and convert to NiPyAPI profile configuration.
+
+    Args:
+        properties_file_path (str): Path to NiFi CLI properties file
+
+    Returns:
+        dict: Profile configuration with mapped keys
+
+    Raises:
+        FileNotFoundError: If properties file doesn't exist
+        ValueError: If properties file is malformed
+    """
+    if not properties_file_path:
+        return {}
+
+    resolved_path = utils.resolve_relative_paths(properties_file_path)
+    if not resolved_path:
+        return {}
+
+    try:
+        properties = {}
+        with open(resolved_path, "r", encoding="utf-8") as f:
+            for _, line in enumerate(f, 1):
+                line = line.strip()
+                # Skip empty lines and comments
+                if not line or line.startswith("#") or line.startswith("!"):
+                    continue
+                # Parse key=value pairs
+                if "=" in line:
+                    key, value = line.split("=", 1)
+                    properties[key.strip()] = value.strip()
+
+        # Map properties to NiPyAPI profile keys
+        profile_config = {}
+        for cli_key, profile_key in NIFI_CLI_PROPERTY_MAPPINGS.items():
+            if cli_key in properties and properties[cli_key]:
+                value = properties[cli_key]
+                # Special handling for baseUrl: append /nifi-api if not present
+                if cli_key == "baseUrl" and not value.endswith("/nifi-api"):
+                    value = value.rstrip("/") + "/nifi-api"
+                profile_config[profile_key] = value
+
+        log.debug("Loaded %d properties from CLI file: %s", len(profile_config), resolved_path)
+        return profile_config
+
+    except FileNotFoundError:
+        log.warning("NiFi CLI properties file not found: %s", resolved_path)
+        return {}
+    except (UnicodeDecodeError, PermissionError, OSError) as e:
+        log.error("Error parsing NiFi CLI properties file %s: %s", resolved_path, e)
+        return {}
 
 
 def _detect_and_validate_auth(config, auth_methods, service_name):
@@ -271,7 +340,17 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
     config = DEFAULT_PROFILE_CONFIG.copy()
     config.update(all_profiles[profile_name])
 
-    # Apply all environment variable overrides
+    # Load and merge NiFi CLI properties file if specified
+    # (Environment variable can override which file to use)
+    properties_file = utils.getenv("NIPYAPI_NIFI_CLI_PROPERTIES_FILE") or config.get(
+        "nifi_cli_properties_file"
+    )
+    if properties_file:
+        properties_config = _load_nifi_cli_properties(properties_file)
+        config.update(properties_config)
+        log.debug("Merged NiFi CLI properties from: %s", properties_file)
+
+    # Apply environment variable overrides
     for config_key, env_var in ENV_VAR_MAPPINGS:
         # Use boolean parsing for SSL and warning flags
         if config_key in (
@@ -328,8 +407,9 @@ def switch(profile_name, profiles_file=None, login=True):
 
         Supported authentication methods:
 
-    - OIDC: Requires oidc_token_endpoint, oidc_client_id, oidc_client_secret,
-            nifi_user, nifi_pass
+    - OIDC: Requires oidc_token_endpoint, oidc_client_id, oidc_client_secret.
+            Optional nifi_user, nifi_pass (enables Resource Owner Password flow;
+            without them uses Client Credentials flow)
     - mTLS: Requires client_cert, client_key (+ optional client_key_password)
     - Basic: Requires nifi_user/nifi_pass for NiFi, registry_user/registry_pass for Registry
 
@@ -440,12 +520,13 @@ def switch(profile_name, profiles_file=None, login=True):
                 # Always capture token data for OIDC (needed for UUID extraction)
                 auth_metadata = security.service_login_oidc(
                     service="nifi",
-                    username=nifi_auth_params["nifi_user"],
-                    password=nifi_auth_params["nifi_pass"],
+                    username=nifi_auth_params.get("nifi_user"),  # Optional for client credentials
+                    password=nifi_auth_params.get("nifi_pass"),  # Optional for client credentials
                     oidc_token_endpoint=nifi_auth_params["oidc_token_endpoint"],
                     client_id=nifi_auth_params["oidc_client_id"],
                     client_secret=nifi_auth_params["oidc_client_secret"],
                     return_token_info=True,
+                    verify_ssl=config.get("nifi_verify_ssl"),  # Use profile's SSL setting
                 )
                 log.debug("OIDC authentication completed")
             else:

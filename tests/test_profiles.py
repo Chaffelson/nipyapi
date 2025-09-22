@@ -75,8 +75,8 @@ secure-ldap:
 class TestDetectAndValidateAuth:
     """Test authentication method detection and validation."""
 
-    def test_detect_oidc_auth(self):
-        """Test OIDC authentication detection and validation."""
+    def test_detect_oidc_auth_password_flow(self):
+        """Test OIDC Resource Owner Password flow detection and validation."""
         config = {
             'oidc_token_endpoint': 'https://keycloak/token',
             'oidc_client_id': 'nipyapi-client',
@@ -92,7 +92,28 @@ class TestDetectAndValidateAuth:
         assert method == 'oidc'
         assert params['oidc_token_endpoint'] == 'https://keycloak/token'
         assert params['nifi_user'] == 'einstein'
-        assert len(params) == 5  # All required params
+        assert len(params) == 5  # All params including optional username/password
+
+    def test_detect_oidc_auth_client_credentials_flow(self):
+        """Test OIDC Client Credentials flow detection and validation."""
+        config = {
+            'oidc_token_endpoint': 'https://keycloak/token',
+            'oidc_client_id': 'nipyapi-client',
+            'oidc_client_secret': 'secret123',
+            # No nifi_user/nifi_pass - client credentials flow
+        }
+
+        method, params = nipyapi.profiles._detect_and_validate_auth(
+            config, nipyapi.profiles.NIFI_AUTH_METHODS, 'NiFi'
+        )
+
+        assert method == 'oidc'
+        assert params['oidc_token_endpoint'] == 'https://keycloak/token'
+        assert params['oidc_client_id'] == 'nipyapi-client'
+        assert params['oidc_client_secret'] == 'secret123'
+        assert 'nifi_user' not in params  # Should not include optional params if not provided
+        assert 'nifi_pass' not in params
+        assert len(params) == 3  # Only required params
 
     def test_detect_mtls_auth(self):
         """Test mTLS authentication detection and validation."""
@@ -131,7 +152,7 @@ class TestDetectAndValidateAuth:
         config = {
             'oidc_token_endpoint': 'https://keycloak/token',
             'oidc_client_id': 'nipyapi-client',
-            # Missing oidc_client_secret, nifi_user, nifi_pass
+            # Missing oidc_client_secret (required for OIDC)
         }
 
         with pytest.raises(ValueError, match="NiFi oidc authentication requires"):
@@ -450,15 +471,20 @@ class TestAuthMethodDefinitions:
         assert 'oidc' not in methods
 
     def test_oidc_requirements(self):
-        """Test OIDC method has all required parameters."""
+        """Test OIDC method has correct required and optional parameters."""
         oidc_method = nipyapi.profiles.NIFI_AUTH_METHODS['oidc']
 
         required = oidc_method['required_keys']
+        optional = oidc_method['optional_keys']
+
+        # Required for both flows
         assert 'oidc_token_endpoint' in required
         assert 'oidc_client_id' in required
         assert 'oidc_client_secret' in required
-        assert 'nifi_user' in required
-        assert 'nifi_pass' in required
+
+        # Optional - enables Resource Owner Password flow
+        assert 'nifi_user' in optional
+        assert 'nifi_pass' in optional
 
     def test_mtls_requirements(self):
         """Test mTLS method has correct required/optional parameters."""
@@ -470,3 +496,331 @@ class TestAuthMethodDefinitions:
         assert 'client_cert' in required
         assert 'client_key' in required
         assert 'client_key_password' in optional
+
+
+class TestNiFiCliPropertiesIntegration:
+    """Test NiFi CLI properties file integration functionality.
+
+    Note: These tests are unit tests that don't require live NiFi infrastructure.
+    They test the properties file parsing and profile integration logic in isolation.
+    """
+
+    def test_load_basic_properties_file(self):
+        """Test loading basic NiFi CLI properties file."""
+        properties_content = """# NiFi CLI Properties
+baseUrl=https://localhost/runtime-cluster
+oidcTokenUrl=https://localhost/keycloak/realms/test/protocol/openid-connect/token
+oidcClientId=runtime
+oidcClientSecret=password123
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        try:
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+
+            assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
+            assert config['oidc_token_endpoint'] == 'https://localhost/keycloak/realms/test/protocol/openid-connect/token'
+            assert config['oidc_client_id'] == 'runtime'
+            assert config['oidc_client_secret'] == 'password123'
+        finally:
+            os.unlink(properties_path)
+
+    def test_load_properties_file_with_comments_and_empty_lines(self):
+        """Test properties file parsing handles comments and empty lines correctly."""
+        properties_content = """# This is a comment
+# Another comment
+
+baseUrl=https://localhost/runtime-cluster
+
+# OIDC Configuration
+oidcTokenUrl=https://localhost/keycloak/token
+oidcClientId=runtime
+! This is also a comment
+oidcClientSecret=password123
+
+# End of file
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        try:
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+
+            assert len(config) == 4  # Only non-comment, non-empty lines
+            assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
+            assert config['oidc_client_id'] == 'runtime'
+        finally:
+            os.unlink(properties_path)
+
+    def test_load_properties_file_with_equals_in_values(self):
+        """Test properties file parsing handles equals signs in values."""
+        properties_content = """baseUrl=https://localhost/runtime-cluster
+oidcTokenUrl=https://localhost/keycloak/realms/test/protocol/openid-connect/token?param=value
+complexValue=key=value&another=key
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        try:
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+
+            assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
+            assert config['oidc_token_endpoint'] == 'https://localhost/keycloak/realms/test/protocol/openid-connect/token?param=value'
+            # complexValue should not be mapped since it's not in NIFI_CLI_PROPERTY_MAPPINGS
+            assert 'complexValue' not in config
+        finally:
+            os.unlink(properties_path)
+
+    def test_load_properties_file_missing_file(self):
+        """Test loading nonexistent properties file returns empty dict."""
+        config = nipyapi.profiles._load_nifi_cli_properties('/nonexistent/path.properties')
+        assert config == {}
+
+    def test_load_properties_file_empty_path(self):
+        """Test loading with empty path returns empty dict."""
+        config = nipyapi.profiles._load_nifi_cli_properties(None)
+        assert config == {}
+
+        config = nipyapi.profiles._load_nifi_cli_properties('')
+        assert config == {}
+
+    def test_properties_integration_with_profile_resolution(self):
+        """Test properties file integration with complete profile resolution."""
+        # Create properties file
+        properties_content = """baseUrl=https://localhost/runtime-cluster
+oidcTokenUrl=https://localhost/keycloak/token
+oidcClientId=runtime
+oidcClientSecret=password123
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        # Create profile that references properties file
+        yaml_content = f"""
+test-cli-profile:
+  nifi_cli_properties_file: {properties_path}
+  nifi_ca_path: /path/to/ca.pem
+  nifi_verify_ssl: false
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            config = nipyapi.profiles.resolve_profile_config('test-cli-profile', yaml_path)
+
+            # Properties from CLI file should be merged
+            assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
+            assert config['oidc_token_endpoint'] == 'https://localhost/keycloak/token'
+            assert config['oidc_client_id'] == 'runtime'
+            assert config['oidc_client_secret'] == 'password123'
+
+            # Profile values should also be present
+            assert config['nifi_ca_path'] == '/path/to/ca.pem'
+            assert config['nifi_verify_ssl'] is False
+            assert config['profile'] == 'test-cli-profile'
+        finally:
+            os.unlink(properties_path)
+            os.unlink(yaml_path)
+
+    def test_properties_precedence_with_environment_variables(self):
+        """Test that environment variables override properties file values."""
+        # Create properties file
+        properties_content = """baseUrl=https://localhost/runtime-cluster
+oidcClientId=runtime
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        # Create profile that references properties file
+        yaml_content = f"""
+test-cli-profile:
+  nifi_cli_properties_file: {properties_path}
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            # Set environment variable that should override properties file
+            old_url = os.environ.get('NIFI_API_ENDPOINT')
+            old_client_id = os.environ.get('OIDC_CLIENT_ID')
+            os.environ['NIFI_API_ENDPOINT'] = 'https://override:9443/nifi-api'
+            os.environ['OIDC_CLIENT_ID'] = 'override_client'
+
+            config = nipyapi.profiles.resolve_profile_config('test-cli-profile', yaml_path)
+
+            # Environment variables should override properties file values
+            assert config['nifi_url'] == 'https://override:9443/nifi-api'
+            assert config['oidc_client_id'] == 'override_client'
+        finally:
+            # Clean up environment
+            if old_url is not None:
+                os.environ['NIFI_API_ENDPOINT'] = old_url
+            else:
+                os.environ.pop('NIFI_API_ENDPOINT', None)
+            if old_client_id is not None:
+                os.environ['OIDC_CLIENT_ID'] = old_client_id
+            else:
+                os.environ.pop('OIDC_CLIENT_ID', None)
+            os.unlink(properties_path)
+            os.unlink(yaml_path)
+
+    def test_properties_file_path_resolution(self):
+        """Test that properties file path is resolved relative to current directory."""
+        # Create properties file in a subdirectory
+        import tempfile
+        with tempfile.TemporaryDirectory() as temp_dir:
+            subdir = os.path.join(temp_dir, 'config')
+            os.makedirs(subdir)
+
+            properties_content = """baseUrl=https://localhost/runtime-cluster
+oidcClientId=runtime
+"""
+            properties_path = os.path.join(subdir, 'nifi-cli.properties')
+            with open(properties_path, 'w') as f:
+                f.write(properties_content)
+
+            # Test relative path resolution
+            relative_path = os.path.relpath(properties_path)
+            config = nipyapi.profiles._load_nifi_cli_properties(relative_path)
+
+            assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
+            assert config['oidc_client_id'] == 'runtime'
+
+    def test_env_var_nifi_cli_properties_file(self):
+        """Test NIPYAPI_NIFI_CLI_PROPERTIES_FILE environment variable support."""
+        # Create properties file
+        properties_content = """baseUrl=https://env-test/nifi-api
+oidcClientId=env_runtime
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        # Create profile without explicit properties file
+        yaml_content = """
+test-env-profile:
+  nifi_ca_path: /path/to/ca.pem
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            # Set environment variable to specify properties file
+            old_env = os.environ.get('NIPYAPI_NIFI_CLI_PROPERTIES_FILE')
+            os.environ['NIPYAPI_NIFI_CLI_PROPERTIES_FILE'] = properties_path
+
+            config = nipyapi.profiles.resolve_profile_config('test-env-profile', yaml_path)
+
+            # Properties from environment-specified file should be loaded
+            assert config['nifi_url'] == 'https://env-test/nifi-api'
+            assert config['oidc_client_id'] == 'env_runtime'
+            assert config['nifi_ca_path'] == '/path/to/ca.pem'
+        finally:
+            # Clean up environment
+            if old_env is not None:
+                os.environ['NIPYAPI_NIFI_CLI_PROPERTIES_FILE'] = old_env
+            else:
+                os.environ.pop('NIPYAPI_NIFI_CLI_PROPERTIES_FILE', None)
+            os.unlink(properties_path)
+            os.unlink(yaml_path)
+
+    def test_properties_file_malformed_handling(self):
+        """Test handling of malformed properties file."""
+        # Create malformed properties file (missing equals signs)
+        properties_content = """# Valid comment
+baseUrl=https://localhost/nifi-api
+invalid_line_without_equals
+oidcClientId=runtime
+another_invalid_line
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        try:
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+
+            # Should only parse valid lines
+            assert config['nifi_url'] == 'https://localhost/nifi-api'
+            assert config['oidc_client_id'] == 'runtime'
+            # Invalid lines should be skipped
+            assert len(config) == 2
+        finally:
+            os.unlink(properties_path)
+
+    def test_empty_values_handling(self):
+        """Test that empty values in properties file are not included."""
+        properties_content = """baseUrl=https://localhost/nifi-api
+oidcClientId=
+oidcClientSecret=
+oidcTokenUrl=https://localhost/keycloak/token
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        try:
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+
+            # Non-empty values should be included
+            assert config['nifi_url'] == 'https://localhost/nifi-api'
+            assert config['oidc_token_endpoint'] == 'https://localhost/keycloak/token'
+            # Empty/whitespace values should not be included
+            assert 'oidc_client_id' not in config
+            assert 'oidc_client_secret' not in config
+        finally:
+            os.unlink(properties_path)
+
+    def test_property_mappings_completeness(self):
+        """Test that NIFI_CLI_PROPERTY_MAPPINGS covers expected properties."""
+        mappings = nipyapi.profiles.NIFI_CLI_PROPERTY_MAPPINGS
+
+        # Test expected mappings exist
+        assert mappings['baseUrl'] == 'nifi_url'
+        assert mappings['oidcTokenUrl'] == 'oidc_token_endpoint'
+        assert mappings['oidcClientId'] == 'oidc_client_id'
+        assert mappings['oidcClientSecret'] == 'oidc_client_secret'
+
+        # Test all mapped values are valid profile keys
+        for cli_key, profile_key in mappings.items():
+            assert profile_key in nipyapi.profiles.DEFAULT_PROFILE_CONFIG, \
+                f"Mapped profile key '{profile_key}' not found in DEFAULT_PROFILE_CONFIG"
+
+    def test_base_url_nifi_api_appending(self):
+        """Test that /nifi-api is automatically appended to baseUrl."""
+        # Test baseUrl without /nifi-api
+        properties_content = """baseUrl=https://localhost/runtime-cluster
+oidcClientId=runtime
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content)
+            properties_path = f.name
+
+        try:
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+            assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
+        finally:
+            os.unlink(properties_path)
+
+        # Test baseUrl that already has /nifi-api (should not double-append)
+        properties_content_with_api = """baseUrl=https://localhost/runtime-cluster/nifi-api
+oidcClientId=runtime
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.properties', delete=False) as f:
+            f.write(properties_content_with_api)
+            properties_path = f.name
+
+        try:
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+            assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
+        finally:
+            os.unlink(properties_path)

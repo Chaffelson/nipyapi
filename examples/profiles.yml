@@ -84,3 +84,13 @@ secure-oidc:
   oidc_token_endpoint: "http://localhost:8080/realms/nipyapi/protocol/openid-connect/token"
   oidc_client_id: "nipyapi-client"
   oidc_client_secret: "nipyapi-secret"
+
+# Example profile using NiFi CLI properties file integration
+cli-properties:
+  # Load configuration from existing NiFi CLI properties file
+  nifi_cli_properties_file: "nifi-cli-oidc.properties"
+  # Use extracted CA certificate for SSL verification from resources/certs/extract_jks_certs.sh
+  nifi_ca_path: "resources/certs/extracted/ca.pem"
+  # Development SSL settings (disable for self-signed certificates)
+  nifi_verify_ssl: false
+  suppress_ssl_warnings: true

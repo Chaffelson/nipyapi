@@ -46,6 +46,7 @@ resources/certs/registry/
 resources/certs/truststore/
 resources/certs/client/
 resources/certs/*.env
+resources/certs/extracted/
 
 # Client-gen caches and augmented OpenAPI outputs
 resources/client_gen/_cache/

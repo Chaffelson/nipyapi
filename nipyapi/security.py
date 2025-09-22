@@ -407,20 +407,25 @@ def service_login_oidc(
     client_secret=None,
     bool_response=False,
     return_token_info=False,
+    verify_ssl=None,
 ):
     """
-    Login to NiFi using OpenID Connect (OIDC) OAuth2 password flow.
+    Login to NiFi using OpenID Connect (OIDC) OAuth2 authentication.
 
-    This method acquires an access token from an OIDC provider using the
-    OAuth2 Resource Owner Password Credentials flow (RFC 6749) and configures
-    the service to use bearer token authentication.
-    NiFi does not currently provide native methods for OIDC authentication.
+    This method acquires an access token from an OIDC provider using either:
+    - OAuth2 Resource Owner Password Credentials flow (RFC 6749) - when username/password provided
+    - OAuth2 Client Credentials flow (RFC 6749) - when only client_id/client_secret provided
+
+    The method auto-detects which flow to use based on the provided parameters and
+    configures the service to use bearer token authentication.
 
     Args:
         service (str): 'nifi' or 'registry'; the service to login to
             (currently only 'nifi' supports OIDC)
-        username (str): The username to submit to the OIDC provider
-        password (str): The password to use with the OIDC provider
+        username (str, optional): The username for Resource Owner Password flow.
+            If provided, password must also be provided.
+        password (str, optional): The password for Resource Owner Password flow.
+            If provided, username must also be provided.
         oidc_token_endpoint (str): The OIDC token endpoint URL
             (e.g., 'http://localhost:8080/realms/nipyapi/protocol/openid-connect/token')
         client_id (str): The OIDC client ID
@@ -429,18 +434,26 @@ def service_login_oidc(
             of an error. Useful for connection testing.
         return_token_info (bool): If True, return the full OAuth2 token response
             instead of just a boolean. Useful for extracting user identity information.
+        verify_ssl (bool, optional): Whether to verify SSL certificates for the OIDC endpoint.
+            If None (default), uses the service's SSL verification setting.
+            Set to False for development environments with self-signed certificates.
 
     Returns:
         (bool or dict): True if successful (default), False if bool_response=True and failed,
             or full OAuth2 token response dict if return_token_info=True.
             See bool_response and return_token_info.
 
+    Raises:
+        ValueError: If required parameters are missing or invalid combination provided
+
     """
+    # pylint: disable=too-many-arguments,too-many-branches,too-many-locals
     log_args = locals()
     log_args["password"] = "REDACTED"
     log_args["client_secret"] = "REDACTED"
     log.info("Called service_login_oidc with args %s", log_args)
 
+    # Input validation
     assert service in _valid_services
     assert username is None or isinstance(username, str)
     assert password is None or isinstance(password, str)
@@ -452,41 +465,65 @@ def service_login_oidc(
     if service == "registry":
         raise ValueError("OIDC authentication is not supported for Registry service")
 
-    # Validate required parameters
-    if not all([username, password, oidc_token_endpoint, client_id, client_secret]):
+    if not all([oidc_token_endpoint, client_id, client_secret]):
+        raise ValueError("OIDC login requires oidc_token_endpoint, client_id, and client_secret")
+
+    # Determine OAuth2 flow based on provided parameters
+    has_credentials = username and username.strip() and password and password.strip()
+
+    if has_credentials:
+        # Resource Owner Password Credentials flow
+        log.debug("Using OAuth2 Resource Owner Password Credentials flow")
+        request_data = {
+            "grant_type": "password",
+            "client_id": client_id,
+            "client_secret": client_secret,
+            "username": username,
+            "password": password,
+        }
+    elif not username and not password:
+        # Client Credentials flow
+        log.debug("Using OAuth2 Client Credentials flow")
+        request_data = {
+            "grant_type": "client_credentials",
+            "client_id": client_id,
+            "client_secret": client_secret,
+        }
+    else:
+        # Invalid combination - only one of username/password provided
         raise ValueError(
-            "OIDC login requires username, password, oidc_token_endpoint, "
-            "client_id, and client_secret"
+            "Invalid OIDC configuration: both username and password must be provided "
+            "for Resource Owner Password flow, or neither for Client Credentials flow"
         )
 
+    # Determine SSL verification setting
+    if verify_ssl is None:
+        verify_ssl = getattr(
+            nipyapi.config.nifi_config if service == "nifi" else nipyapi.config.registry_config,
+            "verify_ssl",
+            True,
+        )
+        log.debug("Using service SSL verification setting: %s", verify_ssl)
+    else:
+        log.debug("Using explicit SSL verification setting: %s", verify_ssl)
+
     try:
-        token_response = requests.post(
+        response = requests.post(
             oidc_token_endpoint,
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             timeout=30,
-            data={
-                "grant_type": "password",
-                "client_id": client_id,
-                "client_secret": client_secret,
-                "username": username,
-                "password": password,
-            },
+            data=request_data,
+            verify=verify_ssl,
         )
 
-        if token_response.status_code == 200:
-            token_data = token_response.json()
-            access_token = token_data["access_token"]
-            set_service_auth_token(token=access_token, service=service)
-
-            if return_token_info:
-                return token_data
-            return True
+        if response.status_code == 200:
+            token_data = response.json()
+            set_service_auth_token(token=token_data["access_token"], service=service)
+            return token_data if return_token_info else True
 
         if bool_response:
             return False
-        raise ValueError(
-            f"OIDC token acquisition failed: {token_response.status_code} {token_response.text}"
-        )
+        raise ValueError(f"OIDC token acquisition failed: {response.status_code} {response.text}")
 
     except Exception as e:
         if bool_response:

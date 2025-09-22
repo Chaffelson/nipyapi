@@ -134,6 +134,43 @@ For production deployments:
 4. **Implement certificate lifecycle management**
 5. **Store private keys securely** (HSM, encrypted storage)
 
+**Java Keystore Certificate Extraction**
+
+If you have Java keystores (JKS/PKCS12) from NiFi CLI, enterprise deployments, or other sources, you can extract the certificates to PEM format for use with NiPyAPI::
+
+    # Extract certificates directly from JKS file
+    make extract-jks JKS_FILE=/path/to/truststore.jks JKS_PASSWORD=mypassword
+
+    # Extract from NiFi CLI properties file (convenience)
+    make extract-jks PROPERTIES_FILE=/path/to/nifi-cli.properties
+
+    # Manual extraction (if needed)
+    ./resources/certs/extract_jks_certs.sh /path/to/truststore.jks mypassword
+    ./resources/certs/extract_jks_certs.sh --properties /path/to/nifi-cli.properties
+
+This utility:
+
+- **Generic JKS support**: Works with any Java keystore from any source
+- **NiFi CLI convenience**: Reads ``truststore`` and ``truststorePasswd`` from properties files
+- **PEM output**: Extracts CA certificates to ``resources/certs/extracted/ca.pem`` (PEM format)
+- **Ready for NiPyAPI**: Provides certificates ready for SSL configuration and profiles system
+
+**Example workflows:**
+
+.. code-block:: shell
+
+    # Generic JKS workflow
+    make extract-jks JKS_FILE=/etc/ssl/company-truststore.jks JKS_PASSWORD=company_password
+    export NIFI_CA_CERT_PATH=resources/certs/extracted/ca.pem
+    python -c "import nipyapi; nipyapi.profiles.switch('production')"
+
+    # NiFi CLI properties workflow
+    make extract-jks PROPERTIES_FILE=nifi-cli-oidc.properties
+    export NIFI_CA_CERT_PATH=resources/certs/extracted/ca.pem
+    python -c "import nipyapi; nipyapi.profiles.switch('my-profile')"
+
+This approach provides flexibility for Java ecosystem integration while maintaining convenience for existing NiFi CLI configurations.
+
 Prerequisites
 =============
 

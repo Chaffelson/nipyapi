@@ -211,6 +211,22 @@ certs: ## generate PKCS12 certs and env for docker profiles
 	cd resources/certs && bash gen_certs.sh
 	@echo "Fresh certificates generated - containers will use new certs on next startup"
 
+extract-jks: ## extract PEM certificates from JKS: make extract-jks JKS_FILE=truststore.jks JKS_PASSWORD=pass OR PROPERTIES_FILE=cli.properties
+	@if [ -n "$(PROPERTIES_FILE)" ]; then \
+		if [ ! -f "$(PROPERTIES_FILE)" ]; then echo "ERROR: Properties file not found: $(PROPERTIES_FILE)"; exit 1; fi; \
+		cd resources/certs && bash extract_jks_certs.sh --properties "$(abspath $(PROPERTIES_FILE))"; \
+	elif [ -n "$(JKS_FILE)" ] && [ -n "$(JKS_PASSWORD)" ]; then \
+		if [ ! -f "$(JKS_FILE)" ]; then echo "ERROR: JKS file not found: $(JKS_FILE)"; exit 1; fi; \
+		cd resources/certs && bash extract_jks_certs.sh "$(abspath $(JKS_FILE))" "$(JKS_PASSWORD)"; \
+	else \
+		echo "ERROR: Either PROPERTIES_FILE or both JKS_FILE and JKS_PASSWORD are required"; \
+		echo "Examples:"; \
+		echo "  make extract-jks JKS_FILE=/path/to/truststore.jks JKS_PASSWORD=mypassword"; \
+		echo "  make extract-jks PROPERTIES_FILE=/path/to/nifi-cli.properties"; \
+		exit 1; \
+	fi
+	@echo "✅ Certificates extracted to resources/certs/extracted/"
+
 up: ensure-certs # bring up docker profile: make up NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc (uses NIFI_VERSION=$(NIFI_VERSION))
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
 	$(DC) --profile $(NIPYAPI_PROFILE) up -d

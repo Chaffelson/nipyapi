@@ -181,7 +181,12 @@ For predictable behavior, either use explicit method specification or design pro
 - **HTTP Registry URLs** (``http://...``): No authentication is performed, even if ``login=True`` and credentials are provided. Registry allows unauthenticated API access over HTTP.
 - **HTTPS Registry URLs** (``https://...``): Authentication is required and will be attempted using the configured method (basic auth, mTLS, etc.).
 
-**OIDC Authentication Note**: For OIDC profiles, the presence of an ``oidc_token_endpoint`` means that the basic credentials (``nifi_user``/``nifi_pass``) will be applied to the OIDC service rather than directly to the NiFi or Registry service.
+**OIDC Authentication Note**: OIDC profiles support two OAuth2 flows:
+
+- **Client Credentials flow**: Only ``oidc_token_endpoint``, ``oidc_client_id``, and ``oidc_client_secret`` are required
+- **Resource Owner Password flow**: Additionally requires ``nifi_user`` and ``nifi_pass`` for the OIDC provider
+
+The flow is auto-detected based on whether username/password are provided alongside the OIDC configuration.
 
 Path Resolution
 ===============
@@ -294,6 +299,8 @@ OpenID Connect (OAuth2) authentication:
   - ``oidc_token_endpoint: http://localhost:8080/realms/nipyapi/protocol/openid-connect/token``
   - ``oidc_client_id: nipyapi-client``
   - ``oidc_client_secret: nipyapi-secret``
+
+**Optional properties** (enables Resource Owner Password flow):
   - ``nifi_user: einstein``
   - ``nifi_pass: password1234``
 
@@ -309,6 +316,31 @@ OpenID Connect (OAuth2) authentication:
   - ``client_key_password: ""``
 
 **Use case**: Modern OAuth2 integration, external identity providers
+
+cli-properties
+--------------
+
+NiFi CLI properties file integration with OIDC Client Credentials flow:
+
+.. code-block:: python
+
+    nipyapi.profiles.switch('cli-properties')
+
+**Authentication method**: OIDC (auto-detected from properties file)
+
+**Configuration source**: Loads from ``nifi-cli-oidc.properties`` file containing:
+  - ``baseUrl`` → ``nifi_url``
+  - ``oidcTokenUrl`` → ``oidc_token_endpoint``
+  - ``oidcClientId`` → ``oidc_client_id``
+  - ``oidcClientSecret`` → ``oidc_client_secret``
+
+**Flow**: OAuth2 Client Credentials (no username/password required)
+
+**Additional properties used**:
+  - ``nifi_ca_path: resources/certs/extracted/ca.pem`` (from JKS extraction)
+  - ``nifi_verify_ssl: false`` (development setting)
+
+**Use case**: Integration with existing NiFi CLI configurations, client credentials OIDC
 
 Environment Variable Overrides
 ===============================
