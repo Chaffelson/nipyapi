@@ -1,0 +1,47 @@
+# Pre-commit configuration for NiPyAPI
+# IMPORTANT: Only runs on core nipyapi/ files, excludes generated API clients
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        files: ^nipyapi/.*\.py$
+        exclude: ^nipyapi/(nifi|registry|_version\.py)
+      - id: end-of-file-fixer
+        files: ^nipyapi/.*\.py$
+        exclude: ^nipyapi/(nifi|registry|_version\.py)
+      - id: debug-statements
+        files: ^nipyapi/.*\.py$
+        exclude: ^nipyapi/(nifi|registry|_version\.py)
+
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        files: ^nipyapi/.*\.py$
+        exclude: ^nipyapi/(nifi|registry|_version\.py)
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        files: ^nipyapi/.*\.py$
+        exclude: ^nipyapi/(nifi|registry|_version\.py)
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.3.0
+    hooks:
+      - id: flake8
+        files: ^nipyapi/.*\.py$
+        exclude: ^nipyapi/(nifi|registry|_version\.py)
+        args: [--config=setup.cfg]
+
+  - repo: local
+    hooks:
+      - id: pylint-core-only
+        name: pylint (core nipyapi only)
+        entry: pylint
+        language: system
+        files: ^nipyapi/.*\.py$
+        exclude: ^nipyapi/(nifi|registry|_version\.py)
+        args: [--rcfile=pylintrc]

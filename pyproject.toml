@@ -1,0 +1,96 @@
+[build-system]
+requires = [
+  "setuptools>=69",
+  "wheel",
+  "setuptools-scm[toml]>=8",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nipyapi"
+description = "A rich Apache NiFi Python Client SDK"
+readme = "README.rst"
+requires-python = ">=3.9"
+license = "Apache-2.0"
+authors = [ { name = "NiPyAPI maintainers", email = "chaffelson@gmail.com" } ]
+keywords = ["nipyapi", "nifi", "apache nifi", "client", "sdk"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Software Development :: Libraries",
+]
+dynamic = ["version", "dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools_scm]
+write_to = "nipyapi/_version.py"
+fallback_version = "0.0.0+unknown"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["nipyapi*"]
+exclude = ["nipyapi.demo", "nipyapi.demo.*"]
+
+[tool.setuptools.exclude-package-data]
+"nipyapi.demo" = ["keys/*"]
+
+# Black configuration
+[tool.black]
+line-length = 100
+target-version = ['py39']
+include = '^nipyapi/.*\.py$'
+exclude = '''
+/(
+    nipyapi/(nifi|registry)
+    | nipyapi/_version\.py
+)/
+'''
+
+# isort configuration (compatible with black)
+[tool.isort]
+profile = "black"
+line_length = 100
+include_trailing_comma = true
+multi_line_output = 3
+src_paths = ["nipyapi"]
+skip_glob = ["nipyapi/nifi/*", "nipyapi/registry/*", "nipyapi/_version.py"]
+
+[project.urls]
+Homepage = "https://github.com/Chaffelson/nipyapi"
+Repository = "https://github.com/Chaffelson/nipyapi.git"
+Documentation = "https://nipyapi.readthedocs.io/en/latest/"
+Issues = "https://github.com/Chaffelson/nipyapi/issues"
+
+[project.optional-dependencies]
+dev = [
+  "build>=1.0.0",
+  "setuptools-scm[toml]>=8",
+  "flake8>=3.6.0",
+  "pylint>=3.3.0",
+  "black>=24.8.0",
+  "isort>=5.13.2",
+  "coverage>=7.0",
+  "pytest>=8.4",
+  "pytest-cov>=5.0.0",
+  "codecov>=2.1.13",
+  "deepdiff>=3.3.0",
+  "twine>=6.0.0",
+  "pre-commit>=3.0.0",
+]
+docs = [
+  "Sphinx>=7.4.0",
+  "sphinx_rtd_theme>=3.0.0",
+  "sphinxcontrib-jquery>=4.1",
+]

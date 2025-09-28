@@ -10,16 +10,9 @@ A collection point for information about the development process for future coll
 Decision Points
 ---------------
 
-* Using Swagger 2.0 instead of OpenAPI3.0 as it (currently as of Aug2017) has wider adoption and completed codegen tools
+* OpenAPI-based client generation using swagger-codegen v3 (OpenAPI 3.x definitions), with project-specific mustache templates
 * We use Google style Docstrings to better enable Sphinx to produce nicely readable documentation
-
-
-Testing Notes
--------------
-
-When running tests on new code, you are advised to run 'test_default' first, then 'test_regression', then finally 'test_ldap' and/or 'test_mtls'.
-Because of the way errors are propagated you may have code failures which cause a teardown which then fails because of security controls, which can then obscure the original error.
-
+* We try to use minimal dependencies, and prefer to use the standard library where possible
 
 Docker Test Environment
 -----------------------
@@ -30,181 +23,272 @@ There is an Apache NiFi image available on Dockerhub::
 
 There are a couple of configuration files for launching various Docker environment configurations in resources/docker for convenience.
 
-Remote testing on AWS:AL3 with Visual Studio Code on OSX
---------------------------------------------------------
 
-Instructions::
+Testing Notes
+-------------
 
-    Deploy a t2.xlarge on EC2, preferably with an elastic IP
-    Add the machine as a remote on Visual Studio Code and Connect
-    Open up the console and install git so VSCode can clone the repo `sudo dnf install -y git`
-    Use the VSCode Source Control plugin to clone nipyapi https://github.com/Chaffelson/nipyapi.git
-    You can then open these notes in VSCode with the terminal for easy execution
-    Now install dependencies `sudo dnf install -y docker && sudo dnf groupinstall "Development Tools" -y`
-    Now ensure docker starts with the OS and gives your user access `sudo systemctl start docker && sudo systemctl enable docker && sudo usermod -a -G docker $USER`
-    Restart your terminal, or run `newgrp docker` to get Docker access permissions active
-    Install Pip `sudo dnf install python3-pip -y`
-    Instal docker compose `sudo curl -L "https://github.com/docker/compose/releases/download/v2.26.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`
-    I recommend you install PyEnv to manage Python versions `sudo curl https://pyenv.run | bash`
-    Follow the instructions to set up your .bashrc
-    To build various versions of Python for testing you may also need `sudo dnf install bzip2-devel openssl-devel libffi-devel zlib-devel readline-devel sqlite-devel -y`
-    Install the latest supported version of Python for your main dev environment `pyenv install 3.9 2.7 3.12`
-    Set these versions as global in pyenv so tox can see them. Use the actual versions with the command `pyenv global 3.9.16 2.7.18 3.12.2`
-    You'll want to stand up the two sets of NiFi containers for testing. resources/docker/tox-full for default and regression tests, and resources/docker/secure for tests under auth.
-    You can switch between the tests by changing flags in tests/conftest.py around line 17.
-    Python3 can be tested automatically using Tox.
-    Python2 can be tested using the following steps within a Python2 virtualenv:
-    1. Install requirements: pip install -r requirements.txt
-    2. Install dev requirements: `pip install -r requirements_dev.txt`
-    3. Install package in editable mode with test support: `pip install -e .[test]`
-    4. Run tests: `pytest -v -s tests --tb=long -W ignore::urllib3.exceptions.InsecureRequestWarning`
+When running tests on new code, start with the single-user profile, then test secure profiles:
+
+.. code-block:: shell
+
+    # Full test suite with infrastructure setup/teardown (recommended)
+    make test-all
+
+    # Manual workflow for individual profile testing:
+    # 1. Set up infrastructure
+    make certs
+    make up NIPYAPI_PROFILE=single-user
+    make wait-ready NIPYAPI_PROFILE=single-user
+
+    # 2. Run tests (assumes infrastructure is running)
+    make test NIPYAPI_PROFILE=single-user
+
+    # 3. Clean up
+    make down
+
+    # Other profiles follow the same pattern:
+    make up NIPYAPI_PROFILE=secure-ldap && make wait-ready NIPYAPI_PROFILE=secure-ldap
+    make test NIPYAPI_PROFILE=secure-ldap
+    make down
+
+Because of the way errors are propagated, you may have code failures which cause a teardown that then fails because of security controls, which can obscure the original error. Starting with single-user helps isolate functional issues from authentication complexities.
+
 
 Setup Code Signing
 ------------------
 
-If you want to sign and push code from your EC2 instance, you'll need to set up code signing. 
-Ensuring security of your keys is important, so please protect them with a good secret passphrase
+**Signed commits are required for all pull requests.** This ensures commit authenticity and maintains project security.
 
-Instructions::
+For OS-specific GPG setup instructions, see the `GitHub documentation on commit signature verification <https://docs.github.com/en/authentication/managing-commit-signature-verification>`_.
 
-    On your AL2023 instance, replace the default minimal gnupg package with the full one `sudo dnf install --allowerasing gnupg2-full`
-    Generate signing keys `gpg --full-generate-key`
-    Use the long key ID as your signingkey `git config --global user.signingkey <key here>`
+**Quick Setup for macOS**::
+
+    # Install GPG via Homebrew (recommended)
+    brew install gnupg
+
+    # Generate signing keys (use a strong passphrase)
+    gpg --full-generate-key
+
+    # Configure git to use GPG signing
+    git config --global user.signingkey <your-key-id>
     git config --global commit.gpgsign true
-    Add the tty setting for gpg to your ~/.bashrc `export GPG_TTY=$(tty)`
 
-Remote Testing on Centos7
--------------------------
+    # Add GPG TTY setting to shell profile
+    echo 'export GPG_TTY=$(tty)' >> ~/.zshrc
+    source ~/.zshrc
 
-**Deprecated. Instructions kept for legacy reference.**
+**For other operating systems:**
 
-Deploy a 4x16 or better on EC2 running Centos 7.5 or better, ssh in as root::
+- **Ubuntu/Debian**: ``sudo apt install gnupg``
+- **Windows**: Use Git for Windows with GPG4Win or WSL
 
-    yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
-    yum update -y
-    yum install -y centos-release-scl yum-utils device-mapper-persistent-data lvm2
-    yum install -y rh-python36 docker-ce docker-ce-cli containerd.io
-    systemctl start docker
-    scl enable rh-python36 bash
-    sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-    sudo chmod +x /usr/local/bin/docker-compose
-    sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
-
-Set up remote execution environment to this server from your IDE, such as PyCharm.
-Python3 will be in a path like /opt/rh/rh-python36/root/usr/bin/python
-These commands are conveniently presented in /resources/test_setup/setup_centos7.sh
-
-You will then want to open up /home/centos/tmp/<pycharmprojectname>/resources/docker/tox-full and run::
-
-    docker-compose pull
-    docker-compose up -d
-
-Testing on OSX
---------------
-
-There is a known issue with testing newer versions of Python on OSX.
-You may receive an error reporting [SSL: CERTIFICATE_VERIFY_FAILED] when trying to install packages from Pypi
-
-You can fix this by running the following commands::
-
-    export PIP_REQUIRE_VIRTUALENV=false
-    /Applications/Python\ 3.6/Install\ Certificates.command
-
-Generate Swagger Client
------------------------
-
-The NiFi and NiFi Registry REST API clients are generated using swagger-codegen, which is available via a variety of methods:
-
-- the package manager for your OS
-- github: https://github.com/swagger-api/swagger-codegen
-- maven: https://repo1.maven.org/maven2/io/swagger/swagger-codegen-cli/2.3.1/swagger-codegen-cli-2.4.41.jar
-- pre-built Docker images on DockerHub (https://hub.docker.com/r/swaggerapi/swagger-codegen-cli/)
-
-In the examples below, we'll use Homebrew for macOS::
-
-    brew install swagger-codegen
-
-NiFi Swagger Client
-~~~~~~~~~~~~~~~~~~~
-
-1. build relevant version of NiFi from source
-2. use swagger-codegen to generate the Python client::
-
-    mkdir -p ~/tmp && \
-    echo '{ "packageName": "nifi" }' > ~/tmp/swagger-nifi-python-config.json && \
-    rm -rf ~/tmp/nifi-python-client && \
-    swagger-codegen generate \
-        --lang python \
-        --config swagger-nifi-python-config.json \
-        --api-package apis \
-        --model-package models \
-        --template-dir /path/to/nipyapi/swagger_templates \
-        --input-spec /path/to/nifi/nifi-nar-bundles/nifi-framework-bundle/nifi-framework/nifi-web/nifi-web-api/target/swagger-ui/swagger.json \
-        --output ~/tmp/nifi-python-client
-
-3. replace the embedded clients::
-
-    rm -rf /path/to/nipyapi/nipyapi/nifi && cp -rf ~/tmp/nifi-python-client/nifi /path/to/nipyapi/nipyapi/nifi
-
-4. review the changes and submit a PR!
-
-NiFi Registry Swagger Client
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-1. Fetch the definition from a running Registry instance at URI: /nifi-registry-api/swagger/swagger.json
-2. use swagger-codegen to generate the Python client::
+Ensure your GPG public key is added to your GitHub account under Settings → SSH and GPG keys.
 
 
-    mkdir -p ~/tmp && \
-    echo '{ "packageName": "registry" }' > ~/tmp/swagger-registry-python-config.json && \
-    rm -rf ~/tmp/nifi-registry-python-client && \
-    swagger-codegen generate \
-        --lang python \
-        --config swagger-registry-python-config.json \
-        --api-package apis \
-        --model-package models \
-        --template-dir /path/to/nipyapi/swagger_templates \
-        --input-spec /path/to/nifi-registry/nifi-registry-web-api/target/swagger-ui/swagger.json \
-        --output ~/tmp/nifi-registry-python-client
+Troubleshooting Development Issues
+----------------------------------
 
-3. replace the embedded clients::
+Docker and Certificate Issues
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    rm -r /path/to/nipyapi/nipyapi/registry && cp -rf /tmp/nifi-registry-python-client/swagger_client /path/to/nipyapi/nipyapi/registry
+**Problem**: SSL certificate chain errors or "authority and subject key identifier mismatch" during testing
 
-4. review the changes and submit a PR!
+**Cause**: Docker volume caching can serve stale certificates, especially when using ``act`` for local CI testing.
+
+**Solution**: Clean Docker containers and volumes to force fresh certificate generation:
+
+.. code-block:: shell
+
+    # Quick fix for act certificate caching
+    make clean-act
+
+    # Comprehensive Docker cleanup (containers + volumes + networks)
+    make clean-docker
+
+    # Then regenerate certificates and restart testing
+    make certs
+    make test-mtls
+
+**Problem**: ``act`` (GitHub Actions local runner) shows certificate errors that don't occur in local Docker testing
+
+**Root Cause**: ``act`` maintains persistent Docker volumes between runs, which can cache stale certificates even after ``make certs`` regenerates fresh ones.
+
+**Solution**: Always run ``make clean-act`` before testing with ``act``:
+
+.. code-block:: shell
+
+    # Clean act cache and test
+    make clean-act
+    act --job test-python-312-secure-mtls
+
+    # Or use the comprehensive cleanup
+    make clean-docker
+
+**Problem**: Connection drops during test execution in CI environments while local testing works
+
+**Known**: Local Docker testing works fine with same configuration. Issue appears specific to CI execution environment.
+
+**Error Pattern**: "Connection aborted" or "Remote end closed connection without response" errors in CI (both ``act`` and GitHub Actions) while local tests pass typically indicate infrastructure/timing issues rather than configuration problems. The SSL handshake succeeds but HTTP requests return empty responses.
+
+act (GitHub Actions Local Testing)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Best Practices for act Testing**:
+
+.. code-block:: shell
+
+    # Always clean before testing to avoid cache issues
+    make clean-act
+    make clean-docker
+
+    # Run specific job with proper platform
+    act --job test-python-312-secure-mtls \
+        --platform ubuntu-latest=catthehacker/ubuntu:act-latest \
+        --container-architecture linux/amd64
+
+    # Use clean flags for completely fresh environment
+    act --bind --rm --job <job-name>
+
+**Known Issues**:
+- Certificate caching in Docker volumes
+- Different behavior compared to real GitHub Actions (timing, resource limits)
+- Docker-in-Docker networking complexities
+
+For critical CI validation, prefer testing on actual GitHub Actions when ``act`` shows persistent issues.
+
+
+Generate API Clients
+---------------------
+
+NiPyAPI uses automated client generation from OpenAPI 3.x specifications. The process is streamlined through Make targets and shell scripts in ``resources/client_gen/``.
+
+Prerequisites
+~~~~~~~~~~~~~
+
+- Java 17+ (for swagger-codegen-cli)
+- Running NiFi/Registry instances to fetch current OpenAPI specs from
+
+Client Generation Workflow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The complete client regeneration process:
+
+.. code-block:: shell
+
+    # Full regeneration (clean -> certs -> infra -> fetch specs -> generate clients)
+    make rebuild-all
+
+    # Individual steps for targeted updates:
+
+    # 1. Start NiFi infrastructure (single-user sufficient for spec extraction)
+    make certs
+    make up NIPYAPI_PROFILE=single-user && make wait-ready NIPYAPI_PROFILE=single-user
+
+    # 2. Extract OpenAPI specifications from running instances
+    make fetch-openapi
+
+    # 3. Apply authentication augmentations (temporary workaround until upstream fixes)
+    make augment-openapi
+
+    # 4. Generate Python clients using swagger-codegen + custom templates
+    make gen-clients
+
+    # 5. Test generated clients
+    make test-all
+
+    # 6. Clean up infrastructure
+    make down
+
+Customization
+~~~~~~~~~~~~~
+
+- **Templates**: Custom Mustache templates in ``resources/client_gen/swagger_templates/`` control generated code formatting
+- **Augmentations**: Scripts in ``resources/client_gen/augmentations/`` modify OpenAPI specs before generation (e.g., add missing authentication schemes)
+- **Configuration**: Client generation controlled by ``resources/client_gen/generate_api_client.sh``
+
+The generated clients replace the existing ``nipyapi/nifi/`` and ``nipyapi/registry/`` packages. Always test thoroughly after regeneration and commit the changes as a cohesive unit.
 
 
 
 Release Process
 ---------------
 
-This assumes you have virtualenvwrapper, git, and appropriate python versions installed, as well as the necessary test environment:
+Streamlined release workflow using our modern build system. Assumes development environment is set up (``make dev-install`` completed).
 
-- update History.rst
-- check setup.py
-- check requirements.txt and requirements_dev.txt
-- Commit all changes
-- in bash::
+Pre-release Preparation
+~~~~~~~~~~~~~~~~~~~~~~~
 
-    cd ProjectDir
-    source ./my_virtualenv/bin/activate
-    bumpversion patch|minor|major
-    python setup.py develop
-    tox
-    python setup.py test
-    Run `make html` in the docs subdir
-    # check docs in build/sphinx/html/index.html
-    python setup.py sdist bdist_wheel
-    mktmpenv  # or pyenv virtualenvwrapper mktmpenv if using pyenv
-    pip install path/to/nipyapi-0.3.1-py2.py3-none-any.whl  # for example
-    # Run appropriate tests, such as usage tests etc.
-    deactivate
-    Push changes to Github
-    Check dockerhub automated build
-    # You may have to reactivate your original virtualenv
-    twine upload dist/*
-    # You may get a file exists error, check you're not trying to reupload an existing version
+1. **Update Release Notes**:
+
+   Update ``docs/history.rst`` with comprehensive release notes including new features, breaking changes, bug fixes, and migration guidance.
+
+2. **Validate Project State**:
+
+   .. code-block:: shell
+
+       # Ensure clean working directory
+       git status
+
+       # Full rebuild: clean -> certs -> specs -> client generation -> tests -> build -> validate -> docs
+       make rebuild-all
+
+3. **Commit Release Preparation**:
+
+   .. code-block:: shell
+
+       git add docs/history.rst
+       git commit -S -m "Prepare release: update history and documentation"
+
+Build and Quality Assurance
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+    # Build fresh distributions for release (rebuild-all already validated them)
+    make clean-all
+    make dist
+
+Create Release
+~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+    # Tag the release (triggers version detection via setuptools-scm)
+    git tag -a -s v1.0.0 -m "Release 1.0.0"
+
+    # Push commit and tags to GitHub (triggers CI validation)
+    git push origin main
     git push --tags
 
-- check docs on ReadTheDocs
-- check release published on Github and PyPi
+Publish to PyPI
+~~~~~~~~~~~~~~~
+
+.. code-block:: shell
+
+    # Upload to PyPI (requires PyPI API token configured)
+    twine upload dist/*
+
+    # Alternative: Upload to TestPyPI first for validation
+    # twine upload --repository testpypi dist/*
+
+Post-release Verification
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+1. **GitHub**: Verify release appears in GitHub Releases page
+2. **PyPI**: Check package page, metadata, and download links
+3. **Documentation**: Confirm ReadTheDocs rebuild triggered and succeeded
+4. **Installation Test**:
+
+   .. code-block:: shell
+
+       # Test installation in clean environment
+       pip install nipyapi=={version}
+       python -c "import nipyapi; print(nipyapi.__version__)"
+
+Version Management Notes
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- **Automatic Versioning**: ``setuptools-scm`` generates versions from git tags and commits
+- **Development Versions**: Commits after tags get ``.devN+gHASH`` suffix automatically
+- **Release Versions**: Clean git tags (e.g., ``v1.0.0``) produce clean versions (``1.0.0``)
+- **Pre-releases**: Use tag patterns like ``v1.0.0rc1`` for release candidates

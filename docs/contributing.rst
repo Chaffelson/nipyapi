@@ -64,11 +64,17 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
 
     $ git clone git@github.com:Chaffelson/nipyapi.git
 
-3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
+3. Create and activate a Python 3.9+ virtual environment (venv or conda), then install dev extras::
 
-    $ mkvirtualenv nipyapi
+    # using venv
+    $ python -m venv .venv && source .venv/bin/activate
     $ cd nipyapi/
-    $ python setup.py develop
+    $ pip install -e ".[dev]"
+
+    # or using conda
+    $ conda create -n nipyapi-dev python=3.11 -y
+    $ conda activate nipyapi-dev
+    $ pip install -e ".[dev]"
 
 4. Create a branch for local development::
 
@@ -76,35 +82,35 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
 
    Now you can make your changes locally.
 
-5. You may want to leverage the provided Docker configuration for testing and development
+5. You may want to leverage the provided Docker profiles for testing and development
 
  - Install the latest version of Docker
- - Use the provided Docker Compose configuration in ./resources/docker/latest and run the tests::
+ - Use the provided Docker Compose configuration in `resources/docker/compose.yml` and run tests via Makefile::
 
-    $ cd resources/docker/latest
-    $ docker-compose up -d
-    $ cd ../../../
-    $ tox
-    $ cd resources/docker/latest
-    $ docker-compose stop
+    # generate local test certificates (run once or after cleanup)
+    $ make certs
+
+    # bring up single-user profile and wait for readiness
+    $ make up NIPYAPI_PROFILE=single-user
+    $ make wait-ready NIPYAPI_PROFILE=single-user
+    # run tests (conftest resolves URLs, credentials, and TLS for the profile)
+    $ make test
+    # bring everything down when done
+    $ make down
 
 
-6. You may also want to interactively test your code leveraging the convenience console in the demo package::
+6. When you're done making changes, run the test suites for all profiles::
 
-    $ python
-    > from nipyapi.demo.console import *
+    # convenience shortcuts
+    $ make test-all
 
-7. When you're done making changes, check that your changes pass the tests, including testing other Python versions, with tox::
-
-    $ tox
-
-8. Commit your changes and push your branch to GitHub::
+7. Commit your changes and push your branch to GitHub::
 
     $ git add .
     $ git commit -m "Your detailed description of your changes."
     $ git push origin name-of-your-bugfix-or-feature
 
-9. Submit a pull request through the GitHub website.
+8. Submit a pull request through the GitHub website.
 
 Pull Request Guidelines
 -----------------------
@@ -115,5 +121,6 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should pass all tox tests, including for security and regression.
+3. The pull request should pass lint and all three profile test suites (use `make lint` and `make test-su`, `make test-ldap`, `make test-mtls`).
+   Exceptions (e.g., docs-only changes) should note why profile tests were skipped.
 4. Pull requests should be created against 'main' branch for new features or work with NiFi-2.x, or maint-0.x for critical patches to NiFi-1.x featuers.

@@ -4,48 +4,131 @@
 Installation
 ============
 
+Requirements
+------------
 
-Stable release
+- **Python**: 3.9 or higher
+- **Apache NiFi**: 2.0.0 or higher (for target NiFi instances)
+- **Apache NiFi Registry**: 2.0.0 or higher (optional, for local versioning features)
+- **Docker Desktop**: Optional, for local development and testing with provided profiles
+
+Stable Release
 --------------
 
-To install Nipyapi, run this command in your terminal:
+To install NiPyAPI from PyPI, run this command in your terminal:
 
 .. code-block:: console
 
     $ pip install nipyapi
 
-This is the preferred method to install Nipyapi, as it will always install the most recent stable release. 
+This is the preferred method to install NiPyAPI, as it will always install the most recent stable release.
 
-If you don't have `pip`_ installed, this `Python installation guide`_ can guide
-you through the process.
+If you don't have `pip`_ installed, this `Python installation guide`_ can guide you through the process.
 
 .. _pip: https://pip.pypa.io
-.. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
+.. _Python installation guide: https://packaging.python.org/tutorials/installing-packages/
 
+Virtual Environment (Recommended)
+----------------------------------
 
-From sources
-------------
-
-The sources for Nipyapi can be downloaded from the `Github repo`_.
-
-You can either clone the public repository:
+It's recommended to install NiPyAPI in a virtual environment to avoid conflicts:
 
 .. code-block:: console
 
-    $ git clone git://github.com/Chaffelson/nipyapi
+    $ python -m venv nipyapi-env
+    $ source nipyapi-env/bin/activate  # On Windows: nipyapi-env\Scripts\activate
+    $ pip install nipyapi
 
-Or download the `tarball`_:
+Development Installation
+------------------------
+
+To install NiPyAPI for development or to get the latest features:
 
 .. code-block:: console
 
-    $ curl  -OL https://github.com/Chaffelson/nipyapi/tarball/master
+    # Clone the repository
+    $ git clone https://github.com/Chaffelson/nipyapi.git
+    $ cd nipyapi
 
-Once you have a copy of the source, you can install it with:
+    # Install in development mode with all dependencies
+    $ pip install -e ".[dev,docs]"
+
+Or to get the latest development version directly:
 
 .. code-block:: console
 
-    $ python setup.py install
+    $ pip install git+https://github.com/Chaffelson/nipyapi.git@main
 
+From Source Archive
+-------------------
+
+You can download and install from a source archive:
+
+.. code-block:: console
+
+    # Download the latest source
+    $ curl -OL https://github.com/Chaffelson/nipyapi/tarball/main
+    $ tar -xzf main
+    $ cd Chaffelson-nipyapi-*
+
+    # Install using pip (recommended)
+    $ pip install .
+
+    # Or build and install manually
+    $ python -m build
+    $ pip install dist/*.whl
+
+Verify Installation
+-------------------
+
+To verify that NiPyAPI is installed correctly:
+
+.. code-block:: console
+
+    $ python -c "import nipyapi; print(f'NiPyAPI {nipyapi.__version__} installed successfully')"
+
+Next Steps
+----------
+
+**Option 1: Quick Test with Docker (Recommended for New Users)**
+
+If you have Docker Desktop, you can test with our provided environment:
+
+.. code-block:: console
+
+    # Clone repository for Docker profiles
+    $ git clone https://github.com/Chaffelson/nipyapi.git
+    $ cd nipyapi
+
+    # Start test environment
+    $ make certs && make up NIPYAPI_PROFILE=single-user && make wait-ready NIPYAPI_PROFILE=single-user
+
+Then test the connection:
+
+.. code-block:: python
+
+    import nipyapi
+
+    # Use built-in profile (no manual configuration needed)
+    nipyapi.profiles.switch('single-user')
+
+    # Test connection
+    try:
+        version = nipyapi.system.get_nifi_version_info()
+        print(f"✓ Connected to NiFi {version}")
+    except Exception as e:
+        print(f"✗ Connection failed: {e}")
+
+**Option 2: Connect to Your Existing NiFi**
+
+For connecting to your own NiFi instances, see:
+
+- **Environment Profiles**: ``docs/profiles.rst`` - Centralized configuration management
+- **Authentication Methods**: ``docs/security.rst`` - All supported authentication options
+- **Migration Guide**: ``docs/migration.rst`` - Upgrading from NiPyAPI 0.x
+- **Quick Start**: ``README.rst`` - Step-by-step setup instructions
+
+
+.. include:: nipyapi-docs/dependencies.rst
 
 .. _Github repo: https://github.com/Chaffelson/nipyapi
-.. _tarball: https://github.com/Chaffelson/nipyapi/tarball/master

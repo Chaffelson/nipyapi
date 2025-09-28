@@ -2,6 +2,53 @@
 History
 =======
 
+1.0 (2025-08-23)
+-------------------
+
+| Major migration to Apache NiFi/Registry 2.x (tested against 2.5.0). Drops 1.x support on main.
+
+**Breaking Changes - Action Required**
+
+- **Function renaming**: Upstream API specification changes result in operation IDs now using suffixed names (e.g., ``update_run_status1``) and some other functions are also renamed
+- **Authentication and configuration overhaul**: Significant changes to align with modern API standards and upstream API changes
+- **Users must review and update authentication patterns** - legacy configuration methods will be different
+
+**Profile Management System**
+
+- **Extensible file format** (YAML/JSON) with **environment variable overrides** and **sane defaults** - familiar workflow like AWS CLI
+- Intelligent authentication method detection: OIDC, mTLS, and Basic authentication based on available configuration parameters
+- Built-in profiles for common deployment patterns: ``single-user``, ``secure-ldap``, ``secure-mtls``, ``secure-oidc``
+- 15+ configurable parameters (URLs, credentials, certificates, SSL settings) with ``NIPYAPI_PROFILE`` environment variable
+- Profile switching with ``nipyapi.profiles.switch()`` configures endpoints, authentication, and SSL settings in single function call
+
+**Automated Development Workflow**
+
+- **Comprehensive Makefile targets** for all key development and release processes
+- **End-to-end automation**: entire client generation and testing sequence from test certificates to final integration tests
+- **GitHub Actions CI** with full Docker NiFi integration tests and coverage reporting
+- Smart certificate regeneration and optimized rebuild flows to avoid unnecessary infrastructure cycling
+
+**Quick Start and Migration Tools**
+
+- **Sandbox Docker environment** for testing different authentication mechanisms with ``make sandbox`` target
+- **FDLC example retained** and modernized to demonstrate proper multi-environment workflows (single-user dev, secure-ldap prod)
+- **Comprehensive migration guide** (``docs/migration.rst``) for upgrading from NiPyAPI 0.x/NiFi 1.x to 1.x/2.x
+
+**Core Technical Improvements**
+
+- **Documentation system rebuild**: Complete Sphinx overhaul with individual pages for all Core client, NiFi APIs and Registry APIs - with a flat API structure with optimal navigation
+- **Test coverage expansion**: Comprehensive test suite with profile-driven automation rather than manual reconfiguration
+- **Pre-commit checks**: Automated code quality with trailing whitespace, debug statements, flake8, and pylint hooks
+- **Modern dependency management**: Migrated to ``python -m build``, replaced ruamel.yaml with PyYAML, explicit urllib3/certifi/requests inclusion
+- **Enhanced documentation**: Direct GitHub source code links with line-level precision, standardized docstrings throughout generated clients
+- **Profile-driven testing**: Deprecated complex tox regression suite in favor of spec-driven single version testing
+- **Legacy pruning**: Removed Python 2.7 and NiFi 1.x references, deprecated template-era dependencies (lxml, xmltodict)
+- **Codecov migration**: Switched from Coveralls with pytest-cov integration and build process automation
+- **Enhanced convenience functions**: Improved ``set_endpoint`` and various ``ensure_*`` object functions
+- **Certificate handling improvements**: Resolved user complexity with automatic CA certificate setup and validation
+- **Extensive authentication documentation**: OIDC setup instructions, Safari keychain guidance, development vs production practices
+- **API augmentation system**: Client build-time patching for upstream API issues (currently: enum handling and missing security schemes)
+
 0.22.0 (2025-03-25)
 --------------------
 
@@ -18,9 +65,9 @@ History
 * issue-360: handle -9 error messages better by @ottobackwards in https://github.com/Chaffelson/nipyapi/pull/361
 * Handle plain text response types so json values are correctly returned by @michaelarnauts in https://github.com/Chaffelson/nipyapi/pull/358
 * update clients to 1.27.0 by @Chaffelson in https://github.com/Chaffelson/nipyapi/pull/365
-* Simplified the use of setattr in recurse_flow, flatten, and list_all_by_kind methods in nipyapi/canvas.py. 
-* Added support for key_password in the Configuration class and its usage in nipyapi/nifi/rest.py and nipyapi/registry/rest.py. 
-* Fixed the method to retrieve HTTP headers in nipyapi/nifi/rest.py and nipyapi/registry/rest.py. 
+* Simplified the use of setattr in recurse_flow, flatten, and list_all_by_kind methods in nipyapi/canvas.py.
+* Added support for key_password in the Configuration class and its usage in nipyapi/nifi/rest.py and nipyapi/registry/rest.py.
+* Fixed the method to retrieve HTTP headers in nipyapi/nifi/rest.py and nipyapi/registry/rest.py.
 * Fixed issue #326 where the latest flow version was not being deployed by default
 * Updated pylintrc to match more modern python standards
 * Fixes nipyapi.nifi.ProcessGroupsApi.upload_process_group_with_http_info() incomplete #310

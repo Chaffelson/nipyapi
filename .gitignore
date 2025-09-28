@@ -38,6 +38,23 @@ pip-delete-this-directory.txt
 
 # Unit test / coverage reports
 htmlcov/
+
+# NiPyAPI generated cert artifacts (keep script, ignore outputs)
+resources/certs/ca/
+resources/certs/nifi/
+resources/certs/registry/
+resources/certs/truststore/
+resources/certs/client/
+resources/certs/*.env
+resources/certs/extracted/
+
+# Client-gen caches and augmented OpenAPI outputs
+resources/client_gen/_cache/
+resources/client_gen/_tmp/
+resources/client_gen/api_defs/*.augmented.json
+
+# Local scripts/helpers
+resources/scripts/__pycache__/
 .tox/
 .coverage
 .coverage.*
@@ -157,9 +174,18 @@ fabric.properties
 
 # Stupid OSX exclusions
 /.vscode
-
 .DS_Store
+
 # Coverage reports
 coverage*
 .coverage
 htmlcov/
+
+# VSCode
+*.code-workspace
+
+# Cursor AI rules (personal AI assistant configuration)
+.cursorrules
+
+# setuptools-scm generated version file
+nipyapi/_version.py

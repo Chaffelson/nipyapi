@@ -1,0 +1,229 @@
+services:
+  # Secure LDAP profile
+  nifi-ldap:
+    image: apache/nifi:${NIFI_VERSION}
+    container_name: nifi-ldap
+    hostname: nifi-ldap
+    profiles: ["secure-ldap"]
+    ports:
+      - "9444:8443"
+    volumes:
+      - ../certs:/certs:ro
+    networks: [nipynet]
+    env_file:
+      - ../certs/nifi.env
+    environment:
+      - AUTH=ldap
+      # Provide TLS keystore/truststore for secure.sh
+      - KEYSTORE_PATH=/certs/nifi/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - INITIAL_ADMIN_IDENTITY=einstein
+      - LDAP_AUTHENTICATION_STRATEGY=SIMPLE
+      - LDAP_MANAGER_DN=cn=read-only-admin,dc=example,dc=com
+      - LDAP_MANAGER_PASSWORD=password
+      - LDAP_USER_SEARCH_BASE=dc=example,dc=com
+      - LDAP_USER_SEARCH_FILTER=(uid={0})
+      - LDAP_IDENTITY_STRATEGY=USE_USERNAME
+      - LDAP_URL=ldap://ldap.forumsys.com:389
+      - NIFI_WEB_PROXY_HOST=localhost:9444,localhost:8443
+
+  registry-ldap:
+    image: apache/nifi-registry:${NIFI_VERSION}
+    container_name: registry-ldap
+    hostname: registry-ldap
+    profiles: ["secure-ldap"]
+    ports:
+      - "18444:18443"
+    volumes:
+      - ../certs:/certs:ro
+    networks: [nipynet]
+    env_file:
+      - ../certs/registry.env
+    environment:
+      - NIFI_REGISTRY_WEB_HTTPS_PORT=18443
+      - AUTH=ldap
+      # Provide TLS keystore/truststore for secure.sh
+      - KEYSTORE_PATH=/certs/registry/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - INITIAL_ADMIN_IDENTITY=einstein
+      - LDAP_AUTHENTICATION_STRATEGY=SIMPLE
+      - LDAP_MANAGER_DN=cn=read-only-admin,dc=example,dc=com
+      - LDAP_MANAGER_PASSWORD=password
+      - LDAP_USER_SEARCH_BASE=dc=example,dc=com
+      - LDAP_USER_SEARCH_FILTER=(uid={0})
+      - LDAP_IDENTITY_STRATEGY=USE_USERNAME
+      - LDAP_URL=ldap://ldap.forumsys.com:389
+
+  # Secure mTLS profile
+  nifi-mtls:
+    image: apache/nifi:${NIFI_VERSION}
+    container_name: nifi-mtls
+    hostname: nifi-mtls
+    profiles: ["secure-mtls"]
+    ports:
+      - "9445:8443"
+    volumes:
+      - ../certs:/certs:ro
+    env_file:
+      - ../certs/nifi.env
+    environment:
+      - AUTH=tls
+      # Provide TLS keystore/truststore for secure.sh (two-way SSL)
+      - KEYSTORE_PATH=/certs/nifi/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - INITIAL_ADMIN_IDENTITY=C=US, O=NiPyAPI, CN=user1
+      - NIFI_WEB_PROXY_HOST=localhost:9445,localhost:8443
+      - NIFI_WEB_HTTPS_PORT=8443
+      - NIFI_WEB_HTTPS_HOST=0.0.0.0
+      - NIFI_SECURITY_NEEDCLIENTAUTH=true
+      - NIFI_SECURITY_USER_AUTHORIZER=managed-authorizer
+      - NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER=
+      - NIFI_SECURITY_ALLOW_ANONYMOUS_AUTHENTICATION=false
+    networks: [nipynet]
+
+  registry-mtls:
+    image: apache/nifi-registry:${NIFI_VERSION}
+    container_name: registry-mtls
+    hostname: registry-mtls
+    profiles: ["secure-mtls"]
+    ports:
+      - "18445:18443"
+    volumes:
+      - ../certs:/certs:ro
+    env_file:
+      - ../certs/registry.env
+    environment:
+      - AUTH=tls
+      # Provide TLS keystore/truststore for secure.sh (two-way SSL)
+      - KEYSTORE_PATH=/certs/registry/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - INITIAL_ADMIN_IDENTITY=C=US, O=NiPyAPI, CN=user1
+      - NIFI_REGISTRY_WEB_HTTPS_PORT=18443
+      - NIFI_REGISTRY_WEB_HTTPS_HOST=0.0.0.0
+      - NIFI_REGISTRY_SECURITY_NEEDCLIENTAUTH=true
+      - NIFI_REGISTRY_SECURITY_USER_AUTHORIZER=managed-authorizer
+      - NIFI_REGISTRY_SECURITY_IDENTITY_PROVIDER=
+      - NIFI_REGISTRY_SECURITY_ALLOW_ANONYMOUS_AUTHENTICATION=false
+    networks: [nipynet]
+
+  # Simple single-user profile (HTTP with basic credentials)
+  nifi-single:
+    image: apache/nifi:${NIFI_VERSION}
+    container_name: nifi-single
+    hostname: nifi-single
+    profiles: ["single-user"]
+    ports:
+      - "9443:8443"
+    environment:
+      - SINGLE_USER_CREDENTIALS_USERNAME=einstein
+      - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
+      - NIFI_WEB_PROXY_HOST=localhost:9443,localhost:8443
+    networks: [nipynet]
+
+  registry-single:
+    image: apache/nifi-registry:${NIFI_VERSION}
+    container_name: registry-single
+    hostname: registry-single
+    profiles: ["single-user"]
+    ports:
+      - "18080:18080"
+    environment:
+      - SINGLE_USER_CREDENTIALS_USERNAME=einstein
+      - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
+      # Defaults to HTTP on 18080 in single-user mode
+    networks: [nipynet]
+
+  # Keycloak OIDC Identity Provider
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    container_name: keycloak-oidc
+    hostname: keycloak-oidc
+    profiles: ["secure-oidc"]
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak-realm.json:/opt/keycloak/data/import/realm.json:ro
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=password
+      - KC_HOSTNAME_STRICT=false
+      - KC_HOSTNAME_STRICT_HTTPS=false
+      - KC_HTTP_ENABLED=true
+      - KC_HEALTH_ENABLED=true
+      - KC_HOSTNAME=localhost
+      - KC_HOSTNAME_PORT=8080
+    command: ["start-dev", "--import-realm"]
+    networks: [nipynet]
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080;echo -e 'GET /health/ready HTTP/1.1\r\nhost: http://localhost\r\nConnection: close\r\n\r\n' >&3;grep OK <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 90s
+
+  # NiFi with OIDC authentication
+  nifi-oidc:
+    image: apache/nifi:${NIFI_VERSION}
+    container_name: nifi-oidc
+    hostname: nifi-oidc
+    profiles: ["secure-oidc"]
+    ports:
+      - "9446:8443"
+    volumes:
+      - ../certs:/certs:ro
+    env_file:
+      - ../certs/nifi.env
+    environment:
+      - AUTH=oidc
+      - KEYSTORE_PATH=/certs/nifi/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - INITIAL_ADMIN_IDENTITY=einstein@example.com
+      - NIFI_SECURITY_USER_OIDC_DISCOVERY_URL=http://keycloak-oidc:8080/realms/nipyapi/.well-known/openid-configuration
+      - NIFI_SECURITY_USER_OIDC_CLIENT_ID=nipyapi-client
+      - NIFI_SECURITY_USER_OIDC_CLIENT_SECRET=nipyapi-secret
+      - NIFI_SECURITY_USER_OIDC_CLAIM_IDENTIFYING_USER=email
+      - NIFI_SECURITY_USER_AUTHORIZER=managed-authorizer
+      - NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER=
+      - NIFI_SECURITY_ALLOW_ANONYMOUS_AUTHENTICATION=false
+      - NIFI_WEB_PROXY_HOST=localhost:9446,localhost:8443
+    networks: [nipynet]
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  # Registry for OIDC profile (simple HTTP for now)
+  registry-oidc:
+    image: apache/nifi-registry:${NIFI_VERSION}
+    container_name: registry-oidc
+    hostname: registry-oidc
+    profiles: ["secure-oidc"]
+    ports:
+      - "18446:18080"
+    environment:
+      - SINGLE_USER_CREDENTIALS_USERNAME=einstein
+      - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
+    networks: [nipynet]
+
+networks:
+  nipynet:
+    driver: bridge

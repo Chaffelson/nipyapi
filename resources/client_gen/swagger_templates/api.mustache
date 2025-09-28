@@ -29,32 +29,26 @@ class {{classname}}(object):
     def {{operationId}}(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
         """
 {{#summary}}
-        {{{summary}}}
+        {{{summary}}}.
 {{/summary}}
 {{#notes}}
-        {{{notes}}}
-{{/notes}}
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please define a `callback` function
-        to be invoked when receiving the response.
-        >>> def callback_function(response):
-        >>>     pprint(response)
-        >>>
-{{#sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
-{{^sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}({{#allParams}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
 
-        :param callback function: The callback function
-            for asynchronous request. (optional)
+        {{{notes}}}
+
+{{/notes}}
+        This method makes a synchronous HTTP request and returns the response data directly.
+        
+        For full HTTP response details (status code, headers, etc.), use the corresponding 
+        ``{{operationId}}_with_http_info()`` method instead.
+        
+        Args:
 {{#allParams}}
-        :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional){{/optional}}
+            {{paramName}} ({{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}:class:`~nipyapi.{{packageName}}.models.{{dataType}}`{{/isPrimitiveType}}):{{#description}} 
+                {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}} (optional){{/optional}}
 {{/allParams}}
-        :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
-                 If the method is called asynchronously,
-                 returns the request thread.
+                
+        Returns:
+            {{#returnType}}{{#returnTypeIsPrimitive}}{{returnType}}{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}:class:`~nipyapi.{{packageName}}.models.{{returnType}}`{{/returnTypeIsPrimitive}}: The response data.{{/returnType}}{{^returnType}}None{{/returnType}}
         """
         kwargs['_return_http_data_only'] = True
         if kwargs.get('callback'):
@@ -66,36 +60,29 @@ class {{classname}}(object):
     def {{operationId}}_with_http_info(self, {{#sortParamsByRequiredFlag}}{{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}{{/sortParamsByRequiredFlag}}**kwargs):
         """
 {{#summary}}
-        {{{summary}}}
+        {{{summary}}}.
 {{/summary}}
 {{#notes}}
-        {{{notes}}}
-{{/notes}}
-        This method makes a synchronous HTTP request by default. To make an
-        asynchronous HTTP request, please define a `callback` function
-        to be invoked when receiving the response.
-        >>> def callback_function(response):
-        >>>     pprint(response)
-        >>>
-{{#sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{paramName}}, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
-{{^sortParamsByRequiredFlag}}
-        >>> thread = api.{{operationId}}_with_http_info({{#allParams}}{{#required}}{{paramName}}={{paramName}}_value, {{/required}}{{/allParams}}callback=callback_function)
-{{/sortParamsByRequiredFlag}}
 
-        :param callback function: The callback function
-            for asynchronous request. (optional)
+        {{{notes}}}
+
+{{/notes}}
+        This method makes a synchronous HTTP request and returns detailed response information.
+        
+        Returns the response data along with HTTP status code, headers, and other metadata.
+        For just the response data, use the corresponding ``{{operationId}}()`` method instead.
+        
+        Args:
 {{#allParams}}
-        :param {{dataType}} {{paramName}}:{{#description}} {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}}(optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
+            {{paramName}} ({{#isPrimitiveType}}{{dataType}}{{/isPrimitiveType}}{{^isPrimitiveType}}:class:`~nipyapi.{{packageName}}.models.{{dataType}}`{{/isPrimitiveType}}):{{#description}} 
+                {{{description}}}{{/description}}{{#required}} (required){{/required}}{{#optional}} (optional{{#defaultValue}}, default to {{{.}}}{{/defaultValue}}){{/optional}}
 {{/allParams}}
-        :return: {{#returnType}}{{returnType}}{{/returnType}}{{^returnType}}None{{/returnType}}
-                 If the method is called asynchronously,
-                 returns the request thread.
+                
+        Returns:
+            tuple: ({{#returnType}}{{#returnTypeIsPrimitive}}{{returnType}}{{/returnTypeIsPrimitive}}{{^returnTypeIsPrimitive}}:class:`~nipyapi.{{packageName}}.models.{{returnType}}`{{/returnTypeIsPrimitive}}{{/returnType}}{{^returnType}}None{{/returnType}}, status_code, headers) - Response data with HTTP details.
         """
 
         all_params = [{{#allParams}}'{{paramName}}'{{#hasMore}}, {{/hasMore}}{{/allParams}}]
-        all_params.append('callback')
         all_params.append('_return_http_data_only')
         all_params.append('_preload_content')
         all_params.append('_request_timeout')
@@ -136,7 +123,7 @@ class {{classname}}(object):
             raise ValueError("Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must be a value greater than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}`{{minimum}}`")
     {{/minimum}}
     {{#pattern}}
-        if '{{paramName}}' in params and not re.search('{{{vendorExtensions.x-regex}}}', params['{{paramName}}']{{#vendorExtensions.x-modifiers}}{{#-first}}, flags={{/-first}}re.{{.}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-modifiers}}):
+        if '{{paramName}}' in params and not re.search('{{{vendorExtensions.x-regex}}}', params['{{paramName}}']):
             raise ValueError("Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, must conform to the pattern `{{{pattern}}}`")
     {{/pattern}}
     {{#maxItems}}
@@ -148,9 +135,7 @@ class {{classname}}(object):
             raise ValueError("Invalid value for parameter `{{paramName}}` when calling `{{operationId}}`, number of items must be greater than or equal to `{{minItems}}`")
     {{/minItems}}
 {{/hasValidation}}
-{{#-last}}
-
-{{/-last}}
+ 
 {{/allParams}}
         collection_formats = {}
 
@@ -201,7 +186,7 @@ class {{classname}}(object):
 
         {{/hasConsumes}}
         # Authentication setting
-        auth_settings = ['tokenAuth'{{#authMethods}}, '{{name}}'{{/authMethods}}]
+        auth_settings = [{{#authMethods}}'{{name}}'{{#hasMore}}, {{/hasMore}}{{/authMethods}}]
 
         return self.api_client.call_api('{{{path}}}', '{{httpMethod}}',
                                         path_params,
@@ -212,7 +197,6 @@ class {{classname}}(object):
                                         files=local_var_files,
                                         response_type={{#returnType}}'{{returnType}}'{{/returnType}}{{^returnType}}None{{/returnType}},
                                         auth_settings=auth_settings,
-                                        callback=params.get('callback'),
                                         _return_http_data_only=params.get('_return_http_data_only'),
                                         _preload_content=params.get('_preload_content', True),
                                         _request_timeout=params.get('_request_timeout'),

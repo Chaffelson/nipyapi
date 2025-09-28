@@ -9,7 +9,7 @@ from nipyapi.nifi.rest import ApiException
 from nipyapi.utils import check_version
 
 
-def test_create_parameter_context(regress_nifi, fix_context):
+def test_create_parameter_context(fix_context):
     if check_version('1.10.0') >= 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate(name=conftest.test_parameter_context_name)
@@ -23,7 +23,7 @@ def test_create_parameter_context(regress_nifi, fix_context):
         _ = fix_context.generate(name=conftest.test_parameter_context_name)
 
 
-def test_get_parameter_context(regress_nifi, fix_context):
+def test_get_parameter_context(fix_context):
     # Because regression tests are parametrized, the skip needs to be inside the function to work properly
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
@@ -39,7 +39,7 @@ def test_get_parameter_context(regress_nifi, fix_context):
     assert r4.id == c2.id
 
 
-def test_list_all_parameter_contexts(regress_nifi, fix_context):
+def test_list_all_parameter_contexts(fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     _ = fix_context.generate()
@@ -55,7 +55,7 @@ def test_list_all_parameter_contexts(regress_nifi, fix_context):
         assert isinstance(pc, ParameterContextEntity)
 
 
-def test_delete_parameter_context(regress_nifi, fix_context):
+def test_delete_parameter_context(fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
@@ -67,7 +67,7 @@ def test_delete_parameter_context(regress_nifi, fix_context):
         _ = parameters.delete_parameter_context(c1)
 
 
-def test_update_parameter_context(regress_nifi, fix_context):
+def test_update_parameter_context(fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
@@ -89,7 +89,7 @@ def test_update_parameter_context(regress_nifi, fix_context):
     assert r2.component.parameters[0].parameter.description == 'Matter'
 
 
-def test_delete_parameter_from_context(regress_nifi, fix_context):
+def test_delete_parameter_from_context(fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
@@ -103,7 +103,7 @@ def test_delete_parameter_from_context(regress_nifi, fix_context):
     assert r1.component.parameters == []
 
 
-def test_upsert_parameter_to_context(regress_nifi, fix_context):
+def test_upsert_parameter_to_context(fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
@@ -114,7 +114,7 @@ def test_upsert_parameter_to_context(regress_nifi, fix_context):
     assert r1.component.parameters[0].parameter.description == 'Matter'
 
 
-def test_assign_context_to_process_group(regress_nifi, fix_pg, fix_context):
+def test_assign_context_to_process_group(fix_pg, fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
@@ -123,7 +123,7 @@ def test_assign_context_to_process_group(regress_nifi, fix_pg, fix_context):
     assert r1.component.parameter_context.id == c1.id
 
 
-def test_remove_context_from_process_group(regress_nifi, fix_pg, fix_context):
+def test_remove_context_from_process_group(fix_pg, fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()

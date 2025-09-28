@@ -14,7 +14,7 @@ def test_get_root_pg_id():
     assert isinstance(r, str)
 
 
-def test_get_process_group_status(regress_nifi):
+def test_get_process_group_status():
     r = canvas.get_process_group_status(pg_id='root', detail='names')
     assert isinstance(r, dict)
     r = canvas.get_process_group_status('root', 'all')
@@ -41,7 +41,7 @@ def test_deser_flow():
     assert isinstance(f, ProcessGroupFlowEntity)
 
 
-def test_recurse_flow(regress_nifi, fix_pg):
+def test_recurse_flow(fix_pg):
     _ = fix_pg.generate()
     r = canvas.recurse_flow('root')
     assert isinstance(r, ProcessGroupFlowEntity)
@@ -52,7 +52,7 @@ def test_recurse_flow(regress_nifi, fix_pg):
     )
 
 
-def test_list_all_process_groups(regress_nifi, fix_pg):
+def test_list_all_process_groups(fix_pg):
     _ = fix_pg.generate()
     r1 = canvas.list_all_process_groups()
     assert isinstance(r1, list)
@@ -66,7 +66,7 @@ def test_list_all_process_groups(regress_nifi, fix_pg):
     assert r2[0].id == pg_2.id
 
 
-def test_create_process_group(regress_nifi):
+def test_create_process_group():
     r = canvas.create_process_group(
         parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id'),
         new_pg_name=conftest.test_pg_name,
@@ -96,7 +96,7 @@ def test_create_process_group(regress_nifi):
         )
 
 
-def test_get_process_group(regress_nifi, fix_pg):
+def test_get_process_group(fix_pg):
     with pytest.raises(AssertionError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
     f_pg = fix_pg.generate()
@@ -111,7 +111,7 @@ def test_get_process_group(regress_nifi, fix_pg):
     assert len(pg_list) == 3
 
 
-def test_delete_process_group(regress_nifi, fix_pg, fix_proc):
+def test_delete_process_group(fix_pg, fix_proc):
     # Delete stopped PG
     f_pg1 = fix_pg.generate()
     r1 = canvas.delete_process_group(f_pg1)
@@ -156,7 +156,7 @@ def test_schedule_process_group(fix_proc, fix_pg):
         )
 
 
-def test_update_process_group(regress_nifi, fix_pg):
+def test_update_process_group(fix_pg):
     f_pg1 = fix_pg.generate()
     r1 = canvas.update_process_group(
         f_pg1,
@@ -168,13 +168,13 @@ def test_update_process_group(regress_nifi, fix_pg):
     assert r1.component.comments == 'test comment'
 
 
-def test_list_all_processor_types(regress_nifi):
+def test_list_all_processor_types():
     r = canvas.list_all_processor_types()
     assert isinstance(r, ProcessorTypesEntity)
     assert len(r.processor_types) > 1
 
 
-def test_get_processor_type(regress_nifi):
+def test_get_processor_type():
     r1 = canvas.get_processor_type('GenerateFlowFile')
     assert r1.type == 'org.apache.nifi.processors.standard.GenerateFlowFile'
     assert isinstance(r1, DocumentedTypeDTO)
@@ -185,7 +185,7 @@ def test_get_processor_type(regress_nifi):
     assert len(r3) > 10
 
 
-def test_create_processor(regress_nifi, fix_pg):
+def test_create_processor(fix_pg):
     f_pg = fix_pg.generate()
     r1 = canvas.create_processor(
         parent_pg=f_pg,
@@ -198,7 +198,7 @@ def test_create_processor(regress_nifi, fix_pg):
     assert r1.status.name == conftest.test_processor_name
 
 
-def test_list_all_processors(regress_nifi, fix_proc):
+def test_list_all_processors(fix_proc):
     _ = fix_proc.generate()
     _ = fix_proc.generate()
     r = canvas.list_all_processors()
@@ -206,7 +206,7 @@ def test_list_all_processors(regress_nifi, fix_proc):
     assert isinstance(r[0], nifi.ProcessorEntity)
 
 
-def test_list_nested_processors(regress_nifi, fix_pg, fix_proc):
+def test_list_nested_processors(fix_pg, fix_proc):
     pg_1 = fix_pg.generate(
         parent_pg=canvas.get_process_group(canvas.get_root_pg_id(), 'id')
     )
@@ -229,7 +229,7 @@ def test_list_nested_processors(regress_nifi, fix_pg, fix_proc):
     assert len(r3) == 6
 
 
-def test_get_processor(regress_nifi, fix_proc):
+def test_get_processor(fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.get_processor(f_p1.status.name)
     assert isinstance(r1, nifi.ProcessorEntity)
@@ -244,7 +244,7 @@ def test_get_processor(regress_nifi, fix_proc):
     r5 = canvas.get_processor(str(uuid.uuid4()), 'id')
     assert r5 is None
 
-def test_schedule_processor(regress_nifi, fix_proc):
+def test_schedule_processor(fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.schedule_processor(
         f_p1,
@@ -268,7 +268,7 @@ def test_schedule_processor(regress_nifi, fix_proc):
         )
 
 
-def test_delete_processor(regress_nifi, fix_proc):
+def test_delete_processor(fix_proc):
     f_p1 = fix_proc.generate()
     r1 = canvas.delete_processor(f_p1)
     assert r1.status is None
@@ -286,7 +286,7 @@ def test_delete_processor(regress_nifi, fix_proc):
     assert r3.status is None
 
 
-def test_update_processor(regress_nifi, fix_proc):
+def test_update_processor(fix_proc):
     # TODO: Add way more tests to this
     f_p1 = fix_proc.generate()
     update = nifi.ProcessorConfigDTO(
@@ -295,53 +295,6 @@ def test_update_processor(regress_nifi, fix_proc):
     r1 = canvas.update_processor(f_p1, update)
     with pytest.raises(ValueError, match='update param is not an instance'):
         _ = canvas.update_processor(f_p1, 'FakeNews')
-
-
-def test_get_variable_registry(fix_pg):
-    if utils.check_version('2', service='nifi') <= 0:
-        pytest.skip("Not supported in NiFi 2.x")
-    test_pg = fix_pg.generate()
-    r1 = canvas.get_variable_registry(test_pg)
-    assert isinstance(r1, nifi.VariableRegistryEntity)
-    with pytest.raises(ValueError, match='Unable to locate group with id'):
-        canvas.delete_process_group(test_pg)
-        _ = canvas.get_variable_registry(test_pg)
-
-
-def test_update_variable_registry(fix_pg):
-    if utils.check_version('2', service='nifi') <= 0:
-        pytest.skip("Not supported in NiFi 2.x")
-    test_pg = fix_pg.generate()
-    r1 = canvas.update_variable_registry(
-        test_pg,
-        conftest.test_variable_registry_entry
-    )
-    assert isinstance(r1, nifi.VariableRegistryEntity)
-    with pytest.raises(ValueError, match='not the most up-to-date revision'):
-        _ = canvas.update_variable_registry(
-            test_pg,
-            conftest.test_variable_registry_entry,
-            refresh=False
-        )
-    r2 = canvas.update_variable_registry(
-        test_pg,
-        conftest.test_variable_registry_entry,
-        refresh=True
-    )
-    assert isinstance(r2, nifi.VariableRegistryEntity)
-    r3 = canvas.update_variable_registry(
-        test_pg,
-        [
-            ('key1', 'value1'),
-            ('key2', 'value2')
-        ],
-        refresh=True
-    )
-    assert isinstance(r3, nifi.VariableRegistryEntity)
-    with pytest.raises(ValueError,
-                       match='param update is not a valid list of'
-                       ):
-        _ = canvas.update_variable_registry(test_pg, '')
 
 
 def test_purge_connection():
@@ -374,7 +327,7 @@ def test_list_sensitive_processors():
     pass
 
 
-def test_create_connection_processors(regress_nifi, fix_proc):
+def test_create_connection_processors(fix_proc):
     f_p1 = fix_proc.generate()
     f_p2 = fix_proc.generate()
     # connect single relationship
@@ -388,7 +341,7 @@ def test_create_connection_processors(regress_nifi, fix_proc):
         _ = canvas.create_connection(f_p1, f_p2, ['not a connection'])
 
 
-def test_create_connection_funnels(regress_nifi, fix_proc, fix_funnel):
+def test_create_connection_funnels(fix_proc, fix_funnel):
     f_p1 = fix_proc.generate()
     f_f1 = fix_funnel.generate()
     r1 = canvas.create_connection(
@@ -404,7 +357,7 @@ def test_create_connection_funnels(regress_nifi, fix_proc, fix_funnel):
     assert isinstance(r2, nifi.ConnectionEntity)
 
 
-def test_delete_connection(regress_nifi, fix_proc):
+def test_delete_connection(fix_proc):
     f_p1 = fix_proc.generate()
     f_p2 = fix_proc.generate()
     # connect single relationship
@@ -415,7 +368,7 @@ def test_delete_connection(regress_nifi, fix_proc):
     assert r1.status is None
 
 
-def test_list_all_connections(regress_nifi, fix_pg, fix_proc):
+def test_list_all_connections(fix_pg, fix_proc):
     f_p1 = fix_proc.generate()
     f_p2 = fix_proc.generate()
     r1 = [x for x in canvas.list_all_connections()
@@ -453,7 +406,7 @@ def test_list_all_connections(regress_nifi, fix_pg, fix_proc):
     assert r5[0].id == c2.id
 
 
-def test_get_component_connections(regress_nifi, fix_proc):
+def test_get_component_connections(fix_proc):
     f_p1 = fix_proc.generate()
     f_p2 = fix_proc.generate()
     f_p3 = canvas.create_processor(
@@ -473,13 +426,13 @@ def test_get_component_connections(regress_nifi, fix_proc):
     assert r2[1].source_id in [f_p1.id, f_p2.id]
 
 
-def test_list_all_controller_types(regress_nifi):
+def test_list_all_controller_types():
     r1 = canvas.list_all_controller_types()
     assert len(r1) > 5
     assert isinstance(r1[0], nifi.DocumentedTypeDTO)
 
 
-def test_list_all_controllers(regress_nifi, fix_pg, fix_cont):
+def test_list_all_controllers(fix_pg, fix_cont):
     f_pg_1 = fix_pg.generate()
     f_pg_2 = fix_pg.generate(parent_pg=f_pg_1)
     f_c1 = fix_cont()
@@ -520,7 +473,7 @@ def test_list_all_controllers(regress_nifi, fix_pg, fix_cont):
         _ = canvas.list_all_controllers(descendants=['pie'])
 
 
-def test_create_controller(regress_nifi, fix_cont):
+def test_create_controller(fix_cont):
     root_pg = canvas.get_process_group(canvas.get_root_pg_id(), 'id')
     cont_type = canvas.list_all_controller_types()[0]
     r1 = canvas.create_controller(
@@ -534,7 +487,7 @@ def test_create_controller(regress_nifi, fix_cont):
         _ = canvas.create_controller(root_pg, 'pie')
 
 
-def test_get_controller(regress_nifi, fix_pg, fix_cont):
+def test_get_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
     r1 = canvas.get_controller(f_c1.id, 'id')
@@ -547,7 +500,7 @@ def test_get_controller(regress_nifi, fix_pg, fix_cont):
     assert len(r3) == 2
 
 
-def test_schedule_controller(regress_nifi, fix_pg, fix_cont):
+def test_schedule_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
     with pytest.raises(AssertionError):
@@ -560,7 +513,7 @@ def test_schedule_controller(regress_nifi, fix_pg, fix_cont):
     assert r2.component.state == 'DISABLED'
 
 
-def test_delete_controller(regress_nifi, fix_pg, fix_cont):
+def test_delete_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
     r1 = canvas.delete_controller(f_c1)
@@ -585,14 +538,14 @@ def test_delete_controller(regress_nifi, fix_pg, fix_cont):
     assert r4.revision is not None
 
 
-def test_update_controller(regress_nifi, fix_pg, fix_cont):
+def test_update_controller(fix_pg, fix_cont):
     f_c1 = fix_cont(parent_pg=fix_pg.generate())
     r1 = canvas.update_controller(f_c1, nifi.ControllerServiceDTO(name='Bob'))
     assert isinstance(r1, nifi.ControllerServiceEntity)
     assert r1.component.name == 'Bob'
 
 
-def test_input_output_ports(regress_nifi, fix_pg):
+def test_input_output_ports(fix_pg):
     root_input_port = canvas.create_port(
         pg_id=canvas.get_root_pg_id(),
         port_type='INPUT_PORT',
@@ -639,7 +592,7 @@ def test_input_output_ports(regress_nifi, fix_pg):
     assert d1.status is None
 
 
-def test_connect_output_ports(regress_nifi, fix_pg):
+def test_connect_output_ports(fix_pg):
     f_pg_1 = fix_pg.generate()
     f_pg_2 = fix_pg.generate()
     f_pg_1_output = canvas.create_port(
@@ -662,14 +615,14 @@ def test_connect_output_ports(regress_nifi, fix_pg):
     assert isinstance(r1, nifi.ConnectionEntity)
 
 
-def test_create_funnel(regress_nifi, fix_funnel):
+def test_create_funnel(fix_funnel):
     f_f1 = fix_funnel.generate()
     assert isinstance(f_f1, nifi.FunnelEntity)
     assert f_f1.component.position.x == 400
     assert f_f1.component.position.y == 400
 
 
-def test_delete_funnel(regress_nifi, fix_funnel):
+def test_delete_funnel(fix_funnel):
     f_f1 = fix_funnel.generate()
     assert isinstance(f_f1, nifi.FunnelEntity)
     r1 = canvas.delete_funnel(f_f1)

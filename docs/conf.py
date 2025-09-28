@@ -40,8 +40,13 @@ github_doc_root = 'https://github.com/Chaffelson/nipyapi/tree/master/docs'
 
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.viewcode',
-              'sphinx.ext.napoleon']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.linkcode',         # Link to GitHub source code
+    'sphinx.ext.napoleon',
+    'sphinx.ext.intersphinx',      # Link to external docs
+    'sphinx.ext.autosummary',      # Generate summary tables
+]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -57,7 +62,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Nipyapi'
-copyright = u"2017, Daniel Chaffelson"
+copyright = u"2017-2025, Daniel Chaffelson"
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -119,8 +124,13 @@ html_theme = 'sphinx_rtd_theme'
 # documentation.
 html_theme_options = {
     'collapse_navigation': False,
-    'display_version': False,
-    'navigation_depth': 3,
+    'sticky_navigation': True,
+    'navigation_depth': 4,           # Increased for better navigation
+    'includehidden': True,
+    'titles_only': False,
+    'prev_next_buttons_location': 'bottom',
+    'style_external_links': True,
+    'style_nav_header_background': '#004849',  # NiFi theme color
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
@@ -289,3 +299,100 @@ autoclass_content = 'both'
 # M2R
 no_underscore_emphasis = True
 m2r_parse_relative_links = True
+
+# -- Extension Configuration --
+
+# Autosummary settings
+autosummary_generate = True
+autosummary_imported_members = True
+
+# Autodoc settings
+autodoc_default_options = {
+    'members': True,
+    'undoc-members': True,
+    'show-inheritance': True,
+    'special-members': '__init__',
+}
+
+# Napoleon settings (Google/NumPy style docstrings)
+napoleon_google_docstring = True
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = False
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
+
+# Intersphinx mapping for external docs
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3', None),
+    'requests': ('https://requests.readthedocs.io/en/latest/', None),
+    'urllib3': ('https://urllib3.readthedocs.io/en/stable/', None),
+}
+
+# -- GitHub source code linking ---------------------------------------------
+
+def linkcode_resolve(domain, info):
+    """
+    Determine the URL corresponding to Python object.
+    
+    This function maps Python objects to their GitHub source URLs.
+    """
+    if domain != 'py':
+        return None
+        
+    modname = info['module']
+    fullname = info['fullname']
+    
+    # Only link to nipyapi modules, not external dependencies
+    if not modname.startswith('nipyapi'):
+        return None
+    
+    # GitHub repository configuration
+    github_user = 'Chaffelson'
+    github_repo = 'nipyapi'
+    github_branch = 'NiFi2x'  # Current working branch
+    
+    # Build the base GitHub URL
+    github_url = f"https://github.com/{github_user}/{github_repo}/blob/{github_branch}"
+    
+    try:
+        # Import the module to get file location
+        import importlib
+        mod = importlib.import_module(modname)
+        
+        # Get the file path
+        if hasattr(mod, '__file__') and mod.__file__:
+            # Convert absolute path to relative path from project root
+            import os
+            filepath = os.path.relpath(mod.__file__, start=project_root)
+            
+            # Normalize path separators for URLs
+            filepath = filepath.replace(os.sep, '/')
+            
+            # Try to get line number for the specific object
+            if hasattr(mod, fullname.split('.')[-1]):
+                obj = getattr(mod, fullname.split('.')[-1])
+                if hasattr(obj, '__code__'):
+                    lineno = obj.__code__.co_firstlineno
+                    return f"{github_url}/{filepath}#L{lineno}"
+                elif hasattr(obj, '__init__') and hasattr(obj.__init__, '__code__'):
+                    # For classes, link to __init__ method
+                    lineno = obj.__init__.__code__.co_firstlineno
+                    return f"{github_url}/{filepath}#L{lineno}"
+            
+            # Fallback: just link to the file
+            return f"{github_url}/{filepath}"
+            
+    except (ImportError, AttributeError, ValueError):
+        # Fallback: construct path based on module name
+        module_path = modname.replace('.', '/')
+        if not module_path.endswith('.py'):
+            module_path += '.py'
+        return f"{github_url}/{module_path}"
+    
+    return None

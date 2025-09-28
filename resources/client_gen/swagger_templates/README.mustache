@@ -57,7 +57,7 @@ import time
 import {{{packageName}}}
 from {{{packageName}}}.rest import ApiException
 from pprint import pprint
-{{#apiInfo}}{{#apis}}{{#-first}}{{#operations}}{{#operation}}{{#-first}}{{#hasAuthMethods}}{{#authMethods}}{{#isBasic}}
+{{#apiInfo}}{{#apis}}{{#operations}}{{#operation}}{{#hasAuthMethods}}{{#authMethods}}{{#isBasic}}
 # Configure HTTP basic authorization: {{{name}}}
 {{{packageName}}}.configuration.username = 'YOUR_USERNAME'
 {{{packageName}}}.configuration.password = 'YOUR_PASSWORD'{{/isBasic}}{{#isApiKey}}
@@ -79,7 +79,7 @@ try:
     pprint(api_response){{/returnType}}
 except ApiException as e:
     print("Exception when calling {{classname}}->{{operationId}}: %s\n" % e)
-{{/-first}}{{/operation}}{{/operations}}{{/-first}}{{/apis}}{{/apiInfo}}
+{{/operation}}{{/operations}}{{/apis}}{{/apiInfo}}
 ```
 
 ## Documentation for API Endpoints

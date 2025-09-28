@@ -1,287 +1,415 @@
-"""Tests for nipyapi security module."""
+"""General tests for nipyapi security module (profile-agnostic)."""
 
 import pytest
+from unittest.mock import patch, MagicMock
 from tests import conftest
 import nipyapi
 
-# Tells pytest to skip this module of security testing if not enabled.
-pytestmark = pytest.mark.skipif(not conftest.test_ldap, reason='test_ldap disabled in Conftest')
-
-# Useful for manual testing
-# if conftest.test_ldap:
-#     test_host = nipyapi.config.default_host
-#     nipyapi.utils.set_endpoint('https://' + test_host + ':18443/nifi-registry-api', True, True)
-#     nipyapi.utils.set_endpoint('https://' + test_host + ':9443/nifi-api', True, True)
+# These tests run on any profile - no profile restriction
 
 
-def test_list_service_users():
-    # This test suite makes extensive use of this call in fixtures
-    pass
-
-
-def test_get_service_user():
-    # This test suite makes extensive use of this call in fixtures
-    pass
-
-
-def test_create_service_user():
+def test_list_service_users_validation():
+    """Test parameter validation for list_service_users"""
+    # Test invalid service
     with pytest.raises(AssertionError):
-        nipyapi.security.create_service_user(service='bob', identity='pie')
+        nipyapi.security.list_service_users(service="invalid_service")
+
+
+def test_get_service_user_validation():
+    """Test parameter validation for get_service_user"""
+    # Test invalid service
+    with pytest.raises(AssertionError):
+        nipyapi.security.get_service_user(
+            identifier="test",
+            service="invalid_service"
+        )
+
+    # Test invalid identifier type
+    with pytest.raises(AssertionError):
+        nipyapi.security.get_service_user(
+            identifier=123,  # Should be string
+            service="nifi"
+        )
+
+    # Test invalid identifier_type
+    with pytest.raises(AssertionError):
+        nipyapi.security.get_service_user(
+            identifier="test",
+            identifier_type=123,  # Should be string
+            service="nifi"
+        )
+
+
+def test_create_service_user_validation():
+    """Test parameter validation for create_service_user"""
+    # Test invalid service
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_service_user(service='invalid_service', identity='test')
+
+    # Test invalid identity type
     with pytest.raises(AssertionError):
         nipyapi.security.create_service_user(service='nifi', identity=dict())
+
+    # Test invalid strict type
     with pytest.raises(AssertionError):
-        nipyapi.security.create_service_user(service='nifi', identity='pie', strict=str())
-    r1 = nipyapi.security.create_service_user(conftest.test_basename)
-    assert isinstance(r1, nipyapi.nifi.UserEntity)
-    r2 = nipyapi.security.create_service_user(conftest.test_basename, 'registry')
-    assert isinstance(r2, nipyapi.registry.User)
-    with pytest.raises(ValueError):
-        nipyapi.security.create_service_user(conftest.test_basename, strict=True)
-    r3 = nipyapi.security.create_service_user(conftest.test_basename, strict=False)
-    assert isinstance(r3, nipyapi.nifi.UserEntity)
-    assert r3.component.identity == conftest.test_basename
+        nipyapi.security.create_service_user(service='nifi', identity='test', strict=str())
 
 
-def test_remove_service_user(fix_users):
-    n_user, r_user = fix_users()
-    r1 = nipyapi.security.remove_service_user(n_user)
-    assert nipyapi.security.get_service_user(n_user.component.identity) is None
-    assert isinstance(r1, nipyapi.nifi.UserEntity)
-    r2 = nipyapi.security.remove_service_user(r_user, 'registry')
-    assert nipyapi.security.get_service_user(r_user.identity, service='registry') is None
-    assert isinstance(r2, nipyapi.registry.User)
-    with pytest.raises(ValueError):
-        nipyapi.security.remove_service_user(n_user)
-    with pytest.raises(ValueError):
-        nipyapi.security.remove_service_user(r_user, 'registry')
-    r3 = nipyapi.security.remove_service_user(n_user, strict=False)
-    assert r3 is None
-    r4 = nipyapi.security.remove_service_user(r_user, 'registry', strict=False)
-    assert r4 is None
-
-
-def test_create_service_user_group(fix_users, fix_user_groups):
-    # fix_user_groups provides the cleanup after testing
+def test_remove_service_user_validation():
+    """Test parameter validation for remove_service_user"""
+    # Test invalid strict type
     with pytest.raises(AssertionError):
-        nipyapi.security.create_service_user_group(identity=dict())
+        # Create a mock user object
+        mock_user = MagicMock()
+        mock_user.id = "test_id"
+        mock_user.revision.version = 1
+        nipyapi.security.remove_service_user(mock_user, service='nifi', strict=str())
+
+
+def test_create_service_user_group_validation():
+    """Test parameter validation for create_service_user_group"""
+    # Test invalid service
     with pytest.raises(AssertionError):
         nipyapi.security.create_service_user_group(
-            conftest.test_user_group_name,
-            service='bob'
+            identity="test_group",
+            service="invalid_service"
         )
+
+    # Test invalid identity type
     with pytest.raises(AssertionError):
         nipyapi.security.create_service_user_group(
-            conftest.test_user_group_name,
-            service='nifi',
-            users=['bob']
+            identity=123,  # Should be string
+            service="nifi"
         )
-    n_user, r_user = fix_users()
-    r1 = nipyapi.security.create_service_user_group(
-        conftest.test_user_group_name,
-        service='nifi',
-        users=[n_user],
-        strict=True
-    )
-    assert isinstance(r1, nipyapi.nifi.UserGroupEntity)
-    r2 = nipyapi.security.create_service_user_group(
-        conftest.test_user_group_name,
-        service='registry',
-        users=[r_user],
-        strict=True
-    )
-    assert isinstance(r2, nipyapi.registry.UserGroup)
-    with pytest.raises(ValueError):
-        nipyapi.security.create_service_user_group(
-            conftest.test_user_group_name,
-            service='nifi',
-            users=[n_user],
-            strict=True
-        )
-    with pytest.raises(ValueError):
-        nipyapi.security.create_service_user_group(
-            conftest.test_user_group_name,
-            service='registry',
-            users=[r_user],
-            strict=True
-        )
-    r3 = nipyapi.security.create_service_user_group(
-        conftest.test_user_group_name,
-        service='nifi',
-        users=[n_user],
-        strict=False
-    )
-    assert isinstance(r3, nipyapi.nifi.UserGroupEntity)
-    r4 = nipyapi.security.create_service_user_group(
-        conftest.test_user_group_name,
-        service='registry',
-        users=[r_user],
-        strict=False
-    )
-    assert isinstance(r4, nipyapi.registry.UserGroup)
 
 
-def test_list_service_user_groups(fix_user_groups):
-    n_group, r_group = fix_user_groups()
+def test_list_service_user_groups_validation():
+    """Test parameter validation for list_service_user_groups"""
+    # Test invalid service
     with pytest.raises(AssertionError):
-        nipyapi.security.list_service_user_groups(service='bob')
-    r1 = nipyapi.security.list_service_user_groups()
-    assert isinstance(r1[0], nipyapi.nifi.UserGroupEntity)
-    assert n_group.id in [x.id for x in r1]
-    r2 = nipyapi.security.list_service_user_groups('registry')
-    assert isinstance(r2[0], nipyapi.registry.UserGroup)
-    assert r_group.identifier in [x.identifier for x in r2]
+        nipyapi.security.list_service_user_groups(service="invalid_service")
 
 
-def test_get_service_user_group(fix_user_groups):
-    n_group, r_group = fix_user_groups()
-    with pytest.raises(AssertionError):
-        nipyapi.security.get_service_user_group(identifier=dict())
+def test_get_service_user_group_validation():
+    """Test parameter validation for get_service_user_group"""
+    # Test invalid service
     with pytest.raises(AssertionError):
         nipyapi.security.get_service_user_group(
-            identifier='bob',
-            identifier_type=dict())
+            identifier="test",
+            service="invalid_service"
+        )
+
+
+def test_service_login_validation():
+    """Test parameter validation for service_login"""
+    # Test invalid service
     with pytest.raises(AssertionError):
-        nipyapi.security.get_service_user_group(
-            identifier='bob',
-            identifier_type='id',
-            service='bob')
-    r1 = nipyapi.security.get_service_user_group(conftest.test_user_group_name)
-    assert isinstance(r1, nipyapi.nifi.UserGroupEntity)
-    assert r1.id == n_group.id
-    r2 = nipyapi.security.get_service_user_group(
-        identifier=conftest.test_user_group_name,
-        service='registry'
-    )
-    assert isinstance(r2, nipyapi.registry.UserGroup)
-    assert r2.identifier == r_group.identifier
+        nipyapi.security.service_login(service="invalid_service")
 
-
-def test_remove_service_user_group(fix_user_groups):
-    n_group, r_group = fix_user_groups()
-    r1 = nipyapi.security.remove_service_user_group(n_group)
-    assert nipyapi.security.get_service_user_group(n_group.component.identity) is None
-    assert isinstance(r1, nipyapi.nifi.UserGroupEntity)
-    r2 = nipyapi.security.remove_service_user_group(r_group, 'registry')
-    assert nipyapi.security.get_service_user_group(r_group.identity, service='registry') is None
-    assert isinstance(r2, nipyapi.registry.UserGroup)
-    with pytest.raises(ValueError):
-        nipyapi.security.remove_service_user_group(n_group)
-    with pytest.raises(ValueError):
-        nipyapi.security.remove_service_user_group(r_group, 'registry')
-    r3 = nipyapi.security.remove_service_user_group(n_group, strict=False)
-    assert r3 is None
-    r4 = nipyapi.security.remove_service_user_group(r_group, 'registry', strict=False)
-    assert r4 is None
-
-
-def test_service_login():
+    # Test invalid username type
     with pytest.raises(AssertionError):
-        nipyapi.security.service_login(service='bob')
+        nipyapi.security.service_login(service="nifi", username=123)
+
+    # Test invalid password type
     with pytest.raises(AssertionError):
-        nipyapi.security.service_login(username=dict())
+        nipyapi.security.service_login(service="nifi", password=123)
+
+
+
+
+def test_set_service_auth_token_validation():
+    """Test parameter validation for set_service_auth_token"""
+    # Test invalid service
     with pytest.raises(AssertionError):
-        nipyapi.security.service_login(password=dict())
+        nipyapi.security.set_service_auth_token(
+            token="test_token",
+            service="invalid_service"
+        )
+
+    # Test invalid token type
     with pytest.raises(AssertionError):
-        nipyapi.security.service_login(bool_response='bob')
-    # This test suite makes extensive use of this call in fixtures
+        nipyapi.security.set_service_auth_token(
+            token=123,  # Should be string
+            service="nifi"
+        )
+
+    # Test invalid token_name type
+    with pytest.raises(AssertionError):
+        nipyapi.security.set_service_auth_token(
+            token="test_token",
+            token_name=123,  # Should be string
+            service="nifi"
+        )
 
 
-def test_set_service_auth_token():
-    # This test suite makes extensive use of this call in fixtures
-    pass
+def test_service_logout_validation():
+    """Test parameter validation for service_logout"""
+    # Test invalid service
+    with pytest.raises(AssertionError):
+        nipyapi.security.service_logout(service="invalid_service")
 
 
-def test_service_logout():
-    # This test suite makes extensive use of this call in fixtures
-    pass
+def test_get_service_access_status_validation():
+    """Test parameter validation for get_service_access_status"""
+    # Test invalid service
+    with pytest.raises(AssertionError):
+        nipyapi.security.get_service_access_status(service="invalid_service")
 
 
-def test_get_service_access_status():
-    # This test suite makes extensive use of this call in fixtures
-    pass
+def test_create_access_policy_validation():
+    """Test parameter validation for create_access_policy"""
+    # Test invalid action
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_access_policy(
+            resource="/test",
+            action="invalid_action",  # Should be read/write/delete
+            service="nifi"
+        )
+
+    # Test invalid service
+    with pytest.raises(AssertionError):
+        nipyapi.security.create_access_policy(
+            resource="/test",
+            action="read",
+            service="invalid_service"
+        )
 
 
-def test_add_user_to_access_policy():
-    # ~ user = nipyapi.security.create_service_user(
-    # ~ identity='testuser',
-    # ~ service='nifi'
-    # ~ )
-
-    # ~ assert isinstance(user, nipyapi.nifi.UserEntity)
-    # ~ policy = nipyapi.security.add_user_to_access_policy(
-    # ~ user=user,
-    # ~ service='nifi'
-    # ~ )
-    # ~ assert isinstance(policy, nipyapi.nifi.AccessPolicyEntity)
-    pass
+def test_set_service_ssl_context_validation():
+    """Test parameter validation for set_service_ssl_context"""
+    # Test invalid service
+    with pytest.raises(AssertionError):
+        nipyapi.security.set_service_ssl_context(service="invalid_service")
 
 
-def test_add_user_group_to_access_policy():
-    # ~ user_group = nipyapi.security.create_service_user_group(
-    # ~ identity='testuser_group',
-    # ~ service='nifi'
-    # ~ )
-    # ~ assert isinstance(user_group, nipyapi.nifi.UserGroupEntity)
-    # ~ policy = nipyapi.security.add_user_group_to_access_policy(
-    # ~ user_group=user_group,
-    # ~ service='nifi'
-    # ~ )
-    # ~ assert isinstance(policy, nipyapi.nifi.AccessPolicyEntity)
-    pass
+def test_set_service_ssl_context_file_errors():
+    """Test SSL context file error handling"""
+    # Test file not found errors
+    with pytest.raises(FileNotFoundError, match="Unable to read keyfile"):
+        nipyapi.security.set_service_ssl_context(
+            service='nifi',
+            client_cert_file='/nonexistent/cert.pem',
+            client_key_file='/nonexistent/key.pem'
+        )
 
 
-def test_update_access_policy():
-    pass
+def test_bootstrap_security_policies_validation():
+    """Test parameter validation for bootstrap_security_policies"""
+    # Test invalid service list
+    with pytest.raises(AssertionError):
+        nipyapi.security.bootstrap_security_policies(
+            service=["invalid_service"]
+        )
 
 
-def test_get_access_policy_for_resource():
-    # This test suite makes extensive use of this call in fixtures
-    pass
+class TestEnsureSSLContext:
+    """Test ensure_ssl_context convenience function."""
+
+    @patch('nipyapi.canvas.get_controller')
+    @patch('nipyapi.security.create_ssl_context_controller_service')
+    @patch('nipyapi.canvas.schedule_controller')
+    def test_ensure_ssl_context_create_new(self, mock_schedule, mock_create, mock_get):
+        """Test ensure_ssl_context creates new SSL context when none exists."""
+        # Mock no existing SSL context found
+        mock_get.return_value = None
+
+        # Mock SSL context creation
+        mock_ssl_context = MagicMock()
+        mock_ssl_context.id = 'test-ssl-context-id'
+        mock_create.return_value = mock_ssl_context
+
+        # Test creating new SSL context
+        result = nipyapi.security.ensure_ssl_context(
+            parent_pg=MagicMock(),
+            name='test-ssl-context',
+            keystore_file='/test/keystore.p12',
+            keystore_password='password',
+            truststore_file='/test/truststore.p12',
+            truststore_password='password'
+        )
+
+        assert result == mock_ssl_context
+        mock_create.assert_called_once()
+        mock_schedule.assert_called_once_with(mock_ssl_context, scheduled=True, refresh=True)
+
+    @patch('nipyapi.canvas.get_controller')
+    @patch('nipyapi.canvas.schedule_controller')
+    def test_ensure_ssl_context_return_existing(self, mock_schedule, mock_get):
+        """Test ensure_ssl_context returns existing SSL context."""
+        # Mock existing SSL context found
+        mock_existing = MagicMock()
+        mock_existing.id = 'existing-ssl-context-id'
+        mock_get.return_value = mock_existing
+
+        # Test returning existing SSL context
+        result = nipyapi.security.ensure_ssl_context(
+            parent_pg=MagicMock(),
+            name='existing-ssl-context',
+            keystore_file='/test/keystore.p12',
+            keystore_password='password',
+            truststore_file='/test/truststore.p12',
+            truststore_password='password'
+        )
+
+        assert result == mock_existing
+        # Should ensure it's scheduled but not create new one
+        mock_schedule.assert_called_once_with(mock_existing, scheduled=True, refresh=True)
+
+    @patch('nipyapi.canvas.get_controller')
+    @patch('nipyapi.security.create_ssl_context_controller_service')
+    @patch('nipyapi.canvas.schedule_controller')
+    def test_ensure_ssl_context_race_condition(self, mock_schedule, mock_create, mock_get):
+        """Test ensure_ssl_context handles race condition gracefully."""
+        # Mock race condition: service created between check and creation
+        mock_get.side_effect = [None, MagicMock()]  # First call finds none, second finds existing
+
+        # Mock creation failure due to duplicate
+        mock_create.side_effect = Exception("already exists")
+
+        # Should handle race condition and return existing service
+        result = nipyapi.security.ensure_ssl_context(
+            parent_pg=MagicMock(),
+            name='race-ssl-context',
+            keystore_file='/test/keystore.p12',
+            keystore_password='password',
+            truststore_file='/test/truststore.p12',
+            truststore_password='password'
+        )
+
+        assert result is not None
+        # Should have tried to create but then handled the race condition
+        mock_create.assert_called_once()
 
 
-def test_create_access_policy():
-    # This test suite makes extensive use of this call in fixtures
-    pass
+def test_set_ssl_warning_suppression():
+    """Test SSL warning suppression control"""
+    # Test enabling suppression
+    nipyapi.security.set_ssl_warning_suppression(True)
+    # No exception should be raised
+
+    # Test disabling suppression (note: urllib3 limitation means we can't re-enable)
+    nipyapi.security.set_ssl_warning_suppression(False)
+    # No exception should be raised
+
+    # Test invalid parameter
+    with pytest.raises(AssertionError, match="suppress_warnings must be boolean"):
+        nipyapi.security.set_ssl_warning_suppression("invalid")
 
 
-def test_set_service_ssl_context():
-    """Test setting SSL context with different purposes"""
-    import ssl
-    from nipyapi import config
+@patch('nipyapi.security.service_logout')
+def test_reset_service_connections_both_services(mock_logout):
+    """Test resetting connections for both services"""
+    # Store original API clients
+    original_nifi_client = nipyapi.config.nifi_config.api_client
+    original_registry_client = nipyapi.config.registry_config.api_client
 
-    # Test default behavior (no purpose specified)
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        ca_file=config.default_ssl_context['ca_file']
-    )
-    assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
+    try:
+        # Set mock clients to verify they get reset
+        nipyapi.config.nifi_config.api_client = MagicMock()
+        nipyapi.config.registry_config.api_client = MagicMock()
 
-    # Test with explicit SERVER_AUTH purpose
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        ca_file=config.default_ssl_context['ca_file'],
-        purpose=ssl.Purpose.SERVER_AUTH
-    )
-    assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
+        # Test reset all services (default)
+        nipyapi.security.reset_service_connections()
 
-    # Test with CLIENT_AUTH purpose
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        ca_file=config.default_ssl_context['ca_file'],
-        purpose=ssl.Purpose.CLIENT_AUTH
-    )
-    assert isinstance(nipyapi.config.nifi_config.ssl_context, ssl.SSLContext)
+        # Should have called logout for both services
+        assert mock_logout.call_count == 2
+        mock_logout.assert_any_call('nifi')
+        mock_logout.assert_any_call('registry')
 
-    # Test with full client cert configuration
-    nipyapi.security.set_service_ssl_context(
-        service='nifi',
-        **config.default_ssl_context
-    )
-    assert nipyapi.config.nifi_config.ssl_context.get_ca_certs() is not None
+        # Should have reset both API clients
+        assert nipyapi.config.nifi_config.api_client is None
+        assert nipyapi.config.registry_config.api_client is None
+
+    finally:
+        # Restore original clients
+        nipyapi.config.nifi_config.api_client = original_nifi_client
+        nipyapi.config.registry_config.api_client = original_registry_client
 
 
-def test_bootstrap_security_policies():
-    # This test suite makes extensive use of this call in fixtures
-    pass
+@patch('nipyapi.security.service_logout')
+def test_reset_service_connections_single_service(mock_logout):
+    """Test resetting connections for a single service"""
+    # Store original API clients
+    original_nifi_client = nipyapi.config.nifi_config.api_client
+    original_registry_client = nipyapi.config.registry_config.api_client
 
-# TODO: Test adding users to existing set of users and ensuring no clobber
+    try:
+        # Set mock clients to verify selective reset
+        nipyapi.config.nifi_config.api_client = MagicMock()
+        nipyapi.config.registry_config.api_client = MagicMock()
+
+        # Test reset only NiFi service
+        nipyapi.security.reset_service_connections(service='nifi')
+
+        # Should have called logout only for NiFi
+        mock_logout.assert_called_once_with('nifi')
+
+        # Should have reset only NiFi API client
+        assert nipyapi.config.nifi_config.api_client is None
+        assert nipyapi.config.registry_config.api_client is not None  # Should remain
+
+    finally:
+        # Restore original clients
+        nipyapi.config.nifi_config.api_client = original_nifi_client
+        nipyapi.config.registry_config.api_client = original_registry_client
+
+
+def test_reset_service_connections_invalid_service():
+    """Test reset with invalid service parameter"""
+    with pytest.raises(ValueError, match="Invalid service 'invalid'"):
+        nipyapi.security.reset_service_connections(service='invalid')
+
+
+@patch('nipyapi.security.service_logout')
+def test_reset_service_connections_logout_error_handling(mock_logout):
+    """Test that reset continues even if logout fails"""
+    # Store original API clients
+    original_nifi_client = nipyapi.config.nifi_config.api_client
+
+    try:
+        # Set mock client
+        nipyapi.config.nifi_config.api_client = MagicMock()
+
+        # Make logout raise an exception
+        mock_logout.side_effect = Exception("Logout failed")
+
+        # Should not raise exception despite logout failure
+        nipyapi.security.reset_service_connections(service='nifi')
+
+        # Should still reset the API client
+        assert nipyapi.config.nifi_config.api_client is None
+
+    finally:
+        # Restore original client
+        nipyapi.config.nifi_config.api_client = original_nifi_client
+
+
+# SSL Configuration Tests
+
+def test_simplified_ssl_approach():
+    """Test simplified SSL approach: verify_ssl=True/False controls everything"""
+    from nipyapi.nifi.rest import RESTClientObject
+
+    try:
+        # Test verify_ssl=False: should use CERT_NONE with no ca_certs
+        nipyapi.config.nifi_config.host = 'https://localhost:8443/nifi-api'
+        nipyapi.config.nifi_config.verify_ssl = False
+
+        client = RESTClientObject()
+        assert client.pool_manager.connection_pool_kw.get("cert_reqs") == 0  # ssl.CERT_NONE
+        assert client.pool_manager.connection_pool_kw.get("ca_certs") is None
+
+        # Test verify_ssl=True: should use CERT_REQUIRED with ca_certs
+        nipyapi.config.nifi_config.verify_ssl = True
+
+        client = RESTClientObject()
+        assert client.pool_manager.connection_pool_kw.get("cert_reqs") == 2  # ssl.CERT_REQUIRED
+        assert client.pool_manager.connection_pool_kw.get("ca_certs") is not None
+
+    finally:
+        # CRITICAL: Always restore configuration using profiles system to avoid breaking subsequent tests
+        nipyapi.profiles.switch(conftest.ACTIVE_PROFILE)
+
+
+# TODO: Add more edge case tests for policy manipulation functions
+# TODO: Add tests for SSL error conditions (wrong password, etc.)

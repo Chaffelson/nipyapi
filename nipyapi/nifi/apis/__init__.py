@@ -1,14 +1,15 @@
 
 # import apis into api package
 from .access_api import AccessApi
+from .authentication_api import AuthenticationApi
 from .connections_api import ConnectionsApi
 from .controller_api import ControllerApi
 from .controller_services_api import ControllerServicesApi
 from .counters_api import CountersApi
 from .data_transfer_api import DataTransferApi
 from .flow_api import FlowApi
-from .flowfile_queues_api import FlowfileQueuesApi
-from .funnel_api import FunnelApi
+from .flow_file_queues_api import FlowFileQueuesApi
+from .funnels_api import FunnelsApi
 from .input_ports_api import InputPortsApi
 from .labels_api import LabelsApi
 from .output_ports_api import OutputPortsApi
@@ -25,6 +26,5 @@ from .resources_api import ResourcesApi
 from .site_to_site_api import SiteToSiteApi
 from .snippets_api import SnippetsApi
 from .system_diagnostics_api import SystemDiagnosticsApi
-from .templates_api import TemplatesApi
 from .tenants_api import TenantsApi
 from .versions_api import VersionsApi

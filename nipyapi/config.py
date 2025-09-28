@@ -5,30 +5,33 @@ objects.
 """
 
 import os
-import ssl
-import urllib3
+
 from nipyapi.nifi import configuration as nifi_config
 from nipyapi.registry import configuration as registry_config
-
 
 # --- Default Host URLs -----
 # Note that changing the default hosts below will not
 # affect an API connection that's already running.
-# You'll need to change the .api_client.host for that, and there is a
-# convenience function for this in nipyapi.utils.set_endpoint
+# You should use nipyapi.profiles.switch to set the profile you want to use.
 
 # Set Default Host for NiFi
 default_host = "localhost"  # Default to localhost for release
 #
-nifi_config.host = os.getenv(
-    "NIFI_API_ENDPOINT", "http://" + default_host + ":8080/nifi-api"
+nifi_config.host = os.getenv("NIFI_API_ENDPOINT", "https://" + default_host + ":9443/nifi-api")
+# Set Default Host for NiFi-Registry (default secure in 2.x single/ldap profiles use
+# 18444/18445; single-user registry is http 18080)
+registry_config.host = os.getenv(
+    "REGISTRY_API_ENDPOINT", "http://" + default_host + ":18080/nifi-registry-api"
 )
-# Set Default Host for NiFi-Registry
-registry_config.host = "http://" + default_host + ":18080/nifi-registry-api"
 
 # ---  Project Root ------
 # Is is helpful to have a reference to the root directory of the project
 PROJECT_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
+
+
+# --- Profiles Configuration ------
+# Default path to profiles file (can be overridden programmatically or via environment)
+default_profiles_file = "examples/profiles.yml"
 
 
 # --- Task wait delays ------
@@ -52,33 +55,21 @@ long_max_wait = 120
 # Note that 'id' is used for UUID by convention, but should not be confused
 # with 'identity' in security contexts.
 registered_filters = {
-    'Bucket': {'id': ['identifier'], 'name': ['name']},
-    'VersionedFlow': {'id': ['identifier'], 'name': ['name']},
-    'FlowRegistryClientEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ProcessGroupEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'DocumentedTypeDTO': {'bundle': ['bundle', 'artifact'],
-                          'name': ['type'],
-                          'tag': ['tags']},
-    'ProcessorEntity': {'id': ['id'], 'name': ['status', 'name']},
-    'User': {'identity': ['identity'], 'id': ['identifier']},
-    'UserGroupEntity': {'identity': ['component', 'identity'], 'id': ['id']},
-    'UserGroup': {'identity': ['identity'], 'id': ['identifier']},
-    'UserEntity': {'identity': ['component', 'identity'], 'id': ['id']},
-    'TemplateEntity': {'id': ['id'], 'name': ['template', 'name']},
-    'ControllerServiceEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ParameterContextEntity': {'id': ['id'], 'name': ['component', 'name']},
-    'ReportingTaskEntity': {'id': ['id'], 'name': ['component', 'name']}
+    "Bucket": {"id": ["identifier"], "name": ["name"]},
+    "VersionedFlow": {"id": ["identifier"], "name": ["name"]},
+    "FlowRegistryClientEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ProcessGroupEntity": {"id": ["id"], "name": ["status", "name"]},
+    "DocumentedTypeDTO": {"bundle": ["bundle", "artifact"], "name": ["type"], "tag": ["tags"]},
+    "ProcessorEntity": {"id": ["id"], "name": ["status", "name"]},
+    "User": {"identity": ["identity"], "id": ["identifier"]},
+    "UserGroupEntity": {"identity": ["component", "identity"], "id": ["id"]},
+    "UserGroup": {"identity": ["identity"], "id": ["identifier"]},
+    "UserEntity": {"identity": ["component", "identity"], "id": ["id"]},
+    "TemplateEntity": {"id": ["id"], "name": ["template", "name"]},
+    "ControllerServiceEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ParameterContextEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ReportingTaskEntity": {"id": ["id"], "name": ["component", "name"]},
 }
-
-
-# --- Version Checking
-# Method to check if we're compatible with the API endpoint
-# NOT YET IMPLEMENTED
-# If None, then no check has been done
-# If True, then we have tested and there are no issues
-# If False, then we believe we are incompatible
-nifi_config.version_check = None
-registry_config.version_check = None
 
 
 # --- Simple Cache
@@ -88,64 +79,17 @@ registry_config.version_check = None
 cache = {}
 
 
-# --- Security Context
-# This allows easy reference to a set of certificates for use in automation
-# By default it points to our demo certs, change it for your environment
-default_certs_path = os.path.join(PROJECT_ROOT_DIR, "demo/keys")
-default_ssl_context = {
-    "ca_file": os.path.join(default_certs_path, "localhost-ts.pem"),
-    "client_cert_file": os.path.join(default_certs_path, "client-cert.pem"),
-    "client_key_file": os.path.join(default_certs_path, "client-key.pem"),
-    "client_key_password": "clientPassword",
-}
-# Identities and passwords to be used for service login if called for
-default_nifi_username = "nobel"
-default_nifi_password = "password"
-default_registry_username = "nobel"
-default_registry_password = "password"
-# Identity to be used for mTLS authentication
-default_mtls_identity = "CN=user1, OU=nifi"
-# Identity to be used in the Registry Client Proxy setup
-# If called for during policy setup, particularly bootstrap_policies
-default_proxy_user = "CN=user1, OU=nifi"
+# --- Environment Variable Certificate Setup ---
 
-# Auth handling
-# If set, NiPyAPI will always include the Basic Authorization header
-global_force_basic_auth = False
-nifi_config.username = default_nifi_username
-nifi_config.password = default_nifi_password
-nifi_config.force_basic_auth = global_force_basic_auth
-registry_config.username = default_registry_username
-registry_config.password = default_registry_password
-registry_config.force_basic_auth = global_force_basic_auth
+# Shared TLS CA for both services (e.g., local test CA)
+_shared_ca = os.getenv("TLS_CA_CERT_PATH") or os.getenv("REQUESTS_CA_BUNDLE")
+if _shared_ca:
+    nifi_config.ssl_ca_cert = _shared_ca
+    registry_config.ssl_ca_cert = _shared_ca
+    # Enable default SSL verification when CA is provided via environment
+    nifi_config.verify_ssl = True
+    registry_config.verify_ssl = True
 
-# Set SSL Handling
-# When operating with self signed certs, your log can fill up with
-# unnecessary warnings
-# Set to True by default, change to false if necessary
-global_ssl_verify = True
-disable_insecure_request_warnings = False
-
-nifi_config.verify_ssl = global_ssl_verify
-registry_config.verify_ssl = global_ssl_verify
-if not global_ssl_verify or disable_insecure_request_warnings:
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# Enforce no host checking when SSL context is disabled
-global_ssl_host_check = False
-if not global_ssl_host_check:
-    nifi_config.ssl_context = ssl.create_default_context()
-    nifi_config.ssl_context.check_hostname = False
-    nifi_config.ssl_context.verify_mode = ssl.CERT_NONE
-
-    registry_config.ssl_context = ssl.create_default_context()
-    registry_config.ssl_context.check_hostname = False
-    registry_config.ssl_context.verify_mode = ssl.CERT_NONE
-
-if os.getenv("NIFI_CA_CERT") is not None:
-    nifi_config.ssl_ca_cert = os.getenv("NIFI_CA_CERT")
-    nifi_config.cert_file = os.getenv("NIFI_CLIENT_CERT")
-    nifi_config.key_file = os.getenv("NIFI_CLIENT_KEY")
 
 # --- Encoding
 # URL Encoding bypass characters will not be encoded during submission

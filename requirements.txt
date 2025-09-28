@@ -6,18 +6,16 @@ setuptools>=38.5
 # Version comparison
 packaging>=17.1
 
-# Templates management implementation
-lxml>=4.9.3
+# HTTP stack (explicit because generated clients import these directly)
+# TODO: evaluate reducing direct requests usage in favor of urllib3-only later
+urllib3>=1.26,<3
+certifi>=2023.7.22
 
-# Security and Connectivity
-requests[security]>=2.18
-# urllib3, cryptography are handled by requests
+# Security and Connectivity (used in utils and demos)
+requests>=2.18
 
 # Socks Proxy
 pysocks>=1.7.1
 
 # Import Export and Utils implementation
-ruamel.yaml>=0.16.3
-
-# xml to json parsing
-xmltodict>=0.12.0
+PyYAML>=6.0

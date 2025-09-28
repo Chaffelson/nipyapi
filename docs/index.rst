@@ -8,8 +8,10 @@ Contents:
 
    readme
    installation
-   apiReference
-   todo
+   profiles
+   security
+   migration
+   nipyapi-docs/api_reference
    contributing
    devnotes
    authors

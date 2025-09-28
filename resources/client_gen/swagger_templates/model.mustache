@@ -83,12 +83,14 @@ class {{classname}}(object):
         :type: {{datatype}}
         """
 {{#required}}
+{{^isReadOnly}}
         if {{name}} is None:
             raise ValueError("Invalid value for `{{name}}`, must not be `None`")
+{{/isReadOnly}}
 {{/required}}
 {{#isEnum}}
 {{#isContainer}}
-        allowed_values = [{{#allowableValues}}{{#values}}{{#items.isString}}"{{/items.isString}}{{{this}}}{{#items.isString}}"{{/items.isString}}{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}]
+        allowed_values = [{{#allowableValues}}{{#enumVars}}{{{value}}}, {{/enumVars}}{{/allowableValues}}]
 {{#isListContainer}}
         if not set({{{name}}}).issubset(set(allowed_values)):
             raise ValueError(
@@ -107,7 +109,7 @@ class {{classname}}(object):
 {{/isMapContainer}}
 {{/isContainer}}
 {{^isContainer}}
-        allowed_values = [{{#allowableValues}}{{#values}}{{#isString}}"{{/isString}}{{{this}}}{{#isString}}"{{/isString}}{{^-last}}, {{/-last}}{{/values}}{{/allowableValues}}]
+        allowed_values = [{{#allowableValues}}{{#enumVars}}{{{value}}}, {{/enumVars}}{{/allowableValues}}]
         if {{{name}}} not in allowed_values:
             raise ValueError(
                 "Invalid value for `{{{name}}}` ({0}), must be one of {1}"
@@ -134,8 +136,8 @@ class {{classname}}(object):
             raise ValueError("Invalid value for `{{name}}`, must be a value greater than {{^exclusiveMinimum}}or equal to {{/exclusiveMinimum}}`{{minimum}}`")
 {{/minimum}}
 {{#pattern}}
-        if {{name}} is not None and not re.search('{{{vendorExtensions.x-regex}}}', {{name}}{{#vendorExtensions.x-modifiers}}{{#-first}}, flags={{/-first}}re.{{.}}{{^-last}} | {{/-last}}{{/vendorExtensions.x-modifiers}}):
-            raise ValueError("Invalid value for `{{name}}`, must be a follow pattern or equal to `{{{pattern}}}`")
+        if {{name}} is not None and not re.search('{{{vendorExtensions.x-regex}}}', {{name}}):
+            raise ValueError("Invalid value for `{{name}}`, must match pattern `{{{pattern}}}`")
 {{/pattern}}
 {{#maxItems}}
         if {{name}} is not None and len({{name}}) > {{maxItems}}:

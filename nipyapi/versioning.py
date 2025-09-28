@@ -3,20 +3,37 @@ For interactions with the NiFi Registry Service and related functions
 """
 
 import logging
+
 import nipyapi
+
 # Due to line lengths, creating shortened names for these objects
 from nipyapi.nifi import VersionControlInformationDTO as VciDTO
 from nipyapi.registry import VersionedFlowSnapshotMetadata as VfsMd
 
 __all__ = [
-    'create_registry_client', 'list_registry_clients',
-    'delete_registry_client', 'get_registry_client', 'list_registry_buckets',
-    'create_registry_bucket', 'delete_registry_bucket', 'get_registry_bucket',
-    'save_flow_ver', 'list_flows_in_bucket', 'get_flow_in_bucket',
-    'get_latest_flow_ver', 'update_flow_ver', 'get_version_info',
-    'create_flow', 'create_flow_version', 'get_flow_version',
-    'export_flow_version', 'import_flow_version', 'list_flow_versions',
-    'deploy_flow_version'
+    "create_registry_client",
+    "list_registry_clients",
+    "delete_registry_client",
+    "get_registry_client",
+    "ensure_registry_client",
+    "list_registry_buckets",
+    "create_registry_bucket",
+    "delete_registry_bucket",
+    "get_registry_bucket",
+    "ensure_registry_bucket",
+    "save_flow_ver",
+    "list_flows_in_bucket",
+    "get_flow_in_bucket",
+    "get_latest_flow_ver",
+    "update_flow_ver",
+    "get_version_info",
+    "create_flow",
+    "create_flow_version",
+    "get_flow_version",
+    "export_flow_version",
+    "import_flow_version",
+    "list_flow_versions",
+    "deploy_flow_version",
 ]
 
 log = logging.getLogger(__name__)
@@ -30,60 +47,42 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
         name (str): The name of the new Client
         uri (str): The URI for the connection
         description (str): A description for the Client
-        reg_type (str): The type of registry client to create
+        reg_type (str): The type of registry client to create.
+            Defaults to 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'
         ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
 
     Returns:
-        (FlowRegistryClientEntity): The new registry client object
+        :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The new registry client object
     """
     assert isinstance(uri, str) and uri is not False
     assert isinstance(name, str) and name is not False
     assert isinstance(description, str)
 
-    if nipyapi.utils.check_version('2', service='nifi') == 1:
-        component = {
-            'uri': uri,
-            'name': name,
-            'description': description
-        }
-    else:
-        component = {
-            'name': name,
-            'description': description,
-            'type': reg_type or 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient',
-            'properties': {
-                'url': uri
-            }
-        }
+    # NiFi 2.x registry client format
+    component = {
+        "name": name,
+        "description": description,
+        "type": reg_type or "org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient",
+        "properties": {"url": uri},
+    }
 
     with nipyapi.utils.rest_exceptions():
         controller = nipyapi.nifi.ControllerApi().create_flow_registry_client(
-            body={
-                'component': component,
-                'revision': {
-                    'version': 0
-                }
-            }
+            body={"component": component, "revision": {"version": 0}}
         )
 
     # Update with SSL context if provided
-    # Will be ignored in 1.x if set in original creation request
     if ssl_context_service:
         update_component = dict(controller.component.to_dict())
-        update_component['properties'] = {
-            'url': uri,
-            'ssl-context-service': ssl_context_service.id
-        }
+        update_component["properties"] = {"url": uri, "ssl-context-service": ssl_context_service.id}
 
         with nipyapi.utils.rest_exceptions():
             controller = nipyapi.nifi.ControllerApi().update_flow_registry_client(
                 id=controller.id,
                 body={
-                    'component': update_component,
-                    'revision': {
-                        'version': controller.revision.version
-                    }
-                }
+                    "component": update_component,
+                    "revision": {"version": controller.revision.version},
+                },
             )
 
     return controller
@@ -103,14 +102,11 @@ def delete_registry_client(client, refresh=True):
     assert isinstance(client, nipyapi.nifi.FlowRegistryClientEntity)
     with nipyapi.utils.rest_exceptions():
         if refresh:
-            target = nipyapi.nifi.ControllerApi().get_flow_registry_client(
-                client.id
-            )
+            target = nipyapi.nifi.ControllerApi().get_flow_registry_client(client.id)
         else:
             target = client
         return nipyapi.nifi.ControllerApi().delete_flow_registry_client(
-            id=target.id,
-            version=target.revision.version
+            id=target.id, version=target.revision.version
         )
 
 
@@ -119,13 +115,13 @@ def list_registry_clients():
     Lists the available Registry Clients in the NiFi Controller Services
 
     Returns:
-        (list[FlowRegistryClientEntity]) objects
+        list[:class:`~nipyapi.nifi.models.FlowRegistryClientEntity`]: objects
     """
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ControllerApi().get_flow_registry_clients()
 
 
-def get_registry_client(identifier, identifier_type='name'):
+def get_registry_client(identifier, identifier_type="name"):
     """
     Filters the Registry clients to a particular identifier
 
@@ -142,37 +138,164 @@ def get_registry_client(identifier, identifier_type='name'):
     return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
+def ensure_registry_client(name, uri, description, reg_type=None, ssl_context_service=None):
+    """
+    Ensures a Registry Client exists, creating it if necessary.
+
+    This is a convenience function that implements the common pattern of:
+    1. Try to get existing client by name
+    2. If not found, create it
+    3. Handle race conditions gracefully
+
+    Args:
+        name (str): The name of the Client
+        uri (str): The URI for the connection
+        description (str): A description for the Client
+        reg_type (str): The type of registry client to create.
+            Defaults to 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'
+        ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
+
+    Returns:
+        (FlowRegistryClientEntity): The registry client object (existing or new)
+    """
+    # Try to get existing client first
+    try:
+        existing = get_registry_client(name)
+        if existing:
+            # Handle both single object and list of objects
+            if isinstance(existing, list):
+                # Multiple matches - use the first one
+                log.warning(
+                    "Multiple registry clients found with name '%s', using first match", name
+                )
+                existing = existing[0]
+
+            # Check if existing client's URI matches the desired URI
+            existing_uri = existing.component.properties.get("url", "")
+            if existing_uri == uri:
+                log.debug("Found existing registry client with matching URI: %s", name)
+                return existing
+
+            # URI mismatch - delete existing and create new one
+            log.debug(
+                "Registry client %s URI mismatch (existing: %s, desired: %s) - recreating",
+                name,
+                existing_uri,
+                uri,
+            )
+            delete_registry_client(existing)
+    except ValueError:
+        # Client doesn't exist, we'll create it below
+        pass
+
+    # Try to create new client
+    try:
+        client = create_registry_client(name, uri, description, reg_type, ssl_context_service)
+        log.debug("Created new registry client: %s", name)
+        return client
+    except Exception as e:
+        # Handle race condition where client was created between check and creation
+        error_msg = str(e).lower()
+        if "already exists" in error_msg or "duplicate" in error_msg:
+            try:
+                existing = get_registry_client(name)
+                if existing:
+                    # Handle both single object and list of objects
+                    if isinstance(existing, list):
+                        log.warning(
+                            "Multiple registry clients found with name '%s' "
+                            "after race condition, using first match",
+                            name,
+                        )
+                        existing = existing[0]
+                    log.debug("Found existing registry client after race condition: %s", name)
+                    return existing
+            except ValueError:
+                # If we still can't find it, something else is wrong
+                pass
+        # Re-raise the original exception if we can't handle it
+        raise e
+
+
 def list_registry_buckets():
     """
     Lists all available Buckets in the NiFi Registry
 
     Returns:
-        (list[Bucket]) objects
+        list[:class:`~nipyapi.registry.models.Bucket`]: objects
     """
     with nipyapi.utils.rest_exceptions():
         return nipyapi.registry.BucketsApi().get_buckets()
 
 
-def create_registry_bucket(name):
+def create_registry_bucket(name, description=None):
     """
     Creates a new Registry Bucket
 
     Args:
         name (str): name for the bucket, must be unique in the Registry
+        description (str, optional): description for the bucket
 
     Returns:
-        (Bucket): The new Bucket object
+        :class:`~nipyapi.registry.models.Bucket`: The new Bucket object
     """
     with nipyapi.utils.rest_exceptions():
-        bucket = nipyapi.registry.BucketsApi().create_bucket(
-            body={
-                'name': name
-            }
+        # Create a proper Bucket object with all supported fields
+        bucket_obj = nipyapi.registry.models.Bucket(name=name, description=description)
+
+        bucket = nipyapi.registry.BucketsApi().create_bucket(body=bucket_obj)
+        log.debug(
+            "Created bucket %s against registry connection at %s",
+            bucket.identifier,
+            nipyapi.config.registry_config.api_client.host,
         )
-        log.debug("Created bucket %s against registry connection at %s",
-                  bucket.identifier,
-                  nipyapi.config.registry_config.api_client.host)
         return bucket
+
+
+def ensure_registry_bucket(name, description=None):
+    """
+    Ensures a Registry Bucket exists, creating it if necessary.
+
+    This is a convenience function that implements the common pattern of:
+    1. Try to get existing bucket by name
+    2. If not found, create it
+    3. Handle race conditions gracefully
+
+    Args:
+        name (str): name for the bucket, must be unique in the Registry
+        description (str, optional): description for the bucket (only used if creating new)
+
+    Returns:
+        (Bucket): The bucket object (existing or new)
+    """
+    # Try to get existing bucket first
+    try:
+        existing = get_registry_bucket(name)
+        if existing:
+            log.debug("Found existing registry bucket: %s", name)
+            return existing
+    except ValueError:
+        # Bucket doesn't exist, we'll create it below
+        pass
+
+    # Try to create new bucket
+    try:
+        bucket = create_registry_bucket(name, description)
+        log.debug("Created new registry bucket: %s", name)
+        return bucket
+    except Exception as e:
+        # Handle race condition where bucket was created between check and creation
+        error_msg = str(e).lower()
+        if "already exists" in error_msg or "duplicate" in error_msg:
+            try:
+                existing = get_registry_bucket(name)
+                log.debug("Found existing registry bucket after race condition: %s", name)
+                return existing
+            except ValueError:
+                # If we still can't find it, something else is wrong
+                pass
+        # Re-raise the original exception if we can't handle it
+        raise e
 
 
 def delete_registry_bucket(bucket):
@@ -187,15 +310,14 @@ def delete_registry_bucket(bucket):
     """
     try:
         return nipyapi.registry.BucketsApi().delete_bucket(
-            version=bucket.revision.version
-            if bucket.revision is not None else 0,
-            bucket_id=bucket.identifier
+            version=bucket.revision.version if bucket.revision is not None else 0,
+            bucket_id=bucket.identifier,
         )
     except (nipyapi.registry.rest.ApiException, AttributeError) as e:
         raise ValueError(e) from e
 
 
-def get_registry_bucket(identifier, identifier_type='name', greedy=True):
+def get_registry_bucket(identifier, identifier_type="name", greedy=True):
     """
     Filters the Bucket list to a particular identifier
 
@@ -210,8 +332,7 @@ def get_registry_bucket(identifier, identifier_type='name', greedy=True):
     """
     with nipyapi.utils.rest_exceptions():
         obj = list_registry_buckets()
-    return nipyapi.utils.filter_obj(
-        obj, identifier, identifier_type, greedy=greedy)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
 
 
 def list_flows_in_bucket(bucket_id):
@@ -228,8 +349,7 @@ def list_flows_in_bucket(bucket_id):
         return nipyapi.registry.BucketFlowsApi().get_flows(bucket_id)
 
 
-def get_flow_in_bucket(bucket_id, identifier, identifier_type='name',
-                       greedy=True):
+def get_flow_in_bucket(bucket_id, identifier, identifier_type="name", greedy=True):
     """
     Filters the Flows in a Bucket against a particular identifier
 
@@ -245,14 +365,21 @@ def get_flow_in_bucket(bucket_id, identifier, identifier_type='name',
     """
     with nipyapi.utils.rest_exceptions():
         obj = list_flows_in_bucket(bucket_id)
-    return nipyapi.utils.filter_obj(
-        obj, identifier, identifier_type, greedy=greedy)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
 
 
 # pylint: disable=R0913,R0917
-def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
-                  flow_id=None, comment='', desc='', refresh=True,
-                  force=False):
+def save_flow_ver(
+    process_group,
+    registry_client,
+    bucket,
+    flow_name=None,
+    flow_id=None,
+    comment="",
+    desc="",
+    refresh=True,
+    force=False,
+):
     """
     Adds a Process Group into NiFi Registry Version Control, or saves a new
     version to an existing VersionedFlow with a new version
@@ -274,10 +401,21 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
         force (bool): Whether to Force Commit, or just regular Commit
 
     Returns:
-        (VersionControlInformationEntity)
+        :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
     """
+    # Validate parameter types
+    assert isinstance(
+        registry_client, nipyapi.nifi.FlowRegistryClientEntity
+    ), "registry_client must be a FlowRegistryClientEntity, got: {}".format(type(registry_client))
+    assert isinstance(
+        bucket, nipyapi.registry.Bucket
+    ), "bucket must be a Registry Bucket, got: {}".format(type(bucket))
+    assert isinstance(
+        process_group, nipyapi.nifi.ProcessGroupEntity
+    ), "process_group must be a ProcessGroupEntity, got: {}".format(type(process_group))
+
     if refresh:
-        target_pg = nipyapi.canvas.get_process_group(process_group.id, 'id')
+        target_pg = nipyapi.canvas.get_process_group(process_group.id, "id")
     else:
         target_pg = process_group
     flow_dto = nipyapi.nifi.VersionedFlowDTO(
@@ -286,19 +424,18 @@ def save_flow_ver(process_group, registry_client, bucket, flow_name=None,
         description=desc,
         flow_name=flow_name,
         flow_id=flow_id,
-        registry_id=registry_client.id
+        registry_id=registry_client.id,
     )
-    if nipyapi.utils.check_version('1.10.0') <= 0:
+    if nipyapi.utils.check_version("1.10.0") <= 0:
         # no 'action' property in versions < 1.10
-        flow_dto.action = 'FORCE_COMMIT' if force else 'COMMIT'
+        flow_dto.action = "FORCE_COMMIT" if force else "COMMIT"
     with nipyapi.utils.rest_exceptions():
         nipyapi.utils.validate_parameters_versioning_support()
         return nipyapi.nifi.VersionsApi().save_to_flow_registry(
             id=target_pg.id,
             body=nipyapi.nifi.StartVersionControlRequestEntity(
-                process_group_revision=target_pg.revision,
-                versioned_flow=flow_dto
-            )
+                process_group_revision=target_pg.revision, versioned_flow=flow_dto
+            ),
         )
 
 
@@ -311,18 +448,15 @@ def stop_flow_ver(process_group, refresh=True):
         refresh (bool): Whether to refresh the object status before actioning
 
     Returns:
-        (VersionControlInformationEntity)
+        :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
     """
     with nipyapi.utils.rest_exceptions():
         if refresh:
-            target_pg = nipyapi.canvas.get_process_group(
-                process_group.id, 'id'
-            )
+            target_pg = nipyapi.canvas.get_process_group(process_group.id, "id")
         else:
             target_pg = process_group
         return nipyapi.nifi.VersionsApi().stop_version_control(
-            id=target_pg.id,
-            version=target_pg.revision.version
+            id=target_pg.id, version=target_pg.revision.version
         )
 
 
@@ -341,14 +475,11 @@ def revert_flow_ver(process_group):
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.VersionsApi().initiate_revert_flow_version(
             id=process_group.id,
-            body=nipyapi.nifi.VersionsApi().get_version_information(
-                process_group.id
-            )
+            body=nipyapi.nifi.VersionsApi().get_version_information(process_group.id),
         )
 
 
-def list_flow_versions(bucket_id, flow_id, registry_id=None,
-                       service='registry'):
+def list_flow_versions(bucket_id, flow_id, registry_id=None, service="registry"):
     """
     EXPERIMENTAL
     List all the versions of a given Flow in a given Bucket
@@ -365,19 +496,16 @@ def list_flow_versions(bucket_id, flow_id, registry_id=None,
         list(VersionedFlowSnapshotMetadata) or
             (VersionedFlowSnapshotMetadataSetEntity)
     """
-    assert service in ['nifi', 'registry']
-    if service == 'nifi':
+    assert service in ["nifi", "registry"]
+    if service == "nifi":
         with nipyapi.utils.rest_exceptions():
             return nipyapi.nifi.FlowApi().get_versions(
-                registry_id=registry_id,
-                bucket_id=bucket_id,
-                flow_id=flow_id
+                registry_id=registry_id, bucket_id=bucket_id, flow_id=flow_id
             )
     else:
         with nipyapi.utils.rest_exceptions():
             return nipyapi.registry.BucketFlowsApi().get_flow_versions(
-                bucket_id=bucket_id,
-                flow_id=flow_id
+                bucket_id=bucket_id, flow_id=flow_id
             )
 
 
@@ -394,6 +522,7 @@ def update_flow_ver(process_group, target_version=None):
     Returns:
         (bool): True if successful, False if not
     """
+
     def _running_update_flow_version():
         """
         Tests for completion of the operation
@@ -401,9 +530,7 @@ def update_flow_ver(process_group, target_version=None):
         Returns:
             (bool) Boolean of operation success
         """
-        status = nipyapi.nifi.VersionsApi().get_update_request(
-            u_init.request.request_id
-        )
+        status = nipyapi.nifi.VersionsApi().get_update_request(u_init.request.request_id)
         if not status.request.complete:
             return False
         if status.request.failure_reason is None:
@@ -412,12 +539,12 @@ def update_flow_ver(process_group, target_version=None):
             "Flow Version Update did not complete successfully. "
             "Error text {0}".format(status.request.failure_reason)
         )
+
     with nipyapi.utils.rest_exceptions():
         vci = get_version_info(process_group)
         assert isinstance(vci, nipyapi.nifi.VersionControlInformationEntity)
         flow_vers = list_flow_versions(
-            vci.version_control_information.bucket_id,
-            vci.version_control_information.flow_id
+            vci.version_control_information.bucket_id, vci.version_control_information.flow_id
         )
         if target_version is None:
             # the first version is always the latest available
@@ -425,9 +552,11 @@ def update_flow_ver(process_group, target_version=None):
         else:
             # otherwise the version must be an int
             if not isinstance(target_version, int):
-                raise ValueError("target_version must be a positive Integer to"
-                                 " pick a specific available version, or None"
-                                 " for the latest version to be fetched")
+                raise ValueError(
+                    "target_version must be a positive Integer to"
+                    " pick a specific available version, or None"
+                    " for the latest version to be fetched"
+                )
             ver = target_version
         u_init = nipyapi.nifi.VersionsApi().initiate_version_control_update(
             id=process_group.id,
@@ -438,14 +567,12 @@ def update_flow_ver(process_group, target_version=None):
                     flow_id=vci.version_control_information.flow_id,
                     group_id=vci.version_control_information.group_id,
                     registry_id=vci.version_control_information.registry_id,
-                    version=ver
-                )
-            )
+                    version=ver,
+                ),
+            ),
         )
         nipyapi.utils.wait_to_complete(_running_update_flow_version)
-        return nipyapi.nifi.VersionsApi().get_update_request(
-            u_init.request.request_id
-        )
+        return nipyapi.nifi.VersionsApi().get_update_request(u_init.request.request_id)
 
 
 def get_latest_flow_ver(bucket_id, flow_id):
@@ -460,9 +587,7 @@ def get_latest_flow_ver(bucket_id, flow_id):
         (VersionedFlowSnapshot)
     """
     with nipyapi.utils.rest_exceptions():
-        return get_flow_version(
-            bucket_id, flow_id, version=None
-        )
+        return get_flow_version(bucket_id, flow_id, version=None)
 
 
 def get_version_info(process_group):
@@ -473,16 +598,14 @@ def get_version_info(process_group):
         process_group (ProcessGroupEntity): the ProcessGroup to work with
 
     Returns:
-        (VersionControlInformationEntity)
+        :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
     """
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.VersionsApi().get_version_information(
-            process_group.id
-        )
+        return nipyapi.nifi.VersionsApi().get_version_information(process_group.id)
 
 
-def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
+def create_flow(bucket_id, flow_name, flow_desc="", flow_type="Flow"):
     """
     Creates a new VersionedFlow stub in NiFi Registry.
     Can be used to write VersionedFlow information to without using a NiFi
@@ -506,8 +629,8 @@ def create_flow(bucket_id, flow_name, flow_desc='', flow_type='Flow'):
                 description=flow_desc,
                 bucket_identifier=bucket_id,
                 type=flow_type,
-                version_count=0
-            )
+                version_count=0,
+            ),
         )
 
 
@@ -531,23 +654,20 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
         The new (VersionedFlowSnapshot)
     """
     if not isinstance(flow_snapshot, nipyapi.registry.VersionedFlowSnapshot):
-        raise ValueError("flow_snapshot must be an instance of a "
-                         "registry.VersionedFlowSnapshot object, not an {0}"
-                         .format(type(flow_snapshot)))
+        raise ValueError(
+            "flow_snapshot must be an instance of a "
+            "registry.VersionedFlowSnapshot object, not an {0}".format(type(flow_snapshot))
+        )
     with nipyapi.utils.rest_exceptions():
         if refresh:
             target_flow = get_flow_in_bucket(
-                bucket_id=flow.bucket_identifier,
-                identifier=flow.identifier,
-                identifier_type='id'
+                bucket_id=flow.bucket_identifier, identifier=flow.identifier, identifier_type="id"
             )
         else:
             target_flow = flow
-        target_bucket = get_registry_bucket(
-            target_flow.bucket_identifier, 'id'
-        )
+        target_bucket = get_registry_bucket(target_flow.bucket_identifier, "id")
         # The current version of NiFi doesn't ignore link objects passed to it
-        bad_params = ['link']
+        bad_params = ["link"]
         for obj in [target_bucket, target_flow]:
             for p in bad_params:
                 setattr(obj, p, None)
@@ -566,9 +686,9 @@ def create_flow_version(flow, flow_snapshot, refresh=True):
                     version=target_flow.version_count + 1,
                     comments=flow_snapshot.snapshot_metadata.comments,
                     bucket_identifier=target_flow.bucket_identifier,
-                    flow_identifier=target_flow.identifier
+                    flow_identifier=target_flow.identifier,
                 ),
-            )
+            ),
         )
 
 
@@ -595,9 +715,7 @@ def get_flow_version(bucket_id, flow_id, version=None, export=False):
     assert isinstance(flow_id, str)
     # Version needs to be coerced to str pass API client regex test
     # Even though the client specifies it as Int
-    assert version is None or isinstance(
-        version, (str, int)
-    )
+    assert version is None or isinstance(version, (str, int))
     assert isinstance(export, bool)
     if version:
         with nipyapi.utils.rest_exceptions():
@@ -605,22 +723,19 @@ def get_flow_version(bucket_id, flow_id, version=None, export=False):
                 bucket_id=bucket_id,
                 flow_id=flow_id,
                 version_number=str(version),  # This str coercion is intended
-                _preload_content=not export
+                _preload_content=not export,
             )
     else:
         with nipyapi.utils.rest_exceptions():
             out = nipyapi.registry.BucketFlowsApi().get_latest_flow_version(
-                bucket_id,
-                flow_id,
-                _preload_content=not export
+                bucket_id, flow_id, _preload_content=not export
             )
     if export:
         return out.data
     return out
 
 
-def export_flow_version(bucket_id, flow_id, version=None, file_path=None,
-                        mode='json'):
+def export_flow_version(bucket_id, flow_id, version=None, file_path=None, mode="json"):
     """
     Convenience method to export the identified VersionedFlowSnapshot in the
     provided format mode.
@@ -641,7 +756,7 @@ def export_flow_version(bucket_id, flow_id, version=None, file_path=None,
     assert isinstance(flow_id, str)
     assert file_path is None or isinstance(file_path, str)
     assert version is None or isinstance(version, str)
-    assert mode in ['yaml', 'json']
+    assert mode in ["yaml", "json"]
     raw_obj = get_flow_version(bucket_id, flow_id, version, export=True)
     export_obj = nipyapi.utils.dump(nipyapi.utils.load(raw_obj), mode)
     if file_path:
@@ -652,8 +767,7 @@ def export_flow_version(bucket_id, flow_id, version=None, file_path=None,
     return export_obj
 
 
-def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
-                        flow_name=None, flow_id=None):
+def import_flow_version(bucket_id, encoded_flow=None, file_path=None, flow_name=None, flow_id=None):
     """
     Imports a given encoded_flow version into the bucket and flow described,
     may optionally be passed a file to read the encoded flow_contents from.
@@ -676,50 +790,36 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
         The new (VersionedFlowSnapshot)
     """
     # First, decode the flow snapshot contents
-    dto = ('registry', 'VersionedFlowSnapshot')
+    dto = ("registry", "VersionedFlowSnapshot")
     if file_path is None and encoded_flow is not None:
         with nipyapi.utils.rest_exceptions():
-            imported_flow = nipyapi.utils.load(
-                encoded_flow,
-                dto=dto
-            )
+            imported_flow = nipyapi.utils.load(encoded_flow, dto=dto)
     elif file_path is not None and encoded_flow is None:
         with nipyapi.utils.rest_exceptions():
-            file_in = nipyapi.utils.fs_read(
-                file_path=file_path
-            )
+            file_in = nipyapi.utils.fs_read(file_path=file_path)
             assert isinstance(file_in, (str, bytes))
-            imported_flow = nipyapi.utils.load(
-                obj=file_in,
-                dto=dto
-            )
-            assert isinstance(
-                imported_flow,
-                nipyapi.registry.VersionedFlowSnapshot
-            )
+            imported_flow = nipyapi.utils.load(obj=file_in, dto=dto)
+            assert isinstance(imported_flow, nipyapi.registry.VersionedFlowSnapshot)
     else:
-        raise ValueError("Either file_path must point to a file for import, or"
-                         " flow_snapshot must be an importable object, but"
-                         "not both")
+        raise ValueError(
+            "Either file_path must point to a file for import, or"
+            " flow_snapshot must be an importable object, but"
+            "not both"
+        )
     # Now handle determining which Versioned Item to write to
     if flow_id is None and flow_name is not None:
         # Case: New flow
         # create the Bucket item
-        ver_flow = create_flow(
-            bucket_id=bucket_id,
-            flow_name=flow_name
-        )
+        ver_flow = create_flow(bucket_id=bucket_id, flow_name=flow_name)
     elif flow_name is None and flow_id is not None:
         # Case: New version in existing flow
-        ver_flow = get_flow_in_bucket(
-            bucket_id=bucket_id,
-            identifier=flow_id,
-            identifier_type='id'
-        )
+        ver_flow = get_flow_in_bucket(bucket_id=bucket_id, identifier=flow_id, identifier_type="id")
     else:
-        raise ValueError("Either flow_id must be the identifier of a flow to"
-                         " add this version to, or flow_name must be a unique "
-                         "name for a flow in this bucket, but not both")
+        raise ValueError(
+            "Either flow_id must be the identifier of a flow to"
+            " add this version to, or flow_name must be a unique "
+            "name for a flow in this bucket, but not both"
+        )
     # Now write the new version
     nipyapi.utils.validate_parameters_versioning_support(verify_nifi=False)
     return create_flow_version(
@@ -729,8 +829,7 @@ def import_flow_version(bucket_id, encoded_flow=None, file_path=None,
 
 
 # pylint: disable=R0913, R0917
-def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
-                        version=None):
+def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id, version=None):
     """
     Deploys a versioned flow as a new process group inside the given parent
     process group. If version is not provided, the latest version will be
@@ -755,24 +854,23 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
     location = location or (0, 0)
     assert isinstance(location, tuple)
     # check reg client is valid
-    target_reg_client = get_registry_client(reg_client_id, 'id')
+    target_reg_client = get_registry_client(reg_client_id, "id")
     # Being pedantic about checking this as API failure errors are terse
     # Using NiFi here to keep all calls within the same API client
     flow_versions = list_flow_versions(
-        bucket_id=bucket_id,
-        flow_id=flow_id,
-        registry_id=reg_client_id,
-        service='nifi'
+        bucket_id=bucket_id, flow_id=flow_id, registry_id=reg_client_id, service="nifi"
     )
     if not flow_versions:
-        raise ValueError("Could not find Flows matching Bucket ID [{0}] and "
-                         "Flow ID [{1}] on Registry Client [{2}]"
-                         .format(bucket_id, flow_id, reg_client_id))
+        raise ValueError(
+            "Could not find Flows matching Bucket ID [{0}] and "
+            "Flow ID [{1}] on Registry Client [{2}]".format(bucket_id, flow_id, reg_client_id)
+        )
     if version is None:
         target_flow = flow_versions.versioned_flow_snapshot_metadata_set
     else:
         target_flow = [
-            x for x in flow_versions.versioned_flow_snapshot_metadata_set
+            x
+            for x in flow_versions.versioned_flow_snapshot_metadata_set
             if str(x.versioned_flow_snapshot_metadata.version) == str(version)
         ]
     if not target_flow:
@@ -782,34 +880,27 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id,
         ]
         raise ValueError(
             "Could not find Version [{0}] for Flow [{1}] in Bucket [{2}] on "
-            "Registry Client [{3}]. Available versions are: {4}"
-            .format(str(version), flow_id, bucket_id, reg_client_id,
-                    ", ".join(available_versions))
+            "Registry Client [{3}]. Available versions are: {4}".format(
+                str(version), flow_id, bucket_id, reg_client_id, ", ".join(available_versions)
+            )
         )
     target_flow = sorted(
-        target_flow,
-        key=lambda x: x.versioned_flow_snapshot_metadata.version,
-        reverse=True
+        target_flow, key=lambda x: x.versioned_flow_snapshot_metadata.version, reverse=True
     )[0].versioned_flow_snapshot_metadata
     # Issue deploy statement
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
             id=parent_id,
             body=nipyapi.nifi.ProcessGroupEntity(
-                revision=nipyapi.nifi.RevisionDTO(
-                    version=0
-                ),
+                revision=nipyapi.nifi.RevisionDTO(version=0),
                 component=nipyapi.nifi.ProcessGroupDTO(
-                    position=nipyapi.nifi.PositionDTO(
-                        x=float(location[0]),
-                        y=float(location[1])
-                    ),
+                    position=nipyapi.nifi.PositionDTO(x=float(location[0]), y=float(location[1])),
                     version_control_information=VciDTO(
                         bucket_id=target_flow.bucket_identifier,
                         flow_id=target_flow.flow_identifier,
                         registry_id=target_reg_client.id,
-                        version=target_flow.version
-                    )
-                )
-            )
+                        version=target_flow.version,
+                    ),
+                ),
+            ),
         )
