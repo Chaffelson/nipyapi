@@ -2,7 +2,7 @@
 History
 =======
 
-1.0 (2025-08-23)
+1.0.0 (2025-09-28)
 -------------------
 
 | Major migration to Apache NiFi/Registry 2.x (tested against 2.5.0). Drops 1.x support on main.
