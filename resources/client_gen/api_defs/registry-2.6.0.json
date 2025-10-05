@@ -11,7 +11,7 @@
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
     "title" : "Apache NiFi Registry REST API",
-    "version" : "2.5.0"
+    "version" : "2.6.0"
   },
   "paths" : {
     "/about" : {
@@ -6139,13 +6139,11 @@
           },
           "loadBalanceCompression" : {
             "type" : "string",
-            "description" : "Whether or not compression should be used when transferring FlowFiles between nodes",
-            "enum" : [ "DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT" ]
+            "description" : "Whether or not compression should be used when transferring FlowFiles between nodes Possible returned values: DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT. See LoadBalanceCompression.class for more details."
           },
           "loadBalanceStrategy" : {
             "type" : "string",
-            "description" : "The Strategy to use for load balancing data across the cluster, or null, if no Load Balance Strategy has been specified.",
-            "enum" : [ "DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE" ]
+            "description" : "The Strategy to use for load balancing data across the cluster, or null, if no Load Balance Strategy has been specified. Possible returned values: DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE. See LoadBalanceStrategy.class for more details."
           },
           "name" : {
             "type" : "string",
@@ -6903,8 +6901,7 @@
           },
           "backoffMechanism" : {
             "type" : "string",
-            "description" : "Determines whether the FlowFile should be penalized or the processor should be yielded between retries.",
-            "enum" : [ "PENALIZE_FLOWFILE, YIELD_PROCESSOR" ]
+            "description" : "Determines whether the FlowFile should be penalized or the processor should be yielded between retries. Possible returned values: PENALIZE_FLOWFILE, YIELD_PROCESSOR."
           },
           "bulletinLevel" : {
             "type" : "string",
@@ -7183,8 +7180,7 @@
           },
           "transportProtocol" : {
             "type" : "string",
-            "description" : "The Transport Protocol that is used for Site-to-Site communications",
-            "enum" : [ "RAW, HTTP" ]
+            "description" : "The Transport Protocol that is used for Site-to-Site communications. Possible returned values: RAW, HTTP."
           },
           "yieldDuration" : {
             "type" : "string",

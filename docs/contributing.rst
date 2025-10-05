@@ -112,6 +112,178 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
 
 8. Submit a pull request through the GitHub website.
 
+Common Mistakes to Avoid
+------------------------
+
+When contributing to NiPyAPI, watch out for these frequent pitfalls:
+
+**Installation & Environment**
+
+* **Bracket quoting in zsh**: Running ``pip install -e .[dev]`` fails in zsh due to glob expansion. Always use quotes: ``pip install -e ".[dev]"`` or use ``make dev-install``.
+* **Wrong Python version**: Project supports Python 3.9-3.12. Using 3.8 (end of life) or 3.13+ (untested) may cause compatibility issues.
+* **Missing virtual environment**: Always activate a virtual environment before installing dependencies to avoid polluting system Python.
+
+**Testing**
+
+* **Missing NIPYAPI_PROFILE**: Never run ``pytest`` without setting ``NIPYAPI_PROFILE`` environment variable. Always use ``make test NIPYAPI_PROFILE=single-user`` or equivalent.
+* **Services not ready**: Never assume Docker services are immediately ready after ``make up``. Always run ``make wait-ready NIPYAPI_PROFILE=<profile>`` before testing.
+* **Stale certificates**: If you encounter certificate errors, run ``make down`` then ``make certs`` to regenerate fresh certificates. Never run ``make certs`` while containers are running.
+
+**Code Quality**
+
+* **Modifying generated code**: Never edit files in ``nipyapi/nifi/``, ``nipyapi/registry/``, or ``nipyapi/_version.py``. These are auto-generated and your changes will be overwritten.
+* **Skipping lint checks**: Always run ``make lint`` before committing. Both flake8 and pylint must pass.
+* **Incorrect line length**: Project uses 100-character line limit consistently across all tools (flake8, pylint, black, isort).
+
+**NiFi vs Registry Security Differences**
+
+**Important:** NiFi and Registry have different security implementations in their OpenAPI specifications:
+
+* **NiFi 2.6.0+**: Includes native security schemes (``HTTPBearerJWT``, ``CookieSecureAuthorizationBearer``) in base OpenAPI spec
+* **Registry 2.6.0+**: Has NO security schemes in base OpenAPI spec - requires augmentation
+
+**Key implications:**
+
+* Registry augmentation scripts (``resources/client_gen/augmentations/registry_security.py``) remain necessary even though NiFi 2.6.0 has native security
+* Both services use the same authentication flow: username/password → JWT token → Bearer auth
+* The template (``configuration.mustache``) handles both cases via hardcoded ``bearerAuth`` fallback plus native scheme aliases
+* Always use ``augmented`` variant when regenerating clients (default) to support both NiFi and Registry
+* NiFi can work without augmentation using the ``base`` variant (2.6.0+), but Registry cannot
+
+**Docker & Infrastructure**
+
+* **Docker volume caching**: If you experience persistent issues, run ``make clean-docker`` to remove all containers and volumes, then restart the setup process.
+* **Wrong profile for test**: Ensure your ``NIPYAPI_PROFILE`` matches the profile you started with ``make up``. Mixing profiles causes authentication failures.
+
+Make Targets Quick Reference
+-----------------------------
+
+NiPyAPI uses Makefile targets as the primary automation interface. Run ``make help`` to see all available targets organized by category.
+
+**Setup & Installation**
+::
+
+    make dev-install      # Install package with dev dependencies (recommended)
+    make docs-install     # Install documentation dependencies
+    make clean            # Remove build, pyc, and temp artifacts
+    make clean-all        # Nuclear clean: removes ALL including generated code
+
+**Testing Workflow**
+::
+
+    # Basic test workflow
+    make certs                              # Generate certificates (once)
+    make up NIPYAPI_PROFILE=single-user     # Start Docker services
+    make wait-ready NIPYAPI_PROFILE=single-user  # Wait for readiness
+    make test NIPYAPI_PROFILE=single-user   # Run tests
+    make down                               # Stop services
+
+    # Shortcuts for specific profiles
+    make test-su          # single-user profile
+    make test-ldap        # secure-ldap profile
+    make test-mtls        # secure-mtls profile
+
+    # Comprehensive testing
+    make test-all         # Run all automated profiles (single-user, ldap, mtls)
+    make coverage         # Run tests with coverage report
+
+**Code Quality**
+::
+
+    make lint             # Run flake8 + pylint (excludes generated code)
+    make flake8           # Run flake8 only
+    make pylint           # Run pylint only
+    make pre-commit       # Run pre-commit hooks on all files
+
+    # Formatting (manual)
+    black nipyapi/ && isort nipyapi/  # Auto-format code
+
+**Docker Operations**
+::
+
+    make certs            # Generate PKCS12 certificates for secure profiles
+    make up NIPYAPI_PROFILE=<profile>    # Start specific profile
+    make down             # Stop all Docker services
+    make wait-ready NIPYAPI_PROFILE=<profile>  # Wait for services to be ready
+    make clean-docker     # Comprehensive Docker cleanup
+
+    # Available profiles: single-user, secure-ldap, secure-mtls, secure-oidc
+
+**Build & Documentation**
+::
+
+    make dist             # Build wheel and source distribution
+    make check-dist       # Validate distribution files
+    make test-dist        # Test that distribution can be imported
+    make docs             # Generate Sphinx documentation
+
+**Complete Workflows**
+::
+
+    make sandbox NIPYAPI_PROFILE=single-user  # Create sandbox with sample objects
+    make rebuild-all      # Comprehensive rebuild: clean → certs → APIs → clients → test → build → docs
+
+Generated vs Maintained Code
+-----------------------------
+
+Understanding which code is generated vs maintained is crucial for contributing:
+
+**Generated Code (DO NOT MODIFY)**
+
+These files are automatically generated from OpenAPI specifications and should never be edited directly:
+
+* ``nipyapi/nifi/`` - NiFi API client
+* ``nipyapi/registry/`` - Registry API client
+* ``nipyapi/_version.py`` - Git version via setuptools-scm
+
+**Why this matters:**
+
+1. Your changes will be overwritten during the next client generation
+2. These files are excluded from linting (flake8, pylint, black, isort)
+3. Test coverage doesn't include generated code
+4. Pull requests should not modify these paths
+
+**Maintained Code (Where to Contribute)**
+
+Focus your contributions on these core modules:
+
+* ``nipyapi/canvas.py`` - Canvas management functions
+* ``nipyapi/config.py`` - Configuration and endpoints
+* ``nipyapi/parameters.py`` - Parameter context operations
+* ``nipyapi/profiles.py`` - Profile management system
+* ``nipyapi/security.py`` - Authentication and security
+* ``nipyapi/system.py`` - System-level operations
+* ``nipyapi/utils.py`` - Utility functions
+* ``nipyapi/versioning.py`` - Version control operations
+* ``tests/`` - Test suite (always add tests for new features)
+* ``examples/`` - Example scripts and usage patterns
+* ``docs/`` - Documentation (RST files)
+
+**Regenerating Clients**
+
+If you need to update the generated clients (e.g., for a new NiFi version):
+::
+
+    # Set target NiFi version
+    export NIFI_VERSION=2.5.0
+
+    # Fetch and generate
+    make fetch-openapi      # Fetch specs from running NiFi
+    make gen-clients        # Generate Python clients
+
+    # Test with new clients
+    make test-all
+
+**Augmentation System**
+
+The project includes an augmentation system for fixing OpenAPI spec issues:
+
+* Base specs: ``resources/client_gen/api_defs/nifi-<version>.json``
+* Augmentations: ``resources/client_gen/augmentations/*.py``
+* Augmented specs: ``resources/client_gen/api_defs/*-<version>.augmented.json``
+
+If you find spec issues, contribute fixes to the augmentation scripts rather than modifying generated code.
+
 Pull Request Guidelines
 -----------------------
 
