@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := help
 
 # Default NiFi/Registry version for docker compose profiles
-NIFI_VERSION ?= 2.5.0
+NIFI_VERSION ?= 2.6.0
 
 # Python command for cross-platform compatibility
 # Defaults to 'python' for conda/venv users, override with PYTHON=python3 for system installs
@@ -245,8 +245,8 @@ wait-ready: ## wait for readiness using profile configuration; requires NIPYAPI_
 # API & Client generation
 fetch-openapi-base: ## refresh base OpenAPI specs for current NIFI_VERSION (always overwrite base)
 	@echo "Refreshing base specs for NIFI_VERSION=$(NIFI_VERSION)"
-	bash resources/client_gen/fetch_nifi_openapi.sh nifi-single || exit 1
-	bash resources/client_gen/fetch_registry_openapi.sh registry-single || exit 1
+	NIFI_VERSION=$(NIFI_VERSION) bash resources/client_gen/fetch_nifi_openapi.sh nifi-single || exit 1
+	NIFI_VERSION=$(NIFI_VERSION) bash resources/client_gen/fetch_registry_openapi.sh registry-single || exit 1
 	@echo "Base specs refreshed."
 
 augment-openapi: ## generate augmented OpenAPI specs from base (always overwrite augmented)
@@ -263,8 +263,8 @@ augment-openapi: ## generate augmented OpenAPI specs from base (always overwrite
 
 fetch-openapi: fetch-openapi-base augment-openapi ## convenience: fetch base then augment
 
-gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_variant=augmented|base)
-	WV_SPEC_VARIANT=augmented bash resources/client_gen/generate_api_client.sh
+gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_variant=base|augmented)
+	wv_spec_variant=$${wv_spec_variant:-augmented} bash resources/client_gen/generate_api_client.sh
 
 # Individual testing
 

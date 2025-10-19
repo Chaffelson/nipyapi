@@ -11,8 +11,13 @@
       "url" : "https://www.apache.org/licenses/LICENSE-2.0.html"
     },
     "title" : "Apache NiFi REST API",
-    "version" : "2.5.0"
+    "version" : "2.6.0"
   },
+  "security" : [ {
+    "HTTPBearerJWT" : [ ]
+  }, {
+    "CookieSecureAuthorizationBearer" : [ ]
+  } ],
   "paths" : {
     "/access/logout" : {
       "delete" : {
@@ -96,6 +101,7 @@
             "description" : "Unable to create access token because an unexpected error occurred."
           }
         },
+        "security" : [ ],
         "summary" : "Creates a token for accessing the REST API via username/password",
         "tags" : [ "Access" ]
       }
@@ -114,6 +120,7 @@
             }
           }
         },
+        "security" : [ ],
         "summary" : "Retrieves the authentication configuration endpoint and status information",
         "tags" : [ "Authentication" ]
       }
@@ -965,6 +972,21 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            }
+          },
+          "description" : "Optional component state to perform a selective key removal. If omitted, clears all state."
+        },
         "responses" : {
           "200" : {
             "content" : {
@@ -1982,6 +2004,21 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            }
+          },
+          "description" : "Optional component state to perform a selective key removal. If omitted, clears all state."
+        },
         "responses" : {
           "200" : {
             "content" : {
@@ -2887,6 +2924,38 @@
           "Read - /counters" : [ ]
         } ],
         "summary" : "Gets the current counters for this NiFi",
+        "tags" : [ "Counters" ]
+      },
+      "put" : {
+        "description" : "Note: This endpoint is subject to change as NiFi and it's REST API evolve.",
+        "operationId" : "updateAllCounters",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/CountersEntity"
+                }
+              }
+            }
+          },
+          "400" : {
+            "description" : "NiFi was unable to complete the request because it was invalid. The request should not be retried without modification."
+          },
+          "401" : {
+            "description" : "Client could not be authenticated."
+          },
+          "403" : {
+            "description" : "Client is not authorized to make this request."
+          },
+          "409" : {
+            "description" : "The request was valid but NiFi was not in the appropriate state to process it."
+          }
+        },
+        "security" : [ {
+          "Write - /counters" : [ ]
+        } ],
+        "summary" : "Updates all counters. This will reset all counter values to 0",
         "tags" : [ "Counters" ]
       }
     },
@@ -4687,20 +4756,15 @@
           "required" : true,
           "schema" : {
             "type" : "string",
-            "enum" : [ "prometheus", "json" ]
+            "enum" : [ "PROMETHEUS", "JSON" ]
           }
         }, {
           "description" : "Set of included metrics registries. Duplicate the parameter to include multiple registries. All registries are included by default.",
           "in" : "query",
           "name" : "includedRegistries",
           "schema" : {
-            "type" : "array",
-            "enum" : [ "NIFI", "JVM", "BULLETIN", "CONNECTION", "CLUSTER" ],
-            "items" : {
-              "type" : "string",
-              "enum" : [ "NIFI", "JVM", "BULLETIN", "CONNECTION", "CLUSTER", "NIFI", "JVM", "BULLETIN", "CONNECTION", "CLUSTER" ]
-            },
-            "uniqueItems" : true
+            "type" : "string",
+            "enum" : [ "NIFI", "JVM", "BULLETIN", "CONNECTION", "CLUSTER" ]
           }
         }, {
           "description" : "Regular Expression Pattern to be applied against the sample name field",
@@ -9208,6 +9272,21 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            }
+          },
+          "description" : "Optional component state to perform a selective key removal. If omitted, clears all state."
+        },
         "responses" : {
           "200" : {
             "content" : {
@@ -11517,6 +11596,11 @@
         "operationId" : "getProcessorRunStatusDetails",
         "requestBody" : {
           "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/RunStatusDetailsRequestEntity"
+              }
+            },
             "application/json" : {
               "schema" : {
                 "$ref" : "#/components/schemas/RunStatusDetailsRequestEntity"
@@ -12173,6 +12257,21 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            }
+          },
+          "description" : "Optional component state to perform a selective key removal. If omitted, clears all state."
+        },
         "responses" : {
           "200" : {
             "content" : {
@@ -14094,6 +14193,21 @@
             "type" : "string"
           }
         } ],
+        "requestBody" : {
+          "content" : {
+            "*/*" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            },
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ComponentStateEntity"
+              }
+            }
+          },
+          "description" : "Optional component state to perform a selective key removal. If omitted, clears all state."
+        },
         "responses" : {
           "200" : {
             "content" : {
@@ -16944,6 +17058,10 @@
             "type" : "string",
             "description" : "The component identifier."
           },
+          "dropStateKeySupported" : {
+            "type" : "boolean",
+            "description" : "Whether dropping state by key is supported for this component. Defaults to false when not specified by the component."
+          },
           "localState" : {
             "$ref" : "#/components/schemas/StateMapDTO"
           },
@@ -17266,8 +17384,7 @@
           },
           "loadBalanceCompression" : {
             "type" : "string",
-            "description" : "Whether or not data should be compressed when being transferred between nodes in the cluster.",
-            "enum" : [ "DO_NOT_COMPRESS", "COMPRESS_ATTRIBUTES_ONLY", "COMPRESS_ATTRIBUTES_AND_CONTENT" ]
+            "description" : "Whether or not data should be compressed when being transferred between nodes in the cluster. Possible returned values: DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT. See LoadBalanceCompression.class for more details."
           },
           "loadBalancePartitionAttribute" : {
             "type" : "string",
@@ -17275,14 +17392,12 @@
           },
           "loadBalanceStatus" : {
             "type" : "string",
-            "description" : "The current status of the Connection's Load Balancing Activities. Status can indicate that Load Balancing is not configured for the connection, that Load Balancing is configured but inactive (not currently transferring data to another node), or that Load Balancing is configured and actively transferring data to another node.",
-            "enum" : [ "LOAD_BALANCE_NOT_CONFIGURED", "LOAD_BALANCE_INACTIVE", "LOAD_BALANCE_ACTIVE" ],
+            "description" : "The current status of the Connection's Load Balancing Activities. Status can indicate that Load Balancing is not configured for the connection, that Load Balancing is configured but inactive (not currently transferring data to another node), or that Load Balancing is configured and actively transferring data to another node. Possible returned values: LOAD_BALANCE_NOT_CONFIGURED, LOAD_BALANCE_INACTIVE, LOAD_BALANCE_ACTIVE. See LoadBalanceStatus.class for more details.",
             "readOnly" : true
           },
           "loadBalanceStrategy" : {
             "type" : "string",
-            "description" : "How to load balance the data in this Connection across the nodes in the cluster.",
-            "enum" : [ "DO_NOT_LOAD_BALANCE", "PARTITION_BY_ATTRIBUTE", "ROUND_ROBIN", "SINGLE_NODE" ]
+            "description" : "How to load balance the data in this Connection across the nodes in the cluster. Possible returned values: DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE. See LoadBalanceStrategy.class for more details."
           },
           "name" : {
             "type" : "string",
@@ -17302,6 +17417,17 @@
               "type" : "string",
               "description" : "The comparators used to prioritize the queue."
             }
+          },
+          "retriedRelationships" : {
+            "type" : "array",
+            "description" : "The relationships from the source of the connection that are configured to be retried.",
+            "items" : {
+              "type" : "string",
+              "description" : "The relationships from the source of the connection that are configured to be retried.",
+              "readOnly" : true
+            },
+            "readOnly" : true,
+            "uniqueItems" : true
           },
           "selectedRelationships" : {
             "type" : "array",
@@ -17654,13 +17780,18 @@
             "type" : "string",
             "description" : "The input count/size for the connection in the last 5 minutes, pretty printed."
           },
+          "loadBalanceStatus" : {
+            "type" : "string",
+            "description" : "The load balance status of the connection",
+            "enum" : [ "LOAD_BALANCE_NOT_CONFIGURED", "LOAD_BALANCE_ACTIVE", "LOAD_BALANCE_INACTIVE" ]
+          },
           "name" : {
             "type" : "string",
             "description" : "The name of the connection."
           },
           "output" : {
             "type" : "string",
-            "description" : "The output count/sie for the connection in the last 5 minutes, pretty printed."
+            "description" : "The output count/size for the connection in the last 5 minutes, pretty printed."
           },
           "percentUseBytes" : {
             "type" : "integer",
@@ -20739,7 +20870,7 @@
           "lineageRequestType" : {
             "type" : "string",
             "description" : "The type of lineage request. PARENTS will return the lineage for the flowfiles that are parents of the specified event. CHILDREN will return the lineage for the flowfiles that are children of the specified event. FLOWFILE will return the lineage for the specified flowfile.",
-            "enum" : [ "PARENTS", "CHILDREN", "FLOWFILE", "PARENTS", "CHILDREN", "FLOWFILE" ]
+            "enum" : [ "PARENTS", "CHILDREN", "FLOWFILE" ]
           },
           "uuid" : {
             "type" : "string",
@@ -23750,8 +23881,7 @@
           },
           "backoffMechanism" : {
             "type" : "string",
-            "description" : "Determines whether the FlowFile should be penalized or the processor should be yielded between retries.",
-            "enum" : [ "PENALIZE_FLOWFILE", "YIELD_PROCESSOR" ]
+            "description" : "Determines whether the FlowFile should be penalized or the processor should be yielded between retries. Possible returned values: PENALIZE_FLOWFILE, YIELD_PROCESSOR. See BackoffMechanism.class for more details."
           },
           "bulletinLevel" : {
             "type" : "string",
@@ -25398,6 +25528,15 @@
             "type" : "string"
           },
           "flowIdentifier" : {
+            "type" : "string"
+          },
+          "flowName" : {
+            "type" : "string"
+          },
+          "registryIdentifier" : {
+            "type" : "string"
+          },
+          "registryName" : {
             "type" : "string"
           },
           "timestamp" : {
@@ -28014,13 +28153,11 @@
           },
           "loadBalanceCompression" : {
             "type" : "string",
-            "description" : "Whether or not compression should be used when transferring FlowFiles between nodes",
-            "enum" : [ "DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT" ]
+            "description" : "Whether or not compression should be used when transferring FlowFiles between nodes Possible returned values: DO_NOT_COMPRESS, COMPRESS_ATTRIBUTES_ONLY, COMPRESS_ATTRIBUTES_AND_CONTENT. See LoadBalanceCompression.class for more details."
           },
           "loadBalanceStrategy" : {
             "type" : "string",
-            "description" : "The Strategy to use for load balancing data across the cluster, or null, if no Load Balance Strategy has been specified.",
-            "enum" : [ "DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE" ]
+            "description" : "The Strategy to use for load balancing data across the cluster, or null, if no Load Balance Strategy has been specified. Possible returned values: DO_NOT_LOAD_BALANCE, PARTITION_BY_ATTRIBUTE, ROUND_ROBIN, SINGLE_NODE. See LoadBalanceStrategy.class for more details."
           },
           "name" : {
             "type" : "string",
@@ -28777,8 +28914,7 @@
           },
           "backoffMechanism" : {
             "type" : "string",
-            "description" : "Determines whether the FlowFile should be penalized or the processor should be yielded between retries.",
-            "enum" : [ "PENALIZE_FLOWFILE, YIELD_PROCESSOR" ]
+            "description" : "Determines whether the FlowFile should be penalized or the processor should be yielded between retries. Possible returned values: PENALIZE_FLOWFILE, YIELD_PROCESSOR."
           },
           "bulletinLevel" : {
             "type" : "string",
@@ -29057,8 +29193,7 @@
           },
           "transportProtocol" : {
             "type" : "string",
-            "description" : "The Transport Protocol that is used for Site-to-Site communications",
-            "enum" : [ "RAW, HTTP" ]
+            "description" : "The Transport Protocol that is used for Site-to-Site communications. Possible returned values: RAW, HTTP."
           },
           "yieldDuration" : {
             "type" : "string",
@@ -29216,6 +29351,20 @@
             "uniqueItems" : true
           }
         }
+      }
+    },
+    "securitySchemes" : {
+      "CookieSecureAuthorizationBearer" : {
+        "description" : "JSON Web Token authentication with session cookie",
+        "in" : "cookie",
+        "name" : "__Secure-Authorization-Bearer",
+        "type" : "apiKey"
+      },
+      "HTTPBearerJWT" : {
+        "bearerFormat" : "JWT",
+        "description" : "HTTP Bearer authentication with JSON Web Token",
+        "scheme" : "Bearer",
+        "type" : "http"
       }
     }
   }
