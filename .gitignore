@@ -186,6 +186,7 @@ htmlcov/
 
 # Cursor AI rules (personal AI assistant configuration)
 .cursorrules
+.cursor/
 
 # setuptools-scm generated version file
 nipyapi/_version.py
