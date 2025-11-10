@@ -15,7 +15,7 @@ Nifi-Python-Api: A rich Apache NiFi Python Client SDK
         :target: https://nipyapi.readthedocs.io/en/latest/?badge=latest
         :alt: Documentation Status
 
-.. image:: https://codecov.io/gh/Chaffelson/nipyapi/branch/NiFi2x/graph/badge.svg
+.. image:: https://codecov.io/gh/Chaffelson/nipyapi/branch/main/graph/badge.svg
         :target: https://codecov.io/gh/Chaffelson/nipyapi
         :alt: Coverage Status
 
@@ -165,7 +165,7 @@ See ``docs/profiles.rst`` for complete profiles documentation and ``docs/migrati
 - **Environment Variables**: Override any setting with ``NIFI_API_ENDPOINT``, ``NIFI_USERNAME``, etc.
 - **Testing Different Auth Methods**: Use ``make up NIPYAPI_PROFILE=secure-ldap`` to try LDAP authentication
 
-Please check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/NiFi2x/docs/contributing.rst>`_ if you are interested in contributing to the feature set.
+Please check out the `Contribution Guide <https://github.com/Chaffelson/nipyapi/blob/main/docs/contributing.rst>`_ if you are interested in contributing to the feature set.
 
 Background and Documentation
 ----------------------------
