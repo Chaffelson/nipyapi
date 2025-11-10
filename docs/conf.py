@@ -355,7 +355,7 @@ def linkcode_resolve(domain, info):
     # GitHub repository configuration
     github_user = 'Chaffelson'
     github_repo = 'nipyapi'
-    github_branch = 'NiFi2x'  # Current working branch
+    github_branch = 'main'  # Current default branch
     
     # Build the base GitHub URL
     github_url = f"https://github.com/{github_user}/{github_repo}/blob/{github_branch}"
