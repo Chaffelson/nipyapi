@@ -2,6 +2,28 @@
 History
 =======
 
+1.0.1 (2025-11-10)
+-------------------
+
+| Infrastructure and documentation fixes for post-1.0 release.
+
+**Infrastructure Fixes**
+
+- **ReadTheDocs configuration**: Fixed ``.readthedocs.yaml`` to properly install package with ``docs`` extras, ensuring ``setuptools-scm`` is available for dynamic version detection. Stable docs now display correct version instead of 0.19.
+- **Pylint 3.x compatibility**: Updated ``pylintrc`` with ``ignore-paths`` regex patterns to properly exclude generated code directories (``nipyapi/nifi/``, ``nipyapi/registry/``, ``_version.py``) in CI environments using pylint 3.x.
+- **CI workflow optimization**: Reordered GitHub Actions steps to upload coverage reports before ``make test-dist`` runs, preventing ``make clean`` from deleting ``coverage.xml`` before codecov upload.
+
+**Documentation Updates**
+
+- **Branch references**: Updated all documentation links from ``NiFi2x`` development branch to ``main`` default branch (README badges, contribution guide links, Sphinx source code references).
+- **LICENSE**: Added full Apache 2.0 license text to repository root.
+- **Development workflow**: Added ``.cursor/`` to ``.gitignore`` for IDE-specific files.
+
+**Notes**
+
+- No functional changes to the nipyapi client library.
+- All changes are infrastructure, tooling, and documentation improvements.
+
 1.0.0 (2025-09-28)
 -------------------
 
