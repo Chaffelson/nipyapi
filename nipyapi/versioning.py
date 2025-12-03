@@ -2,6 +2,8 @@
 For interactions with the NiFi Registry Service and related functions
 """
 
+# pylint: disable=too-many-lines
+
 import logging
 
 import nipyapi
@@ -11,16 +13,28 @@ from nipyapi.nifi import VersionControlInformationDTO as VciDTO
 from nipyapi.registry import VersionedFlowSnapshotMetadata as VfsMd
 
 __all__ = [
+    # Registry Client Management (works with all registry types)
     "create_registry_client",
     "list_registry_clients",
+    "list_registry_client_types",
     "delete_registry_client",
     "get_registry_client",
     "ensure_registry_client",
+    "update_registry_client",
+    # Git-based Registry Functions (GitHub, GitLab, Bitbucket, Azure DevOps)
+    "list_git_registry_buckets",
+    "get_git_registry_bucket",
+    "list_git_registry_flows",
+    "get_git_registry_flow",
+    "list_git_registry_flow_versions",
+    "deploy_git_registry_flow",
+    # NiFi Registry Bucket Functions
     "list_registry_buckets",
     "create_registry_bucket",
     "delete_registry_bucket",
     "get_registry_bucket",
     "ensure_registry_bucket",
+    # Flow Version Management
     "save_flow_ver",
     "list_flows_in_bucket",
     "get_flow_in_bucket",
@@ -34,36 +48,92 @@ __all__ = [
     "import_flow_version",
     "list_flow_versions",
     "deploy_flow_version",
+    # Process Group Export/Import (no registry required)
+    "export_process_group_definition",
+    "import_process_group_definition",
 ]
 
 log = logging.getLogger(__name__)
 
 
-def create_registry_client(name, uri, description, reg_type=None, ssl_context_service=None):
+def create_registry_client(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    name, uri=None, description="", reg_type=None, properties=None, ssl_context_service=None
+):
     """
     Creates a Registry Client in the NiFi Controller Services
 
     Args:
         name (str): The name of the new Client
-        uri (str): The URI for the connection
-        description (str): A description for the Client
-        reg_type (str): The type of registry client to create.
-            Defaults to 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'
-        ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
+        uri (str, optional): The URI for the connection. Required for NiFi Registry.
+            Ignored for Git-based registries. Defaults to None.
+        description (str, optional): A description for the Client. Defaults to empty string.
+        reg_type (str, optional): The type of registry client to create.
+            Defaults to 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'.
+            Other options include:
+            - 'org.apache.nifi.github.GitHubFlowRegistryClient'
+            - 'org.apache.nifi.gitlab.GitLabFlowRegistryClient'
+            - 'org.apache.nifi.atlassian.bitbucket.BitbucketFlowRegistryClient'
+            - 'org.apache.nifi.azure.devops.AzureDevOpsFlowRegistryClient'
+        properties (dict, optional): Properties to configure the client. If provided,
+            these are used directly. If not provided, defaults are used based on reg_type.
+            For NiFi Registry, defaults to {'url': uri} if uri is provided.
+            For Git-based registries, starts empty (must be configured).
+        ssl_context_service (ControllerServiceEntity, optional): SSL Context Service
+            (only applicable for NiFi Registry type). Defaults to None.
 
     Returns:
         :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The new registry client object
+
+    Example:
+        >>> # NiFi Registry client
+        >>> nifi_reg = nipyapi.versioning.create_registry_client(
+        ...     name='my-registry',
+        ...     uri='http://localhost:18080',
+        ...     description='My NiFi Registry'
+        ... )
+
+        >>> # GitHub client with properties
+        >>> github_client = nipyapi.versioning.create_registry_client(
+        ...     name='github-reg',
+        ...     reg_type='org.apache.nifi.github.GitHubFlowRegistryClient',
+        ...     description='GitHub Registry',
+        ...     properties={
+        ...         'Repository Owner': 'myorg',
+        ...         'Repository Name': 'myrepo',
+        ...         'Authentication Type': 'PERSONAL_ACCESS_TOKEN',
+        ...         'Personal Access Token': 'ghp_xxx...',
+        ...         'Default Branch': 'main'
+        ...     }
+        ... )
     """
-    assert isinstance(uri, str) and uri is not False
     assert isinstance(name, str) and name is not False
     assert isinstance(description, str)
 
-    # NiFi 2.x registry client format
+    # Determine the registry type
+    client_type = reg_type or "org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient"
+
+    # NiFi Registry uses 'url' property, Git-based registries do not
+    is_nifi_registry = "NifiRegistryFlowRegistryClient" in client_type
+
+    # Build properties based on what was provided
+    if properties is not None:
+        # User provided explicit properties - use them
+        client_properties = properties.copy()
+    elif is_nifi_registry:
+        # NiFi Registry requires 'url' property
+        assert (
+            isinstance(uri, str) and uri is not False
+        ), "uri is required for NiFi Registry clients when properties are not provided"
+        client_properties = {"url": uri}
+    else:
+        # Git-based registries start with empty properties
+        client_properties = {}
+
     component = {
         "name": name,
         "description": description,
-        "type": reg_type or "org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient",
-        "properties": {"url": uri},
+        "type": client_type,
+        "properties": client_properties,
     }
 
     with nipyapi.utils.rest_exceptions():
@@ -71,8 +141,8 @@ def create_registry_client(name, uri, description, reg_type=None, ssl_context_se
             body={"component": component, "revision": {"version": 0}}
         )
 
-    # Update with SSL context if provided
-    if ssl_context_service:
+    # Update with SSL context if provided (only for NiFi Registry)
+    if ssl_context_service and is_nifi_registry:
         update_component = dict(controller.component.to_dict())
         update_component["properties"] = {"url": uri, "ssl-context-service": ssl_context_service.id}
 
@@ -110,6 +180,66 @@ def delete_registry_client(client, refresh=True):
         )
 
 
+def update_registry_client(client, properties=None, description=None, refresh=True):
+    """
+    Updates an existing Registry Client's configuration.
+
+    This function merges provided properties with existing ones, allowing
+    partial updates. Sensitive properties (e.g., tokens) are always applied
+    if provided, since existing values cannot be inspected for comparison.
+
+    Args:
+        client (FlowRegistryClientEntity): The client to update
+        properties (dict, optional): Properties to update. Merged with existing.
+        description (str, optional): New description. If None, keeps existing.
+        refresh (bool): Whether to refresh the object before action to get
+            current revision. Defaults to True.
+
+    Returns:
+        (FlowRegistryClientEntity): The updated client object
+
+    Example:
+        >>> client = nipyapi.versioning.get_registry_client("GitHub-FlowRegistry")
+        >>> updated = nipyapi.versioning.update_registry_client(
+        ...     client,
+        ...     properties={'Default Branch': 'feature-branch'}
+        ... )
+    """
+    assert isinstance(client, nipyapi.nifi.FlowRegistryClientEntity)
+
+    with nipyapi.utils.rest_exceptions():
+        # Refresh to get current revision and properties
+        if refresh:
+            target = nipyapi.nifi.ControllerApi().get_flow_registry_client(client.id)
+        else:
+            target = client
+
+        # Merge properties: existing + provided (provided wins)
+        merged_properties = dict(target.component.properties or {})
+        if properties:
+            merged_properties.update(properties)
+
+        # Use provided description or keep existing
+        new_description = description if description is not None else target.component.description
+
+        # Build update body
+        update_dto = nipyapi.nifi.FlowRegistryClientDTO(
+            id=target.id,
+            name=target.component.name,
+            type=target.component.type,
+            description=new_description,
+            properties=merged_properties,
+        )
+
+        update_entity = nipyapi.nifi.FlowRegistryClientEntity(
+            component=update_dto, revision=target.revision
+        )
+
+        return nipyapi.nifi.ControllerApi().update_flow_registry_client(
+            id=target.id, body=update_entity
+        )
+
+
 def list_registry_clients():
     """
     Lists the available Registry Clients in the NiFi Controller Services
@@ -119,6 +249,32 @@ def list_registry_clients():
     """
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ControllerApi().get_flow_registry_clients()
+
+
+def list_registry_client_types():
+    """
+    Lists all available Flow Registry Client types in the NiFi instance.
+
+    This includes built-in registry types like:
+    - NiFi Registry (org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient)
+    - GitHub (org.apache.nifi.github.GitHubFlowRegistryClient)
+    - GitLab (org.apache.nifi.gitlab.GitLabFlowRegistryClient)
+    - Bitbucket (org.apache.nifi.atlassian.bitbucket.BitbucketFlowRegistryClient)
+    - Azure DevOps (org.apache.nifi.azure.devops.AzureDevOpsFlowRegistryClient)
+
+    Returns:
+        list[:class:`~nipyapi.nifi.models.DocumentedTypeDTO`]: List of available
+            registry client types with their properties and descriptions
+
+    Example:
+        >>> types = nipyapi.versioning.list_registry_client_types()
+        >>> github_type = [t for t in types if 'GitHub' in t.type][0]
+        >>> print(github_type.type)
+        org.apache.nifi.github.GitHubFlowRegistryClient
+    """
+    with nipyapi.utils.rest_exceptions():
+        result = nipyapi.nifi.ControllerApi().get_registry_client_types()
+        return result.flow_registry_client_types
 
 
 def get_registry_client(identifier, identifier_type="name"):
@@ -138,26 +294,46 @@ def get_registry_client(identifier, identifier_type="name"):
     return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
 
 
-def ensure_registry_client(name, uri, description, reg_type=None, ssl_context_service=None):
+def ensure_registry_client(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    name, uri=None, description="", reg_type=None, properties=None, ssl_context_service=None
+):
     """
-    Ensures a Registry Client exists, creating it if necessary.
+    Ensures a Registry Client exists with the desired configuration.
 
     This is a convenience function that implements the common pattern of:
     1. Try to get existing client by name
-    2. If not found, create it
-    3. Handle race conditions gracefully
+    2. If found and properties provided, update the client
+    3. If not found, create it
+    4. Handle race conditions gracefully
+
+    For Git-based registries (GitHub, GitLab, etc.), if properties are provided
+    and client exists, the client will be updated. This supports CI/CD workflows
+    where branch or credentials may change between deployments. Sensitive
+    properties (like tokens) are always applied if provided since existing
+    values cannot be inspected.
 
     Args:
         name (str): The name of the Client
-        uri (str): The URI for the connection
-        description (str): A description for the Client
-        reg_type (str): The type of registry client to create.
+        uri (str, optional): The URI for the connection. Required for NiFi Registry.
+            Ignored for Git-based registries. Defaults to None.
+        description (str, optional): A description for the Client. Defaults to empty string.
+        reg_type (str, optional): The type of registry client to create.
             Defaults to 'org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient'
-        ssl_context_service (ControllerServiceEntity): Optional SSL Context Service
+        properties (dict, optional): Properties to configure the client. If provided
+            and client exists, will update the existing client with these properties.
+        ssl_context_service (ControllerServiceEntity, optional): SSL Context Service
 
     Returns:
-        (FlowRegistryClientEntity): The registry client object (existing or new)
+        (FlowRegistryClientEntity): The registry client object (existing, updated, or new)
+
+    Note:
+        For NiFi Registry clients, URI mismatch triggers recreation.
+        For Git-based clients, properties trigger an update (not recreation).
     """
+    # Determine if this is a NiFi Registry or Git-based registry
+    client_type = reg_type or "org.apache.nifi.registry.flow.NifiRegistryFlowRegistryClient"
+    is_nifi_registry = "NifiRegistryFlowRegistryClient" in client_type
+
     # Try to get existing client first
     try:
         existing = get_registry_client(name)
@@ -170,27 +346,39 @@ def ensure_registry_client(name, uri, description, reg_type=None, ssl_context_se
                 )
                 existing = existing[0]
 
-            # Check if existing client's URI matches the desired URI
-            existing_uri = existing.component.properties.get("url", "")
-            if existing_uri == uri:
-                log.debug("Found existing registry client with matching URI: %s", name)
-                return existing
+            # For NiFi Registry, check if URI matches
+            if is_nifi_registry and uri:
+                existing_uri = existing.component.properties.get("url", "")
+                if existing_uri == uri:
+                    log.debug("Found existing registry client with matching URI: %s", name)
+                    return existing
 
-            # URI mismatch - delete existing and create new one
-            log.debug(
-                "Registry client %s URI mismatch (existing: %s, desired: %s) - recreating",
-                name,
-                existing_uri,
-                uri,
-            )
-            delete_registry_client(existing)
+                # URI mismatch - delete existing and create new one
+                log.debug(
+                    "Registry client %s URI mismatch (existing: %s, desired: %s) - recreating",
+                    name,
+                    existing_uri,
+                    uri,
+                )
+                delete_registry_client(existing)
+            else:
+                # For Git-based registries: update if properties provided, else return existing
+                if properties:
+                    log.debug("Updating existing registry client with new properties: %s", name)
+                    return update_registry_client(
+                        existing, properties=properties, description=description
+                    )
+                log.debug("Found existing registry client: %s", name)
+                return existing
     except ValueError:
         # Client doesn't exist, we'll create it below
         pass
 
     # Try to create new client
     try:
-        client = create_registry_client(name, uri, description, reg_type, ssl_context_service)
+        client = create_registry_client(
+            name, uri, description, reg_type, properties, ssl_context_service
+        )
         log.debug("Created new registry client: %s", name)
         return client
     except Exception as e:
@@ -215,6 +403,272 @@ def ensure_registry_client(name, uri, description, reg_type=None, ssl_context_se
                 pass
         # Re-raise the original exception if we can't handle it
         raise e
+
+
+# =============================================================================
+# Git-based Registry Functions (GitHub, GitLab, Bitbucket, Azure DevOps)
+# =============================================================================
+# These functions work with Git-based Flow Registry Clients via the NiFi FlowApi.
+# They are separate from the NiFi Registry functions which use the Registry API.
+
+
+def list_git_registry_buckets(registry_client_id, branch=None):
+    """
+    List buckets (folders) from a Git-based registry client.
+
+    This function queries a Git-based Flow Registry Client (GitHub, GitLab,
+    Bitbucket, or Azure DevOps) via the NiFi FlowApi to list available buckets.
+    In Git-based registries, buckets correspond to folders in the repository.
+
+    Args:
+        registry_client_id (str): The ID of the Git-based registry client.
+        branch (str, optional): The branch to query. If None, uses the
+            registry client's configured default branch.
+
+    Returns:
+        :class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`
+
+    Example:
+        >>> client = nipyapi.versioning.get_registry_client('my-github-client')
+        >>> buckets = nipyapi.versioning.list_git_registry_buckets(client.id)
+        >>> for b in buckets.buckets:
+        ...     print(f"{b.id}: {b.bucket.name}")
+    """
+    assert isinstance(registry_client_id, str), "registry_client_id must be a string"
+
+    with nipyapi.utils.rest_exceptions():
+        if branch is not None:
+            return nipyapi.nifi.FlowApi().get_buckets(registry_client_id, branch=branch)
+        return nipyapi.nifi.FlowApi().get_buckets(registry_client_id)
+
+
+def get_git_registry_bucket(registry_client_id, identifier, greedy=True, branch=None):
+    """
+    Filters the bucket list from a Git-based registry client.
+
+    Args:
+        registry_client_id (str): The ID of the Git-based registry client.
+        identifier (str): The bucket name (folder name in the repository).
+        greedy (bool): False for exact match, True for greedy/partial match.
+        branch (str, optional): The branch to query. If None, uses the
+            registry client's configured default branch.
+
+    Returns:
+        None for no matches, single object for unique match,
+        list of objects for multiple matches.
+
+    Example:
+        >>> client = nipyapi.versioning.get_registry_client('my-github-client')
+        >>> bucket = nipyapi.versioning.get_git_registry_bucket(
+        ...     client.id, 'flows', greedy=False
+        ... )
+    """
+    buckets_entity = list_git_registry_buckets(registry_client_id, branch=branch)
+    obj = buckets_entity.buckets if buckets_entity.buckets else []
+    return nipyapi.utils.filter_obj(obj, identifier, "name", greedy=greedy)
+
+
+def list_git_registry_flows(registry_client_id, bucket_id, branch=None):
+    """
+    List flows in a bucket from a Git-based registry client.
+
+    This function queries a Git-based Flow Registry Client to list available
+    flows within a specific bucket. In Git-based registries, flows are JSON
+    files within the bucket folder (e.g., `flows/my-flow.json`).
+
+    Args:
+        registry_client_id (str): The ID of the Git-based registry client.
+        bucket_id (str): The bucket ID (folder name) to list flows from.
+        branch (str, optional): The branch to query. If None, uses the
+            registry client's configured default branch.
+
+    Returns:
+        :class:`~nipyapi.nifi.models.VersionedFlowsEntity`
+
+    Example:
+        >>> client = nipyapi.versioning.get_registry_client('my-github-client')
+        >>> flows = nipyapi.versioning.list_git_registry_flows(client.id, 'flows')
+        >>> for f in flows.versioned_flows:
+        ...     print(f.versioned_flow.flow_id)
+    """
+    assert isinstance(registry_client_id, str), "registry_client_id must be a string"
+    assert isinstance(bucket_id, str), "bucket_id must be a string"
+
+    with nipyapi.utils.rest_exceptions():
+        if branch is not None:
+            return nipyapi.nifi.FlowApi().get_flows(registry_client_id, bucket_id, branch=branch)
+        return nipyapi.nifi.FlowApi().get_flows(registry_client_id, bucket_id)
+
+
+def get_git_registry_flow(registry_client_id, bucket_id, identifier, greedy=True, branch=None):
+    """
+    Filters the flow list in a bucket from a Git-based registry client.
+
+    Args:
+        registry_client_id (str): The ID of the Git-based registry client.
+        bucket_id (str): The bucket name (folder name) containing the flows.
+        identifier (str): The flow name (filename without .json).
+        greedy (bool): False for exact match, True for greedy/partial match.
+        branch (str, optional): The branch to query. If None, uses the
+            registry client's configured default branch.
+
+    Returns:
+        None for no matches, single object for unique match,
+        list of objects for multiple matches.
+
+    Example:
+        >>> client = nipyapi.versioning.get_registry_client('my-github-client')
+        >>> flow = nipyapi.versioning.get_git_registry_flow(
+        ...     client.id, 'flows', 'http-responder', greedy=False
+        ... )
+    """
+    flows_entity = list_git_registry_flows(registry_client_id, bucket_id, branch=branch)
+    obj = flows_entity.versioned_flows if flows_entity.versioned_flows else []
+
+    # The flows are wrapped in versioned_flow objects, so we filter on the inner object
+    if obj:
+        inner_flows = [item.versioned_flow for item in obj]
+        filtered = nipyapi.utils.filter_obj(inner_flows, identifier, "flow_name", greedy=greedy)
+        if filtered is None:
+            return None
+        if isinstance(filtered, list):
+            return [item for item in obj if item.versioned_flow in filtered]
+        # Single match - find the wrapper
+        for item in obj:
+            if item.versioned_flow == filtered:
+                return item
+        return filtered
+
+    return None
+
+
+def list_git_registry_flow_versions(registry_client_id, bucket_id, flow_id, branch=None):
+    """
+    List all versions of a flow from a Git-based registry client.
+
+    Args:
+        registry_client_id (str): The ID of the Git-based registry client.
+        bucket_id (str): The bucket name (folder name) containing the flow.
+        flow_id (str): The flow name (filename without .json) to list versions.
+        branch (str, optional): The branch to query. If None, uses the
+            registry client's configured default branch.
+
+    Returns:
+        :class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`
+
+    Example:
+        >>> client = nipyapi.versioning.get_registry_client('my-github-client')
+        >>> versions = nipyapi.versioning.list_git_registry_flow_versions(
+        ...     client.id, 'flows', 'http-responder'
+        ... )
+    """
+    with nipyapi.utils.rest_exceptions():
+        if branch is not None:
+            return nipyapi.nifi.FlowApi().get_versions(
+                registry_id=registry_client_id, bucket_id=bucket_id, flow_id=flow_id, branch=branch
+            )
+        return nipyapi.nifi.FlowApi().get_versions(
+            registry_id=registry_client_id, bucket_id=bucket_id, flow_id=flow_id
+        )
+
+
+def deploy_git_registry_flow(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    registry_client_id, bucket_id, flow_id, parent_id, location=None, version=None, branch=None
+):
+    """
+    Deploy a flow from a Git-based registry to the NiFi canvas.
+
+    Creates a new Process Group under the specified parent, linked to version
+    control from the Git-based registry. The deployed flow will track the
+    specified version (or latest) from the repository.
+
+    Args:
+        registry_client_id (str): The ID of the Git-based registry client.
+        bucket_id (str): The bucket name (folder name) containing the flow.
+        flow_id (str): The flow name (filename without .json).
+        parent_id (str): The ID of the parent Process Group to deploy into.
+        location (tuple, optional): (x, y) coordinates for placement.
+            Defaults to (0, 0).
+        version (str, optional): Specific version (commit hash) to deploy.
+            If None, deploys the latest version.
+        branch (str, optional): The branch to deploy from. If None, uses
+            the registry client's configured default branch.
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The newly deployed
+            Process Group.
+
+    Example:
+        >>> client = nipyapi.versioning.get_registry_client('my-github-client')
+        >>> root_id = nipyapi.canvas.get_root_pg_id()
+        >>> pg = nipyapi.versioning.deploy_git_registry_flow(
+        ...     client.id, 'flows', 'http-responder', root_id
+        ... )
+    """
+    location = location or (0, 0)
+    assert isinstance(location, tuple), "location must be a tuple of (x, y)"
+
+    # Get available versions
+    flow_versions = list_git_registry_flow_versions(
+        registry_client_id, bucket_id, flow_id, branch=branch
+    )
+
+    if not flow_versions or not flow_versions.versioned_flow_snapshot_metadata_set:
+        raise ValueError(
+            f"Could not find flow '{flow_id}' in bucket '{bucket_id}' "
+            f"on registry client '{registry_client_id}'"
+        )
+
+    # Select version to deploy
+    if version is None:
+        # Deploy latest version - sort by timestamp descending to get most recent
+        sorted_versions = sorted(
+            flow_versions.versioned_flow_snapshot_metadata_set,
+            key=lambda x: x.versioned_flow_snapshot_metadata.timestamp or 0,
+            reverse=True,
+        )
+        target_flow = sorted_versions[0]
+    else:
+        # Find specific version
+        matches = [
+            v
+            for v in flow_versions.versioned_flow_snapshot_metadata_set
+            if str(v.versioned_flow_snapshot_metadata.version) == str(version)
+        ]
+        if not matches:
+            available = [
+                str(v.versioned_flow_snapshot_metadata.version)[:12]
+                for v in flow_versions.versioned_flow_snapshot_metadata_set
+            ]
+            raise ValueError(
+                f"Version '{version}' not found for flow '{flow_id}'. "
+                f"Available versions: {', '.join(available[:5])}"
+            )
+        target_flow = matches[0]
+
+    target_metadata = target_flow.versioned_flow_snapshot_metadata
+
+    # Use branch from metadata if not explicitly provided
+    deploy_branch = branch if branch is not None else target_metadata.branch
+
+    # Deploy the flow
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ProcessGroupsApi().create_process_group(
+            id=parent_id,
+            body=nipyapi.nifi.ProcessGroupEntity(
+                revision=nipyapi.nifi.RevisionDTO(version=0),
+                component=nipyapi.nifi.ProcessGroupDTO(
+                    position=nipyapi.nifi.PositionDTO(x=float(location[0]), y=float(location[1])),
+                    version_control_information=VciDTO(
+                        registry_id=registry_client_id,
+                        bucket_id=target_metadata.bucket_identifier,
+                        flow_id=target_metadata.flow_identifier,
+                        version=target_metadata.version,
+                        branch=deploy_branch,
+                    ),
+                ),
+            ),
+        )
 
 
 def list_registry_buckets():
@@ -904,3 +1358,123 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id, 
                 ),
             ),
         )
+
+
+def export_process_group_definition(process_group, file_path=None, mode="json"):
+    """
+    Export a process group as a flow definition (NiFi 2.x format).
+    Does NOT require NiFi Registry - exports the current state of the process group.
+
+    Args:
+        process_group (ProcessGroupEntity): The process group to export
+        file_path (str, optional): Path to write the export to. If None, returns
+            the serialized string
+        mode (str): Export format - 'json' or 'yaml'. Defaults to 'json'
+
+    Returns:
+        str: The serialized flow definition if file_path is None, otherwise
+            the path written to
+
+    Example:
+        >>> pg = nipyapi.canvas.get_process_group('my-flow')
+        >>> nipyapi.versioning.export_process_group_definition(
+        ...     pg, file_path='my-flow.json', mode='json'
+        ... )
+        'my-flow.json'
+    """
+    assert isinstance(
+        process_group, nipyapi.nifi.ProcessGroupEntity
+    ), "process_group must be a ProcessGroupEntity"
+    assert file_path is None or isinstance(file_path, str), "file_path must be None or a string"
+    assert mode in ["json", "yaml"], "mode must be 'json' or 'yaml'"
+
+    with nipyapi.utils.rest_exceptions():
+        # Export returns JSON string directly from NiFi API
+        flow_json_str = nipyapi.nifi.ProcessGroupsApi().export_process_group(process_group.id)
+
+        # Convert to desired format if needed
+        if mode == "yaml":
+            # Parse JSON and re-serialize as YAML
+            flow_obj = nipyapi.utils.load(flow_json_str)
+            export_str = nipyapi.utils.dump(flow_obj, mode="yaml")
+        else:
+            export_str = flow_json_str
+
+        # Write to file or return string
+        if file_path:
+            return nipyapi.utils.fs_write(obj=export_str, file_path=file_path)
+        return export_str
+
+
+def import_process_group_definition(parent_pg, flow_definition=None, file_path=None, position=None):
+    """
+    Import a flow definition as a new process group (NiFi 2.x format).
+    Does NOT require NiFi Registry - imports from flow definition JSON/YAML.
+
+    Args:
+        parent_pg (ProcessGroupEntity): Parent process group to import into
+        flow_definition (str, optional): Flow definition as JSON or YAML string.
+            Either this or file_path must be provided, but not both
+        file_path (str, optional): Path to flow definition file to import.
+            Either this or flow_definition must be provided, but not both
+        position (tuple, optional): (x, y) coordinates for the new process group.
+            Defaults to (0, 0)
+
+    Returns:
+        ProcessGroupEntity: The newly imported process group
+
+    Example:
+        >>> root_pg = nipyapi.canvas.get_process_group(
+        ...     nipyapi.canvas.get_root_pg_id(), 'id'
+        ... )
+        >>> imported_pg = nipyapi.versioning.import_process_group_definition(
+        ...     parent_pg=root_pg,
+        ...     file_path='my-flow.json',
+        ...     position=(100, 100)
+        ... )
+    """
+    assert isinstance(
+        parent_pg, nipyapi.nifi.ProcessGroupEntity
+    ), "parent_pg must be a ProcessGroupEntity"
+    assert (flow_definition is None) != (
+        file_path is None
+    ), "Exactly one of flow_definition or file_path must be provided"
+    assert position is None or isinstance(
+        position, tuple
+    ), "position must be None or a tuple of (x, y)"
+
+    # Default position
+    position = position or (0, 0)
+
+    # Load flow definition
+    if file_path:
+        flow_json_str = nipyapi.utils.fs_read(file_path)
+    else:
+        flow_json_str = flow_definition
+
+    # Parse flow to get group name (utils.load handles both JSON and YAML safely)
+    flow_data = (
+        nipyapi.utils.load(flow_json_str)
+        if isinstance(flow_json_str, (str, bytes))
+        else flow_json_str
+    )
+    group_name = flow_data.get("flowContents", {}).get("name", "imported-flow")
+
+    # Use the upload endpoint which accepts file data
+    # This is what the NiFi UI uses for importing flows
+    with nipyapi.utils.rest_exceptions():
+        # Convert the flow JSON string to bytes for file upload
+        flow_bytes = (
+            flow_json_str.encode("utf-8") if isinstance(flow_json_str, str) else flow_json_str
+        )
+
+        result = nipyapi.nifi.ProcessGroupsApi().upload_process_group(
+            id=parent_pg.id,
+            file=flow_bytes,
+            group_name=group_name,
+            position_x=str(float(position[0])),
+            position_y=str(float(position[1])),
+            client_id="nipyapi-import",
+        )
+
+        return result

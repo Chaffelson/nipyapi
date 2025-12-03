@@ -14,8 +14,17 @@ log = logging.getLogger(__name__)
 ACTIVE_PROFILE = os.getenv('NIPYAPI_PROFILE', 'single-user').strip()
 
 # Validate profile early and fail fast
-if ACTIVE_PROFILE not in ('single-user', 'secure-ldap', 'secure-mtls', 'secure-oidc'):
-    raise ValueError(f"Invalid NIPYAPI_PROFILE: {ACTIVE_PROFILE}. Must be one of: single-user, secure-ldap, secure-mtls, secure-oidc")
+# Note: github-cicd profile is NiFi-only (no Registry) for CI/CD testing
+VALID_PROFILES = ('single-user', 'secure-ldap', 'secure-mtls', 'secure-oidc', 'github-cicd')
+if ACTIVE_PROFILE not in VALID_PROFILES:
+    raise ValueError(f"Invalid NIPYAPI_PROFILE: {ACTIVE_PROFILE}. Must be one of: {VALID_PROFILES}")
+
+# Skip markers for profile-specific test requirements
+requires_registry = pytest.mark.skipif(
+    ACTIVE_PROFILE == 'github-cicd',
+    reason='Test requires NiFi Registry service (not available in github-cicd profile)'
+)
+
 
 def _flag(name: str, default: bool = False) -> bool:
     val = os.getenv(name)
@@ -203,9 +212,10 @@ def final_cleanup():
         remove_test_service_user_groups('nifi')
         remove_test_service_users('nifi')
         remove_test_controllers(include_reporting_tasks=True)
-    # Cleanup Registry using authenticated session
-    cleanup_reg()
-    if ACTIVE_PROFILE in ('secure-ldap', 'secure-mtls') and 'https' in ACTIVE_CONFIG['registry_url']:
+    # Cleanup Registry using authenticated session (only if Registry is configured)
+    if nipyapi.config.registry_config.host:
+        cleanup_reg()
+    if ACTIVE_PROFILE in ('secure-ldap', 'secure-mtls') and ACTIVE_CONFIG.get('registry_url') and 'https' in ACTIVE_CONFIG['registry_url']:
         remove_test_service_user_groups('registry')
         remove_test_service_users('registry')
 

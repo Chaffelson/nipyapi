@@ -4,6 +4,10 @@
 # Default NiFi/Registry version for docker compose profiles
 NIFI_VERSION ?= 2.6.0
 
+# Load .env file if it exists (for secrets like GITHUB_REGISTRY_TOKEN)
+-include .env
+export
+
 # Python command for cross-platform compatibility
 # Defaults to 'python' for conda/venv users, override with PYTHON=python3 for system installs
 PYTHON ?= python
@@ -227,17 +231,17 @@ extract-jks: ## extract PEM certificates from JKS: make extract-jks JKS_FILE=tru
 	fi
 	@echo "✅ Certificates extracted to resources/certs/extracted/"
 
-up: ensure-certs # bring up docker profile: make up NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc (uses NIFI_VERSION=$(NIFI_VERSION))
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
+up: ensure-certs # bring up docker profile: make up NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd (uses NIFI_VERSION=$(NIFI_VERSION))
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi
 	$(DC) --profile $(NIPYAPI_PROFILE) up -d
 
 down: ## bring down all docker services
 	@echo "Bringing down Docker services (NIFI_VERSION=$(NIFI_VERSION))"
-	@$(DC) --profile single-user --profile secure-ldap --profile secure-mtls --profile secure-oidc down -v --remove-orphans || true
+	@$(DC) --profile single-user --profile secure-ldap --profile secure-mtls --profile secure-oidc --profile github-cicd down -v --remove-orphans || true
 	@echo "Verifying expected containers are stopped/removed:"
 	@COMPOSE_PROJECT_NAME=$(COMPOSE_PROJECT_NAME) NIFI_VERSION=$(NIFI_VERSION) docker compose -f $(COMPOSE_FILE) ps --format "table {{.Name}}\t{{.State}}" | tail -n +2 | awk '{print " - " $$1 ": " $$2}' || true
 
-wait-ready: ## wait for readiness using profile configuration; requires NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc
+wait-ready: ## wait for readiness using profile configuration; requires NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "ERROR: NIPYAPI_PROFILE is required"; exit 1; fi
 	@echo "Waiting for $(NIPYAPI_PROFILE) infrastructure to be ready..."
 	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) $(PYTHON) resources/scripts/wait_ready.py
@@ -269,7 +273,7 @@ gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_varia
 # Individual testing
 
 test: ## run pytest with provided NIPYAPI_PROFILE; config resolved by tests/conftest.py
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi; \
 	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
 
 test-su: ## shortcut: NIPYAPI_PROFILE=single-user pytest
@@ -285,7 +289,7 @@ test-oidc: check-certs ## shortcut: NIPYAPI_PROFILE=secure-oidc pytest (requires
 	NIPYAPI_PROFILE=secure-oidc $(MAKE) test
 
 test-specific: ## run specific pytest with provided NIPYAPI_PROFILE and TEST_ARGS
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi; \
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi; \
 	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required (e.g., tests/test_utils.py::test_dump -v)"; exit 1; fi; \
 	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
 
@@ -333,8 +337,8 @@ test-all: ensure-certs ## run full e2e tests across automated profiles (requires
 	done
 	@echo "All profiles tested successfully"
 
-sandbox: ensure-certs ## create isolated environment with sample objects: make sandbox NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "ERROR: NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc)"; exit 1; fi
+sandbox: ensure-certs ## create isolated environment with sample objects: make sandbox NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "ERROR: NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi
 	@echo "🏗️ Setting up NiPyAPI sandbox with profile: $(NIPYAPI_PROFILE)"
 	@echo "=== 1/4: Starting infrastructure ==="
 	$(MAKE) up NIPYAPI_PROFILE=$(NIPYAPI_PROFILE)

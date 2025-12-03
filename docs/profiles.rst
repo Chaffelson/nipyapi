@@ -37,6 +37,7 @@ Quick Start
 - ``secure-ldap`` - LDAP authentication over TLS
 - ``secure-mtls`` - Mutual TLS certificate authentication
 - ``secure-oidc`` - OpenID Connect (OAuth2) authentication
+- ``env`` - Pure environment variable configuration (no profiles file required)
 
 Why Use Profiles?
 =================
@@ -342,6 +343,34 @@ NiFi CLI properties file integration with OIDC Client Credentials flow:
 
 **Use case**: Integration with existing NiFi CLI configurations, client credentials OIDC
 
+env (Environment-Only Configuration)
+------------------------------------
+
+Pure environment variable configuration without requiring a profiles file:
+
+.. code-block:: python
+
+    nipyapi.profiles.switch('env')
+
+**Authentication method**: Auto-detected from environment variables
+
+**Required environment variables** (minimum for NiFi connection):
+  - ``NIFI_API_ENDPOINT`` - NiFi API URL
+  - ``NIFI_USERNAME`` - NiFi username (for basic auth)
+  - ``NIFI_PASSWORD`` - NiFi password (for basic auth)
+
+**Optional environment variables**:
+  - ``REGISTRY_API_ENDPOINT`` - Registry API URL
+  - ``REGISTRY_USERNAME`` / ``REGISTRY_PASSWORD`` - Registry credentials
+  - ``TLS_CA_CERT_PATH`` - CA certificate path
+  - ``MTLS_CLIENT_CERT`` / ``MTLS_CLIENT_KEY`` - mTLS certificates
+  - ``OIDC_TOKEN_ENDPOINT`` / ``OIDC_CLIENT_ID`` / ``OIDC_CLIENT_SECRET`` - OIDC configuration
+  - All other environment variables listed in the Environment Variable Overrides section
+
+**Use case**: CI/CD pipelines, containerized deployments, GitHub Actions, any environment where configuration is injected via environment variables rather than files.
+
+**Key benefit**: No profiles file needed. The ``env`` profile starts with all-null defaults and populates values entirely from environment variables using the standard ``ENV_VAR_MAPPINGS``. This keeps secrets out of files and allows dynamic configuration in deployment environments.
+
 Environment Variable Overrides
 ===============================
 
@@ -503,6 +532,12 @@ You don't have to specify values that are otherwise null unless required for tha
 **Alternative: Direct Client Configuration**
 
 You don't have to use profiles. You can also directly configure the NiPyAPI client using ``nipyapi.config`` and ``nipyapi.utils.set_endpoint()`` as shown in earlier examples.
+
+GitHub Flow Registry Client
+===========================
+
+NiFi 2.x supports versioning flows directly to GitHub repositories using the GitHub Flow Registry Client.
+For CI/CD workflows with GitHub Actions, see the `nipyapi-actions <https://github.com/Chaffelson/nipyapi-actions>`_ repository which provides reusable actions for deploying NiFi flows from Git repositories.
 
 Integration with Examples
 =========================

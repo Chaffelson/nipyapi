@@ -480,11 +480,15 @@ def test_create_controller(fix_cont):
         parent_pg=root_pg,
         controller=cont_type
     )
-    assert isinstance(r1, nifi.ControllerServiceEntity)
-    with pytest.raises(AssertionError):
-        _ = canvas.create_controller('pie', cont_type)
-    with pytest.raises(AssertionError):
-        _ = canvas.create_controller(root_pg, 'pie')
+    try:
+        assert isinstance(r1, nifi.ControllerServiceEntity)
+        with pytest.raises(AssertionError):
+            _ = canvas.create_controller('pie', cont_type)
+        with pytest.raises(AssertionError):
+            _ = canvas.create_controller(root_pg, 'pie')
+    finally:
+        # Clean up controller created directly (not via fixture)
+        canvas.delete_controller(r1, force=True)
 
 
 def test_get_controller(fix_pg, fix_cont):
@@ -511,6 +515,35 @@ def test_schedule_controller(fix_pg, fix_cont):
     assert r1.component.state == 'ENABLED'
     r2 = canvas.schedule_controller(r1, False)
     assert r2.component.state == 'DISABLED'
+
+
+def test_schedule_all_controllers(fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    f_c2 = fix_cont(parent_pg=f_pg)
+    # Verify both start disabled
+    assert f_c1.component.state == 'DISABLED'
+    assert f_c2.component.state == 'DISABLED'
+    # Enable all
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_all_controllers(123, True)
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_all_controllers(f_pg.id, 'pie')
+    r1 = canvas.schedule_all_controllers(f_pg.id, True)
+    assert r1.state == 'ENABLED'
+    # Verify controllers are enabled
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'ENABLED'
+    assert c2.component.state == 'ENABLED'
+    # Disable all
+    r2 = canvas.schedule_all_controllers(f_pg.id, False)
+    assert r2.state == 'DISABLED'
+    # Verify controllers are disabled
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'DISABLED'
+    assert c2.component.state == 'DISABLED'
 
 
 def test_delete_controller(fix_pg, fix_cont):

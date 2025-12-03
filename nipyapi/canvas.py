@@ -46,6 +46,7 @@ __all__ = [
     "delete_controller",
     "update_controller",
     "schedule_controller",
+    "schedule_all_controllers",
     "get_controller",
     "list_all_controller_types",
     "list_all_by_kind",
@@ -1214,6 +1215,33 @@ def schedule_controller(controller, scheduled, refresh=False):
     if state_test:
         return get_controller(controller.id, "id")
     raise ValueError("Scheduling request timed out")
+
+
+def schedule_all_controllers(pg_id, scheduled):
+    """
+    Enable or Disable all Controller Services in a Process Group.
+
+    Uses NiFi's native bulk controller service activation API which handles
+    all descendant controller services automatically.
+
+    Args:
+        pg_id (str): The UUID of the Process Group
+        scheduled (bool): True to enable, False to disable
+
+    Returns:
+        ActivateControllerServicesEntity: The result of the operation
+
+    """
+    assert isinstance(pg_id, str)
+    assert isinstance(scheduled, bool)
+
+    target_state = "ENABLED" if scheduled else "DISABLED"
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.FlowApi().activate_controller_services(
+            id=pg_id,
+            body=nipyapi.nifi.ActivateControllerServicesEntity(id=pg_id, state=target_state),
+        )
 
 
 def get_controller(

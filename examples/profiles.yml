@@ -85,6 +85,18 @@ secure-oidc:
   oidc_client_id: "nipyapi-client"
   oidc_client_secret: "nipyapi-secret"
 
+# GitHub CI/CD profile - NiFi only, for testing Git-based registry workflows
+# Uses GitHub Registry Client instead of NiFi Registry
+# GitHub registry configuration is handled by nipyapi-actions, not nipyapi profiles
+github-cicd:
+  nifi_url: https://localhost:9447/nifi-api
+  nifi_user: einstein
+  nifi_pass: password1234
+  nifi_verify_ssl: false
+  suppress_ssl_warnings: true
+  # No NiFi Registry - using GitHub as flow registry
+  registry_url: null
+
 # Example profile using NiFi CLI properties file integration
 cli-properties:
   # Load configuration from existing NiFi CLI properties file
