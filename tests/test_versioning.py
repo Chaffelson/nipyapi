@@ -448,7 +448,7 @@ def test_list_git_registry_flow_versions():
 # =============================================================================
 # update_git_flow_ver Tests
 # =============================================================================
-# These tests require a GitHub PAT via GITHUB_REGISTRY_TOKEN or GH_REGISTRY_TOKEN.
+# These tests require a GitHub PAT via GH_REGISTRY_TOKEN environment variable.
 # They use fixtures from conftest.py: fix_git_reg_client, fix_deployed_git_flow
 # Test fixtures are in the nipyapi-actions repository (tests/flows/cicd-demo-flow).
 

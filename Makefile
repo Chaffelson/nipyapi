@@ -4,7 +4,7 @@
 # Default NiFi/Registry version for docker compose profiles
 NIFI_VERSION ?= 2.6.0
 
-# Load .env file if it exists (for secrets like GITHUB_REGISTRY_TOKEN)
+# Load .env file if it exists (for secrets like GH_REGISTRY_TOKEN)
 -include .env
 export
 

@@ -636,7 +636,7 @@ def fixture_profiles():
 # =============================================================================
 # Git-based Registry Fixtures (GitHub Flow Registry Client)
 # =============================================================================
-# These fixtures require a GitHub PAT via GITHUB_REGISTRY_TOKEN or GH_REGISTRY_TOKEN
+# These fixtures require a GitHub PAT via GH_REGISTRY_TOKEN environment variable
 # environment variable. They use the nipyapi-actions repository test fixtures.
 
 # Known test fixture versions in nipyapi-actions repo
@@ -648,12 +648,12 @@ GIT_REGISTRY_VERSION_LATEST = 'bd4d868c4752da9508017d9f7e4ecf328fec5617'
 def fixture_git_registry_client(request):
     """Create a GitHub registry client for testing with real credentials.
 
-    Requires GITHUB_REGISTRY_TOKEN or GH_REGISTRY_TOKEN environment variable.
+    Requires GH_REGISTRY_TOKEN environment variable.
     Uses the nipyapi-actions repository test flows in tests/ path.
     """
-    token = os.environ.get('GITHUB_REGISTRY_TOKEN') or os.environ.get('GH_REGISTRY_TOKEN')
+    token = os.environ.get('GH_REGISTRY_TOKEN')
     if not token:
-        pytest.skip("GITHUB_REGISTRY_TOKEN not set - skipping git registry tests")
+        pytest.skip("GH_REGISTRY_TOKEN not set - skipping git registry tests")
 
     class Dummy:
         def __init__(self):
@@ -694,9 +694,9 @@ def fixture_deployed_git_flow_shared(request):
 
     This is the actual deployment - expensive operation done once per module.
     """
-    token = os.environ.get('GITHUB_REGISTRY_TOKEN') or os.environ.get('GH_REGISTRY_TOKEN')
+    token = os.environ.get('GH_REGISTRY_TOKEN')
     if not token:
-        pytest.skip("GITHUB_REGISTRY_TOKEN not set - skipping git registry tests")
+        pytest.skip("GH_REGISTRY_TOKEN not set - skipping git registry tests")
 
     FixtureDeployedGitFlow = namedtuple(
         'FixtureDeployedGitFlow', ('client', 'pg', 'bucket_id', 'flow_id')
