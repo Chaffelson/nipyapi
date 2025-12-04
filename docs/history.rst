@@ -2,6 +2,54 @@
 History
 =======
 
+1.1.0 (2025-12-04)
+-------------------
+
+| GitHub CI/CD Integration - Native support for NiFi's GitHub Flow Registry Client
+
+**GitHub Flow Registry Support**
+
+- **Git-specific versioning helpers**: New functions to work with NiFi's native GitHub Flow Registry Client
+    - ``list_git_registry_buckets``: List buckets (folders) in a Git-backed registry
+    - ``get_git_registry_bucket``: Get a specific bucket by name
+    - ``list_git_registry_flows``: List flows in a bucket
+    - ``get_git_registry_flow``: Get a specific flow by name
+    - ``list_git_registry_flow_versions``: List all versions (commits) of a flow
+    - ``deploy_git_registry_flow``: Deploy a versioned flow from GitHub to the NiFi canvas
+    - ``update_git_flow_ver``: Change version of an already-deployed Git-registry flow
+- **Registry client management**: ``ensure_registry_client`` and ``update_registry_client`` for idempotent registry configuration
+- **Enhanced revert**: ``revert_flow_ver`` now accepts ``wait=True`` parameter for synchronous operation
+
+**Profile System Enhancements**
+
+- **"env" profile for CI/CD**: New special profile name that configures nipyapi entirely from environment variables
+    - No profiles file required - ideal for GitHub Actions, containers, and CI/CD pipelines
+    - Uses ``nipyapi.profiles.switch('env')`` to activate
+    - All standard environment variable mappings (``NIFI_API_ENDPOINT``, ``NIFI_USERNAME``, etc.) apply
+
+**Controller Service Management**
+
+- **Bulk controller service operations**: ``schedule_all_controllers(pg_id, scheduled)`` to enable/disable all controller services in a process group
+    - Uses NiFi's native bulk activation API
+    - Handles all descendant controller services automatically
+    - Simplifies flow start/stop operations in CI/CD workflows
+
+**Bug Fixes**
+
+- Fixed ``test_create_controller`` leaving orphaned ADLS controller services after test runs
+- Improved test cleanup fixtures for better isolation
+- Fixed version sorting in ``deploy_git_registry_flow`` to correctly identify latest version
+
+**Infrastructure**
+
+- Updated ``pylintrc`` for pylint 3.x compatibility
+- Increased module line limit for versioning.py to accommodate new functions
+- Added comprehensive test fixtures for Git registry integration testing
+
+**Related Projects**
+
+- **nipyapi-actions**: Companion GitHub Action for NiFi CI/CD workflows (https://github.com/Chaffelson/nipyapi-actions)
+
 1.0.1 (2025-11-10)
 -------------------
 
@@ -195,41 +243,6 @@ History
 * If Client is not instantiated, optimistically instantiate for version checking
 * add socks proxy support
 
-0.16.3 (2021-10-11)
--------------------
-
-| Removed force reset of configuration.password and configuration.username to empty string. This was not increasing security, and was causing unexpected errors for users connecting to multiple services in a single script.
-| Add greedy control to versioning.get_registry_bucket and versioning.get_flow_in_bucket to avoid undesirable partial string match.
-
-* Update readme to reflect switch from 'master' branch naming to 'main'.
-* Update tox to pin testing to Python 3.8, as Python 3.9 is producing unexpected and unrelated SSL failures
-* Minor lint formatting improvements
-
-0.16.2 (2021-02-10)
--------------------
-
-| NOTE: If you are using secured Registry, this release will enforce access controls for the swagger interface which is used to determine which version of Registry is connected in order to correctly provide features - you may have to update your authorizations
-
-* Update requirements.txt to unpin future and lxml
-* Update lxml to 4.6.2 or newer to resolve vulnerability
-* Pin watchdog to <1.0.0 per their docs to maintain Python2.7 compatibility
-* Revert 0.14.3 changes to Authentication handling which introduced basicAuth support but resulted in some NiFi connections appearing incorrectly as Anonymous
-* Added simpler basicAuth control to force it via a config switch without changing tokenAuth and other Authorization header behavior during normal usage
-* nipyapi.config.global_force_basic_auth is now available for use for this purpose
-* Secured Registry users will now require the authorization policy to retrieve the swagger so we may use it to validate which version of
-* Registry is in use for feature enablement
-* Moved all Security controls in config.py to a common area at the foot of the file
-* Removed auth_type from security.service_login as it is now redundant
-* Added controls to handle certificate checking behavior which has become more strict in recently versions of Python3, ssl_verify and check_hostname are now handled
-* security.set_service_auth_token now has an explicit flag for ssl host checking as well
-* Fix oversight where improved model serialisation logic was not correctly applied to Registry
-* Removed unusused parameter refresh from parameters.update_parameter_context
-* Reduced unecessary complexity in utils.dump with no change in functionality
-* Updated client gen mustache templates to reflect refactored security and api client code
-* Minor linting and docstring and codestyle improvements
-* Set pyUp to ignore Watchdog as it must stay between versions to statisfy py2 and py3 compatibility
-* If Client is not instantiated, optimistically instantiate for version checking
-* add socks proxy support
 
 0.15.0 (2020-11-06)
 -------------------

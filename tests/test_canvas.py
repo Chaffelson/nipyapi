@@ -287,14 +287,39 @@ def test_delete_processor(fix_proc):
 
 
 def test_update_processor(fix_proc):
-    # TODO: Add way more tests to this
+    """Test update_processor with config, name, and both."""
     f_p1 = fix_proc.generate()
-    update = nifi.ProcessorConfigDTO(
-        scheduling_period='3s'
-    )
-    r1 = canvas.update_processor(f_p1, update)
+    original_name = f_p1.component.name
+
+    # Test config update (processor is stopped, no auto_stop needed)
+    update = nifi.ProcessorConfigDTO(scheduling_period='3s')
+    r1 = canvas.update_processor(f_p1, update=update)
+    assert r1 is not None
+
+    # Test invalid update type
     with pytest.raises(ValueError, match='update param is not an instance'):
-        _ = canvas.update_processor(f_p1, 'FakeNews')
+        canvas.update_processor(f_p1, update='FakeNews')
+
+    # Test rename (processor is stopped, no auto_stop needed)
+    new_name = original_name + '_RENAMED'
+    r2 = canvas.update_processor(r1, name=new_name)
+    assert r2.component.name == new_name
+
+    # Test rename back
+    r3 = canvas.update_processor(r2, name=original_name)
+    assert r3.component.name == original_name
+
+    # Test both config and name together
+    update2 = nifi.ProcessorConfigDTO(scheduling_period='5s')
+    r4 = canvas.update_processor(r3, update=update2, name=original_name + '_BOTH')
+    assert r4.component.name == original_name + '_BOTH'
+
+    # Restore name
+    canvas.update_processor(r4, name=original_name)
+
+    # Test error when neither update nor name provided
+    with pytest.raises(ValueError, match="Must provide"):
+        canvas.update_processor(f_p1)
 
 
 def test_purge_connection():
@@ -480,11 +505,15 @@ def test_create_controller(fix_cont):
         parent_pg=root_pg,
         controller=cont_type
     )
-    assert isinstance(r1, nifi.ControllerServiceEntity)
-    with pytest.raises(AssertionError):
-        _ = canvas.create_controller('pie', cont_type)
-    with pytest.raises(AssertionError):
-        _ = canvas.create_controller(root_pg, 'pie')
+    try:
+        assert isinstance(r1, nifi.ControllerServiceEntity)
+        with pytest.raises(AssertionError):
+            _ = canvas.create_controller('pie', cont_type)
+        with pytest.raises(AssertionError):
+            _ = canvas.create_controller(root_pg, 'pie')
+    finally:
+        # Clean up controller created directly (not via fixture)
+        canvas.delete_controller(r1, force=True)
 
 
 def test_get_controller(fix_pg, fix_cont):
@@ -511,6 +540,35 @@ def test_schedule_controller(fix_pg, fix_cont):
     assert r1.component.state == 'ENABLED'
     r2 = canvas.schedule_controller(r1, False)
     assert r2.component.state == 'DISABLED'
+
+
+def test_schedule_all_controllers(fix_pg, fix_cont):
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+    f_c2 = fix_cont(parent_pg=f_pg)
+    # Verify both start disabled
+    assert f_c1.component.state == 'DISABLED'
+    assert f_c2.component.state == 'DISABLED'
+    # Enable all
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_all_controllers(123, True)
+    with pytest.raises(AssertionError):
+        _ = canvas.schedule_all_controllers(f_pg.id, 'pie')
+    r1 = canvas.schedule_all_controllers(f_pg.id, True)
+    assert r1.state == 'ENABLED'
+    # Verify controllers are enabled
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'ENABLED'
+    assert c2.component.state == 'ENABLED'
+    # Disable all
+    r2 = canvas.schedule_all_controllers(f_pg.id, False)
+    assert r2.state == 'DISABLED'
+    # Verify controllers are disabled
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'DISABLED'
+    assert c2.component.state == 'DISABLED'
 
 
 def test_delete_controller(fix_pg, fix_cont):

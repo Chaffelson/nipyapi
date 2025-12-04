@@ -11,6 +11,7 @@ from nipyapi import utils, nifi, system, config, profiles
 from nipyapi.config import default_string_encoding as DEF_ENCODING
 
 
+@conftest.requires_registry
 def test_dump(fix_flow_serde):
     # Testing that we don't modify or lose information in the round trip
     # Processing in memory for json
@@ -40,6 +41,7 @@ def test_dump(fix_flow_serde):
     ) == {}
 
 
+@conftest.requires_registry
 def test_load(fix_flow_serde):
     # Validating load testing again in case we break the 'dump' test
     r1 = utils.load(
@@ -88,22 +90,18 @@ def test_fs_write(tmpdir):
         )
 
 
-def test_fs_read(fix_flow_serde):
-    r1 = utils.fs_read(
-        file_path=fix_flow_serde.filepath + '.json'
-    )
-    assert r1 == fix_flow_serde.json
+def test_fs_read(tmpdir):
+    # Create a simple test file - no need for heavy Registry fixtures
+    test_content = '{"test": "data", "nested": {"value": 123}}'
+    test_file = tmpdir.join("test_file.json")
+    test_file.write(test_content)
+
+    r1 = utils.fs_read(file_path=str(test_file))
+    assert r1 == test_content
+
     # Test reading from unreachable file
-    if sys.version_info >= (3,3):
-        with pytest.raises((OSError, IOError, FileNotFoundError, PermissionError)):
-            _ = utils.fs_read(
-                file_path='/dev/AlmostCertainlyNotAValidReadDevice'
-            )
-    else:
-        with pytest.raises((OSError, IOError)):
-            _ = utils.fs_read(
-                file_path='/dev/AlmostCertainlyNotAValidReadDevice'
-            )
+    with pytest.raises((OSError, IOError, FileNotFoundError, PermissionError)):
+        _ = utils.fs_read(file_path='/dev/AlmostCertainlyNotAValidReadDevice')
 
 
 def test_filter_obj(fix_pg):
@@ -169,6 +167,7 @@ def test_validate_parameters_versioning_support_noop():
     assert utils.validate_parameters_versioning_support() is None
 
 
+@conftest.requires_registry
 def test_get_registry_version_info_string():
     ver = system.get_registry_version_info()
     assert isinstance(ver, str) and len(ver) > 0
