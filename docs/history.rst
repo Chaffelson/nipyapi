@@ -2,7 +2,7 @@
 History
 =======
 
-1.1.0 (2025-12-XX)
+1.1.0 (2025-12-04)
 -------------------
 
 | GitHub CI/CD Integration - Native support for NiFi's GitHub Flow Registry Client
@@ -16,7 +16,9 @@ History
     - ``get_git_registry_flow``: Get a specific flow by name
     - ``list_git_registry_flow_versions``: List all versions (commits) of a flow
     - ``deploy_git_registry_flow``: Deploy a versioned flow from GitHub to the NiFi canvas
+    - ``update_git_flow_ver``: Change version of an already-deployed Git-registry flow
 - **Registry client management**: ``ensure_registry_client`` and ``update_registry_client`` for idempotent registry configuration
+- **Enhanced revert**: ``revert_flow_ver`` now accepts ``wait=True`` parameter for synchronous operation
 
 **Profile System Enhancements**
 
@@ -24,7 +26,6 @@ History
     - No profiles file required - ideal for GitHub Actions, containers, and CI/CD pipelines
     - Uses ``nipyapi.profiles.switch('env')`` to activate
     - All standard environment variable mappings (``NIFI_API_ENDPOINT``, ``NIFI_USERNAME``, etc.) apply
-- **Documentation**: Added "env" profile usage guide to profiles documentation
 
 **Controller Service Management**
 
@@ -37,11 +38,17 @@ History
 
 - Fixed ``test_create_controller`` leaving orphaned ADLS controller services after test runs
 - Improved test cleanup fixtures for better isolation
+- Fixed version sorting in ``deploy_git_registry_flow`` to correctly identify latest version
+
+**Infrastructure**
+
+- Updated ``pylintrc`` for pylint 3.x compatibility
+- Increased module line limit for versioning.py to accommodate new functions
+- Added comprehensive test fixtures for Git registry integration testing
 
 **Related Projects**
 
-- **nipyapi-actions**: Companion GitHub Action for NiFi CI/CD workflows (separate repository)
-- **nipyapi-workflow**: Demo repository showing PR-based flow testing patterns
+- **nipyapi-actions**: Companion GitHub Action for NiFi CI/CD workflows (https://github.com/Chaffelson/nipyapi-actions)
 
 1.0.1 (2025-11-10)
 -------------------
