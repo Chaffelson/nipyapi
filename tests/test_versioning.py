@@ -289,7 +289,7 @@ def test_list_git_registry_buckets():
             assert hasattr(result, 'buckets')
         except ValueError as e:
             # Expected to fail with NONE auth - that's OK for structure test
-            assert 'api.github.com' in str(e).lower() or 'unauthorized' in str(e).lower() \
+            assert 'unauthorized' in str(e).lower() \
                 or 'bad credentials' in str(e).lower() or 'not found' in str(e).lower()
     finally:
         versioning.delete_registry_client(client)
@@ -326,7 +326,7 @@ def test_list_git_registry_flows():
             assert hasattr(result, 'versioned_flows')
         except ValueError as e:
             # Expected to fail with NONE auth
-            assert 'api.github.com' in str(e).lower() or 'unauthorized' in str(e).lower() \
+            assert 'unauthorized' in str(e).lower() \
                 or 'bad credentials' in str(e).lower() or 'not found' in str(e).lower()
     finally:
         versioning.delete_registry_client(client)
@@ -443,3 +443,187 @@ def test_list_git_registry_flow_versions():
             pass
     finally:
         versioning.delete_registry_client(client)
+
+
+# =============================================================================
+# update_git_flow_ver Tests
+# =============================================================================
+# These tests require a GitHub PAT via GITHUB_REGISTRY_TOKEN or GH_REGISTRY_TOKEN.
+# They use fixtures from conftest.py: fix_git_reg_client, fix_deployed_git_flow
+# Test fixtures are in the nipyapi-actions repository (tests/flows/cicd-demo-flow).
+
+
+def test_update_git_flow_ver_specific_version(fix_deployed_git_flow):
+    """Test changing to a specific version by SHA."""
+    vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    initial_version = vci.version_control_information.version
+
+    # Switch to the other version
+    target = conftest.GIT_REGISTRY_VERSION_V1 \
+        if initial_version == conftest.GIT_REGISTRY_VERSION_LATEST \
+        else conftest.GIT_REGISTRY_VERSION_LATEST
+
+    result = versioning.update_git_flow_ver(fix_deployed_git_flow.pg, target)
+
+    assert result is not None
+    new_vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    assert new_vci.version_control_information.version == target
+
+
+def test_update_git_flow_ver_to_latest(fix_deployed_git_flow):
+    """Test changing to latest version (None target)."""
+    # First ensure we're not at latest
+    versioning.update_git_flow_ver(
+        fix_deployed_git_flow.pg, conftest.GIT_REGISTRY_VERSION_V1
+    )
+
+    # Now change to latest
+    result = versioning.update_git_flow_ver(fix_deployed_git_flow.pg, None)
+
+    new_vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    assert new_vci.version_control_information.version == conftest.GIT_REGISTRY_VERSION_LATEST
+
+
+def test_update_git_flow_ver_same_version_noop(fix_deployed_git_flow):
+    """Test that changing to current version is a no-op."""
+    vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    current_version = vci.version_control_information.version
+
+    result = versioning.update_git_flow_ver(fix_deployed_git_flow.pg, current_version)
+
+    # Should return VCI (not update request) indicating no-op
+    assert isinstance(result, nifi.VersionControlInformationEntity)
+
+
+def test_update_git_flow_ver_invalid_version(fix_deployed_git_flow):
+    """Test that invalid version raises ValueError."""
+    with pytest.raises(ValueError) as exc_info:
+        versioning.update_git_flow_ver(
+            fix_deployed_git_flow.pg, 'invalid-sha-not-exists'
+        )
+
+    assert 'not found' in str(exc_info.value).lower()
+    assert 'Available versions' in str(exc_info.value)
+
+
+def test_update_git_flow_ver_unversioned_pg(fix_pg):
+    """Test that unversioned process group raises ValueError."""
+    test_pg = fix_pg.generate(suffix='_git_unversioned')
+
+    with pytest.raises(ValueError) as exc_info:
+        versioning.update_git_flow_ver(test_pg)
+
+    assert 'not under version control' in str(exc_info.value).lower()
+
+
+def test_update_git_flow_ver_locally_modified_requires_revert(fix_deployed_git_flow):
+    """Test that version change requires revert when PG has local modifications.
+
+    NiFi enforces that local changes must be reverted before switching versions.
+    This test verifies that behavior and shows the proper workflow.
+    """
+    # Add a processor to create local modifications
+    proc_type = canvas.get_processor_type('GenerateFlowFile')
+    canvas.create_processor(
+        parent_pg=fix_deployed_git_flow.pg,
+        processor=proc_type,
+        location=(100, 100),
+        name=conftest.test_basename + '_local_mod'
+    )
+
+    # Verify state is LOCALLY_MODIFIED
+    vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    assert vci.version_control_information.state == 'LOCALLY_MODIFIED'
+
+    # Determine target version
+    current_version = vci.version_control_information.version
+    target = conftest.GIT_REGISTRY_VERSION_V1 \
+        if current_version == conftest.GIT_REGISTRY_VERSION_LATEST \
+        else conftest.GIT_REGISTRY_VERSION_LATEST
+
+    # Attempt to change version - should fail due to local modifications
+    with pytest.raises(ValueError) as exc_info:
+        versioning.update_git_flow_ver(fix_deployed_git_flow.pg, target)
+
+    assert 'modified' in str(exc_info.value).lower()
+    assert 'revert' in str(exc_info.value).lower()
+
+    # Now revert and try again - should work
+    # Use wait=True to ensure revert completes before proceeding
+    revert_result = versioning.revert_flow_ver(fix_deployed_git_flow.pg, wait=True)
+    assert isinstance(revert_result, nifi.VersionControlInformationEntity)
+    assert revert_result.version_control_information.state == 'UP_TO_DATE'
+
+    # Get fresh PG reference after revert completes
+    refreshed_pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
+
+    # Version change should now work
+    result = versioning.update_git_flow_ver(refreshed_pg, target)
+
+    # Verify version changed (state will be STALE if switched to older version,
+    # or UP_TO_DATE if switched to latest - both are valid post-update states)
+    final_pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
+    new_vci = versioning.get_version_info(final_pg)
+    assert new_vci.version_control_information.version == target
+    assert new_vci.version_control_information.state in ('UP_TO_DATE', 'STALE')
+
+
+# =============================================================================
+# revert_flow_ver Tests (with wait parameter)
+# =============================================================================
+
+
+def test_revert_flow_ver_wait_true(fix_deployed_git_flow):
+    """Test revert_flow_ver with wait=True returns final state."""
+    # Make a local modification
+    proc_type = canvas.get_processor_type('GenerateFlowFile')
+    canvas.create_processor(
+        parent_pg=fix_deployed_git_flow.pg,
+        processor=proc_type,
+        location=(150, 150),
+        name=conftest.test_basename + '_revert_test'
+    )
+
+    # Verify state is LOCALLY_MODIFIED
+    vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    assert vci.version_control_information.state == 'LOCALLY_MODIFIED'
+
+    # Revert with wait=True
+    result = versioning.revert_flow_ver(fix_deployed_git_flow.pg, wait=True)
+
+    # Should return VCI with UP_TO_DATE state
+    assert isinstance(result, nifi.VersionControlInformationEntity)
+    assert result.version_control_information.state == 'UP_TO_DATE'
+
+
+def test_revert_flow_ver_wait_false(fix_deployed_git_flow):
+    """Test revert_flow_ver with wait=False returns request entity immediately."""
+    # Make a local modification
+    proc_type = canvas.get_processor_type('GenerateFlowFile')
+    canvas.create_processor(
+        parent_pg=fix_deployed_git_flow.pg,
+        processor=proc_type,
+        location=(150, 150),
+        name=conftest.test_basename + '_revert_nowait'
+    )
+
+    # Revert with wait=False (default)
+    result = versioning.revert_flow_ver(fix_deployed_git_flow.pg, wait=False)
+
+    # Should return the request entity (async)
+    assert isinstance(result, nifi.VersionedFlowUpdateRequestEntity)
+    assert result.request is not None
+
+
+def test_revert_flow_ver_already_up_to_date(fix_deployed_git_flow):
+    """Test revert on flow that's already UP_TO_DATE."""
+    # Ensure flow is UP_TO_DATE
+    vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    assert vci.version_control_information.state == 'UP_TO_DATE'
+
+    # Revert should still work (effectively a no-op)
+    result = versioning.revert_flow_ver(fix_deployed_git_flow.pg, wait=True)
+
+    # Should return VCI still at UP_TO_DATE
+    assert isinstance(result, nifi.VersionControlInformationEntity)
+    assert result.version_control_information.state == 'UP_TO_DATE'

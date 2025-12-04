@@ -55,6 +55,7 @@ test_ver_export_tmpdir = test_basename + '_ver_flow_dir'
 test_ver_export_filename = test_basename + "_ver_flow_export"
 test_parameter_context_name = test_basename + "_parameter_context"
 test_ssl_controller_name = test_basename + "_ssl_controller"
+test_git_registry_client_name = test_basename + "_git_reg_client"
 
 test_user_name = test_basename + '_user'
 test_user_group_name = test_basename + '_user_group'
@@ -64,6 +65,15 @@ def remove_test_registry_client():
     _ = [nipyapi.versioning.delete_registry_client(li) for
          li in nipyapi.versioning.list_registry_clients().registries
          if test_registry_client_name in li.component.name
+         ]
+
+
+def remove_test_git_registry_clients():
+    if SKIP_TEARDOWN:
+        return None
+    _ = [nipyapi.versioning.delete_registry_client(li) for
+         li in nipyapi.versioning.list_registry_clients().registries
+         if li.component and test_git_registry_client_name in li.component.name
          ]
 
 
@@ -288,12 +298,13 @@ def remove_test_connections():
     if SKIP_TEARDOWN:
         return None
     # Funnels don't have a name, have to go by type
+    # Note: some connections may have None as name
     _ = [
         nipyapi.canvas.delete_connection(x, True)
         for x in nipyapi.canvas.list_all_connections()
         if x.destination_type == 'FUNNEL'
         or x.source_type == 'FUNNEL'
-        or test_basename in x.component.name
+        or (x.component.name and test_basename in x.component.name)
     ]
 
 
@@ -620,3 +631,168 @@ def fixture_profiles():
             # Missing many keys
         }
     }
+
+
+# =============================================================================
+# Git-based Registry Fixtures (GitHub Flow Registry Client)
+# =============================================================================
+# These fixtures require a GitHub PAT via GITHUB_REGISTRY_TOKEN or GH_REGISTRY_TOKEN
+# environment variable. They use the nipyapi-actions repository test fixtures.
+
+# Known test fixture versions in nipyapi-actions repo
+GIT_REGISTRY_VERSION_V1 = '97549b88f2e1fb1dccddef57335e94628c74060b'  # v1.0.0 tag
+GIT_REGISTRY_VERSION_LATEST = 'bd4d868c4752da9508017d9f7e4ecf328fec5617'
+
+
+@pytest.fixture(name='fix_git_reg_client', scope='function')
+def fixture_git_registry_client(request):
+    """Create a GitHub registry client for testing with real credentials.
+
+    Requires GITHUB_REGISTRY_TOKEN or GH_REGISTRY_TOKEN environment variable.
+    Uses the nipyapi-actions repository test flows in tests/ path.
+    """
+    token = os.environ.get('GITHUB_REGISTRY_TOKEN') or os.environ.get('GH_REGISTRY_TOKEN')
+    if not token:
+        pytest.skip("GITHUB_REGISTRY_TOKEN not set - skipping git registry tests")
+
+    class Dummy:
+        def __init__(self):
+            self._client = None
+
+        def generate(self, suffix=''):
+            # Clean up any existing client with same name
+            client_name = test_git_registry_client_name + suffix
+            existing = nipyapi.versioning.list_registry_clients().registries
+            for client in existing:
+                if client.component and client_name in client.component.name:
+                    nipyapi.versioning.delete_registry_client(client)
+
+            # Create client pointing to nipyapi-actions test flows
+            self._client = nipyapi.versioning.create_registry_client(
+                name=client_name,
+                reg_type='org.apache.nifi.github.GitHubFlowRegistryClient',
+                description='Test client for git registry functions',
+                properties={
+                    'GitHub API URL': 'https://api.github.com/',
+                    'Repository Owner': 'Chaffelson',
+                    'Repository Name': 'nipyapi-actions',
+                    'Repository Path': 'tests',
+                    'Authentication Type': 'PERSONAL_ACCESS_TOKEN',
+                    'Personal Access Token': token,
+                    'Default Branch': 'main'
+                }
+            )
+            return self._client
+
+    request.addfinalizer(remove_test_git_registry_clients)
+    return Dummy()
+
+
+@pytest.fixture(name='fix_deployed_git_flow_shared', scope='module')
+def fixture_deployed_git_flow_shared(request):
+    """Module-scoped fixture that deploys a flow once for all tests.
+
+    This is the actual deployment - expensive operation done once per module.
+    """
+    token = os.environ.get('GITHUB_REGISTRY_TOKEN') or os.environ.get('GH_REGISTRY_TOKEN')
+    if not token:
+        pytest.skip("GITHUB_REGISTRY_TOKEN not set - skipping git registry tests")
+
+    FixtureDeployedGitFlow = namedtuple(
+        'FixtureDeployedGitFlow', ('client', 'pg', 'bucket_id', 'flow_id')
+    )
+
+    # Create registry client
+    client_name = test_git_registry_client_name + '_shared'
+    existing = nipyapi.versioning.list_registry_clients().registries
+    for client in existing:
+        if client.component and client_name in client.component.name:
+            nipyapi.versioning.delete_registry_client(client)
+
+    client = nipyapi.versioning.create_registry_client(
+        name=client_name,
+        reg_type='org.apache.nifi.github.GitHubFlowRegistryClient',
+        description='Shared test client for git registry functions',
+        properties={
+            'GitHub API URL': 'https://api.github.com/',
+            'Repository Owner': 'Chaffelson',
+            'Repository Name': 'nipyapi-actions',
+            'Repository Path': 'tests',
+            'Authentication Type': 'PERSONAL_ACCESS_TOKEN',
+            'Personal Access Token': token,
+            'Default Branch': 'main'
+        }
+    )
+
+    root_id = nipyapi.canvas.get_root_pg_id()
+    pg = nipyapi.versioning.deploy_git_registry_flow(
+        registry_client_id=client.id,
+        bucket_id='flows',
+        flow_id='cicd-demo-flow',
+        parent_id=root_id,
+        location=(500, 500),
+        version=None  # Latest
+    )
+
+    def cleanup():
+        if SKIP_TEARDOWN:
+            return
+        try:
+            nipyapi.canvas.schedule_process_group(pg.id, scheduled=False)
+        except Exception:
+            pass
+        try:
+            nipyapi.canvas.delete_process_group(pg, force=True)
+        except Exception:
+            pass
+        try:
+            nipyapi.versioning.delete_registry_client(client)
+        except Exception:
+            pass
+
+    request.addfinalizer(cleanup)
+    return FixtureDeployedGitFlow(
+        client=client,
+        pg=pg,
+        bucket_id='flows',
+        flow_id='cicd-demo-flow'
+    )
+
+
+@pytest.fixture(name='fix_deployed_git_flow', scope='function')
+def fixture_deployed_git_flow(request, fix_deployed_git_flow_shared):
+    """Function-scoped fixture that provides access to the shared deployed flow.
+
+    Restores the flow to a clean state (UP_TO_DATE at latest version) after
+    each test, avoiding the need to redeploy for each test.
+    """
+    # Yield the shared fixture
+    yield fix_deployed_git_flow_shared
+
+    # Restore state after test
+    if SKIP_TEARDOWN:
+        return
+
+    try:
+        pg = nipyapi.canvas.get_process_group(fix_deployed_git_flow_shared.pg.id, 'id')
+        if not pg:
+            return  # PG was deleted, nothing to restore
+
+        vci = nipyapi.versioning.get_version_info(pg)
+        if not vci or not vci.version_control_information:
+            return  # Not under version control
+
+        state = vci.version_control_information.state
+        version = vci.version_control_information.version
+
+        # If locally modified, revert first
+        if state == 'LOCALLY_MODIFIED':
+            nipyapi.versioning.revert_flow_ver(pg, wait=True)
+            pg = nipyapi.canvas.get_process_group(pg.id, 'id')
+
+        # If not at latest, change to latest
+        if version != GIT_REGISTRY_VERSION_LATEST:
+            nipyapi.versioning.update_git_flow_ver(pg, GIT_REGISTRY_VERSION_LATEST)
+
+    except Exception as e:
+        log.warning("Failed to restore git flow state after test: %s", e)

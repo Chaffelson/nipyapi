@@ -671,6 +671,128 @@ def deploy_git_registry_flow(  # pylint: disable=too-many-arguments,too-many-pos
         )
 
 
+def update_git_flow_ver(process_group, target_version=None, branch=None):
+    """
+    Changes a Git-registry versioned flow to the specified version.
+
+    This function works with Git-based Flow Registry Clients (GitHub, GitLab, etc.)
+    where versions are identified by commit SHAs rather than integer version numbers.
+
+    Args:
+        process_group (ProcessGroupEntity): ProcessGroupEntity under Git-based
+            version control to change.
+        target_version (str, optional): The commit SHA to change to. If None,
+            changes to the latest available version.
+        branch (str, optional): The branch to use when finding versions. If None,
+            uses the branch from the current version control information.
+
+    Returns:
+        VersionedFlowUpdateRequestEntity: The completed update request with
+            status information.
+
+    Raises:
+        ValueError: If the process group is not under version control, if the
+            target version is not found, or if the update fails.
+
+    Example:
+        >>> pg = nipyapi.canvas.get_process_group('my-flow', 'name')
+        >>> # Change to a specific commit
+        >>> result = nipyapi.versioning.update_git_flow_ver(pg, 'abc123def456')
+        >>> # Change to latest version
+        >>> result = nipyapi.versioning.update_git_flow_ver(pg)
+    """
+
+    def _running_update_flow_version():
+        """Tests for completion of the version update operation."""
+        status = nipyapi.nifi.VersionsApi().get_update_request(u_init.request.request_id)
+        if not status.request.complete:
+            return False
+        if status.request.failure_reason is None:
+            return True
+        raise ValueError(
+            "Flow Version Update did not complete successfully. "
+            "Error: {0}".format(status.request.failure_reason)
+        )
+
+    with nipyapi.utils.rest_exceptions():
+        # Get current version control info
+        vci = get_version_info(process_group)
+        if vci is None or vci.version_control_information is None:
+            raise ValueError(
+                "Process group is not under version control. "
+                "Cannot change version of an unversioned process group."
+            )
+
+        current_vci = vci.version_control_information
+
+        # Determine branch to use
+        use_branch = branch if branch is not None else current_vci.branch
+
+        # Get available versions from the git registry
+        flow_versions = list_git_registry_flow_versions(
+            current_vci.registry_id, current_vci.bucket_id, current_vci.flow_id, branch=use_branch
+        )
+
+        if not flow_versions or not flow_versions.versioned_flow_snapshot_metadata_set:
+            raise ValueError(
+                f"Could not find any versions for flow '{current_vci.flow_id}' "
+                f"in bucket '{current_vci.bucket_id}'"
+            )
+
+        # Select target version
+        if target_version is None:
+            # Get latest version - sort by timestamp descending
+            sorted_versions = sorted(
+                flow_versions.versioned_flow_snapshot_metadata_set,
+                key=lambda x: x.versioned_flow_snapshot_metadata.timestamp or 0,
+                reverse=True,
+            )
+            ver = sorted_versions[0].versioned_flow_snapshot_metadata.version
+        else:
+            # Find specific version by SHA
+            matches = [
+                v
+                for v in flow_versions.versioned_flow_snapshot_metadata_set
+                if str(v.versioned_flow_snapshot_metadata.version) == str(target_version)
+            ]
+            if not matches:
+                available = [
+                    str(v.versioned_flow_snapshot_metadata.version)[:12]
+                    for v in flow_versions.versioned_flow_snapshot_metadata_set
+                ]
+                raise ValueError(
+                    f"Version '{target_version}' not found. "
+                    f"Available versions: {', '.join(available[:5])}"
+                )
+            ver = target_version
+
+        # Check if already at target version
+        if current_vci.version == ver:
+            # Return a mock response indicating no change needed
+            # We still return the current state for consistency
+            return nipyapi.nifi.VersionsApi().get_version_information(process_group.id)
+
+        # Initiate the version update
+        u_init = nipyapi.nifi.VersionsApi().initiate_version_control_update(
+            id=process_group.id,
+            body=nipyapi.nifi.VersionControlInformationEntity(
+                process_group_revision=vci.process_group_revision,
+                version_control_information=VciDTO(
+                    bucket_id=current_vci.bucket_id,
+                    flow_id=current_vci.flow_id,
+                    group_id=current_vci.group_id,
+                    registry_id=current_vci.registry_id,
+                    version=ver,
+                    branch=use_branch,
+                ),
+            ),
+        )
+
+        # Wait for completion
+        nipyapi.utils.wait_to_complete(_running_update_flow_version)
+        return nipyapi.nifi.VersionsApi().get_update_request(u_init.request.request_id)
+
+
 def list_registry_buckets():
     """
     Lists all available Buckets in the NiFi Registry
@@ -914,23 +1036,54 @@ def stop_flow_ver(process_group, refresh=True):
         )
 
 
-def revert_flow_ver(process_group):
+def revert_flow_ver(process_group, wait=False):
     """
     Attempts to roll back uncommitted changes to a Process Group to the last
-    committed version
+    committed version.
 
     Args:
         process_group (ProcessGroupEntity): the ProcessGroup to work with
+        wait (bool): If True, waits for the revert operation to complete and
+            returns the final VersionControlInformationEntity. If False
+            (default), returns immediately with the request entity for
+            backward compatibility.
 
     Returns:
-        (VersionedFlowUpdateRequestEntity)
+        If wait=False: (VersionedFlowUpdateRequestEntity) - the initiated request
+        If wait=True: (VersionControlInformationEntity) - the final state after
+            revert completes
+
+    Raises:
+        ValueError: If wait=True and the revert operation fails or times out
     """
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
+
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.VersionsApi().initiate_revert_flow_version(
+        revert_request = nipyapi.nifi.VersionsApi().initiate_revert_flow_version(
             id=process_group.id,
             body=nipyapi.nifi.VersionsApi().get_version_information(process_group.id),
         )
+
+        if not wait:
+            return revert_request
+
+        # Wait for revert to complete by monitoring version control state
+        # NiFi cleans up revert requests quickly, so we poll state instead
+        def _revert_complete():
+            vci = nipyapi.nifi.VersionsApi().get_version_information(process_group.id)
+            # Revert is complete when state is no longer LOCALLY_MODIFIED
+            # and not in a transitional state
+            state = vci.version_control_information.state
+            if state == "LOCALLY_MODIFIED":
+                return False  # Still reverting or not started
+            if state in ("UP_TO_DATE", "STALE", "SYNC_FAILURE"):
+                return True  # Revert completed (success or failure)
+            return False  # Unknown state, keep waiting
+
+        nipyapi.utils.wait_to_complete(_revert_complete)
+
+        # Return the final version control state
+        return nipyapi.nifi.VersionsApi().get_version_information(process_group.id)
 
 
 def list_flow_versions(bucket_id, flow_id, registry_id=None, service="registry"):
