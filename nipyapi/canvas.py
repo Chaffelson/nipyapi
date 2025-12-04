@@ -735,35 +735,79 @@ def update_process_group(pg, update, refresh=True):
         )
 
 
-def update_processor(processor, update, refresh=True):
+def update_processor(processor, update=None, name=None, refresh=True, auto_stop=False):
     """
-    Updates configuration parameters for a given Processor.
+    Updates a Processor's configuration and/or name.
 
-    An example update would be:
-    nifi.ProcessorConfigDTO(scheduling_period='3s')
+    For configuration changes, pass a ProcessorConfigDTO:
+        nifi.ProcessorConfigDTO(scheduling_period='3s')
+
+    For renaming, pass the new name. Both can be provided together.
+
+    Processors must be stopped for certain updates (including renaming).
+    If auto_stop is True (default), the processor will be stopped before
+    updating and restarted afterward if it was originally running.
 
     Args:
         processor (ProcessorEntity): The Processor to target for update
-        update (ProcessorConfigDTO): The new configuration parameters
+        update (ProcessorConfigDTO, optional): Configuration parameters to update
+        name (str, optional): New name for the processor
         refresh (bool): Whether to refresh the Processor object state
-          before applying the update
+            before applying the update. Default True.
+        auto_stop (bool): If True, automatically stop the processor before
+            updating and restart afterward if it was running. Default False.
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessorEntity`: The updated ProcessorEntity
 
+    Raises:
+        ValueError: If neither update nor name is provided, or if update is not
+            a ProcessorConfigDTO, or if processor is running and auto_stop=False.
     """
-    if not isinstance(update, nipyapi.nifi.ProcessorConfigDTO):
+    if update is None and name is None:
+        raise ValueError("Must provide 'update' (ProcessorConfigDTO) and/or 'name'")
+    if update is not None and not isinstance(update, nipyapi.nifi.ProcessorConfigDTO):
         raise ValueError("update param is not an instance of nifi.ProcessorConfigDTO")
+
     with nipyapi.utils.rest_exceptions():
         if refresh:
             processor = get_processor(processor.id, "id")
-        return nipyapi.nifi.ProcessorsApi().update_processor(
+
+        was_running = processor.component.state == "RUNNING"
+
+        if was_running and not auto_stop:
+            raise ValueError(
+                f"Processor '{processor.component.name}' is running. "
+                "Stop it first or set auto_stop=True."
+            )
+
+        # Stop if running
+        if was_running:
+            schedule_processor(processor, scheduled=False, refresh=True)
+            processor = get_processor(processor.id, "id")
+
+        # Build the update DTO with whatever fields are provided
+        dto_kwargs = {"id": processor.component.id}
+        if name is not None:
+            dto_kwargs["name"] = name
+        if update is not None:
+            dto_kwargs["config"] = update
+
+        result = nipyapi.nifi.ProcessorsApi().update_processor(
             id=processor.id,
             body=nipyapi.nifi.ProcessorEntity(
-                component=nipyapi.nifi.ProcessorDTO(config=update, id=processor.id),
+                id=processor.id,
                 revision=processor.revision,
+                component=nipyapi.nifi.ProcessorDTO(**dto_kwargs),
             ),
         )
+
+        # Restart if it was running
+        if was_running:
+            schedule_processor(result, scheduled=True, refresh=True)
+            result = get_processor(result.id, "id")
+
+        return result
 
 
 def get_variable_registry(process_group, ancestors=True):

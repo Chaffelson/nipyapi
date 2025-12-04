@@ -617,7 +617,7 @@ def test_revert_flow_ver_wait_false(fix_deployed_git_flow):
 
 def test_revert_flow_ver_already_up_to_date(fix_deployed_git_flow):
     """Test revert on flow that's already UP_TO_DATE."""
-    # Ensure flow is UP_TO_DATE
+    # Ensure flow is UP_TO_DATE (function refreshes revision internally)
     vci = versioning.get_version_info(fix_deployed_git_flow.pg)
     assert vci.version_control_information.state == 'UP_TO_DATE'
 

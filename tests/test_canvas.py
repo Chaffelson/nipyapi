@@ -287,14 +287,39 @@ def test_delete_processor(fix_proc):
 
 
 def test_update_processor(fix_proc):
-    # TODO: Add way more tests to this
+    """Test update_processor with config, name, and both."""
     f_p1 = fix_proc.generate()
-    update = nifi.ProcessorConfigDTO(
-        scheduling_period='3s'
-    )
-    r1 = canvas.update_processor(f_p1, update)
+    original_name = f_p1.component.name
+
+    # Test config update (processor is stopped, no auto_stop needed)
+    update = nifi.ProcessorConfigDTO(scheduling_period='3s')
+    r1 = canvas.update_processor(f_p1, update=update)
+    assert r1 is not None
+
+    # Test invalid update type
     with pytest.raises(ValueError, match='update param is not an instance'):
-        _ = canvas.update_processor(f_p1, 'FakeNews')
+        canvas.update_processor(f_p1, update='FakeNews')
+
+    # Test rename (processor is stopped, no auto_stop needed)
+    new_name = original_name + '_RENAMED'
+    r2 = canvas.update_processor(r1, name=new_name)
+    assert r2.component.name == new_name
+
+    # Test rename back
+    r3 = canvas.update_processor(r2, name=original_name)
+    assert r3.component.name == original_name
+
+    # Test both config and name together
+    update2 = nifi.ProcessorConfigDTO(scheduling_period='5s')
+    r4 = canvas.update_processor(r3, update=update2, name=original_name + '_BOTH')
+    assert r4.component.name == original_name + '_BOTH'
+
+    # Restore name
+    canvas.update_processor(r4, name=original_name)
+
+    # Test error when neither update nor name provided
+    with pytest.raises(ValueError, match="Must provide"):
+        canvas.update_processor(f_p1)
 
 
 def test_purge_connection():

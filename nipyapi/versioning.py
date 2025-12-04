@@ -1059,9 +1059,15 @@ def revert_flow_ver(process_group, wait=False):
     assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
 
     with nipyapi.utils.rest_exceptions():
+        # Refresh version control info to get current revision
+        vci = nipyapi.nifi.VersionsApi().get_version_information(process_group.id)
+        # Also get fresh process group revision
+        fresh_pg = nipyapi.canvas.get_process_group(process_group.id, "id")
+        vci.process_group_revision = fresh_pg.revision
+
         revert_request = nipyapi.nifi.VersionsApi().initiate_revert_flow_version(
             id=process_group.id,
-            body=nipyapi.nifi.VersionsApi().get_version_information(process_group.id),
+            body=vci,
         )
 
         if not wait:
