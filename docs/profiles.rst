@@ -37,6 +37,8 @@ Quick Start
 - ``secure-ldap`` - LDAP authentication over TLS
 - ``secure-mtls`` - Mutual TLS certificate authentication
 - ``secure-oidc`` - OpenID Connect (OAuth2) authentication
+- ``bearer-token`` - Pre-obtained JWT bearer token
+- ``env`` - Pure environment variable configuration (no profiles file required)
 
 Why Use Profiles?
 =================
@@ -87,6 +89,7 @@ Default profiles are defined in ``examples/profiles.yml`` (JSON is also supporte
       # Authentication credentials
       nifi_user: "einstein"
       nifi_pass: "password1234"
+      nifi_bearer_token: null
       registry_user: "einstein"
       registry_pass: "password1234"
 
@@ -132,6 +135,7 @@ Core connection settings:
 
 Authentication credentials:
   - ``nifi_user`` / ``nifi_pass`` - NiFi Basic authentication credentials
+  - ``nifi_bearer_token`` - Pre-obtained JWT bearer token for NiFi
   - ``registry_user`` / ``registry_pass`` - Registry Basic authentication credentials
 
 Shared SSL/TLS certificates (simple PKI - convenience options where both NiFi and Registry share configuration):
@@ -154,7 +158,7 @@ Advanced settings:
   - ``nifi_proxy_identity`` - Identity for NiFi → Registry proxied requests
 
 Authentication method control:
-  - ``nifi_auth_method`` - Explicit authentication method for NiFi (overrides auto-detection). Valid values: ``oidc``, ``mtls``, ``basic``
+  - ``nifi_auth_method`` - Explicit authentication method for NiFi (overrides auto-detection). Valid values: ``bearer``, ``oidc``, ``mtls``, ``basic``
   - ``registry_auth_method`` - Explicit authentication method for Registry (overrides auto-detection). Valid values: ``mtls``, ``basic``, ``unauthenticated``
 
 OIDC authentication:
@@ -169,7 +173,7 @@ Profile Switching Behavior
 1. **Explicit method specification** (highest priority): If ``nifi_auth_method`` or ``registry_auth_method`` are set, that method is used regardless of other available credentials.
 2. **Auto-detection** (fallback): When no explicit method is specified, the system auto-detects based on available credentials. Detection order varies by service:
 
-   - **NiFi**: **1) OIDC** (``oidc_token_endpoint``), **2) mTLS** (``client_cert`` + ``client_key``), **3) Basic Auth** (``nifi_user`` + ``nifi_pass``)
+   - **NiFi**: **1) Bearer Token** (``nifi_bearer_token``), **2) OIDC** (``oidc_token_endpoint``), **3) mTLS** (``client_cert`` + ``client_key``), **4) Basic Auth** (``nifi_user`` + ``nifi_pass``)
    - **Registry**: **1) mTLS** (``client_cert`` + ``client_key``), **2) Basic Auth** (``registry_user`` + ``registry_pass``), **3) Unauthenticated** (no credentials required)
 
 For predictable behavior, either use explicit method specification or design profiles with only one authentication method per environment.
@@ -317,6 +321,37 @@ OpenID Connect (OAuth2) authentication:
 
 **Use case**: Modern OAuth2 integration, external identity providers
 
+bearer-token (Simplest Configuration)
+--------------------------------------
+
+Pre-obtained JWT bearer token authentication - the simplest possible configuration:
+
+.. code-block:: python
+
+    nipyapi.profiles.switch('bearer-token')
+
+**Authentication method**: Bearer Token (detected by presence of ``nifi_bearer_token``)
+
+**Required properties**:
+  - ``nifi_bearer_token: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."`` (your JWT token)
+
+**Additional properties used**:
+  - ``nifi_url: https://nifi.example.com/nifi-api``
+  - ``nifi_verify_ssl: true`` (or false for self-signed certificates)
+
+**Use case**: CI/CD pipelines, GitHub Actions, Kubernetes jobs, or any scenario where you have a pre-obtained JWT token from your identity provider. This is the simplest authentication method - just a URL and a token.
+
+**Example using environment variables only**:
+
+.. code-block:: shell
+
+    # Set environment variables
+    export NIFI_API_ENDPOINT=https://nifi.production.example.com/nifi-api
+    export NIFI_BEARER_TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
+
+    # Use the 'env' profile to load from environment
+    python -c "import nipyapi; nipyapi.profiles.switch('env')"
+
 cli-properties
 --------------
 
@@ -341,6 +376,34 @@ NiFi CLI properties file integration with OIDC Client Credentials flow:
   - ``nifi_verify_ssl: false`` (development setting)
 
 **Use case**: Integration with existing NiFi CLI configurations, client credentials OIDC
+
+env (Environment-Only Configuration)
+------------------------------------
+
+Pure environment variable configuration without requiring a profiles file:
+
+.. code-block:: python
+
+    nipyapi.profiles.switch('env')
+
+**Authentication method**: Auto-detected from environment variables
+
+**Required environment variables** (minimum for NiFi connection):
+  - ``NIFI_API_ENDPOINT`` - NiFi API URL
+  - ``NIFI_USERNAME`` - NiFi username (for basic auth)
+  - ``NIFI_PASSWORD`` - NiFi password (for basic auth)
+
+**Optional environment variables**:
+  - ``REGISTRY_API_ENDPOINT`` - Registry API URL
+  - ``REGISTRY_USERNAME`` / ``REGISTRY_PASSWORD`` - Registry credentials
+  - ``TLS_CA_CERT_PATH`` - CA certificate path
+  - ``MTLS_CLIENT_CERT`` / ``MTLS_CLIENT_KEY`` - mTLS certificates
+  - ``OIDC_TOKEN_ENDPOINT`` / ``OIDC_CLIENT_ID`` / ``OIDC_CLIENT_SECRET`` - OIDC configuration
+  - All other environment variables listed in the Environment Variable Overrides section
+
+**Use case**: CI/CD pipelines, containerized deployments, GitHub Actions, any environment where configuration is injected via environment variables rather than files.
+
+**Key benefit**: No profiles file needed. The ``env`` profile starts with all-null defaults and populates values entirely from environment variables using the standard ``ENV_VAR_MAPPINGS``. This keeps secrets out of files and allows dynamic configuration in deployment environments.
 
 Environment Variable Overrides
 ===============================
@@ -381,6 +444,7 @@ URLs and credentials:
   - ``REGISTRY_API_ENDPOINT`` → ``registry_url``
   - ``NIFI_USERNAME`` → ``nifi_user``
   - ``NIFI_PASSWORD`` → ``nifi_pass``
+  - ``NIFI_BEARER_TOKEN`` → ``nifi_bearer_token``
   - ``REGISTRY_USERNAME`` → ``registry_user``
   - ``REGISTRY_PASSWORD`` → ``registry_pass``
 
@@ -503,6 +567,12 @@ You don't have to specify values that are otherwise null unless required for tha
 **Alternative: Direct Client Configuration**
 
 You don't have to use profiles. You can also directly configure the NiPyAPI client using ``nipyapi.config`` and ``nipyapi.utils.set_endpoint()`` as shown in earlier examples.
+
+GitHub Flow Registry Client
+===========================
+
+NiFi 2.x supports versioning flows directly to GitHub repositories using the GitHub Flow Registry Client.
+For CI/CD workflows with GitHub Actions, see the `nipyapi-actions <https://github.com/Chaffelson/nipyapi-actions>`_ repository which provides reusable actions for deploying NiFi flows from Git repositories.
 
 Integration with Examples
 =========================

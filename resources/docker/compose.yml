@@ -224,6 +224,32 @@ services:
       - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
     networks: [nipynet]
 
+  # GitHub CI/CD profile - NiFi only (no Registry, uses GitHub as flow registry)
+  nifi-github:
+    image: apache/nifi:${NIFI_VERSION}
+    container_name: nifi-github
+    hostname: nifi-github
+    profiles: ["github-cicd"]
+    ports:
+      - "9447:8443"
+      - "8080:8080"  # For testing HTTP listener flows (e.g., cicd-demo-flow)
+    volumes:
+      - ../certs:/certs:ro
+    env_file:
+      - ../certs/nifi.env
+    environment:
+      - SINGLE_USER_CREDENTIALS_USERNAME=einstein
+      - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
+      - NIFI_WEB_PROXY_HOST=localhost:9447,localhost:8443,host.docker.internal:9447
+      # Provide TLS keystore/truststore with SANs for act testing
+      - KEYSTORE_PATH=/certs/nifi/keystore.p12
+      - KEYSTORE_TYPE=PKCS12
+      - KEYSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+      - TRUSTSTORE_PATH=/certs/truststore/truststore.p12
+      - TRUSTSTORE_TYPE=PKCS12
+      - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
+    networks: [nipynet]
+
 networks:
   nipynet:
     driver: bridge

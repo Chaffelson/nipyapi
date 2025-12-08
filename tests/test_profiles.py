@@ -440,6 +440,50 @@ empty-profile:
         finally:
             os.unlink(yaml_path)
 
+    def test_switch_env_profile(self):
+        """Test that 'env' profile loads configuration purely from environment variables.
+
+        The 'env' profile is a special profile that does not require a profiles file.
+        All configuration comes from environment variables, making it ideal for CI/CD
+        pipelines and containerized deployments.
+        """
+        # Store original environment to restore later
+        original_env = {}
+        env_vars_to_set = {
+            'NIFI_API_ENDPOINT': 'https://test-nifi.example.com/nifi-api',
+            'NIFI_USERNAME': 'test_user',
+            'NIFI_PASSWORD': 'test_password',
+        }
+
+        try:
+            # Save original values and set test values
+            for key, value in env_vars_to_set.items():
+                original_env[key] = os.environ.get(key)
+                os.environ[key] = value
+
+            # Test resolve_profile_config with 'env' profile
+            config = nipyapi.profiles.resolve_profile_config('env')
+
+            # Should pick up values from environment variables
+            assert config['nifi_url'] == 'https://test-nifi.example.com/nifi-api'
+            assert config['nifi_user'] == 'test_user'
+            assert config['nifi_pass'] == 'test_password'
+            assert config['profile'] == 'env'
+
+            # Should not require a profiles file (no file lookup error)
+            # The fact we got here without ValueError proves it works
+
+        finally:
+            # Restore original environment
+            for key in env_vars_to_set:
+                if original_env[key] is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = original_env[key]
+
+            # CRITICAL: Re-authenticate to restore session state
+            nipyapi.profiles.switch(conftest.ACTIVE_PROFILE, login=True)
+
 
 class TestAuthMethodDefinitions:
     """Test authentication method data structures."""

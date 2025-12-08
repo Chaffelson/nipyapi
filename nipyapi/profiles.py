@@ -16,6 +16,7 @@ DEFAULT_PROFILE_CONFIG = {
     "registry_internal_url": None,
     "nifi_user": None,
     "nifi_pass": None,
+    "nifi_bearer_token": None,
     "registry_user": None,
     "registry_pass": None,
     "ca_path": None,
@@ -51,6 +52,7 @@ ENV_VAR_MAPPINGS = [
     ("registry_url", "REGISTRY_API_ENDPOINT"),
     ("nifi_user", "NIFI_USERNAME"),
     ("nifi_pass", "NIFI_PASSWORD"),
+    ("nifi_bearer_token", "NIFI_BEARER_TOKEN"),
     ("registry_user", "REGISTRY_USERNAME"),
     ("registry_pass", "REGISTRY_PASSWORD"),
     # Basic certificate paths and security config
@@ -109,6 +111,11 @@ PATH_RESOLUTION_KEYS = [
 
 # Authentication method definitions - data-driven approach for extensibility
 NIFI_AUTH_METHODS = {
+    "bearer": {
+        "detection_keys": ["nifi_bearer_token"],
+        "required_keys": ["nifi_bearer_token"],
+        "optional_keys": [],
+    },
     "oidc": {
         "detection_keys": ["oidc_token_endpoint"],
         "required_keys": [
@@ -319,26 +326,39 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
     Supports both simple shared certificates and complex per-service PKI configurations.
     Accepts both YAML and JSON profile files.
 
+    Special "env" profile: When profile_name is "env", configuration is loaded entirely
+    from environment variables without requiring a profiles file. This is useful for
+    CI/CD pipelines and containerized deployments where all configuration comes from
+    the environment.
+
     Args:
-        profile_name (str): Name of profile to resolve
+        profile_name (str): Name of profile to resolve. Use "env" for pure environment
+                           variable configuration without a profiles file.
         profiles_file_path (str, optional): Path to profiles YAML or JSON file.
                                           Default resolution handled by
-                                          load_profiles_from_file()
+                                          load_profiles_from_file(). Ignored when
+                                          profile_name is "env".
 
     Returns:
         dict: Fully resolved configuration with all paths and overrides applied
     """
-    # Load profiles from file (handles default resolution)
-    all_profiles = load_profiles_from_file(profiles_file_path)
+    # Special "env" profile - pure environment variable configuration
+    # No profiles file needed; all values come from ENV_VAR_MAPPINGS
+    if profile_name == "env":
+        config = DEFAULT_PROFILE_CONFIG.copy()
+        log.debug("Using 'env' profile - configuration from environment variables only")
+    else:
+        # Load profiles from file (handles default resolution)
+        all_profiles = load_profiles_from_file(profiles_file_path)
 
-    if profile_name not in all_profiles:
-        raise ValueError(
-            f"Profile '{profile_name}' not found. Available: {list(all_profiles.keys())}"
-        )
+        if profile_name not in all_profiles:
+            raise ValueError(
+                f"Profile '{profile_name}' not found. Available: {list(all_profiles.keys())}"
+            )
 
-    # Start with defaults, then apply profile values
-    config = DEFAULT_PROFILE_CONFIG.copy()
-    config.update(all_profiles[profile_name])
+        # Start with defaults, then apply profile values
+        config = DEFAULT_PROFILE_CONFIG.copy()
+        config.update(all_profiles[profile_name])
 
     # Load and merge NiFi CLI properties file if specified
     # (Environment variable can override which file to use)
@@ -414,11 +434,13 @@ def switch(profile_name, profiles_file=None, login=True):
     - Basic: Requires nifi_user/nifi_pass for NiFi, registry_user/registry_pass for Registry
 
     Args:
-        profile_name (str): Name of the profile to switch to
+        profile_name (str): Name of the profile to switch to. Use "env" for pure
+                           environment variable configuration without a profiles file.
         profiles_file (str, optional): Path to profiles file. Resolution order:
                                       1. Explicit profiles_file parameter
                                       2. NIPYAPI_PROFILES_FILE environment variable
                                       3. nipyapi.config.default_profiles_file
+                                      Ignored when profile_name is "env".
         login (bool, optional): Whether to attempt authentication. Defaults to True.
                                If False, configures SSL/endpoints but skips login attempts.
                                Useful for readiness checks where you don't want to
@@ -440,6 +462,10 @@ def switch(profile_name, profiles_file=None, login=True):
         >>> nipyapi.profiles.switch('secure-mtls')  # Uses mTLS auth (client_cert/client_key)
         >>> nipyapi.profiles.switch('secure-oidc')  # Uses OIDC auth (oidc_* params)
         >>> nipyapi.profiles.switch('my-custom')    # Uses whatever auth method is configured
+        >>>
+        >>> # Pure environment variable configuration (no profiles file needed)
+        >>> # Set NIFI_API_ENDPOINT, NIFI_USERNAME, NIFI_PASSWORD in environment
+        >>> nipyapi.profiles.switch('env')
         >>>
         >>> # Custom profiles file
         >>> nipyapi.profiles.switch('production',
@@ -468,12 +494,16 @@ def switch(profile_name, profiles_file=None, login=True):
         )
 
     # 3. Clean teardown of existing connections (best effort)
-    if connect_to_nifi and connect_to_registry:
-        security.reset_service_connections()  # Reset both services
-    elif connect_to_nifi:
-        security.reset_service_connections("nifi")  # Reset only NiFi
-    elif connect_to_registry:
-        security.reset_service_connections("registry")  # Reset only Registry
+    # Always reset both services to ensure deterministic state on profile switch.
+    # This prevents stale configuration from previous profiles affecting the new one.
+    security.reset_service_connections()
+
+    # Clear hosts for services not in this profile to prevent code from
+    # assuming they're available based on leftover default values
+    if not connect_to_registry:
+        nipy_config.registry_config.host = None
+    if not connect_to_nifi:
+        nipy_config.nifi_config.host = None
 
     # 4. Apply SSL configuration
     # Apply CA certificate first if provided
@@ -531,6 +561,16 @@ def switch(profile_name, profiles_file=None, login=True):
                 log.debug("OIDC authentication completed")
             else:
                 log.debug("OIDC configuration completed (no login attempted)")
+        elif nifi_auth_method == "bearer":
+            log.debug("Configuring bearer token authentication for NiFi...")
+            if login:
+                security.set_service_auth_token(
+                    token=nifi_auth_params["nifi_bearer_token"],
+                    service="nifi",
+                )
+                log.debug("Bearer token authentication completed")
+            else:
+                log.debug("Bearer token configuration completed (no login attempted)")
         elif nifi_auth_method == "mtls":
             log.debug("Configuring mTLS authentication for NiFi...")
             # Apply client certificates for mTLS
@@ -607,6 +647,15 @@ def switch(profile_name, profiles_file=None, login=True):
     # Note: Bootstrap security policies are NOT handled here as they change server state.
     # Bootstrap should remain in conftest.py, sandbox.py, and other setup scripts.
     # This function only handles CLIENT-side connection configuration.
+
+    # 7. Apply GitHub Flow Registry Client configuration if present
+    # These are used for CI/CD workflows with GitHub as a flow registry
+    if config.get("github_registry_token"):
+        nipy_config.github_registry_token = config["github_registry_token"]
+    if config.get("github_registry_repo"):
+        nipy_config.github_registry_repo = config["github_registry_repo"]
+    if config.get("github_registry_branch"):
+        nipy_config.github_registry_branch = config["github_registry_branch"]
 
     log.debug("Profile switch completed successfully: %s", profile_name)
 

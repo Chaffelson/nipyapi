@@ -69,6 +69,13 @@ registered_filters = {
     "ControllerServiceEntity": {"id": ["id"], "name": ["component", "name"]},
     "ParameterContextEntity": {"id": ["id"], "name": ["component", "name"]},
     "ReportingTaskEntity": {"id": ["id"], "name": ["component", "name"]},
+    # Git-based Flow Registry types (GitHub, GitLab, Bitbucket, Azure DevOps)
+    "FlowRegistryBucketEntity": {"id": ["id"], "name": ["bucket", "name"]},
+    "VersionedFlowEntity": {
+        "flow_id": ["versioned_flow", "flow_id"],
+        "flow_name": ["versioned_flow", "flow_name"],
+    },
+    "VersionedFlowDTO": {"flow_id": ["flow_id"], "flow_name": ["flow_name"]},
 }
 
 

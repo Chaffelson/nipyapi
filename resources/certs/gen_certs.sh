@@ -14,7 +14,8 @@ set -euo pipefail
 # Keystore/truststore type: PKCS12
 # Default password: changeit (override with CERT_PASSWORD env)
 #
-# SANs include: localhost, 127.0.0.1, nifi-single, nifi-ldap, nifi-mtls, registry-single, registry-ldap, registry-mtls
+# SANs include: localhost, 127.0.0.1, nifi-single, nifi-ldap, nifi-mtls, nifi-github, nifi-github.localdomain,
+#               registry-single, registry-ldap, registry-mtls, host.docker.internal
 #
 # Requirements: openssl
 
@@ -59,7 +60,8 @@ create_server() {
   local cn="$1"; shift
   mkdir -p "$name"
   # SANs aligned with current docker compose hostnames and localhost
-  local san_list="DNS:localhost,IP:127.0.0.1,DNS:nifi-single,DNS:nifi-ldap,DNS:nifi-mtls,DNS:registry-single,DNS:registry-ldap,DNS:registry-mtls"
+  # Includes host.docker.internal for Docker Desktop (macOS/Windows) and .localdomain for host /etc/hosts
+  local san_list="DNS:localhost,IP:127.0.0.1,DNS:nifi-single,DNS:nifi-ldap,DNS:nifi-mtls,DNS:nifi-github,DNS:nifi-github.localdomain,DNS:registry-single,DNS:registry-ldap,DNS:registry-mtls,DNS:host.docker.internal"
   openssl genrsa -out "$name/server.key" 2048
   openssl req -new -key "$name/server.key" -subj "/CN=$cn/O=NiPyAPI/C=US" -out "$name/server.csr"
   # Portable issuance of server certificate with SANs via extfile (works on LibreSSL/OpenSSL)
