@@ -85,6 +85,14 @@ secure-oidc:
   oidc_client_id: "nipyapi-client"
   oidc_client_secret: "nipyapi-secret"
 
+# Bearer token profile - simplest possible configuration
+# Use when you have a pre-obtained JWT token (e.g., from CI/CD, identity provider)
+# This is ideal for GitHub Actions, Kubernetes jobs, or any environment with injected tokens
+bearer-token:
+  nifi_url: https://nifi.example.com/nifi-api
+  nifi_bearer_token: null  # Set via NIFI_BEARER_TOKEN environment variable
+  nifi_verify_ssl: true
+
 # GitHub CI/CD profile - NiFi only, for testing Git-based registry workflows
 # Uses GitHub Registry Client instead of NiFi Registry
 # GitHub registry configuration is handled by nipyapi-actions, not nipyapi profiles

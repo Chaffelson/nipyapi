@@ -16,6 +16,7 @@ DEFAULT_PROFILE_CONFIG = {
     "registry_internal_url": None,
     "nifi_user": None,
     "nifi_pass": None,
+    "nifi_bearer_token": None,
     "registry_user": None,
     "registry_pass": None,
     "ca_path": None,
@@ -51,6 +52,7 @@ ENV_VAR_MAPPINGS = [
     ("registry_url", "REGISTRY_API_ENDPOINT"),
     ("nifi_user", "NIFI_USERNAME"),
     ("nifi_pass", "NIFI_PASSWORD"),
+    ("nifi_bearer_token", "NIFI_BEARER_TOKEN"),
     ("registry_user", "REGISTRY_USERNAME"),
     ("registry_pass", "REGISTRY_PASSWORD"),
     # Basic certificate paths and security config
@@ -109,6 +111,11 @@ PATH_RESOLUTION_KEYS = [
 
 # Authentication method definitions - data-driven approach for extensibility
 NIFI_AUTH_METHODS = {
+    "bearer": {
+        "detection_keys": ["nifi_bearer_token"],
+        "required_keys": ["nifi_bearer_token"],
+        "optional_keys": [],
+    },
     "oidc": {
         "detection_keys": ["oidc_token_endpoint"],
         "required_keys": [
@@ -554,6 +561,16 @@ def switch(profile_name, profiles_file=None, login=True):
                 log.debug("OIDC authentication completed")
             else:
                 log.debug("OIDC configuration completed (no login attempted)")
+        elif nifi_auth_method == "bearer":
+            log.debug("Configuring bearer token authentication for NiFi...")
+            if login:
+                security.set_service_auth_token(
+                    token=nifi_auth_params["nifi_bearer_token"],
+                    service="nifi",
+                )
+                log.debug("Bearer token authentication completed")
+            else:
+                log.debug("Bearer token configuration completed (no login attempted)")
         elif nifi_auth_method == "mtls":
             log.debug("Configuring mTLS authentication for NiFi...")
             # Apply client certificates for mTLS
