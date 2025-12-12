@@ -3,6 +3,7 @@ Simple profile management for NiPyAPI development configurations.
 """
 
 import logging
+import os
 
 from nipyapi import config as nipy_config
 from nipyapi import security, utils
@@ -306,16 +307,52 @@ def load_profiles_from_file(file_path=None):
         file_path (str, optional): Path to YAML or JSON file containing profile definitions.
                                   If None, resolves using:
                                   1. NIPYAPI_PROFILES_FILE environment variable
-                                  2. nipyapi.config.default_profiles_file
+                                  2. ~/.nipyapi/profiles.yml (user-level config)
+                                  3. nipyapi.config.default_profiles_file (development fallback)
 
     Returns:
         dict: Profile configurations
     """
     if file_path is None:
-        file_path = utils.getenv("NIPYAPI_PROFILES_FILE") or nipy_config.default_profiles_file
+        # Check environment variable first
+        file_path = utils.getenv("NIPYAPI_PROFILES_FILE")
+
+        # Then check user-level config location
+        if not file_path:
+            user_path = os.path.expanduser(nipy_config.user_profiles_file)
+            if os.path.exists(user_path):
+                file_path = user_path
+                log.debug("Using user profiles file: %s", user_path)
+
+        # Finally fall back to development default
+        if not file_path:
+            file_path = nipy_config.default_profiles_file
 
     file_content = utils.fs_read(file_path)
     return utils.load(file_content)
+
+
+def get_default_profile_name():
+    """
+    Get the first profile name from the user profiles file.
+
+    Returns:
+        str: Profile name, or None if no user profiles file exists
+    """
+    user_path = os.path.expanduser(nipy_config.user_profiles_file)
+    if not os.path.exists(user_path):
+        return None
+
+    try:
+        profiles = load_profiles_from_file(user_path)
+        if profiles:
+            first_profile = next(iter(profiles.keys()))
+            log.debug("Auto-detected profile: %s", first_profile)
+            return first_profile
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        log.debug("Could not read user profiles: %s", e)
+
+    return None
 
 
 def resolve_profile_config(profile_name, profiles_file_path=None):
@@ -342,11 +379,17 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
     Returns:
         dict: Fully resolved configuration with all paths and overrides applied
     """
-    # Special "env" profile - pure environment variable configuration
-    # No profiles file needed; all values come from ENV_VAR_MAPPINGS
+    # Special "env" profile - explicit environment variable mode for CI/CD
+    # This is strict: requires NIFI_API_ENDPOINT to be set. For auto-resolution
+    # (env vars -> profile file fallback), use switch(None) instead.
     if profile_name == "env":
+        if not utils.getenv("NIFI_API_ENDPOINT"):
+            raise ValueError(
+                "Profile 'env' requires NIFI_API_ENDPOINT environment variable. "
+                "For auto-resolution (env vars or profile file), use switch() with no arguments."
+            )
         config = DEFAULT_PROFILE_CONFIG.copy()
-        log.debug("Using 'env' profile - configuration from environment variables only")
+        log.debug("Using 'env' profile - configuration from environment variables")
     else:
         # Load profiles from file (handles default resolution)
         all_profiles = load_profiles_from_file(profiles_file_path)
@@ -417,7 +460,7 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
     return config
 
 
-def switch(profile_name, profiles_file=None, login=True):
+def switch(profile_name=None, profiles_file=None, login=True):
     # pylint: disable=too-many-branches,too-many-statements
     """
     Switch to a different profile at runtime using configuration-driven authentication.
@@ -425,7 +468,7 @@ def switch(profile_name, profiles_file=None, login=True):
     Automatically detects authentication methods based on available configuration
     parameters rather than profile names, making it flexible for custom profiles.
 
-        Supported authentication methods:
+    Supported authentication methods:
 
     - OIDC: Requires oidc_token_endpoint, oidc_client_id, oidc_client_secret.
             Optional nifi_user, nifi_pass (enables Resource Owner Password flow;
@@ -434,13 +477,19 @@ def switch(profile_name, profiles_file=None, login=True):
     - Basic: Requires nifi_user/nifi_pass for NiFi, registry_user/registry_pass for Registry
 
     Args:
-        profile_name (str): Name of the profile to switch to. Use "env" for pure
-                           environment variable configuration without a profiles file.
+        profile_name (str, optional): Name of the profile to switch to.
+                           - None (default): Auto-resolve configuration source:
+                             1. Environment variables if NIFI_API_ENDPOINT is set
+                             2. User profile file (~/.nipyapi/profiles.yml) if exists
+                             3. Raises helpful error if neither found
+                           - "env": Explicit environment variable mode (for CI/CD).
+                             Fails if NIFI_API_ENDPOINT is not set.
+                           - "<name>": Use specific named profile from profiles file.
         profiles_file (str, optional): Path to profiles file. Resolution order:
                                       1. Explicit profiles_file parameter
                                       2. NIPYAPI_PROFILES_FILE environment variable
                                       3. nipyapi.config.default_profiles_file
-                                      Ignored when profile_name is "env".
+                                      Ignored when using environment variables.
         login (bool, optional): Whether to attempt authentication. Defaults to True.
                                If False, configures SSL/endpoints but skips login attempts.
                                Useful for readiness checks where you don't want to
@@ -458,13 +507,13 @@ def switch(profile_name, profiles_file=None, login=True):
 
     Example:
         >>> import nipyapi.profiles
+        >>> nipyapi.profiles.switch()  # Auto-resolve: env vars or user profile
         >>> nipyapi.profiles.switch('single-user')  # Uses basic auth (nifi_user/nifi_pass)
         >>> nipyapi.profiles.switch('secure-mtls')  # Uses mTLS auth (client_cert/client_key)
         >>> nipyapi.profiles.switch('secure-oidc')  # Uses OIDC auth (oidc_* params)
         >>> nipyapi.profiles.switch('my-custom')    # Uses whatever auth method is configured
         >>>
-        >>> # Pure environment variable configuration (no profiles file needed)
-        >>> # Set NIFI_API_ENDPOINT, NIFI_USERNAME, NIFI_PASSWORD in environment
+        >>> # Explicit environment variable mode for CI/CD (strict - fails if not set)
         >>> nipyapi.profiles.switch('env')
         >>>
         >>> # Custom profiles file
@@ -473,7 +522,24 @@ def switch(profile_name, profiles_file=None, login=True):
 
     """
 
-    # 1. Resolve target profile configuration
+    # 1. Auto-resolve profile when None (similar to AWS CLI behavior)
+    if profile_name is None:
+        if utils.getenv("NIFI_API_ENDPOINT"):
+            log.debug("Auto-resolve: using environment variables (NIFI_API_ENDPOINT is set)")
+            profile_name = "env"
+        else:
+            default_profile = get_default_profile_name()
+            if default_profile:
+                log.debug("Auto-resolve: using profile '%s' from user config", default_profile)
+                profile_name = default_profile
+            else:
+                raise ValueError(
+                    "No configuration found. Either:\n"
+                    "  1. Set NIFI_API_ENDPOINT environment variable, or\n"
+                    "  2. Create ~/.nipyapi/profiles.yml with your connection settings"
+                )
+
+    # 2. Resolve target profile configuration
     # Default file resolution is handled by load_profiles_from_file()
     config = resolve_profile_config(profile_name, profiles_file)
 

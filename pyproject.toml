@@ -74,6 +74,9 @@ Documentation = "https://nipyapi.readthedocs.io/en/latest/"
 Issues = "https://github.com/Chaffelson/nipyapi/issues"
 
 [project.optional-dependencies]
+cli = [
+  "fire>=0.5.0",
+]
 dev = [
   "build>=1.0.0",
   "setuptools-scm[toml]>=8",
@@ -88,9 +91,13 @@ dev = [
   "deepdiff>=3.3.0",
   "twine>=6.0.0",
   "pre-commit>=3.0.0",
+  "fire>=0.5.0",
 ]
 docs = [
   "Sphinx>=7.4.0",
   "sphinx_rtd_theme>=3.0.0",
   "sphinxcontrib-jquery>=4.1",
 ]
+
+[project.scripts]
+nipyapi = "nipyapi.cli:main"

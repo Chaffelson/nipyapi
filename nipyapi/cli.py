@@ -1,0 +1,357 @@
+# pylint: disable=broad-exception-caught,import-outside-toplevel
+"""
+CLI entry point for nipyapi using Google Fire.
+
+Provides command-line access to all nipyapi modules plus high-level CI operations.
+
+Usage:
+    nipyapi ci ensure_registry --token TOKEN --repo owner/repo
+    nipyapi canvas get_process_group PG_ID
+    nipyapi versioning list_registry_clients
+
+Installation:
+    pip install nipyapi[cli]
+
+Or with uvx (no install):
+    uvx --from "nipyapi[cli]" nipyapi ci ensure_registry --help
+
+Configuration:
+    The CLI auto-detects configuration using this priority:
+    1. Environment variables (if NIFI_API_ENDPOINT is set)
+    2. User profiles file (~/.nipyapi/profiles.yml)
+    3. No configuration (commands will fail with helpful error)
+
+    Environment variables (for CI/CD):
+    NIFI_API_ENDPOINT              NiFi API URL
+    NIFI_BEARER_TOKEN              JWT bearer token
+    NIFI_USERNAME / NIFI_PASSWORD  Basic auth (alternative to token)
+    NIFI_VERIFY_SSL                SSL verification (default: true)
+
+    User profiles file (for interactive use):
+    Create ~/.nipyapi/profiles.yml with your runtime configuration.
+    See nipyapi.profiles for full configuration options.
+
+Output Formatting:
+    Complex objects are serialized to JSON by default. Override with:
+    NIFI_OUTPUT_FORMAT=github   GitHub Actions format (key=value, heredoc for complex)
+    NIFI_OUTPUT_FORMAT=dotenv   GitLab CI format (KEY=VALUE)
+    NIFI_OUTPUT_FORMAT=json     JSON format (default)
+
+    CI environments are auto-detected via GITHUB_ACTIONS or GITLAB_CI env vars.
+
+Log Level Control:
+    NIFI_LOG_LEVEL=WARNING      Default - only warnings and errors in output
+    NIFI_LOG_LEVEL=ERROR        Only errors
+    NIFI_LOG_LEVEL=INFO         Normal operational info
+    NIFI_LOG_LEVEL=DEBUG        Full debug output
+"""
+
+import json
+import logging
+import os
+import sys
+
+
+def _detect_output_format():
+    """
+    Detect the appropriate output format based on environment.
+
+    Priority:
+    1. Explicit NIFI_OUTPUT_FORMAT env var
+    2. Auto-detect CI environment (GITHUB_ACTIONS, GITLAB_CI)
+    3. Default to 'json' for structured output
+    """
+    explicit = os.environ.get("NIFI_OUTPUT_FORMAT")
+    if explicit:
+        return explicit.lower()
+
+    # Auto-detect CI environments
+    if os.environ.get("GITHUB_ACTIONS"):
+        return "github"
+    if os.environ.get("GITLAB_CI"):
+        return "dotenv"
+
+    # Default to JSON for complex objects
+    return "json"
+
+
+def _serialize_result(obj, output_format="json"):  # pylint: disable=too-many-return-statements
+    """
+    Serialize an object for CLI output.
+
+    Handles nipyapi model objects by converting to dict via swagger's to_dict().
+    """
+    # Already a string - return as-is
+    if isinstance(obj, str):
+        return obj
+
+    # Simple types - return string representation
+    if isinstance(obj, (int, float, bool, type(None))):
+        return str(obj)
+
+    # Lists - serialize each item
+    if isinstance(obj, list):
+        items = [_to_dict(item) for item in obj]
+        if output_format == "json":
+            return json.dumps(items, indent=2, default=str)
+        return "\n".join(json.dumps(item, default=str) for item in items)
+
+    # Convert to dict
+    data = _to_dict(obj)
+
+    if output_format == "github":
+        # GitHub Actions format: key=value, or heredoc for complex values
+        # Convert snake_case keys to kebab-case (GitHub convention)
+        lines = []
+        for k, v in _flatten_dict(data).items():
+            # Convert snake_case to kebab-case for GitHub Actions
+            key = k.replace("_", "-")
+            v_str = str(v)
+            # Use heredoc syntax for multiline or very long values
+            if "\n" in v_str or len(v_str) > 500:
+                lines.append(f"{key}<<EOF")
+                lines.append(v_str)
+                lines.append("EOF")
+            else:
+                lines.append(f"{key}={v_str}")
+        return "\n".join(lines)
+    if output_format == "dotenv":
+        # GitLab dotenv format: KEY=VALUE (simple values only, skip complex)
+        lines = []
+        for k, v in _flatten_dict(data).items():
+            v_str = str(v)
+            # Skip multiline values for dotenv (GitLab limitation)
+            if "\n" not in v_str and len(v_str) < 1000:
+                lines.append(f"{k.upper()}={v_str}")
+        return "\n".join(lines)
+    # JSON format (default)
+    return json.dumps(data, indent=2, default=str)
+
+
+def _to_dict(obj):
+    """Convert an object to a dictionary."""
+    # Has swagger's to_dict method
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    # Already a dict
+    if isinstance(obj, dict):
+        return obj
+    # Fallback - use __dict__ or str
+    if hasattr(obj, "__dict__"):
+        return {k: v for k, v in obj.__dict__.items() if not k.startswith("_")}
+    return {"value": str(obj)}
+
+
+def _flatten_dict(d, parent_key="", sep="_"):
+    """Flatten nested dict for key=value output formats."""
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(_flatten_dict(v, new_key, sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
+
+
+def _get_log_level():
+    """
+    Get the configured log level from environment.
+
+    Default is None (no logs in output for success, all logs for errors).
+    Users can set NIFI_LOG_LEVEL to ERROR, WARNING, INFO, or DEBUG to
+    always include logs at that level.
+    """
+    level_name = os.environ.get("NIFI_LOG_LEVEL", "").upper()
+    if not level_name:
+        return None  # No logs by default for success
+    return getattr(logging, level_name, logging.WARNING)
+
+
+def _get_log_on_error():
+    """
+    Check if logs should be included on error.
+
+    Default is True (include logs on error for debugging).
+    Set NIFI_LOG_ON_ERROR=false to suppress logs even on errors.
+    """
+    value = os.environ.get("NIFI_LOG_ON_ERROR", "true").lower()
+    return value not in ("false", "0", "no", "off")
+
+
+class LogCapture(logging.Handler):
+    """
+    Handler that captures log records to a list.
+
+    Captures all logs at DEBUG level, but provides filtered access
+    based on the configured log level.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.records = []
+        self.all_records = []  # Keep all records for error output
+
+    def emit(self, record):
+        formatted = self.format(record)
+        self.all_records.append(formatted)
+        # Also keep track of level for filtering
+        self.records.append((record.levelno, formatted))
+
+    def get_logs(self, min_level=None):
+        """
+        Return captured log records at or above the specified level.
+
+        Args:
+            min_level: Minimum log level (default: None = return all)
+        """
+        if min_level is None:
+            return [msg for _, msg in self.records]
+        return [msg for level, msg in self.records if level >= min_level]
+
+    def get_all_logs(self):
+        """Return all captured log records (for error output)."""
+        return [msg for _, msg in self.records]
+
+    def clear(self):
+        """Clear captured log records."""
+        self.records = []
+        self.all_records = []
+
+
+def _custom_serializer(obj):
+    """
+    Custom serializer for Fire output.
+
+    Converts complex nipyapi objects to formatted strings instead of showing
+    Fire's default object exploration mode.
+    """
+    output_format = _detect_output_format()
+    return _serialize_result(obj, output_format)
+
+
+class SafeModule:
+    """
+    Wrapper that catches exceptions and returns structured error responses.
+
+    This makes all nipyapi modules LLM-friendly by ensuring errors are returned
+    as parseable JSON rather than exceptions/stack traces. Also captures logs.
+    """
+
+    def __init__(self, module):
+        self._module = module
+
+    def __getattr__(self, name):
+        attr = getattr(self._module, name)
+        if callable(attr):
+            return self._wrap_callable(attr, name)
+        return attr
+
+    def _wrap_callable(self, func, name):
+        """Wrap a callable to catch exceptions and return structured errors."""
+
+        def wrapper(*args, **kwargs):
+            # Set up log capture on nipyapi logger only (avoids duplicates)
+            log_capture = LogCapture()
+            log_capture.setLevel(logging.DEBUG)
+            log_capture.setFormatter(logging.Formatter("%(name)s: %(message)s"))
+
+            nipyapi_logger = logging.getLogger("nipyapi")
+            original_level = nipyapi_logger.level
+            nipyapi_logger.addHandler(log_capture)
+            nipyapi_logger.setLevel(logging.DEBUG)
+
+            try:
+                result = func(*args, **kwargs)
+
+                # Get configured log level (None = no logs for success)
+                log_level = _get_log_level()
+
+                # If result is a dict, optionally add logs
+                if isinstance(result, dict):
+                    if log_level is not None:
+                        # User explicitly requested logs at this level
+                        logs = log_capture.get_logs(min_level=log_level)
+                        if logs:
+                            result["logs"] = logs
+                    # else: no logs for clean output on success
+                    return result
+                # For non-dict results, return as-is
+                return result
+
+            except Exception as e:
+                output_format = _detect_output_format()
+                # Include logs on error unless explicitly disabled
+                error_result = {
+                    "success": False,
+                    "error": str(e),
+                    "error_type": type(e).__name__,
+                    "command": name,
+                }
+                if _get_log_on_error():
+                    error_result["logs"] = log_capture.get_all_logs()
+                # Print error and exit with non-zero code
+                print(_serialize_result(error_result, output_format))
+                sys.exit(1)
+
+            finally:
+                # Clean up handler
+                nipyapi_logger.removeHandler(log_capture)
+                nipyapi_logger.setLevel(original_level)
+
+        wrapper.__name__ = func.__name__
+        wrapper.__doc__ = func.__doc__
+        return wrapper
+
+    def __dir__(self):
+        """Expose module's attributes for Fire introspection."""
+        return dir(self._module)
+
+
+def main():
+    """CLI entry point."""
+    # Suppress SSL warnings early to prevent them polluting stdout in CI
+    # This is safe as the warnings are informational and CLI users expect clean output
+    import urllib3
+
+    if os.environ.get("NIFI_VERIFY_SSL", "true").lower() in ("false", "0", "no"):
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    try:
+        import fire
+    except ImportError:
+        print("CLI requires the 'fire' package.")
+        print("Install with: pip install nipyapi[cli]")
+        sys.exit(1)
+
+    # Import nipyapi modules
+    import nipyapi
+    from nipyapi import ci
+
+    # Auto-configure NiFi connection.
+    # Auto-resolve configuration: env vars if set, else user profile file
+    # This matches AWS CLI / gcloud pattern - just works without explicit config
+    try:
+        nipyapi.profiles.switch()
+    except ValueError:
+        pass  # No configuration found - errors will surface on first API call
+
+    # Wrap modules with SafeModule for structured error handling
+    fire.Fire(
+        {
+            "ci": SafeModule(ci),
+            "canvas": SafeModule(nipyapi.canvas),
+            "versioning": SafeModule(nipyapi.versioning),
+            "parameters": SafeModule(nipyapi.parameters),
+            "security": SafeModule(nipyapi.security),
+            "system": SafeModule(nipyapi.system),
+            "config": nipyapi.config,  # Config is for settings, not API calls
+            "profiles": nipyapi.profiles,  # Profiles is for setup, not API calls
+            "utils": nipyapi.utils,
+        },
+        serialize=_custom_serializer,
+    )
+
+
+if __name__ == "__main__":
+    main()
