@@ -704,6 +704,100 @@ def test_client_recursion_limit(fix_pg, fix_funnel, target=450):
     print("Elapsed r1: {0}".format((end - start)))
 
 
+def test_create_connection_self_loop(fix_proc):
+    """Test that self-loop connections automatically get bends for visibility."""
+    f_p1 = fix_proc.generate()
+    # Create a self-loop connection (processor to itself)
+    # The create_connection function should automatically add bends
+    r1 = canvas.create_connection(
+        source=f_p1,
+        target=f_p1,
+        relationships=['success'],
+        name=conftest.test_basename + '_selfloop'
+    )
+    assert isinstance(r1, nifi.ConnectionEntity)
+    assert r1.source_id == r1.destination_id
+    # Verify bends were auto-created for visibility
+    assert r1.component.bends is not None
+    assert len(r1.component.bends) == 2  # Self-loops get 2 bends
+
+
+def test_create_connection_with_bends(fix_proc):
+    """Test creating connections with explicit bends."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    # Create connection with explicit bends
+    bends = [(500.0, 350.0), (500.0, 450.0)]
+    r1 = canvas.create_connection(
+        source=f_p1,
+        target=f_p2,
+        relationships=['success'],
+        name=conftest.test_basename + '_bends',
+        bends=bends
+    )
+    assert isinstance(r1, nifi.ConnectionEntity)
+    assert r1.component.bends is not None
+    assert len(r1.component.bends) == 2
+
+
+def test_get_flow_components(fix_pg, fix_proc, fix_funnel):
+    """Test finding all connected components in a flow."""
+    f_pg = fix_pg.generate()
+    # Create a simple flow: proc1 -> proc2 -> funnel
+    f_p1 = fix_proc.generate(parent_pg=f_pg, suffix='_flow1')
+    f_p2 = fix_proc.generate(parent_pg=f_pg, suffix='_flow2')
+    f_f1 = fix_funnel.generate(parent_pg=f_pg)
+    # Connect them
+    canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+    canvas.create_connection(f_p2, f_f1, name=conftest.test_basename)
+    # Find all components starting from proc1
+    components = canvas.get_flow_components(f_p1)
+    assert len(components) == 3
+    component_ids = [c.id for c in components]
+    assert f_p1.id in component_ids
+    assert f_p2.id in component_ids
+    assert f_f1.id in component_ids
+
+
+def test_get_flow_components_separate_flows(fix_pg, fix_proc):
+    """Test that separate flows are not connected."""
+    f_pg = fix_pg.generate()
+    # Create two separate flows
+    f_p1 = fix_proc.generate(parent_pg=f_pg, suffix='_flowA1')
+    f_p2 = fix_proc.generate(parent_pg=f_pg, suffix='_flowA2')
+    f_p3 = fix_proc.generate(parent_pg=f_pg, suffix='_flowB1')
+    f_p4 = fix_proc.generate(parent_pg=f_pg, suffix='_flowB2')
+    # Connect flow A
+    canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+    # Connect flow B (separate)
+    canvas.create_connection(f_p3, f_p4, name=conftest.test_basename)
+    # Find components starting from flow A
+    components_a = canvas.get_flow_components(f_p1)
+    assert len(components_a) == 2
+    component_ids_a = [c.id for c in components_a]
+    assert f_p1.id in component_ids_a
+    assert f_p2.id in component_ids_a
+    assert f_p3.id not in component_ids_a
+    assert f_p4.id not in component_ids_a
+    # Find components starting from flow B
+    components_b = canvas.get_flow_components(f_p3)
+    assert len(components_b) == 2
+
+
+def test_get_flow_components_with_self_loop(fix_pg, fix_proc):
+    """Test flow component detection with self-loop connections."""
+    f_pg = fix_pg.generate()
+    f_p1 = fix_proc.generate(parent_pg=f_pg, suffix='_loop1')
+    f_p2 = fix_proc.generate(parent_pg=f_pg, suffix='_loop2')
+    # Create flow with self-loop
+    canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+    canvas.create_connection(f_p1, f_p1, relationships=['success'],
+                             name=conftest.test_basename + '_self')
+    # Should find both processors
+    components = canvas.get_flow_components(f_p1)
+    assert len(components) == 2
+
+
 def test_remote_process_group_controls(fix_proc):
     rpg1 = canvas.create_remote_process_group('http://localhost:8080/nifi')
     assert isinstance(rpg1, nifi.RemoteProcessGroupEntity)

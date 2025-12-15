@@ -214,7 +214,7 @@ class OutputPortsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/output-ports/{id}', 'GET',
                                         path_params,
@@ -327,7 +327,7 @@ class OutputPortsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/output-ports/{id}', 'DELETE',
                                         path_params,
@@ -433,7 +433,7 @@ class OutputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/output-ports/{id}', 'PUT',
                                         path_params,
@@ -539,7 +539,7 @@ class OutputPortsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/output-ports/{id}/run-status', 'PUT',
                                         path_params,

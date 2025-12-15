@@ -104,7 +104,7 @@ class ConfigApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/config', 'GET',
                                         path_params,

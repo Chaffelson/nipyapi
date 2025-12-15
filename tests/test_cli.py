@@ -1,0 +1,346 @@
+"""Tests for `nipyapi.cli` module."""
+
+import json
+import os
+
+
+# =============================================================================
+# Helper Function Tests (no NiFi connection required)
+# =============================================================================
+
+
+def test_serialize_result_string():
+    """Test that strings are returned as-is."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result("hello", "json")
+    assert result == "hello"
+
+
+def test_serialize_result_simple_types():
+    """Test serialization of simple types."""
+    from nipyapi.cli import _serialize_result
+    assert _serialize_result(42, "json") == "42"
+    assert _serialize_result(3.14, "json") == "3.14"
+    assert _serialize_result(True, "json") == "True"
+    assert _serialize_result(None, "json") == "None"
+
+
+def test_serialize_result_dict_json():
+    """Test JSON serialization of dict."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result({"key": "value", "count": 5}, "json")
+    parsed = json.loads(result)
+    assert parsed["key"] == "value"
+    assert parsed["count"] == 5
+
+
+def test_serialize_result_dict_github():
+    """Test GitHub Actions output format."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result({"flow_id": "abc123", "pg_name": "test"}, "github")
+    # snake_case -> kebab-case for GitHub
+    assert "flow-id=abc123" in result
+    assert "pg-name=test" in result
+
+
+def test_serialize_result_dict_dotenv():
+    """Test GitLab dotenv output format."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result({"flow_id": "abc123", "pg_name": "test"}, "dotenv")
+    # UPPER_CASE for dotenv
+    assert "FLOW_ID=abc123" in result
+    assert "PG_NAME=test" in result
+
+
+def test_serialize_result_list_json():
+    """Test JSON serialization of list."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result([{"a": 1}, {"b": 2}], "json")
+    parsed = json.loads(result)
+    assert len(parsed) == 2
+    assert parsed[0]["a"] == 1
+
+
+def test_flatten_dict_simple():
+    """Test flattening a simple nested dict."""
+    from nipyapi.cli import _flatten_dict
+    flat = _flatten_dict({"a": 1, "b": 2})
+    assert flat == {"a": 1, "b": 2}
+
+
+def test_flatten_dict_nested():
+    """Test flattening a nested dict."""
+    from nipyapi.cli import _flatten_dict
+    flat = _flatten_dict({"outer": {"inner": "value"}})
+    assert flat == {"outer_inner": "value"}
+
+
+def test_flatten_dict_deeply_nested():
+    """Test flattening a deeply nested dict."""
+    from nipyapi.cli import _flatten_dict
+    flat = _flatten_dict({"a": {"b": {"c": 42}}})
+    assert flat == {"a_b_c": 42}
+
+
+def test_to_dict_with_dict():
+    """Test _to_dict with a dict input."""
+    from nipyapi.cli import _to_dict
+    result = _to_dict({"key": "value"})
+    assert result == {"key": "value"}
+
+
+def test_to_dict_with_object():
+    """Test _to_dict with an object that has __dict__."""
+    from nipyapi.cli import _to_dict
+
+    class SimpleObj:
+        def __init__(self):
+            self.name = "test"
+            self.value = 123
+            self._private = "hidden"
+
+    result = _to_dict(SimpleObj())
+    assert result["name"] == "test"
+    assert result["value"] == 123
+    assert "_private" not in result  # Private attrs excluded
+
+
+def test_detect_output_format_default():
+    """Test default output format is json."""
+    from nipyapi.cli import _detect_output_format
+    # Clear any env vars that might affect detection
+    old_format = os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+    old_github = os.environ.pop("GITHUB_ACTIONS", None)
+    old_gitlab = os.environ.pop("GITLAB_CI", None)
+    try:
+        assert _detect_output_format() == "json"
+    finally:
+        if old_format:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
+        if old_github:
+            os.environ["GITHUB_ACTIONS"] = old_github
+        if old_gitlab:
+            os.environ["GITLAB_CI"] = old_gitlab
+
+
+def test_detect_output_format_explicit():
+    """Test explicit NIFI_OUTPUT_FORMAT takes priority."""
+    from nipyapi.cli import _detect_output_format
+    old = os.environ.get("NIFI_OUTPUT_FORMAT")
+    try:
+        os.environ["NIFI_OUTPUT_FORMAT"] = "dotenv"
+        assert _detect_output_format() == "dotenv"
+    finally:
+        if old:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old
+        else:
+            os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+
+
+def test_detect_output_format_github():
+    """Test GitHub Actions auto-detection."""
+    from nipyapi.cli import _detect_output_format
+    old_format = os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+    old_github = os.environ.get("GITHUB_ACTIONS")
+    try:
+        os.environ["GITHUB_ACTIONS"] = "true"
+        assert _detect_output_format() == "github"
+    finally:
+        if old_format:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
+        if old_github:
+            os.environ["GITHUB_ACTIONS"] = old_github
+        else:
+            os.environ.pop("GITHUB_ACTIONS", None)
+
+
+def test_detect_output_format_gitlab():
+    """Test GitLab CI auto-detection."""
+    from nipyapi.cli import _detect_output_format
+    old_format = os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+    old_gitlab = os.environ.get("GITLAB_CI")
+    old_github = os.environ.pop("GITHUB_ACTIONS", None)
+    try:
+        os.environ["GITLAB_CI"] = "true"
+        assert _detect_output_format() == "dotenv"
+    finally:
+        if old_format:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
+        if old_gitlab:
+            os.environ["GITLAB_CI"] = old_gitlab
+        else:
+            os.environ.pop("GITLAB_CI", None)
+        if old_github:
+            os.environ["GITHUB_ACTIONS"] = old_github
+
+
+def test_get_log_level_default():
+    """Test default log level is None (no logs)."""
+    from nipyapi.cli import _get_log_level
+    old = os.environ.pop("NIFI_LOG_LEVEL", None)
+    try:
+        assert _get_log_level() is None
+    finally:
+        if old:
+            os.environ["NIFI_LOG_LEVEL"] = old
+
+
+def test_get_log_level_explicit():
+    """Test explicit log level setting."""
+    import logging
+    from nipyapi.cli import _get_log_level
+    old = os.environ.get("NIFI_LOG_LEVEL")
+    try:
+        os.environ["NIFI_LOG_LEVEL"] = "DEBUG"
+        assert _get_log_level() == logging.DEBUG
+        os.environ["NIFI_LOG_LEVEL"] = "WARNING"
+        assert _get_log_level() == logging.WARNING
+    finally:
+        if old:
+            os.environ["NIFI_LOG_LEVEL"] = old
+        else:
+            os.environ.pop("NIFI_LOG_LEVEL", None)
+
+
+def test_get_log_on_error_default():
+    """Test default log-on-error is True."""
+    from nipyapi.cli import _get_log_on_error
+    old = os.environ.pop("NIFI_LOG_ON_ERROR", None)
+    try:
+        assert _get_log_on_error() is True
+    finally:
+        if old:
+            os.environ["NIFI_LOG_ON_ERROR"] = old
+
+
+def test_get_log_on_error_disabled():
+    """Test disabling log-on-error."""
+    from nipyapi.cli import _get_log_on_error
+    old = os.environ.get("NIFI_LOG_ON_ERROR")
+    try:
+        os.environ["NIFI_LOG_ON_ERROR"] = "false"
+        assert _get_log_on_error() is False
+        os.environ["NIFI_LOG_ON_ERROR"] = "0"
+        assert _get_log_on_error() is False
+    finally:
+        if old:
+            os.environ["NIFI_LOG_ON_ERROR"] = old
+        else:
+            os.environ.pop("NIFI_LOG_ON_ERROR", None)
+
+
+def test_log_capture_handler():
+    """Test LogCapture handler captures and filters logs."""
+    import logging
+    from nipyapi.cli import LogCapture
+
+    handler = LogCapture()
+    handler.setFormatter(logging.Formatter("%(message)s"))
+
+    # Create a test logger
+    logger = logging.getLogger("test_cli_capture")
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+
+    # Emit logs at different levels
+    logger.debug("debug msg")
+    logger.info("info msg")
+    logger.warning("warning msg")
+    logger.error("error msg")
+
+    # Get all logs
+    all_logs = handler.get_all_logs()
+    assert len(all_logs) == 4
+
+    # Get logs at WARNING and above
+    warning_logs = handler.get_logs(min_level=logging.WARNING)
+    assert len(warning_logs) == 2
+    assert "warning msg" in warning_logs[0]
+    assert "error msg" in warning_logs[1]
+
+    # Clear and verify
+    handler.clear()
+    assert len(handler.get_all_logs()) == 0
+
+    # Cleanup
+    logger.removeHandler(handler)
+
+
+# =============================================================================
+# SafeModule Wrapper Tests (requires NiFi connection)
+# =============================================================================
+
+
+def test_safe_module_wraps_callable():
+    """Test SafeModule wraps module functions."""
+    from nipyapi.cli import SafeModule
+    import nipyapi
+
+    wrapped = SafeModule(nipyapi.canvas)
+
+    # Check that get_root_pg_id is wrapped and callable
+    assert callable(wrapped.get_root_pg_id)
+    # Check docstring is preserved
+    assert wrapped.get_root_pg_id.__doc__ is not None
+
+
+def test_safe_module_call_success():
+    """Test SafeModule successfully calls wrapped function."""
+    from nipyapi.cli import SafeModule
+    import nipyapi
+
+    wrapped = SafeModule(nipyapi.canvas)
+    result = wrapped.get_root_pg_id()
+
+    # Should return a string (the root PG ID)
+    assert isinstance(result, str)
+    assert len(result) > 0
+
+
+def test_safe_module_exposes_dir():
+    """Test SafeModule exposes module attributes for Fire introspection."""
+    from nipyapi.cli import SafeModule
+    import nipyapi
+
+    wrapped = SafeModule(nipyapi.canvas)
+    attrs = dir(wrapped)
+
+    # Should include key canvas functions
+    assert "get_root_pg_id" in attrs
+    assert "get_process_group" in attrs
+    assert "list_all_processors" in attrs
+
+
+# =============================================================================
+# Integration Tests (subprocess, requires NiFi)
+# =============================================================================
+
+
+def test_cli_help_no_nifi():
+    """Test CLI --help works without NiFi connection."""
+    import subprocess
+    result = subprocess.run(
+        ["python", "-m", "nipyapi.cli", "--", "--help"],
+        capture_output=True,
+        text=True,
+        timeout=10
+    )
+    # Fire shows command groups in stderr
+    output = result.stdout + result.stderr
+    assert "ci" in output or "canvas" in output
+    # Should not error
+    assert result.returncode == 0
+
+
+def test_cli_layout_constants():
+    """Test CLI can access layout module constants."""
+    import subprocess
+    result = subprocess.run(
+        ["python", "-m", "nipyapi.cli", "layout", "PROCESSOR_WIDTH"],
+        capture_output=True,
+        text=True,
+        timeout=10
+    )
+    # Should return the constant value (352 based on empirical measurement)
+    assert result.returncode == 0
+    assert "352" in result.stdout

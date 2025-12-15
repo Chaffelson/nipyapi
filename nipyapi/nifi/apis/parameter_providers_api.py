@@ -122,7 +122,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/analysis', 'POST',
                                         path_params,
@@ -331,7 +331,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['*/*', 'application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -446,7 +446,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{providerId}/apply-parameters-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -554,7 +554,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -660,7 +660,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/parameters/fetch-requests', 'POST',
                                         path_params,
@@ -752,7 +752,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}', 'GET',
                                         path_params,
@@ -860,7 +860,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{providerId}/apply-parameters-requests/{requestId}', 'GET',
                                         path_params,
@@ -952,7 +952,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/references', 'GET',
                                         path_params,
@@ -1054,7 +1054,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/descriptors', 'GET',
                                         path_params,
@@ -1146,7 +1146,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/state', 'GET',
                                         path_params,
@@ -1254,7 +1254,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -1367,7 +1367,7 @@ class ParameterProvidersApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}', 'DELETE',
                                         path_params,
@@ -1477,7 +1477,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{providerId}/apply-parameters-requests', 'POST',
                                         path_params,
@@ -1589,7 +1589,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -1695,7 +1695,7 @@ class ParameterProvidersApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-providers/{id}', 'PUT',
                                         path_params,

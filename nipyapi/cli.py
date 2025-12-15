@@ -8,6 +8,7 @@ Usage:
     nipyapi ci ensure_registry --token TOKEN --repo owner/repo
     nipyapi canvas get_process_group PG_ID
     nipyapi versioning list_registry_clients
+    nipyapi layout align_pg_grid PG_ID --sort_by_name=True
 
 Installation:
     pip install nipyapi[cli]
@@ -345,6 +346,7 @@ def main():
             "parameters": SafeModule(nipyapi.parameters),
             "security": SafeModule(nipyapi.security),
             "system": SafeModule(nipyapi.system),
+            "layout": SafeModule(nipyapi.layout),  # Canvas layout and positioning
             "config": nipyapi.config,  # Config is for settings, not API calls
             "profiles": nipyapi.profiles,  # Profiles is for setup, not API calls
             "utils": nipyapi.utils,

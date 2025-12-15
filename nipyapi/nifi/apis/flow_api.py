@@ -122,7 +122,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'PUT',
                                         path_params,
@@ -317,7 +317,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/reporting-tasks/download', 'GET',
                                         path_params,
@@ -399,7 +399,7 @@ class FlowApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/client-id', 'GET',
                                         path_params,
@@ -481,7 +481,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/about', 'GET',
                                         path_params,
@@ -579,7 +579,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/history/{id}', 'GET',
                                         path_params,
@@ -707,7 +707,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/additional-details/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -789,7 +789,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/flow-analysis/results', 'GET',
                                         path_params,
@@ -871,7 +871,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/banners', 'GET',
                                         path_params,
@@ -963,7 +963,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/registries/{id}/branches', 'GET',
                                         path_params,
@@ -1055,7 +1055,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/process-groups/{id}/breadcrumbs', 'GET',
                                         path_params,
@@ -1154,7 +1154,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/registries/{id}/buckets', 'GET',
                                         path_params,
@@ -1278,7 +1278,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/bulletin-board', 'GET',
                                         path_params,
@@ -1360,7 +1360,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/controller/bulletins', 'GET',
                                         path_params,
@@ -1442,7 +1442,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/cluster/summary', 'GET',
                                         path_params,
@@ -1540,7 +1540,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/history/components/{componentId}', 'GET',
                                         path_params,
@@ -1646,7 +1646,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/connections/{id}/statistics', 'GET',
                                         path_params,
@@ -1752,7 +1752,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/connections/{id}/status', 'GET',
                                         path_params,
@@ -1844,7 +1844,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/connections/{id}/status/history', 'GET',
                                         path_params,
@@ -1926,7 +1926,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/content-viewers', 'GET',
                                         path_params,
@@ -2054,7 +2054,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/controller-service-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -2191,7 +2191,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/controller-service-types', 'GET',
                                         path_params,
@@ -2291,7 +2291,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/controller/controller-services', 'GET',
                                         path_params,
@@ -2415,7 +2415,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/process-groups/{id}/controller-services', 'GET',
                                         path_params,
@@ -2497,7 +2497,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/status', 'GET',
                                         path_params,
@@ -2579,7 +2579,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/current-user', 'GET',
                                         path_params,
@@ -2698,7 +2698,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows/{flow-id}/details', 'GET',
                                         path_params,
@@ -2801,7 +2801,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'GET',
                                         path_params,
@@ -2893,7 +2893,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/flow-analysis/results/{processGroupId}', 'GET',
                                         path_params,
@@ -3021,7 +3021,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/flow-analysis-rule-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -3130,7 +3130,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/flow-analysis-rule-types', 'GET',
                                         path_params,
@@ -3212,7 +3212,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/config', 'GET',
                                         path_params,
@@ -3339,7 +3339,7 @@ class FlowApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/metrics/{producer}', 'GET',
                                         path_params,
@@ -3576,7 +3576,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows', 'GET',
                                         path_params,
@@ -3682,7 +3682,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/input-ports/{id}/status', 'GET',
                                         path_params,
@@ -3870,7 +3870,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/output-ports/{id}/status', 'GET',
                                         path_params,
@@ -3952,7 +3952,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/parameter-contexts', 'GET',
                                         path_params,
@@ -4080,7 +4080,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/parameter-provider-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -4189,7 +4189,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/parameter-provider-types', 'GET',
                                         path_params,
@@ -4271,7 +4271,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/parameter-providers', 'GET',
                                         path_params,
@@ -4359,7 +4359,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/prioritizers', 'GET',
                                         path_params,
@@ -4478,7 +4478,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/process-groups/{id}/status', 'GET',
                                         path_params,
@@ -4570,7 +4570,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -4698,7 +4698,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/processor-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -4804,7 +4804,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/processors/{id}/status', 'GET',
                                         path_params,
@@ -4896,7 +4896,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/processors/{id}/status/history', 'GET',
                                         path_params,
@@ -5005,7 +5005,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/processor-types', 'GET',
                                         path_params,
@@ -5087,7 +5087,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/registries', 'GET',
                                         path_params,
@@ -5193,7 +5193,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status', 'GET',
                                         path_params,
@@ -5285,7 +5285,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/remote-process-groups/{id}/status/history', 'GET',
                                         path_params,
@@ -5413,7 +5413,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/reporting-task-definition/{group}/{artifact}/{version}/{type}', 'GET',
                                         path_params,
@@ -5502,7 +5502,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/reporting-tasks/snapshot', 'GET',
                                         path_params,
@@ -5611,7 +5611,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/reporting-task-types', 'GET',
                                         path_params,
@@ -5693,7 +5693,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/reporting-tasks', 'GET',
                                         path_params,
@@ -5781,7 +5781,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/runtime-manifest', 'GET',
                                         path_params,
@@ -5967,7 +5967,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/branches/{branch-id-a}/buckets/{bucket-id-a}/flows/{flow-id-a}/{version-a}/diff/branches/{branch-id-b}/buckets/{bucket-id-b}/flows/{flow-id-b}/{version-b}', 'GET',
                                         path_params,
@@ -6086,7 +6086,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/registries/{registry-id}/buckets/{bucket-id}/flows/{flow-id}/versions', 'GET',
                                         path_params,
@@ -6236,7 +6236,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/history', 'GET',
                                         path_params,
@@ -6342,7 +6342,7 @@ class FlowApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/process-groups/{id}', 'PUT',
                                         path_params,
@@ -6440,7 +6440,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/cluster/search-results', 'GET',
                                         path_params,
@@ -6538,7 +6538,7 @@ class FlowApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flow/search-results', 'GET',
                                         path_params,

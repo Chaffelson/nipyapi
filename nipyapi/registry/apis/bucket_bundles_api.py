@@ -138,7 +138,7 @@ class BucketBundlesApi(object):
             select_header_content_type(['multipart/form-data'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/bundles/{bundleType}', 'POST',
                                         path_params,
@@ -236,7 +236,7 @@ class BucketBundlesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/buckets/{bucketId}/bundles', 'GET',
                                         path_params,

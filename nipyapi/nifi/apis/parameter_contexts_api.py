@@ -131,7 +131,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets', 'POST',
                                         path_params,
@@ -227,7 +227,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts', 'POST',
                                         path_params,
@@ -340,7 +340,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets/{assetId}', 'DELETE',
                                         path_params,
@@ -459,7 +459,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'DELETE',
                                         path_params,
@@ -574,7 +574,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -689,7 +689,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'DELETE',
                                         path_params,
@@ -791,7 +791,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets/{assetId}', 'GET',
                                         path_params,
@@ -889,7 +889,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/assets', 'GET',
                                         path_params,
@@ -994,7 +994,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'GET',
                                         path_params,
@@ -1102,7 +1102,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests/{requestId}', 'GET',
                                         path_params,
@@ -1210,7 +1210,7 @@ class ParameterContextsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests/{id}', 'GET',
                                         path_params,
@@ -1320,7 +1320,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/update-requests', 'POST',
                                         path_params,
@@ -1430,7 +1430,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{contextId}/validation-requests', 'POST',
                                         path_params,
@@ -1540,7 +1540,7 @@ class ParameterContextsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/parameter-contexts/{id}', 'PUT',
                                         path_params,

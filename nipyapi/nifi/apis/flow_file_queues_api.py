@@ -108,7 +108,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests', 'POST',
                                         path_params,
@@ -200,7 +200,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests', 'POST',
                                         path_params,
@@ -302,7 +302,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'DELETE',
                                         path_params,
@@ -425,7 +425,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}/content', 'GET',
                                         path_params,
@@ -527,7 +527,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'GET',
                                         path_params,
@@ -636,7 +636,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/flowfiles/{flowfile-uuid}', 'GET',
                                         path_params,
@@ -738,7 +738,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/listing-requests/{listing-request-id}', 'GET',
                                         path_params,
@@ -840,7 +840,7 @@ class FlowFileQueuesApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/flowfile-queues/{id}/drop-requests/{drop-request-id}', 'DELETE',
                                         path_params,

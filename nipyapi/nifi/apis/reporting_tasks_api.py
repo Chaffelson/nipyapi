@@ -122,7 +122,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/analysis', 'POST',
                                         path_params,
@@ -331,7 +331,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['*/*', 'application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -439,7 +439,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -548,7 +548,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/descriptors', 'GET',
                                         path_params,
@@ -640,7 +640,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'GET',
                                         path_params,
@@ -732,7 +732,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/state', 'GET',
                                         path_params,
@@ -840,7 +840,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -953,7 +953,7 @@ class ReportingTasksApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'DELETE',
                                         path_params,
@@ -1065,7 +1065,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -1171,7 +1171,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}', 'PUT',
                                         path_params,
@@ -1277,7 +1277,7 @@ class ReportingTasksApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/reporting-tasks/{id}/run-status', 'PUT',
                                         path_params,

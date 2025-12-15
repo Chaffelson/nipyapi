@@ -132,3 +132,200 @@ def test_remove_context_from_process_group(fix_pg, fix_context):
     assert r1.component.parameter_context.id == c1.id
     r2 = parameters.remove_context_from_process_group(pg1)
     assert r2.component.parameter_context is None
+
+
+# =============================================================================
+# Asset Management Tests
+# =============================================================================
+
+
+def test_upload_asset_from_bytes(fix_context):
+    """Test uploading an asset from bytes - validates octet-stream handling."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    c1 = fix_context.generate()
+
+    # Create test file content (simple text, but sent as binary)
+    test_content = b"This is test content for asset upload validation."
+    test_filename = "test_asset.txt"
+
+    # Upload the asset using file_bytes
+    result = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=test_content,
+        filename=test_filename
+    )
+
+    # Verify the result structure
+    assert isinstance(result, dict)
+    assert "id" in result
+    assert "name" in result
+    assert "digest" in result
+    assert result["name"] == test_filename
+    # Digest should be a SHA-256 hash (64 hex chars)
+    assert len(result["digest"]) == 64
+
+    # Clean up - delete the asset
+    parameters.delete_asset(context_id=c1.id, asset_id=result["id"])
+
+
+def test_list_assets(fix_context):
+    """Test listing assets in a parameter context."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    c1 = fix_context.generate()
+
+    # Initially should be empty
+    assets = parameters.list_assets(c1.id)
+    assert isinstance(assets, list)
+    initial_count = len(assets)
+
+    # Upload two assets
+    asset1 = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=b"asset one content",
+        filename="asset1.txt"
+    )
+    asset2 = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=b"asset two content",
+        filename="asset2.txt"
+    )
+
+    # List should now have 2 more assets
+    assets = parameters.list_assets(c1.id)
+    assert len(assets) == initial_count + 2
+
+    # Verify asset structure
+    asset_names = [a["name"] for a in assets]
+    assert "asset1.txt" in asset_names
+    assert "asset2.txt" in asset_names
+
+    for asset in assets:
+        assert "id" in asset
+        assert "name" in asset
+        assert "digest" in asset
+        assert "missing_content" in asset
+
+    # Clean up
+    parameters.delete_asset(context_id=c1.id, asset_id=asset1["id"])
+    parameters.delete_asset(context_id=c1.id, asset_id=asset2["id"])
+
+
+def test_delete_asset(fix_context):
+    """Test deleting an asset from a parameter context."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    c1 = fix_context.generate()
+
+    # Upload an asset
+    asset = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=b"content to delete",
+        filename="to_delete.txt"
+    )
+
+    # Verify it exists
+    assets_before = parameters.list_assets(c1.id)
+    asset_ids_before = [a["id"] for a in assets_before]
+    assert asset["id"] in asset_ids_before
+
+    # Delete it
+    result = parameters.delete_asset(context_id=c1.id, asset_id=asset["id"])
+    assert isinstance(result, dict)
+    assert result["id"] == asset["id"]
+    assert result["name"] == "to_delete.txt"
+
+    # Verify it's gone
+    assets_after = parameters.list_assets(c1.id)
+    asset_ids_after = [a["id"] for a in assets_after]
+    assert asset["id"] not in asset_ids_after
+
+
+def test_prepare_parameter_with_asset(fix_context):
+    """Test preparing a parameter that references an asset."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    c1 = fix_context.generate()
+
+    # Upload an asset first
+    asset = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=b"JDBC driver content simulation",
+        filename="postgresql-42.7.6.jar"
+    )
+
+    # Prepare a parameter referencing the asset
+    param = parameters.prepare_parameter_with_asset(
+        name="PostgreSQL Driver",
+        asset_id=asset["id"],
+        asset_name=asset["name"],
+        description="JDBC driver for PostgreSQL database connections"
+    )
+
+    # Verify the parameter structure
+    assert param.parameter.name == "PostgreSQL Driver"
+    assert param.parameter.description == "JDBC driver for PostgreSQL database connections"
+    assert len(param.parameter.referenced_assets) == 1
+    assert param.parameter.referenced_assets[0].id == asset["id"]
+    assert param.parameter.referenced_assets[0].name == asset["name"]
+
+    # Clean up
+    parameters.delete_asset(context_id=c1.id, asset_id=asset["id"])
+
+
+def test_upload_asset_and_link_to_parameter(fix_context):
+    """Test full workflow: upload asset and link it to a parameter."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    c1 = fix_context.generate()
+
+    # Upload an asset
+    asset = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=b"Driver binary content here",
+        filename="mysql-connector-j-8.3.0.jar"
+    )
+
+    # Prepare parameter referencing the asset
+    param = parameters.prepare_parameter_with_asset(
+        name="MySQL Driver",
+        asset_id=asset["id"],
+        asset_name=asset["name"]
+    )
+
+    # Add parameter to context
+    updated_context = parameters.upsert_parameter_to_context(c1, param)
+
+    # Verify the parameter was added with asset reference
+    param_names = [p.parameter.name for p in updated_context.component.parameters]
+    assert "MySQL Driver" in param_names
+
+    # Find the parameter and verify asset reference
+    mysql_param = next(
+        p for p in updated_context.component.parameters
+        if p.parameter.name == "MySQL Driver"
+    )
+    assert mysql_param.parameter.referenced_assets is not None
+    assert len(mysql_param.parameter.referenced_assets) == 1
+    assert mysql_param.parameter.referenced_assets[0].id == asset["id"]
+
+    # Clean up - delete parameter first, then asset
+    parameters.delete_parameter_from_context(updated_context, "MySQL Driver")
+    parameters.delete_asset(context_id=c1.id, asset_id=asset["id"])
+
+
+def test_upload_asset_validation_errors():
+    """Test that upload_asset raises appropriate validation errors."""
+    # No file_path or file_bytes
+    with pytest.raises(ValueError, match="Either file_path or file_bytes"):
+        parameters.upload_asset(context_id="fake-id")
+
+    # file_bytes without filename
+    with pytest.raises(ValueError, match="filename is required"):
+        parameters.upload_asset(context_id="fake-id", file_bytes=b"content")

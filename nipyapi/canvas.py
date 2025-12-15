@@ -870,7 +870,7 @@ def update_variable_registry(process_group, update, refresh=True):
         )
 
 
-def create_connection(source, target, relationships=None, name=None):
+def create_connection(source, target, relationships=None, name=None, bends=None):
     """
     Creates a connection between two objects for the given relationships
 
@@ -880,6 +880,9 @@ def create_connection(source, target, relationships=None, name=None):
         relationships (list): list of strings of relationships to connect, may
             be collected from the object 'relationships' property (optional)
         name (str): Defaults to None, String of Name for Connection (optional)
+        bends (list): List of PositionDTO or (x, y) tuples for connection bends.
+            For self-loop connections (source == target), bends are auto-calculated
+            if not provided, to ensure the loop renders correctly in the UI.
 
     Returns:
         :class:`~nipyapi.nifi.models.ConnectionEntity`: for the created connection
@@ -898,6 +901,31 @@ def create_connection(source, target, relationships=None, name=None):
         else:
             # if no relationships supplied, we connect them all
             relationships = source_rels
+
+    # Auto-calculate bends for self-loop connections if not provided.
+    # Without bends, self-loops render incorrectly in the UI (zero-length line).
+    # Bend offsets derived from empirical analysis in layout module.
+    if source.id == target.id and bends is None:
+        # Self-loop: create bends to the right of the processor
+        # Offsets: X +477 (processor width + margin), Y +39 and +89 (bracket center)
+        src_x = source.position.x
+        src_y = source.position.y
+        bends = [
+            nipyapi.nifi.PositionDTO(x=src_x + 477, y=src_y + 39),
+            nipyapi.nifi.PositionDTO(x=src_x + 477, y=src_y + 89),
+        ]
+
+    # Convert tuple bends to PositionDTO if needed
+    if bends:
+        bend_dtos = []
+        for b in bends:
+            if isinstance(b, tuple):
+                # pylint: disable=unsubscriptable-object
+                bend_dtos.append(nipyapi.nifi.PositionDTO(x=float(b[0]), y=float(b[1])))
+            else:
+                bend_dtos.append(b)
+        bends = bend_dtos
+
     if source_type == "OUTPUT_PORT":
         # the hosting process group for an Output port connection to another
         # process group is the common parent process group
@@ -924,6 +952,7 @@ def create_connection(source, target, relationships=None, name=None):
                         id=target.id, group_id=target.component.parent_group_id, type=target_type
                     ),
                     selected_relationships=relationships,
+                    bends=bends,
                 ),
             ),
         )
@@ -981,6 +1010,100 @@ def get_component_connections(component):
         for x in list_all_connections(pg_id=component.component.parent_group_id)
         if component.id in [x.destination_id, x.source_id]
     ]
+
+
+def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
+    start_component, pg_id=None
+):
+    """
+    Find all components connected to a starting component via connections.
+
+    Performs a breadth-first traversal of the connection graph to find the
+    complete connected subgraph (the 'flow'). Useful for selecting an entire
+    flow to move or analyze as a unit.
+
+    Algorithm:
+        1. Fetch all components and connections in one API call (get_flow)
+        2. Build adjacency map: component_id -> set of connected component_ids
+        3. BFS from start_component to find all reachable nodes
+        4. Return component entities for all reached IDs
+
+    Args:
+        start_component: Any component entity (processor, funnel, port) to
+            start the traversal from
+        pg_id: Process group ID containing the flow. If None, inferred from
+            start_component.component.parent_group_id
+
+    Returns:
+        list: All component entities (processors, funnels, ports) connected
+            to the start_component, including the start_component itself
+
+    Example:
+        # Get all components in a flow starting from a processor
+        flow_components = nipyapi.canvas.get_flow_components(proc1)
+
+        # Move entire flow to the right
+        for c in flow_components:
+            pos = nipyapi.layout.get_position(c)
+            nipyapi.layout.move_component(c, (pos[0] + 400, pos[1]))
+    """
+    # Infer pg_id from component if not provided
+    if pg_id is None:
+        if hasattr(start_component, "component") and hasattr(
+            start_component.component, "parent_group_id"
+        ):
+            pg_id = start_component.component.parent_group_id
+        else:
+            raise ValueError("Cannot infer pg_id from component. Please provide pg_id explicitly.")
+
+    # Single API call to get all components and connections
+    flow = get_flow(pg_id)
+    fc = flow.process_group_flow.flow
+
+    # Build lookup map: component_id -> component entity
+    # This avoids fetching each component individually
+    component_map = {}
+    for p in fc.processors or []:
+        component_map[p.id] = p
+    for f in fc.funnels or []:
+        component_map[f.id] = f
+    for p in fc.input_ports or []:
+        component_map[p.id] = p
+    for p in fc.output_ports or []:
+        component_map[p.id] = p
+
+    # Build adjacency map from connections (bidirectional for graph walk)
+    # adjacency[id] = set of connected component ids
+    adjacency = {}
+    for conn in fc.connections or []:
+        src_id = conn.source_id
+        dst_id = conn.destination_id
+        # Initialize sets if needed
+        if src_id not in adjacency:
+            adjacency[src_id] = set()
+        if dst_id not in adjacency:
+            adjacency[dst_id] = set()
+        # Bidirectional edges (we want the full connected subgraph)
+        adjacency[src_id].add(dst_id)
+        adjacency[dst_id].add(src_id)
+
+    # BFS traversal from start component
+    start_id = start_component.id
+    visited = set()
+    queue = [start_id]
+
+    while queue:
+        current_id = queue.pop(0)
+        if current_id in visited:
+            continue
+        visited.add(current_id)
+        # Add all connected neighbors to queue
+        for neighbor_id in adjacency.get(current_id, []):
+            if neighbor_id not in visited:
+                queue.append(neighbor_id)
+
+    # Return component entities for all visited IDs
+    return [component_map[cid] for cid in visited if cid in component_map]
 
 
 def purge_connection(con_id):

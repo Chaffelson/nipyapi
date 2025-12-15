@@ -104,7 +104,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/fields', 'GET',
                                         path_params,
@@ -202,7 +202,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}', 'GET',
                                         path_params,
@@ -310,7 +310,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions/{versionNumber}', 'GET',
                                         path_params,
@@ -408,7 +408,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions', 'GET',
                                         path_params,
@@ -506,7 +506,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions/latest', 'GET',
                                         path_params,
@@ -604,7 +604,7 @@ class FlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = []
 
         return self.api_client.call_api('/flows/{flowId}/versions/latest/metadata', 'GET',
                                         path_params,

@@ -64,10 +64,11 @@ def purge_flowfiles(
     log.debug("Found process group: %s", pg_name)
 
     # Get queued count before purge
-    status = nipyapi.canvas.get_process_group_status(process_group_id)
+    status = nipyapi.canvas.get_process_group_status(process_group_id, detail="all")
     queued_before = 0
-    if status and status.aggregate_snapshot:
-        queued_before = status.aggregate_snapshot.flow_files_queued or 0
+    if status and hasattr(status, "status") and status.status:
+        if hasattr(status.status, "aggregate_snapshot") and status.status.aggregate_snapshot:
+            queued_before = status.status.aggregate_snapshot.flow_files_queued or 0
 
     # Purge the process group
     try:
@@ -84,10 +85,11 @@ def purge_flowfiles(
         }
 
     # Get queued count after purge
-    status = nipyapi.canvas.get_process_group_status(process_group_id)
+    status = nipyapi.canvas.get_process_group_status(process_group_id, detail="all")
     queued_after = 0
-    if status and status.aggregate_snapshot:
-        queued_after = status.aggregate_snapshot.flow_files_queued or 0
+    if status and hasattr(status, "status") and status.status:
+        if hasattr(status.status, "aggregate_snapshot") and status.status.aggregate_snapshot:
+            queued_after = status.status.aggregate_snapshot.flow_files_queued or 0
 
     return {
         "process_group_id": process_group_id,

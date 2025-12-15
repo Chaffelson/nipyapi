@@ -122,7 +122,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/provenance-events/{id}/content/input', 'GET',
                                         path_params,
@@ -221,7 +221,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/provenance-events/latest/{componentId}', 'GET',
                                         path_params,
@@ -327,7 +327,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/provenance-events/{id}/content/output', 'GET',
                                         path_params,
@@ -426,7 +426,7 @@ class ProvenanceEventsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/provenance-events/{id}', 'GET',
                                         path_params,
@@ -522,7 +522,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/provenance-events/replays', 'POST',
                                         path_params,
@@ -618,7 +618,7 @@ class ProvenanceEventsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/provenance-events/latest/replays', 'POST',
                                         path_params,

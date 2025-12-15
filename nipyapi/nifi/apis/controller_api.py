@@ -122,7 +122,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/analysis', 'POST',
                                         path_params,
@@ -649,7 +649,7 @@ class ControllerApi(object):
             select_header_content_type(['*/*', 'application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/state/clear-requests', 'POST',
                                         path_params,
@@ -745,7 +745,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/bulletin', 'POST',
                                         path_params,
@@ -841,7 +841,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/controller-services', 'POST',
                                         path_params,
@@ -937,7 +937,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules', 'POST',
                                         path_params,
@@ -1033,7 +1033,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/registry-clients', 'POST',
                                         path_params,
@@ -1129,7 +1129,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/parameter-providers', 'POST',
                                         path_params,
@@ -1225,7 +1225,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/reporting-tasks', 'POST',
                                         path_params,
@@ -1333,7 +1333,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/verification-requests/{requestId}', 'DELETE',
                                         path_params,
@@ -1446,7 +1446,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'DELETE',
                                         path_params,
@@ -1538,7 +1538,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/history', 'DELETE',
                                         path_params,
@@ -1640,7 +1640,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}', 'DELETE',
                                         path_params,
@@ -1732,7 +1732,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'DELETE',
                                         path_params,
@@ -1932,7 +1932,7 @@ class ControllerApi(object):
             select_header_accept(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}/content', 'GET',
                                         path_params,
@@ -2020,7 +2020,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/cluster', 'GET',
                                         path_params,
@@ -2102,7 +2102,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/config', 'GET',
                                         path_params,
@@ -2194,7 +2194,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}', 'GET',
                                         path_params,
@@ -2303,7 +2303,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/descriptors', 'GET',
                                         path_params,
@@ -2395,7 +2395,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/state', 'GET',
                                         path_params,
@@ -2503,7 +2503,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/verification-requests/{requestId}', 'GET',
                                         path_params,
@@ -2585,7 +2585,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules', 'GET',
                                         path_params,
@@ -2677,7 +2677,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'GET',
                                         path_params,
@@ -2759,7 +2759,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/registry-clients', 'GET',
                                         path_params,
@@ -2851,7 +2851,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}/details', 'GET',
                                         path_params,
@@ -2933,7 +2933,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/nar-manager/nars', 'GET',
                                         path_params,
@@ -3025,7 +3025,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/nar-manager/nars/{id}', 'GET',
                                         path_params,
@@ -3117,7 +3117,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'GET',
                                         path_params,
@@ -3205,7 +3205,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/status/history', 'GET',
                                         path_params,
@@ -3314,7 +3314,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/registry-clients/{id}/descriptors', 'GET',
                                         path_params,
@@ -3402,7 +3402,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/registry-types', 'GET',
                                         path_params,
@@ -3606,7 +3606,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/reporting-tasks/import', 'POST',
                                         path_params,
@@ -3719,7 +3719,7 @@ class ControllerApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}', 'DELETE',
                                         path_params,
@@ -3831,7 +3831,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/config/verification-requests', 'POST',
                                         path_params,
@@ -4039,7 +4039,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/config', 'PUT',
                                         path_params,
@@ -4145,7 +4145,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}', 'PUT',
                                         path_params,
@@ -4251,7 +4251,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/registry-clients/{id}', 'PUT',
                                         path_params,
@@ -4357,7 +4357,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/cluster/nodes/{id}', 'PUT',
                                         path_params,
@@ -4463,7 +4463,7 @@ class ControllerApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/flow-analysis-rules/{id}/run-status', 'PUT',
                                         path_params,
@@ -4564,7 +4564,7 @@ class ControllerApi(object):
             select_header_content_type(['application/octet-stream'])
 
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/controller/nar-manager/nars/content', 'POST',
                                         path_params,

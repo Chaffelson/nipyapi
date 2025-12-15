@@ -334,11 +334,32 @@ def load_profiles_from_file(file_path=None):
 
 def get_default_profile_name():
     """
-    Get the first profile name from the user profiles file.
+    Get the first profile name from the profiles file.
+
+    Resolution order:
+        1. NIPYAPI_PROFILES_FILE environment variable
+        2. ~/.nipyapi/profiles.yml (user-level config)
 
     Returns:
-        str: Profile name, or None if no user profiles file exists
+        str: Profile name, or None if no profiles file exists
     """
+    # Check environment variable first (supports testing and CI overrides)
+    env_profiles_file = utils.getenv("NIPYAPI_PROFILES_FILE")
+    if env_profiles_file:
+        resolved_path = utils.resolve_relative_paths(env_profiles_file)
+        if resolved_path and os.path.exists(resolved_path):
+            try:
+                profiles = load_profiles_from_file(resolved_path)
+                if profiles:
+                    first_profile = next(iter(profiles.keys()))
+                    log.debug(
+                        "Auto-detected profile '%s' from env: %s", first_profile, resolved_path
+                    )
+                    return first_profile
+            except Exception as e:  # pylint: disable=broad-exception-caught
+                log.debug("Could not read profiles from env path: %s", e)
+
+    # Fall back to user profiles file
     user_path = os.path.expanduser(nipy_config.user_profiles_file)
     if not os.path.exists(user_path):
         return None

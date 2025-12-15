@@ -202,7 +202,7 @@ class AccessApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/access/logout', 'DELETE',
                                         path_params,
@@ -286,7 +286,7 @@ class AccessApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = ['bearerAuth']
+        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
 
         return self.api_client.call_api('/access/logout/complete', 'GET',
                                         path_params,

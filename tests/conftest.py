@@ -93,7 +93,10 @@ def session_setup(request):
     global ACTIVE_CONFIG
 
     # Resolve configuration once for the entire session
-    profiles_path = nipyapi.utils.resolve_relative_paths('examples/profiles.yml')
+    # Use NIPYAPI_PROFILES_FILE env var if set, otherwise default to examples/profiles.yml
+    profiles_path = os.getenv('NIPYAPI_PROFILES_FILE', 'examples/profiles.yml')
+    profiles_path = nipyapi.utils.resolve_relative_paths(profiles_path)
+    log.info("Using profiles file: %s", profiles_path)
     ACTIVE_CONFIG = nipyapi.profiles.resolve_profile_config(
         profile_name=ACTIVE_PROFILE, profiles_file_path=profiles_path
     )
