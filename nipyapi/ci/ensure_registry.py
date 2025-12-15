@@ -114,11 +114,6 @@ def ensure_registry(  # pylint: disable=too-many-arguments,too-many-positional-a
     if repository_path:
         log.debug("Repository path: %s", repository_path)
 
-    # Ensure NiFi connection
-    log.debug("Configuring NiFi connection from environment")
-    nipyapi.profiles.switch()
-    log.debug("Connected to: %s", nipyapi.config.nifi_config.host)
-
     # Create/update registry client
     log.debug("Calling ensure_registry_client with reg_type=%s", config["reg_type"])
     client = nipyapi.versioning.ensure_registry_client(

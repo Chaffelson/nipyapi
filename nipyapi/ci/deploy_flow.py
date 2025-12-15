@@ -61,9 +61,6 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
     if not flow:
         raise ValueError("flow is required (or set NIFI_FLOW)")
 
-    # Ensure connection
-    nipyapi.profiles.switch()
-
     # Default to root if not specified
     if not parent_id:
         parent_id = nipyapi.canvas.get_root_pg_id()

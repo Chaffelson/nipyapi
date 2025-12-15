@@ -65,9 +65,6 @@ def get_versions(  # pylint: disable=too-many-locals
         env_val = os.environ.get("NIFI_INCLUDE_DESCENDANTS", "").lower()
         descendants = env_val in ("true", "1", "yes")
 
-    # Auto-resolve profile (env vars or profile file)
-    nipyapi.profiles.switch()
-
     # Default to root process group if not specified
     if not process_group_id:
         process_group_id = nipyapi.canvas.get_root_pg_id()

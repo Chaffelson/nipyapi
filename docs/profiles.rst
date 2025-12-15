@@ -485,6 +485,7 @@ Path resolution:
   - ``NIPYAPI_CERTS_ROOT_PATH`` → Custom root directory for relative path resolution
 
 Profiles system:
+  - ``NIPYAPI_PROFILE`` → Select which profile to use (when ``switch()`` is called without arguments)
   - ``NIPYAPI_PROFILES_FILE`` → Custom profiles file path (overrides default examples/profiles.yml)
 
 Creating Custom Profiles
@@ -604,26 +605,75 @@ Demonstrates flow version management across environments using profile switching
 
 Creates a complete development environment with sample data using the specified profile.
 
+CLI Profile Selection
+=====================
+
+The nipyapi CLI supports explicit profile selection using the ``--profile`` option:
+
+.. code-block:: console
+
+    # Explicit profile selection (recommended for multi-profile setups)
+    nipyapi --profile my_runtime ci get_status PG_ID
+    nipyapi --profile prod_runtime system get_nifi_version_info
+    nipyapi --profile dchaffelson_az1_runtime canvas list_all_process_groups
+
+    # The --profile option must come before the subcommand
+    nipyapi --profile <profile_name> <module> <command> [args]
+
+**Profile Resolution Order (CLI)**
+
+When using the CLI, profile selection follows this priority:
+
+1. **--profile argument** (highest priority): Explicit profile name
+2. **NIFI_API_ENDPOINT env var**: Uses "env" profile (environment-only mode)
+3. **NIPYAPI_PROFILE env var**: Selects named profile from profiles file
+4. **First profile in file**: Uses first profile in ``~/.nipyapi/profiles.yml``
+
+.. code-block:: console
+
+    # Using --profile (highest priority)
+    nipyapi --profile prod ci get_status
+
+    # Using NIPYAPI_PROFILE environment variable
+    export NIPYAPI_PROFILE=prod
+    nipyapi ci get_status
+
+    # Auto-detection (uses first profile in ~/.nipyapi/profiles.yml)
+    nipyapi ci get_status
+
 Profile API Reference
 =====================
 
-**nipyapi.profiles.switch(profile_name, profiles_file=None)**
+**nipyapi.profiles.switch(profile_name=None, profiles_file=None, login=True)**
 
-Switch to a named profile.
+Switch to a profile at runtime using configuration-driven authentication.
 
-:param profile_name: Name of the profile to switch to
-:type profile_name: str
+:param profile_name: Name of the profile to switch to. Resolution when None:
+    1) NIFI_API_ENDPOINT env var → uses "env" profile,
+    2) NIPYAPI_PROFILE env var → uses that profile name,
+    3) First profile in profiles file
+:type profile_name: str or None
 :param profiles_file: Path to profiles file. Resolution order: 1) Explicit parameter, 2) NIPYAPI_PROFILES_FILE env var, 3) nipyapi.config.default_profiles_file
 :type profiles_file: str or None
+:param login: Whether to attempt authentication. Set False for readiness checks.
+:type login: bool
 :raises ValueError: If profile is not found or configuration is invalid
 
 .. code-block:: python
+
+    # Auto-resolve profile (env vars or first profile in file)
+    nipyapi.profiles.switch()
 
     # Switch to named profile
     nipyapi.profiles.switch('single-user')
 
     # Switch using custom profiles file
     nipyapi.profiles.switch('production', profiles_file='/home/user/.nipyapi/profiles.yml')
+
+    # Select profile via environment variable
+    import os
+    os.environ['NIPYAPI_PROFILE'] = 'production'
+    nipyapi.profiles.switch()  # Uses 'production' profile
 
 Cross-References
 ================

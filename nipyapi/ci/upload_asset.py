@@ -84,9 +84,6 @@ def upload_asset(
             "Either file_path or url is required "
             + "(or set NIFI_ASSET_FILE_PATH or NIFI_ASSET_URL)"
         )
-
-    nipyapi.profiles.switch()
-
     # Resolve context ID from process group if needed
     context_name = None
     if context_id is None:

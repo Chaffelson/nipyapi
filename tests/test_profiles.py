@@ -417,6 +417,164 @@ class TestProfileSwitch:
             # (login=False causes logout but doesn't login, leaving session unauthenticated)
             nipyapi.profiles.switch(conftest.ACTIVE_PROFILE, login=True)
 
+    def test_switch_nipyapi_profile_env_var(self):
+        """Test that NIPYAPI_PROFILE environment variable selects profile when switch() called with None.
+
+        This tests the auto-resolution logic that reads NIPYAPI_PROFILE to select
+        a specific profile from the profiles file, rather than using the first profile.
+        """
+        yaml_content = """
+first-profile:
+  nifi_url: https://first.example.com/nifi-api
+  nifi_user: user1
+  nifi_pass: pass1
+
+second-profile:
+  nifi_url: https://second.example.com/nifi-api
+  nifi_user: user2
+  nifi_pass: pass2
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        # Store original environment
+        original_env = {
+            'NIPYAPI_PROFILE': os.environ.get('NIPYAPI_PROFILE'),
+            'NIPYAPI_PROFILES_FILE': os.environ.get('NIPYAPI_PROFILES_FILE'),
+            'NIFI_API_ENDPOINT': os.environ.get('NIFI_API_ENDPOINT'),
+        }
+
+        try:
+            # Clear env vars that would take priority
+            os.environ.pop('NIFI_API_ENDPOINT', None)
+
+            # Set NIPYAPI_PROFILE to select second profile
+            os.environ['NIPYAPI_PROFILE'] = 'second-profile'
+            os.environ['NIPYAPI_PROFILES_FILE'] = yaml_path
+
+            # Call switch() with None - should auto-detect from NIPYAPI_PROFILE
+            profile_name, _ = nipyapi.profiles.switch(None, login=False)
+
+            # Should have selected second-profile, not first-profile
+            assert profile_name == 'second-profile'
+            assert nipyapi.config.nifi_config.host == 'https://second.example.com/nifi-api'
+
+        finally:
+            # Restore original environment
+            for key, value in original_env.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+            os.unlink(yaml_path)
+
+            # CRITICAL: Re-authenticate to restore session state
+            nipyapi.profiles.switch(conftest.ACTIVE_PROFILE, login=True)
+
+    def test_switch_nifi_api_endpoint_takes_priority_over_nipyapi_profile(self):
+        """Test that NIFI_API_ENDPOINT takes priority over NIPYAPI_PROFILE.
+
+        When both are set, the CI/CD pattern (NIFI_API_ENDPOINT) should win
+        because it indicates explicit environment variable configuration.
+        """
+        yaml_content = """
+named-profile:
+  nifi_url: https://named.example.com/nifi-api
+  nifi_user: user1
+  nifi_pass: pass1
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        # Store original environment
+        original_env = {
+            'NIPYAPI_PROFILE': os.environ.get('NIPYAPI_PROFILE'),
+            'NIPYAPI_PROFILES_FILE': os.environ.get('NIPYAPI_PROFILES_FILE'),
+            'NIFI_API_ENDPOINT': os.environ.get('NIFI_API_ENDPOINT'),
+            'NIFI_USERNAME': os.environ.get('NIFI_USERNAME'),
+            'NIFI_PASSWORD': os.environ.get('NIFI_PASSWORD'),
+        }
+
+        try:
+            # Set both - NIFI_API_ENDPOINT should win
+            os.environ['NIFI_API_ENDPOINT'] = 'https://env-endpoint.example.com/nifi-api'
+            os.environ['NIFI_USERNAME'] = 'env_user'
+            os.environ['NIFI_PASSWORD'] = 'env_pass'
+            os.environ['NIPYAPI_PROFILE'] = 'named-profile'
+            os.environ['NIPYAPI_PROFILES_FILE'] = yaml_path
+
+            # Call switch() with None - should use env mode, not named-profile
+            profile_name, _ = nipyapi.profiles.switch(None, login=False)
+
+            # Should have selected 'env' profile (environment variable mode)
+            assert profile_name == 'env'
+            assert nipyapi.config.nifi_config.host == 'https://env-endpoint.example.com/nifi-api'
+
+        finally:
+            # Restore original environment
+            for key, value in original_env.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+            os.unlink(yaml_path)
+
+            # CRITICAL: Re-authenticate to restore session state
+            nipyapi.profiles.switch(conftest.ACTIVE_PROFILE, login=True)
+
+    def test_switch_explicit_arg_overrides_nipyapi_profile_env(self):
+        """Test that explicit profile_name argument overrides NIPYAPI_PROFILE env var."""
+        yaml_content = """
+env-selected-profile:
+  nifi_url: https://env-selected.example.com/nifi-api
+  nifi_user: user1
+  nifi_pass: pass1
+
+arg-selected-profile:
+  nifi_url: https://arg-selected.example.com/nifi-api
+  nifi_user: user2
+  nifi_pass: pass2
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        # Store original environment
+        original_env = {
+            'NIPYAPI_PROFILE': os.environ.get('NIPYAPI_PROFILE'),
+            'NIPYAPI_PROFILES_FILE': os.environ.get('NIPYAPI_PROFILES_FILE'),
+            'NIFI_API_ENDPOINT': os.environ.get('NIFI_API_ENDPOINT'),
+        }
+
+        try:
+            # Clear env vars that would take priority over profile file
+            os.environ.pop('NIFI_API_ENDPOINT', None)
+
+            # Set NIPYAPI_PROFILE to one profile
+            os.environ['NIPYAPI_PROFILE'] = 'env-selected-profile'
+            os.environ['NIPYAPI_PROFILES_FILE'] = yaml_path
+
+            # But pass a different profile as argument - argument should win
+            profile_name, _ = nipyapi.profiles.switch('arg-selected-profile', login=False)
+
+            # Should have selected arg-selected-profile, not env-selected-profile
+            assert profile_name == 'arg-selected-profile'
+            assert nipyapi.config.nifi_config.host == 'https://arg-selected.example.com/nifi-api'
+
+        finally:
+            # Restore original environment
+            for key, value in original_env.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
+            os.unlink(yaml_path)
+
+            # CRITICAL: Re-authenticate to restore session state
+            nipyapi.profiles.switch(conftest.ACTIVE_PROFILE, login=True)
+
 
     def test_switch_invalid_profile(self):
         """Test switching to nonexistent profile raises error."""

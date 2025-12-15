@@ -10,6 +10,10 @@ Usage:
     nipyapi versioning list_registry_clients
     nipyapi layout align_pg_grid PG_ID --sort_by_name=True
 
+    # Explicit profile selection (recommended for multi-profile setups)
+    nipyapi --profile my_runtime ci get_status PG_ID
+    nipyapi --profile prod_runtime system get_nifi_version_info
+
 Installation:
     pip install nipyapi[cli]
 
@@ -18,9 +22,11 @@ Or with uvx (no install):
 
 Configuration:
     The CLI auto-detects configuration using this priority:
-    1. Environment variables (if NIFI_API_ENDPOINT is set)
-    2. User profiles file (~/.nipyapi/profiles.yml)
-    3. No configuration (commands will fail with helpful error)
+    1. --profile argument (explicit profile selection)
+    2. Environment variables (if NIFI_API_ENDPOINT is set)
+    3. NIPYAPI_PROFILE env var (selects named profile from profiles file)
+    4. First profile in ~/.nipyapi/profiles.yml
+    5. No configuration (commands will fail with helpful error)
 
     Environment variables (for CI/CD):
     NIFI_API_ENDPOINT              NiFi API URL
@@ -309,6 +315,34 @@ class SafeModule:
         return dir(self._module)
 
 
+def _parse_profile_arg():
+    """
+    Parse --profile argument from sys.argv before Fire processes it.
+
+    Returns:
+        str or None: Profile name if --profile was specified, None otherwise.
+
+    Side effect:
+        Removes --profile and its value from sys.argv so Fire doesn't see them.
+    """
+    profile = None
+    new_argv = [sys.argv[0]]
+    i = 1
+    while i < len(sys.argv):
+        arg = sys.argv[i]
+        if arg == "--profile" and i + 1 < len(sys.argv):
+            profile = sys.argv[i + 1]
+            i += 2  # Skip both --profile and its value
+        elif arg.startswith("--profile="):
+            profile = arg.split("=", 1)[1]
+            i += 1
+        else:
+            new_argv.append(arg)
+            i += 1
+    sys.argv = new_argv
+    return profile
+
+
 def main():
     """CLI entry point."""
     # Suppress SSL warnings early to prevent them polluting stdout in CI
@@ -325,34 +359,57 @@ def main():
         print("Install with: pip install nipyapi[cli]")
         sys.exit(1)
 
+    # Parse --profile argument before Fire sees it
+    explicit_profile = _parse_profile_arg()
+
     # Import nipyapi modules
     import nipyapi
     from nipyapi import ci
 
     # Auto-configure NiFi connection.
-    # Auto-resolve configuration: env vars if set, else user profile file
+    # Priority: explicit --profile arg > NIFI_API_ENDPOINT > NIPYAPI_PROFILE > first profile
     # This matches AWS CLI / gcloud pattern - just works without explicit config
     try:
-        nipyapi.profiles.switch()
+        nipyapi.profiles.switch(explicit_profile)
     except ValueError:
         pass  # No configuration found - errors will surface on first API call
 
-    # Wrap modules with SafeModule for structured error handling
-    fire.Fire(
-        {
-            "ci": SafeModule(ci),
-            "canvas": SafeModule(nipyapi.canvas),
-            "versioning": SafeModule(nipyapi.versioning),
-            "parameters": SafeModule(nipyapi.parameters),
-            "security": SafeModule(nipyapi.security),
-            "system": SafeModule(nipyapi.system),
-            "layout": SafeModule(nipyapi.layout),  # Canvas layout and positioning
-            "config": nipyapi.config,  # Config is for settings, not API calls
-            "profiles": nipyapi.profiles,  # Profiles is for setup, not API calls
-            "utils": nipyapi.utils,
-        },
-        serialize=_custom_serializer,
-    )
+    # Create CLI interface with docstring that Fire will display in help
+    # pylint: disable=too-many-instance-attributes,too-few-public-methods
+    class CLI:
+        """NiPyAPI command-line interface for Apache NiFi automation.
+
+        Profile Selection (use --profile before any command):
+            nipyapi --profile <name> <command>     Explicit profile selection
+            nipyapi --profile prod ci get_status   Example with CI module
+
+        Configuration Priority:
+            1. --profile argument (explicit)
+            2. NIFI_API_ENDPOINT env var (CI/CD mode)
+            3. NIPYAPI_PROFILE env var (named profile)
+            4. First profile in ~/.nipyapi/profiles.yml
+
+        Quick Start:
+            nipyapi system get_nifi_version_info   Test connectivity
+            nipyapi ci get_status <pg_id>          Get process group status
+            nipyapi --profile prod ci deploy_flow  Deploy with explicit profile
+
+        Full documentation: https://nipyapi.readthedocs.io/
+        """
+
+        def __init__(self):
+            self.ci = SafeModule(ci)
+            self.canvas = SafeModule(nipyapi.canvas)
+            self.versioning = SafeModule(nipyapi.versioning)
+            self.parameters = SafeModule(nipyapi.parameters)
+            self.security = SafeModule(nipyapi.security)
+            self.system = SafeModule(nipyapi.system)
+            self.layout = SafeModule(nipyapi.layout)
+            self.config = nipyapi.config
+            self.profiles = nipyapi.profiles
+            self.utils = nipyapi.utils
+
+    fire.Fire(CLI, serialize=_custom_serializer)
 
 
 if __name__ == "__main__":

@@ -86,8 +86,6 @@ def configure_inherited_params(
     if not isinstance(parameters, dict):
         raise ValueError("parameters must be a JSON object with key-value pairs")
 
-    nipyapi.profiles.switch()
-
     log.info(
         "Configuring %d parameter(s) on %s (dry_run=%s)",
         len(parameters),

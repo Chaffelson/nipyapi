@@ -45,8 +45,6 @@ def purge_flowfiles(
     if not process_group_id:
         raise ValueError("process_group_id is required (or set NIFI_PROCESS_GROUP_ID)")
 
-    nipyapi.profiles.switch()
-
     log.info("Purging flow files from process group: %s", process_group_id)
 
     # Get process group

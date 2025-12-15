@@ -39,9 +39,6 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
     """
     process_group_id = process_group_id or os.environ.get("NIFI_PROCESS_GROUP_ID")
 
-    # Auto-resolve profile (env vars or profile file)
-    nipyapi.profiles.switch()
-
     # Default to root process group if not specified (safe for read-only operation)
     is_root = False
     if not process_group_id:

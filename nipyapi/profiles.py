@@ -501,8 +501,9 @@ def switch(profile_name=None, profiles_file=None, login=True):
         profile_name (str, optional): Name of the profile to switch to.
                            - None (default): Auto-resolve configuration source:
                              1. Environment variables if NIFI_API_ENDPOINT is set
-                             2. User profile file (~/.nipyapi/profiles.yml) if exists
-                             3. Raises helpful error if neither found
+                             2. NIPYAPI_PROFILE env var if set (selects named profile)
+                             3. First profile in ~/.nipyapi/profiles.yml if exists
+                             4. Raises helpful error if none found
                            - "env": Explicit environment variable mode (for CI/CD).
                              Fails if NIFI_API_ENDPOINT is not set.
                            - "<name>": Use specific named profile from profiles file.
@@ -548,6 +549,10 @@ def switch(profile_name=None, profiles_file=None, login=True):
         if utils.getenv("NIFI_API_ENDPOINT"):
             log.debug("Auto-resolve: using environment variables (NIFI_API_ENDPOINT is set)")
             profile_name = "env"
+        elif utils.getenv("NIPYAPI_PROFILE"):
+            # Explicit profile selection via environment variable
+            profile_name = utils.getenv("NIPYAPI_PROFILE")
+            log.debug("Auto-resolve: using profile '%s' from NIPYAPI_PROFILE env var", profile_name)
         else:
             default_profile = get_default_profile_name()
             if default_profile:
