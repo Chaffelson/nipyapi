@@ -111,7 +111,7 @@ class SystemDiagnosticsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/system-diagnostics/jmx-metrics', 'GET',
                                         path_params,
@@ -214,7 +214,7 @@ class SystemDiagnosticsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/system-diagnostics', 'GET',
                                         path_params,

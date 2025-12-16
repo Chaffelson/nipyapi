@@ -214,7 +214,7 @@ class RemoteProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'GET',
                                         path_params,
@@ -306,7 +306,7 @@ class RemoteProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/state', 'GET',
                                         path_params,
@@ -419,7 +419,7 @@ class RemoteProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'DELETE',
                                         path_params,
@@ -525,7 +525,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}', 'PUT',
                                         path_params,
@@ -647,7 +647,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/input-ports/{port-id}', 'PUT',
                                         path_params,
@@ -769,7 +769,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/input-ports/{port-id}/run-status', 'PUT',
                                         path_params,
@@ -891,7 +891,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/output-ports/{port-id}', 'PUT',
                                         path_params,
@@ -1013,7 +1013,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/output-ports/{port-id}/run-status', 'PUT',
                                         path_params,
@@ -1119,7 +1119,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/{id}/run-status', 'PUT',
                                         path_params,
@@ -1225,7 +1225,7 @@ class RemoteProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/remote-process-groups/process-group/{id}/run-status', 'PUT',
                                         path_params,

@@ -115,7 +115,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'DELETE',
                                         path_params,
@@ -214,7 +214,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance/{id}', 'DELETE',
                                         path_params,
@@ -313,7 +313,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance/lineage/{id}', 'GET',
                                         path_params,
@@ -426,7 +426,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance/{id}', 'GET',
                                         path_params,
@@ -508,7 +508,7 @@ class ProvenanceApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance/search-options', 'GET',
                                         path_params,
@@ -610,7 +610,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance/lineage', 'POST',
                                         path_params,
@@ -712,7 +712,7 @@ class ProvenanceApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/provenance', 'POST',
                                         path_params,

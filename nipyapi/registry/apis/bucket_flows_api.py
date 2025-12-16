@@ -128,7 +128,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows', 'POST',
                                         path_params,
@@ -257,7 +257,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions', 'POST',
                                         path_params,
@@ -382,7 +382,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}', 'DELETE',
                                         path_params,
@@ -500,7 +500,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/{versionNumber}/export', 'GET',
                                         path_params,
@@ -608,7 +608,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}', 'GET',
                                         path_params,
@@ -736,7 +736,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/diff/{versionA}/{versionB}', 'GET',
                                         path_params,
@@ -854,7 +854,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/{versionNumber}', 'GET',
                                         path_params,
@@ -962,7 +962,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions', 'GET',
                                         path_params,
@@ -1060,7 +1060,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows', 'GET',
                                         path_params,
@@ -1168,7 +1168,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/latest', 'GET',
                                         path_params,
@@ -1276,7 +1276,7 @@ class BucketFlowsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/latest/metadata', 'GET',
                                         path_params,
@@ -1400,7 +1400,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}/versions/import', 'POST',
                                         path_params,
@@ -1522,7 +1522,7 @@ class BucketFlowsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/buckets/{bucketId}/flows/{flowId}', 'PUT',
                                         path_params,

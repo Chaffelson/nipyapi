@@ -122,7 +122,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/copy', 'POST',
                                         path_params,
@@ -228,7 +228,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/snippet-instance', 'POST',
                                         path_params,
@@ -334,7 +334,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/connections', 'POST',
                                         path_params,
@@ -440,7 +440,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/controller-services', 'POST',
                                         path_params,
@@ -532,7 +532,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/empty-all-connections-requests', 'POST',
                                         path_params,
@@ -638,7 +638,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/funnels', 'POST',
                                         path_params,
@@ -744,7 +744,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/input-ports', 'POST',
                                         path_params,
@@ -850,7 +850,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/labels', 'POST',
                                         path_params,
@@ -956,7 +956,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/output-ports', 'POST',
                                         path_params,
@@ -1069,7 +1069,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups', 'POST',
                                         path_params,
@@ -1175,7 +1175,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/processors', 'POST',
                                         path_params,
@@ -1281,7 +1281,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/remote-process-groups', 'POST',
                                         path_params,
@@ -1386,7 +1386,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/replace-requests/{id}', 'DELETE',
                                         path_params,
@@ -1485,7 +1485,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/download', 'GET',
                                         path_params,
@@ -1577,7 +1577,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/connections', 'GET',
                                         path_params,
@@ -1679,7 +1679,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/empty-all-connections-requests/{drop-request-id}', 'GET',
                                         path_params,
@@ -1771,7 +1771,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/funnels', 'GET',
                                         path_params,
@@ -1863,7 +1863,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/input-ports', 'GET',
                                         path_params,
@@ -1955,7 +1955,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/labels', 'GET',
                                         path_params,
@@ -2047,7 +2047,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/local-modifications', 'GET',
                                         path_params,
@@ -2139,7 +2139,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/output-ports', 'GET',
                                         path_params,
@@ -2231,7 +2231,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'GET',
                                         path_params,
@@ -2323,7 +2323,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups', 'GET',
                                         path_params,
@@ -2422,7 +2422,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/processors', 'GET',
                                         path_params,
@@ -2514,7 +2514,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/remote-process-groups', 'GET',
                                         path_params,
@@ -2612,7 +2612,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/replace-requests/{id}', 'GET',
                                         path_params,
@@ -2713,7 +2713,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups/import', 'POST',
                                         path_params,
@@ -2825,7 +2825,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/replace-requests', 'POST',
                                         path_params,
@@ -2931,7 +2931,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/paste', 'PUT',
                                         path_params,
@@ -3033,7 +3033,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/empty-all-connections-requests/{drop-request-id}', 'DELETE',
                                         path_params,
@@ -3146,7 +3146,7 @@ class ProcessGroupsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'DELETE',
                                         path_params,
@@ -3258,7 +3258,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/flow-contents', 'PUT',
                                         path_params,
@@ -3364,7 +3364,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}', 'PUT',
                                         path_params,
@@ -3490,7 +3490,7 @@ class ProcessGroupsApi(object):
             select_header_content_type(['multipart/form-data'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/process-groups/{id}/process-groups/upload', 'POST',
                                         path_params,

@@ -98,7 +98,7 @@ class SiteToSiteApi(object):
             select_header_accept(['application/json', 'application/xml'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/site-to-site/peers', 'GET',
                                         path_params,
@@ -180,7 +180,7 @@ class SiteToSiteApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/site-to-site', 'GET',
                                         path_params,

@@ -125,7 +125,7 @@ class TestResolveGitRef:
         with pytest.raises(ValueError, match="token not available"):
             ci.resolve_git_ref("v1.0.0", repo="owner/repo")
 
-    @patch("nipyapi.ci.resolve_git_ref.requests.get")
+    @patch("requests.get")
     def test_resolve_git_ref_github(self, mock_get):
         """Test resolving ref via GitHub API."""
         mock_response = MagicMock()
@@ -141,7 +141,7 @@ class TestResolveGitRef:
         assert "api.github.com" in call_args[0][0]
         assert call_args[1]["headers"]["Authorization"] == "Bearer ghp_xxx"
 
-    @patch("nipyapi.ci.resolve_git_ref.requests.get")
+    @patch("requests.get")
     def test_resolve_git_ref_gitlab(self, mock_get):
         """Test resolving ref via GitLab API."""
         mock_response = MagicMock()
@@ -159,7 +159,7 @@ class TestResolveGitRef:
         assert "gitlab.com" in call_args[0][0]
         assert call_args[1]["headers"]["PRIVATE-TOKEN"] == "glpat-xxx"
 
-    @patch("nipyapi.ci.resolve_git_ref.requests.get")
+    @patch("requests.get")
     def test_resolve_git_ref_not_found(self, mock_get):
         """Test 404 response raises ValueError."""
         mock_response = MagicMock()

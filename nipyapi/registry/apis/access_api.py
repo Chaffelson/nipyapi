@@ -192,7 +192,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['basicAuth']
 
         return self.api_client.call_api('/access/token/login', 'POST',
                                         path_params,
@@ -280,7 +280,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/token/identity-provider', 'POST',
                                         path_params,
@@ -368,7 +368,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/token/kerberos', 'POST',
                                         path_params,
@@ -456,7 +456,7 @@ class AccessApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access', 'GET',
                                         path_params,
@@ -544,7 +544,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/token/identity-provider/usage', 'GET',
                                         path_params,
@@ -628,7 +628,7 @@ class AccessApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/logout', 'DELETE',
                                         path_params,
@@ -712,7 +712,7 @@ class AccessApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/logout/complete', 'GET',
                                         path_params,
@@ -800,7 +800,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/oidc/callback', 'GET',
                                         path_params,
@@ -888,7 +888,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/oidc/exchange', 'POST',
                                         path_params,
@@ -976,7 +976,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/oidc/logout', 'GET',
                                         path_params,
@@ -1064,7 +1064,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/oidc/logout/callback', 'GET',
                                         path_params,
@@ -1152,7 +1152,7 @@ class AccessApi(object):
             select_header_accept(['*/*'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/oidc/request', 'GET',
                                         path_params,
@@ -1240,7 +1240,7 @@ class AccessApi(object):
             select_header_accept(['text/plain'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/access/token/identity-provider/test', 'POST',
                                         path_params,

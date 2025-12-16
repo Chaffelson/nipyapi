@@ -104,7 +104,7 @@ class ItemsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/items/fields', 'GET',
                                         path_params,
@@ -192,7 +192,7 @@ class ItemsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/items', 'GET',
                                         path_params,
@@ -290,7 +290,7 @@ class ItemsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/items/{bucketId}', 'GET',
                                         path_params,

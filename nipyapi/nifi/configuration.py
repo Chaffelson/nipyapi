@@ -227,6 +227,13 @@ class Configuration(object):
                     'key': 'Authorization',
                     'value': self.get_api_key_with_prefix('bearerAuth')
                 },
+            'bearerAuth':
+                {
+                    'type': 'api_key',
+                    'in': 'header',
+                    'key': 'Authorization',
+                    'value': self.get_api_key_with_prefix('bearerAuth')
+                },
         }
 
     def to_debug_report(self):

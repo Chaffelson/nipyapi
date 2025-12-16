@@ -126,7 +126,7 @@ class ExtensionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/extensions', 'GET',
                                         path_params,
@@ -254,7 +254,7 @@ class ExtensionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/extensions/provided-service-api', 'GET',
                                         path_params,
@@ -342,7 +342,7 @@ class ExtensionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/extensions/tags', 'GET',
                                         path_params,

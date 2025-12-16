@@ -112,7 +112,7 @@ class SnippetsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/snippets', 'POST',
                                         path_params,
@@ -211,7 +211,7 @@ class SnippetsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/snippets/{id}', 'DELETE',
                                         path_params,
@@ -317,7 +317,7 @@ class SnippetsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/snippets/{id}', 'PUT',
                                         path_params,

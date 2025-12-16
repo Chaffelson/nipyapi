@@ -104,7 +104,7 @@ class AboutApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = []
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/about', 'GET',
                                         path_params,

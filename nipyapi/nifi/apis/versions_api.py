@@ -118,7 +118,7 @@ class VersionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/active-requests', 'POST',
                                         path_params,
@@ -223,7 +223,7 @@ class VersionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/revert-requests/{id}', 'DELETE',
                                         path_params,
@@ -328,7 +328,7 @@ class VersionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/update-requests/{id}', 'DELETE',
                                         path_params,
@@ -429,7 +429,7 @@ class VersionsApi(object):
 
         body_params = None
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/active-requests/{id}', 'DELETE',
                                         path_params,
@@ -521,7 +521,7 @@ class VersionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/process-groups/{id}/download', 'GET',
                                         path_params,
@@ -619,7 +619,7 @@ class VersionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/revert-requests/{id}', 'GET',
                                         path_params,
@@ -717,7 +717,7 @@ class VersionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/update-requests/{id}', 'GET',
                                         path_params,
@@ -815,7 +815,7 @@ class VersionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/process-groups/{id}', 'GET',
                                         path_params,
@@ -927,7 +927,7 @@ class VersionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/revert-requests/process-groups/{id}', 'POST',
                                         path_params,
@@ -1039,7 +1039,7 @@ class VersionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/update-requests/process-groups/{id}', 'POST',
                                         path_params,
@@ -1151,7 +1151,7 @@ class VersionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/process-groups/{id}', 'POST',
                                         path_params,
@@ -1270,7 +1270,7 @@ class VersionsApi(object):
             select_header_accept(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/process-groups/{id}', 'DELETE',
                                         path_params,
@@ -1382,7 +1382,7 @@ class VersionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/process-groups/{id}', 'PUT',
                                         path_params,
@@ -1494,7 +1494,7 @@ class VersionsApi(object):
             select_header_content_type(['application/json'])
 
         # Authentication setting
-        auth_settings = ['CookieSecureAuthorizationBearer', 'HTTPBearerJWT']
+        auth_settings = ['bearerAuth']
 
         return self.api_client.call_api('/versions/active-requests/{id}', 'PUT',
                                         path_params,
