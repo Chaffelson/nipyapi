@@ -1,6 +1,8 @@
 """Tests for `nipyapi.ci` module."""
 
 import os
+from urllib.parse import urlparse
+
 import pytest
 from unittest.mock import patch, MagicMock
 
@@ -138,7 +140,7 @@ class TestResolveGitRef:
         assert result == "abc123def456"
         mock_get.assert_called_once()
         call_args = mock_get.call_args
-        assert "api.github.com" in call_args[0][0]
+        assert urlparse(call_args[0][0]).hostname == "api.github.com"
         assert call_args[1]["headers"]["Authorization"] == "Bearer ghp_xxx"
 
     @patch("requests.get")
