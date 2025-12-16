@@ -68,9 +68,17 @@ def ensure_registry(  # pylint: disable=too-many-arguments,too-many-positional-a
         Exception: NiFi API errors
     """
     # Resolve from env vars with defaults
-    token = token or os.environ.get("GH_REGISTRY_TOKEN") or os.environ.get("GL_REGISTRY_TOKEN")
-    repo = repo or os.environ.get("NIFI_REGISTRY_REPO")
+    # Determine provider first so we can select the correct token env var
     provider = (provider or os.environ.get("NIFI_REGISTRY_PROVIDER") or "github").lower()
+
+    # Select token based on provider - check provider-specific env var first
+    if not token:
+        if provider == "gitlab":
+            token = os.environ.get("GL_REGISTRY_TOKEN") or os.environ.get("GH_REGISTRY_TOKEN")
+        else:
+            token = os.environ.get("GH_REGISTRY_TOKEN") or os.environ.get("GL_REGISTRY_TOKEN")
+
+    repo = repo or os.environ.get("NIFI_REGISTRY_REPO")
     client_name = client_name or os.environ.get("NIFI_REGISTRY_CLIENT_NAME")
     api_url = api_url or os.environ.get("NIFI_REGISTRY_API_URL")
     default_branch = default_branch or os.environ.get("NIFI_REGISTRY_BRANCH") or "main"
