@@ -648,3 +648,173 @@ def test_transpose_flow(fix_pg, fix_proc):
     assert p1_new.position.y == 150.0  # 100 + 50
     assert p2_new.position.x == 300.0
     assert p2_new.position.y == 350.0  # 300 + 50
+
+
+# =============================================================================
+# PORT AND LABEL MOVEMENT TESTS
+# =============================================================================
+
+
+def test_move_port_input(fix_pg):
+    """Test moving an input port."""
+    f_pg = fix_pg.generate()
+
+    # Create an input port using correct signature
+    port = canvas.create_port(
+        pg_id=f_pg.id,
+        port_type='INPUT_PORT',
+        name=conftest.test_basename + '_input_port',
+        state='STOPPED',
+        position=(100, 100)
+    )
+
+    try:
+        # Move the port
+        new_position = (300, 400)
+        result = layout.move_port(port, new_position)
+
+        # Verify position changed
+        assert result.position.x == 300
+        assert result.position.y == 400
+    finally:
+        # Clean up - use result which has updated revision
+        canvas.delete_port(result)
+
+
+def test_move_port_output(fix_pg):
+    """Test moving an output port."""
+    f_pg = fix_pg.generate()
+
+    # Create an output port
+    port = canvas.create_port(
+        pg_id=f_pg.id,
+        port_type='OUTPUT_PORT',
+        name=conftest.test_basename + '_output_port',
+        state='STOPPED',
+        position=(100, 100)
+    )
+
+    try:
+        # Move the port
+        new_position = (500, 200)
+        result = layout.move_port(port, new_position)
+
+        # Verify position changed
+        assert result.position.x == 500
+        assert result.position.y == 200
+    finally:
+        # Clean up - use result which has updated revision
+        canvas.delete_port(result)
+
+
+def test_move_port_no_refresh(fix_pg):
+    """Test moving a port without pre-fetch refresh."""
+    f_pg = fix_pg.generate()
+
+    # Create a port
+    port = canvas.create_port(
+        pg_id=f_pg.id,
+        port_type='INPUT_PORT',
+        name=conftest.test_basename + '_port_noref',
+        state='STOPPED',
+        position=(100, 100)
+    )
+
+    try:
+        # Move without refresh (no pre-fetch)
+        # Still returns updated entity from the API call
+        result = layout.move_port(port, (200, 200), refresh=False)
+        assert result is not None
+        assert result.position.x == 200
+        assert result.position.y == 200
+    finally:
+        # Clean up - use result which has updated revision
+        canvas.delete_port(result)
+
+
+def test_move_component_with_port(fix_pg):
+    """Test move_component auto-detects and moves ports."""
+    f_pg = fix_pg.generate()
+
+    # Create an input port
+    port = canvas.create_port(
+        pg_id=f_pg.id,
+        port_type='INPUT_PORT',
+        name=conftest.test_basename + '_mc_port',
+        state='STOPPED',
+        position=(100, 100)
+    )
+
+    try:
+        # Move using generic function
+        result = layout.move_component(port, (600, 400))
+
+        # Verify
+        assert result.position.x == 600
+        assert result.position.y == 400
+    finally:
+        # Clean up - use result which has updated revision
+        canvas.delete_port(result)
+
+
+def test_snap_position():
+    """Test snap_position snaps both coordinates to grid."""
+    # Test normal coordinates - snaps to nearest 8
+    # 123.5 / 8 = 15.4375 -> round(15.4375) = 15 -> 15 * 8 = 120
+    # 234.7 / 8 = 29.3375 -> round(29.3375) = 29 -> 29 * 8 = 232
+    result = layout.snap_position((123.5, 234.7))
+    assert result == (120, 232)
+
+    # Test already aligned
+    result = layout.snap_position((200.0, 400.0))
+    assert result == (200, 400)
+
+    # Test rounding behavior
+    # 199 / 8 = 24.875 -> round = 25 -> 200
+    # 401 / 8 = 50.125 -> round = 50 -> 400
+    result = layout.snap_position((199.0, 401.0))
+    assert result == (200, 400)
+
+
+def test_get_pg_grid_position():
+    """Test process group grid positioning."""
+    # First position (0,0) should return DEFAULT_ORIGIN
+    pos = layout.get_pg_grid_position(0, 0)
+    assert pos == layout.DEFAULT_ORIGIN
+
+
+def test_new_flow_invalid_direction(fix_pg, fix_proc):
+    """Test new_flow with invalid direction raises error."""
+    f_pg = fix_pg.generate()
+    proc = fix_proc.generate(f_pg)
+
+    # Invalid direction should raise ValueError
+    with pytest.raises(ValueError, match="Invalid direction"):
+        layout.new_flow(proc, direction="below")
+
+
+def test_left_of_component(fix_pg, fix_proc):
+    """Test left_of positioning with multiple blocks."""
+    f_pg = fix_pg.generate()
+    proc = fix_proc.generate(f_pg)
+
+    # Get position 2 blocks to the left
+    new_pos = layout.left_of(proc, blocks=2, align="aligned")
+
+    proc_pos = layout.get_position(proc)
+    # left_of uses BLOCK_WIDTH (400) not GRID_SIZE
+    expected_x = proc_pos[0] - (2 * layout.BLOCK_WIDTH)
+    assert new_pos[0] == expected_x
+    assert new_pos[1] == proc_pos[1]  # Same Y when aligned
+
+
+def test_check_overlap():
+    """Test _check_overlap internal function."""
+    # Test overlapping positions
+    assert layout._check_overlap((100, 100), (150, 150), 100, 100) is True
+
+    # Test non-overlapping positions
+    assert layout._check_overlap((100, 100), (300, 300), 100, 100) is False
+
+    # Test edge case - just touching
+    assert layout._check_overlap((100, 100), (200, 100), 100, 100) is False

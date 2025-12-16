@@ -559,3 +559,376 @@ def test_upload_asset_missing_file():
             os.environ["NIFI_ASSET_FILE_PATH"] = old_path
         if old_url:
             os.environ["NIFI_ASSET_URL"] = old_url
+
+
+# =============================================================================
+# Configure Inherited Params Integration Tests
+# =============================================================================
+
+
+def test_configure_inherited_params_missing_pg_id():
+    """Test configure_inherited_params without process_group_id raises error."""
+    old_pg = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+    try:
+        with pytest.raises(ValueError, match="process_group_id is required"):
+            ci.configure_inherited_params(parameters='{"key": "value"}')
+    finally:
+        if old_pg:
+            os.environ["NIFI_PROCESS_GROUP_ID"] = old_pg
+
+
+def test_configure_inherited_params_missing_parameters():
+    """Test configure_inherited_params without parameters raises error."""
+    old_params = os.environ.pop("NIFI_PARAMETERS", None)
+    try:
+        with pytest.raises(ValueError, match="parameters is required"):
+            ci.configure_inherited_params(process_group_id="test-id")
+    finally:
+        if old_params:
+            os.environ["NIFI_PARAMETERS"] = old_params
+
+
+def test_configure_inherited_params_invalid_json():
+    """Test configure_inherited_params with invalid JSON raises error."""
+    with pytest.raises(ValueError, match="Invalid JSON"):
+        ci.configure_inherited_params(
+            process_group_id="test-id",
+            parameters="{not valid json}"
+        )
+
+
+def test_configure_inherited_params_non_dict():
+    """Test configure_inherited_params with non-dict JSON raises error."""
+    with pytest.raises(ValueError, match="must be a JSON object"):
+        ci.configure_inherited_params(
+            process_group_id="test-id",
+            parameters='["list", "not", "dict"]'
+        )
+
+
+def test_configure_inherited_params_pg_not_found():
+    """Test configure_inherited_params with non-existent PG raises error."""
+    import uuid
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_inherited_params(
+            process_group_id=str(uuid.uuid4()),
+            parameters='{"key": "value"}'
+        )
+
+
+def test_configure_inherited_params_no_context(fix_pg):
+    """Test configure_inherited_params on PG without parameter context."""
+    pg = fix_pg.generate()
+
+    with pytest.raises(ValueError, match="has no parameter context"):
+        ci.configure_inherited_params(
+            process_group_id=pg.id,
+            parameters='{"key": "value"}'
+        )
+
+
+def test_configure_inherited_params_dry_run(fix_pg, fix_context):
+    """Test configure_inherited_params dry run mode."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="TestParam",
+        value="initial_value",
+        description="Test parameter"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Dry run should return plan without making changes
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters='{"TestParam": "new_value"}',
+        dry_run=True
+    )
+
+    assert result["dry_run"] == "true"
+    assert result["parameters_updated"] == "0"
+    assert "TestParam" in result["plan"]
+
+    # Verify value was NOT changed
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    test_param = next(
+        p for p in updated_ctx.component.parameters
+        if p.parameter.name == "TestParam"
+    )
+    assert test_param.parameter.value == "initial_value"
+
+
+def test_configure_inherited_params_execute(fix_pg, fix_context):
+    """Test configure_inherited_params actually updates parameter."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="ExecuteTestParam",
+        value="old_value",
+        description="Test parameter for execution"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Execute update (not dry run)
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters='{"ExecuteTestParam": "new_value"}',
+        dry_run=False
+    )
+
+    assert result["dry_run"] == "false"
+    assert result["parameters_updated"] == "1"
+    assert result["contexts_modified"] == "1"
+
+    # Verify value WAS changed
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    test_param = next(
+        p for p in updated_ctx.component.parameters
+        if p.parameter.name == "ExecuteTestParam"
+    )
+    assert test_param.parameter.value == "new_value"
+
+
+def test_configure_inherited_params_not_found_error(fix_pg, fix_context):
+    """Test configure_inherited_params with non-existent parameter."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create empty context
+    ctx = fix_context.generate()
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Try to update non-existent parameter (without allow_override)
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters='{"NonExistentParam": "value"}',
+        dry_run=False,
+        allow_override=False
+    )
+
+    # Should have error about parameter not found
+    assert "errors" in result
+    assert "NonExistentParam" in result["errors"]
+    assert "not found" in result["errors"]
+
+
+def test_configure_inherited_params_allow_override(fix_pg, fix_context):
+    """Test configure_inherited_params with allow_override creates new param."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create empty context
+    ctx = fix_context.generate()
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Create non-existent parameter with allow_override
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters='{"NewOverrideParam": "created_value"}',
+        dry_run=False,
+        allow_override=True
+    )
+
+    assert result["dry_run"] == "false"
+    assert result["parameters_updated"] == "1"
+    # Plan shows "ParamName→ContextName" format
+    assert "NewOverrideParam" in result["plan"]
+
+    # Verify parameter was created
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    param_names = [p.parameter.name for p in updated_ctx.component.parameters]
+    assert "NewOverrideParam" in param_names
+
+
+# =============================================================================
+# Upload Asset Integration Tests
+# =============================================================================
+
+
+def test_upload_asset_from_file_path(fix_context, tmp_path):
+    """Test ci.upload_asset from local file path."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Create a temp file
+    test_file = tmp_path / "test_driver.jar"
+    test_file.write_bytes(b"fake jar content for testing")
+
+    result = ci.upload_asset(
+        context_id=ctx.id,
+        file_path=str(test_file)
+    )
+
+    assert result["asset_name"] == "test_driver.jar"
+    assert result["context_id"] == ctx.id
+    assert "asset_id" in result
+    assert "asset_digest" in result
+    assert result["parameter_updated"] == "false"
+
+    # Clean up
+    nipyapi.parameters.delete_asset(ctx.id, result["asset_id"])
+
+
+def test_upload_asset_from_process_group(fix_pg, fix_context, tmp_path):
+    """Test ci.upload_asset resolves context from process group."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context and attach to PG
+    ctx = fix_context.generate()
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Create a temp file
+    test_file = tmp_path / "pg_asset.txt"
+    test_file.write_bytes(b"content via pg resolution")
+
+    result = ci.upload_asset(
+        process_group_id=pg.id,
+        file_path=str(test_file)
+    )
+
+    assert result["asset_name"] == "pg_asset.txt"
+    assert result["context_id"] == ctx.id
+    assert result["context_name"] == ctx.component.name
+
+    # Clean up
+    nipyapi.parameters.delete_asset(ctx.id, result["asset_id"])
+
+
+def test_upload_asset_with_param_link(fix_context, tmp_path):
+    """Test ci.upload_asset with parameter linking."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Create a temp file
+    test_file = tmp_path / "linked_driver.jar"
+    test_file.write_bytes(b"driver content")
+
+    result = ci.upload_asset(
+        context_id=ctx.id,
+        file_path=str(test_file),
+        param_name="JDBC Driver"
+    )
+
+    assert result["parameter_updated"] == "true"
+    assert result["parameter_name"] == "JDBC Driver"
+    assert result["asset_name"] == "linked_driver.jar"
+
+    # Verify parameter was created with asset reference
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    driver_param = next(
+        (p for p in updated_ctx.component.parameters if p.parameter.name == "JDBC Driver"),
+        None
+    )
+    assert driver_param is not None
+    assert driver_param.parameter.referenced_assets is not None
+    assert len(driver_param.parameter.referenced_assets) == 1
+    assert driver_param.parameter.referenced_assets[0].id == result["asset_id"]
+
+    # Clean up
+    nipyapi.parameters.delete_parameter_from_context(updated_ctx, "JDBC Driver")
+    nipyapi.parameters.delete_asset(ctx.id, result["asset_id"])
+
+
+def test_upload_asset_custom_filename(fix_context, tmp_path):
+    """Test ci.upload_asset with custom filename override."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Create a temp file with one name
+    test_file = tmp_path / "original_name.txt"
+    test_file.write_bytes(b"some content")
+
+    # Upload with different name
+    result = ci.upload_asset(
+        context_id=ctx.id,
+        file_path=str(test_file),
+        filename="custom_name.txt"
+    )
+
+    assert result["asset_name"] == "custom_name.txt"
+
+    # Clean up
+    nipyapi.parameters.delete_asset(ctx.id, result["asset_id"])
+
+
+def test_upload_asset_file_not_found(fix_context):
+    """Test ci.upload_asset with non-existent file raises error."""
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    with pytest.raises(ValueError, match="File not found"):
+        ci.upload_asset(
+            context_id=ctx.id,
+            file_path="/non/existent/path/file.jar"
+        )
+
+
+def test_upload_asset_invalid_context():
+    """Test ci.upload_asset with invalid context_id raises error."""
+    import uuid
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    with pytest.raises(ValueError, match="Parameter context not found"):
+        ci.upload_asset(
+            context_id=str(uuid.uuid4()),
+            file_path="/some/path.jar"
+        )

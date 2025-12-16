@@ -24,18 +24,22 @@ def test_create_parameter_context(fix_context):
 
 
 def test_get_parameter_context(fix_context):
-    # Because regression tests are parametrized, the skip needs to be inside the function to work properly
+    # Regression tests are parametrized, skip inside function to work properly
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
     r1 = parameters.get_parameter_context('fake news', 'name')
     assert r1 is None
-    c2 = parameters.get_parameter_context(identifier=str(uuid.uuid4()), identifier_type='id')
+    c2 = parameters.get_parameter_context(
+        identifier=str(uuid.uuid4()), identifier_type='id'
+    )
     assert c2 is None
     c1 = fix_context.generate(name=conftest.test_basename + 'instance_1')
     r3 = parameters.get_parameter_context(c1.id, identifier_type='id')
     assert r3.component.name == conftest.test_basename + 'instance_1'
     c2 = fix_context.generate(name=conftest.test_basename + 'instance_2')
-    r4 = parameters.get_parameter_context(conftest.test_basename + 'instance_2', identifier_type='name')
+    r4 = parameters.get_parameter_context(
+        conftest.test_basename + 'instance_2', identifier_type='name'
+    )
     assert r4.id == c2.id
 
 
@@ -48,7 +52,10 @@ def test_list_all_parameter_contexts(fix_context):
     for pc in r1:
         assert isinstance(pc, ParameterContextEntity)
     _ = fix_context.generate(name=conftest.test_basename + 'instance_1')
-    r2 = [x for x in parameters.list_all_parameter_contexts() if conftest.test_basename in x.component.name]
+    r2 = [
+        x for x in parameters.list_all_parameter_contexts()
+        if conftest.test_basename in x.component.name
+    ]
     assert isinstance(r2, list)
     assert len(r2) == 2
     for pc in r2:
@@ -329,3 +336,248 @@ def test_upload_asset_validation_errors():
     # file_bytes without filename
     with pytest.raises(ValueError, match="filename is required"):
         parameters.upload_asset(context_id="fake-id", file_bytes=b"content")
+
+
+# =============================================================================
+# Parameter Context Hierarchy Tests
+# =============================================================================
+
+
+def test_get_parameter_context_hierarchy_simple(fix_context):
+    """Test get_parameter_context_hierarchy with a single context."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Add a parameter
+    param = parameters.prepare_parameter(
+        name="HierarchyTestParam",
+        value="test_value",
+        description="Test for hierarchy"
+    )
+    parameters.upsert_parameter_to_context(ctx, param)
+
+    # Get hierarchy
+    hierarchy = parameters.get_parameter_context_hierarchy(ctx.id)
+
+    assert hierarchy["id"] == ctx.id
+    assert hierarchy["name"] == ctx.component.name
+    assert isinstance(hierarchy["parameters"], list)
+    assert isinstance(hierarchy["inherited"], list)
+    assert len(hierarchy["inherited"]) == 0  # No inherited contexts
+
+    # Verify parameter is in the list
+    param_names = [p["name"] for p in hierarchy["parameters"]]
+    assert "HierarchyTestParam" in param_names
+
+
+def test_get_parameter_context_hierarchy_with_inheritance(fix_context):
+    """Test get_parameter_context_hierarchy with inherited contexts."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create child context (will be inherited)
+    child_ctx = fix_context.generate(name=conftest.test_parameter_context_name + "_child")
+    child_param = parameters.prepare_parameter(
+        name="ChildParam",
+        value="child_value"
+    )
+    parameters.upsert_parameter_to_context(child_ctx, child_param)
+
+    # Create parent context that inherits from child
+    parent_ctx = parameters.create_parameter_context(
+        name=conftest.test_parameter_context_name + "_parent",
+        inherited_contexts=[child_ctx]
+    )
+    parent_param = parameters.prepare_parameter(
+        name="ParentParam",
+        value="parent_value"
+    )
+    parameters.upsert_parameter_to_context(parent_ctx, parent_param)
+
+    try:
+        # Get hierarchy from parent
+        hierarchy = parameters.get_parameter_context_hierarchy(parent_ctx.id)
+
+        assert hierarchy["id"] == parent_ctx.id
+        assert hierarchy["name"] == parent_ctx.component.name
+        assert len(hierarchy["inherited"]) == 1
+
+        # Verify parent parameter
+        parent_param_names = [p["name"] for p in hierarchy["parameters"]]
+        assert "ParentParam" in parent_param_names
+
+        # Verify child context in hierarchy
+        child_hierarchy = hierarchy["inherited"][0]
+        assert child_hierarchy["id"] == child_ctx.id
+        child_param_names = [p["name"] for p in child_hierarchy["parameters"]]
+        assert "ChildParam" in child_param_names
+
+    finally:
+        # Clean up parent context
+        parameters.delete_parameter_context(parent_ctx)
+
+
+def test_get_parameter_context_hierarchy_not_found():
+    """Test get_parameter_context_hierarchy with invalid context."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    import uuid
+    with pytest.raises(ValueError, match="Parameter context not found"):
+        parameters.get_parameter_context_hierarchy(str(uuid.uuid4()))
+
+
+def test_get_parameter_ownership_map(fix_context):
+    """Test get_parameter_ownership_map with simple context."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Add parameters
+    param1 = parameters.prepare_parameter(name="OwnerParam1", value="value1")
+    param2 = parameters.prepare_parameter(
+        name="OwnerParam2", value="value2", sensitive=True
+    )
+    parameters.upsert_parameter_to_context(ctx, param1)
+
+    # Refresh context before adding second param
+    ctx = parameters.get_parameter_context(ctx.id, "id")
+    parameters.upsert_parameter_to_context(ctx, param2)
+
+    # Get ownership map
+    ownership = parameters.get_parameter_ownership_map(ctx.id)
+
+    assert "OwnerParam1" in ownership
+    assert "OwnerParam2" in ownership
+
+    # Verify structure
+    owner1 = ownership["OwnerParam1"]
+    assert owner1["context_id"] == ctx.id
+    assert owner1["context_name"] == ctx.component.name
+    assert owner1["sensitive"] is False
+    assert owner1["current_value"] == "value1"
+
+    owner2 = ownership["OwnerParam2"]
+    assert owner2["sensitive"] is True
+    assert owner2["current_value"] is None  # Sensitive values not returned
+
+
+def test_get_parameter_ownership_map_with_inheritance(fix_context):
+    """Test get_parameter_ownership_map tracks correct owning context."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create child context with a parameter
+    child_ctx = fix_context.generate(name=conftest.test_parameter_context_name + "_owner_child")
+    child_param = parameters.prepare_parameter(name="ChildOwned", value="child_owns_this")
+    parameters.upsert_parameter_to_context(child_ctx, child_param)
+
+    # Create parent that inherits child
+    parent_ctx = parameters.create_parameter_context(
+        name=conftest.test_parameter_context_name + "_owner_parent",
+        inherited_contexts=[child_ctx]
+    )
+    parent_param = parameters.prepare_parameter(name="ParentOwned", value="parent_owns_this")
+    parameters.upsert_parameter_to_context(parent_ctx, parent_param)
+
+    try:
+        # Get ownership from parent's perspective
+        ownership = parameters.get_parameter_ownership_map(parent_ctx.id)
+
+        # Both parameters should be in map
+        assert "ParentOwned" in ownership
+        assert "ChildOwned" in ownership
+
+        # Verify ownership attribution
+        assert ownership["ParentOwned"]["context_id"] == parent_ctx.id
+        assert ownership["ParentOwned"]["context_name"] == parent_ctx.component.name
+
+        assert ownership["ChildOwned"]["context_id"] == child_ctx.id
+        assert ownership["ChildOwned"]["context_name"] == child_ctx.component.name
+
+    finally:
+        parameters.delete_parameter_context(parent_ctx)
+
+
+def test_update_parameter_in_context(fix_context):
+    """Test update_parameter_in_context updates existing parameter."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Create initial parameter
+    param = parameters.prepare_parameter(name="UpdateMe", value="initial")
+    parameters.upsert_parameter_to_context(ctx, param)
+
+    # Update it
+    result = parameters.update_parameter_in_context(
+        context_id=ctx.id,
+        param_name="UpdateMe",
+        value="updated"
+    )
+
+    # Verify update
+    updated_param = next(
+        p for p in result.component.parameters
+        if p.parameter.name == "UpdateMe"
+    )
+    assert updated_param.parameter.value == "updated"
+
+
+def test_update_parameter_in_context_not_found(fix_context):
+    """Test update_parameter_in_context raises error for missing parameter."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    with pytest.raises(ValueError, match="not found in context"):
+        parameters.update_parameter_in_context(
+            context_id=ctx.id,
+            param_name="NonExistent",
+            value="value"
+        )
+
+
+def test_update_parameter_in_context_create_if_missing(fix_context):
+    """Test update_parameter_in_context with create_if_missing=True."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Create a new parameter with create_if_missing
+    result = parameters.update_parameter_in_context(
+        context_id=ctx.id,
+        param_name="CreatedParam",
+        value="created_value",
+        create_if_missing=True
+    )
+
+    # Verify it was created
+    param_names = [p.parameter.name for p in result.component.parameters]
+    assert "CreatedParam" in param_names
+
+    created_param = next(
+        p for p in result.component.parameters
+        if p.parameter.name == "CreatedParam"
+    )
+    assert created_param.parameter.value == "created_value"
+
+
+def test_update_parameter_in_context_invalid_context():
+    """Test update_parameter_in_context with invalid context raises error."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    import uuid
+    with pytest.raises(ValueError, match="Parameter context not found"):
+        parameters.update_parameter_in_context(
+            context_id=str(uuid.uuid4()),
+            param_name="Param",
+            value="value"
+        )
