@@ -437,12 +437,22 @@ def test_safe_module_error_handling():
     import io
     from contextlib import redirect_stdout
 
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    old_format = os.environ.get("NIFI_OUTPUT_FORMAT")
+    os.environ["NIFI_OUTPUT_FORMAT"] = "json"
+
     captured = io.StringIO()
     try:
         with redirect_stdout(captured):
             wrapped.failing_function()
     except SystemExit as e:
         assert e.code == 1
+    finally:
+        # Restore original format
+        if old_format is None:
+            os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+        else:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
 
     output = captured.getvalue()
     result = json.loads(output)

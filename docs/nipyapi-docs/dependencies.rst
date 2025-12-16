@@ -30,14 +30,19 @@ Optional Dependencies
 
 **Development Dependencies** (install with ``pip install nipyapi[dev]``):
 
+- ``black>=24.8.0`` - Development tool
+- ``build>=1.0.0`` - Development tool
 - ``codecov>=2.1.13`` - Coverage reporting service integration
 - ``coverage>=7.0`` - Coverage analysis and reporting
 - ``deepdiff>=3.3.0`` - Deep data structure comparison for testing
+- ``fire>=0.5.0`` - Development tool
 - ``flake8>=3.6.0`` - Code style and syntax checking
+- ``isort>=5.13.2`` - Development tool
 - ``pre-commit>=3.0.0`` - Development tool
 - ``pylint>=3.3.0`` - Advanced code analysis and linting
 - ``pytest-cov>=5.0.0`` - Test coverage measurement
 - ``pytest>=8.4`` - Testing framework
+- ``setuptools-scm[toml]>=8`` - Development tool
 - ``twine>=6.0.0`` - Package distribution to PyPI
 
 **Documentation Dependencies** (install with ``pip install nipyapi[docs]``):

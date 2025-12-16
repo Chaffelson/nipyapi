@@ -1,8 +1,8 @@
 .. highlight:: python
 
-=======================
-Security with NiPyAPI 2
-=======================
+======================
+Security with NiPyAPI
+======================
 
 NiPyAPI 1.x targets Apache NiFi 2.x and NiFi Registry 2.x, which prefer secure-by-default deployments.
 This page covers authentication methods, SSL/TLS configuration, certificate management, and security practices

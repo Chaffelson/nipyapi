@@ -8,6 +8,8 @@ Contents:
 
    readme
    installation
+   cli
+   ci
    profiles
    security
    migration

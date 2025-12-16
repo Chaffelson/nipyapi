@@ -15,3 +15,4 @@ They wrap the lower-level generated API clients with Pythonic interfaces.
    core_modules/security
    core_modules/parameters
    core_modules/profiles
+   core_modules/layout
