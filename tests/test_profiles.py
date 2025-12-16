@@ -1026,3 +1026,89 @@ oidcClientId=runtime
             assert config['nifi_url'] == 'https://localhost/runtime-cluster/nifi-api'
         finally:
             os.unlink(properties_path)
+
+    def test_load_properties_unicode_error(self):
+        """Test handling of files with invalid encoding."""
+        # Create a file with invalid UTF-8 bytes
+        with tempfile.NamedTemporaryFile(mode='wb', suffix='.properties', delete=False) as f:
+            f.write(b'baseUrl=https://localhost\n\xff\xfe invalid bytes')
+            properties_path = f.name
+
+        try:
+            # Should return empty dict and log error, not raise
+            config = nipyapi.profiles._load_nifi_cli_properties(properties_path)
+            assert config == {}
+        finally:
+            os.unlink(properties_path)
+
+    def test_load_properties_none_path(self):
+        """Test that None path returns empty dict."""
+        config = nipyapi.profiles._load_nifi_cli_properties(None)
+        assert config == {}
+
+
+class TestGetDefaultProfileName:
+    """Test auto-detection of default profile name."""
+
+    def test_get_default_profile_from_env_file(self):
+        """Test getting default profile from NIPYAPI_PROFILES_FILE env var."""
+        yaml_content = """
+first-profile:
+  nifi_url: https://localhost:9444/nifi-api
+second-profile:
+  nifi_url: https://other:9444/nifi-api
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        old_env = os.environ.get("NIPYAPI_PROFILES_FILE")
+        try:
+            os.environ["NIPYAPI_PROFILES_FILE"] = yaml_path
+            result = nipyapi.profiles.get_default_profile_name()
+            assert result == "first-profile"
+        finally:
+            if old_env:
+                os.environ["NIPYAPI_PROFILES_FILE"] = old_env
+            else:
+                os.environ.pop("NIPYAPI_PROFILES_FILE", None)
+            os.unlink(yaml_path)
+
+    def test_get_default_profile_no_profiles_file(self):
+        """Test that None is returned when no profiles file exists."""
+        old_env = os.environ.get("NIPYAPI_PROFILES_FILE")
+        old_user_file = nipyapi.config.user_profiles_file
+        try:
+            os.environ.pop("NIPYAPI_PROFILES_FILE", None)
+            # Point to nonexistent file
+            nipyapi.config.user_profiles_file = "/nonexistent/profiles.yml"
+            result = nipyapi.profiles.get_default_profile_name()
+            assert result is None
+        finally:
+            if old_env:
+                os.environ["NIPYAPI_PROFILES_FILE"] = old_env
+            nipyapi.config.user_profiles_file = old_user_file
+
+    def test_get_default_profile_empty_profiles(self):
+        """Test handling of empty profiles file with no fallback."""
+        yaml_content = "{}"
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        old_env = os.environ.get("NIPYAPI_PROFILES_FILE")
+        old_user_file = nipyapi.config.user_profiles_file
+        try:
+            os.environ["NIPYAPI_PROFILES_FILE"] = yaml_path
+            # Also block fallback to user profiles
+            nipyapi.config.user_profiles_file = "/nonexistent/profiles.yml"
+            result = nipyapi.profiles.get_default_profile_name()
+            # Empty profiles with no fallback should return None
+            assert result is None
+        finally:
+            if old_env:
+                os.environ["NIPYAPI_PROFILES_FILE"] = old_env
+            else:
+                os.environ.pop("NIPYAPI_PROFILES_FILE", None)
+            nipyapi.config.user_profiles_file = old_user_file
+            os.unlink(yaml_path)

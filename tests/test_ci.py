@@ -85,6 +85,126 @@ class TestMaskValue:
         assert result == "hello..."
 
 
+class TestEnsureRegistryValidation:
+    """Test ensure_registry validation logic (no NiFi required)."""
+
+    def test_invalid_provider(self):
+        """Test invalid provider raises ValueError."""
+        with pytest.raises(ValueError, match="Invalid provider"):
+            ci.ensure_registry(provider="invalid", token="token", repo="owner/repo")
+
+    def test_missing_token(self):
+        """Test missing token raises ValueError."""
+        old_gh = os.environ.pop("GH_REGISTRY_TOKEN", None)
+        old_gl = os.environ.pop("GL_REGISTRY_TOKEN", None)
+        try:
+            with pytest.raises(ValueError, match="token is required"):
+                ci.ensure_registry(repo="owner/repo")
+        finally:
+            if old_gh:
+                os.environ["GH_REGISTRY_TOKEN"] = old_gh
+            if old_gl:
+                os.environ["GL_REGISTRY_TOKEN"] = old_gl
+
+    def test_invalid_repo_format(self):
+        """Test repo without slash raises ValueError."""
+        with pytest.raises(ValueError, match="owner/repo format"):
+            ci.ensure_registry(token="token", repo="invalid-repo-format")
+
+    @patch("nipyapi.versioning.ensure_registry_client")
+    def test_gitlab_uses_gl_token_first(self, mock_ensure):
+        """Test GitLab provider prefers GL_REGISTRY_TOKEN over GH_REGISTRY_TOKEN."""
+        # Mock the NiFi call to capture what token was used
+        mock_client = MagicMock()
+        mock_client.id = "test-id"
+        mock_client.component.name = "test-name"
+        mock_ensure.return_value = mock_client
+
+        old_gh = os.environ.get("GH_REGISTRY_TOKEN")
+        old_gl = os.environ.get("GL_REGISTRY_TOKEN")
+        try:
+            os.environ["GH_REGISTRY_TOKEN"] = "github-token"
+            os.environ["GL_REGISTRY_TOKEN"] = "gitlab-token"
+
+            ci.ensure_registry(provider="gitlab", repo="owner/repo")
+
+            # Verify the GL token was used (not GH)
+            call_kwargs = mock_ensure.call_args[1]
+            assert call_kwargs["properties"]["Access Token"] == "gitlab-token"
+        finally:
+            if old_gh:
+                os.environ["GH_REGISTRY_TOKEN"] = old_gh
+            else:
+                os.environ.pop("GH_REGISTRY_TOKEN", None)
+            if old_gl:
+                os.environ["GL_REGISTRY_TOKEN"] = old_gl
+            else:
+                os.environ.pop("GL_REGISTRY_TOKEN", None)
+
+    @patch("nipyapi.versioning.ensure_registry_client")
+    def test_github_uses_gh_token_first(self, mock_ensure):
+        """Test GitHub provider prefers GH_REGISTRY_TOKEN over GL_REGISTRY_TOKEN."""
+        mock_client = MagicMock()
+        mock_client.id = "test-id"
+        mock_client.component.name = "test-name"
+        mock_ensure.return_value = mock_client
+
+        old_gh = os.environ.get("GH_REGISTRY_TOKEN")
+        old_gl = os.environ.get("GL_REGISTRY_TOKEN")
+        try:
+            os.environ["GH_REGISTRY_TOKEN"] = "github-token"
+            os.environ["GL_REGISTRY_TOKEN"] = "gitlab-token"
+
+            ci.ensure_registry(provider="github", repo="owner/repo")
+
+            # Verify the GH token was used (not GL)
+            call_kwargs = mock_ensure.call_args[1]
+            assert call_kwargs["properties"]["Personal Access Token"] == "github-token"
+        finally:
+            if old_gh:
+                os.environ["GH_REGISTRY_TOKEN"] = old_gh
+            else:
+                os.environ.pop("GH_REGISTRY_TOKEN", None)
+            if old_gl:
+                os.environ["GL_REGISTRY_TOKEN"] = old_gl
+            else:
+                os.environ.pop("GL_REGISTRY_TOKEN", None)
+
+
+class TestDeployFlowValidation:
+    """Test deploy_flow validation logic (no NiFi required)."""
+
+    def test_missing_registry_client_id(self):
+        """Test missing registry_client_id raises ValueError."""
+        old_val = os.environ.pop("NIFI_REGISTRY_CLIENT_ID", None)
+        try:
+            with pytest.raises(ValueError, match="registry_client_id is required"):
+                ci.deploy_flow(bucket="test", flow="test")
+        finally:
+            if old_val:
+                os.environ["NIFI_REGISTRY_CLIENT_ID"] = old_val
+
+    def test_missing_bucket(self):
+        """Test missing bucket raises ValueError."""
+        old_val = os.environ.pop("NIFI_BUCKET", None)
+        try:
+            with pytest.raises(ValueError, match="bucket is required"):
+                ci.deploy_flow(registry_client_id="id", flow="test")
+        finally:
+            if old_val:
+                os.environ["NIFI_BUCKET"] = old_val
+
+    def test_missing_flow(self):
+        """Test missing flow raises ValueError."""
+        old_val = os.environ.pop("NIFI_FLOW", None)
+        try:
+            with pytest.raises(ValueError, match="flow is required"):
+                ci.deploy_flow(registry_client_id="id", bucket="test")
+        finally:
+            if old_val:
+                os.environ["NIFI_FLOW"] = old_val
+
+
 class TestResolveGitRef:
     """Test resolve_git_ref function."""
 
@@ -358,6 +478,29 @@ def test_configure_params_missing_pg_id():
     finally:
         if old_pg:
             os.environ["NIFI_PROCESS_GROUP_ID"] = old_pg
+
+
+def test_configure_params_missing_parameters():
+    """Test configure_params without parameters raises error."""
+    old_params = os.environ.pop("NIFI_PARAMETERS", None)
+    try:
+        with pytest.raises(ValueError, match="parameters is required"):
+            ci.configure_params(process_group_id="test-id")
+    finally:
+        if old_params:
+            os.environ["NIFI_PARAMETERS"] = old_params
+
+
+def test_configure_params_invalid_json():
+    """Test configure_params with invalid JSON raises error."""
+    with pytest.raises(ValueError, match="Invalid JSON"):
+        ci.configure_params(process_group_id="test-id", parameters="{invalid json}")
+
+
+def test_configure_params_non_dict():
+    """Test configure_params with non-dict JSON raises error."""
+    with pytest.raises(ValueError, match="must be a JSON object"):
+        ci.configure_params(process_group_id="test-id", parameters="[1, 2, 3]")
 
 
 def test_get_versions_default_root():

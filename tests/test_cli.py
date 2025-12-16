@@ -43,6 +43,27 @@ def test_serialize_result_dict_github():
     assert "pg-name=test" in result
 
 
+def test_serialize_result_dict_github_heredoc():
+    """Test GitHub Actions heredoc format for multiline values."""
+    from nipyapi.cli import _serialize_result
+    multiline_value = "line1\nline2\nline3"
+    result = _serialize_result({"content": multiline_value}, "github")
+    # Should use heredoc syntax for multiline
+    assert "content<<EOF" in result
+    assert "line1\nline2\nline3" in result
+    assert result.count("EOF") == 2  # Opening and closing
+
+
+def test_serialize_result_dict_github_long_value():
+    """Test GitHub Actions heredoc format for very long values."""
+    from nipyapi.cli import _serialize_result
+    long_value = "x" * 600  # Over 500 char threshold
+    result = _serialize_result({"data": long_value}, "github")
+    # Should use heredoc syntax for long values
+    assert "data<<EOF" in result
+    assert long_value in result
+
+
 def test_serialize_result_dict_dotenv():
     """Test GitLab dotenv output format."""
     from nipyapi.cli import _serialize_result
@@ -59,6 +80,17 @@ def test_serialize_result_list_json():
     parsed = json.loads(result)
     assert len(parsed) == 2
     assert parsed[0]["a"] == 1
+
+
+def test_serialize_result_list_non_json():
+    """Test list serialization with non-JSON format returns JSONL."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result([{"a": 1}, {"b": 2}], "github")
+    # Should be one JSON object per line (JSONL)
+    lines = result.strip().split("\n")
+    assert len(lines) == 2
+    assert json.loads(lines[0]) == {"a": 1}
+    assert json.loads(lines[1]) == {"b": 2}
 
 
 def test_flatten_dict_simple():
@@ -103,6 +135,30 @@ def test_to_dict_with_object():
     assert result["name"] == "test"
     assert result["value"] == 123
     assert "_private" not in result  # Private attrs excluded
+
+
+def test_to_dict_with_to_dict_method():
+    """Test _to_dict with an object that has a to_dict() method (swagger-style)."""
+    from nipyapi.cli import _to_dict
+
+    class SwaggerObj:
+        def to_dict(self):
+            return {"id": "abc123", "name": "swagger_obj"}
+
+    result = _to_dict(SwaggerObj())
+    assert result == {"id": "abc123", "name": "swagger_obj"}
+
+
+def test_to_dict_fallback_to_string():
+    """Test _to_dict falls back to string for objects without __dict__."""
+    from nipyapi.cli import _to_dict
+
+    # Use a type that doesn't have __dict__ in the expected way
+    result = _to_dict(42)
+    assert result == {"value": "42"}
+
+    result = _to_dict(3.14)
+    assert result == {"value": "3.14"}
 
 
 def test_detect_output_format_default():
@@ -229,6 +285,55 @@ def test_get_log_on_error_disabled():
             os.environ.pop("NIFI_LOG_ON_ERROR", None)
 
 
+def test_parse_profile_arg_with_space():
+    """Test _parse_profile_arg with --profile value syntax."""
+    import sys
+    from nipyapi.cli import _parse_profile_arg
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "--profile", "myprofile", "ci", "get_status"]
+        result = _parse_profile_arg()
+        assert result == "myprofile"
+        # --profile and value should be removed from argv
+        assert "--profile" not in sys.argv
+        assert "myprofile" not in sys.argv
+        assert "ci" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_profile_arg_with_equals():
+    """Test _parse_profile_arg with --profile=value syntax."""
+    import sys
+    from nipyapi.cli import _parse_profile_arg
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "--profile=prod", "system", "info"]
+        result = _parse_profile_arg()
+        assert result == "prod"
+        assert "--profile=prod" not in sys.argv
+        assert "system" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_profile_arg_no_profile():
+    """Test _parse_profile_arg when no --profile is specified."""
+    import sys
+    from nipyapi.cli import _parse_profile_arg
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "canvas", "get_root_pg_id"]
+        result = _parse_profile_arg()
+        assert result is None
+        assert "canvas" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
 def test_log_capture_handler():
     """Test LogCapture handler captures and filters logs."""
     import logging
@@ -309,6 +414,76 @@ def test_safe_module_exposes_dir():
     assert "get_root_pg_id" in attrs
     assert "get_process_group" in attrs
     assert "list_all_processors" in attrs
+
+
+def test_safe_module_error_handling():
+    """Test SafeModule returns structured error on exception."""
+    from nipyapi.cli import SafeModule
+    from types import ModuleType
+    import sys
+
+    # Create a mock module with a function that raises
+    mock_module = ModuleType("mock_module")
+
+    def failing_function():
+        raise ValueError("Test error message")
+
+    mock_module.failing_function = failing_function
+
+    wrapped = SafeModule(mock_module)
+
+    # Call the wrapped function - it should print error JSON and call sys.exit
+    # We need to catch the SystemExit
+    import io
+    from contextlib import redirect_stdout
+
+    captured = io.StringIO()
+    try:
+        with redirect_stdout(captured):
+            wrapped.failing_function()
+    except SystemExit as e:
+        assert e.code == 1
+
+    output = captured.getvalue()
+    result = json.loads(output)
+    assert result["success"] is False
+    assert result["error"] == "Test error message"
+    assert result["error_type"] == "ValueError"
+    assert result["command"] == "failing_function"
+
+
+def test_safe_module_with_log_level():
+    """Test SafeModule includes logs when NIFI_LOG_LEVEL is set."""
+    from nipyapi.cli import SafeModule
+    from types import ModuleType
+    import logging
+
+    # Create a mock module with a function that logs
+    mock_module = ModuleType("mock_module")
+
+    def logging_function():
+        logger = logging.getLogger("nipyapi.test")
+        logger.info("Test log message")
+        return {"result": "success"}
+
+    mock_module.logging_function = logging_function
+
+    wrapped = SafeModule(mock_module)
+
+    # Set log level to capture logs
+    old_level = os.environ.get("NIFI_LOG_LEVEL")
+    try:
+        os.environ["NIFI_LOG_LEVEL"] = "INFO"
+        result = wrapped.logging_function()
+        assert result["result"] == "success"
+        # Logs should be included when log level is set
+        if "logs" in result:
+            assert any("Test log message" in log for log in result["logs"])
+    finally:
+        if old_level:
+            os.environ["NIFI_LOG_LEVEL"] = old_level
+        else:
+            os.environ.pop("NIFI_LOG_LEVEL", None)
 
 
 # =============================================================================
