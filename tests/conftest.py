@@ -796,10 +796,13 @@ def fixture_deployed_git_flow(request, fix_deployed_git_flow_shared):
         state = vci.version_control_information.state
         version = vci.version_control_information.version
 
-        # If locally modified, revert first
-        if state == 'LOCALLY_MODIFIED':
+        # If locally modified, revert first (handles both LOCALLY_MODIFIED and LOCALLY_MODIFIED_AND_STALE)
+        if 'LOCALLY_MODIFIED' in state:
             nipyapi.versioning.revert_flow_ver(pg, wait=True)
             pg = nipyapi.canvas.get_process_group(pg.id, 'id')
+            # Re-check version after revert
+            vci = nipyapi.versioning.get_version_info(pg)
+            version = vci.version_control_information.version
 
         # If not at latest, change to latest
         if version != latest_version:

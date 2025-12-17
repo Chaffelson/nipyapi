@@ -1,5 +1,5 @@
 """
-change_version - change the version of a deployed flow.
+change_flow_version - change the version of a deployed flow.
 """
 
 import logging
@@ -13,7 +13,7 @@ from .resolve_git_ref import resolve_git_ref
 log = logging.getLogger(__name__)
 
 
-def change_version(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+def change_flow_version(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     process_group_id: Optional[str] = None,
     target_version: Optional[str] = None,
     branch: Optional[str] = None,

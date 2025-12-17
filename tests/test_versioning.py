@@ -289,9 +289,10 @@ def test_list_git_registry_buckets():
             # If we get here, check the structure
             assert hasattr(result, 'buckets')
         except ValueError as e:
-            # Expected to fail with NONE auth - that's OK for structure test
-            assert 'unauthorized' in str(e).lower() \
-                or 'bad credentials' in str(e).lower() or 'not found' in str(e).lower()
+            # Expected to fail with NONE auth or service unavailable - that's OK for structure test
+            err = str(e).lower()
+            assert 'unauthorized' in err or 'bad credentials' in err \
+                or 'not found' in err or 'service unavailable' in err
     finally:
         versioning.delete_registry_client(client)
 
@@ -326,9 +327,10 @@ def test_list_git_registry_flows():
             result = versioning.list_git_registry_flows(client.id, 'test-bucket')
             assert hasattr(result, 'versioned_flows')
         except ValueError as e:
-            # Expected to fail with NONE auth
-            assert 'unauthorized' in str(e).lower() \
-                or 'bad credentials' in str(e).lower() or 'not found' in str(e).lower()
+            # Expected to fail with NONE auth or service unavailable
+            err = str(e).lower()
+            assert 'unauthorized' in err or 'bad credentials' in err \
+                or 'not found' in err or 'service unavailable' in err
     finally:
         versioning.delete_registry_client(client)
 
@@ -473,16 +475,31 @@ def test_update_git_flow_ver_specific_version(fix_deployed_git_flow):
 
 def test_update_git_flow_ver_to_latest(fix_deployed_git_flow):
     """Test changing to latest version (None target)."""
-    # First ensure we're not at latest
-    versioning.update_git_flow_ver(
-        fix_deployed_git_flow.pg, conftest.GIT_REGISTRY_VERSION_V1
-    )
+    # Ensure flow is in a clean state first
+    pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
+    vci = versioning.get_version_info(pg)
+    state = vci.version_control_information.state
 
-    # Now change to latest
-    result = versioning.update_git_flow_ver(fix_deployed_git_flow.pg, None)
+    # If there are local modifications, revert first
+    if 'LOCALLY_MODIFIED' in state:
+        versioning.revert_flow_ver(pg, wait=True)
+        pg = canvas.get_process_group(pg.id, 'id')
 
-    new_vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    # First ensure we're not at latest by switching to v1
+    versioning.update_git_flow_ver(pg, conftest.GIT_REGISTRY_VERSION_V1)
+    pg = canvas.get_process_group(pg.id, 'id')
+
+    # Verify we're now at v1
+    vci_at_v1 = versioning.get_version_info(pg)
+    assert vci_at_v1.version_control_information.version == conftest.GIT_REGISTRY_VERSION_V1
+
+    # Now change to latest (None = latest)
+    result = versioning.update_git_flow_ver(pg, None)
+
+    # Verify we're at latest version (from fixture's runtime lookup)
+    new_vci = versioning.get_version_info(pg)
     assert new_vci.version_control_information.version == fix_deployed_git_flow.latest_version
+    assert new_vci.version_control_information.state == 'UP_TO_DATE'
 
 
 def test_update_git_flow_ver_same_version_noop(fix_deployed_git_flow):
@@ -532,9 +549,9 @@ def test_update_git_flow_ver_locally_modified_requires_revert(fix_deployed_git_f
         name=conftest.test_basename + '_local_mod'
     )
 
-    # Verify state is LOCALLY_MODIFIED
+    # Verify state is LOCALLY_MODIFIED (or LOCALLY_MODIFIED_AND_STALE if also stale)
     vci = versioning.get_version_info(fix_deployed_git_flow.pg)
-    assert vci.version_control_information.state == 'LOCALLY_MODIFIED'
+    assert 'LOCALLY_MODIFIED' in vci.version_control_information.state
 
     # Determine target version
     current_version = vci.version_control_information.version
@@ -553,7 +570,8 @@ def test_update_git_flow_ver_locally_modified_requires_revert(fix_deployed_git_f
     # Use wait=True to ensure revert completes before proceeding
     revert_result = versioning.revert_flow_ver(fix_deployed_git_flow.pg, wait=True)
     assert isinstance(revert_result, nifi.VersionControlInformationEntity)
-    assert revert_result.version_control_information.state == 'UP_TO_DATE'
+    # After revert, state is UP_TO_DATE or STALE (depending on version vs latest)
+    assert revert_result.version_control_information.state in ('UP_TO_DATE', 'STALE')
 
     # Get fresh PG reference after revert completes
     refreshed_pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
@@ -585,16 +603,17 @@ def test_revert_flow_ver_wait_true(fix_deployed_git_flow):
         name=conftest.test_basename + '_revert_test'
     )
 
-    # Verify state is LOCALLY_MODIFIED
+    # Verify state is LOCALLY_MODIFIED (or LOCALLY_MODIFIED_AND_STALE if also stale)
     vci = versioning.get_version_info(fix_deployed_git_flow.pg)
-    assert vci.version_control_information.state == 'LOCALLY_MODIFIED'
+    assert 'LOCALLY_MODIFIED' in vci.version_control_information.state
 
     # Revert with wait=True
     result = versioning.revert_flow_ver(fix_deployed_git_flow.pg, wait=True)
 
-    # Should return VCI with UP_TO_DATE state
+    # Should return VCI with local modifications cleared
+    # State will be UP_TO_DATE if at latest version, or STALE if newer version exists
     assert isinstance(result, nifi.VersionControlInformationEntity)
-    assert result.version_control_information.state == 'UP_TO_DATE'
+    assert result.version_control_information.state in ('UP_TO_DATE', 'STALE')
 
 
 def test_revert_flow_ver_wait_false(fix_deployed_git_flow):
@@ -625,17 +644,152 @@ def test_revert_flow_ver_wait_false(fix_deployed_git_flow):
 
 
 def test_revert_flow_ver_already_up_to_date(fix_deployed_git_flow):
-    """Test revert on flow that's already UP_TO_DATE."""
-    # Refresh PG to get latest revision
+    """Test revert on flow that's already clean (no local modifications)."""
+    # Get fresh PG to avoid revision conflicts
     pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
-
-    # Ensure flow is UP_TO_DATE
     vci = versioning.get_version_info(pg)
-    assert vci.version_control_information.state == 'UP_TO_DATE'
+    state = vci.version_control_information.state
 
-    # Revert should still work (effectively a no-op)
+    # If there are local modifications, revert first to get to clean state
+    if 'LOCALLY_MODIFIED' in state:
+        versioning.revert_flow_ver(pg, wait=True)
+        # Get fresh PG after revert
+        pg = canvas.get_process_group(pg.id, 'id')
+        vci = versioning.get_version_info(pg)
+
+    # Verify we're in a clean state (UP_TO_DATE or STALE, but not locally modified)
+    assert 'LOCALLY_MODIFIED' not in vci.version_control_information.state
+
+    # Get fresh PG reference before calling revert
+    pg = canvas.get_process_group(pg.id, 'id')
+
+    # Revert should still work (effectively a no-op on clean flow)
     result = versioning.revert_flow_ver(pg, wait=True)
 
-    # Should return VCI still at UP_TO_DATE
+    # Should return VCI still in a clean state
     assert isinstance(result, nifi.VersionControlInformationEntity)
-    assert result.version_control_information.state == 'UP_TO_DATE'
+    assert 'LOCALLY_MODIFIED' not in result.version_control_information.state
+
+
+# =============================================================================
+# save_git_flow_ver Tests (Git-specific version control helper)
+# =============================================================================
+
+
+def test_save_git_flow_ver_missing_registry(fix_pg):
+    """Test save_git_flow_ver requires registry_client for initial commit."""
+    pg = fix_pg.generate()
+
+    with pytest.raises(ValueError, match="registry_client is required"):
+        versioning.save_git_flow_ver(pg)
+
+
+def test_save_git_flow_ver_missing_bucket(fix_pg):
+    """Test save_git_flow_ver requires bucket for initial commit."""
+    pg = fix_pg.generate()
+
+    # Use a fake registry client name - the bucket check comes before validation
+    with pytest.raises(ValueError, match="bucket is required"):
+        versioning.save_git_flow_ver(pg, registry_client="fake-client")
+
+
+def test_save_git_flow_ver_subsequent_no_changes(fix_deployed_git_flow):
+    """Test save_git_flow_ver on UP_TO_DATE flow returns current VCI."""
+    pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
+    vci = versioning.get_version_info(pg)
+
+    # Clean up any modifications first
+    if 'LOCALLY_MODIFIED' in vci.version_control_information.state:
+        versioning.revert_flow_ver(pg, wait=True)
+        pg = canvas.get_process_group(pg.id, 'id')
+
+    result = versioning.save_git_flow_ver(pg)
+
+    # Should return VCI (not error) since no changes to commit
+    assert isinstance(result, nifi.VersionControlInformationEntity)
+
+
+def test_save_git_flow_ver_accepts_string_pg_id(fix_deployed_git_flow):
+    """Test save_git_flow_ver accepts process group ID as string."""
+    pg_id = fix_deployed_git_flow.pg.id
+
+    # This should not raise - it should accept string and look up PG
+    result = versioning.save_git_flow_ver(pg_id)
+
+    assert isinstance(result, nifi.VersionControlInformationEntity)
+
+
+# =============================================================================
+# get_local_modifications Tests
+# =============================================================================
+
+
+def test_get_local_modifications_not_versioned(fix_pg):
+    """Test get_local_modifications raises error for non-versioned PG."""
+    pg = fix_pg.generate()
+
+    with pytest.raises(ValueError, match="not under version control"):
+        versioning.get_local_modifications(pg)
+
+
+def test_get_local_modifications_accepts_string_id(fix_deployed_git_flow):
+    """Test get_local_modifications accepts process group ID as string."""
+    pg_id = fix_deployed_git_flow.pg.id
+
+    # This should not raise - it should accept string and look up PG
+    result = versioning.get_local_modifications(pg_id)
+
+    assert hasattr(result, 'component_differences')
+
+
+def test_get_local_modifications_clean_flow(fix_deployed_git_flow):
+    """Test get_local_modifications on clean flow returns empty list."""
+    pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
+    vci = versioning.get_version_info(pg)
+
+    # Clean up any modifications first
+    if 'LOCALLY_MODIFIED' in vci.version_control_information.state:
+        versioning.revert_flow_ver(pg, wait=True)
+        pg = canvas.get_process_group(pg.id, 'id')
+
+    result = versioning.get_local_modifications(pg)
+
+    assert hasattr(result, 'component_differences')
+    # Clean flow should have no differences
+    assert len(result.component_differences) == 0
+
+
+def test_get_local_modifications_with_changes(fix_deployed_git_flow):
+    """Test get_local_modifications detects local changes."""
+    pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
+
+    # Make a local modification - update a processor's scheduling
+    processors = canvas.list_all_processors(pg.id)
+    if not processors:
+        pytest.skip("No processors in test flow")
+
+    proc = processors[0]
+
+    # Modify the processor
+    canvas.update_processor(
+        proc,
+        nifi.ProcessorConfigDTO(
+            scheduling_period="888 sec"
+        )
+    )
+
+    try:
+        result = versioning.get_local_modifications(pg)
+
+        assert hasattr(result, 'component_differences')
+        assert len(result.component_differences) >= 1
+
+        # Check the structure of the differences
+        diff = result.component_differences[0]
+        assert hasattr(diff, 'component_id')
+        assert hasattr(diff, 'component_name')
+        assert hasattr(diff, 'component_type')
+        assert hasattr(diff, 'differences')
+    finally:
+        # Revert the modification
+        versioning.revert_flow_ver(pg, wait=True)

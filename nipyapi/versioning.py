@@ -2,7 +2,7 @@
 For interactions with the NiFi Registry Service and related functions
 """
 
-# pylint: disable=too-many-lines
+# pylint: disable=C0302
 
 import logging
 
@@ -28,6 +28,8 @@ __all__ = [
     "get_git_registry_flow",
     "list_git_registry_flow_versions",
     "deploy_git_registry_flow",
+    "save_git_flow_ver",
+    "get_local_modifications",
     # NiFi Registry Bucket Functions
     "list_registry_buckets",
     "create_registry_bucket",
@@ -791,6 +793,209 @@ def update_git_flow_ver(process_group, target_version=None, branch=None):
         # Wait for completion
         nipyapi.utils.wait_to_complete(_running_update_flow_version)
         return nipyapi.nifi.VersionsApi().get_update_request(u_init.request.request_id)
+
+
+# pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+# pylint: disable=too-many-branches
+def save_git_flow_ver(
+    process_group,
+    registry_client=None,
+    bucket=None,
+    flow_name=None,
+    comment="",
+    desc="",
+    force=False,
+    refresh=True,
+):
+    """
+    Saves a process group to a Git-based Flow Registry.
+
+    This function works with Git-based Flow Registry Clients (GitHub, GitLab, etc.)
+    and handles both:
+    - Initial commits: Starting version control for a process group
+    - Subsequent commits: Saving a new version to an already versioned flow
+
+    For initial commits, registry_client and bucket are required.
+    For subsequent commits, the existing version control information is used.
+
+    Args:
+        process_group (ProcessGroupEntity or str): The ProcessGroup to save,
+            or its ID as a string.
+        registry_client (FlowRegistryClientEntity or str, optional): The Git
+            registry client, or its name/ID. Required for initial commit.
+        bucket (str, optional): The bucket/folder name in the Git registry.
+            Required for initial commit.
+        flow_name (str, optional): Name for the flow in the registry. Defaults
+            to the process group name. Only used for initial commit.
+        comment (str): Commit message for this version.
+        desc (str): Description for the flow (initial commit only).
+        force (bool): If True, use FORCE_COMMIT to ignore merge conflicts.
+        refresh (bool): Whether to refresh the process group before saving.
+
+    Returns:
+        VersionControlInformationEntity: The version control information
+            after the commit.
+
+    Raises:
+        ValueError: If required parameters are missing or objects not found.
+
+    Example:
+        >>> pg = nipyapi.canvas.get_process_group('my-flow', 'name')
+        >>> # Initial commit - start version control
+        >>> result = nipyapi.versioning.save_git_flow_ver(
+        ...     pg, registry_client='MyGitHubClient', bucket='flows',
+        ...     comment='Initial commit'
+        ... )
+        >>> # Subsequent commit - save new version
+        >>> result = nipyapi.versioning.save_git_flow_ver(pg, comment='Fixed bug')
+    """
+    # Resolve process group if string ID provided
+    if isinstance(process_group, str):
+        target_pg = nipyapi.canvas.get_process_group(process_group, "id")
+        if not target_pg:
+            raise ValueError(f"Process group not found: {process_group}")
+    elif refresh:
+        target_pg = nipyapi.canvas.get_process_group(process_group.id, "id")
+    else:
+        target_pg = process_group
+
+    # Check if already under version control
+    vci = target_pg.component.version_control_information
+    initial_commit = vci is None
+
+    if initial_commit:
+        # Initial commit - registry_client and bucket required
+        if not registry_client:
+            raise ValueError(
+                "registry_client is required for initial commit "
+                "(process group not under version control)"
+            )
+        if not bucket:
+            raise ValueError(
+                "bucket is required for initial commit (process group not under version control)"
+            )
+
+        # Resolve registry client
+        if isinstance(registry_client, str):
+            reg = get_registry_client(registry_client)
+            if not reg:
+                raise ValueError(f"Registry client not found: {registry_client}")
+        else:
+            reg = registry_client
+
+        # Get Git bucket
+        git_bucket = get_git_registry_bucket(reg.id, bucket)
+        if not git_bucket:
+            raise ValueError(f"Bucket not found in registry: {bucket}")
+
+        # Use the bucket ID from the git bucket object
+        bucket_id = git_bucket.id
+        registry_id = reg.id
+        resolved_flow_name = flow_name or target_pg.component.name
+        flow_id = None  # None for initial commit
+
+        log.info(
+            "Starting Git version control for '%s' in %s/%s",
+            resolved_flow_name,
+            reg.component.name,
+            bucket,
+        )
+    else:
+        # Subsequent commit - use existing version control info
+        if vci.state == "UP_TO_DATE":
+            log.warning("Flow has no local modifications - nothing to commit")
+            return nipyapi.nifi.VersionsApi().get_version_information(target_pg.id)
+
+        bucket_id = vci.bucket_id
+        registry_id = vci.registry_id
+        resolved_flow_name = vci.flow_id
+        flow_id = vci.flow_id
+
+        log.info(
+            "Saving new version of '%s' (state: %s)",
+            target_pg.component.name,
+            vci.state,
+        )
+
+    # Build the VersionedFlowDTO with Git-specific action field
+    action = "FORCE_COMMIT" if force else "COMMIT"
+    flow_dto = nipyapi.nifi.VersionedFlowDTO(
+        bucket_id=bucket_id,
+        comments=comment,
+        description=desc or f"Flow: {resolved_flow_name}",
+        flow_name=resolved_flow_name,
+        flow_id=flow_id,
+        registry_id=registry_id,
+        action=action,
+    )
+
+    log.debug("Committing with action: %s", action)
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.VersionsApi().save_to_flow_registry(
+            id=target_pg.id,
+            body=nipyapi.nifi.StartVersionControlRequestEntity(
+                process_group_revision=target_pg.revision,
+                versioned_flow=flow_dto,
+            ),
+        )
+
+
+def get_local_modifications(process_group):
+    """
+    Get local modifications to a versioned process group.
+
+    Returns structured information about all local changes made to a
+    version-controlled process group since the last commit/sync.
+
+    This is useful for:
+    - Reviewing changes before committing
+    - Capturing modifications before an upgrade to re-apply afterward
+    - Auditing what has changed in a flow
+
+    Args:
+        process_group (ProcessGroupEntity or str): The versioned ProcessGroup,
+            or its ID as a string.
+
+    Returns:
+        FlowComparisonEntity: The comparison result containing:
+            - component_differences: List of ComponentDifferenceDTO objects
+              with component_id, component_name, component_type, and
+              differences (list of DifferenceDTO with difference_type and
+              difference description)
+
+    Raises:
+        ValueError: If the process group is not found or not under version control.
+
+    Example:
+        >>> pg = nipyapi.canvas.get_process_group('my-flow', 'name')
+        >>> diff = nipyapi.versioning.get_local_modifications(pg)
+        >>> for component in diff.component_differences:
+        ...     print(f"{component.component_name}: {len(component.differences)} changes")
+    """
+    # Resolve process group if string ID provided
+    if isinstance(process_group, str):
+        target_pg = nipyapi.canvas.get_process_group(process_group, "id")
+        if not target_pg:
+            raise ValueError(f"Process group not found: {process_group}")
+        pg_id = process_group
+    else:
+        target_pg = process_group
+        pg_id = process_group.id
+
+    # Check if under version control
+    vci = target_pg.component.version_control_information
+    if not vci:
+        raise ValueError(f"Process group '{target_pg.component.name}' is not under version control")
+
+    log.info(
+        "Getting local modifications for '%s' (state: %s)",
+        target_pg.component.name,
+        vci.state,
+    )
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ProcessGroupsApi().get_local_modifications(pg_id)
 
 
 def list_registry_buckets():

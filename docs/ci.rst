@@ -240,15 +240,15 @@ Parameter                      Description                                      
 - Use ``configure_inherited_params`` when your flow has inherited parameter contexts (common with
   connectors that separate source, destination, and flow-specific parameters)
 
-change_version
+change_flow_version
 --------------
 
 Change the version of a deployed flow.
 
 .. code-block:: console
 
-    nipyapi ci change_version --process_group_id PG_ID --target_version v2.0.0
-    nipyapi ci change_version --process_group_id PG_ID  # Changes to latest
+    nipyapi ci change_flow_version --process_group_id PG_ID --target_version v2.0.0
+    nipyapi ci change_flow_version --process_group_id PG_ID  # Changes to latest
 
 **Parameters:**
 
@@ -264,6 +264,116 @@ Parameter                      Description                                   Env
 =============================  ============================================  ================================
 
 **Returns:** ``previous_version``, ``new_version``, ``version_state``
+
+commit_flow
+-----------
+
+Commit a flow to version control. For new flows, starts version control by
+saving the initial version. For existing versioned flows, saves a new version.
+
+.. code-block:: console
+
+    # Initial commit (requires registry and bucket)
+    nipyapi ci commit_flow --process_group_id PG_ID --registry_client MyRegistry --bucket flows --comment "Initial commit"
+
+    # Subsequent commit (uses existing version control info)
+    nipyapi ci commit_flow --process_group_id PG_ID --comment "Updated parameters"
+
+**Parameters:**
+
+=============================  ============================================  ================================
+Parameter                      Description                                   Environment Variable
+=============================  ============================================  ================================
+``--process_group_id``         ID of the process group                       ``NIFI_PROCESS_GROUP_ID``
+``--comment``                  Commit message                                ``NIFI_COMMIT_COMMENT``
+``--registry_client``          Registry client name (initial commit only)    ``NIFI_REGISTRY_CLIENT``
+``--bucket``                   Bucket/folder name (initial commit only)      ``NIFI_BUCKET``
+``--flow_name``                Flow name in registry (defaults to PG name)   ``NIFI_FLOW_NAME``
+``--force``                    Use FORCE_COMMIT for conflicts
+=============================  ============================================  ================================
+
+**Returns:** ``flow_id``, ``version``, ``state``, ``initial_commit``
+
+detach_flow
+-----------
+
+Detach a flow from version control. This removes version control from a
+process group, allowing it to be re-versioned to a different registry.
+
+Use this as the first step in forking a read-only flow to your own repository.
+
+.. code-block:: console
+
+    # Fork workflow: detach from read-only, save to your own registry
+    nipyapi ci detach_flow --process_group_id PG_ID
+    nipyapi ci commit_flow --process_group_id PG_ID --registry_client MyRepo --bucket flows
+
+**Parameters:**
+
+=============================  ============================================  ================================
+Parameter                      Description                                   Environment Variable
+=============================  ============================================  ================================
+``--process_group_id``         ID of the process group                       ``NIFI_PROCESS_GROUP_ID``
+=============================  ============================================  ================================
+
+**Returns:** ``detached``, ``process_group_name``, ``previous_registry``, ``previous_flow_id``, ``previous_bucket``
+
+get_flow_diff
+-------------
+
+Get local (uncommitted) modifications to a versioned flow.
+
+Use this before upgrading to capture changes that need to be re-applied after upgrade.
+
+.. code-block:: console
+
+    nipyapi ci get_flow_diff --process_group_id PG_ID
+
+**Parameters:**
+
+=============================  ============================================  ================================
+Parameter                      Description                                   Environment Variable
+=============================  ============================================  ================================
+``--process_group_id``         ID of the versioned process group             ``NIFI_PROCESS_GROUP_ID``
+=============================  ============================================  ================================
+
+**Returns:**
+
+- ``process_group_id``, ``process_group_name``: Process group identification
+- ``flow_id``: Flow ID in registry
+- ``current_version``: Currently committed version
+- ``state``: Version control state (LOCALLY_MODIFIED, UP_TO_DATE, etc.)
+- ``modification_count``: Number of modified components
+- ``modifications``: List of modifications, each containing:
+  - ``component_id``, ``component_name``, ``component_type``
+  - ``changes``: List of changes with ``type`` and ``description``
+
+get_flow_versions
+-----------------
+
+Get version history for a versioned flow.
+
+.. code-block:: console
+
+    nipyapi ci get_flow_versions --process_group_id PG_ID
+
+**Parameters:**
+
+=============================  ============================================  ================================
+Parameter                      Description                                   Environment Variable
+=============================  ============================================  ================================
+``--process_group_id``         ID of the versioned process group             ``NIFI_PROCESS_GROUP_ID``
+=============================  ============================================  ================================
+
+**Returns:**
+
+- ``flow_id``: Flow identifier in registry
+- ``bucket_id``: Bucket containing the flow
+- ``registry_id``: Registry client ID
+- ``current_version``: Currently deployed version
+- ``state``: Version control state
+- ``version_count``: Number of versions
+- ``versions``: List of version metadata (version, author, comments, timestamp, branch)
 
 revert_flow
 -----------
@@ -314,7 +424,7 @@ Parameter                         Description                                 En
 
 **Returns:** ``stopped``, ``deleted``, ``process_group_name``, ``parameter_context_deleted``
 
-get_versions
+list_flows
 ------------
 
 List version control state for all process groups under a parent.
@@ -325,13 +435,13 @@ easy to identify which flows need updates, have local modifications, or are out 
 .. code-block:: console
 
     # List immediate child process groups from root
-    nipyapi ci get_versions
+    nipyapi ci list_flows
 
     # List all process groups recursively
-    nipyapi ci get_versions --descendants
+    nipyapi ci list_flows --descendants
 
     # List process groups under a specific parent
-    nipyapi ci get_versions --process_group_id PG_ID
+    nipyapi ci list_flows --process_group_id PG_ID
 
 **Parameters:**
 
@@ -384,7 +494,7 @@ resolve_git_ref
 
 Resolve a git reference (tag, branch, or partial SHA) to a full commit SHA.
 
-This utility function is used internally by ``change_version`` and ``deploy_flow``, but can
+This utility function is used internally by ``change_flow_version`` and ``deploy_flow``, but can
 also be called directly when you need to resolve a git ref before passing it to other operations.
 
 .. code-block:: console
@@ -415,7 +525,7 @@ Parameter           Description                                       Environmen
 
 - If the ref already looks like a SHA (7-40 hex characters), it's returned as-is without an API call
 - Useful for CI/CD pipelines that need to pin to exact commits
-- Called automatically by ``change_version`` when you pass a tag or branch name
+- Called automatically by ``change_flow_version`` when you pass a tag or branch name
 
 Environment Variable Reference
 ==============================

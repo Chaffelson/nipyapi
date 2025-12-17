@@ -21,14 +21,18 @@ Profile resolution:
     3. Fall back to development examples if neither available
 """
 
-from .change_version import change_version
+from .change_flow_version import change_flow_version
 from .cleanup import cleanup
+from .commit_flow import commit_flow
 from .configure_inherited_params import configure_inherited_params
 from .configure_params import configure_params
 from .deploy_flow import deploy_flow
+from .detach_flow import detach_flow
 from .ensure_registry import ensure_registry
+from .get_flow_diff import get_flow_diff
+from .get_flow_versions import get_flow_versions
 from .get_status import get_status
-from .get_versions import get_versions
+from .list_flows import list_flows
 from .purge_flowfiles import purge_flowfiles
 from .resolve_git_ref import resolve_git_ref
 from .revert_flow import revert_flow
@@ -42,10 +46,14 @@ __all__ = [
     "start_flow",
     "stop_flow",
     "get_status",
-    "get_versions",
+    "list_flows",
+    "get_flow_versions",
+    "get_flow_diff",
+    "commit_flow",
+    "detach_flow",
     "configure_params",
     "configure_inherited_params",
-    "change_version",
+    "change_flow_version",
     "revert_flow",
     "cleanup",
     "purge_flowfiles",

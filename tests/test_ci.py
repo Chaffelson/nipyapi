@@ -503,12 +503,12 @@ def test_configure_params_non_dict():
         ci.configure_params(process_group_id="test-id", parameters="[1, 2, 3]")
 
 
-def test_get_versions_default_root():
-    """Test get_versions defaults to root when no PG ID provided."""
+def test_list_flows_default_root():
+    """Test list_flows defaults to root when no PG ID provided."""
     old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
     try:
-        # get_versions defaults to root PG, doesn't raise error
-        result = ci.get_versions()
+        # list_flows defaults to root PG, doesn't raise error
+        result = ci.list_flows()
         assert isinstance(result, dict)
         assert "parent_id" in result
         assert "total_count" in result
@@ -517,12 +517,12 @@ def test_get_versions_default_root():
             os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
 
 
-def test_change_version_missing_pg_id():
-    """Test change_version without process_group_id raises error."""
+def test_change_flow_version_missing_pg_id():
+    """Test change_flow_version without process_group_id raises error."""
     old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
     try:
         with pytest.raises(ValueError, match="process_group_id is required"):
-            ci.change_version()
+            ci.change_flow_version()
     finally:
         if old_val:
             os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
@@ -932,3 +932,247 @@ def test_upload_asset_invalid_context():
             context_id=str(uuid.uuid4()),
             file_path="/some/path.jar"
         )
+
+
+# =============================================================================
+# commit_flow Tests
+# =============================================================================
+
+
+def test_commit_flow_missing_pg_id():
+    """Test commit_flow without process_group_id raises error."""
+    old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+    try:
+        with pytest.raises(ValueError, match="process_group_id is required"):
+            ci.commit_flow()
+    finally:
+        if old_val:
+            os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
+
+
+def test_commit_flow_initial_missing_registry(fix_pg):
+    """Test commit_flow initial commit requires registry_client."""
+    pg = fix_pg.generate()
+    old_reg = os.environ.pop("NIFI_REGISTRY_CLIENT", None)
+    try:
+        with pytest.raises(ValueError, match="registry_client is required"):
+            ci.commit_flow(process_group_id=pg.id)
+    finally:
+        if old_reg:
+            os.environ["NIFI_REGISTRY_CLIENT"] = old_reg
+
+
+def test_commit_flow_initial_missing_bucket(fix_pg):
+    """Test commit_flow initial commit requires bucket."""
+    pg = fix_pg.generate()
+    old_bucket = os.environ.pop("NIFI_BUCKET", None)
+    try:
+        with pytest.raises(ValueError, match="bucket is required"):
+            ci.commit_flow(process_group_id=pg.id, registry_client="test-client")
+    finally:
+        if old_bucket:
+            os.environ["NIFI_BUCKET"] = old_bucket
+
+
+def test_commit_flow_no_changes(fix_deployed_git_flow):
+    """Test commit_flow on UP_TO_DATE flow returns no-changes message."""
+    pg = fix_deployed_git_flow.pg
+
+    result = ci.commit_flow(process_group_id=pg.id)
+
+    assert isinstance(result, dict)
+    assert "message" in result
+    assert result["initial_commit"] is False
+
+
+# =============================================================================
+# get_flow_versions Tests
+# =============================================================================
+
+
+def test_get_flow_versions_missing_pg_id():
+    """Test get_flow_versions without process_group_id raises error."""
+    old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+    try:
+        with pytest.raises(ValueError, match="process_group_id is required"):
+            ci.get_flow_versions()
+    finally:
+        if old_val:
+            os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
+
+
+def test_get_flow_versions_not_versioned(fix_pg):
+    """Test get_flow_versions on non-versioned PG raises error."""
+    pg = fix_pg.generate()
+
+    with pytest.raises(ValueError, match="not under version control"):
+        ci.get_flow_versions(process_group_id=pg.id)
+
+
+def test_get_flow_versions_success(fix_deployed_git_flow):
+    """Test get_flow_versions returns version history."""
+    pg = fix_deployed_git_flow.pg
+
+    result = ci.get_flow_versions(process_group_id=pg.id)
+
+    assert isinstance(result, dict)
+    assert "flow_id" in result
+    assert "bucket_id" in result
+    assert "registry_id" in result
+    assert "current_version" in result
+    assert "state" in result
+    assert "version_count" in result
+    assert "versions" in result
+    assert isinstance(result["versions"], list)
+    assert result["version_count"] >= 1
+
+
+# =============================================================================
+# detach_flow Tests
+# =============================================================================
+
+
+def test_detach_flow_missing_pg_id():
+    """Test detach_flow without process_group_id raises error."""
+    old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+    try:
+        with pytest.raises(ValueError, match="process_group_id is required"):
+            ci.detach_flow()
+    finally:
+        if old_val:
+            os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
+
+
+def test_detach_flow_not_versioned(fix_pg):
+    """Test detach_flow on non-versioned PG raises error."""
+    pg = fix_pg.generate()
+
+    with pytest.raises(ValueError, match="not under version control"):
+        ci.detach_flow(process_group_id=pg.id)
+
+
+def test_detach_flow_success(fix_deployed_git_flow):
+    """Test detach_flow removes version control."""
+    import nipyapi
+
+    # Deploy a fresh flow for this test since we'll modify version control
+    token = os.environ.get('GH_REGISTRY_TOKEN')
+    if not token:
+        pytest.skip("GH_REGISTRY_TOKEN not set")
+
+    root_id = nipyapi.canvas.get_root_pg_id()
+    pg = nipyapi.versioning.deploy_git_registry_flow(
+        registry_client_id=fix_deployed_git_flow.client.id,
+        bucket_id='flows',
+        flow_id='cicd-demo-flow',
+        parent_id=root_id,
+        location=(700, 700),
+        version=None
+    )
+
+    try:
+        # Verify it's under version control
+        vci = pg.component.version_control_information
+        assert vci is not None
+
+        # Detach
+        result = ci.detach_flow(process_group_id=pg.id)
+
+        assert isinstance(result, dict)
+        assert result["detached"] is True
+        assert result["process_group_name"] == pg.component.name
+        assert "previous_flow_id" in result
+
+        # Verify no longer under version control
+        updated_pg = nipyapi.canvas.get_process_group(pg.id, 'id')
+        assert updated_pg.component.version_control_information is None
+    finally:
+        # Cleanup
+        try:
+            nipyapi.canvas.schedule_process_group(pg.id, scheduled=False)
+            nipyapi.canvas.delete_process_group(pg, force=True)
+        except Exception:
+            pass
+
+
+# =============================================================================
+# get_flow_diff Tests
+# =============================================================================
+
+
+def test_get_flow_diff_missing_pg_id():
+    """Test get_flow_diff without process_group_id raises error."""
+    old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+    try:
+        with pytest.raises(ValueError, match="process_group_id is required"):
+            ci.get_flow_diff()
+    finally:
+        if old_val:
+            os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
+
+
+def test_get_flow_diff_not_versioned(fix_pg):
+    """Test get_flow_diff on non-versioned PG raises error."""
+    pg = fix_pg.generate()
+
+    with pytest.raises(ValueError, match="not under version control"):
+        ci.get_flow_diff(process_group_id=pg.id)
+
+
+def test_get_flow_diff_no_modifications(fix_deployed_git_flow):
+    """Test get_flow_diff on clean flow returns empty modifications."""
+    pg = fix_deployed_git_flow.pg
+
+    result = ci.get_flow_diff(process_group_id=pg.id)
+
+    assert isinstance(result, dict)
+    assert "process_group_id" in result
+    assert "process_group_name" in result
+    assert "flow_id" in result
+    assert "current_version" in result
+    assert "state" in result
+    assert "modification_count" in result
+    assert "modifications" in result
+    assert isinstance(result["modifications"], list)
+    # Clean flow should have no modifications
+    assert result["modification_count"] == 0
+
+
+def test_get_flow_diff_with_modifications(fix_deployed_git_flow):
+    """Test get_flow_diff detects local changes."""
+    import nipyapi
+
+    pg = fix_deployed_git_flow.pg
+
+    # Make a local modification - update a processor's scheduling
+    processors = nipyapi.canvas.list_all_processors(pg.id)
+    if not processors:
+        pytest.skip("No processors in test flow")
+
+    proc = processors[0]
+    original_period = proc.component.config.scheduling_period
+
+    # Modify the processor
+    nipyapi.canvas.update_processor(
+        proc,
+        nipyapi.nifi.ProcessorConfigDTO(
+            scheduling_period="999 sec"
+        )
+    )
+
+    try:
+        result = ci.get_flow_diff(process_group_id=pg.id)
+
+        assert isinstance(result, dict)
+        assert result["modification_count"] >= 1
+        assert len(result["modifications"]) >= 1
+
+        # Check the modification structure
+        mod = result["modifications"][0]
+        assert "component_id" in mod
+        assert "component_name" in mod
+        assert "component_type" in mod
+        assert "changes" in mod
+    finally:
+        # Revert the modification
+        nipyapi.versioning.revert_flow_ver(pg, wait=True)

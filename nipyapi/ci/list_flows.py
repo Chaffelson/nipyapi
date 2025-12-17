@@ -1,6 +1,6 @@
 # pylint: disable=broad-exception-caught
 """
-get_versions - list version control state for all process groups.
+list_flows - list flows (process groups) with their version control state.
 """
 
 import logging
@@ -12,14 +12,14 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 
-def get_versions(  # pylint: disable=too-many-locals
+def list_flows(  # pylint: disable=too-many-locals
     process_group_id: Optional[str] = None,
     descendants: Optional[bool] = None,
 ) -> dict:
     """
-    Get version control information for process groups.
+    List flows (process groups) with their version control state.
 
-    Lists process groups under the specified parent (or root) with their
+    Lists flows under the specified parent (or root) with their
     version control state, making it easy to see which flows need updates.
 
     Args:
@@ -50,20 +50,19 @@ def get_versions(  # pylint: disable=too-many-locals
 
     Examples:
         # List immediate child process groups from root
-        nipyapi ci get_versions
+        nipyapi ci list_flows
 
         # List all process groups recursively
-        nipyapi ci get_versions --descendants
+        nipyapi ci list_flows --descendants
 
         # List process groups under a specific parent
-        nipyapi ci get_versions --process_group_id PG_ID
+        nipyapi ci list_flows --process_group_id PG_ID
     """
     process_group_id = process_group_id or os.environ.get("NIFI_PROCESS_GROUP_ID")
 
     # Handle descendants flag from env var if not explicitly set
     if descendants is None:
-        env_val = os.environ.get("NIFI_INCLUDE_DESCENDANTS", "").lower()
-        descendants = env_val in ("true", "1", "yes")
+        descendants = nipyapi.utils.getenv_bool("NIFI_INCLUDE_DESCENDANTS", False)
 
     # Default to root process group if not specified
     if not process_group_id:
@@ -88,7 +87,7 @@ def get_versions(  # pylint: disable=too-many-locals
         log.debug("Including all descendants")
     else:
         # Immediate children only
-        flow = nipyapi.nifi.FlowApi().get_flow(process_group_id)
+        flow = nipyapi.canvas.get_flow(process_group_id)
         all_pgs = flow.process_group_flow.flow.process_groups or []
         log.debug("Immediate children only")
     log.debug("Found %d process groups", len(all_pgs))
