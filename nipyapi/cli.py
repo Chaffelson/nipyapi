@@ -82,6 +82,21 @@ def _detect_output_format():
     return "json"
 
 
+def _format_dotenv_value(key, value):
+    """Format a key-value pair for dotenv output, quoting if needed."""
+    v_str = str(value)
+    # Skip multiline values (GitLab limitation)
+    if "\n" in v_str or len(v_str) >= 1000:
+        return None
+    # Characters that require quoting for safe shell parsing
+    special_chars = set(" \t|&;<>()$`\\\"'*?[]#~=!{}^")
+    if any(c in v_str for c in special_chars):
+        # Escape embedded double quotes
+        v_escaped = v_str.replace('"', '\\"')
+        return f'{key.upper()}="{v_escaped}"'
+    return f"{key.upper()}={v_str}"
+
+
 def _serialize_result(obj, output_format="json"):  # pylint: disable=too-many-return-statements
     """
     Serialize an object for CLI output.
@@ -123,14 +138,9 @@ def _serialize_result(obj, output_format="json"):  # pylint: disable=too-many-re
                 lines.append(f"{key}={v_str}")
         return "\n".join(lines)
     if output_format == "dotenv":
-        # GitLab dotenv format: KEY=VALUE (simple values only, skip complex)
-        lines = []
-        for k, v in _flatten_dict(data).items():
-            v_str = str(v)
-            # Skip multiline values for dotenv (GitLab limitation)
-            if "\n" not in v_str and len(v_str) < 1000:
-                lines.append(f"{k.upper()}={v_str}")
-        return "\n".join(lines)
+        # GitLab dotenv format: KEY=VALUE (quoted if special chars)
+        lines = [_format_dotenv_value(k, v) for k, v in _flatten_dict(data).items()]
+        return "\n".join(line for line in lines if line is not None)
     # JSON format (default)
     return json.dumps(data, indent=2, default=str)
 

@@ -73,6 +73,31 @@ def test_serialize_result_dict_dotenv():
     assert "PG_NAME=test" in result
 
 
+def test_serialize_result_dict_dotenv_special_chars():
+    """Test GitLab dotenv quoting for values with special characters."""
+    from nipyapi.cli import _serialize_result
+
+    # Values with special characters should be quoted
+    result = _serialize_result({
+        "simple": "abc123",
+        "with_spaces": "hello world",
+        "with_pipe": "error | warning",
+        "with_brackets": "[ERROR] message",
+        "with_quotes": 'value with "quotes"',
+    }, "dotenv")
+
+    # Simple value should NOT be quoted
+    assert 'SIMPLE=abc123' in result
+
+    # Values with special chars SHOULD be quoted
+    assert 'WITH_SPACES="hello world"' in result
+    assert 'WITH_PIPE="error | warning"' in result
+    assert 'WITH_BRACKETS="[ERROR] message"' in result
+
+    # Embedded quotes should be escaped
+    assert 'WITH_QUOTES="value with \\"quotes\\""' in result
+
+
 def test_serialize_result_list_json():
     """Test JSON serialization of list."""
     from nipyapi.cli import _serialize_result
