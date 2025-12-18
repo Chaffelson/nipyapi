@@ -1721,7 +1721,9 @@ def deploy_flow_version(parent_id, location, bucket_id, flow_id, reg_client_id, 
         )
 
 
-def export_process_group_definition(process_group, file_path=None, mode="json"):
+def export_process_group_definition(
+    process_group, file_path=None, mode="json", include_referenced_services=False
+):
     """
     Export a process group as a flow definition (NiFi 2.x format).
     Does NOT require NiFi Registry - exports the current state of the process group.
@@ -1731,6 +1733,9 @@ def export_process_group_definition(process_group, file_path=None, mode="json"):
         file_path (str, optional): Path to write the export to. If None, returns
             the serialized string
         mode (str): Export format - 'json' or 'yaml'. Defaults to 'json'
+        include_referenced_services (bool): If True, include controller services
+            from outside the target group that are referenced by components within
+            the group. Defaults to False.
 
     Returns:
         str: The serialized flow definition if file_path is None, otherwise
@@ -1751,7 +1756,9 @@ def export_process_group_definition(process_group, file_path=None, mode="json"):
 
     with nipyapi.utils.rest_exceptions():
         # Export returns JSON string directly from NiFi API
-        flow_json_str = nipyapi.nifi.ProcessGroupsApi().export_process_group(process_group.id)
+        flow_json_str = nipyapi.nifi.ProcessGroupsApi().export_process_group(
+            process_group.id, include_referenced_services=include_referenced_services
+        )
 
         # Convert to desired format if needed
         if mode == "yaml":

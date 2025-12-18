@@ -1176,3 +1176,188 @@ def test_get_flow_diff_with_modifications(fix_deployed_git_flow):
     finally:
         # Revert the modification
         nipyapi.versioning.revert_flow_ver(pg, wait=True)
+
+
+# =============================================================================
+# export_flow_definition Tests
+# =============================================================================
+
+
+def test_export_flow_definition_missing_pg_id():
+    """Test export_flow_definition without process_group_id raises error."""
+    old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+    try:
+        with pytest.raises(ValueError, match="process_group_id is required"):
+            ci.export_flow_definition()
+    finally:
+        if old_val:
+            os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
+
+
+def test_export_flow_definition_invalid_mode():
+    """Test export_flow_definition with invalid mode raises error."""
+    with pytest.raises(ValueError, match="mode must be 'json' or 'yaml'"):
+        ci.export_flow_definition(process_group_id="test-id", mode="xml")
+
+
+def test_export_flow_definition_to_stdout(fix_pg):
+    """Test export_flow_definition returns flow definition when no file_path."""
+    pg = fix_pg.generate()
+
+    result = ci.export_flow_definition(process_group_id=pg.id)
+
+    assert isinstance(result, dict)
+    assert result["process_group_id"] == pg.id
+    assert result["process_group_name"] == pg.component.name
+    assert result["file_path"] == "stdout"
+    assert result["format"] == "json"
+    assert "flow_definition" in result
+    assert len(result["flow_definition"]) > 0
+
+
+def test_export_flow_definition_to_file(fix_pg, tmp_path):
+    """Test export_flow_definition writes to file."""
+    pg = fix_pg.generate()
+    output_file = tmp_path / "exported_flow.json"
+
+    result = ci.export_flow_definition(
+        process_group_id=pg.id,
+        file_path=str(output_file)
+    )
+
+    assert isinstance(result, dict)
+    assert result["process_group_id"] == pg.id
+    assert result["file_path"] == str(output_file)
+    assert result["format"] == "json"
+    assert "flow_definition" not in result  # Not included when writing to file
+    assert output_file.exists()
+    assert output_file.stat().st_size > 0
+
+
+def test_export_flow_definition_yaml_format(fix_pg):
+    """Test export_flow_definition with YAML format."""
+    pg = fix_pg.generate()
+
+    result = ci.export_flow_definition(process_group_id=pg.id, mode="yaml")
+
+    assert result["format"] == "yaml"
+    assert "flow_definition" in result
+    # YAML should not start with { like JSON
+    flow_def = result["flow_definition"]
+    assert not flow_def.strip().startswith("{")
+
+
+# =============================================================================
+# import_flow_definition Tests
+# =============================================================================
+
+
+def test_import_flow_definition_missing_source():
+    """Test import_flow_definition without file_path or flow_definition raises error."""
+    old_path = os.environ.pop("NIFI_FLOW_FILE_PATH", None)
+    old_def = os.environ.pop("NIFI_FLOW_DEFINITION", None)
+    try:
+        with pytest.raises(ValueError, match="Either file_path or flow_definition"):
+            ci.import_flow_definition()
+    finally:
+        if old_path:
+            os.environ["NIFI_FLOW_FILE_PATH"] = old_path
+        if old_def:
+            os.environ["NIFI_FLOW_DEFINITION"] = old_def
+
+
+def test_import_flow_definition_both_sources():
+    """Test import_flow_definition with both sources raises error."""
+    with pytest.raises(ValueError, match="Provide either file_path or flow_definition"):
+        ci.import_flow_definition(
+            file_path="/some/path.json",
+            flow_definition='{"flowContents": {}}'
+        )
+
+
+def test_import_flow_definition_file_not_found():
+    """Test import_flow_definition with non-existent file raises error."""
+    with pytest.raises(ValueError, match="Flow definition file not found"):
+        ci.import_flow_definition(file_path="/non/existent/flow.json")
+
+
+def test_import_flow_definition_roundtrip(fix_pg, tmp_path):
+    """Test export then import creates equivalent process group."""
+    import nipyapi
+
+    # Create a PG with some content
+    pg = fix_pg.generate()
+
+    # Add a processor to make it non-empty
+    nipyapi.canvas.create_processor(
+        parent_pg=pg,
+        processor=nipyapi.canvas.get_processor_type('GenerateFlowFile'),
+        location=(100, 100),
+        name="test_roundtrip_processor",
+        config=nipyapi.nifi.ProcessorConfigDTO(
+            scheduling_period='10s',
+            auto_terminated_relationships=['success']
+        )
+    )
+
+    # Export it
+    export_result = ci.export_flow_definition(process_group_id=pg.id)
+    flow_def = export_result["flow_definition"]
+
+    # Import it as a new PG
+    import_result = ci.import_flow_definition(flow_definition=flow_def)
+
+    try:
+        assert import_result["process_group_name"] == pg.component.name
+        assert import_result["source"] == "string"
+
+        # Verify the imported PG has the processor
+        imported_pg = nipyapi.canvas.get_process_group(
+            import_result["process_group_id"], "id"
+        )
+        processors = nipyapi.canvas.list_all_processors(imported_pg.id)
+        assert len(processors) >= 1
+        proc_names = [p.component.name for p in processors]
+        assert "test_roundtrip_processor" in proc_names
+    finally:
+        # Clean up the imported PG
+        try:
+            imported = nipyapi.canvas.get_process_group(
+                import_result["process_group_id"], "id"
+            )
+            nipyapi.canvas.delete_process_group(imported, force=True)
+        except Exception:
+            pass
+
+
+def test_import_flow_definition_from_file(fix_pg, tmp_path):
+    """Test import_flow_definition from a file."""
+    import nipyapi
+
+    pg = fix_pg.generate()
+
+    # Export to file
+    output_file = tmp_path / "flow_to_import.json"
+    ci.export_flow_definition(
+        process_group_id=pg.id,
+        file_path=str(output_file)
+    )
+
+    # Import from file
+    import_result = ci.import_flow_definition(
+        file_path=str(output_file),
+        location=(500, 500)
+    )
+
+    try:
+        assert import_result["source"] == "file"
+        assert import_result["process_group_name"] == pg.component.name
+    finally:
+        # Clean up
+        try:
+            imported = nipyapi.canvas.get_process_group(
+                import_result["process_group_id"], "id"
+            )
+            nipyapi.canvas.delete_process_group(imported, force=True)
+        except Exception:
+            pass

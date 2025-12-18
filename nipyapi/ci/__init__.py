@@ -29,9 +29,11 @@ from .configure_params import configure_params
 from .deploy_flow import deploy_flow
 from .detach_flow import detach_flow
 from .ensure_registry import ensure_registry
+from .export_flow_definition import export_flow_definition
 from .get_flow_diff import get_flow_diff
 from .get_flow_versions import get_flow_versions
 from .get_status import get_status
+from .import_flow_definition import import_flow_definition
 from .list_flows import list_flows
 from .purge_flowfiles import purge_flowfiles
 from .resolve_git_ref import resolve_git_ref
@@ -59,4 +61,6 @@ __all__ = [
     "purge_flowfiles",
     "resolve_git_ref",
     "upload_asset",
+    "export_flow_definition",
+    "import_flow_definition",
 ]
