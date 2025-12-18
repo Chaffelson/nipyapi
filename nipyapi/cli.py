@@ -405,6 +405,7 @@ def main():
             self.security = SafeModule(nipyapi.security)
             self.system = SafeModule(nipyapi.system)
             self.layout = SafeModule(nipyapi.layout)
+            self.extensions = SafeModule(nipyapi.extensions)
             self.config = nipyapi.config
             self.profiles = nipyapi.profiles
             self.utils = nipyapi.utils

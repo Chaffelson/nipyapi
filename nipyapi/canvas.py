@@ -535,6 +535,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
                 component=nipyapi.nifi.ProcessorDTO(
                     position=nipyapi.nifi.PositionDTO(x=float(location[0]), y=float(location[1])),
                     type=processor.type,
+                    bundle=processor.bundle,
                     name=processor_name,
                     config=target_config,
                 ),

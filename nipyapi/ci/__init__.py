@@ -26,6 +26,7 @@ from .cleanup import cleanup
 from .commit_flow import commit_flow
 from .configure_inherited_params import configure_inherited_params
 from .configure_params import configure_params
+from .delete_nar import delete_nar
 from .deploy_flow import deploy_flow
 from .detach_flow import detach_flow
 from .ensure_registry import ensure_registry
@@ -35,12 +36,14 @@ from .get_flow_versions import get_flow_versions
 from .get_status import get_status
 from .import_flow_definition import import_flow_definition
 from .list_flows import list_flows
+from .list_nars import list_nars
 from .purge_flowfiles import purge_flowfiles
 from .resolve_git_ref import resolve_git_ref
 from .revert_flow import revert_flow
 from .start_flow import start_flow
 from .stop_flow import stop_flow
 from .upload_asset import upload_asset
+from .upload_nar import upload_nar
 
 __all__ = [
     "ensure_registry",
@@ -63,4 +66,7 @@ __all__ = [
     "upload_asset",
     "export_flow_definition",
     "import_flow_definition",
+    "list_nars",
+    "upload_nar",
+    "delete_nar",
 ]

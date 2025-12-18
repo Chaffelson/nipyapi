@@ -1361,3 +1361,101 @@ def test_import_flow_definition_from_file(fix_pg, tmp_path):
             nipyapi.canvas.delete_process_group(imported, force=True)
         except Exception:
             pass
+
+
+# =============================================================================
+# NAR Management CI Tests
+# =============================================================================
+
+# Test NAR file path - set via environment variable
+TEST_NAR_PATH = os.environ.get("TEST_NAR_PATH")
+
+
+def test_list_nars():
+    """Test list_nars CI function."""
+    result = ci.list_nars()
+    assert isinstance(result, dict)
+    assert "count" in result
+    assert "nars" in result
+    assert isinstance(result["nars"], list)
+
+
+def test_upload_nar_missing_file():
+    """Test upload_nar without file_path raises error."""
+    old_val = os.environ.pop("NIFI_NAR_FILE_PATH", None)
+    try:
+        with pytest.raises(ValueError, match="file_path is required"):
+            ci.upload_nar()
+    finally:
+        if old_val:
+            os.environ["NIFI_NAR_FILE_PATH"] = old_val
+
+
+def test_upload_nar_file_not_found():
+    """Test upload_nar with non-existent file raises error."""
+    with pytest.raises(ValueError, match="NAR file not found"):
+        ci.upload_nar(file_path="/non/existent/file.nar")
+
+
+def test_delete_nar_missing_args():
+    """Test delete_nar without identifier or coordinate raises error."""
+    # Clear relevant env vars
+    old_id = os.environ.pop("NIFI_NAR_ID", None)
+    old_group = os.environ.pop("NIFI_NAR_GROUP", None)
+    old_artifact = os.environ.pop("NIFI_NAR_ARTIFACT", None)
+    old_version = os.environ.pop("NIFI_NAR_VERSION", None)
+    try:
+        with pytest.raises(ValueError, match="Either identifier or"):
+            ci.delete_nar()
+    finally:
+        if old_id:
+            os.environ["NIFI_NAR_ID"] = old_id
+        if old_group:
+            os.environ["NIFI_NAR_GROUP"] = old_group
+        if old_artifact:
+            os.environ["NIFI_NAR_ARTIFACT"] = old_artifact
+        if old_version:
+            os.environ["NIFI_NAR_VERSION"] = old_version
+
+
+def test_delete_nar_not_found():
+    """Test delete_nar with non-existent coordinate raises error."""
+    with pytest.raises(ValueError, match="NAR not found"):
+        ci.delete_nar(
+            group="non-existent-group",
+            artifact="non-existent-nar",
+            version="0.0.0"
+        )
+
+
+@pytest.mark.skipif(TEST_NAR_PATH is None, reason="TEST_NAR_PATH not set")
+def test_upload_delete_nar_roundtrip():
+    """Test uploading and deleting a NAR via CI functions."""
+    # Upload
+    upload_result = ci.upload_nar(file_path=TEST_NAR_PATH)
+
+    assert isinstance(upload_result, dict)
+    assert "identifier" in upload_result
+    assert "group" in upload_result
+    assert "artifact" in upload_result
+    assert "version" in upload_result
+    assert upload_result["state"] == "Installed"
+
+    try:
+        # Verify it appears in list
+        list_result = ci.list_nars()
+        assert any(
+            n["identifier"] == upload_result["identifier"]
+            for n in list_result["nars"]
+        )
+    finally:
+        # Delete it
+        delete_result = ci.delete_nar(identifier=upload_result["identifier"])
+        assert delete_result["deleted"] == "true"
+
+        # Verify deletion
+        list_result = ci.list_nars()
+        assert not any(
+            n["identifier"] == upload_result["identifier"]
+            for n in list_result["nars"]
+        )

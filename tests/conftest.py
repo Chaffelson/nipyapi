@@ -1,9 +1,13 @@
 """Configuration fixtures for pytest for `nipyapi` package."""
 
 import logging
-import pytest
 import os
+import tempfile
+import textwrap
+import zipfile
 from collections import namedtuple
+
+import pytest
 
 import nipyapi
 import nipyapi.profiles
@@ -810,3 +814,187 @@ def fixture_deployed_git_flow(request, fix_deployed_git_flow_shared):
 
     except Exception as e:
         log.warning("Failed to restore git flow state after test: %s", e)
+
+
+# =============================================================================
+# NAR Builder Fixtures (for extension/multi-version tests)
+# =============================================================================
+
+
+def create_test_nar(version="0.0.1", processor_name="NipyapiTestProcessor", valid=True):
+    """
+    Create a Python processor NAR for testing.
+
+    Generates a NAR file that can be uploaded to NiFi. By default creates
+    a valid processor with the Java implements declaration that NiFi
+    recognizes. Set valid=False to create an "invalid" NAR that uploads
+    successfully but contains no recognizable processor types.
+
+    Args:
+        version: The ProcessorDetails.version value (e.g., "0.0.1" or "0.0.1-SNAPSHOT")
+        processor_name: Name of the processor class
+        valid: If True (default), include Java implements declaration so NiFi
+            recognizes the processor. If False, omit it to test invalid NAR handling.
+
+    Returns:
+        str: Path to temporary NAR file (caller should clean up)
+
+    Example:
+        >>> # Valid NAR with recognizable processor
+        >>> nar_path = create_test_nar(version="0.0.1")
+        >>> nar = nipyapi.extensions.upload_nar(nar_path)
+        >>> details = nipyapi.extensions.get_nar_details(nar.identifier)
+        >>> assert len(details.processor_types) == 1
+
+        >>> # Invalid NAR (uploads but no processors)
+        >>> invalid_path = create_test_nar(version="0.0.1", valid=False)
+        >>> nar = nipyapi.extensions.upload_nar(invalid_path)
+        >>> details = nipyapi.extensions.get_nar_details(nar.identifier)
+        >>> assert len(details.processor_types) == 0
+    """
+    # Ensure version has -SNAPSHOT suffix for ProcessorDetails
+    proc_version = version if "-SNAPSHOT" in version else f"{version}-SNAPSHOT"
+    # NAR coordinate version (without -SNAPSHOT)
+    nar_version = version.replace("-SNAPSHOT", "")
+
+    # Module name derived from processor name
+    module_name = processor_name.lower()
+
+    # Create temp file for NAR
+    fd, nar_path = tempfile.mkstemp(suffix=".nar", prefix=f"test_nar_{nar_version}_")
+    os.close(fd)
+
+    # Build NAR contents
+    manifest = textwrap.dedent(f"""\
+        Manifest-Version: 1.0
+        Created-By: nipyapi-test
+        Build-Timestamp: 2025-01-01T00:00:00Z
+        Nar-Id: {module_name}-nar
+        Nar-Group: nipyapi.test
+        Nar-Version: {nar_version}
+    """)
+
+    about_py = textwrap.dedent(f'''\
+        __version__ = "{nar_version}"
+    ''')
+
+    init_py = ""
+
+    # The Java class with implements declaration is what makes NiFi recognize
+    # the processor. Without it, the NAR uploads but has no processor types.
+    java_class_block = ""
+    if valid:
+        java_class_block = """
+    class Java:
+        implements = ['org.apache.nifi.python.processor.FlowFileTransform']
+"""
+
+    processor_py = f"""from nifiapi.flowfiletransform import FlowFileTransform, FlowFileTransformResult
+
+
+class {processor_name}(FlowFileTransform):
+    \"\"\"A minimal test processor for nipyapi extension tests.\"\"\"{java_class_block}
+    class ProcessorDetails:
+        version = "{proc_version}"
+        description = "NiPyAPI test processor for extension testing"
+        tags = ["test", "nipyapi"]
+        dependencies = []
+
+    def __init__(self, **kwargs):
+        super().__init__()
+
+    def transform(self, context, flow_file):
+        \"\"\"Pass through - just returns success.\"\"\"
+        return FlowFileTransformResult(relationship="success")
+"""
+
+    # Create the NAR (ZIP with specific structure)
+    with zipfile.ZipFile(nar_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("META-INF/MANIFEST.MF", manifest)
+        zf.writestr(f"{module_name}/__init__.py", init_py)
+        zf.writestr(f"{module_name}/__about__.py", about_py)
+        zf.writestr(f"{module_name}/{processor_name}.py", processor_py)
+
+    log.debug("Created test NAR: %s (version=%s)", nar_path, nar_version)
+    return nar_path
+
+
+def _test_name_to_processor_name(test_name):
+    """Convert a test name to a valid processor class name.
+
+    Examples:
+        test_valid_nar_has_processor_types -> ValidNarProc
+        test_processor_init_lifecycle -> InitLifecycleProc
+        test_missing_nar_detection -> MissingNarProc
+    """
+    # Remove 'test_' prefix
+    name = test_name
+    if name.startswith("test_"):
+        name = name[5:]
+
+    # Convert snake_case to PascalCase
+    parts = name.split("_")
+
+    # Skip common/redundant words to keep names unique but concise
+    skip_words = {
+        "has", "is", "the", "a", "an", "with", "for", "and", "or",
+        "processor", "processors", "type", "types", "test", "nar", "nars"
+    }
+    meaningful_parts = [p for p in parts if p.lower() not in skip_words][:3]
+
+    # Capitalize each part and join
+    pascal_name = "".join(p.capitalize() for p in meaningful_parts)
+
+    # Use 'Proc' suffix (shorter, avoids redundancy with 'Processor' in test names)
+    return f"{pascal_name}Proc"
+
+
+@pytest.fixture(name='fix_test_nar')
+def fixture_test_nar(request):
+    """Fixture providing a factory for creating test NAR files.
+
+    Returns a factory function that creates Python processor NARs with
+    test-specific names for clear log traceability.
+
+    The processor name is derived from the test name by default:
+    - test_valid_nar_has_processor_types -> ValidNarProcessor
+    - test_processor_init_lifecycle -> InitLifecycleProcessor
+
+    This makes it easy to identify which test produced which log entries.
+
+    Example:
+        def test_upload_nar(fix_test_nar):
+            # Creates UploadNarProcessor with bundle uploadnarprocessor-nar
+            nar_v1 = fix_test_nar(version="0.0.1")
+            nar_v2 = fix_test_nar(version="0.0.2")
+
+            # Override processor name if needed
+            custom_nar = fix_test_nar(version="0.0.1", processor_name="CustomProcessor")
+
+            # Invalid NAR (uploads but no processors)
+            invalid_nar = fix_test_nar(version="0.0.1", valid=False)
+    """
+    # Get test name and derive default processor name
+    test_name = request.node.name
+    default_processor_name = _test_name_to_processor_name(test_name)
+
+    created_files = []
+
+    def factory(version="0.0.1", processor_name=None, valid=True):
+        # Use test-derived name if not explicitly provided
+        actual_name = processor_name if processor_name else default_processor_name
+        nar_path = create_test_nar(version=version, processor_name=actual_name, valid=valid)
+        created_files.append(nar_path)
+        log.debug("Created NAR for test '%s': processor=%s, version=%s",
+                  test_name, actual_name, version)
+        return nar_path
+
+    yield factory
+
+    # Cleanup created NAR files
+    for path in created_files:
+        try:
+            if os.path.exists(path):
+                os.unlink(path)
+        except Exception as e:
+            log.warning("Failed to clean up test NAR %s: %s", path, e)

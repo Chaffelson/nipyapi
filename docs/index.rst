@@ -12,6 +12,7 @@ Contents:
    ci
    profiles
    security
+   extensions
    migration
    nipyapi-docs/api_reference
    contributing

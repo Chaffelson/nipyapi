@@ -29,6 +29,7 @@ __all__ = [
     "parameters",
     "profiles",
     "layout",
+    "extensions",
 ]
 
 for sub_module in __all__:
