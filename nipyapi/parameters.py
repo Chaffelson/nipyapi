@@ -272,7 +272,7 @@ def remove_context_from_process_group(pg):
     return nipyapi.canvas.update_process_group(pg=pg, update={"parameter_context": {"id": None}})
 
 
-def get_parameter_context_hierarchy(context_id):
+def get_parameter_context_hierarchy(context_id, include_bindings=False, include_parameters=True):
     """
     Get the full parameter context inheritance hierarchy.
 
@@ -281,18 +281,36 @@ def get_parameter_context_hierarchy(context_id):
 
     Args:
         context_id (str): The ID of the root parameter context
+        include_bindings (bool): If True, include bound_process_groups for each
+            context showing which process groups are using it. Useful for
+            determining cleanup safety. Default: False
+        include_parameters (bool): If True, include parameter details for each
+            context. Set to False for a lightweight structure-only view.
+            Default: True (backwards compatible)
 
     Returns:
         dict: Hierarchy with keys:
             - id: Context ID
             - name: Context name
-            - parameters: List of parameter info dicts
+            - parameters: List of parameter info dicts (if include_parameters=True)
+                Each parameter dict contains: name, description, sensitive, value,
+                has_asset, asset_name
             - inherited: List of child hierarchy dicts (recursive)
+            - bound_process_groups: List of {id, name} dicts (if include_bindings=True)
 
     Example:
+        >>> # Get full hierarchy with parameters
         >>> hierarchy = get_parameter_context_hierarchy(context_id)
         >>> print(hierarchy['name'])  # "PostgreSQL Ingestion Parameters"
         >>> print(hierarchy['inherited'][0]['name'])  # "PostgreSQL Destination Parameters"
+
+        >>> # Get structure with bindings for cleanup analysis
+        >>> hierarchy = get_parameter_context_hierarchy(
+        ...     context_id, include_bindings=True, include_parameters=False
+        ... )
+        >>> for ctx in [hierarchy] + hierarchy['inherited']:
+        ...     bindings = len(ctx.get('bound_process_groups', []))
+        ...     print(f"{ctx['name']}: {bindings} bindings")
     """
     enforce_min_ver("1.10.0")
 
@@ -303,27 +321,40 @@ def get_parameter_context_hierarchy(context_id):
     result = {
         "id": ctx.id,
         "name": ctx.component.name,
-        "parameters": [],
         "inherited": [],
     }
 
-    # Get parameters defined at this level
-    for p in ctx.component.parameters or []:
-        param = p.parameter
-        assets = param.referenced_assets or []
-        result["parameters"].append(
-            {
-                "name": param.name,
-                "sensitive": param.sensitive or False,
-                "value": None if param.sensitive else param.value,
-                "has_asset": bool(assets),
-                "asset_name": assets[0].name if assets else None,
-            }
-        )
+    # Include parameters if requested (default: True for backwards compatibility)
+    if include_parameters:
+        result["parameters"] = []
+        for p in ctx.component.parameters or []:
+            param = p.parameter
+            assets = param.referenced_assets or []
+            result["parameters"].append(
+                {
+                    "name": param.name,
+                    "description": param.description,
+                    "sensitive": param.sensitive or False,
+                    "value": None if param.sensitive else param.value,
+                    "has_asset": bool(assets),
+                    "asset_name": assets[0].name if assets else None,
+                }
+            )
 
-    # Recurse into inherited contexts
+    # Include bound process groups if requested
+    if include_bindings:
+        result["bound_process_groups"] = [
+            {"id": pg.id, "name": pg.component.name}
+            for pg in (ctx.component.bound_process_groups or [])
+        ]
+
+    # Recurse into inherited contexts with same flags
     for ipc in ctx.component.inherited_parameter_contexts or []:
-        child_hierarchy = get_parameter_context_hierarchy(ipc.id)
+        child_hierarchy = get_parameter_context_hierarchy(
+            ipc.id,
+            include_bindings=include_bindings,
+            include_parameters=include_parameters,
+        )
         result["inherited"].append(child_hierarchy)
 
     return result

@@ -371,6 +371,14 @@ def test_get_parameter_context_hierarchy_simple(fix_context):
     param_names = [p["name"] for p in hierarchy["parameters"]]
     assert "HierarchyTestParam" in param_names
 
+    # Verify parameter fields including description
+    test_param = next(p for p in hierarchy["parameters"] if p["name"] == "HierarchyTestParam")
+    assert test_param["value"] == "test_value"
+    assert test_param["description"] == "Test for hierarchy"
+    assert test_param["sensitive"] is False
+    assert "has_asset" in test_param
+    assert "asset_name" in test_param
+
 
 def test_get_parameter_context_hierarchy_with_inheritance(fix_context):
     """Test get_parameter_context_hierarchy with inherited contexts."""
@@ -427,6 +435,145 @@ def test_get_parameter_context_hierarchy_not_found():
     import uuid
     with pytest.raises(ValueError, match="Parameter context not found"):
         parameters.get_parameter_context_hierarchy(str(uuid.uuid4()))
+
+
+def test_get_parameter_context_hierarchy_include_bindings(fix_context, fix_pg):
+    """Test get_parameter_context_hierarchy with include_bindings=True."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Add a parameter
+    param = parameters.prepare_parameter(
+        name="BindingTestParam",
+        value="test_value"
+    )
+    parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create a PG and bind the context to it
+    pg = fix_pg.generate()
+    parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Get hierarchy with bindings
+    hierarchy = parameters.get_parameter_context_hierarchy(
+        ctx.id, include_bindings=True
+    )
+
+    assert hierarchy["id"] == ctx.id
+    assert "bound_process_groups" in hierarchy
+    assert isinstance(hierarchy["bound_process_groups"], list)
+    assert len(hierarchy["bound_process_groups"]) == 1
+    assert hierarchy["bound_process_groups"][0]["id"] == pg.id
+    assert hierarchy["bound_process_groups"][0]["name"] == pg.component.name
+
+    # Parameters should still be included by default
+    assert "parameters" in hierarchy
+    assert len(hierarchy["parameters"]) >= 1
+
+
+def test_get_parameter_context_hierarchy_exclude_parameters(fix_context):
+    """Test get_parameter_context_hierarchy with include_parameters=False."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Add a parameter
+    param = parameters.prepare_parameter(
+        name="ExcludeTestParam",
+        value="test_value"
+    )
+    parameters.upsert_parameter_to_context(ctx, param)
+
+    # Get hierarchy without parameters
+    hierarchy = parameters.get_parameter_context_hierarchy(
+        ctx.id, include_parameters=False
+    )
+
+    assert hierarchy["id"] == ctx.id
+    assert hierarchy["name"] == ctx.component.name
+    assert "parameters" not in hierarchy
+    assert "inherited" in hierarchy
+
+    # Bindings should not be included by default
+    assert "bound_process_groups" not in hierarchy
+
+
+def test_get_parameter_context_hierarchy_bindings_only(fix_context, fix_pg):
+    """Test get_parameter_context_hierarchy with bindings only (no parameters)."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create child context
+    child_ctx = fix_context.generate(name=conftest.test_parameter_context_name + "_bind_child")
+    child_param = parameters.prepare_parameter(name="ChildBindParam", value="child")
+    parameters.upsert_parameter_to_context(child_ctx, child_param)
+
+    # Create parent context that inherits from child
+    parent_ctx = parameters.create_parameter_context(
+        name=conftest.test_parameter_context_name + "_bind_parent",
+        inherited_contexts=[child_ctx]
+    )
+
+    # Bind parent to a PG
+    pg = fix_pg.generate()
+    parameters.assign_context_to_process_group(pg, parent_ctx.id)
+
+    try:
+        # Get structure with bindings, no parameters
+        hierarchy = parameters.get_parameter_context_hierarchy(
+            parent_ctx.id,
+            include_bindings=True,
+            include_parameters=False
+        )
+
+        # Verify parent structure
+        assert hierarchy["id"] == parent_ctx.id
+        assert "parameters" not in hierarchy
+        assert "bound_process_groups" in hierarchy
+        assert len(hierarchy["bound_process_groups"]) == 1
+
+        # Verify child inherits the flags
+        assert len(hierarchy["inherited"]) == 1
+        child_hierarchy = hierarchy["inherited"][0]
+        assert child_hierarchy["id"] == child_ctx.id
+        assert "parameters" not in child_hierarchy
+        assert "bound_process_groups" in child_hierarchy
+        # NiFi reports transitive bindings - inherited contexts show the PG that
+        # binds their parent. This is correct behavior (shows all contexts in use).
+        assert len(child_hierarchy["bound_process_groups"]) == 1
+        assert child_hierarchy["bound_process_groups"][0]["id"] == pg.id
+
+    finally:
+        # Clean up parent context
+        parameters.delete_parameter_context(parent_ctx)
+
+
+def test_get_parameter_context_hierarchy_defaults_backwards_compatible(fix_context):
+    """Test that default behavior is backwards compatible."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    param = parameters.prepare_parameter(name="BackwardsParam", value="test")
+    parameters.upsert_parameter_to_context(ctx, param)
+
+    # Call with no extra arguments (original signature)
+    hierarchy = parameters.get_parameter_context_hierarchy(ctx.id)
+
+    # Should have parameters (default: True)
+    assert "parameters" in hierarchy
+    assert len(hierarchy["parameters"]) >= 1
+
+    # Should NOT have bound_process_groups (default: False)
+    assert "bound_process_groups" not in hierarchy
+
+    # Basic structure preserved
+    assert "id" in hierarchy
+    assert "name" in hierarchy
+    assert "inherited" in hierarchy
 
 
 def test_get_parameter_ownership_map(fix_context):
