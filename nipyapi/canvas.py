@@ -438,8 +438,9 @@ def create_process_group(parent_pg, new_pg_name, location, comment=""):
     Process Group at the given Location
 
     Args:
-        parent_pg (ProcessGroupEntity): The parent Process Group to create the
-            new process group in
+        parent_pg (str or ProcessGroupEntity): The parent Process Group ID
+            (as a string) or ProcessGroupEntity object to create the new
+            process group in. Use "root" for the root canvas.
         new_pg_name (str): The name of the new Process Group
         location (tuple[x, y]): the x,y coordinates to place the new Process
             Group under the parent
@@ -449,12 +450,20 @@ def create_process_group(parent_pg, new_pg_name, location, comment=""):
          :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The new Process Group
 
     """
-    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    # Accept either a string ID or ProcessGroupEntity
+    if isinstance(parent_pg, str):
+        parent_id = parent_pg
+    elif isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity):
+        parent_id = parent_pg.id
+    else:
+        raise TypeError(
+            f"parent_pg must be a string ID or ProcessGroupEntity, got {type(parent_pg).__name__}"
+        )
     assert isinstance(new_pg_name, str)
     assert isinstance(location, tuple)
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
-            id=parent_pg.id,
+            id=parent_id,
             body=nipyapi.nifi.ProcessGroupEntity(
                 revision={"version": 0},
                 component=nipyapi.nifi.ProcessGroupDTO(

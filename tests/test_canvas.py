@@ -96,6 +96,52 @@ def test_create_process_group():
         )
 
 
+def test_create_process_group_with_string_id():
+    """Test create_process_group accepts a string ID instead of ProcessGroupEntity."""
+    # Test with "root" as parent_pg
+    pg_name = conftest.test_pg_name + "_string_root"
+    r = canvas.create_process_group(
+        parent_pg="root",
+        new_pg_name=pg_name,
+        location=(500.0, 500.0),
+        comment="created with string root"
+    )
+    try:
+        assert r.component.name == pg_name
+        assert r.position.x == r.position.y == 500
+        assert r.component.parent_group_id == canvas.get_root_pg_id()
+        assert isinstance(r, nifi.ProcessGroupEntity)
+    finally:
+        canvas.delete_process_group(r)
+
+    # Test with actual UUID string
+    root_id = canvas.get_root_pg_id()
+    pg_name2 = conftest.test_pg_name + "_string_uuid"
+    s = canvas.create_process_group(
+        parent_pg=root_id,
+        new_pg_name=pg_name2,
+        location=(600.0, 600.0)
+    )
+    try:
+        assert s.component.name == pg_name2
+        assert s.component.parent_group_id == root_id
+        assert isinstance(s, nifi.ProcessGroupEntity)
+    finally:
+        canvas.delete_process_group(s)
+
+
+def test_create_process_group_invalid_type():
+    """Test create_process_group raises TypeError for invalid parent_pg types."""
+    with pytest.raises(TypeError) as exc_info:
+        _ = canvas.create_process_group(
+            parent_pg=12345,
+            new_pg_name="should_fail",
+            location=(0, 0)
+        )
+    assert "must be a string ID or ProcessGroupEntity" in str(exc_info.value)
+    assert "int" in str(exc_info.value)
+
+
 def test_get_process_group(fix_pg):
     with pytest.raises(AssertionError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
