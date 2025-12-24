@@ -310,16 +310,23 @@ def test_get_log_on_error_disabled():
             os.environ.pop("NIFI_LOG_ON_ERROR", None)
 
 
-def test_parse_profile_arg_with_space():
-    """Test _parse_profile_arg with --profile value syntax."""
+# =============================================================================
+# CLI Flag Parsing Tests
+# =============================================================================
+
+
+def test_parse_cli_flags_profile_with_space():
+    """Test _parse_cli_flags with --profile value syntax."""
     import sys
-    from nipyapi.cli import _parse_profile_arg
+    from nipyapi.cli import _parse_cli_flags
 
     original_argv = sys.argv.copy()
     try:
         sys.argv = ["nipyapi", "--profile", "myprofile", "ci", "get_status"]
-        result = _parse_profile_arg()
-        assert result == "myprofile"
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert profile == "myprofile"
+        assert show_version is False
+        assert verbosity == 0
         # --profile and value should be removed from argv
         assert "--profile" not in sys.argv
         assert "myprofile" not in sys.argv
@@ -328,35 +335,225 @@ def test_parse_profile_arg_with_space():
         sys.argv = original_argv
 
 
-def test_parse_profile_arg_with_equals():
-    """Test _parse_profile_arg with --profile=value syntax."""
+def test_parse_cli_flags_profile_with_equals():
+    """Test _parse_cli_flags with --profile=value syntax."""
     import sys
-    from nipyapi.cli import _parse_profile_arg
+    from nipyapi.cli import _parse_cli_flags
 
     original_argv = sys.argv.copy()
     try:
         sys.argv = ["nipyapi", "--profile=prod", "system", "info"]
-        result = _parse_profile_arg()
-        assert result == "prod"
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert profile == "prod"
+        assert show_version is False
+        assert verbosity == 0
         assert "--profile=prod" not in sys.argv
         assert "system" in sys.argv
     finally:
         sys.argv = original_argv
 
 
-def test_parse_profile_arg_no_profile():
-    """Test _parse_profile_arg when no --profile is specified."""
+def test_parse_cli_flags_no_profile():
+    """Test _parse_cli_flags when no flags are specified."""
     import sys
-    from nipyapi.cli import _parse_profile_arg
+    from nipyapi.cli import _parse_cli_flags
 
     original_argv = sys.argv.copy()
     try:
         sys.argv = ["nipyapi", "canvas", "get_root_pg_id"]
-        result = _parse_profile_arg()
-        assert result is None
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert profile is None
+        assert show_version is False
+        assert verbosity == 0
         assert "canvas" in sys.argv
     finally:
         sys.argv = original_argv
+
+
+def test_parse_cli_flags_version_long():
+    """Test _parse_cli_flags with --version flag."""
+    import sys
+    from nipyapi.cli import _parse_cli_flags
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "--version"]
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert show_version is True
+        assert verbosity == 0
+        assert profile is None
+        assert "--version" not in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_cli_flags_version_short():
+    """Test _parse_cli_flags with -V flag."""
+    import sys
+    from nipyapi.cli import _parse_cli_flags
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "-V"]
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert show_version is True
+        assert verbosity == 0
+        assert profile is None
+        assert "-V" not in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_cli_flags_verbosity_single():
+    """Test _parse_cli_flags with -v flag (single verbosity)."""
+    import sys
+    from nipyapi.cli import _parse_cli_flags
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "-v", "ci", "get_status"]
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert show_version is False
+        assert verbosity == 1
+        assert profile is None
+        assert "-v" not in sys.argv
+        assert "ci" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_cli_flags_verbosity_double():
+    """Test _parse_cli_flags with -vv flag (double verbosity)."""
+    import sys
+    from nipyapi.cli import _parse_cli_flags
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "-vv", "ci", "get_status"]
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert show_version is False
+        assert verbosity == 2
+        assert profile is None
+        assert "-vv" not in sys.argv
+        assert "ci" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_cli_flags_verbosity_triple():
+    """Test _parse_cli_flags with -vvv flag (triple verbosity)."""
+    import sys
+    from nipyapi.cli import _parse_cli_flags
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "-vvv", "system", "info"]
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert show_version is False
+        assert verbosity == 3
+        assert profile is None
+        assert "-vvv" not in sys.argv
+        assert "system" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_cli_flags_verbosity_multiple_flags():
+    """Test _parse_cli_flags with multiple -v flags."""
+    import sys
+    from nipyapi.cli import _parse_cli_flags
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "-v", "-v", "ci", "get_status"]
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert show_version is False
+        assert verbosity == 2
+        assert profile is None
+        assert "-v" not in sys.argv
+        assert "ci" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_parse_cli_flags_combined():
+    """Test _parse_cli_flags with multiple flags combined."""
+    import sys
+    from nipyapi.cli import _parse_cli_flags
+
+    original_argv = sys.argv.copy()
+    try:
+        sys.argv = ["nipyapi", "-vv", "--profile", "prod", "ci", "deploy"]
+        show_version, verbosity, profile = _parse_cli_flags()
+        assert show_version is False
+        assert verbosity == 2
+        assert profile == "prod"
+        assert "-vv" not in sys.argv
+        assert "--profile" not in sys.argv
+        assert "prod" not in sys.argv
+        assert "ci" in sys.argv
+        assert "deploy" in sys.argv
+    finally:
+        sys.argv = original_argv
+
+
+def test_apply_verbosity_level_0():
+    """Test _apply_verbosity with verbosity 0 (default, no change)."""
+    from nipyapi.cli import _apply_verbosity
+
+    old = os.environ.pop("NIFI_LOG_LEVEL", None)
+    try:
+        _apply_verbosity(0)
+        # Should not set NIFI_LOG_LEVEL
+        assert "NIFI_LOG_LEVEL" not in os.environ
+    finally:
+        if old:
+            os.environ["NIFI_LOG_LEVEL"] = old
+
+
+def test_apply_verbosity_level_1():
+    """Test _apply_verbosity with verbosity 1 (INFO)."""
+    from nipyapi.cli import _apply_verbosity
+
+    old = os.environ.get("NIFI_LOG_LEVEL")
+    try:
+        _apply_verbosity(1)
+        assert os.environ.get("NIFI_LOG_LEVEL") == "INFO"
+    finally:
+        if old:
+            os.environ["NIFI_LOG_LEVEL"] = old
+        else:
+            os.environ.pop("NIFI_LOG_LEVEL", None)
+
+
+def test_apply_verbosity_level_2():
+    """Test _apply_verbosity with verbosity 2 (DEBUG)."""
+    from nipyapi.cli import _apply_verbosity
+
+    old = os.environ.get("NIFI_LOG_LEVEL")
+    try:
+        _apply_verbosity(2)
+        assert os.environ.get("NIFI_LOG_LEVEL") == "DEBUG"
+    finally:
+        if old:
+            os.environ["NIFI_LOG_LEVEL"] = old
+        else:
+            os.environ.pop("NIFI_LOG_LEVEL", None)
+
+
+def test_apply_verbosity_level_3():
+    """Test _apply_verbosity with verbosity 3+ (still DEBUG)."""
+    from nipyapi.cli import _apply_verbosity
+
+    old = os.environ.get("NIFI_LOG_LEVEL")
+    try:
+        _apply_verbosity(3)
+        assert os.environ.get("NIFI_LOG_LEVEL") == "DEBUG"
+    finally:
+        if old:
+            os.environ["NIFI_LOG_LEVEL"] = old
+        else:
+            os.environ.pop("NIFI_LOG_LEVEL", None)
 
 
 def test_log_capture_handler():
@@ -445,7 +642,6 @@ def test_safe_module_error_handling():
     """Test SafeModule returns structured error on exception."""
     from nipyapi.cli import SafeModule
     from types import ModuleType
-    import sys
 
     # Create a mock module with a function that raises
     mock_module = ModuleType("mock_module")
@@ -554,3 +750,34 @@ def test_cli_layout_constants():
     # Should return the constant value (352 based on empirical measurement)
     assert result.returncode == 0
     assert "352" in result.stdout
+
+
+def test_cli_version_long_flag():
+    """Test CLI --version works and shows version."""
+    import subprocess
+    result = subprocess.run(
+        ["python", "-m", "nipyapi.cli", "--version"],
+        capture_output=True,
+        text=True,
+        timeout=10
+    )
+    assert result.returncode == 0
+    assert "nipyapi" in result.stdout
+    # Should contain a version number pattern (e.g., 0.21.0 or 0.21.0.dev123)
+    import re
+    assert re.search(r"\d+\.\d+", result.stdout)
+
+
+def test_cli_version_short_flag():
+    """Test CLI -V works and shows version."""
+    import subprocess
+    result = subprocess.run(
+        ["python", "-m", "nipyapi.cli", "-V"],
+        capture_output=True,
+        text=True,
+        timeout=10
+    )
+    assert result.returncode == 0
+    assert "nipyapi" in result.stdout
+    import re
+    assert re.search(r"\d+\.\d+", result.stdout)

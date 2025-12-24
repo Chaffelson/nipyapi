@@ -14,6 +14,12 @@ Usage:
     nipyapi --profile my_runtime ci get_status PG_ID
     nipyapi --profile prod_runtime system get_nifi_version_info
 
+Global Flags:
+    --version, -V       Show nipyapi version and exit
+    -v                  Increase verbosity (INFO level)
+    -vv                 More verbose (DEBUG level)
+    --profile NAME      Select named profile from profiles file
+
 Installation:
     pip install nipyapi[cli]
 
@@ -325,32 +331,72 @@ class SafeModule:
         return dir(self._module)
 
 
-def _parse_profile_arg():
+def _parse_cli_flags():
     """
-    Parse --profile argument from sys.argv before Fire processes it.
+    Parse global CLI flags from sys.argv before Fire processes them.
+
+    Handles:
+        --version, -V: Show version and exit
+        -v, -vv, -vvv: Increase verbosity (maps to log levels)
+        --profile NAME: Select named profile
 
     Returns:
-        str or None: Profile name if --profile was specified, None otherwise.
+        tuple: (show_version: bool, verbosity: int, profile: str or None)
 
     Side effect:
-        Removes --profile and its value from sys.argv so Fire doesn't see them.
+        Removes parsed flags from sys.argv so Fire doesn't see them.
     """
+    show_version = False
+    verbosity = 0
     profile = None
     new_argv = [sys.argv[0]]
     i = 1
+
     while i < len(sys.argv):
         arg = sys.argv[i]
-        if arg == "--profile" and i + 1 < len(sys.argv):
+
+        # Version flags
+        if arg in ("--version", "-V"):
+            show_version = True
+            i += 1
+
+        # Verbosity flags: -v, -vv, -vvv, or multiple -v
+        elif arg == "-v":
+            verbosity += 1
+            i += 1
+        elif arg.startswith("-v") and all(c == "v" for c in arg[1:]):
+            # Handle -vv, -vvv, etc.
+            verbosity += len(arg) - 1
+            i += 1
+
+        # Profile flags
+        elif arg == "--profile" and i + 1 < len(sys.argv):
             profile = sys.argv[i + 1]
             i += 2  # Skip both --profile and its value
         elif arg.startswith("--profile="):
             profile = arg.split("=", 1)[1]
             i += 1
+
         else:
             new_argv.append(arg)
             i += 1
+
     sys.argv = new_argv
-    return profile
+    return show_version, verbosity, profile
+
+
+def _apply_verbosity(verbosity):
+    """
+    Apply verbosity level to logging configuration.
+
+    Args:
+        verbosity: 0=WARNING (default), 1=INFO, 2+=DEBUG
+    """
+    if verbosity >= 2:
+        os.environ["NIFI_LOG_LEVEL"] = "DEBUG"
+    elif verbosity == 1:
+        os.environ["NIFI_LOG_LEVEL"] = "INFO"
+    # verbosity 0: leave as default (WARNING or unset)
 
 
 def main():
@@ -362,19 +408,28 @@ def main():
     if os.environ.get("NIFI_VERIFY_SSL", "true").lower() in ("false", "0", "no"):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+    # Parse global flags before Fire sees them
+    show_version, verbosity, explicit_profile = _parse_cli_flags()
+
+    # Import nipyapi modules
+    import nipyapi
+    from nipyapi import ci
+
+    # Handle --version flag
+    if show_version:
+        print(f"nipyapi {nipyapi.__version__}")
+        sys.exit(0)
+
+    # Apply verbosity to logging
+    if verbosity > 0:
+        _apply_verbosity(verbosity)
+
     try:
         import fire
     except ImportError:
         print("CLI requires the 'fire' package.")
         print("Install with: pip install nipyapi[cli]")
         sys.exit(1)
-
-    # Parse --profile argument before Fire sees it
-    explicit_profile = _parse_profile_arg()
-
-    # Import nipyapi modules
-    import nipyapi
-    from nipyapi import ci
 
     # Auto-configure NiFi connection.
     # Priority: explicit --profile arg > NIFI_API_ENDPOINT > NIPYAPI_PROFILE > first profile
