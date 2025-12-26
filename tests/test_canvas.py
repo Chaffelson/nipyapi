@@ -4,7 +4,8 @@ import pytest
 import time
 import uuid
 from tests import conftest
-from nipyapi import canvas, nifi, utils, config
+import nipyapi
+from nipyapi import canvas, nifi, utils, config, parameters
 from nipyapi.nifi import ProcessGroupFlowEntity, ProcessGroupEntity
 from nipyapi.nifi import ProcessorTypesEntity, DocumentedTypeDTO
 
@@ -690,12 +691,16 @@ def test_delete_controller(fix_pg, fix_cont):
     f_c1 = fix_cont(parent_pg=f_pg)
     r1 = canvas.delete_controller(f_c1)
     assert r1.revision is None
+    # Test delete by ID string
+    f_c1b = fix_cont(parent_pg=f_pg)
+    r1b = canvas.delete_controller(f_c1b.id)
+    assert r1b.revision is None
     f_c2 = fix_cont(parent_pg=f_pg)
     f_c2 = canvas.schedule_controller(f_c2, True)
+    with pytest.raises(ValueError):
+        _ = canvas.delete_controller('pie')  # Invalid ID string
     with pytest.raises(AssertionError):
-        _ = canvas.delete_controller('pie')
-    with pytest.raises(AssertionError):
-        _ = canvas.delete_controller(f_c2, 'pie')
+        _ = canvas.delete_controller(f_c2, 'pie')  # Invalid force parameter
     with pytest.raises(ValueError):
         _ = canvas.delete_controller(f_c2)
     assert f_c2.revision is not None
@@ -951,3 +956,607 @@ def test_remote_process_group_controls(fix_proc):
     r3 = canvas.delete_remote_process_group(rpg1)
     assert isinstance(r3, nifi.RemoteProcessGroupEntity)
     assert r3.revision is None
+
+
+# =============================================================================
+# CONFIG VERIFICATION TESTS
+# =============================================================================
+
+
+def test_verify_controller_disabled(fix_pg, fix_cont):
+    """Test verifying a disabled controller service configuration."""
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+
+    # Controller starts disabled, should be verifiable
+    assert f_c1.component.state == 'DISABLED'
+
+    # Verify configuration - CSVReader may pass or fail depending on setup
+    results = canvas.verify_controller(f_c1)
+
+    # Result should be a list of ConfigVerificationResultDTO
+    assert isinstance(results, list)
+    for r in results:
+        assert hasattr(r, 'verification_step_name')
+        assert hasattr(r, 'outcome')
+        assert r.outcome in ('SUCCESSFUL', 'FAILED', 'SKIPPED')
+
+
+def test_verify_controller_by_id(fix_pg, fix_cont):
+    """Test verifying a controller service by ID string."""
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+
+    # Verify by ID string
+    results = canvas.verify_controller(f_c1.id)
+
+    assert isinstance(results, list)
+
+
+def test_verify_controller_enabled_fails(fix_pg, fix_cont):
+    """Test that verifying an enabled controller raises ValueError."""
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+
+    # Enable the controller
+    f_c1 = canvas.schedule_controller(f_c1, True)
+    assert f_c1.component.state == 'ENABLED'
+
+    # Verification should fail with clear error
+    with pytest.raises(ValueError, match="must be DISABLED"):
+        canvas.verify_controller(f_c1)
+
+    # Cleanup: disable the controller
+    canvas.schedule_controller(f_c1, False)
+
+
+def test_verify_processor_stopped(fix_pg, fix_proc):
+    """Test verifying a stopped processor configuration."""
+    f_pg = fix_pg.generate()
+    f_p1 = fix_proc.generate(parent_pg=f_pg)
+
+    # Processor should be stopped/invalid initially
+    results = canvas.verify_processor(f_p1)
+
+    # Result should be a list of ConfigVerificationResultDTO
+    assert isinstance(results, list)
+    for r in results:
+        assert hasattr(r, 'verification_step_name')
+        assert hasattr(r, 'outcome')
+        assert r.outcome in ('SUCCESSFUL', 'FAILED', 'SKIPPED')
+
+
+def test_verify_processor_by_id(fix_pg, fix_proc):
+    """Test verifying a processor by ID string."""
+    f_pg = fix_pg.generate()
+    f_p1 = fix_proc.generate(parent_pg=f_pg)
+
+    # Verify by ID string
+    results = canvas.verify_processor(f_p1.id)
+
+    assert isinstance(results, list)
+
+
+def test_verify_processor_shows_failures(fix_pg):
+    """Test that verification shows detailed failure information."""
+    f_pg = fix_pg.generate()
+
+    # Create a DBCPConnectionPool which requires configuration
+    dbcp_type = [t for t in canvas.list_all_controller_types()
+                 if t.type == 'org.apache.nifi.dbcp.DBCPConnectionPool']
+    if not dbcp_type:
+        pytest.skip("DBCPConnectionPool not available")
+
+    controller = canvas.create_controller(f_pg, dbcp_type[0], name='TestDBCP')
+
+    try:
+        # Verify - should fail because required properties not set
+        results = canvas.verify_controller(controller)
+        failures = [r for r in results if r.outcome == "FAILED"]
+
+        # Should have failures
+        assert len(failures) > 0
+
+        # Failures should have step names and explanations
+        for failure in failures:
+            assert failure.verification_step_name is not None
+            assert failure.explanation is not None
+
+    finally:
+        # Cleanup
+        canvas.delete_controller(controller)
+
+
+# =============================================================================
+# Verification with Parameter Context Tests
+# =============================================================================
+
+
+def test_verify_controller_with_parameter_set(fix_pg):
+    """Test verification when a controller uses a parameter that IS set correctly."""
+    f_pg = fix_pg.generate()
+
+    # Create a parameter context with a parameter
+    param = parameters.prepare_parameter(
+        name="test.schema",
+        value='{"type":"record","name":"test","fields":[{"name":"id","type":"string"}]}',
+        description="Test schema parameter"
+    )
+    ctx = parameters.create_parameter_context(
+        name="VerifyParamTestCtx",
+        parameters=[param]
+    )
+
+    try:
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create a CSVReader that references the parameter
+        csv_type = [t for t in canvas.list_all_controller_types()
+                    if 'CSVReader' in t.type]
+        if not csv_type:
+            pytest.skip("CSVReader not available")
+
+        controller = canvas.create_controller(f_pg, csv_type[0], name='ParamCSVReader')
+
+        # Update to use the parameter reference
+        update = nifi.ControllerServiceDTO(
+            properties={"Schema Text": "#{test.schema}"}
+        )
+        controller = canvas.update_controller(controller, update)
+
+        # Verify - should succeed because parameter is defined
+        results = canvas.verify_controller(controller)
+        assert isinstance(results, list)
+
+        # Check that there are results (verification ran)
+        assert len(results) > 0
+
+        # Log results for debugging
+        for r in results:
+            print(f"  {r.verification_step_name}: {r.outcome}")
+            if r.explanation:
+                print(f"    {r.explanation}")
+
+    finally:
+        # Cleanup
+        canvas.delete_controller(controller)
+        parameters.delete_parameter_context(ctx)
+
+
+def test_verify_controller_with_missing_parameter(fix_pg):
+    """Test verification when a controller references a parameter that DOES NOT exist."""
+    f_pg = fix_pg.generate()
+
+    # Create an EMPTY parameter context (no parameters defined)
+    ctx = parameters.create_parameter_context(
+        name="VerifyMissingParamCtx",
+        parameters=[]
+    )
+
+    try:
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create a CSVReader that references a non-existent parameter
+        csv_type = [t for t in canvas.list_all_controller_types()
+                    if 'CSVReader' in t.type]
+        if not csv_type:
+            pytest.skip("CSVReader not available")
+
+        controller = canvas.create_controller(f_pg, csv_type[0], name='MissingParamCSV')
+
+        # Update to use a parameter that doesn't exist
+        # Note: NiFi may reject this at update time, so we catch that
+        try:
+            update = nifi.ControllerServiceDTO(
+                properties={"Schema Text": "#{nonexistent.param}"}
+            )
+            controller = canvas.update_controller(controller, update)
+        except nifi.rest.ApiException as e:
+            # NiFi rejects unknown parameter references at update time
+            # This is expected behavior - the update itself fails
+            assert "parameter" in str(e).lower() or "does not exist" in str(e).lower()
+            pytest.skip("NiFi rejected parameter reference at update time (expected)")
+
+        # If we get here, verify should detect the issue
+        results = canvas.verify_controller(controller)
+
+        # Should have some verification result
+        assert isinstance(results, list)
+
+    finally:
+        # Cleanup
+        try:
+            canvas.delete_controller(controller)
+        except Exception:
+            pass  # May have failed to create
+        parameters.delete_parameter_context(ctx)
+
+
+def test_verify_controller_with_empty_parameter(fix_pg):
+    """Test verification when a controller references a parameter that is EMPTY."""
+    f_pg = fix_pg.generate()
+
+    # Create a parameter context with an EMPTY parameter value
+    param = parameters.prepare_parameter(
+        name="empty.param",
+        value="",  # Empty value
+        description="Empty test parameter"
+    )
+    ctx = parameters.create_parameter_context(
+        name="VerifyEmptyParamCtx",
+        parameters=[param]
+    )
+
+    try:
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create a controller that references the empty parameter
+        csv_type = [t for t in canvas.list_all_controller_types()
+                    if 'CSVReader' in t.type]
+        if not csv_type:
+            pytest.skip("CSVReader not available")
+
+        controller = canvas.create_controller(f_pg, csv_type[0], name='EmptyParamCSV')
+
+        # Update to use the empty parameter
+        update = nifi.ControllerServiceDTO(
+            properties={"Schema Text": "#{empty.param}"}
+        )
+        controller = canvas.update_controller(controller, update)
+
+        # Verify - may pass or fail depending on what CSVReader requires
+        results = canvas.verify_controller(controller)
+        assert isinstance(results, list)
+
+        # Log all results
+        for r in results:
+            print(f"  {r.verification_step_name}: {r.outcome}")
+            if r.explanation:
+                print(f"    {r.explanation}")
+
+    finally:
+        # Cleanup
+        canvas.delete_controller(controller)
+        parameters.delete_parameter_context(ctx)
+
+
+def test_verify_processor_with_parameter_set(fix_pg):
+    """Test verification when a processor uses a parameter that IS set correctly."""
+    f_pg = fix_pg.generate()
+
+    # Create a parameter context with a parameter
+    param = parameters.prepare_parameter(
+        name="file.size",
+        value="1 KB",
+        description="File size parameter"
+    )
+    ctx = parameters.create_parameter_context(
+        name="VerifyProcParamCtx",
+        parameters=[param]
+    )
+
+    try:
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create a GenerateFlowFile processor
+        proc_type = canvas.get_processor_type("GenerateFlowFile")
+        processor = canvas.create_processor(f_pg, proc_type, location=(400, 400),
+                                            name='ParamGenFF')
+
+        # Update to use the parameter reference
+        update = nifi.ProcessorConfigDTO(
+            properties={"File Size": "#{file.size}"}
+        )
+        processor = canvas.update_processor(processor, update)
+
+        # Verify - should succeed because parameter is defined
+        results = canvas.verify_processor(processor)
+        assert isinstance(results, list)
+
+        # Check results
+        for r in results:
+            print(f"  {r.verification_step_name}: {r.outcome}")
+
+    finally:
+        # Cleanup
+        canvas.delete_processor(processor)
+        parameters.delete_parameter_context(ctx)
+
+
+def test_verify_processor_with_invalid_parameter_value(fix_pg):
+    """Test verification when a processor uses a parameter with an invalid value type."""
+    f_pg = fix_pg.generate()
+
+    # Create a parameter context with an INVALID value for the expected type
+    # GenerateFlowFile "File Size" expects a data size like "1 KB", not random text
+    param = parameters.prepare_parameter(
+        name="bad.file.size",
+        value="not-a-valid-size",  # Invalid for DataSize property
+        description="Invalid file size parameter"
+    )
+    ctx = parameters.create_parameter_context(
+        name="VerifyBadValueCtx",
+        parameters=[param]
+    )
+
+    try:
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create a GenerateFlowFile processor
+        proc_type = canvas.get_processor_type("GenerateFlowFile")
+        processor = canvas.create_processor(f_pg, proc_type, location=(400, 400),
+                                            name='BadValueGenFF')
+
+        # Update to use the invalid parameter
+        try:
+            update = nifi.ProcessorConfigDTO(
+                properties={"File Size": "#{bad.file.size}"}
+            )
+            processor = canvas.update_processor(processor, update)
+        except nifi.rest.ApiException:
+            # NiFi may reject invalid values at update time
+            pytest.skip("NiFi rejected invalid parameter value at update time")
+
+        # Verify - should detect the invalid value
+        results = canvas.verify_processor(processor)
+        assert isinstance(results, list)
+
+        # Log all results
+        for r in results:
+            print(f"  {r.verification_step_name}: {r.outcome}")
+            if r.explanation:
+                print(f"    {r.explanation}")
+
+    finally:
+        # Cleanup
+        try:
+            canvas.delete_processor(processor)
+        except Exception:
+            pass
+        parameters.delete_parameter_context(ctx)
+
+
+def test_verify_dbcp_with_connection_parameters(fix_pg):
+    """Test DBCPConnectionPool verification with database connection parameters.
+
+    This simulates a real deployment scenario where a connector needs
+    database credentials and connection info from parameters.
+    """
+    f_pg = fix_pg.generate()
+
+    # Create parameter context with database connection parameters
+    params = [
+        parameters.prepare_parameter(
+            name="db.url",
+            value="jdbc:h2:mem:testdb",
+            description="Database connection URL"
+        ),
+        parameters.prepare_parameter(
+            name="db.driver.class",
+            value="org.h2.Driver",
+            description="Database driver class"
+        ),
+    ]
+    ctx = parameters.create_parameter_context(
+        name="VerifyDBCPParamsCtx",
+        parameters=params
+    )
+
+    # Find DBCPConnectionPool controller type
+    dbcp_type = [t for t in canvas.list_all_controller_types()
+                 if t.type == 'org.apache.nifi.dbcp.DBCPConnectionPool']
+    if not dbcp_type:
+        parameters.delete_parameter_context(ctx)
+        pytest.skip("DBCPConnectionPool not available")
+
+    controller = None
+    try:
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create DBCP controller
+        controller = canvas.create_controller(f_pg, dbcp_type[0], name='ParamDBCP')
+
+        # Update to use parameters
+        update = nifi.ControllerServiceDTO(
+            properties={
+                "Database Connection URL": "#{db.url}",
+                "Database Driver Class Name": "#{db.driver.class}",
+            }
+        )
+        controller = canvas.update_controller(controller, update)
+
+        # Verify - will likely fail because driver isn't available,
+        # but should show meaningful verification results
+        results = canvas.verify_controller(controller)
+        assert isinstance(results, list)
+        assert len(results) > 0
+
+        # Log all verification steps
+        print("\nDBCP Verification Results:")
+        for r in results:
+            status = "[PASS]" if r.outcome == "SUCCESSFUL" else "[FAIL]"
+            print(f"  {status} {r.verification_step_name}")
+            if r.outcome == "FAILED" and r.explanation:
+                print(f"       -> {r.explanation}")
+
+        # Check that we got meaningful step names
+        step_names = [r.verification_step_name for r in results]
+        assert len(step_names) > 0
+
+    finally:
+        # Cleanup
+        if controller:
+            canvas.delete_controller(controller)
+        parameters.delete_parameter_context(ctx)
+
+
+def test_verify_controller_with_asset_parameter(fix_pg):
+    """Test verification when a controller uses a parameter that references an asset.
+
+    This simulates a real deployment scenario where a JDBC driver JAR is uploaded
+    as an asset and referenced by a database connection pool.
+    """
+    f_pg = fix_pg.generate()
+
+    # Create a parameter context
+    ctx = parameters.create_parameter_context(
+        name="VerifyAssetParamCtx",
+        parameters=[]
+    )
+
+    # Find DBCPConnectionPool controller type
+    dbcp_type = [t for t in canvas.list_all_controller_types()
+                 if t.type == 'org.apache.nifi.dbcp.DBCPConnectionPool']
+    if not dbcp_type:
+        parameters.delete_parameter_context(ctx)
+        pytest.skip("DBCPConnectionPool not available")
+
+    controller = None
+    try:
+        # Upload a fake "driver" file as an asset
+        # In real usage this would be an actual JAR file
+        fake_driver_content = b"This is a fake driver file for testing"
+        asset = parameters.upload_asset(
+            context_id=ctx.id,
+            file_bytes=fake_driver_content,
+            filename="test-driver.jar"
+        )
+        print(f"Uploaded asset: {asset['name']} (id={asset['id']})")
+
+        # Create a parameter that references the asset
+        driver_param = parameters.prepare_parameter_with_asset(
+            name="jdbc.driver.path",
+            asset_id=asset['id'],
+            asset_name=asset['name'],
+            description="JDBC driver JAR file"
+        )
+
+        # Also add connection parameters
+        url_param = parameters.prepare_parameter(
+            name="db.url",
+            value="jdbc:h2:mem:testdb",
+            description="Database URL"
+        )
+
+        # Update context with both parameters
+        ctx.component.parameters = [driver_param, url_param]
+        ctx = parameters.update_parameter_context(ctx)
+
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create DBCP controller
+        controller = canvas.create_controller(f_pg, dbcp_type[0], name='AssetDBCP')
+
+        # Update to use parameters (including the asset-backed parameter)
+        update = nifi.ControllerServiceDTO(
+            properties={
+                "Database Connection URL": "#{db.url}",
+                # Note: the actual property name for driver location varies
+                # This tests that asset parameters are resolved
+            }
+        )
+        controller = canvas.update_controller(controller, update)
+
+        # Verify - the verification should complete and show results
+        results = canvas.verify_controller(controller)
+        assert isinstance(results, list)
+        assert len(results) > 0
+
+        # Log all verification steps
+        print("\nAsset-backed Controller Verification Results:")
+        for r in results:
+            status = "[PASS]" if r.outcome == "SUCCESSFUL" else "[FAIL]"
+            print(f"  {status} {r.verification_step_name}")
+            if r.outcome == "FAILED" and r.explanation:
+                print(f"       -> {r.explanation}")
+
+    finally:
+        # Cleanup
+        if controller:
+            canvas.delete_controller(controller)
+        # Clear parameters first (they reference assets), then delete context
+        # delete_parameter_context handles this automatically
+        parameters.delete_parameter_context(ctx)
+
+
+def test_verify_controller_with_asset_no_reference(fix_pg):
+    """Test verification when a controller has an asset uploaded but not referenced.
+
+    This tests the basic asset upload and parameter creation workflow,
+    verifying that the controller can be verified even without using
+    the asset-backed parameter directly.
+    """
+    f_pg = fix_pg.generate()
+
+    # Create a parameter context
+    ctx = parameters.create_parameter_context(
+        name="VerifyAssetNoRefCtx",
+        parameters=[]
+    )
+
+    # Find a controller type
+    csv_type = [t for t in canvas.list_all_controller_types()
+                if 'CSVReader' in t.type]
+    if not csv_type:
+        parameters.delete_parameter_context(ctx)
+        pytest.skip("CSVReader not available")
+
+    controller = None
+    try:
+        # Upload an asset
+        fake_schema_content = b'{"type":"record","name":"test","fields":[]}'
+        asset = parameters.upload_asset(
+            context_id=ctx.id,
+            file_bytes=fake_schema_content,
+            filename="schema.avsc"
+        )
+        print(f"Uploaded asset: {asset['name']} (id={asset['id']})")
+
+        # Create parameter referencing the asset
+        schema_param = parameters.prepare_parameter_with_asset(
+            name="schema.file",
+            asset_id=asset['id'],
+            asset_name=asset['name'],
+            description="Schema file asset"
+        )
+
+        # Update context with the asset parameter
+        ctx.component.parameters = [schema_param]
+        ctx = parameters.update_parameter_context(ctx)
+
+        # Assign context to PG
+        parameters.assign_context_to_process_group(f_pg, ctx.id)
+
+        # Create controller (not using the asset parameter directly)
+        controller = canvas.create_controller(f_pg, csv_type[0], name='AssetNoRefCSV')
+
+        # Verify - should work, just verifying the controller itself
+        results = canvas.verify_controller(controller)
+        assert isinstance(results, list)
+
+        # Log results
+        print("\nAsset No-Reference Verification Results:")
+        for r in results:
+            status = "[PASS]" if r.outcome == "SUCCESSFUL" else "[FAIL]"
+            print(f"  {status} {r.verification_step_name}")
+            if r.explanation:
+                print(f"       -> {r.explanation}")
+
+        # Check assets are listed
+        assets = parameters.list_assets(ctx.id)
+        assert len(assets) == 1
+        print(f"\nAsset still present: {assets[0]['name']}")
+
+    finally:
+        # Cleanup
+        if controller:
+            canvas.delete_controller(controller)
+        # delete_parameter_context handles asset cleanup
+        parameters.delete_parameter_context(ctx)

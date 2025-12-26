@@ -30,6 +30,7 @@ __all__ = [
     "profiles",
     "layout",
     "extensions",
+    "ci",
 ]
 
 for sub_module in __all__:

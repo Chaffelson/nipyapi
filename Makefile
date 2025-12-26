@@ -115,8 +115,8 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
 	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	find . -path ./.venv -prune -o -name '*.egg-info' -exec rm -fr {} +
+	find . -path ./.venv -prune -o -name '*.egg' -exec rm -rf {} +
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -280,9 +280,9 @@ gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_varia
 
 # Individual testing
 
-test: ## run pytest with provided NIPYAPI_PROFILE; config resolved by tests/conftest.py
+test: ## run pytest with provided NIPYAPI_PROFILE; use PYTEST_ARGS for extra options (e.g., make test NIPYAPI_PROFILE=single-user PYTEST_ARGS="-k verify -v")
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi; \
-	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
+	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(PYTEST_ARGS)
 
 test-su: ## shortcut: NIPYAPI_PROFILE=single-user pytest
 	NIPYAPI_PROFILE=single-user $(MAKE) test
@@ -296,9 +296,10 @@ test-mtls: ## shortcut: NIPYAPI_PROFILE=secure-mtls pytest
 test-oidc: check-certs ## shortcut: NIPYAPI_PROFILE=secure-oidc pytest (requires: make sandbox NIPYAPI_PROFILE=secure-oidc)
 	NIPYAPI_PROFILE=secure-oidc $(MAKE) test
 
-test-specific: ## run specific pytest with provided NIPYAPI_PROFILE and TEST_ARGS
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi; \
-	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required (e.g., tests/test_utils.py::test_dump -v)"; exit 1; fi; \
+test-specific: ## DEPRECATED: use 'make test PYTEST_ARGS="..."' instead
+	@echo "DEPRECATED: Use 'make test NIPYAPI_PROFILE=... PYTEST_ARGS=\"...\"' instead"
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required"; exit 1; fi; \
+	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required"; exit 1; fi; \
 	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
 
 

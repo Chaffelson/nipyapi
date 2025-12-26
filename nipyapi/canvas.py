@@ -72,6 +72,8 @@ __all__ = [
     "create_port",
     "get_flow_components",
     "FlowSubgraph",
+    "verify_controller",
+    "verify_processor",
 ]
 
 log = logging.getLogger(__name__)
@@ -1406,20 +1408,30 @@ def list_all_controllers(pg_id="root", descendants=True, include_reporting_tasks
     return out
 
 
-def delete_controller(controller, force=False):
+def delete_controller(controller, force=False, refresh=True):
     """
     Delete a Controller service, with optional prejudice
 
     Args:
-        controller (ControllerServiceEntity): Target Controller to delete
+        controller (ControllerServiceEntity or str): Target Controller to delete,
+            either as a ControllerServiceEntity object or a controller ID string
         force (bool): True to attempt Disable the Controller before deletion
+        refresh (bool): Whether to refresh the controller to get latest revision
+            before deletion. Defaults to True to avoid stale revision errors.
 
     Returns:
         (ControllerServiceEntity)
 
     """
-    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(force, bool)
+
+    # Accept ID string or object
+    if isinstance(controller, str):
+        controller_id = controller
+        controller = get_controller(controller_id, "id")
+        if controller is None:
+            raise ValueError(f"Controller not found: {controller_id}")
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
 
     def _del_cont(cont_id):
         if not get_controller(cont_id, "id", bool_response=True):
@@ -1428,35 +1440,53 @@ def delete_controller(controller, force=False):
 
     handle = nipyapi.nifi.ControllerServicesApi()
     if force:
-        # Stop and refresh
-        controller = schedule_controller(controller, False, True)
+        # Stop and optionally refresh
+        controller = schedule_controller(controller, False, refresh)
+    elif refresh:
+        # Just refresh to get latest revision
+        controller = get_controller(controller.id, "id")
     with nipyapi.utils.rest_exceptions():
         result = handle.remove_controller_service(
             id=controller.id, version=controller.revision.version
         )
     del_test = nipyapi.utils.wait_to_complete(
-        _del_cont, controller.id, nipyapi_max_wait=15, nipyapi_delay=1
+        _del_cont,
+        controller.id,
+        nipyapi_max_wait=15,
+        nipyapi_delay=nipyapi.config.short_retry_delay,
     )
     if not del_test:
         raise ValueError("Timed out waiting for Controller Deletion")
     return result
 
 
-def update_controller(controller, update):
+def update_controller(controller, update, refresh=True):
     """
     Updates the Configuration of a Controller Service
 
     Args:
-        controller (ControllerServiceEntity): Target Controller to update
+        controller (ControllerServiceEntity or str): Target Controller to update,
+            either as a ControllerServiceEntity object or a controller ID string
         update (ControllerServiceDTO): Controller Service configuration object
             containing the new config params and properties
+        refresh (bool): Whether to refresh the controller to get latest revision
+            before update. Defaults to True to avoid stale revision errors.
 
     Returns:
         (ControllerServiceEntity)
 
     """
+    # Accept ID string or object
+    if isinstance(controller, str):
+        controller = get_controller(controller, "id")
+        if controller is None:
+            raise ValueError(f"Controller not found: {controller}")
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
+
+    if refresh:
+        controller = get_controller(controller.id, "id")
+
     # Insert the ID into the update
     update.id = controller.id
     return nipyapi.nifi.ControllerServicesApi().update_controller_service(
@@ -1508,8 +1538,8 @@ def schedule_controller(controller, scheduled, refresh=False):
         _schedule_controller_state,
         controller.id,
         target_state,
-        nipyapi_delay=nipyapi.config.long_retry_delay,
-        nipyapi_max_wait=nipyapi.config.long_max_wait,
+        nipyapi_delay=nipyapi.config.short_retry_delay,
+        nipyapi_max_wait=15,
     )
     if state_test:
         return get_controller(controller.id, "id")
@@ -1912,3 +1942,175 @@ def get_pg_parents_ids(pg_id):
     # Removing the None value
     parent_groups.pop()
     return parent_groups
+
+
+def verify_controller(controller, properties=None, attributes=None):
+    """
+    Verify a controller service's configuration properties are valid.
+
+    Validates that all required properties are set and property values meet
+    their defined constraints. Does NOT test actual connectivity or credentials.
+    Handles the async verification workflow: submit request, poll until
+    complete, cleanup.
+
+    The controller service must be DISABLED before verification.
+
+    Args:
+        controller: ControllerServiceEntity or controller service ID (str)
+        properties: Optional dict of property overrides to verify
+        attributes: Optional dict of FlowFile attributes for Expression Language
+
+    Returns:
+        list[ConfigVerificationResultDTO]: Verification results, where each has:
+            - verification_step_name: What was verified
+            - outcome: "SUCCESSFUL", "FAILED", or "SKIPPED"
+            - explanation: Why it passed/failed
+
+    Raises:
+        ValueError: Controller not found or is currently enabled
+        ApiException: NiFi API errors
+
+    Example:
+        results = nipyapi.canvas.verify_controller(dbcp_service)
+        for r in results:
+            print(f"{r.verification_step_name}: {r.outcome}")
+            if r.outcome == "FAILED":
+                print(f"  Reason: {r.explanation}")
+    """
+    # Accept ID or entity
+    if isinstance(controller, str):
+        controller = get_controller(controller, "id")
+
+    if controller is None:
+        raise ValueError("Controller service not found")
+
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+
+    # Verify controller is disabled
+    if controller.component.state != "DISABLED":
+        raise ValueError(
+            f"Controller service must be DISABLED before verification. "
+            f"Current state: {controller.component.state}"
+        )
+
+    # Build verification request
+    body = nipyapi.nifi.VerifyConfigRequestEntity(
+        request=nipyapi.nifi.VerifyConfigRequestDTO(
+            component_id=controller.id,
+            properties=properties or {},
+            attributes=attributes or {},
+        )
+    )
+
+    api = nipyapi.nifi.ControllerServicesApi()
+    request_id = None
+
+    try:
+        # Submit verification request
+        with nipyapi.utils.rest_exceptions():
+            response = api.submit_config_verification_request(body=body, id=controller.id)
+        request_id = response.request.request_id
+
+        # Poll until complete using wait_to_complete pattern
+        def _check_complete():
+            status = api.get_verification_request(id=controller.id, request_id=request_id)
+            if status.request.complete:
+                return status
+            return False
+
+        status = nipyapi.utils.wait_to_complete(_check_complete)
+        return status.request.results or []
+
+    finally:
+        # Always cleanup the verification request
+        if request_id:
+            try:
+                api.delete_verification_request(id=controller.id, request_id=request_id)
+            except Exception:  # pylint: disable=broad-except
+                log.warning("Failed to cleanup verification request %s", request_id)
+
+
+def verify_processor(processor, properties=None, attributes=None):
+    """
+    Verify a processor's configuration properties are valid.
+
+    Validates that all required properties are set and property values meet
+    their defined constraints. Does NOT test actual connectivity or external
+    service availability. Handles the async verification workflow: submit
+    request, poll until complete, cleanup.
+
+    The processor must be STOPPED before verification.
+
+    Args:
+        processor: ProcessorEntity or processor ID (str)
+        properties: Optional dict of property overrides to verify
+        attributes: Optional dict of FlowFile attributes for Expression Language
+
+    Returns:
+        list[ConfigVerificationResultDTO]: Verification results, where each has:
+            - verification_step_name: What was verified
+            - outcome: "SUCCESSFUL", "FAILED", or "SKIPPED"
+            - explanation: Why it passed/failed
+
+    Raises:
+        ValueError: Processor not found or is currently running
+        ApiException: NiFi API errors
+
+    Example:
+        results = nipyapi.canvas.verify_processor(my_processor)
+        for r in results:
+            print(f"{r.verification_step_name}: {r.outcome}")
+            if r.outcome == "FAILED":
+                print(f"  Reason: {r.explanation}")
+    """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor = get_processor(processor, "id")
+
+    if processor is None:
+        raise ValueError("Processor not found")
+
+    assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+
+    # Verify processor is stopped
+    run_status = processor.status.run_status if processor.status else None
+    if run_status and run_status.upper() in ("RUNNING", "VALIDATING"):
+        raise ValueError(
+            f"Processor must be STOPPED before verification. " f"Current state: {run_status}"
+        )
+
+    # Build verification request
+    body = nipyapi.nifi.VerifyConfigRequestEntity(
+        request=nipyapi.nifi.VerifyConfigRequestDTO(
+            component_id=processor.id,
+            properties=properties or {},
+            attributes=attributes or {},
+        )
+    )
+
+    api = nipyapi.nifi.ProcessorsApi()
+    request_id = None
+
+    try:
+        # Submit verification request
+        with nipyapi.utils.rest_exceptions():
+            response = api.submit_processor_verification_request(body=body, id=processor.id)
+        request_id = response.request.request_id
+
+        # Poll until complete
+        def _check_complete():
+            status = api.get_verification_request2(id=processor.id, request_id=request_id)
+            if status.request.complete:
+                return status
+            return False
+
+        status = nipyapi.utils.wait_to_complete(_check_complete)
+        return status.request.results or []
+
+    finally:
+        # Always cleanup the verification request
+        if request_id:
+            try:
+                api.delete_verification_request2(id=processor.id, request_id=request_id)
+            except Exception:  # pylint: disable=broad-except
+                log.warning("Failed to cleanup verification request %s", request_id)

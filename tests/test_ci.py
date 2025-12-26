@@ -1483,3 +1483,122 @@ def test_upload_delete_nar_roundtrip():
             n["identifier"] == upload_result["identifier"]
             for n in list_result["nars"]
         )
+
+
+# =============================================================================
+# Config Verification CI Tests
+# =============================================================================
+
+
+class TestVerifyConfigValidation:
+    """Test verify_config validation logic (no NiFi required)."""
+
+    def test_missing_process_group_id(self):
+        """Test missing process_group_id raises ValueError."""
+        old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+        try:
+            with pytest.raises(ValueError, match="process_group_id is required"):
+                ci.verify_config()
+        finally:
+            if old_val:
+                os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
+
+    def test_process_group_id_from_env(self):
+        """Test that process_group_id can be read from environment."""
+        # Mock canvas functions to avoid actual NiFi calls
+        mock_pg = MagicMock()
+        mock_pg.component.name = "TestPG"
+
+        with patch.dict(os.environ, {"NIFI_PROCESS_GROUP_ID": "test-pg-id"}):
+            with patch("nipyapi.canvas.get_process_group", return_value=mock_pg):
+                with patch("nipyapi.canvas.list_all_controllers", return_value=[]):
+                    with patch("nipyapi.canvas.list_all_processors", return_value=[]):
+                        result = ci.verify_config()
+                        assert result["verified"] == "true"
+                        assert result["process_group_name"] == "TestPG"
+
+
+def test_verify_config_empty_pg(fix_pg):
+    """Test verify_config on empty process group succeeds."""
+    f_pg = fix_pg.generate()
+
+    result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+
+    assert result["verified"] == "true"
+    assert result["failed_count"] == 0
+    assert result["controller_results"] == []
+    assert result["processor_results"] == []
+
+
+def test_verify_config_with_processor(fix_pg, fix_proc):
+    """Test verify_config verifies processors."""
+    f_pg = fix_pg.generate()
+    f_p1 = fix_proc.generate(parent_pg=f_pg)
+
+    result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+
+    assert "processor_results" in result
+    assert len(result["processor_results"]) == 1
+    assert result["processor_results"][0]["id"] == f_p1.id
+
+
+def test_verify_config_with_controller(fix_pg, fix_cont):
+    """Test verify_config verifies controller services."""
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+
+    result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+
+    assert "controller_results" in result
+    assert len(result["controller_results"]) == 1
+    assert result["controller_results"][0]["id"] == f_c1.id
+
+
+def test_verify_config_fail_on_error(fix_pg):
+    """Test verify_config raises when fail_on_error=True and verification fails."""
+    import nipyapi
+
+    f_pg = fix_pg.generate()
+
+    # Create a DBCPConnectionPool which will fail verification (missing config)
+    dbcp_type = [t for t in nipyapi.canvas.list_all_controller_types()
+                 if t.type == 'org.apache.nifi.dbcp.DBCPConnectionPool']
+    if not dbcp_type:
+        pytest.skip("DBCPConnectionPool not available")
+
+    controller = nipyapi.canvas.create_controller(f_pg, dbcp_type[0], name='TestDBCP')
+
+    try:
+        # Should raise ValueError because verification fails
+        with pytest.raises(ValueError, match="Verification failed"):
+            ci.verify_config(process_group_id=f_pg.id, fail_on_error=True)
+
+        # With fail_on_error=False, should return result instead
+        result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+        assert result["verified"] == "false"
+        assert result["failed_count"] > 0
+
+    finally:
+        nipyapi.canvas.delete_controller(controller)
+
+
+def test_verify_config_skips_enabled_controllers(fix_pg, fix_cont):
+    """Test that verify_config skips enabled controller services."""
+    import nipyapi
+
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+
+    # Enable the controller
+    f_c1 = nipyapi.canvas.schedule_controller(f_c1, True)
+
+    try:
+        result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+
+        # Controller should be skipped
+        assert len(result["controller_results"]) == 1
+        assert result["controller_results"][0]["skipped"] is True
+
+    finally:
+        # Cleanup: disable the controller
+        nipyapi.canvas.schedule_controller(f_c1, False)

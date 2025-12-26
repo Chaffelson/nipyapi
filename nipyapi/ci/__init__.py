@@ -45,6 +45,7 @@ from .start_flow import start_flow
 from .stop_flow import stop_flow
 from .upload_asset import upload_asset
 from .upload_nar import upload_nar
+from .verify_config import verify_config
 
 __all__ = [
     "ensure_registry",
@@ -71,4 +72,5 @@ __all__ = [
     "list_nars",
     "upload_nar",
     "delete_nar",
+    "verify_config",
 ]

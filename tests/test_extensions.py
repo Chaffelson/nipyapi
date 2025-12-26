@@ -3,6 +3,10 @@ Tests for nipyapi.extensions module - NAR file management.
 
 All tests use the fix_test_nar fixture which generates valid Python
 processor NARs dynamically. No external NAR files required.
+
+Test classes are organized to maximize fixture reuse:
+- TestMultiVersionWorkflow: Uses class-scoped v1+v2 NAR fixtures
+- TestProcessorMissingNar: Isolated class for destructive NAR deletion tests
 """
 
 import os
@@ -256,6 +260,14 @@ class TestProcessorInitialization:
                 nipyapi.canvas.delete_processor(proc)
             nipyapi.extensions.delete_nar(nar.identifier, force=True)
 
+
+class TestProcessorMissingNar:
+    """Isolated tests for destructive NAR deletion scenarios.
+
+    These tests intentionally force-delete NARs to test orphaned processor
+    behavior. Kept in a separate class to avoid fixture interference.
+    """
+
     def test_missing_nar_detection(self, fix_test_nar):
         """Test that force-deleting NAR leaves processors in a halting state.
 
@@ -380,66 +392,46 @@ class TestProcessorBundleVersions:
 
 
 class TestMultiVersionWorkflow:
-    """Tests for multi-version processor workflows."""
+    """Tests for multi-version processor workflows.
 
-    def test_get_processor_type_version(self, fix_test_nar):
+    Uses module-scoped fix_multi_version_nars fixture to upload v1 and v2 NARs
+    once for all tests, significantly reducing test execution time.
+    """
+
+    def test_get_processor_type_version(self, fix_multi_version_nars):
         """get_processor_type_version returns correct versioned type."""
-        # Upload both versions
-        nar_v1 = nipyapi.extensions.upload_nar(fix_test_nar(version="0.0.1"))
-        nar_v2 = nipyapi.extensions.upload_nar(fix_test_nar(version="0.0.2"))
+        proc_type_name = fix_multi_version_nars.proc_type_name
+        v1_bundle = fix_multi_version_nars.v1_bundle
 
-        try:
-            # Get details to find processor type name
-            details = nipyapi.extensions.get_nar_details(nar_v1.identifier)
-            proc_type_name = details.processor_types[0].type
+        # Get available versions
+        versions = nipyapi.extensions.get_processor_bundle_versions(proc_type_name)
+        assert len(versions) >= 2
 
-            # Get available versions
-            versions = nipyapi.extensions.get_processor_bundle_versions(proc_type_name)
-            assert len(versions) >= 2
+        # Get specific version
+        proc_type = nipyapi.extensions.get_processor_type_version(
+            proc_type_name, v1_bundle
+        )
+        assert proc_type.bundle.version == v1_bundle
 
-            # Get specific version
-            v1_bundle_version = versions[0]["bundle"].version
-            proc_type = nipyapi.extensions.get_processor_type_version(
-                proc_type_name, v1_bundle_version
-            )
-            assert proc_type.bundle.version == v1_bundle_version
-
-        finally:
-            nipyapi.extensions.delete_nar(nar_v1.identifier)
-            nipyapi.extensions.delete_nar(nar_v2.identifier)
-
-    def test_get_processor_type_version_not_found(self, fix_test_nar):
+    def test_get_processor_type_version_not_found(self, fix_multi_version_nars):
         """get_processor_type_version raises for unknown version."""
-        nar = nipyapi.extensions.upload_nar(fix_test_nar(version="0.0.1"))
+        proc_type_name = fix_multi_version_nars.proc_type_name
 
-        try:
-            details = nipyapi.extensions.get_nar_details(nar.identifier)
-            proc_type_name = details.processor_types[0].type
+        with pytest.raises(ValueError, match="not available"):
+            nipyapi.extensions.get_processor_type_version(
+                proc_type_name, "nonexistent-version"
+            )
 
-            with pytest.raises(ValueError, match="not available"):
-                nipyapi.extensions.get_processor_type_version(
-                    proc_type_name, "nonexistent-version"
-                )
-
-        finally:
-            nipyapi.extensions.delete_nar(nar.identifier)
-
-    def test_create_processor_with_specific_version(self, fix_test_nar):
+    def test_create_processor_with_specific_version(self, fix_multi_version_nars):
         """Create processors with specific bundle versions."""
-        nar_v1 = nipyapi.extensions.upload_nar(fix_test_nar(version="0.0.1"))
-        nar_v2 = nipyapi.extensions.upload_nar(fix_test_nar(version="0.0.2"))
+        proc_type_name = fix_multi_version_nars.proc_type_name
+        v1_bundle = fix_multi_version_nars.v1_bundle
+        v2_bundle = fix_multi_version_nars.v2_bundle
+
         proc_v1 = None
         proc_v2 = None
 
         try:
-            # Get processor type name
-            details_v1 = nipyapi.extensions.get_nar_details(nar_v1.identifier)
-            details_v2 = nipyapi.extensions.get_nar_details(nar_v2.identifier)
-            proc_type_name = details_v1.processor_types[0].type
-
-            v1_bundle = details_v1.processor_types[0].bundle.version
-            v2_bundle = details_v2.processor_types[0].bundle.version
-
             # Get versioned types
             proc_type_v1 = nipyapi.extensions.get_processor_type_version(
                 proc_type_name, v1_bundle
@@ -468,13 +460,12 @@ class TestMultiVersionWorkflow:
             )
             assert proc_v2.component.bundle.version == v2_bundle
 
-            # Wait for both to initialize (avoids NiFi bug where force delete
-            # blocks indefinitely during processor initialization)
+            # Wait for both to initialize
             proc_v1 = nipyapi.extensions.wait_for_processor_init(proc_v1)
             proc_v2 = nipyapi.extensions.wait_for_processor_init(proc_v2)
 
         finally:
-            # Cleanup processors first (must complete before NAR deletion)
+            # Cleanup processors only - NARs handled by fixture
             for proc in [proc_v1, proc_v2]:
                 if proc:
                     try:
@@ -483,25 +474,16 @@ class TestMultiVersionWorkflow:
                             nipyapi.canvas.delete_processor(p)
                     except Exception:
                         pass
-            # Cleanup NARs (safe now that processors are deleted)
-            nipyapi.extensions.delete_nar(nar_v1.identifier, force=True)
-            nipyapi.extensions.delete_nar(nar_v2.identifier, force=True)
 
-    def test_change_processor_bundle_version_roundtrip(self, fix_test_nar):
+    def test_change_processor_bundle_version_roundtrip(self, fix_multi_version_nars):
         """Change processor between bundle versions."""
-        nar_v1 = nipyapi.extensions.upload_nar(fix_test_nar(version="0.0.1"))
-        nar_v2 = nipyapi.extensions.upload_nar(fix_test_nar(version="0.0.2"))
+        proc_type_name = fix_multi_version_nars.proc_type_name
+        v1_bundle = fix_multi_version_nars.v1_bundle
+        v2_bundle = fix_multi_version_nars.v2_bundle
+
         proc = None
 
         try:
-            # Get processor type info
-            details_v1 = nipyapi.extensions.get_nar_details(nar_v1.identifier)
-            details_v2 = nipyapi.extensions.get_nar_details(nar_v2.identifier)
-            proc_type_name = details_v1.processor_types[0].type
-
-            v1_bundle = details_v1.processor_types[0].bundle.version
-            v2_bundle = details_v2.processor_types[0].bundle.version
-
             # Create processor with v1
             proc_type_v1 = nipyapi.extensions.get_processor_type_version(
                 proc_type_name, v1_bundle
@@ -527,6 +509,7 @@ class TestMultiVersionWorkflow:
             assert proc.component.bundle.version == v1_bundle
 
         finally:
+            # Cleanup processor only - NARs handled by fixture
             if proc:
                 try:
                     p = nipyapi.canvas.get_processor(proc.id, "id")
@@ -534,5 +517,3 @@ class TestMultiVersionWorkflow:
                         nipyapi.canvas.delete_processor(p)
                 except Exception:
                     pass
-            nipyapi.extensions.delete_nar(nar_v1.identifier, force=True)
-            nipyapi.extensions.delete_nar(nar_v2.identifier, force=True)

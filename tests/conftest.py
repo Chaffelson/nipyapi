@@ -999,3 +999,59 @@ def fixture_test_nar(request):
                 os.unlink(path)
         except Exception as e:
             log.warning("Failed to clean up test NAR %s: %s", path, e)
+
+
+@pytest.fixture(name='fix_multi_version_nars', scope='module')
+def fixture_multi_version_nars(request):
+    """Module-scoped fixture providing v1 and v2 NARs uploaded once per module.
+
+    Creates and uploads two versions of a test NAR, returning details needed
+    for multi-version processor workflow tests. Expensive operation done once.
+    """
+    from collections import namedtuple
+
+    FixtureMultiVersionNars = namedtuple(
+        'FixtureMultiVersionNars',
+        ('nar_v1', 'nar_v2', 'details_v1', 'details_v2',
+         'proc_type_name', 'v1_bundle', 'v2_bundle')
+    )
+
+    # Create and upload NARs
+    nar_path_v1 = create_test_nar(version="0.0.1", processor_name="MultiVersionProc")
+    nar_path_v2 = create_test_nar(version="0.0.2", processor_name="MultiVersionProc")
+
+    nar_v1 = nipyapi.extensions.upload_nar(nar_path_v1)
+    nar_v2 = nipyapi.extensions.upload_nar(nar_path_v2)
+
+    details_v1 = nipyapi.extensions.get_nar_details(nar_v1.identifier)
+    details_v2 = nipyapi.extensions.get_nar_details(nar_v2.identifier)
+
+    def cleanup():
+        if SKIP_TEARDOWN:
+            return
+        # Cleanup NARs from NiFi
+        for nar in [nar_v1, nar_v2]:
+            try:
+                if nipyapi.extensions.get_nar(nar.identifier):
+                    nipyapi.extensions.delete_nar(nar.identifier, force=True)
+            except Exception:
+                pass
+        # Cleanup local files
+        for path in [nar_path_v1, nar_path_v2]:
+            try:
+                if os.path.exists(path):
+                    os.unlink(path)
+            except Exception:
+                pass
+
+    request.addfinalizer(cleanup)
+
+    return FixtureMultiVersionNars(
+        nar_v1=nar_v1,
+        nar_v2=nar_v2,
+        details_v1=details_v1,
+        details_v2=details_v2,
+        proc_type_name=details_v1.processor_types[0].type,
+        v1_bundle=details_v1.processor_types[0].bundle.version,
+        v2_bundle=details_v2.processor_types[0].bundle.version,
+    )

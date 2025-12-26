@@ -132,7 +132,6 @@ def test_wait_to_complete():
     pass
 
 
-@pytest.mark.usefixtures()  # Don't use session fixtures - pure unit tests
 class TestIsUuid:
     """Tests for the is_uuid utility function."""
 
