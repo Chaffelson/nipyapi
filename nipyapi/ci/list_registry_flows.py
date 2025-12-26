@@ -26,7 +26,8 @@ def list_registry_flows(  # pylint: disable=too-many-locals
     within a bucket. Useful for discovering what flows can be deployed.
 
     Args:
-        registry_client: Registry client ID or name. Env: NIFI_REGISTRY_CLIENT_ID
+        registry_client: Registry client ID (UUID) or name. Auto-detects which
+            based on format. Env: NIFI_REGISTRY_CLIENT_ID
         bucket: Bucket (folder) containing flows. Env: NIFI_BUCKET
         branch: Branch to query. Env: NIFI_FLOW_BRANCH. If not specified,
                 uses the registry client's default branch.
@@ -67,7 +68,10 @@ def list_registry_flows(  # pylint: disable=too-many-locals
         raise ValueError("bucket is required (or set NIFI_BUCKET)")
 
     # Resolve registry client (ID or name)
-    client = nipyapi.versioning.get_registry_client(registry_client, greedy=greedy)
+    identifier_type = "id" if nipyapi.utils.is_uuid(registry_client) else "name"
+    client = nipyapi.versioning.get_registry_client(
+        registry_client, identifier_type=identifier_type, greedy=greedy
+    )
     if client is None:
         raise ValueError(f"Registry client not found: {registry_client}")
     if isinstance(client, list):

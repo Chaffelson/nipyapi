@@ -25,7 +25,8 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
     Deploy a flow from a Git-based registry to NiFi.
 
     Args:
-        registry_client: Registry client ID or name. Env: NIFI_REGISTRY_CLIENT_ID
+        registry_client: Registry client ID (UUID) or name. Auto-detects which
+            based on format. Env: NIFI_REGISTRY_CLIENT_ID
         bucket: Bucket (folder) containing the flow. Env: NIFI_BUCKET
         flow: Flow name (filename without .json). Env: NIFI_FLOW
         parent_id: Parent Process Group ID. Env: NIFI_PARENT_ID (default: root)
@@ -65,7 +66,10 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
         raise ValueError("flow is required (or set NIFI_FLOW)")
 
     # Resolve registry client (ID or name)
-    client = nipyapi.versioning.get_registry_client(registry_client, greedy=greedy)
+    identifier_type = "id" if nipyapi.utils.is_uuid(registry_client) else "name"
+    client = nipyapi.versioning.get_registry_client(
+        registry_client, identifier_type=identifier_type, greedy=greedy
+    )
     if client is None:
         raise ValueError(f"Registry client not found: {registry_client}")
     if isinstance(client, list):

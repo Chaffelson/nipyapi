@@ -8,6 +8,7 @@ import json
 import logging
 import operator
 import os
+import re
 import time
 from contextlib import contextmanager
 from copy import copy
@@ -28,6 +29,7 @@ __all__ = [
     "fs_read",
     "fs_write",
     "filter_obj",
+    "is_uuid",
     "wait_to_complete",
     "is_endpoint_up",
     "set_endpoint",
@@ -45,6 +47,26 @@ __all__ = [
 
 log = logging.getLogger(__name__)
 DOCKER_AVAILABLE = False  # Docker management removed in 1.x (NiFi 2.x)
+
+# UUID pattern: 8-4-4-4-12 hexadecimal characters
+_UUID_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE
+)
+
+
+def is_uuid(value):
+    """
+    Check if a string looks like a UUID.
+
+    Args:
+        value (str): The string to check
+
+    Returns:
+        bool: True if the string matches UUID format (8-4-4-4-12 hex pattern)
+    """
+    if not isinstance(value, str):
+        return False
+    return bool(_UUID_PATTERN.match(value))
 
 
 def dump(obj, mode="json"):
