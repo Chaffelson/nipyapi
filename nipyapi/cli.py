@@ -90,7 +90,11 @@ def _detect_output_format():
 
 def _format_dotenv_value(key, value):
     """Format a key-value pair for dotenv output, quoting if needed."""
-    v_str = str(value)
+    # JSON-serialize lists/dicts for valid output, str() for scalars
+    if isinstance(value, (list, dict)):
+        v_str = json.dumps(value, default=str)
+    else:
+        v_str = str(value)
     # Skip multiline values (GitLab limitation)
     if "\n" in v_str or len(v_str) >= 1000:
         return None
@@ -134,7 +138,11 @@ def _serialize_result(obj, output_format="json"):  # pylint: disable=too-many-re
         for k, v in _flatten_dict(data).items():
             # Convert snake_case to kebab-case for GitHub Actions
             key = k.replace("_", "-")
-            v_str = str(v)
+            # JSON-serialize lists/dicts for valid output, str() for scalars
+            if isinstance(v, (list, dict)):
+                v_str = json.dumps(v, default=str)
+            else:
+                v_str = str(v)
             # Use heredoc syntax for multiline or very long values
             if "\n" in v_str or len(v_str) > 500:
                 lines.append(f"{key}<<EOF")

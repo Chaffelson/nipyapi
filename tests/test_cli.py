@@ -118,6 +118,73 @@ def test_serialize_result_list_non_json():
     assert json.loads(lines[1]) == {"b": 2}
 
 
+def test_serialize_result_dict_with_nested_list_github():
+    """Test GitHub format properly JSON-serializes nested lists."""
+    from nipyapi.cli import _serialize_result
+    data = {
+        "flow_count": "2",
+        "flows": [{"name": "flow1", "id": "abc"}, {"name": "flow2", "id": "def"}]
+    }
+    result = _serialize_result(data, "github")
+
+    # Check scalar value
+    assert "flow-count=2" in result
+
+    # The flows value should be valid JSON (double quotes, not Python repr single quotes)
+    lines = result.strip().split("\n")
+    flows_line = [l for l in lines if l.startswith("flows=")][0]
+    flows_json = flows_line[6:]  # Remove "flows=" prefix
+
+    # Must be parseable as JSON
+    parsed = json.loads(flows_json)
+    assert len(parsed) == 2
+    assert parsed[0]["name"] == "flow1"
+    assert parsed[1]["id"] == "def"
+
+
+def test_serialize_result_dict_with_nested_list_dotenv():
+    """Test dotenv format properly JSON-serializes nested lists."""
+    from nipyapi.cli import _serialize_result
+    data = {
+        "version_count": "3",
+        "versions": [{"version": "v1"}, {"version": "v2"}, {"version": "v3"}]
+    }
+    result = _serialize_result(data, "dotenv")
+
+    # Check scalar value
+    assert "VERSION_COUNT=3" in result
+
+    # The versions value should be JSON and properly quoted
+    lines = result.strip().split("\n")
+    versions_line = [l for l in lines if l.startswith("VERSIONS=")][0]
+
+    # Should be quoted because JSON contains special chars
+    assert versions_line.startswith('VERSIONS="')
+    assert versions_line.endswith('"')
+
+    # Extract and parse the JSON (removing quotes and unescaping)
+    versions_json = versions_line[10:-1]  # Remove 'VERSIONS="' and trailing '"'
+    versions_json = versions_json.replace('\\"', '"')  # Unescape quotes
+    parsed = json.loads(versions_json)
+    assert len(parsed) == 3
+    assert parsed[0]["version"] == "v1"
+
+
+def test_serialize_result_dict_with_nested_dict_github():
+    """Test GitHub format flattens nested dicts (existing behavior)."""
+    from nipyapi.cli import _serialize_result
+    data = {
+        "name": "test",
+        "metadata": {"key1": "value1", "key2": "value2"}
+    }
+    result = _serialize_result(data, "github")
+
+    # Nested dicts are flattened with key paths (existing behavior)
+    assert "name=test" in result
+    assert "metadata-key1=value1" in result
+    assert "metadata-key2=value2" in result
+
+
 def test_flatten_dict_simple():
     """Test flattening a simple nested dict."""
     from nipyapi.cli import _flatten_dict
