@@ -23,12 +23,13 @@ def _env_bool(name, default=False):
 
 
 # pylint: disable=too-many-arguments,too-many-positional-arguments
-# pylint: disable=too-many-branches,too-many-statements
+# pylint: disable=too-many-branches,too-many-statements,too-many-locals
 def cleanup(
     process_group_id: Optional[str] = None,
     stop_only: Optional[bool] = None,
     force: Optional[bool] = None,
     delete_parameter_context: Optional[bool] = None,
+    delete_orphaned_contexts: Optional[bool] = None,
     disable_controllers: Optional[bool] = None,
 ) -> dict:
     """
@@ -48,6 +49,11 @@ def cleanup(
             Env: NIFI_DELETE_PARAMETER_CONTEXT (default: false)
             WARNING: Only use if you're certain no other process groups share
             this context (e.g., Openflow connectors share contexts).
+        delete_orphaned_contexts: After deletion, also delete any parameter
+            contexts that are no longer bound to any process groups.
+            Env: NIFI_DELETE_ORPHANED_CONTEXTS (default: false)
+            This is safer than delete_parameter_context as it only removes
+            contexts that are definitely unused.
         disable_controllers: Disable controller services after stopping.
             Env: NIFI_DISABLE_CONTROLLERS (default: true)
 
@@ -67,6 +73,9 @@ def cleanup(
         # Full cleanup including parameter context (CI/CD pipelines)
         nipyapi ci cleanup --process_group_id PG_ID --delete_parameter_context --force
 
+        # Clean up orphaned contexts after deletion (safe)
+        nipyapi ci cleanup --process_group_id PG_ID --delete_orphaned_contexts
+
         # Via environment variables (for CI/CD)
         NIFI_DELETE_PARAMETER_CONTEXT=true NIFI_FORCE_DELETE=true nipyapi ci cleanup
     """
@@ -78,6 +87,8 @@ def cleanup(
         force = _env_bool("NIFI_FORCE_DELETE", default=False)
     if delete_parameter_context is None:
         delete_parameter_context = _env_bool("NIFI_DELETE_PARAMETER_CONTEXT", default=False)
+    if delete_orphaned_contexts is None:
+        delete_orphaned_contexts = _env_bool("NIFI_DELETE_ORPHANED_CONTEXTS", default=False)
     if disable_controllers is None:
         disable_controllers = _env_bool("NIFI_DISABLE_CONTROLLERS", default=True)
 
@@ -159,9 +170,28 @@ def cleanup(
         except Exception as e:
             log.warning("Could not delete parameter context: %s", e)
 
+    # Delete orphaned contexts if requested (safer than delete_parameter_context)
+    orphaned_deleted = []
+    if delete_orphaned_contexts:
+        try:
+            orphaned = nipyapi.parameters.list_orphaned_contexts()
+            log.debug("Found %d orphaned parameter contexts", len(orphaned))
+            for ctx in orphaned:
+                try:
+                    ctx_name = ctx.component.name
+                    log.debug("Deleting orphaned context: %s", ctx_name)
+                    nipyapi.parameters.delete_parameter_context(ctx)
+                    log.info("Deleted orphaned context: %s", ctx_name)
+                    orphaned_deleted.append(ctx_name)
+                except Exception as e:
+                    log.warning("Could not delete orphaned context %s: %s", ctx.id, e)
+        except Exception as e:
+            log.warning("Could not list orphaned contexts: %s", e)
+
     return {
         "stopped": "true",
         "deleted": "true",
         "process_group_name": pg_name,
         "parameter_context_deleted": str(param_ctx_deleted).lower(),
+        "orphaned_contexts_deleted": orphaned_deleted,
     }

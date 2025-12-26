@@ -385,8 +385,37 @@ def test_get_bulletins():
 
 
 def test_get_bulletin_board():
+    # Test basic call returns list
     r = canvas.get_bulletin_board()
-    assert isinstance(r, nifi.BulletinBoardEntity)
+    assert isinstance(r, list)
+
+
+def test_get_bulletin_board_with_pg_filter(fix_pg):
+    """Test bulletin board filtering by process group."""
+    pg = fix_pg.generate()
+    # Filter by process group ID - should return list (possibly empty)
+    r = canvas.get_bulletin_board(pg_id=pg.id)
+    assert isinstance(r, list)
+    # Any returned bulletins should be from this PG
+    for b in r:
+        assert b.group_id == pg.id
+
+
+def test_get_bulletin_board_with_limit():
+    """Test bulletin board with limit parameter."""
+    r = canvas.get_bulletin_board(limit=5)
+    assert isinstance(r, list)
+    assert len(r) <= 5
+
+
+def test_get_bulletin_board_with_source_filter():
+    """Test bulletin board filtering by source name pattern."""
+    r = canvas.get_bulletin_board(source_name=".*Generate.*")
+    assert isinstance(r, list)
+    # All returned bulletins should match the pattern
+    for b in r:
+        if b.bulletin:
+            assert "Generate" in (b.bulletin.source_name or "")
 
 
 def test_list_invalid_processors():

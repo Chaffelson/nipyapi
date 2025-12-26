@@ -445,6 +445,58 @@ def test_cleanup(fix_pg):
         nipyapi.canvas.get_process_group(pg.id, "id")
 
 
+def test_cleanup_with_orphaned_contexts():
+    """Test cleanup with delete_orphaned_contexts option."""
+    import nipyapi
+    import uuid
+
+    ctx_name = f"test_ci_cleanup_orphan_ctx_{uuid.uuid4().hex[:8]}"
+    pg_name = f"test_ci_cleanup_orphan_target_{uuid.uuid4().hex[:8]}"
+
+    # Create a PG with a parameter context
+    root = nipyapi.canvas.get_process_group("root", "name")
+    ctx = nipyapi.parameters.create_parameter_context(
+        name=ctx_name,
+        description="Will become orphaned"
+    )
+
+    try:
+        pg = nipyapi.canvas.create_process_group(
+            root,
+            pg_name,
+            location=(200, 200)
+        )
+        # Assign context to PG (pass the context ID, not the object)
+        nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+        # Refresh PG to get updated reference
+        pg = nipyapi.canvas.get_process_group(pg.id, "id")
+
+        # Cleanup with orphan deletion
+        result = ci.cleanup(
+            process_group_id=pg.id,
+            delete_orphaned_contexts=True
+        )
+
+        assert result["deleted"] == "true"
+        # The orphaned_contexts_deleted should include our context
+        assert isinstance(result["orphaned_contexts_deleted"], list)
+
+        # Context should be deleted (it became orphaned when PG was deleted)
+        deleted_ctx = nipyapi.parameters.get_parameter_context(
+            ctx.id, identifier_type="id"
+        )
+        assert deleted_ctx is None
+
+    except Exception:
+        # Manual cleanup on failure
+        try:
+            nipyapi.parameters.delete_parameter_context(ctx)
+        except Exception:
+            pass
+        raise
+
+
 def test_revert_flow_missing_pg_id():
     """Test revert_flow without process_group_id raises error."""
     old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)

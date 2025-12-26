@@ -18,6 +18,7 @@ log = logging.getLogger(__name__)
 
 __all__ = [
     "list_all_parameter_contexts",
+    "list_orphaned_contexts",
     "create_parameter_context",
     "delete_parameter_context",
     "get_parameter_context",
@@ -49,6 +50,21 @@ def list_all_parameter_contexts():
     enforce_min_ver("1.10.0")
     handle = nipyapi.nifi.FlowApi()
     return handle.get_parameter_contexts().parameter_contexts
+
+
+def list_orphaned_contexts():
+    """
+    Lists Parameter Contexts that are not bound to any Process Groups.
+
+    An orphaned context is one that exists but has no process groups
+    referencing it. These may be safe to delete after cleanup operations.
+
+    Returns:
+        list(ParameterContextEntity): Contexts with no bound process groups
+    """
+    enforce_min_ver("1.10.0")
+    all_contexts = list_all_parameter_contexts()
+    return [ctx for ctx in all_contexts if not ctx.component.bound_process_groups]
 
 
 @exception_handler(404, None)

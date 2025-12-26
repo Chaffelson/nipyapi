@@ -62,6 +62,27 @@ def test_list_all_parameter_contexts(fix_context):
         assert isinstance(pc, ParameterContextEntity)
 
 
+def test_list_orphaned_contexts(fix_context):
+    """Test listing parameter contexts not bound to any process groups."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+    # Create an unbound context (orphan)
+    orphan = fix_context.generate(name=conftest.test_basename + '_orphan')
+    assert orphan is not None
+
+    # List orphaned contexts
+    orphans = parameters.list_orphaned_contexts()
+    assert isinstance(orphans, list)
+
+    # Our newly created context should be in the orphaned list
+    orphan_ids = [ctx.id for ctx in orphans]
+    assert orphan.id in orphan_ids
+
+    # All returned contexts should have no bound process groups
+    for ctx in orphans:
+        assert not ctx.component.bound_process_groups
+
+
 def test_delete_parameter_context(fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")

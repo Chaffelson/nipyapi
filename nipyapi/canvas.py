@@ -1321,15 +1321,38 @@ def get_bulletins():
         return nipyapi.nifi.FlowApi().get_bulletins()
 
 
-def get_bulletin_board():
+def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
     """
-    Retrieves the bulletin board object
+    Retrieves bulletins from the bulletin board with optional filtering.
+
+    Args:
+        pg_id (str, optional): Filter to bulletins from this process group ID.
+            If None, returns bulletins from all groups.
+        source_name (str, optional): Filter by source component name (regex pattern).
+        message (str, optional): Filter by message content (regex pattern).
+        limit (int, optional): Maximum number of bulletins to return.
 
     Returns:
-        (BulletinBoardEntity): The native datatype BulletinBoard object
+        list[BulletinEntity]: List of bulletin entities matching the filters.
+            Returns empty list if no bulletins match.
+
+    Note:
+        Bulletins automatically expire after 5 minutes (configurable in NiFi).
+        There is no API to manually clear bulletins.
     """
+    kwargs = {}
+    if pg_id is not None:
+        kwargs["group_id"] = pg_id
+    if source_name is not None:
+        kwargs["source_name"] = source_name
+    if message is not None:
+        kwargs["message"] = message
+    if limit is not None:
+        kwargs["limit"] = limit
+
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FlowApi().get_bulletin_board()
+        result = nipyapi.nifi.FlowApi().get_bulletin_board(**kwargs)
+        return result.bulletin_board.bulletins or []
 
 
 def create_controller(parent_pg, controller, name=None):
