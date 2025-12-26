@@ -37,6 +37,7 @@ from .get_status import get_status
 from .import_flow_definition import import_flow_definition
 from .list_flows import list_flows
 from .list_nars import list_nars
+from .list_registry_flows import list_registry_flows
 from .purge_flowfiles import purge_flowfiles
 from .resolve_git_ref import resolve_git_ref
 from .revert_flow import revert_flow
@@ -52,6 +53,7 @@ __all__ = [
     "stop_flow",
     "get_status",
     "list_flows",
+    "list_registry_flows",
     "get_flow_versions",
     "get_flow_diff",
     "commit_flow",

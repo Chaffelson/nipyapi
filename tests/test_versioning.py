@@ -60,6 +60,71 @@ def test_get_registry_client():
     versioning.delete_registry_client(created)
 
 
+def test_get_registry_client_greedy():
+    """Test get_registry_client with greedy parameter."""
+    # Create two clients with similar names
+    base_name = conftest.test_registry_client_name + '_greedy'
+    client1_name = base_name + '_one'
+    client2_name = base_name + '_two'
+
+    # Clean up any existing
+    existing_clients = versioning.list_registry_clients().registries
+    for client in existing_clients:
+        if base_name in client.component.name:
+            versioning.delete_registry_client(client)
+
+    # Create two GitHub clients
+    client1 = versioning.create_registry_client(
+        name=client1_name,
+        reg_type='org.apache.nifi.github.GitHubFlowRegistryClient',
+        description='Greedy test client 1',
+        properties={
+            'GitHub API URL': 'https://api.github.com/',
+            'Repository Owner': 'test-owner',
+            'Repository Name': 'test-repo-1',
+            'Authentication Type': 'NONE',
+            'Default Branch': 'main'
+        }
+    )
+    client2 = versioning.create_registry_client(
+        name=client2_name,
+        reg_type='org.apache.nifi.github.GitHubFlowRegistryClient',
+        description='Greedy test client 2',
+        properties={
+            'GitHub API URL': 'https://api.github.com/',
+            'Repository Owner': 'test-owner',
+            'Repository Name': 'test-repo-2',
+            'Authentication Type': 'NONE',
+            'Default Branch': 'main'
+        }
+    )
+
+    try:
+        # Greedy search (default) should return list for partial match
+        result = versioning.get_registry_client(base_name, greedy=True)
+        assert isinstance(result, list), "Greedy search should return list for partial match"
+        assert len(result) == 2, f"Expected 2 matches, got {len(result)}"
+
+        # Non-greedy search should return None for partial match
+        result = versioning.get_registry_client(base_name, greedy=False)
+        assert result is None, "Non-greedy search should return None for partial match"
+
+        # Non-greedy exact match should work
+        result = versioning.get_registry_client(client1_name, greedy=False)
+        assert isinstance(result, nifi.FlowRegistryClientEntity)
+        assert result.component.name == client1_name
+
+        # Greedy exact match should also work (returns single object)
+        result = versioning.get_registry_client(client1_name, greedy=True)
+        assert isinstance(result, nifi.FlowRegistryClientEntity)
+        assert result.component.name == client1_name
+
+    finally:
+        # Clean up
+        versioning.delete_registry_client(client1)
+        versioning.delete_registry_client(client2)
+
+
 def test_update_flow_ver():
     # This function is tested in test_complex_template_versioning
     pass

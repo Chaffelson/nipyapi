@@ -174,11 +174,11 @@ class TestEnsureRegistryValidation:
 class TestDeployFlowValidation:
     """Test deploy_flow validation logic (no NiFi required)."""
 
-    def test_missing_registry_client_id(self):
-        """Test missing registry_client_id raises ValueError."""
+    def test_missing_registry_client(self):
+        """Test missing registry_client raises ValueError."""
         old_val = os.environ.pop("NIFI_REGISTRY_CLIENT_ID", None)
         try:
-            with pytest.raises(ValueError, match="registry_client_id is required"):
+            with pytest.raises(ValueError, match="registry_client is required"):
                 ci.deploy_flow(bucket="test", flow="test")
         finally:
             if old_val:
@@ -189,7 +189,7 @@ class TestDeployFlowValidation:
         old_val = os.environ.pop("NIFI_BUCKET", None)
         try:
             with pytest.raises(ValueError, match="bucket is required"):
-                ci.deploy_flow(registry_client_id="id", flow="test")
+                ci.deploy_flow(registry_client="test-client", flow="test")
         finally:
             if old_val:
                 os.environ["NIFI_BUCKET"] = old_val
@@ -199,10 +199,34 @@ class TestDeployFlowValidation:
         old_val = os.environ.pop("NIFI_FLOW", None)
         try:
             with pytest.raises(ValueError, match="flow is required"):
-                ci.deploy_flow(registry_client_id="id", bucket="test")
+                ci.deploy_flow(registry_client="test-client", bucket="test")
         finally:
             if old_val:
                 os.environ["NIFI_FLOW"] = old_val
+
+
+class TestListRegistryFlowsValidation:
+    """Test list_registry_flows validation logic (no NiFi required)."""
+
+    def test_missing_registry_client(self):
+        """Test missing registry_client raises ValueError."""
+        old_val = os.environ.pop("NIFI_REGISTRY_CLIENT_ID", None)
+        try:
+            with pytest.raises(ValueError, match="registry_client is required"):
+                ci.list_registry_flows(bucket="test")
+        finally:
+            if old_val:
+                os.environ["NIFI_REGISTRY_CLIENT_ID"] = old_val
+
+    def test_missing_bucket(self):
+        """Test missing bucket raises ValueError."""
+        old_val = os.environ.pop("NIFI_BUCKET", None)
+        try:
+            with pytest.raises(ValueError, match="bucket is required"):
+                ci.list_registry_flows(registry_client="test-client")
+        finally:
+            if old_val:
+                os.environ["NIFI_BUCKET"] = old_val
 
 
 class TestResolveGitRef:

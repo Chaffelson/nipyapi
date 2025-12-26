@@ -1592,19 +1592,24 @@ def create_remote_process_group(target_uris, transport="RAW", pg_id="root", posi
         )
 
 
-def delete_remote_process_group(rpg, refresh=True):
+def delete_remote_process_group(rpg, refresh=True, force=False):
     """
-    Deletes a given remote process group
+    Deletes a given remote process group.
 
     Args:
         rpg (RemoteProcessGroupEntity): Remote Process Group to remove
         refresh (bool): Whether to refresh the object before action
+        force (bool): If True, stop transmission before deleting. Use this
+            when the RPG may be transmitting and you want to ensure deletion.
 
     Returns:
         (RemoteProcessGroupEntity)
     """
     assert isinstance(rpg, nipyapi.nifi.RemoteProcessGroupEntity)
-    if refresh:
+    if refresh or force:
+        rpg = get_remote_process_group(rpg.id)
+    if force and rpg.component.transmitting:
+        set_remote_process_group_transmission(rpg, enable=False)
         rpg = get_remote_process_group(rpg.id)
     handle = nipyapi.nifi.RemoteProcessGroupsApi()
     with nipyapi.utils.rest_exceptions():
@@ -1613,29 +1618,55 @@ def delete_remote_process_group(rpg, refresh=True):
 
 def set_remote_process_group_transmission(rpg, enable=True, refresh=True):
     """
-    Enable or Disable Transmission for an RPG
+    Enable or Disable Transmission for an RPG.
+
+    Waits for the transmission state to actually change before returning.
 
     Args:
-        rpg (RemoteProcessGroupEntity): The ID of the remote process group
-          to modify
-        enable (bool): True to enable, False to disable
+        rpg (RemoteProcessGroupEntity): The remote process group to modify
+        enable (bool): True to enable transmission, False to disable
         refresh (bool): Whether to refresh the object before action
 
     Returns:
+        (RemoteProcessGroupEntity): The updated remote process group
 
+    Raises:
+        ValueError: If the state change times out
     """
     assert isinstance(rpg, nipyapi.nifi.RemoteProcessGroupEntity)
     assert isinstance(enable, bool)
+
+    def _check_rpg_transmission_state(rpg_id, target_transmitting):
+        """Check if RPG transmission state matches target."""
+        test_obj = get_remote_process_group(rpg_id)
+        if test_obj.component.transmitting == target_transmitting:
+            return True
+        return False
+
     if refresh:
         rpg = get_remote_process_group(rpg.id)
     handle = nipyapi.nifi.RemoteProcessGroupsApi()
+    target_state = "TRANSMITTING" if enable else "STOPPED"
+
     with nipyapi.utils.rest_exceptions():
-        return handle.update_remote_process_group_run_status(
+        handle.update_remote_process_group_run_status(
             id=rpg.id,
-            body=nipyapi.nifi.RemotePortRunStatusEntity(
-                state="TRANSMITTING" if enable else "STOPPED", revision=rpg.revision
-            ),
+            body=nipyapi.nifi.RemotePortRunStatusEntity(state=target_state, revision=rpg.revision),
         )
+
+    # Wait for the state to actually change
+    state_test = nipyapi.utils.wait_to_complete(
+        _check_rpg_transmission_state,
+        rpg.id,
+        enable,
+        nipyapi_delay=nipyapi.config.long_retry_delay,
+        nipyapi_max_wait=nipyapi.config.long_max_wait,
+    )
+    if state_test:
+        return get_remote_process_group(rpg.id)
+    raise ValueError(
+        f"Timed out waiting for RPG {rpg.id} transmission to " f"{'start' if enable else 'stop'}"
+    )
 
 
 def create_port(pg_id, port_type, name, state, position=None):

@@ -295,10 +295,11 @@ def cleanup_nifi():
 def remove_test_rpgs():
     if SKIP_TEARDOWN:
         return None
-    _ = [
-        nipyapi.canvas.delete_remote_process_group(x)
-        for x in nipyapi.canvas.list_all_remote_process_groups()
-    ]
+    for rpg in nipyapi.canvas.list_all_remote_process_groups():
+        try:
+            nipyapi.canvas.delete_remote_process_group(rpg, force=True)
+        except Exception:
+            pass  # Best effort cleanup
 
 
 def remove_test_connections():

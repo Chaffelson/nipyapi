@@ -11,35 +11,38 @@ import nipyapi
 log = logging.getLogger(__name__)
 
 
-def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-arguments
-    registry_client_id: Optional[str] = None,
+def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+    registry_client: Optional[str] = None,
     bucket: Optional[str] = None,
     flow: Optional[str] = None,
     parent_id: Optional[str] = None,
     branch: Optional[str] = None,
     version: Optional[str] = None,
     location: Optional[Tuple[int, int]] = None,
+    greedy: bool = False,
 ) -> dict:
     """
     Deploy a flow from a Git-based registry to NiFi.
 
     Args:
-        registry_client_id: ID of the registry client. Env: NIFI_REGISTRY_CLIENT_ID
+        registry_client: Registry client ID or name. Env: NIFI_REGISTRY_CLIENT_ID
         bucket: Bucket (folder) containing the flow. Env: NIFI_BUCKET
         flow: Flow name (filename without .json). Env: NIFI_FLOW
         parent_id: Parent Process Group ID. Env: NIFI_PARENT_ID (default: root)
         branch: Branch to deploy from. Env: NIFI_FLOW_BRANCH
         version: Version (commit SHA, tag, branch). Env: NIFI_TARGET_VERSION
         location: (x, y) tuple for placement on canvas
+        greedy: If True, allow partial name matching for registry_client.
+                Default False (exact match for safety in CI/automation).
 
     Returns:
         dict with process_group_id, process_group_name, deployed_version
 
     Raises:
-        ValueError: Missing required parameters
+        ValueError: Missing required parameters or registry client not found
     """
     # Resolve from env vars
-    registry_client_id = registry_client_id or os.environ.get("NIFI_REGISTRY_CLIENT_ID")
+    registry_client = registry_client or os.environ.get("NIFI_REGISTRY_CLIENT_ID")
     bucket = bucket or os.environ.get("NIFI_BUCKET")
     flow = flow or os.environ.get("NIFI_FLOW")
     parent_id = parent_id or os.environ.get("NIFI_PARENT_ID")
@@ -53,13 +56,25 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
         if loc_x and loc_y:
             location = (int(loc_x), int(loc_y))
 
-    # Validate
-    if not registry_client_id:
-        raise ValueError("registry_client_id is required (or set NIFI_REGISTRY_CLIENT_ID)")
+    # Validate required params
+    if not registry_client:
+        raise ValueError("registry_client is required (or set NIFI_REGISTRY_CLIENT_ID)")
     if not bucket:
         raise ValueError("bucket is required (or set NIFI_BUCKET)")
     if not flow:
         raise ValueError("flow is required (or set NIFI_FLOW)")
+
+    # Resolve registry client (ID or name)
+    client = nipyapi.versioning.get_registry_client(registry_client, greedy=greedy)
+    if client is None:
+        raise ValueError(f"Registry client not found: {registry_client}")
+    if isinstance(client, list):
+        names = [c.component.name for c in client]
+        raise ValueError(
+            f"Multiple registry clients match '{registry_client}': {names}. "
+            "Use exact name or ID, or set greedy=True to use first match."
+        )
+    registry_client_id = client.id
 
     # Default to root if not specified
     if not parent_id:

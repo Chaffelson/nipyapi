@@ -279,13 +279,16 @@ def list_registry_client_types():
         return result.flow_registry_client_types
 
 
-def get_registry_client(identifier, identifier_type="name"):
+def get_registry_client(identifier, identifier_type="name", greedy=True):
     """
-    Filters the Registry clients to a particular identifier
+    Filters the Registry clients to a particular identifier.
 
     Args:
         identifier (str): the filter string
-        identifier_type (str): the parameter to filter on
+        identifier_type (str): the parameter to filter on ('name' or 'id')
+        greedy (bool): If True (default), partial name matching is allowed.
+            If False, requires exact match. Recommended to use greedy=False
+            in CI/automation for safety. Only applies when identifier_type='name'.
 
     Returns:
         None for no matches, Single Object for unique match,
@@ -293,7 +296,7 @@ def get_registry_client(identifier, identifier_type="name"):
     """
     with nipyapi.utils.rest_exceptions():
         obj = list_registry_clients().registries
-    return nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+    return nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
 
 
 def ensure_registry_client(  # pylint: disable=too-many-arguments,too-many-positional-arguments
