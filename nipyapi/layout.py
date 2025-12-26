@@ -1077,7 +1077,7 @@ def suggest_empty_position(pg_id: str, prefer: str = "right") -> tuple:
 # =============================================================================
 
 
-def move_processor(processor, position: tuple, refresh: bool = True):
+def move_processor(processor, position: tuple, refresh: bool = True, include_retry: bool = True):
     """
     Move a processor to a new position.
 
@@ -1085,14 +1085,21 @@ def move_processor(processor, position: tuple, refresh: bool = True):
         processor: ProcessorEntity to move
         position: New (x, y) position tuple
         refresh: Whether to refresh the processor before updating (default True)
+        include_retry: If True (default), also move bends on retry (self-loop)
+            connections to preserve their visual shape. This matches NiFi UI
+            behavior when dragging a processor.
 
     Returns:
         Updated ProcessorEntity
     """
+    # Calculate offset before refreshing (for retry bend adjustment)
+    current_pos = get_position(processor)
+    offset = (position[0] - current_pos[0], position[1] - current_pos[1])
+
     if refresh:
         processor = nipyapi.canvas.get_processor(processor.id, "id")
 
-    return nipyapi.nifi.ProcessorsApi().update_processor(
+    result = nipyapi.nifi.ProcessorsApi().update_processor(
         id=processor.id,
         body=nipyapi.nifi.ProcessorEntity(
             revision=processor.revision,
@@ -1102,6 +1109,19 @@ def move_processor(processor, position: tuple, refresh: bool = True):
             ),
         ),
     )
+
+    # Move retry bends to match UI behavior
+    if include_retry:
+        pg_id = processor.component.parent_group_id
+        for conn in nipyapi.canvas.list_all_connections(pg_id, descendants=False):
+            if conn.source_id == conn.destination_id == processor.id:
+                if conn.component.bends:
+                    new_bends = [
+                        (bend.x + offset[0], bend.y + offset[1]) for bend in conn.component.bends
+                    ]
+                    nipyapi.canvas.update_connection(conn, bends=new_bends)
+
+    return result
 
 
 def move_process_group(process_group, position: tuple, refresh: bool = True):
@@ -1218,74 +1238,19 @@ def move_label(label, position: tuple, refresh: bool = True):
     )
 
 
-def _move_self_loop_bends(component, offset: tuple):
-    """
-    Move bends on self-loop connections by the given offset.
-
-    Self-loops (retry loops) are connections where source == destination.
-    When the component moves, these bends should move with it to preserve
-    the loop's visual shape. This matches NiFi UI behavior.
-
-    Cross-component connection bends are NOT moved - they are independent
-    elements that stay in place unless explicitly selected.
-
-    Args:
-        component: The component that was just moved
-        offset: Tuple (dx, dy) representing the movement offset
-    """
-    # Only processors can have self-loop connections
-    component_type = type(component).__name__
-    if "ProcessorEntity" not in component_type:
-        return
-
-    # Get the parent PG to find connections
-    pg_id = component.component.parent_group_id
-
-    # Get all connections in the PG
-    connections = nipyapi.canvas.list_all_connections(pg_id, descendants=False)
-
-    for conn in connections:
-        # Only process self-loops (source == destination)
-        if conn.source_id == conn.destination_id == component.id:
-            # Check if this connection has bends
-            if conn.component.bends:
-                # Calculate new bend positions
-                new_bends = []
-                for bend in conn.component.bends:
-                    new_bends.append(
-                        nipyapi.nifi.PositionDTO(x=bend.x + offset[0], y=bend.y + offset[1])
-                    )
-
-                # Update the connection with new bends
-                # Need to include source/destination info for the API
-                nipyapi.nifi.ConnectionsApi().update_connection(
-                    id=conn.id,
-                    body=nipyapi.nifi.ConnectionEntity(
-                        revision=conn.revision,
-                        source_type=conn.source_type,
-                        destination_type=conn.destination_type,
-                        component=nipyapi.nifi.ConnectionDTO(
-                            id=conn.component.id,
-                            source=conn.component.source,
-                            destination=conn.component.destination,
-                            bends=new_bends,
-                        ),
-                    ),
-                )
-
-
-def move_component(component, position: tuple, refresh: bool = True):
+def move_component(component, position: tuple, refresh: bool = True, include_retry: bool = True):
     """
     Move any canvas component to a new position.
 
     Automatically detects the component type and calls the appropriate move function.
-    For processors with self-loop connections (retry loops), the loop bends are
-    also moved to preserve the visual shape. This matches NiFi UI behavior.
 
     Args:
         component: Any canvas component (processor, process group, funnel, port, label)
         position: New (x, y) position tuple
         refresh: Whether to refresh the component before updating (default True)
+        include_retry: If True (default), also move bends on retry (self-loop)
+            connections to preserve their visual shape. This matches NiFi UI
+            behavior when dragging a single component. Only applies to processors.
 
     Returns:
         Updated component entity
@@ -1294,41 +1259,33 @@ def move_component(component, position: tuple, refresh: bool = True):
         # Move a processor down by one block
         new_pos = nipyapi.layout.below(proc1)
         nipyapi.layout.move_component(proc1, new_pos)
-    """
-    # Calculate offset before moving (for self-loop bend adjustment)
-    current_pos = get_position(component)
-    offset = (position[0] - current_pos[0], position[1] - current_pos[1])
 
+        # Move without adjusting retry bends (for batch operations)
+        nipyapi.layout.move_component(proc1, new_pos, include_retry=False)
+    """
     component_type = type(component).__name__
 
     if "ProcessorEntity" in component_type:
-        result = move_processor(component, position, refresh)
-    elif "ProcessGroupEntity" in component_type:
-        result = move_process_group(component, position, refresh)
-    elif "FunnelEntity" in component_type:
-        result = move_funnel(component, position, refresh)
-    elif "PortEntity" in component_type:
-        result = move_port(component, position, refresh)
-    elif "LabelEntity" in component_type:
-        result = move_label(component, position, refresh)
-    else:
-        raise ValueError(f"Unsupported component type: {component_type}")
-
-    # Move self-loop bends (retry loops) to preserve visual shape
-    _move_self_loop_bends(component, offset)
-
-    return result
+        return move_processor(component, position, refresh, include_retry)
+    if "ProcessGroupEntity" in component_type:
+        return move_process_group(component, position, refresh)
+    if "FunnelEntity" in component_type:
+        return move_funnel(component, position, refresh)
+    if "PortEntity" in component_type:
+        return move_port(component, position, refresh)
+    if "LabelEntity" in component_type:
+        return move_label(component, position, refresh)
+    raise ValueError(f"Unsupported component type: {component_type}")
 
 
-def transpose_flow(components: list, offset: tuple, pg_id: str = None):
+def transpose_flow(components: list, offset: tuple, pg_id: str = None, connections=None):
     """
     Move an entire flow by the given offset, including all connection bends.
 
     This function handles the complexity of moving a flow as a unit:
     1. Moves all components by the offset
-    2. Self-loop bends are moved automatically via move_component()
-    3. Cross-component connection bends are moved if BOTH endpoints are in
-       the component list (preserving internal flow shape)
+    2. Moves bends on all connections within the flow (both retry loops and
+       cross-component connections)
 
     This matches the behavior of selecting multiple components in the NiFi UI
     and dragging them together.
@@ -1338,19 +1295,24 @@ def transpose_flow(components: list, offset: tuple, pg_id: str = None):
         offset: Tuple (dx, dy) representing the movement offset
         pg_id: Process group ID containing the flow. If None, inferred from
             first component.
+        connections: Optional list of ConnectionEntity objects. If provided,
+            these connections will be used for bend updates (avoiding an API call).
+            Typically obtained from get_flow_components().connections.
 
     Returns:
         List of updated component entities
 
     Example:
-        # Get all components in a flow
-        flow_components = nipyapi.canvas.get_flow_components(start_proc)
+        # Get the complete flow subgraph (single API call)
+        flow = nipyapi.canvas.get_flow_components(start_proc)
 
-        # Calculate offset needed to clear overlap
-        offset_x = target_left - current_left
+        # Move entire flow with connections pre-fetched (no additional API calls)
+        nipyapi.layout.transpose_flow(
+            flow.components, offset=(400, 0), connections=flow.connections
+        )
 
-        # Move entire flow including all bends
-        nipyapi.layout.transpose_flow(flow_components, offset=(offset_x, 0))
+        # Or without pre-fetched connections (connections will be fetched)
+        nipyapi.layout.transpose_flow(flow.components, offset=(400, 0))
     """
     if not components:
         return []
@@ -1363,54 +1325,81 @@ def transpose_flow(components: list, offset: tuple, pg_id: str = None):
         else:
             raise ValueError("Cannot infer pg_id. Please provide explicitly.")
 
+    # Fetch connections once if not provided
+    if connections is None:
+        connections = nipyapi.canvas.list_all_connections(pg_id, descendants=False)
+
     # Build set of component IDs being moved
     component_ids = {c.id for c in components}
 
-    # Step 1: Move all components (this also moves self-loop bends)
+    # Step 1: Move all components WITHOUT individual retry handling
+    # We handle all bends together in step 2 for efficiency
     updated_components = []
     for c in components:
         current_pos = get_position(c)
         new_pos = (current_pos[0] + offset[0], current_pos[1] + offset[1])
-        updated = move_component(c, new_pos, refresh=True)
+        updated = move_component(c, new_pos, refresh=True, include_retry=False)
         updated_components.append(updated)
 
-    # Step 2: Move bends on cross-component connections where BOTH endpoints
-    # are in the component list (internal flow connections)
-    connections = nipyapi.canvas.list_all_connections(pg_id, descendants=False)
-
+    # Step 2: Move bends on all connections within the flow
+    # This includes both retry loops (self-loops) and cross-component connections
     for conn in connections:
-        # Skip self-loops (already handled by move_component)
-        if conn.source_id == conn.destination_id:
-            continue
+        src_in_flow = conn.source_id in component_ids
+        dst_in_flow = conn.destination_id in component_ids
 
-        # Only process if BOTH endpoints are in the flow being moved
-        if conn.source_id in component_ids and conn.destination_id in component_ids:
-            # Check if this connection has bends
-            if conn.component.bends:
-                # Calculate new bend positions
-                new_bends = []
-                for bend in conn.component.bends:
-                    new_bends.append(
-                        nipyapi.nifi.PositionDTO(x=bend.x + offset[0], y=bend.y + offset[1])
-                    )
-
-                # Update the connection with new bends
-                nipyapi.nifi.ConnectionsApi().update_connection(
-                    id=conn.id,
-                    body=nipyapi.nifi.ConnectionEntity(
-                        revision=conn.revision,
-                        source_type=conn.source_type,
-                        destination_type=conn.destination_type,
-                        component=nipyapi.nifi.ConnectionDTO(
-                            id=conn.component.id,
-                            source=conn.component.source,
-                            destination=conn.component.destination,
-                            bends=new_bends,
-                        ),
-                    ),
-                )
+        # Move bends if both endpoints are in the flow being moved
+        # For self-loops, src == dst so this naturally includes them
+        if src_in_flow and dst_in_flow and conn.component.bends:
+            new_bends = [(bend.x + offset[0], bend.y + offset[1]) for bend in conn.component.bends]
+            nipyapi.canvas.update_connection(conn, bends=new_bends)
 
     return updated_components
+
+
+def clear_flow_bends(pg_id: str, include_self_loops: bool = False) -> int:
+    """
+    Clear all bends from connections in a process group.
+
+    Use this before reorganizing a flow layout. Old bends look wrong after
+    components are moved to new positions, so clearing them first ensures
+    clean straight-line connections after the layout is applied.
+
+    By default, self-loop bends (retry loops) are preserved because they are
+    required for the connection to render correctly in the NiFi UI.
+
+    Args:
+        pg_id: Process group ID containing the connections to clear
+        include_self_loops: If True, also clear bends on self-loop connections.
+            Default False preserves self-loop shapes which are required for
+            correct UI rendering.
+
+    Returns:
+        int: Number of connections that had bends cleared
+
+    Example:
+        # Before reorganizing a messy flow
+        nipyapi.layout.clear_flow_bends(pg.id)
+
+        # Apply new layout
+        plan = nipyapi.layout.suggest_flow_layout(pg.id)
+        for item in plan['spine'] + plan['branches']:
+            comp = get_component(item['id'])
+            nipyapi.layout.move_component(comp, item['position'])
+    """
+    connections = nipyapi.canvas.list_all_connections(pg_id, descendants=False)
+    cleared_count = 0
+
+    for conn in connections:
+        # Skip self-loops unless explicitly requested
+        if conn.source_id == conn.destination_id and not include_self_loops:
+            continue
+
+        # Clear bends if present
+        if conn.component.bends:
+            nipyapi.canvas.update_connection(conn, bends=[])
+            cleared_count += 1
+
+    return cleared_count
 
 
 # =============================================================================

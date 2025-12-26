@@ -5,9 +5,13 @@ For interactions with the NiFi Canvas.
 """
 
 import logging
+from collections import namedtuple
 
 import nipyapi
 from nipyapi.utils import exception_handler
+
+# Named tuple for get_flow_components return value
+FlowSubgraph = namedtuple("FlowSubgraph", ["components", "connections"])
 
 __all__ = [
     "get_root_pg_id",
@@ -38,6 +42,8 @@ __all__ = [
     "list_invalid_processors",
     "list_sensitive_processors",
     "list_all_connections",
+    "get_connection",
+    "update_connection",
     "create_connection",
     "delete_connection",
     "get_component_connections",
@@ -64,6 +70,8 @@ __all__ = [
     "get_pg_parents_ids",
     "delete_port",
     "create_port",
+    "get_flow_components",
+    "FlowSubgraph",
 ]
 
 log = logging.getLogger(__name__)
@@ -1004,6 +1012,105 @@ def list_all_connections(pg_id="root", descendants=True):
     return list_all_by_kind("connections", pg_id, descendants)
 
 
+def get_connection(connection):
+    """
+    Get a connection by ID or refresh a ConnectionEntity.
+
+    Args:
+        connection: Either a connection UUID (str) or a ConnectionEntity object.
+            If a ConnectionEntity is provided, fetches a fresh copy (useful for
+            getting the latest revision before updates).
+
+    Returns:
+        ConnectionEntity: The requested connection
+
+    Example:
+        # Fetch by ID
+        conn = nipyapi.canvas.get_connection("abc-123-uuid")
+
+        # Refresh an existing entity
+        fresh_conn = nipyapi.canvas.get_connection(conn)
+    """
+    # Accept ID string or ConnectionEntity
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        connection = connection.id
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ConnectionsApi().get_connection(connection)
+
+
+def update_connection(connection, name=None, bends=None, refresh=True):
+    """
+    Update a connection's configuration.
+
+    Only parameters explicitly provided will be updated. To clear bends,
+    pass an empty list.
+
+    Args:
+        connection: ConnectionEntity or connection ID (str) to update
+        name: New name for the connection. None to leave unchanged.
+        bends: List of PositionDTO or (x, y) tuples for bend points.
+            - None (default): Don't modify bends
+            - []: Clear all bends (straight line)
+            - [...]: Set these bend points
+        refresh: Whether to refresh the connection before updating (default True)
+
+    Returns:
+        ConnectionEntity: The updated connection
+
+    Example:
+        # Clear all bends from a connection
+        updated = nipyapi.canvas.update_connection(conn, bends=[])
+
+        # Clear bends by connection ID
+        updated = nipyapi.canvas.update_connection("abc-123-uuid", bends=[])
+
+        # Rename a connection
+        updated = nipyapi.canvas.update_connection(conn, name="Primary Path")
+
+        # Set specific bend points
+        updated = nipyapi.canvas.update_connection(conn, bends=[(500, 300), (500, 400)])
+    """
+    # Accept ID or object
+    if isinstance(connection, str):
+        connection = get_connection(connection)
+
+    assert isinstance(connection, nipyapi.nifi.ConnectionEntity)
+
+    if refresh:
+        connection = get_connection(connection.id)
+
+    # Determine updated values (None means keep existing)
+    updated_name = connection.component.name if name is None else name
+    updated_bends = connection.component.bends if bends is None else bends
+
+    # Convert tuple bends to PositionDTO if needed
+    if updated_bends:
+        bend_dtos = []
+        for b in updated_bends:
+            if isinstance(b, tuple):
+                bend_dtos.append(nipyapi.nifi.PositionDTO(x=float(b[0]), y=float(b[1])))
+            else:
+                bend_dtos.append(b)
+        updated_bends = bend_dtos
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ConnectionsApi().update_connection(
+            id=connection.id,
+            body=nipyapi.nifi.ConnectionEntity(
+                revision=connection.revision,
+                source_type=connection.source_type,
+                destination_type=connection.destination_type,
+                component=nipyapi.nifi.ConnectionDTO(
+                    id=connection.component.id,
+                    name=updated_name,
+                    source=connection.component.source,
+                    destination=connection.component.destination,
+                    bends=updated_bends,
+                ),
+            ),
+        )
+
+
 def get_component_connections(component):
     """
     Returns list of Connections related to a given Component, e.g. Processor
@@ -1026,7 +1133,7 @@ def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
     start_component, pg_id=None
 ):
     """
-    Find all components connected to a starting component via connections.
+    Find all components and connections in a connected flow subgraph.
 
     Performs a breadth-first traversal of the connection graph to find the
     complete connected subgraph (the 'flow'). Useful for selecting an entire
@@ -1036,7 +1143,7 @@ def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
         1. Fetch all components and connections in one API call (get_flow)
         2. Build adjacency map: component_id -> set of connected component_ids
         3. BFS from start_component to find all reachable nodes
-        4. Return component entities for all reached IDs
+        4. Return both component entities and connections for the subgraph
 
     Args:
         start_component: Any component entity (processor, funnel, port) to
@@ -1045,17 +1152,22 @@ def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
             start_component.component.parent_group_id
 
     Returns:
-        list: All component entities (processors, funnels, ports) connected
-            to the start_component, including the start_component itself
+        FlowSubgraph: Named tuple with two fields:
+            - components: List of component entities (processors, funnels, ports)
+            - connections: List of ConnectionEntity objects within the flow
 
     Example:
-        # Get all components in a flow starting from a processor
-        flow_components = nipyapi.canvas.get_flow_components(proc1)
+        # Get the complete flow subgraph
+        flow = nipyapi.canvas.get_flow_components(proc1)
 
-        # Move entire flow to the right
-        for c in flow_components:
-            pos = nipyapi.layout.get_position(c)
-            nipyapi.layout.move_component(c, (pos[0] + 400, pos[1]))
+        # Access components
+        for c in flow.components:
+            print(c.component.name)
+
+        # Access connections (useful for transpose_flow)
+        nipyapi.layout.transpose_flow(
+            flow.components, offset=(400, 0), connections=flow.connections
+        )
     """
     # Infer pg_id from component if not provided
     if pg_id is None:
@@ -1112,8 +1224,18 @@ def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
             if neighbor_id not in visited:
                 queue.append(neighbor_id)
 
-    # Return component entities for all visited IDs
-    return [component_map[cid] for cid in visited if cid in component_map]
+    # Build result: components and connections within the flow
+    result_components = [component_map[cid] for cid in visited if cid in component_map]
+
+    # Filter connections to those where at least one endpoint is in the flow
+    # This includes internal connections and connections to/from the flow boundary
+    flow_connections = [
+        conn
+        for conn in fc.connections or []
+        if conn.source_id in visited or conn.destination_id in visited
+    ]
+
+    return FlowSubgraph(components=result_components, connections=flow_connections)
 
 
 def purge_connection(con_id):

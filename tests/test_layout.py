@@ -326,6 +326,51 @@ def test_move_component_auto_detect(fix_pg, fix_proc, fix_funnel):
     assert layout.get_position(result) == (200.0, 200.0)
 
 
+def test_move_component_with_retry_loop(fix_pg, fix_proc):
+    """Test that move_component moves retry loop bends by default."""
+    f_pg = fix_pg.generate()
+    p1 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 100.0),
+        name=conftest.test_processor_name + '_retry_move'
+    )
+    # Create self-loop (retry) connection
+    conn = canvas.create_connection(p1, p1, relationships=['success'],
+                                    name=conftest.test_basename)
+    original_bend_x = conn.component.bends[0].x
+
+    # Move component (include_retry=True by default)
+    layout.move_component(p1, (300.0, 100.0))
+
+    # Verify retry bends moved with component
+    conn_new = canvas.get_connection(conn.id)
+    # Bends should have moved by the same offset as the component (200 pixels)
+    assert conn_new.component.bends[0].x == original_bend_x + 200.0
+
+
+def test_move_component_without_retry_loop(fix_pg, fix_proc):
+    """Test move_component with include_retry=False leaves bends alone."""
+    f_pg = fix_pg.generate()
+    p1 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 100.0),
+        name=conftest.test_processor_name + '_retry_skip'
+    )
+    # Create self-loop (retry) connection
+    conn = canvas.create_connection(p1, p1, relationships=['success'],
+                                    name=conftest.test_basename)
+    original_bend_x = conn.component.bends[0].x
+
+    # Move component without moving retry bends
+    layout.move_component(p1, (300.0, 100.0), include_retry=False)
+
+    # Verify retry bends did NOT move
+    conn_new = canvas.get_connection(conn.id)
+    assert conn_new.component.bends[0].x == original_bend_x
+
+
 # =============================================================================
 # SUGGEST EMPTY POSITION TESTS
 # =============================================================================
@@ -632,13 +677,13 @@ def test_transpose_flow(fix_pg, fix_proc):
 
     canvas.create_connection(p1, p2, name=conftest.test_basename)
 
-    # Get flow components
-    components = canvas.get_flow_components(p1, pg_id=f_pg.id)
-    assert len(components) == 2
+    # Get flow subgraph (returns FlowSubgraph with components and connections)
+    flow = canvas.get_flow_components(p1, pg_id=f_pg.id)
+    assert len(flow.components) == 2
 
-    # Transpose by offset
+    # Transpose by offset, passing connections for efficiency
     offset = (200.0, 50.0)
-    layout.transpose_flow(components, offset)
+    layout.transpose_flow(flow.components, offset, connections=flow.connections)
 
     # Verify positions moved
     p1_new = canvas.get_processor(p1.id, 'id')
@@ -648,6 +693,120 @@ def test_transpose_flow(fix_pg, fix_proc):
     assert p1_new.position.y == 150.0  # 100 + 50
     assert p2_new.position.x == 300.0
     assert p2_new.position.y == 350.0  # 300 + 50
+
+
+def test_transpose_flow_with_bends(fix_pg, fix_proc):
+    """Test that transpose_flow moves connection bends."""
+    f_pg = fix_pg.generate()
+    p1 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 100.0),
+        name=conftest.test_processor_name + '_transbend1'
+    )
+    p2 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 300.0),
+        name=conftest.test_processor_name + '_transbend2'
+    )
+
+    # Create connection with bends
+    bends = [(200.0, 200.0)]
+    conn = canvas.create_connection(p1, p2, name=conftest.test_basename, bends=bends)
+    original_bend_x = conn.component.bends[0].x
+
+    # Get flow and transpose
+    flow = canvas.get_flow_components(p1, pg_id=f_pg.id)
+    offset = (100.0, 50.0)
+    layout.transpose_flow(flow.components, offset, connections=flow.connections)
+
+    # Verify bends also moved
+    conn_new = canvas.get_connection(conn.id)
+    assert conn_new.component.bends[0].x == original_bend_x + 100.0
+
+
+# =============================================================================
+# CLEAR FLOW BENDS TESTS
+# =============================================================================
+
+
+def test_clear_flow_bends(fix_pg, fix_proc):
+    """Test clearing all bends from connections in a process group."""
+    f_pg = fix_pg.generate()
+    p1 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 100.0),
+        name=conftest.test_processor_name + '_clear1'
+    )
+    p2 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 300.0),
+        name=conftest.test_processor_name + '_clear2'
+    )
+
+    # Create connection with bends
+    bends = [(200.0, 200.0), (200.0, 250.0)]
+    conn = canvas.create_connection(p1, p2, name=conftest.test_basename, bends=bends)
+    assert len(conn.component.bends) == 2
+
+    # Clear all bends
+    cleared = layout.clear_flow_bends(f_pg.id)
+    assert cleared == 1  # One connection had bends cleared
+
+    # Verify bends are gone
+    conn_new = canvas.get_connection(conn.id)
+    assert conn_new.component.bends == [] or conn_new.component.bends is None
+
+
+def test_clear_flow_bends_preserves_self_loops(fix_pg, fix_proc):
+    """Test that clear_flow_bends preserves self-loop bends by default."""
+    f_pg = fix_pg.generate()
+    p1 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 100.0),
+        name=conftest.test_processor_name + '_selfloop_clear'
+    )
+
+    # Create self-loop connection (gets auto-bends)
+    conn = canvas.create_connection(p1, p1, relationships=['success'],
+                                    name=conftest.test_basename)
+    assert len(conn.component.bends) == 2  # Self-loops get 2 bends
+
+    # Clear bends (should skip self-loops by default)
+    cleared = layout.clear_flow_bends(f_pg.id)
+    assert cleared == 0  # No connections cleared (self-loop preserved)
+
+    # Verify self-loop bends still present
+    conn_new = canvas.get_connection(conn.id)
+    assert len(conn_new.component.bends) == 2
+
+
+def test_clear_flow_bends_include_self_loops(fix_pg, fix_proc):
+    """Test clear_flow_bends with include_self_loops=True."""
+    f_pg = fix_pg.generate()
+    p1 = canvas.create_processor(
+        parent_pg=f_pg,
+        processor=canvas.get_processor_type('GenerateFlowFile'),
+        location=(100.0, 100.0),
+        name=conftest.test_processor_name + '_selfloop_incl'
+    )
+
+    # Create self-loop connection
+    conn = canvas.create_connection(p1, p1, relationships=['success'],
+                                    name=conftest.test_basename)
+    assert len(conn.component.bends) == 2
+
+    # Clear bends including self-loops
+    cleared = layout.clear_flow_bends(f_pg.id, include_self_loops=True)
+    assert cleared == 1
+
+    # Verify self-loop bends cleared
+    conn_new = canvas.get_connection(conn.id)
+    assert conn_new.component.bends == [] or conn_new.component.bends is None
 
 
 # =============================================================================

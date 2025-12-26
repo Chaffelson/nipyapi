@@ -497,6 +497,74 @@ def test_get_component_connections(fix_proc):
     assert r2[1].source_id in [f_p1.id, f_p2.id]
 
 
+def test_get_connection(fix_proc):
+    """Test getting a connection by ID or entity."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    conn = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+
+    # Get by ID string
+    result = canvas.get_connection(conn.id)
+    assert isinstance(result, nifi.ConnectionEntity)
+    assert result.id == conn.id
+
+    # Get by entity (refresh)
+    result2 = canvas.get_connection(conn)
+    assert isinstance(result2, nifi.ConnectionEntity)
+    assert result2.id == conn.id
+
+
+def test_update_connection_name(fix_proc):
+    """Test updating a connection's name."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    conn = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+
+    # Update name
+    new_name = conftest.test_basename + '_updated'
+    result = canvas.update_connection(conn, name=new_name)
+    assert result.component.name == new_name
+
+
+def test_update_connection_clear_bends(fix_proc):
+    """Test clearing bends from a connection."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    # Create connection with bends
+    bends = [(500.0, 350.0), (500.0, 450.0)]
+    conn = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename, bends=bends)
+    assert len(conn.component.bends) == 2
+
+    # Clear bends by passing empty list
+    result = canvas.update_connection(conn, bends=[])
+    assert result.component.bends == [] or result.component.bends is None
+
+
+def test_update_connection_set_bends(fix_proc):
+    """Test setting bends on a connection."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    conn = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+
+    # Set new bends
+    new_bends = [(600.0, 400.0), (600.0, 500.0)]
+    result = canvas.update_connection(conn, bends=new_bends)
+    assert len(result.component.bends) == 2
+    assert result.component.bends[0].x == 600.0
+
+
+def test_update_connection_by_id(fix_proc):
+    """Test updating a connection by ID string."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+    conn = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+
+    # Update by ID string
+    new_name = conftest.test_basename + '_by_id'
+    result = canvas.update_connection(conn.id, name=new_name)
+    assert result.component.name == new_name
+
+
 def test_list_all_controller_types():
     r1 = canvas.list_all_controller_types()
     assert len(r1) > 5
@@ -794,15 +862,24 @@ def test_get_flow_components(fix_pg, fix_proc, fix_funnel):
     f_p2 = fix_proc.generate(parent_pg=f_pg, suffix='_flow2')
     f_f1 = fix_funnel.generate(parent_pg=f_pg)
     # Connect them
-    canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
-    canvas.create_connection(f_p2, f_f1, name=conftest.test_basename)
-    # Find all components starting from proc1
-    components = canvas.get_flow_components(f_p1)
-    assert len(components) == 3
-    component_ids = [c.id for c in components]
+    conn1 = canvas.create_connection(f_p1, f_p2, name=conftest.test_basename)
+    conn2 = canvas.create_connection(f_p2, f_f1, name=conftest.test_basename)
+    # Find all components starting from proc1 - returns FlowSubgraph
+    flow = canvas.get_flow_components(f_p1)
+    # Verify it's a FlowSubgraph named tuple
+    assert hasattr(flow, 'components')
+    assert hasattr(flow, 'connections')
+    # Verify components
+    assert len(flow.components) == 3
+    component_ids = [c.id for c in flow.components]
     assert f_p1.id in component_ids
     assert f_p2.id in component_ids
     assert f_f1.id in component_ids
+    # Verify connections are also returned
+    assert len(flow.connections) == 2
+    connection_ids = [c.id for c in flow.connections]
+    assert conn1.id in connection_ids
+    assert conn2.id in connection_ids
 
 
 def test_get_flow_components_separate_flows(fix_pg, fix_proc):
@@ -818,16 +895,16 @@ def test_get_flow_components_separate_flows(fix_pg, fix_proc):
     # Connect flow B (separate)
     canvas.create_connection(f_p3, f_p4, name=conftest.test_basename)
     # Find components starting from flow A
-    components_a = canvas.get_flow_components(f_p1)
-    assert len(components_a) == 2
-    component_ids_a = [c.id for c in components_a]
+    flow_a = canvas.get_flow_components(f_p1)
+    assert len(flow_a.components) == 2
+    component_ids_a = [c.id for c in flow_a.components]
     assert f_p1.id in component_ids_a
     assert f_p2.id in component_ids_a
     assert f_p3.id not in component_ids_a
     assert f_p4.id not in component_ids_a
     # Find components starting from flow B
-    components_b = canvas.get_flow_components(f_p3)
-    assert len(components_b) == 2
+    flow_b = canvas.get_flow_components(f_p3)
+    assert len(flow_b.components) == 2
 
 
 def test_get_flow_components_with_self_loop(fix_pg, fix_proc):
@@ -840,8 +917,8 @@ def test_get_flow_components_with_self_loop(fix_pg, fix_proc):
     canvas.create_connection(f_p1, f_p1, relationships=['success'],
                              name=conftest.test_basename + '_self')
     # Should find both processors
-    components = canvas.get_flow_components(f_p1)
-    assert len(components) == 2
+    flow = canvas.get_flow_components(f_p1)
+    assert len(flow.components) == 2
 
 
 def test_remote_process_group_controls(fix_proc):
