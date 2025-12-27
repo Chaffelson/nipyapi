@@ -74,6 +74,10 @@ __all__ = [
     "FlowSubgraph",
     "verify_controller",
     "verify_processor",
+    "get_controller_state",
+    "clear_controller_state",
+    "get_processor_state",
+    "clear_processor_state",
 ]
 
 log = logging.getLogger(__name__)
@@ -2126,3 +2130,177 @@ def verify_processor(processor, properties=None, attributes=None):
                 api.delete_verification_request2(id=processor.id, request_id=request_id)
             except Exception:  # pylint: disable=broad-except
                 log.warning("Failed to cleanup verification request %s", request_id)
+
+
+def get_controller_state(controller):
+    """
+    Get the state for a controller service.
+
+    Controller services can maintain internal state (e.g., cache entries,
+    connection tracking, CDC table status). This function retrieves that state.
+
+    Args:
+        controller: ControllerServiceEntity or controller service ID (str)
+
+    Returns:
+        ComponentStateEntity: The state entity containing:
+            - component_state.component_id: Controller ID
+            - component_state.state_description: Description of what state is stored
+            - component_state.local_state: State for local scope (single node)
+            - component_state.cluster_state: State for cluster scope (distributed)
+
+        Check whichever state map (local_state or cluster_state) has entries.
+        Each state map contains:
+            - scope: "LOCAL" or "CLUSTER"
+            - total_entry_count: Number of entries
+            - state: List of StateEntryDTO with key/value pairs
+
+    Raises:
+        ValueError: Controller not found
+        ApiException: NiFi API errors
+
+    Example:
+        state = nipyapi.canvas.get_controller_state(my_controller)
+        state_map = state.component_state.local_state
+        if state_map and state_map.state:
+            for entry in state_map.state:
+                print(f"{entry.key}: {entry.value}")
+    """
+    # Accept ID or entity
+    if isinstance(controller, str):
+        controller_id = controller
+    else:
+        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+        controller_id = controller.id
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.get_state(controller_id)
+
+
+def clear_controller_state(controller):
+    """
+    Clear all state for a controller service.
+
+    This removes all state entries from the controller service. Use with caution
+    as this may affect the controller's behavior (e.g., clearing a CDC table
+    state service will cause tables to be re-snapshotted).
+
+    Note: The controller must be DISABLED before clearing state. Attempting to
+    clear state on an enabled controller will raise an error.
+
+    Args:
+        controller: ControllerServiceEntity or controller service ID (str)
+
+    Returns:
+        ComponentStateEntity: The cleared state entity (should have 0 entries)
+
+    Raises:
+        ValueError: Controller not found or controller is enabled
+        ApiException: NiFi API errors
+
+    Example:
+        # Disable controller first
+        nipyapi.canvas.schedule_controller(my_controller, scheduled=False)
+
+        # Clear all state
+        nipyapi.canvas.clear_controller_state(my_controller)
+
+        # Verify cleared
+        state = nipyapi.canvas.get_controller_state(my_controller)
+        assert state.component_state.local_state.total_entry_count == 0
+    """
+    # Accept ID or entity
+    if isinstance(controller, str):
+        controller_id = controller
+    else:
+        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+        controller_id = controller.id
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.clear_state1(controller_id)
+
+
+def get_processor_state(processor):
+    """
+    Get the state for a processor.
+
+    Processors can maintain internal state (e.g., ListFile tracks listed files,
+    TailFile tracks file positions). This function retrieves that state.
+
+    Args:
+        processor: ProcessorEntity or processor ID (str)
+
+    Returns:
+        ComponentStateEntity: The state entity containing:
+            - component_state.component_id: Processor ID
+            - component_state.state_description: Description of what state is stored
+            - component_state.local_state: State for local scope (single node)
+            - component_state.cluster_state: State for cluster scope (distributed)
+
+        Check whichever state map (local_state or cluster_state) has entries.
+        Each state map contains:
+            - scope: "LOCAL" or "CLUSTER"
+            - total_entry_count: Number of entries
+            - state: List of StateEntryDTO with key/value pairs
+
+    Raises:
+        ValueError: Processor not found
+        ApiException: NiFi API errors
+
+    Example:
+        state = nipyapi.canvas.get_processor_state(my_list_file_processor)
+        state_map = state.component_state.local_state
+        if state_map and state_map.state:
+            for entry in state_map.state:
+                print(f"{entry.key}: {entry.value}")
+    """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor_id = processor
+    else:
+        assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+        processor_id = processor.id
+
+    handle = nipyapi.nifi.ProcessorsApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.get_state2(processor_id)
+
+
+def clear_processor_state(processor):
+    """
+    Clear all state for a processor.
+
+    This removes all state entries from the processor. Use with caution as this
+    may affect the processor's behavior (e.g., clearing ListFile state will
+    cause all files to be re-listed).
+
+    Args:
+        processor: ProcessorEntity or processor ID (str)
+
+    Returns:
+        ComponentStateEntity: The cleared state entity (should have 0 entries)
+
+    Raises:
+        ValueError: Processor not found
+        ApiException: NiFi API errors
+
+    Example:
+        # Clear all state
+        nipyapi.canvas.clear_processor_state(my_processor)
+
+        # Verify cleared
+        state = nipyapi.canvas.get_processor_state(my_processor)
+        assert state.component_state.local_state.total_entry_count == 0
+    """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor_id = processor
+    else:
+        assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+        processor_id = processor.id
+
+    handle = nipyapi.nifi.ProcessorsApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.clear_state3(processor_id)

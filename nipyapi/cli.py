@@ -226,13 +226,10 @@ class LogCapture(logging.Handler):
 
     def __init__(self):
         super().__init__()
-        self.records = []
-        self.all_records = []  # Keep all records for error output
+        self.records = []  # List of (level, formatted_message) tuples
 
     def emit(self, record):
         formatted = self.format(record)
-        self.all_records.append(formatted)
-        # Also keep track of level for filtering
         self.records.append((record.levelno, formatted))
 
     def get_logs(self, min_level=None):
@@ -253,7 +250,6 @@ class LogCapture(logging.Handler):
     def clear(self):
         """Clear captured log records."""
         self.records = []
-        self.all_records = []
 
 
 def _custom_serializer(obj):
@@ -288,6 +284,15 @@ class SafeModule:
         """Wrap a callable to catch exceptions and return structured errors."""
 
         def wrapper(*args, **kwargs):
+            # Let Fire handle help flags
+            # Fire passes --help as help=True and -h as h=True
+            if kwargs.pop("help", False) or kwargs.pop("h", False):
+                import fire
+
+                help_text = fire.helptext.HelpText(func, trace=None)
+                print(help_text)
+                sys.exit(0)
+
             # Set up log capture on nipyapi logger only (avoids duplicates)
             log_capture = LogCapture()
             log_capture.setLevel(logging.DEBUG)

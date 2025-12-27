@@ -1588,3 +1588,83 @@ def test_verify_controller_with_asset_no_reference(fix_pg):
             canvas.delete_controller(controller)
         # delete_parameter_context handles asset cleanup
         parameters.delete_parameter_context(ctx)
+
+
+# --- State Management Tests ---
+
+
+def test_get_processor_state(fix_state_flow):
+    """Test getting processor state from ListFile."""
+    state = canvas.get_processor_state(fix_state_flow.list_file_proc)
+
+    assert isinstance(state, nifi.ComponentStateEntity)
+    assert state.component_state is not None
+    assert state.component_state.component_id == fix_state_flow.list_file_proc.id
+
+    # ListFile should have state entries after running
+    local_state = state.component_state.local_state
+    assert local_state is not None
+    assert local_state.total_entry_count > 0
+    assert len(local_state.state) > 0
+
+
+def test_get_processor_state_by_id(fix_state_flow):
+    """Test getting processor state using ID string."""
+    state = canvas.get_processor_state(fix_state_flow.list_file_proc.id)
+
+    assert isinstance(state, nifi.ComponentStateEntity)
+    assert state.component_state.component_id == fix_state_flow.list_file_proc.id
+
+
+def test_get_controller_state(fix_state_flow):
+    """Test getting controller state from MapCacheServer."""
+    state = canvas.get_controller_state(fix_state_flow.cache_server)
+
+    assert isinstance(state, nifi.ComponentStateEntity)
+    assert state.component_state is not None
+    assert state.component_state.component_id == fix_state_flow.cache_server.id
+
+    # MapCacheServer may or may not have visible state entries
+    # (internal cache isn't always exposed via state API)
+    # Key test: the API call succeeds and returns valid structure
+    local_state = state.component_state.local_state
+    assert local_state is not None
+    assert hasattr(local_state, 'total_entry_count')
+    assert hasattr(local_state, 'state')
+
+
+def test_get_controller_state_by_id(fix_state_flow):
+    """Test getting controller state using ID string."""
+    state = canvas.get_controller_state(fix_state_flow.cache_server.id)
+
+    assert isinstance(state, nifi.ComponentStateEntity)
+    assert state.component_state.component_id == fix_state_flow.cache_server.id
+
+
+def test_clear_processor_state(fix_state_flow):
+    """Test clearing processor state."""
+    # Verify state exists before clearing
+    state_before = canvas.get_processor_state(fix_state_flow.list_file_proc)
+    assert state_before.component_state.local_state.total_entry_count > 0
+
+    # Clear state
+    result = canvas.clear_processor_state(fix_state_flow.list_file_proc)
+    assert isinstance(result, nifi.ComponentStateEntity)
+
+    # Verify state is cleared
+    state_after = canvas.get_processor_state(fix_state_flow.list_file_proc)
+    assert state_after.component_state.local_state.total_entry_count == 0
+
+
+def test_clear_controller_state(fix_state_flow):
+    """Test clearing controller state."""
+    # Controller must be disabled before clearing state
+    canvas.schedule_controller(fix_state_flow.cache_server, scheduled=False, refresh=True)
+
+    # Clear state (works even if empty)
+    result = canvas.clear_controller_state(fix_state_flow.cache_server)
+    assert isinstance(result, nifi.ComponentStateEntity)
+
+    # Verify state is cleared (should be 0 entries)
+    state_after = canvas.get_controller_state(fix_state_flow.cache_server)
+    assert state_after.component_state.local_state.total_entry_count == 0

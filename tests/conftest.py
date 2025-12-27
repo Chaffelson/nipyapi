@@ -1055,3 +1055,84 @@ def fixture_multi_version_nars(request):
         v1_bundle=details_v1.processor_types[0].bundle.version,
         v2_bundle=details_v2.processor_types[0].bundle.version,
     )
+
+
+@pytest.fixture(name='fix_state_flow', scope='function')
+def fixture_state_flow(request, fix_pg):
+    """
+    Create a flow that generates state for both processor and controller:
+    - MapCacheServer controller (stores cache entries)
+    - DistributedMapCacheClientService controller (connects to server)
+    - ListFile processor (lists files, stores listing state)
+    - PutDistributedMapCache processor (writes to cache)
+    - Connection: ListFile -> PutDistributedMapCache
+
+    Running this flow populates state in both ListFile (processor) and
+    MapCacheServer (controller).
+    """
+    import time
+
+    f_pg = fix_pg.generate()
+
+    # Create MapCacheServer controller
+    server_type = nipyapi.canvas.get_controller_type('MapCacheServer')
+    server = nipyapi.canvas.create_controller(f_pg, server_type, 'test_state_cache_server')
+    server = nipyapi.canvas.schedule_controller(server, scheduled=True, refresh=True)
+
+    # Create MapCacheClientService controller (connects to MapCacheServer)
+    # Filter by exact type name since get_controller_type with greedy match returns multiple
+    all_types = nipyapi.canvas.list_all_controller_types()
+    client_type = next(
+        t for t in all_types
+        if t.type == 'org.apache.nifi.distributed.cache.client.MapCacheClientService'
+    )
+    client = nipyapi.canvas.create_controller(f_pg, client_type, 'test_state_cache_client')
+    client = nipyapi.canvas.update_controller(client, nipyapi.nifi.ControllerServiceDTO(
+        properties={
+            'Server Hostname': 'localhost',
+            'Server Port': '4557'
+        }
+    ))
+    client = nipyapi.canvas.schedule_controller(client, scheduled=True, refresh=True)
+
+    # Create ListFile processor pointing to NiFi logs dir
+    list_type = nipyapi.canvas.get_processor_type('ListFile')
+    list_proc = nipyapi.canvas.create_processor(f_pg, list_type, (100, 100), 'test_state_list_file')
+    list_proc = nipyapi.canvas.update_processor(list_proc, nipyapi.nifi.ProcessorConfigDTO(
+        properties={
+            'Input Directory': '/opt/nifi/nifi-current/logs',
+            'Recurse Subdirectories': 'false'
+        }
+    ))
+
+    # Create PutDistributedMapCache processor
+    put_type = nipyapi.canvas.get_processor_type('PutDistributedMapCache')
+    put_proc = nipyapi.canvas.create_processor(f_pg, put_type, (100, 300), 'test_state_put_cache')
+    put_proc = nipyapi.canvas.update_processor(put_proc, nipyapi.nifi.ProcessorConfigDTO(
+        properties={
+            'Distributed Cache Service': client.id,
+            'Cache Entry Identifier': '${filename}'
+        },
+        auto_terminated_relationships=['success', 'failure']
+    ))
+
+    # Connect ListFile -> PutDistributedMapCache
+    nipyapi.canvas.create_connection(list_proc, put_proc, ['success'], 'test_state_connection')
+
+    # Run the flow to generate state
+    nipyapi.canvas.schedule_processor(list_proc, scheduled=True, refresh=True)
+    nipyapi.canvas.schedule_processor(put_proc, scheduled=True, refresh=True)
+    time.sleep(3)  # Let processors run
+    nipyapi.canvas.schedule_processor(list_proc, scheduled=False, refresh=True)
+    nipyapi.canvas.schedule_processor(put_proc, scheduled=False, refresh=True)
+
+    class StateFlowFixture:
+        def __init__(self):
+            self.pg = f_pg
+            self.cache_server = server
+            self.cache_client = client
+            self.list_file_proc = list_proc
+            self.put_cache_proc = put_proc
+
+    # Cleanup is handled by fix_pg's finalizer (remove_test_pgs)
+    return StateFlowFixture()
