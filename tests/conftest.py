@@ -640,8 +640,9 @@ def fixture_profiles():
 # environment variable. They use the nipyapi-actions repository test fixtures.
 
 # Known test fixture versions in nipyapi-actions repo
+# V1 is a stable older version (tagged) for version switching tests
 GIT_REGISTRY_VERSION_V1 = '97549b88f2e1fb1dccddef57335e94628c74060b'  # v1.0.0 tag
-GIT_REGISTRY_VERSION_LATEST = 'bd4d868c4752da9508017d9f7e4ecf328fec5617'
+# LATEST is looked up at runtime by fixtures - no hardcoded value needed
 
 
 @pytest.fixture(name='fix_git_reg_client', scope='function')
@@ -693,13 +694,14 @@ def fixture_deployed_git_flow_shared(request):
     """Module-scoped fixture that deploys a flow once for all tests.
 
     This is the actual deployment - expensive operation done once per module.
+    Includes latest_version looked up at runtime to avoid hardcoded commit hashes.
     """
     token = os.environ.get('GH_REGISTRY_TOKEN')
     if not token:
         pytest.skip("GH_REGISTRY_TOKEN not set - skipping git registry tests")
 
     FixtureDeployedGitFlow = namedtuple(
-        'FixtureDeployedGitFlow', ('client', 'pg', 'bucket_id', 'flow_id')
+        'FixtureDeployedGitFlow', ('client', 'pg', 'bucket_id', 'flow_id', 'latest_version')
     )
 
     # Create registry client
@@ -734,6 +736,10 @@ def fixture_deployed_git_flow_shared(request):
         version=None  # Latest
     )
 
+    # Look up the actual latest version at runtime (deployed version is latest)
+    vci = nipyapi.versioning.get_version_info(pg)
+    latest_version = vci.version_control_information.version
+
     def cleanup():
         if SKIP_TEARDOWN:
             return
@@ -755,7 +761,8 @@ def fixture_deployed_git_flow_shared(request):
         client=client,
         pg=pg,
         bucket_id='flows',
-        flow_id='cicd-demo-flow'
+        flow_id='cicd-demo-flow',
+        latest_version=latest_version
     )
 
 
@@ -773,6 +780,7 @@ def fixture_deployed_git_flow(request, fix_deployed_git_flow_shared):
     if SKIP_TEARDOWN:
         return
 
+    latest_version = fix_deployed_git_flow_shared.latest_version
     try:
         pg = nipyapi.canvas.get_process_group(fix_deployed_git_flow_shared.pg.id, 'id')
         if not pg:
@@ -791,8 +799,8 @@ def fixture_deployed_git_flow(request, fix_deployed_git_flow_shared):
             pg = nipyapi.canvas.get_process_group(pg.id, 'id')
 
         # If not at latest, change to latest
-        if version != GIT_REGISTRY_VERSION_LATEST:
-            nipyapi.versioning.update_git_flow_ver(pg, GIT_REGISTRY_VERSION_LATEST)
+        if version != latest_version:
+            nipyapi.versioning.update_git_flow_ver(pg, latest_version)
 
     except Exception as e:
         log.warning("Failed to restore git flow state after test: %s", e)
