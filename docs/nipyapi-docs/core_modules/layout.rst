@@ -1,7 +1,7 @@
 Layout
 ======
 
-Layout functionality
+Canvas layout and component positioning
 
 .. automodule:: nipyapi.layout
     :members:

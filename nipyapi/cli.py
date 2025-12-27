@@ -160,17 +160,23 @@ def _serialize_result(obj, output_format="json"):  # pylint: disable=too-many-re
 
 
 def _to_dict(obj):
-    """Convert an object to a dictionary."""
+    """Convert an object to a dictionary, or return simple types as-is."""
+    # Simple types - return as-is
+    if isinstance(obj, (str, int, float, bool, type(None))):
+        return obj
     # Has swagger's to_dict method
     if hasattr(obj, "to_dict"):
         return obj.to_dict()
     # Already a dict
     if isinstance(obj, dict):
         return obj
+    # Lists - convert items recursively
+    if isinstance(obj, list):
+        return [_to_dict(item) for item in obj]
     # Fallback - use __dict__ or str
     if hasattr(obj, "__dict__"):
         return {k: v for k, v in obj.__dict__.items() if not k.startswith("_")}
-    return {"value": str(obj)}
+    return str(obj)
 
 
 def _flatten_dict(d, parent_key="", sep="_"):
@@ -479,6 +485,7 @@ def main():
             self.system = SafeModule(nipyapi.system)
             self.layout = SafeModule(nipyapi.layout)
             self.extensions = SafeModule(nipyapi.extensions)
+            self.bulletins = SafeModule(nipyapi.bulletins)
             self.config = nipyapi.config
             self.profiles = nipyapi.profiles
             self.utils = nipyapi.utils

@@ -1,7 +1,7 @@
 Profiles
 ========
 
-Profiles functionality
+Profile management for multi-environment configurations
 
 .. automodule:: nipyapi.profiles
     :members:

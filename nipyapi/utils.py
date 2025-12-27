@@ -12,6 +12,7 @@ import re
 import time
 from contextlib import contextmanager
 from copy import copy
+from datetime import datetime, timezone
 from functools import reduce, wraps
 from typing import Optional
 
@@ -43,6 +44,7 @@ __all__ = [
     "getenv",
     "getenv_bool",
     "resolve_relative_paths",
+    "format_timestamp",
 ]
 
 log = logging.getLogger(__name__)
@@ -732,3 +734,52 @@ def getenv_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
 
     # Everything else is truthy (including '1', 'yes', 'on', 'y', etc.)
     return True
+
+
+def format_timestamp(ts=None, fmt=None):
+    """
+    Format a timestamp as a string.
+
+    Converts a timestamp to a formatted string. Defaults to ISO 8601 format
+    with millisecond precision as expected by NiFi APIs.
+
+    Args:
+        ts: Timestamp to format. Accepts:
+            - None: Uses current UTC time
+            - datetime: Formats directly (assumes UTC if naive)
+            - str: Parses as ISO 8601, then reformats
+        fmt (str, optional): strftime format string. Defaults to ISO 8601
+            with milliseconds ("%Y-%m-%dT%H:%M:%S.{ms}Z").
+
+    Returns:
+        str: Formatted timestamp string. Default format includes millisecond
+            precision and 'Z' suffix indicating UTC.
+
+    Example:
+        >>> format_timestamp()  # Current time, ISO 8601
+        '2025-01-15T12:30:45.123Z'
+        >>> from datetime import datetime, timezone
+        >>> dt = datetime(2025, 1, 15, 12, 30, 45, 123456, tzinfo=timezone.utc)
+        >>> format_timestamp(dt)
+        '2025-01-15T12:30:45.123Z'
+        >>> format_timestamp(dt, fmt="%Y-%m-%d")
+        '2025-01-15'
+        >>> format_timestamp("2025-01-15T12:30:45.123Z", fmt="%Y-%m-%d")
+        '2025-01-15'
+    """
+    if ts is None:
+        dt = datetime.now(timezone.utc)
+    elif isinstance(ts, datetime):
+        dt = ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+    elif isinstance(ts, str):
+        # Parse ISO 8601 string - handle 'Z' suffix
+        ts_clean = ts.replace("Z", "+00:00") if ts.endswith("Z") else ts
+        dt = datetime.fromisoformat(ts_clean)
+    else:
+        raise TypeError(f"Expected None, datetime, or str; got {type(ts).__name__}")
+
+    if fmt is not None:
+        return dt.strftime(fmt)
+
+    # Default: ISO 8601 with milliseconds and Z suffix
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"

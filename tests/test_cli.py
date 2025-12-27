@@ -241,16 +241,16 @@ def test_to_dict_with_to_dict_method():
     assert result == {"id": "abc123", "name": "swagger_obj"}
 
 
-def test_to_dict_fallback_to_string():
-    """Test _to_dict falls back to string for objects without __dict__."""
+def test_to_dict_simple_types():
+    """Test _to_dict returns simple types as-is."""
     from nipyapi.cli import _to_dict
 
-    # Use a type that doesn't have __dict__ in the expected way
-    result = _to_dict(42)
-    assert result == {"value": "42"}
-
-    result = _to_dict(3.14)
-    assert result == {"value": "3.14"}
+    # Simple types are returned as-is for clean CLI output
+    assert _to_dict(42) == 42
+    assert _to_dict(3.14) == 3.14
+    assert _to_dict("hello") == "hello"
+    assert _to_dict(True) is True
+    assert _to_dict(None) is None
 
 
 def test_detect_output_format_default():

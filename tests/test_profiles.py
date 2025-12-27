@@ -1047,6 +1047,152 @@ oidcClientId=runtime
         assert config == {}
 
 
+class TestProfileManagementFunctions:
+    """Test profile management functions (list_profiles, show, current)."""
+
+    def test_list_profiles_returns_profile_names(self):
+        """Test list_profiles returns list of profile names from file."""
+        yaml_content = """
+single-user:
+  nifi_url: https://localhost:9443/nifi-api
+  nifi_user: einstein
+  nifi_pass: password1234
+
+secure-ldap:
+  nifi_url: https://localhost:9444/nifi-api
+  nifi_user: einstein
+  nifi_pass: password
+
+secure-mtls:
+  nifi_url: https://localhost:9445/nifi-api
+  client_cert: /path/to/cert.pem
+  client_key: /path/to/key.pem
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            profiles = nipyapi.profiles.list_profiles(yaml_path)
+
+            assert isinstance(profiles, list)
+            assert len(profiles) == 3
+            assert 'single-user' in profiles
+            assert 'secure-ldap' in profiles
+            assert 'secure-mtls' in profiles
+        finally:
+            os.unlink(yaml_path)
+
+    def test_show_masks_sensitive_values(self):
+        """Test show() masks sensitive configuration values."""
+        yaml_content = """
+test-profile:
+  nifi_url: https://localhost:9443/nifi-api
+  nifi_user: einstein
+  nifi_pass: supersecretpassword
+  nifi_bearer_token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+  oidc_client_secret: client_secret_value
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            config = nipyapi.profiles.show('test-profile', yaml_path, mask_secrets=True)
+
+            # Non-sensitive values should be visible
+            assert config['nifi_url'] == 'https://localhost:9443/nifi-api'
+            assert config['nifi_user'] == 'einstein'
+
+            # Sensitive values should be masked
+            assert config['nifi_pass'] == '********'
+            assert config['nifi_bearer_token'] == '********'
+            assert config['oidc_client_secret'] == '********'
+        finally:
+            os.unlink(yaml_path)
+
+    def test_show_without_masking(self):
+        """Test show() with mask_secrets=False shows real values."""
+        yaml_content = """
+test-profile:
+  nifi_url: https://localhost:9443/nifi-api
+  nifi_pass: supersecretpassword
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            config = nipyapi.profiles.show('test-profile', yaml_path, mask_secrets=False)
+
+            # With mask_secrets=False, sensitive values should be visible
+            assert config['nifi_pass'] == 'supersecretpassword'
+        finally:
+            os.unlink(yaml_path)
+
+    def test_show_filters_none_values(self):
+        """Test show() filters out None values for cleaner output."""
+        yaml_content = """
+test-profile:
+  nifi_url: https://localhost:9443/nifi-api
+  nifi_user: einstein
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            config = nipyapi.profiles.show('test-profile', yaml_path)
+
+            # Only non-None values should be present
+            assert 'nifi_url' in config
+            assert 'nifi_user' in config
+            # None values from DEFAULT_PROFILE_CONFIG should be filtered out
+            assert 'registry_url' not in config
+            assert 'client_cert' not in config
+        finally:
+            os.unlink(yaml_path)
+
+    def test_show_masks_all_sensitive_key_types(self):
+        """Test that all sensitive keys defined in SENSITIVE_KEYS are masked."""
+        yaml_content = """
+test-profile:
+  nifi_url: https://localhost:9443/nifi-api
+  nifi_pass: pass1
+  registry_pass: pass2
+  nifi_bearer_token: token1
+  client_key_password: keypass1
+  nifi_client_key_password: keypass2
+  registry_client_key_password: keypass3
+  oidc_client_secret: secret1
+  github_registry_token: ghtoken
+"""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+            f.write(yaml_content)
+            yaml_path = f.name
+
+        try:
+            config = nipyapi.profiles.show('test-profile', yaml_path, mask_secrets=True)
+
+            # All sensitive keys should be masked
+            for key in nipyapi.profiles.SENSITIVE_KEYS:
+                if key in config:
+                    assert config[key] == '********', f"Key {key} was not masked"
+        finally:
+            os.unlink(yaml_path)
+
+    def test_current_returns_endpoint_info(self):
+        """Test current() returns currently configured endpoints."""
+        # current() reads from nipyapi.config, which should be configured by conftest
+        result = nipyapi.profiles.current()
+
+        assert isinstance(result, dict)
+        assert 'nifi_url' in result
+        assert 'registry_url' in result
+        # At least nifi_url should be configured in test environment
+        assert result['nifi_url'] is not None
+
+
 class TestGetDefaultProfileName:
     """Test auto-detection of default profile name."""
 

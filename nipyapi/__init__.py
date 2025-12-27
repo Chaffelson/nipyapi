@@ -31,6 +31,7 @@ __all__ = [
     "layout",
     "extensions",
     "ci",
+    "bulletins",
 ]
 
 for sub_module in __all__:

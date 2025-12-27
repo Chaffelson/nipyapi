@@ -138,26 +138,21 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
         result["parameter_count"] = "0"
 
     # Bulletins (warnings/errors)
-    # Need to fetch full process group entity to get bulletins
+    # Use get_bulletin_board for comprehensive bulletins including controller services
+    # The pg_entity.bulletins field only shows bulletins attached to the PG itself,
+    # missing controller service and some component bulletins
     try:
-        pg_full = nipyapi.canvas.get_process_group(process_group_id, "id")
-        bulletins = pg_full.bulletins or []
+        bulletins = nipyapi.bulletins.get_bulletin_board(pg_id=process_group_id)
         if bulletins:
-            warning_count = sum(
-                1 for b in bulletins if b.bulletin and b.bulletin.level == "WARNING"
-            )
-            error_count = sum(1 for b in bulletins if b.bulletin and b.bulletin.level == "ERROR")
+            warning_count = sum(1 for b in bulletins if b.level == "WARNING")
+            error_count = sum(1 for b in bulletins if b.level == "ERROR")
             result["bulletin_warnings"] = str(warning_count)
             result["bulletin_errors"] = str(error_count)
             # Include first few bulletin messages for quick diagnosis
             if warning_count > 0 or error_count > 0:
                 messages = []
                 for b in bulletins[:3]:  # Limit to first 3
-                    if b.bulletin:
-                        messages.append(
-                            f"[{b.bulletin.level}] {b.bulletin.source_name}: "
-                            f"{b.bulletin.message[:100]}"
-                        )
+                    messages.append(f"[{b.level}] {b.source_name}: {b.message[:100]}")
                 result["bulletin_messages"] = " | ".join(messages)
                 log.warning("Found %d warnings, %d errors", warning_count, error_count)
         else:

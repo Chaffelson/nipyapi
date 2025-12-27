@@ -64,17 +64,18 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
 
     $ git clone git@github.com:Chaffelson/nipyapi.git
 
-3. Create and activate a Python 3.9+ virtual environment (venv or conda), then install dev extras::
+3. Create and activate a Python 3.9+ virtual environment (venv or uv), then install dev extras::
 
     # using venv
     $ python -m venv .venv && source .venv/bin/activate
     $ cd nipyapi/
-    $ pip install -e ".[dev]"
+    $ make dev-install  # uses uv if available, falls back to pip
 
-    # or using conda
-    $ conda create -n nipyapi-dev python=3.11 -y
-    $ conda activate nipyapi-dev
-    $ pip install -e ".[dev]"
+    # or using uv (faster)
+    $ uv venv .venv && source .venv/bin/activate
+    $ make dev-install
+
+   **Note:** The Makefile automatically detects whether ``uv`` is available and uses it for faster installs. If not available, it falls back to ``pip``. Both work seamlessly.
 
 4. Create a branch for local development::
 
@@ -163,7 +164,7 @@ NiPyAPI uses Makefile targets as the primary automation interface. Run ``make he
 **Setup & Installation**
 ::
 
-    make dev-install      # Install package with dev dependencies (recommended)
+    make dev-install      # Install with dev dependencies (uses uv if available, pip otherwise)
     make docs-install     # Install documentation dependencies
     make clean            # Remove build, pyc, and temp artifacts
     make clean-all        # Nuclear clean: removes ALL including generated code
@@ -193,10 +194,16 @@ NiPyAPI uses Makefile targets as the primary automation interface. Run ``make he
     make lint             # Run flake8 + pylint (excludes generated code)
     make flake8           # Run flake8 only
     make pylint           # Run pylint only
-    make pre-commit       # Run pre-commit hooks on all files
+    make pre-commit       # Run pre-commit hooks (black, isort, flake8, pylint)
 
-    # Formatting (manual)
-    black nipyapi/ && isort nipyapi/  # Auto-format code
+Pre-commit hooks are the recommended way to ensure code quality before committing. They automatically run formatting and linting checks.
+
+**Troubleshooting Lint Issues**
+
+* **Import order errors**: Run ``isort nipyapi/`` to auto-fix import ordering
+* **Line length errors**: Break long lines at logical points (operators, commas). Max is 100 chars.
+* **Formatting errors**: Run ``black nipyapi/`` to auto-format, then re-run ``make lint``
+* **Linting generated code**: Always use ``make lint`` which excludes generated code automatically
 
 **Docker Operations**
 ::
@@ -247,8 +254,12 @@ These files are automatically generated from OpenAPI specifications and should n
 
 Focus your contributions on these core modules:
 
+* ``nipyapi/bulletins.py`` - Bulletin retrieval, filtering, and clearing
 * ``nipyapi/canvas.py`` - Canvas management functions
+* ``nipyapi/ci.py`` - CI/CD convenience functions for flow deployment
 * ``nipyapi/config.py`` - Configuration and endpoints
+* ``nipyapi/extensions.py`` - NiFi extensions (NAR) management
+* ``nipyapi/layout.py`` - Canvas layout and component positioning
 * ``nipyapi/parameters.py`` - Parameter context operations
 * ``nipyapi/profiles.py`` - Profile management system
 * ``nipyapi/security.py`` - Authentication and security
@@ -258,6 +269,19 @@ Focus your contributions on these core modules:
 * ``tests/`` - Test suite (always add tests for new features)
 * ``examples/`` - Example scripts and usage patterns
 * ``docs/`` - Documentation (RST files)
+
+**Adding New Core Modules**
+
+When creating a new core module (e.g., ``nipyapi/mymodule.py``):
+
+1. Add the module name to ``nipyapi/__init__.py`` in the ``__all__`` list
+2. Add a description to ``docs/scripts/generate_structured_docs.py`` in ``module_descriptions``
+3. Regenerate documentation with ``make docs`` to create the RST file
+4. Add corresponding tests in ``tests/test_mymodule.py``
+
+The documentation generator auto-detects modules from ``__all__`` but uses ``module_descriptions``
+for human-readable descriptions. Without an entry in ``module_descriptions``, the module will
+still appear in docs but with a generic description.
 
 **Regenerating Clients**
 

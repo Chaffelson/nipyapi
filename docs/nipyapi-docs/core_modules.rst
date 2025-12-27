@@ -17,3 +17,5 @@ They wrap the lower-level generated API clients with Pythonic interfaces.
    core_modules/profiles
    core_modules/layout
    core_modules/extensions
+   core_modules/ci
+   core_modules/bulletins

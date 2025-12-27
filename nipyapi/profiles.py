@@ -91,6 +91,20 @@ ENV_VAR_MAPPINGS = [
 CERTIFICATE_SERVICES = ["nifi", "registry"]
 CERTIFICATE_TYPES = ["ca_path", "client_cert", "client_key", "client_key_password"]
 
+# Keys containing sensitive values that should be masked in output
+SENSITIVE_KEYS = frozenset(
+    [
+        "nifi_pass",
+        "registry_pass",
+        "nifi_bearer_token",
+        "client_key_password",
+        "nifi_client_key_password",
+        "registry_client_key_password",
+        "oidc_client_secret",
+        "github_registry_token",
+    ]
+)
+
 # Path resolution keys for SSL libraries (require absolute paths)
 PATH_RESOLUTION_KEYS = [
     "ca_path",
@@ -753,3 +767,51 @@ def switch(profile_name=None, profiles_file=None, login=True):
 
     # Always return tuple (profile_name, metadata)
     return profile_name, auth_metadata
+
+
+def list_profiles(profiles_file=None):
+    """
+    List available profile names from the profiles file.
+
+    Args:
+        profiles_file (str, optional): Path to profiles file. Uses default resolution if None.
+
+    Returns:
+        list: Profile names available in the profiles file.
+    """
+    profiles = load_profiles_from_file(profiles_file)
+    return list(profiles.keys())
+
+
+def show(profile_name, profiles_file=None, mask_secrets=True):
+    """
+    Show a profile's resolved configuration.
+
+    Args:
+        profile_name (str): Name of the profile to show.
+        profiles_file (str, optional): Path to profiles file. Uses default resolution if None.
+        mask_secrets (bool): If True, mask sensitive values. Defaults to True.
+
+    Returns:
+        dict: Profile configuration with secrets optionally masked.
+    """
+    config = resolve_profile_config(profile_name, profiles_file)
+
+    if mask_secrets:
+        config = {k: "********" if k in SENSITIVE_KEYS and v else v for k, v in config.items()}
+
+    # Filter out None values for cleaner output
+    return {k: v for k, v in config.items() if v is not None}
+
+
+def current():
+    """
+    Show the currently configured endpoints.
+
+    Returns:
+        dict: Current endpoint configuration.
+    """
+    return {
+        "nifi_url": nipy_config.nifi_config.host if nipy_config.nifi_config else None,
+        "registry_url": nipy_config.registry_config.host if nipy_config.registry_config else None,
+    }

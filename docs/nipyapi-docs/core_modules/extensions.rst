@@ -1,7 +1,7 @@
 Extensions
 ==========
 
-Extensions functionality
+NiFi extensions (NAR) management
 
 .. automodule:: nipyapi.extensions
     :members:

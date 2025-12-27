@@ -273,9 +273,14 @@ def generate_core_module_docs(output_dir):
 
     # Module descriptions
     module_descriptions = {
+        "bulletins": "Bulletin retrieval, filtering, and clearing",
         "canvas": "Canvas operations and flow management",
+        "ci": "CI/CD convenience functions for flow deployment",
         "config": "Configuration management",
+        "extensions": "NiFi extensions (NAR) management",
+        "layout": "Canvas layout and component positioning",
         "parameters": "Parameter context management",
+        "profiles": "Profile management for multi-environment configurations",
         "security": "Security and authentication utilities",
         "system": "System information and diagnostics",
         "utils": "Utility functions and helpers",

@@ -1311,19 +1311,22 @@ def purge_process_group(process_group, stop=False):
 
 def get_bulletins():
     """
-    Retrieves current bulletins (alerts) from the Flow Canvas
+    Retrieves current bulletins (alerts) from the Flow Canvas.
+
+    This is an alias for :func:`nipyapi.bulletins.get_bulletins`.
 
     Returns:
         (ControllerBulletinsEntity): The native datatype containing a list
-    of bulletins
+            of bulletins
     """
-    with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FlowApi().get_bulletins()
+    return nipyapi.bulletins.get_bulletins()
 
 
 def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
     """
     Retrieves bulletins from the bulletin board with optional filtering.
+
+    This is an alias for :func:`nipyapi.bulletins.get_bulletin_board`.
 
     Args:
         pg_id (str, optional): Filter to bulletins from this process group ID.
@@ -1333,26 +1336,12 @@ def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
         limit (int, optional): Maximum number of bulletins to return.
 
     Returns:
-        list[BulletinEntity]: List of bulletin entities matching the filters.
+        list[BulletinDTO]: List of bulletin objects matching the filters.
             Returns empty list if no bulletins match.
-
-    Note:
-        Bulletins automatically expire after 5 minutes (configurable in NiFi).
-        There is no API to manually clear bulletins.
     """
-    kwargs = {}
-    if pg_id is not None:
-        kwargs["group_id"] = pg_id
-    if source_name is not None:
-        kwargs["source_name"] = source_name
-    if message is not None:
-        kwargs["message"] = message
-    if limit is not None:
-        kwargs["limit"] = limit
-
-    with nipyapi.utils.rest_exceptions():
-        result = nipyapi.nifi.FlowApi().get_bulletin_board(**kwargs)
-        return result.bulletin_board.bulletins or []
+    return nipyapi.bulletins.get_bulletin_board(
+        pg_id=pg_id, source_name=source_name, message=message, limit=limit
+    )
 
 
 def create_controller(parent_pg, controller, name=None):

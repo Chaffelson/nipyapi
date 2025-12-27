@@ -412,10 +412,9 @@ def test_get_bulletin_board_with_source_filter():
     """Test bulletin board filtering by source name pattern."""
     r = canvas.get_bulletin_board(source_name=".*Generate.*")
     assert isinstance(r, list)
-    # All returned bulletins should match the pattern
+    # All returned bulletins should match the pattern (now returns BulletinDTO directly)
     for b in r:
-        if b.bulletin:
-            assert "Generate" in (b.bulletin.source_name or "")
+        assert "Generate" in (b.source_name or "")
 
 
 def test_list_invalid_processors():

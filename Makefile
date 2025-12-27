@@ -17,6 +17,15 @@ export
 # Defaults to 'python' for conda/venv users, override with PYTHON=python3 for system installs
 PYTHON ?= python
 
+# Package installer: prefer uv if available, fall back to pip
+# Users with uv get faster installs; users without uv work unchanged
+UV := $(shell command -v uv 2>/dev/null)
+ifdef UV
+    PIP := uv pip
+else
+    PIP := pip
+endif
+
 # Profiles file for development/testing (explicitly use examples file, not user's ~/.nipyapi/profiles.yml)
 NIPYAPI_PROFILES_FILE ?= examples/profiles.yml
 
@@ -149,13 +158,13 @@ clean-docker: clean-act ## comprehensive Docker cleanup: act + containers + volu
 	@echo "Comprehensive Docker cleanup complete"
 
 install: clean ## install the package to the active Python's site-packages
-	pip install .
+	$(PIP) install .
 
 dev-install: ## install dev extras for local development
-	pip install -e ".[dev]"
+	$(PIP) install -e ".[dev]"
 
 docs-install: ## install docs extras
-	pip install -e ".[docs]"
+	$(PIP) install -e ".[docs]"
 
 coverage: ensure-certs ## run pytest with coverage and generate report (set coverage-min=NN to enforce; requires infrastructure)
 	@echo "Running coverage analysis (single-user profile)..."
@@ -189,7 +198,7 @@ flake8: ## run flake8 linter on core nipyapi files
 pylint: ## run pylint on core nipyapi files
 	pylint nipyapi/ --rcfile=pylintrc --ignore=nifi,registry,_version.py
 
-pre-commit: ## run pre-commit hooks on all files
+pre-commit: ## run pre-commit hooks on all files (black, isort, flake8, pylint)
 	pre-commit run --all-files
 
 #################################################################################
