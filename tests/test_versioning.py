@@ -9,6 +9,7 @@ Registry-specific tests are in test_versioning_registry.py.
 
 import pytest
 from tests import conftest
+import nipyapi
 from nipyapi import nifi, versioning, canvas
 
 
@@ -460,8 +461,8 @@ def test_update_git_flow_ver_specific_version(fix_deployed_git_flow):
 
     # Switch to the other version
     target = conftest.GIT_REGISTRY_VERSION_V1 \
-        if initial_version == conftest.GIT_REGISTRY_VERSION_LATEST \
-        else conftest.GIT_REGISTRY_VERSION_LATEST
+        if initial_version == fix_deployed_git_flow.latest_version \
+        else fix_deployed_git_flow.latest_version
 
     result = versioning.update_git_flow_ver(fix_deployed_git_flow.pg, target)
 
@@ -481,7 +482,7 @@ def test_update_git_flow_ver_to_latest(fix_deployed_git_flow):
     result = versioning.update_git_flow_ver(fix_deployed_git_flow.pg, None)
 
     new_vci = versioning.get_version_info(fix_deployed_git_flow.pg)
-    assert new_vci.version_control_information.version == conftest.GIT_REGISTRY_VERSION_LATEST
+    assert new_vci.version_control_information.version == fix_deployed_git_flow.latest_version
 
 
 def test_update_git_flow_ver_same_version_noop(fix_deployed_git_flow):
@@ -538,8 +539,8 @@ def test_update_git_flow_ver_locally_modified_requires_revert(fix_deployed_git_f
     # Determine target version
     current_version = vci.version_control_information.version
     target = conftest.GIT_REGISTRY_VERSION_V1 \
-        if current_version == conftest.GIT_REGISTRY_VERSION_LATEST \
-        else conftest.GIT_REGISTRY_VERSION_LATEST
+        if current_version == fix_deployed_git_flow.latest_version \
+        else fix_deployed_git_flow.latest_version
 
     # Attempt to change version - should fail due to local modifications
     with pytest.raises(ValueError) as exc_info:
@@ -614,15 +615,26 @@ def test_revert_flow_ver_wait_false(fix_deployed_git_flow):
     assert isinstance(result, nifi.VersionedFlowUpdateRequestEntity)
     assert result.request is not None
 
+    # Wait for async revert to complete before test ends to avoid
+    # race conditions with fixture cleanup and subsequent tests
+    def _revert_complete():
+        vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+        return vci.version_control_information.state != 'LOCALLY_MODIFIED'
+
+    nipyapi.utils.wait_to_complete(_revert_complete)
+
 
 def test_revert_flow_ver_already_up_to_date(fix_deployed_git_flow):
     """Test revert on flow that's already UP_TO_DATE."""
-    # Ensure flow is UP_TO_DATE (function refreshes revision internally)
-    vci = versioning.get_version_info(fix_deployed_git_flow.pg)
+    # Refresh PG to get latest revision
+    pg = canvas.get_process_group(fix_deployed_git_flow.pg.id, 'id')
+
+    # Ensure flow is UP_TO_DATE
+    vci = versioning.get_version_info(pg)
     assert vci.version_control_information.state == 'UP_TO_DATE'
 
     # Revert should still work (effectively a no-op)
-    result = versioning.revert_flow_ver(fix_deployed_git_flow.pg, wait=True)
+    result = versioning.revert_flow_ver(pg, wait=True)
 
     # Should return VCI still at UP_TO_DATE
     assert isinstance(result, nifi.VersionControlInformationEntity)
