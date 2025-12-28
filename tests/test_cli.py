@@ -1076,6 +1076,9 @@ def test_cli_configure_params_complex_json():
     import subprocess
     # Complex JSON with nested dict and list
     json_arg = '{"config": {"nested": "value"}, "items": ["a", "b"]}'
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1085,7 +1088,8 @@ def test_cli_configure_params_complex_json():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     # Should fail (no NiFi connection or PG not found), but NOT on JSON parsing
     assert result.returncode == 1
@@ -1099,6 +1103,9 @@ def test_cli_configure_params_json_with_quotes():
     """Test CLI handles JSON with embedded quotes."""
     import subprocess
     json_arg = '{"message": "value with \\"quotes\\""}'
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1108,7 +1115,8 @@ def test_cli_configure_params_json_with_quotes():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     assert result.returncode == 1
     error_data = json.loads(result.stdout)
@@ -1119,6 +1127,9 @@ def test_cli_configure_params_json_with_newlines():
     """Test CLI handles JSON with escaped newlines."""
     import subprocess
     json_arg = '{"multiline": "line1\\nline2\\nline3"}'
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1128,7 +1139,8 @@ def test_cli_configure_params_json_with_newlines():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     assert result.returncode == 1
     error_data = json.loads(result.stdout)
@@ -1139,6 +1151,9 @@ def test_cli_configure_params_json_with_backslashes():
     """Test CLI handles JSON with backslashes (Windows paths)."""
     import subprocess
     json_arg = '{"path": "C:\\\\Users\\\\data\\\\file.txt"}'
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1148,7 +1163,8 @@ def test_cli_configure_params_json_with_backslashes():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     assert result.returncode == 1
     error_data = json.loads(result.stdout)
@@ -1159,6 +1175,9 @@ def test_cli_configure_params_json_with_unicode():
     """Test CLI handles JSON with Unicode characters."""
     import subprocess
     json_arg = '{"greeting": "Hello \\u4e16\\u754c"}'
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1168,7 +1187,8 @@ def test_cli_configure_params_json_with_unicode():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     assert result.returncode == 1
     error_data = json.loads(result.stdout)
@@ -1179,6 +1199,9 @@ def test_cli_configure_params_json_mixed_types():
     """Test CLI handles JSON with mixed value types."""
     import subprocess
     json_arg = '{"str": "text", "int": 42, "float": 3.14, "bool": true, "null": null}'
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1188,7 +1211,8 @@ def test_cli_configure_params_json_mixed_types():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     assert result.returncode == 1
     error_data = json.loads(result.stdout)
@@ -1199,6 +1223,9 @@ def test_cli_configure_params_json_deep_nesting():
     """Test CLI handles deeply nested JSON structures."""
     import subprocess
     json_arg = '{"a": {"b": {"c": {"d": {"e": "deep"}}}}}'
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1208,7 +1235,8 @@ def test_cli_configure_params_json_deep_nesting():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     assert result.returncode == 1
     error_data = json.loads(result.stdout)
@@ -1218,6 +1246,9 @@ def test_cli_configure_params_json_deep_nesting():
 def test_cli_configure_params_invalid_json_error():
     """Test CLI returns proper error for invalid JSON."""
     import subprocess
+    # Force JSON output format (CI environments may have GITHUB_ACTIONS set)
+    env = os.environ.copy()
+    env["NIFI_OUTPUT_FORMAT"] = "json"
     result = subprocess.run(
         [
             "python", "-m", "nipyapi.cli",
@@ -1227,7 +1258,8 @@ def test_cli_configure_params_invalid_json_error():
         ],
         capture_output=True,
         text=True,
-        timeout=30
+        timeout=30,
+        env=env
     )
     assert result.returncode == 1
     error_data = json.loads(result.stdout)
