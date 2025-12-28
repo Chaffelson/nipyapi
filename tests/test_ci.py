@@ -579,6 +579,127 @@ def test_configure_params_non_dict():
         ci.configure_params(process_group_id="test-id", parameters="[1, 2, 3]")
 
 
+# =============================================================================
+# Complex JSON Input Parsing Tests (no NiFi required for parsing validation)
+# =============================================================================
+# These tests verify that configure_params accepts various complex JSON inputs.
+# They will fail on PG lookup (expected) but should NOT fail on JSON parsing.
+
+
+def test_configure_params_json_embedded_quotes():
+    """Test configure_params accepts JSON with embedded quotes."""
+    # Should fail on PG lookup, not on JSON parsing
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"message": "value with \\"quotes\\""}'
+        )
+
+
+def test_configure_params_json_newlines():
+    """Test configure_params accepts JSON with escaped newlines."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"multiline": "line1\\nline2"}'
+        )
+
+
+def test_configure_params_json_backslashes():
+    """Test configure_params accepts JSON with backslashes (Windows paths)."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"path": "C:\\\\Users\\\\data"}'
+        )
+
+
+def test_configure_params_json_nested_dict():
+    """Test configure_params accepts JSON with nested dict values."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"config": {"nested": "value"}}'
+        )
+
+
+def test_configure_params_json_list_value():
+    """Test configure_params accepts JSON with list values."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"items": ["a", "b", "c"]}'
+        )
+
+
+def test_configure_params_json_null_value():
+    """Test configure_params accepts JSON with null values."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"optional": null}'
+        )
+
+
+def test_configure_params_json_empty_string():
+    """Test configure_params accepts JSON with empty string values."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"empty": ""}'
+        )
+
+
+def test_configure_params_json_unicode():
+    """Test configure_params accepts JSON with Unicode characters."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"greeting": "Hello \\u4e16\\u754c"}'
+        )
+
+
+def test_configure_params_json_special_key_chars():
+    """Test configure_params accepts JSON with special chars in keys."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"my-key": "value1", "my.key": "value2"}'
+        )
+
+
+def test_configure_params_json_mixed_types():
+    """Test configure_params accepts JSON with mixed value types."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters='{"str": "text", "int": 42, "float": 3.14, "bool": true}'
+        )
+
+
+def test_configure_params_dict_input():
+    """Test configure_params accepts dict input directly (not JSON string)."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters={"key": "value", "nested": {"deep": "data"}}
+        )
+
+
+def test_configure_params_dict_with_complex_values():
+    """Test configure_params accepts dict with complex nested values."""
+    with pytest.raises(ValueError, match="Unable to locate group"):
+        ci.configure_params(
+            process_group_id="nonexistent-pg-id",
+            parameters={
+                "simple": "value",
+                "with_quotes": 'say "hello"',
+                "with_newline": "line1\nline2",
+                "nested": {"list": [1, 2, 3]},
+            }
+        )
+
+
 def test_list_flows_default_root():
     """Test list_flows defaults to root when no PG ID provided."""
     old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)

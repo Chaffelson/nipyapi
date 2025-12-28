@@ -185,6 +185,220 @@ def test_serialize_result_dict_with_nested_dict_github():
     assert "metadata-key2=value2" in result
 
 
+# =============================================================================
+# Complex JSON Input Parsing Tests (no NiFi connection required)
+# =============================================================================
+# These tests verify that complex JSON structures are correctly parsed
+# when passed as strings to CLI functions (via configure_params, etc.)
+
+
+def test_json_input_embedded_quotes():
+    """Test JSON with embedded double quotes in values."""
+    # This is what arrives when user passes: --parameters '{"msg": "say \"hello\""}'
+    json_str = '{"message": "value with \\"embedded\\" quotes"}'
+    parsed = json.loads(json_str)
+    assert parsed["message"] == 'value with "embedded" quotes'
+
+
+def test_json_input_single_quotes_in_value():
+    """Test JSON with single quotes in values (no escaping needed)."""
+    json_str = '{"message": "it\'s working"}'
+    parsed = json.loads(json_str)
+    assert parsed["message"] == "it's working"
+
+
+def test_json_input_newlines():
+    """Test JSON with escaped newlines in values."""
+    json_str = '{"multiline": "line1\\nline2\\nline3"}'
+    parsed = json.loads(json_str)
+    assert parsed["multiline"] == "line1\nline2\nline3"
+    assert parsed["multiline"].count("\n") == 2
+
+
+def test_json_input_tabs():
+    """Test JSON with escaped tabs in values."""
+    json_str = '{"tabbed": "col1\\tcol2\\tcol3"}'
+    parsed = json.loads(json_str)
+    assert parsed["tabbed"] == "col1\tcol2\tcol3"
+
+
+def test_json_input_backslashes():
+    """Test JSON with backslashes (Windows paths)."""
+    json_str = '{"path": "C:\\\\Users\\\\data\\\\file.txt"}'
+    parsed = json.loads(json_str)
+    assert parsed["path"] == "C:\\Users\\data\\file.txt"
+
+
+def test_json_input_nested_dict():
+    """Test JSON with nested dict values."""
+    json_str = '{"config": {"database": {"host": "localhost", "port": 5432}}}'
+    parsed = json.loads(json_str)
+    assert parsed["config"]["database"]["host"] == "localhost"
+    assert parsed["config"]["database"]["port"] == 5432
+
+
+def test_json_input_list_value():
+    """Test JSON with list as value."""
+    json_str = '{"items": ["apple", "banana", "cherry"]}'
+    parsed = json.loads(json_str)
+    assert parsed["items"] == ["apple", "banana", "cherry"]
+
+
+def test_json_input_mixed_nested():
+    """Test JSON with mixed nested structures."""
+    json_str = '{"users": [{"name": "alice", "roles": ["admin", "user"]}, {"name": "bob", "roles": ["user"]}]}'
+    parsed = json.loads(json_str)
+    assert len(parsed["users"]) == 2
+    assert parsed["users"][0]["name"] == "alice"
+    assert "admin" in parsed["users"][0]["roles"]
+
+
+def test_json_input_null_value():
+    """Test JSON with null value."""
+    json_str = '{"optional": null, "required": "value"}'
+    parsed = json.loads(json_str)
+    assert parsed["optional"] is None
+    assert parsed["required"] == "value"
+
+
+def test_json_input_empty_string():
+    """Test JSON with empty string value."""
+    json_str = '{"empty": "", "not_empty": "value"}'
+    parsed = json.loads(json_str)
+    assert parsed["empty"] == ""
+    assert parsed["not_empty"] == "value"
+
+
+def test_json_input_empty_dict():
+    """Test JSON with empty dict value."""
+    json_str = '{"config": {}}'
+    parsed = json.loads(json_str)
+    assert parsed["config"] == {}
+
+
+def test_json_input_empty_list():
+    """Test JSON with empty list value."""
+    json_str = '{"items": []}'
+    parsed = json.loads(json_str)
+    assert parsed["items"] == []
+
+
+def test_json_input_unicode():
+    """Test JSON with Unicode characters."""
+    json_str = '{"greeting": "Hello \\u4e16\\u754c", "emoji": "\\u2764"}'
+    parsed = json.loads(json_str)
+    assert parsed["greeting"] == "Hello \u4e16\u754c"  # "Hello World" in Chinese
+    assert parsed["emoji"] == "\u2764"  # Heart emoji
+
+
+def test_json_input_unicode_direct():
+    """Test JSON with direct Unicode characters (no escaping)."""
+    json_str = '{"greeting": "Hej verden", "symbol": "cafe"}'
+    parsed = json.loads(json_str)
+    assert parsed["greeting"] == "Hej verden"
+    assert parsed["symbol"] == "cafe"
+
+
+def test_json_input_numeric_values():
+    """Test JSON with various numeric types."""
+    json_str = '{"integer": 42, "float": 3.14159, "negative": -17, "scientific": 1.5e10}'
+    parsed = json.loads(json_str)
+    assert parsed["integer"] == 42
+    assert abs(parsed["float"] - 3.14159) < 0.0001
+    assert parsed["negative"] == -17
+    assert parsed["scientific"] == 1.5e10
+
+
+def test_json_input_boolean_values():
+    """Test JSON with boolean values."""
+    json_str = '{"enabled": true, "disabled": false}'
+    parsed = json.loads(json_str)
+    assert parsed["enabled"] is True
+    assert parsed["disabled"] is False
+
+
+def test_json_input_special_chars_in_keys():
+    """Test JSON with special characters in keys."""
+    json_str = '{"my-key": "value1", "my.key": "value2", "my_key": "value3"}'
+    parsed = json.loads(json_str)
+    assert parsed["my-key"] == "value1"
+    assert parsed["my.key"] == "value2"
+    assert parsed["my_key"] == "value3"
+
+
+def test_json_input_long_value():
+    """Test JSON with very long string value."""
+    long_value = "x" * 10000
+    json_str = json.dumps({"long_param": long_value})
+    parsed = json.loads(json_str)
+    assert len(parsed["long_param"]) == 10000
+
+
+def test_json_input_deep_nesting():
+    """Test JSON with deeply nested structure."""
+    json_str = '{"a": {"b": {"c": {"d": {"e": "deep"}}}}}'
+    parsed = json.loads(json_str)
+    assert parsed["a"]["b"]["c"]["d"]["e"] == "deep"
+
+
+# =============================================================================
+# Roundtrip Tests (serialize -> parse)
+# =============================================================================
+
+
+def test_roundtrip_nested_dict_json():
+    """Test nested dict survives JSON roundtrip."""
+    from nipyapi.cli import _serialize_result
+    original = {"config": {"nested": {"value": 123, "list": [1, 2, 3]}}}
+    serialized = _serialize_result(original, "json")
+    parsed = json.loads(serialized)
+    assert parsed == original
+
+
+def test_roundtrip_special_chars_json():
+    """Test special characters survive JSON roundtrip."""
+    from nipyapi.cli import _serialize_result
+    original = {
+        "quoted": 'value with "quotes"',
+        "newline": "line1\nline2",
+        "path": "C:\\Users\\data",
+    }
+    serialized = _serialize_result(original, "json")
+    parsed = json.loads(serialized)
+    assert parsed == original
+
+
+def test_roundtrip_unicode_json():
+    """Test Unicode survives JSON roundtrip."""
+    from nipyapi.cli import _serialize_result
+    original = {"greeting": "Hello World", "symbol": "cafe"}
+    serialized = _serialize_result(original, "json")
+    parsed = json.loads(serialized)
+    assert parsed == original
+
+
+def test_roundtrip_mixed_types_json():
+    """Test mixed types survive JSON roundtrip."""
+    from nipyapi.cli import _serialize_result
+    original = {
+        "string": "text",
+        "integer": 42,
+        "float": 3.14,
+        "boolean": True,
+        "null": None,
+        "list": [1, "two", 3.0],
+        "dict": {"nested": "value"},
+    }
+    serialized = _serialize_result(original, "json")
+    parsed = json.loads(serialized)
+    assert parsed == original
+
+
+# =============================================================================
+# Dict Flattening Tests
+# =============================================================================
+
+
 def test_flatten_dict_simple():
     """Test flattening a simple nested dict."""
     from nipyapi.cli import _flatten_dict
@@ -848,3 +1062,175 @@ def test_cli_version_short_flag():
     assert "nipyapi" in result.stdout
     import re
     assert re.search(r"\d+\.\d+", result.stdout)
+
+
+# =============================================================================
+# CLI Complex JSON Argument Tests (subprocess, no NiFi required)
+# =============================================================================
+# These tests verify that complex JSON arguments pass through the CLI correctly.
+# They expect failures from PG lookup, NOT from JSON parsing.
+
+
+def test_cli_configure_params_complex_json():
+    """Test CLI handles complex JSON with nested structures."""
+    import subprocess
+    # Complex JSON with nested dict and list
+    json_arg = '{"config": {"nested": "value"}, "items": ["a", "b"]}'
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "nonexistent-pg",
+            "--parameters", json_arg
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    # Should fail (no NiFi connection or PG not found), but NOT on JSON parsing
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert error_data["success"] is False
+    # Key assertion: error should NOT be about JSON parsing
+    assert "Invalid JSON" not in error_data["error"]
+
+
+def test_cli_configure_params_json_with_quotes():
+    """Test CLI handles JSON with embedded quotes."""
+    import subprocess
+    json_arg = '{"message": "value with \\"quotes\\""}'
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "nonexistent-pg",
+            "--parameters", json_arg
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert "Invalid JSON" not in error_data["error"]
+
+
+def test_cli_configure_params_json_with_newlines():
+    """Test CLI handles JSON with escaped newlines."""
+    import subprocess
+    json_arg = '{"multiline": "line1\\nline2\\nline3"}'
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "nonexistent-pg",
+            "--parameters", json_arg
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert "Invalid JSON" not in error_data["error"]
+
+
+def test_cli_configure_params_json_with_backslashes():
+    """Test CLI handles JSON with backslashes (Windows paths)."""
+    import subprocess
+    json_arg = '{"path": "C:\\\\Users\\\\data\\\\file.txt"}'
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "nonexistent-pg",
+            "--parameters", json_arg
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert "Invalid JSON" not in error_data["error"]
+
+
+def test_cli_configure_params_json_with_unicode():
+    """Test CLI handles JSON with Unicode characters."""
+    import subprocess
+    json_arg = '{"greeting": "Hello \\u4e16\\u754c"}'
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "nonexistent-pg",
+            "--parameters", json_arg
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert "Invalid JSON" not in error_data["error"]
+
+
+def test_cli_configure_params_json_mixed_types():
+    """Test CLI handles JSON with mixed value types."""
+    import subprocess
+    json_arg = '{"str": "text", "int": 42, "float": 3.14, "bool": true, "null": null}'
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "nonexistent-pg",
+            "--parameters", json_arg
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert "Invalid JSON" not in error_data["error"]
+
+
+def test_cli_configure_params_json_deep_nesting():
+    """Test CLI handles deeply nested JSON structures."""
+    import subprocess
+    json_arg = '{"a": {"b": {"c": {"d": {"e": "deep"}}}}}'
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "nonexistent-pg",
+            "--parameters", json_arg
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert "Invalid JSON" not in error_data["error"]
+
+
+def test_cli_configure_params_invalid_json_error():
+    """Test CLI returns proper error for invalid JSON."""
+    import subprocess
+    result = subprocess.run(
+        [
+            "python", "-m", "nipyapi.cli",
+            "ci", "configure_params",
+            "--process_group_id", "any-id",
+            "--parameters", "{not valid json}"
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30
+    )
+    assert result.returncode == 1
+    error_data = json.loads(result.stdout)
+    assert error_data["success"] is False
+    # This one SHOULD fail on JSON parsing
+    assert "Invalid JSON" in error_data["error"]
