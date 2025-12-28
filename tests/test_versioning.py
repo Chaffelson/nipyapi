@@ -518,7 +518,7 @@ def test_list_git_registry_flow_versions():
 # =============================================================================
 # These tests require a GitHub PAT via GH_REGISTRY_TOKEN environment variable.
 # They use fixtures from conftest.py: fix_git_reg_client, fix_deployed_git_flow
-# Test fixtures are in the nipyapi-actions repository (tests/flows/cicd-demo-flow).
+# Test fixtures are in the nipyapi-actions repository (tests/flows/nipyapi_test_cicd_demo).
 
 
 def test_update_git_flow_ver_specific_version(fix_deployed_git_flow):
@@ -527,7 +527,8 @@ def test_update_git_flow_ver_specific_version(fix_deployed_git_flow):
     initial_version = vci.version_control_information.version
 
     # Switch to the other version
-    target = conftest.GIT_REGISTRY_VERSION_V1 \
+    v1_version = conftest.get_git_registry_version_v1()
+    target = v1_version \
         if initial_version == fix_deployed_git_flow.latest_version \
         else fix_deployed_git_flow.latest_version
 
@@ -551,12 +552,13 @@ def test_update_git_flow_ver_to_latest(fix_deployed_git_flow):
         pg = canvas.get_process_group(pg.id, 'id')
 
     # First ensure we're not at latest by switching to v1
-    versioning.update_git_flow_ver(pg, conftest.GIT_REGISTRY_VERSION_V1)
+    v1_version = conftest.get_git_registry_version_v1()
+    versioning.update_git_flow_ver(pg, v1_version)
     pg = canvas.get_process_group(pg.id, 'id')
 
     # Verify we're now at v1
     vci_at_v1 = versioning.get_version_info(pg)
-    assert vci_at_v1.version_control_information.version == conftest.GIT_REGISTRY_VERSION_V1
+    assert vci_at_v1.version_control_information.version == v1_version
 
     # Now change to latest (None = latest)
     result = versioning.update_git_flow_ver(pg, None)
@@ -620,7 +622,8 @@ def test_update_git_flow_ver_locally_modified_requires_revert(fix_deployed_git_f
 
     # Determine target version
     current_version = vci.version_control_information.version
-    target = conftest.GIT_REGISTRY_VERSION_V1 \
+    v1_version = conftest.get_git_registry_version_v1()
+    target = v1_version \
         if current_version == fix_deployed_git_flow.latest_version \
         else fix_deployed_git_flow.latest_version
 
@@ -858,3 +861,170 @@ def test_get_local_modifications_with_changes(fix_deployed_git_flow):
     finally:
         # Revert the modification
         versioning.revert_flow_ver(pg, wait=True)
+
+
+# ============================================================================
+# Parameter Context Handling Strategy Tests
+# ============================================================================
+# These tests use the nipyapi_test_param_inheritance flow from nipyapi-actions.
+# They test the parameter_context_handling option for Git-based registries.
+
+
+def test_deploy_git_flow_parameter_context_keep_existing(fix_deployed_git_flow_shared):
+    """Test deploying flow with KEEP_EXISTING reuses existing parameter contexts."""
+    client = fix_deployed_git_flow_shared.client
+    root_id = canvas.get_root_pg_id()
+
+    # First deployment - creates the parameter contexts
+    pg1 = versioning.deploy_git_registry_flow(
+        registry_client_id=client.id,
+        bucket_id='flows',
+        flow_id='nipyapi_test_param_inheritance',
+        parent_id=root_id,
+        location=(100, 100),
+    )
+    assert pg1 is not None
+    assert pg1.component.name == 'nipyapi_test_param_inheritance'
+
+    # Get the parameter context IDs from first deployment
+    ctx1 = pg1.component.parameter_context
+    assert ctx1 is not None
+    parent_ctx_id_1 = ctx1.id
+
+    # Delete the process group but leave the parameter contexts
+    canvas.delete_process_group(pg1, force=True)
+
+    # Second deployment with KEEP_EXISTING - should reuse existing contexts
+    pg2 = versioning.deploy_git_registry_flow(
+        registry_client_id=client.id,
+        bucket_id='flows',
+        flow_id='nipyapi_test_param_inheritance',
+        parent_id=root_id,
+        location=(200, 100),
+        parameter_context_handling='KEEP_EXISTING',
+    )
+    assert pg2 is not None
+
+    # The parameter context should be the same (reused)
+    ctx2 = pg2.component.parameter_context
+    assert ctx2 is not None
+    parent_ctx_id_2 = ctx2.id
+    assert parent_ctx_id_2 == parent_ctx_id_1, "KEEP_EXISTING should reuse the same context"
+
+    # Verify context names are unchanged (no numbered suffix)
+    assert ctx2.component.name == 'nipyapi_test_param_parent'
+
+    # Cleanup: delete pg2 and contexts
+    canvas.delete_process_group(pg2, force=True)
+    _cleanup_param_inheritance_contexts()
+
+
+def _cleanup_param_inheritance_contexts():
+    """Clean up parameter contexts created by param inheritance tests.
+
+    Deletes in multiple passes to handle inheritance order.
+    """
+    # Multiple passes to handle parent->child dependencies
+    for _ in range(3):
+        for ctx in nipyapi.parameters.list_all_parameter_contexts():
+            if 'nipyapi_test_param' in ctx.component.name:
+                try:
+                    nipyapi.parameters.delete_parameter_context(ctx)
+                except Exception:
+                    pass  # May fail due to inheritance order, retry next pass
+
+
+def test_deploy_git_flow_parameter_context_replace(fix_deployed_git_flow_shared):
+    """Test deploying flow with REPLACE creates new numbered parameter contexts."""
+    client = fix_deployed_git_flow_shared.client
+    root_id = canvas.get_root_pg_id()
+
+    # First deployment - creates the parameter contexts
+    pg1 = versioning.deploy_git_registry_flow(
+        registry_client_id=client.id,
+        bucket_id='flows',
+        flow_id='nipyapi_test_param_inheritance',
+        parent_id=root_id,
+        location=(100, 200),
+    )
+    assert pg1 is not None
+
+    # Get the parameter context from first deployment
+    ctx1 = pg1.component.parameter_context
+    assert ctx1 is not None
+    parent_ctx_name_1 = ctx1.component.name
+    parent_ctx_id_1 = ctx1.id
+
+    # Don't delete the PG - deploy a second copy with REPLACE
+    pg2 = versioning.deploy_git_registry_flow(
+        registry_client_id=client.id,
+        bucket_id='flows',
+        flow_id='nipyapi_test_param_inheritance',
+        parent_id=root_id,
+        location=(200, 200),
+        parameter_context_handling='REPLACE',
+    )
+    assert pg2 is not None
+
+    # The parameter context should be NEW (not reused)
+    ctx2 = pg2.component.parameter_context
+    assert ctx2 is not None
+    parent_ctx_id_2 = ctx2.id
+    assert parent_ctx_id_2 != parent_ctx_id_1, "REPLACE should create a new context"
+
+    # The context name should have a numbered suffix
+    parent_ctx_name_2 = ctx2.component.name
+    assert parent_ctx_name_2 != parent_ctx_name_1, "REPLACE should create numbered context"
+    assert 'nipyapi_test_param_parent' in parent_ctx_name_2
+
+    # Cleanup: delete both PGs and contexts
+    canvas.delete_process_group(pg1, force=True)
+    canvas.delete_process_group(pg2, force=True)
+    _cleanup_param_inheritance_contexts()
+
+
+def test_deploy_git_flow_parameter_context_inheritance_preserved(fix_deployed_git_flow_shared):
+    """Test that parameter context inheritance is preserved on deploy."""
+    client = fix_deployed_git_flow_shared.client
+    root_id = canvas.get_root_pg_id()
+
+    # Deploy the flow
+    pg = versioning.deploy_git_registry_flow(
+        registry_client_id=client.id,
+        bucket_id='flows',
+        flow_id='nipyapi_test_param_inheritance',
+        parent_id=root_id,
+        location=(100, 300),
+    )
+    assert pg is not None
+
+    # Get the parent parameter context
+    parent_ctx = pg.component.parameter_context
+    assert parent_ctx is not None
+    assert parent_ctx.component.name == 'nipyapi_test_param_parent'
+
+    # Fetch full context to check inheritance
+    full_parent_ctx = nipyapi.parameters.get_parameter_context(parent_ctx.id, 'id')
+    assert full_parent_ctx is not None
+
+    # Verify inheritance is set up
+    inherited = full_parent_ctx.component.inherited_parameter_contexts
+    assert inherited is not None
+    assert len(inherited) == 1
+    assert inherited[0].component.name == 'nipyapi_test_param_child'
+
+    # Verify the child context has its parameter
+    child_ctx = nipyapi.parameters.get_parameter_context(inherited[0].id, 'id')
+    child_params = {p.parameter.name: p.parameter.value for p in child_ctx.component.parameters}
+    assert 'child_param' in child_params
+    assert child_params['child_param'] == 'child_value'
+
+    # Verify the parent context has its parameter
+    parent_params = {p.parameter.name: p.parameter.value
+                     for p in full_parent_ctx.component.parameters}
+    assert 'parent_param' in parent_params
+    assert parent_params['parent_param'] == 'parent_value'
+
+    # Cleanup: delete PG and contexts
+    canvas.delete_process_group(pg, force=True)
+    _cleanup_param_inheritance_contexts()

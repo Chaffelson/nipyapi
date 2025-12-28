@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 def configure_inherited_params(
     process_group_id: Optional[str] = None,
     parameters: Optional[Union[str, Dict[str, Any]]] = None,
+    parameters_file: Optional[str] = None,
     dry_run: bool = False,
     allow_override: bool = False,
 ) -> dict:
@@ -27,6 +28,8 @@ def configure_inherited_params(
         process_group_id: ID of the process group. Env: NIFI_PROCESS_GROUP_ID
         parameters: JSON string or dict of parameter name -> value pairs.
                    Env: NIFI_PARAMETERS
+        parameters_file: Path to JSON or YAML file with parameter name -> value pairs.
+                        Env: NIFI_PARAMETERS_FILE
         dry_run: If True, return the plan without making changes.
                 Env: NIFI_DRY_RUN (default: false)
         allow_override: If True, create parameters at top level even if they
@@ -45,20 +48,26 @@ def configure_inherited_params(
         ValueError: Missing required parameters or invalid JSON
 
     Example:
-        # Dry run to see plan
-        nipyapi ci configure_inherited_params \\
-            --process_group_id abc123 \\
-            --parameters '{"PostgreSQL Username": "myuser"}' \\
-            --dry_run
-
-        # Execute the updates
+        # From inline JSON
         nipyapi ci configure_inherited_params \\
             --process_group_id abc123 \\
             --parameters '{"PostgreSQL Username": "myuser"}'
+
+        # From file
+        nipyapi ci configure_inherited_params \\
+            --process_group_id abc123 \\
+            --parameters_file params.yaml
+
+        # Dry run
+        nipyapi ci configure_inherited_params \\
+            --process_group_id abc123 \\
+            --parameters_file params.json \\
+            --dry_run
     """
     # Get from environment if not provided
     process_group_id = process_group_id or os.environ.get("NIFI_PROCESS_GROUP_ID")
     parameters = parameters or os.environ.get("NIFI_PARAMETERS")
+    parameters_file = parameters_file or os.environ.get("NIFI_PARAMETERS_FILE")
 
     # Parse boolean env vars
     if isinstance(dry_run, str):
@@ -73,8 +82,22 @@ def configure_inherited_params(
 
     if not process_group_id:
         raise ValueError("process_group_id is required (or set NIFI_PROCESS_GROUP_ID)")
-    if not parameters:
-        raise ValueError("parameters is required (or set NIFI_PARAMETERS)")
+
+    # Handle parameters from file or direct input
+    if parameters_file and parameters:
+        raise ValueError("Provide either parameters or parameters_file, not both")
+
+    if parameters_file:
+        if not os.path.exists(parameters_file):
+            raise ValueError(f"Parameters file not found: {parameters_file}")
+        log.info("Loading parameters from file: %s", parameters_file)
+        content = nipyapi.utils.fs_read(parameters_file)
+        parameters = nipyapi.utils.load(content) or {}
+    elif not parameters:
+        raise ValueError(
+            "parameters or parameters_file is required "
+            "(or set NIFI_PARAMETERS or NIFI_PARAMETERS_FILE)"
+        )
 
     # Parse JSON string if provided
     if isinstance(parameters, str):

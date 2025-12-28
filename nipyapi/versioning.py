@@ -577,8 +577,16 @@ def list_git_registry_flow_versions(registry_client_id, bucket_id, flow_id, bran
         )
 
 
-def deploy_git_registry_flow(  # pylint: disable=too-many-arguments,too-many-positional-arguments
-    registry_client_id, bucket_id, flow_id, parent_id, location=None, version=None, branch=None
+# pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+def deploy_git_registry_flow(
+    registry_client_id,
+    bucket_id,
+    flow_id,
+    parent_id,
+    location=None,
+    version=None,
+    branch=None,
+    parameter_context_handling=None,
 ):
     """
     Deploy a flow from a Git-based registry to the NiFi canvas.
@@ -598,6 +606,11 @@ def deploy_git_registry_flow(  # pylint: disable=too-many-arguments,too-many-pos
             If None, deploys the latest version.
         branch (str, optional): The branch to deploy from. If None, uses
             the registry client's configured default branch.
+        parameter_context_handling (str, optional): Controls how parameter
+            contexts are handled when a context with the same name already exists.
+            Valid values are 'KEEP_EXISTING' (reuse existing context by name)
+            or 'REPLACE' (create new context with numbered suffix).
+            If None, NiFi defaults to 'KEEP_EXISTING'.
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The newly deployed
@@ -608,6 +621,11 @@ def deploy_git_registry_flow(  # pylint: disable=too-many-arguments,too-many-pos
         >>> root_id = nipyapi.canvas.get_root_pg_id()
         >>> pg = nipyapi.versioning.deploy_git_registry_flow(
         ...     client.id, 'flows', 'http-responder', root_id
+        ... )
+        >>> # Deploy with fresh parameter contexts
+        >>> pg = nipyapi.versioning.deploy_git_registry_flow(
+        ...     client.id, 'flows', 'my-flow', root_id,
+        ...     parameter_context_handling='REPLACE'
         ... )
     """
     location = location or (0, 0)
@@ -658,9 +676,9 @@ def deploy_git_registry_flow(  # pylint: disable=too-many-arguments,too-many-pos
 
     # Deploy the flow
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.ProcessGroupsApi().create_process_group(
-            id=parent_id,
-            body=nipyapi.nifi.ProcessGroupEntity(
+        api_kwargs = {
+            "id": parent_id,
+            "body": nipyapi.nifi.ProcessGroupEntity(
                 revision=nipyapi.nifi.RevisionDTO(version=0),
                 component=nipyapi.nifi.ProcessGroupDTO(
                     position=nipyapi.nifi.PositionDTO(x=float(location[0]), y=float(location[1])),
@@ -673,7 +691,10 @@ def deploy_git_registry_flow(  # pylint: disable=too-many-arguments,too-many-pos
                     ),
                 ),
             ),
-        )
+        }
+        if parameter_context_handling is not None:
+            api_kwargs["parameter_context_handling_strategy"] = parameter_context_handling
+        return nipyapi.nifi.ProcessGroupsApi().create_process_group(**api_kwargs)
 
 
 def update_git_flow_ver(process_group, target_version=None, branch=None):

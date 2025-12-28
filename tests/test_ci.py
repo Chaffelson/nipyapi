@@ -656,12 +656,15 @@ def test_configure_inherited_params_missing_pg_id():
 def test_configure_inherited_params_missing_parameters():
     """Test configure_inherited_params without parameters raises error."""
     old_params = os.environ.pop("NIFI_PARAMETERS", None)
+    old_file = os.environ.pop("NIFI_PARAMETERS_FILE", None)
     try:
-        with pytest.raises(ValueError, match="parameters is required"):
+        with pytest.raises(ValueError, match="parameters or parameters_file is required"):
             ci.configure_inherited_params(process_group_id="test-id")
     finally:
         if old_params:
             os.environ["NIFI_PARAMETERS"] = old_params
+        if old_file:
+            os.environ["NIFI_PARAMETERS_FILE"] = old_file
 
 
 def test_configure_inherited_params_invalid_json():
@@ -1140,7 +1143,7 @@ def test_detach_flow_success(fix_deployed_git_flow):
     pg = nipyapi.versioning.deploy_git_registry_flow(
         registry_client_id=fix_deployed_git_flow.client.id,
         bucket_id='flows',
-        flow_id='cicd-demo-flow',
+        flow_id='nipyapi_test_cicd_demo',
         parent_id=root_id,
         location=(700, 700),
         version=None
@@ -1654,3 +1657,430 @@ def test_verify_config_skips_enabled_controllers(fix_pg, fix_cont):
     finally:
         # Cleanup: disable the controller
         nipyapi.canvas.schedule_controller(f_c1, False)
+
+
+# =============================================================================
+# Export Parameters Tests
+# =============================================================================
+
+
+def test_export_parameters_missing_pg_id():
+    """Test export_parameters without process_group_id raises error."""
+    old_val = os.environ.pop("NIFI_PROCESS_GROUP_ID", None)
+    try:
+        with pytest.raises(ValueError, match="process_group_id is required"):
+            ci.export_parameters()
+    finally:
+        if old_val:
+            os.environ["NIFI_PROCESS_GROUP_ID"] = old_val
+
+
+def test_export_parameters_invalid_mode():
+    """Test export_parameters with invalid mode raises error."""
+    # Use context_id to skip PG resolution and test mode validation directly
+    with pytest.raises(ValueError, match="mode must be 'json' or 'yaml'"):
+        ci.export_parameters(context_id="test-id", mode="xml")
+
+
+def test_export_parameters_no_context(fix_pg):
+    """Test export_parameters on PG without parameter context."""
+    pg = fix_pg.generate()
+
+    with pytest.raises(ValueError, match="has no parameter context"):
+        ci.export_parameters(process_group_id=pg.id)
+
+
+def test_export_parameters_simple_json(fix_pg, fix_context):
+    """Test export_parameters with simple single context (JSON format)."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="SimpleExportParam",
+        value="export_test_value"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Export
+    result = ci.export_parameters(process_group_id=pg.id)
+
+    assert result["file_path"] == "stdout"
+    assert result["format"] == "json"
+    assert "parameters" in result
+    assert int(result["parameter_count"]) >= 1
+
+    # Parse and verify
+    import json
+    params = json.loads(result["parameters"])
+    assert "SimpleExportParam" in params
+    assert params["SimpleExportParam"] == "export_test_value"
+
+
+def test_export_parameters_yaml_format(fix_pg, fix_context):
+    """Test export_parameters with YAML format."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="YamlExportParam",
+        value="yaml_value"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Export
+    result = ci.export_parameters(process_group_id=pg.id, mode="yaml")
+
+    assert result["format"] == "yaml"
+    assert "parameters" in result
+
+    # Verify it's valid YAML (not JSON)
+    output = result["parameters"]
+    assert not output.strip().startswith("{")
+
+
+def test_export_parameters_to_file(fix_pg, fix_context, tmp_path):
+    """Test export_parameters writes to file."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="FileExportParam",
+        value="file_value"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    output_file = tmp_path / "exported_params.json"
+    result = ci.export_parameters(
+        process_group_id=pg.id,
+        file_path=str(output_file)
+    )
+
+    assert result["file_path"] == str(output_file)
+    assert "parameters" not in result  # Not included when writing to file
+    assert output_file.exists()
+
+    # Verify content
+    import json
+    with open(output_file) as f:
+        params = json.load(f)
+    assert "FileExportParam" in params
+
+
+def test_export_parameters_with_hierarchy(fix_inherited_context_hierarchy):
+    """Test export_parameters with include_hierarchy flag."""
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    fixture = fix_inherited_context_hierarchy
+    pg = fixture.pg
+
+    result = ci.export_parameters(
+        process_group_id=pg.id,
+        include_hierarchy=True
+    )
+
+    assert "parameters" in result
+
+    # Parse and verify structure
+    import json
+    hierarchy = json.loads(result["parameters"])
+
+    # Should have context, context_id, parameters, and inherited
+    assert "context" in hierarchy
+    assert "parameters" in hierarchy
+    assert "inherited" in hierarchy
+
+    # Parent param should be at top level
+    assert fixture.parent_param_name in hierarchy["parameters"]
+
+    # Child param should be in inherited
+    assert len(hierarchy["inherited"]) == 1
+    child_hierarchy = hierarchy["inherited"][0]
+    assert fixture.child_param_name in child_hierarchy["parameters"]
+
+
+def test_export_parameters_flat_with_inherited(fix_inherited_context_hierarchy):
+    """Test flat export includes parameters from all contexts in hierarchy."""
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    fixture = fix_inherited_context_hierarchy
+    pg = fixture.pg
+
+    # Flat export (default)
+    result = ci.export_parameters(process_group_id=pg.id)
+
+    import json
+    params = json.loads(result["parameters"])
+
+    # Both parent and child params should be in flat export
+    assert fixture.parent_param_name in params
+    assert fixture.child_param_name in params
+
+
+# =============================================================================
+# Configure Inherited Params with File Tests
+# =============================================================================
+
+
+def test_configure_inherited_params_from_file(fix_pg, fix_context, tmp_path):
+    """Test configure_inherited_params reads parameters from file."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="FileImportParam",
+        value="initial_value"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Create params file
+    params_file = tmp_path / "params.json"
+    import json
+    with open(params_file, 'w') as f:
+        json.dump({"FileImportParam": "updated_value"}, f)
+
+    # Import from file
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters_file=str(params_file),
+        dry_run=False
+    )
+
+    assert result["parameters_updated"] == "1"
+
+    # Verify value was updated
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    test_param = next(
+        p for p in updated_ctx.component.parameters
+        if p.parameter.name == "FileImportParam"
+    )
+    assert test_param.parameter.value == "updated_value"
+
+
+def test_configure_inherited_params_from_yaml_file(fix_pg, fix_context, tmp_path):
+    """Test configure_inherited_params reads parameters from YAML file."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="YamlFileParam",
+        value="before_yaml"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Create YAML params file
+    params_file = tmp_path / "params.yaml"
+    params_file.write_text("YamlFileParam: after_yaml\n")
+
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters_file=str(params_file)
+    )
+
+    assert result["parameters_updated"] == "1"
+
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    test_param = next(
+        p for p in updated_ctx.component.parameters
+        if p.parameter.name == "YamlFileParam"
+    )
+    assert test_param.parameter.value == "after_yaml"
+
+
+def test_configure_inherited_params_both_sources_error(fix_pg, fix_context, tmp_path):
+    """Test providing both parameters and parameters_file raises error."""
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+    pg = fix_pg.generate()
+    import nipyapi
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    params_file = tmp_path / "params.json"
+    params_file.write_text('{"key": "value"}')
+
+    with pytest.raises(ValueError, match="Provide either parameters or parameters_file"):
+        ci.configure_inherited_params(
+            process_group_id=pg.id,
+            parameters='{"other": "value"}',
+            parameters_file=str(params_file)
+        )
+
+
+def test_configure_inherited_params_file_not_found():
+    """Test parameters_file not found raises error."""
+    with pytest.raises(ValueError, match="Parameters file not found"):
+        ci.configure_inherited_params(
+            process_group_id="test-id",
+            parameters_file="/nonexistent/params.json"
+        )
+
+
+# =============================================================================
+# Round-trip Tests (Export -> Import)
+# =============================================================================
+
+
+def test_export_import_roundtrip_simple(fix_pg, fix_context, tmp_path):
+    """Test exporting parameters and importing them back (simple case)."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with parameters
+    ctx = fix_context.generate()
+    param1 = nipyapi.parameters.prepare_parameter(
+        name="RoundTripParam1",
+        value="value1"
+    )
+    param2 = nipyapi.parameters.prepare_parameter(
+        name="RoundTripParam2",
+        value="value2"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param1)
+    ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param2)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Export to file
+    export_file = tmp_path / "roundtrip_params.json"
+    ci.export_parameters(
+        process_group_id=pg.id,
+        file_path=str(export_file)
+    )
+
+    # Modify the parameters
+    nipyapi.parameters.update_parameter_in_context(
+        ctx.id, "RoundTripParam1", "modified_value"
+    )
+
+    # Import from file (should restore original values)
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters_file=str(export_file)
+    )
+
+    assert result["parameters_updated"] == "2"
+
+    # Verify values were restored
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    for param in updated_ctx.component.parameters:
+        if param.parameter.name == "RoundTripParam1":
+            assert param.parameter.value == "value1"
+        elif param.parameter.name == "RoundTripParam2":
+            assert param.parameter.value == "value2"
+
+
+def test_export_import_roundtrip_with_inheritance(fix_inherited_context_hierarchy, tmp_path):
+    """Test exporting and importing with inherited contexts."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    fixture = fix_inherited_context_hierarchy
+    pg = fixture.pg
+
+    # Export to file
+    export_file = tmp_path / "inherited_params.json"
+    ci.export_parameters(
+        process_group_id=pg.id,
+        file_path=str(export_file)
+    )
+
+    # Read and verify export contains both params
+    import json
+    with open(export_file) as f:
+        exported = json.load(f)
+    assert fixture.parent_param_name in exported
+    assert fixture.child_param_name in exported
+
+    # Modify both params
+    nipyapi.parameters.update_parameter_in_context(
+        fixture.parent_ctx.id, fixture.parent_param_name, "modified_parent"
+    )
+    nipyapi.parameters.update_parameter_in_context(
+        fixture.child_ctx.id, fixture.child_param_name, "modified_child"
+    )
+
+    # Import from file
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters_file=str(export_file)
+    )
+
+    assert result["parameters_updated"] == "2"
+    # Should have modified 2 contexts (parent and child)
+    assert result["contexts_modified"] == "2"
+
+    # Verify values restored to correct contexts
+    parent_ctx = nipyapi.parameters.get_parameter_context(fixture.parent_ctx.id, "id")
+    child_ctx = nipyapi.parameters.get_parameter_context(fixture.child_ctx.id, "id")
+
+    parent_param = next(
+        p for p in parent_ctx.component.parameters
+        if p.parameter.name == fixture.parent_param_name
+    )
+    assert parent_param.parameter.value == "parent_value"
+
+    child_param = next(
+        p for p in child_ctx.component.parameters
+        if p.parameter.name == fixture.child_param_name
+    )
+    assert child_param.parameter.value == "child_value"

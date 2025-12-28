@@ -20,6 +20,7 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
     version: Optional[str] = None,
     location: Optional[Tuple[int, int]] = None,
     greedy: bool = False,
+    parameter_context_handling: Optional[str] = None,
 ) -> dict:
     """
     Deploy a flow from a Git-based registry to NiFi.
@@ -35,6 +36,11 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
         location: (x, y) tuple for placement on canvas
         greedy: If True, allow partial name matching for registry_client.
                 Default False (exact match for safety in CI/automation).
+        parameter_context_handling: How to handle existing parameter contexts
+            with the same name. Valid values:
+            - 'KEEP_EXISTING': Reuse existing context by name (default)
+            - 'REPLACE': Create new context with numbered suffix
+            Env: NIFI_PARAMETER_CONTEXT_HANDLING
 
     Returns:
         dict with process_group_id, process_group_name, deployed_version
@@ -49,6 +55,9 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
     parent_id = parent_id or os.environ.get("NIFI_PARENT_ID")
     branch = branch or os.environ.get("NIFI_FLOW_BRANCH") or None
     version = version or os.environ.get("NIFI_TARGET_VERSION") or None
+    parameter_context_handling = (
+        parameter_context_handling or os.environ.get("NIFI_PARAMETER_CONTEXT_HANDLING") or None
+    )
 
     # Parse location from env if not provided
     if location is None:
@@ -100,6 +109,7 @@ def deploy_flow(  # pylint: disable=too-many-arguments,too-many-positional-argum
         location=location,
         version=version,
         branch=branch,
+        parameter_context_handling=parameter_context_handling,
     )
 
     # Get version info

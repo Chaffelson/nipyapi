@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 
 
 ACTIVE_PROFILE = os.getenv('NIPYAPI_PROFILE', 'single-user').strip()
+ACTIVE_PROFILES_PATH = os.getenv('NIPYAPI_PROFILES_PATH', 'examples/profiles.yml').strip()
 
 # Validate profile early and fail fast
 # Note: github-cicd profile is NiFi-only (no Registry) for CI/CD testing
@@ -97,9 +98,7 @@ def session_setup(request):
     global ACTIVE_CONFIG
 
     # Resolve configuration once for the entire session
-    # Use NIPYAPI_PROFILES_FILE env var if set, otherwise default to examples/profiles.yml
-    profiles_path = os.getenv('NIPYAPI_PROFILES_FILE', 'examples/profiles.yml')
-    profiles_path = nipyapi.utils.resolve_relative_paths(profiles_path)
+    profiles_path = nipyapi.utils.resolve_relative_paths(ACTIVE_PROFILES_PATH)
     log.info("Using profiles file: %s", profiles_path)
     ACTIVE_CONFIG = nipyapi.profiles.resolve_profile_config(
         profile_name=ACTIVE_PROFILE, profiles_file_path=profiles_path
@@ -158,6 +157,7 @@ def remove_test_templates():
 
 
 def remove_test_pgs():
+    """Remove all test process groups."""
     if SKIP_TEARDOWN:
         return None
     _ = [
@@ -189,16 +189,46 @@ def remove_test_funnels():
 
 
 def remove_test_parameter_contexts():
+    """Delete test parameter contexts, handling inheritance order.
+
+    Contexts that inherit from others must be deleted first (parents before children
+    in inheritance terms). This function iterates until all test contexts are deleted.
+    """
     if SKIP_TEARDOWN:
         return None
-    if nipyapi.utils.check_version('1.10.0') < 1:
-        _ = [
-            nipyapi.parameters.delete_parameter_context(li) for li
-            in nipyapi.parameters.list_all_parameter_contexts() if
-            test_basename in li.component.name
-        ]
-    else:
+    # check_version returns 1 if NiFi is OLDER than specified version, -1 if newer, 0 if equal
+    # We skip cleanup if NiFi is older than 1.10.0 (doesn't have parameter contexts)
+    if nipyapi.utils.check_version('1.10.0') > 0:
         log.info("NiFi version is older than 1.10, skipping Parameter Context cleanup")
+        return None
+
+    # Multiple passes to handle inheritance dependencies
+    max_attempts = 5
+    for attempt in range(max_attempts):
+        contexts = [
+            ctx for ctx in nipyapi.parameters.list_all_parameter_contexts()
+            if test_basename in ctx.component.name
+        ]
+        if not contexts:
+            return None
+
+        deleted_any = False
+        for ctx in contexts:
+            try:
+                nipyapi.parameters.delete_parameter_context(ctx)
+                deleted_any = True
+            except nipyapi.nifi.rest.ApiException as e:
+                if e.status == 409:
+                    # Referenced by another context - try again later
+                    continue
+                raise
+
+        if not deleted_any and contexts:
+            # No progress made, likely circular reference or unresolved deps
+            log.warning("Could not delete %d parameter contexts after %d attempts",
+                        len(contexts), attempt + 1)
+            break
+    return None
 
 
 def remove_test_buckets():
@@ -217,7 +247,7 @@ def final_cleanup():
     # Re-authenticate before cleanup to ensure we have a valid session
     # (Some tests may have modified authentication state)
     try:
-        nipyapi.profiles.switch(ACTIVE_PROFILE)
+        nipyapi.profiles.switch(ACTIVE_PROFILE, profiles_file=ACTIVE_PROFILES_PATH)
         log.debug("Re-authenticated for final cleanup")
     except Exception as e:
         log.warning("Failed to re-authenticate for cleanup, skipping: %s", e)
@@ -360,6 +390,13 @@ def fixture_templates(request, fix_pg):
 
 @pytest.fixture(name='fix_pg')
 def fixture_pg(request):
+    """Function-scoped fixture for creating test process groups.
+
+    Only cleans up PGs created by this fixture instance, not all test PGs.
+    This allows module-scoped shared fixtures to coexist.
+    """
+    created_pgs = []
+
     class Dummy:
         def __init__(self):
             pass
@@ -371,13 +408,26 @@ def fixture_pg(request):
                 )
             else:
                 target_pg = parent_pg
-            return nipyapi.canvas.create_process_group(
-                    target_pg,
-                    test_pg_name + suffix,
-                    location=(400.0, 400.0)
-                )
+            pg = nipyapi.canvas.create_process_group(
+                target_pg,
+                test_pg_name + suffix,
+                location=(400.0, 400.0)
+            )
+            created_pgs.append(pg.id)
+            return pg
 
-    request.addfinalizer(remove_test_pgs)
+    def cleanup():
+        if SKIP_TEARDOWN:
+            return
+        for pg_id in created_pgs:
+            try:
+                pg = nipyapi.canvas.get_process_group(pg_id, 'id')
+                if pg:
+                    nipyapi.canvas.delete_process_group(pg, True, True)
+            except Exception:
+                pass  # PG may already be deleted
+
+    request.addfinalizer(cleanup)
     return Dummy()
 
 
@@ -422,6 +472,77 @@ def fixture_context(request):
 
     request.addfinalizer(remove_test_parameter_contexts)
     return Dummy()
+
+
+@pytest.fixture(name='fix_inherited_context_hierarchy', scope='function')
+def fixture_inherited_context_hierarchy(request, fix_pg, fix_context):
+    """
+    Create a parameter context hierarchy with inheritance for testing.
+
+    Creates:
+    - child_ctx: Has one parameter "ChildParam"
+    - parent_ctx: Inherits from child_ctx, has "ParentParam"
+    - pg: Process group bound to parent_ctx
+
+    This fixture allows testing of both simple (single context) and complex
+    (inherited hierarchy) parameter operations.
+    """
+    FixtureInheritedContexts = namedtuple(
+        'FixtureInheritedContexts',
+        ('parent_ctx', 'child_ctx', 'pg', 'parent_param_name', 'child_param_name')
+    )
+
+    # Create child context with a parameter
+    child_ctx = fix_context.generate(name=test_parameter_context_name + "_child")
+    child_param = nipyapi.parameters.prepare_parameter(
+        name="ChildParam",
+        value="child_value",
+        description="Parameter owned by child context"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(child_ctx, child_param)
+
+    # Refresh context after parameter update
+    child_ctx = nipyapi.parameters.get_parameter_context(child_ctx.id, "id")
+
+    # Create parent context that inherits from child
+    parent_ctx = nipyapi.parameters.create_parameter_context(
+        name=test_parameter_context_name + "_parent",
+        inherited_contexts=[child_ctx]
+    )
+    parent_param = nipyapi.parameters.prepare_parameter(
+        name="ParentParam",
+        value="parent_value",
+        description="Parameter owned by parent context"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(parent_ctx, parent_param)
+
+    # Refresh parent context
+    parent_ctx = nipyapi.parameters.get_parameter_context(parent_ctx.id, "id")
+
+    # Create PG and bind the parent context to it
+    pg = fix_pg.generate(suffix="_params")
+    nipyapi.parameters.assign_context_to_process_group(pg, parent_ctx.id)
+
+    # Refresh PG
+    pg = nipyapi.canvas.get_process_group(pg.id, "id")
+
+    def cleanup():
+        if SKIP_TEARDOWN:
+            return
+        # Delete parent context (must be done before child due to inheritance)
+        try:
+            nipyapi.parameters.delete_parameter_context(parent_ctx)
+        except Exception as e:
+            log.warning("Failed to delete parent context: %s", e)
+
+    request.addfinalizer(cleanup)
+    return FixtureInheritedContexts(
+        parent_ctx=parent_ctx,
+        child_ctx=child_ctx,
+        pg=pg,
+        parent_param_name="ParentParam",
+        child_param_name="ChildParam"
+    )
 
 
 @pytest.fixture(name='fix_funnel')
@@ -647,10 +768,26 @@ def fixture_profiles():
 # These fixtures require a GitHub PAT via GH_REGISTRY_TOKEN environment variable
 # environment variable. They use the nipyapi-actions repository test fixtures.
 
-# Known test fixture versions in nipyapi-actions repo
-# V1 is a stable older version (tagged) for version switching tests
-GIT_REGISTRY_VERSION_V1 = '97549b88f2e1fb1dccddef57335e94628c74060b'  # v1.0.0 tag
-# LATEST is looked up at runtime by fixtures - no hardcoded value needed
+
+# Cache for resolved V1 version SHA
+_git_registry_version_v1_cache = None
+
+
+def get_git_registry_version_v1():
+    """Resolve v1.0.0 tag to commit SHA via GitHub API (cached)."""
+    global _git_registry_version_v1_cache  # pylint: disable=global-statement
+    if _git_registry_version_v1_cache is None:
+        token = os.environ.get('GH_REGISTRY_TOKEN')
+        if not token:
+            pytest.skip("GH_REGISTRY_TOKEN not set - cannot resolve v1.0.0 tag")
+        _git_registry_version_v1_cache = nipyapi.ci.resolve_git_ref(
+            ref='v1.0.0',
+            repo='Chaffelson/nipyapi-actions',
+            token=token,
+            provider='github'
+        )
+    return _git_registry_version_v1_cache
+
 
 
 @pytest.fixture(name='fix_git_reg_client', scope='function')
@@ -738,7 +875,7 @@ def fixture_deployed_git_flow_shared(request):
     pg = nipyapi.versioning.deploy_git_registry_flow(
         registry_client_id=client.id,
         bucket_id='flows',
-        flow_id='cicd-demo-flow',
+        flow_id='nipyapi_test_cicd_demo',
         parent_id=root_id,
         location=(500, 500),
         version=None  # Latest
@@ -769,7 +906,7 @@ def fixture_deployed_git_flow_shared(request):
         client=client,
         pg=pg,
         bucket_id='flows',
-        flow_id='cicd-demo-flow',
+        flow_id='nipyapi_test_cicd_demo',
         latest_version=latest_version
     )
 

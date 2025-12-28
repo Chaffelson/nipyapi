@@ -31,6 +31,7 @@ from .deploy_flow import deploy_flow
 from .detach_flow import detach_flow
 from .ensure_registry import ensure_registry
 from .export_flow_definition import export_flow_definition
+from .export_parameters import export_parameters
 from .get_flow_diff import get_flow_diff
 from .get_flow_versions import get_flow_versions
 from .get_status import get_status
@@ -61,6 +62,7 @@ __all__ = [
     "detach_flow",
     "configure_params",
     "configure_inherited_params",
+    "export_parameters",
     "change_flow_version",
     "revert_flow",
     "cleanup",
