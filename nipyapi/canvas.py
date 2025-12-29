@@ -5,6 +5,7 @@ For interactions with the NiFi Canvas.
 """
 
 import logging
+import os
 from collections import namedtuple
 
 import nipyapi
@@ -36,6 +37,10 @@ __all__ = [
     "get_variable_registry",
     "update_variable_registry",
     "purge_connection",
+    "list_flowfiles",
+    "get_flowfile_details",
+    "get_flowfile_content",
+    "peek_flowfiles",
     "purge_process_group",
     "schedule_components",
     "get_bulletins",
@@ -56,6 +61,8 @@ __all__ = [
     "schedule_all_controllers",
     "get_controller",
     "list_all_controller_types",
+    "get_controller_type",
+    "get_controller_service_docs",
     "list_all_by_kind",
     "list_all_input_ports",
     "list_all_output_ports",
@@ -1410,6 +1417,259 @@ def purge_connection(con_id):
     return nipyapi.utils.wait_to_complete(_autumn_leaves, con_id, drop_req)
 
 
+def list_flowfiles(connection, limit=100):
+    """
+    List FlowFiles waiting in a connection's queue.
+
+    This is a non-destructive operation - FlowFiles remain in the queue.
+    Returns basic metadata for each FlowFile; use get_flowfile() to retrieve
+    full details including attributes.
+
+    Args:
+        connection: Connection ID (str) or ConnectionEntity
+        limit: Maximum number of FlowFiles to return (default 100)
+
+    Returns:
+        list[:class:`~nipyapi.nifi.models.FlowFileSummaryDTO`]: List of FlowFile
+            summaries with uuid, filename, size, queued_duration, etc.
+            Returns empty list if queue is empty.
+
+    Example::
+
+        # List FlowFiles in a connection
+        conn = nipyapi.canvas.get_connection(connection_id)
+        flowfiles = nipyapi.canvas.list_flowfiles(conn)
+        for ff in flowfiles:
+            print(f"{ff.uuid}: {ff.filename} ({ff.size} bytes, queued {ff.queued_duration}ms)")
+
+        # Get first FlowFile's full details
+        if flowfiles:
+            details = nipyapi.canvas.get_flowfile(conn, flowfiles[0].uuid)
+            print(details.attributes)
+
+    """
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    elif isinstance(connection, str):
+        con_id = connection
+    else:
+        raise ValueError(
+            f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
+        )
+
+    def _listing_complete(con_id_, listing_req_):
+        test_obj = nipyapi.nifi.FlowFileQueuesApi().get_listing_request(
+            con_id_, listing_req_.listing_request.id
+        )
+        if not test_obj.listing_request.finished:
+            return False
+        if test_obj.listing_request.failure_reason:
+            raise ValueError(
+                f"Unable to complete listing request, error: "
+                f"{test_obj.listing_request.failure_reason}"
+            )
+        return test_obj
+
+    with nipyapi.utils.rest_exceptions():
+        listing_req = nipyapi.nifi.FlowFileQueuesApi().create_flow_file_listing(con_id)
+    assert isinstance(listing_req, nipyapi.nifi.ListingRequestEntity)
+
+    # Wait for listing to complete and get results
+    result = nipyapi.utils.wait_to_complete(_listing_complete, con_id, listing_req)
+
+    # Clean up the listing request
+    try:
+        nipyapi.nifi.FlowFileQueuesApi().delete_listing_request(
+            con_id, listing_req.listing_request.id
+        )
+    except Exception:  # pylint: disable=broad-except
+        pass  # Best effort cleanup
+
+    if result and result.listing_request.flow_file_summaries:
+        return result.listing_request.flow_file_summaries[:limit]
+    return []
+
+
+def get_flowfile_details(connection, flowfile_uuid):
+    """
+    Get full details for a specific FlowFile, including its attributes.
+
+    This is a non-destructive operation - the FlowFile remains in the queue.
+
+    Args:
+        connection: Connection ID (str) or ConnectionEntity
+        flowfile_uuid: UUID of the FlowFile to retrieve
+
+    Returns:
+        :class:`~nipyapi.nifi.models.FlowFileDTO`: FlowFile details including
+            attributes dict, filename, size, queued_duration, etc.
+
+    Example::
+
+        # Get FlowFile details
+        details = nipyapi.canvas.get_flowfile_details(connection_id, flowfile_uuid)
+        print(f"Filename: {details.filename}")
+        print(f"Size: {details.size} bytes")
+        print(f"Attributes: {details.attributes}")
+
+    """
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    elif isinstance(connection, str):
+        con_id = connection
+    else:
+        raise ValueError(
+            f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
+        )
+
+    with nipyapi.utils.rest_exceptions():
+        result = nipyapi.nifi.FlowFileQueuesApi().get_flow_file(con_id, flowfile_uuid)
+    return result.flow_file
+
+
+def get_flowfile_content(connection, flowfile_uuid, decode="auto", output_file=None):
+    """
+    Download the content of a specific FlowFile.
+
+    This is a non-destructive operation - the FlowFile remains in the queue.
+
+    Args:
+        connection: Connection ID (str) or ConnectionEntity
+        flowfile_uuid: UUID of the FlowFile
+        decode: How to decode the content:
+            - 'auto': Use mime_type to decide (text for text/*, application/json, etc.)
+            - 'text': Force UTF-8 decode
+            - 'bytes': Return raw bytes
+        output_file: Where to save the content:
+            - None: Return content directly
+            - True: Save to current directory with FlowFile's filename
+            - str (directory): Save to that directory with FlowFile's filename
+            - str (file path): Save to that exact path
+
+    Returns:
+        If output_file is None: bytes or str (depending on decode)
+        If output_file is set: str path where file was saved
+
+    Example::
+
+        # Get content as auto-detected type
+        content = nipyapi.canvas.get_flowfile_content(connection_id, flowfile_uuid)
+
+        # Force text decoding
+        text = nipyapi.canvas.get_flowfile_content(conn, uuid, decode='text')
+
+        # Save to file using FlowFile's filename
+        path = nipyapi.canvas.get_flowfile_content(conn, uuid, output_file=True)
+        print(f"Saved to: {path}")
+
+        # Save to specific directory
+        path = nipyapi.canvas.get_flowfile_content(conn, uuid, output_file='/tmp/')
+
+    """
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    elif isinstance(connection, str):
+        con_id = connection
+    else:
+        raise ValueError(
+            f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
+        )
+
+    # Get FlowFile details for filename and mime_type
+    flowfile = get_flowfile_details(con_id, flowfile_uuid)
+
+    # Download raw content
+    with nipyapi.utils.rest_exceptions():
+        response = nipyapi.nifi.FlowFileQueuesApi().download_flow_file_content(
+            con_id, flowfile_uuid, _preload_content=False
+        )
+    content = response.data
+
+    # Determine if content should be decoded as text
+    mime_type = flowfile.mime_type or ""
+    text_mime_types = (
+        "text/",
+        "application/json",
+        "application/xml",
+        "application/javascript",
+        "application/csv",
+    )
+    is_text = any(mime_type.startswith(t) for t in text_mime_types)
+
+    if decode == "text" or (decode == "auto" and is_text):
+        try:
+            content = content.decode("utf-8")
+        except UnicodeDecodeError:
+            # Fall back to bytes if decode fails
+            pass
+
+    # Handle output file
+    if output_file is not None:
+        # Get filename from FlowFile (sanitize to basename only)
+        filename = os.path.basename(flowfile.filename) if flowfile.filename else flowfile_uuid
+
+        if output_file is True:
+            # Save to current directory
+            file_path = filename
+        elif os.path.isdir(output_file) or output_file.endswith(os.sep):
+            # It's a directory - append filename
+            file_path = os.path.join(output_file, filename)
+        else:
+            # It's an explicit file path
+            file_path = output_file
+
+        # Write content using utility function
+        nipyapi.utils.fs_write(content, file_path, binary=isinstance(content, bytes))
+        return os.path.abspath(file_path)
+
+    return content
+
+
+def peek_flowfiles(connection, limit=1):
+    """
+    Convenience function to list and get full details for FlowFiles at front of queue.
+
+    Combines list_flowfiles() and get_flowfile() to return complete FlowFile
+    details including attributes for the first N FlowFiles in the queue.
+
+    Args:
+        connection: Connection ID (str) or ConnectionEntity
+        limit: Number of FlowFiles to retrieve details for (default 1)
+
+    Returns:
+        list[:class:`~nipyapi.nifi.models.FlowFileDTO`]: List of FlowFile details
+            with full attributes. Returns empty list if queue is empty.
+
+    Example::
+
+        # Peek at the first FlowFile
+        flowfiles = nipyapi.canvas.peek_flowfiles(connection_id)
+        if flowfiles:
+            ff = flowfiles[0]
+            print(f"Filename: {ff.filename}")
+            print(f"Attributes: {ff.attributes}")
+
+        # Peek at first 5
+        flowfiles = nipyapi.canvas.peek_flowfiles(connection_id, limit=5)
+
+    """
+    summaries = list_flowfiles(connection, limit=limit)
+    if not summaries:
+        return []
+
+    # Normalize connection to ID for subsequent calls
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    else:
+        con_id = connection
+
+    result = []
+    for summary in summaries:
+        flowfile = get_flowfile_details(con_id, summary.uuid)
+        result.append(flowfile)
+    return result
+
+
 def purge_process_group(process_group, stop=False):
     """
     EXPERIMENTAL
@@ -1778,6 +2038,75 @@ def get_controller_type(identifier, identifier_type="name", greedy=True):
     if obj:
         return nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
     return obj
+
+
+def get_controller_service_docs(controller):
+    """
+    Get detailed documentation for a controller service type.
+
+    This function retrieves the full ControllerServiceDefinition from NiFi,
+    which contains comprehensive documentation useful for understanding
+    controller service capabilities and configuration options.
+
+    Args:
+        controller: One of:
+            - ControllerServiceEntity: An existing controller service instance
+            - DocumentedTypeDTO: A controller type from get_controller_type()
+            - str: Controller type name (e.g., "JsonTreeReader" or full qualified name)
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: Controller
+            documentation including property_descriptors, tags, and more.
+        None: If controller type not found.
+
+    Example::
+
+        # From existing controller service
+        cs = nipyapi.canvas.get_controller("MyJsonReader")
+        docs = nipyapi.canvas.get_controller_service_docs(cs)
+        print(docs.tags)
+        print(docs.property_descriptors.keys())
+
+        # From controller type
+        cs_type = nipyapi.canvas.get_controller_type("JsonTreeReader")
+        docs = nipyapi.canvas.get_controller_service_docs(cs_type)
+
+        # From type name string
+        docs = nipyapi.canvas.get_controller_service_docs("AvroReader")
+
+    """
+    # Extract bundle info based on input type
+    if isinstance(controller, nipyapi.nifi.ControllerServiceEntity):
+        bundle = controller.component.bundle
+        cs_type = controller.component.type
+    elif isinstance(controller, nipyapi.nifi.DocumentedTypeDTO):
+        bundle = controller.bundle
+        cs_type = controller.type
+    elif isinstance(controller, str):
+        # Look up controller type by name
+        cs_type_obj = get_controller_type(controller, identifier_type="name", greedy=False)
+        if cs_type_obj is None:
+            # Try greedy match
+            cs_type_obj = get_controller_type(controller, identifier_type="name", greedy=True)
+        if cs_type_obj is None:
+            return None
+        if isinstance(cs_type_obj, list):
+            cs_type_obj = cs_type_obj[0]  # Take first match
+        bundle = cs_type_obj.bundle
+        cs_type = cs_type_obj.type
+    else:
+        raise ValueError(
+            f"controller must be ControllerServiceEntity, DocumentedTypeDTO, or str, "
+            f"got: {type(controller).__name__}"
+        )
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.FlowApi().get_controller_service_definition(
+            group=bundle.group,
+            artifact=bundle.artifact,
+            version=bundle.version,
+            type=cs_type,
+        )
 
 
 def list_all_by_kind(kind, pg_id="root", descendants=True):

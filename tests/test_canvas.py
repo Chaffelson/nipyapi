@@ -1723,3 +1723,209 @@ def test_clear_controller_state(fix_state_flow):
     # Verify state is cleared (should be 0 entries)
     state_after = canvas.get_controller_state(fix_state_flow.cache_server)
     assert state_after.component_state.local_state.total_entry_count == 0
+
+
+# =============================================================================
+# CONTROLLER SERVICE DOCS TESTS
+# =============================================================================
+
+
+def test_get_controller_service_docs():
+    """Test get_controller_service_docs with various input types."""
+    # Test with string (controller type name)
+    r1 = canvas.get_controller_service_docs('JsonTreeReader')
+    assert r1 is not None
+    assert 'property_descriptors' in dir(r1)
+    assert isinstance(r1.property_descriptors, dict)
+
+    # Test with DocumentedTypeDTO
+    cs_type = canvas.get_controller_type('AvroReader')
+    r2 = canvas.get_controller_service_docs(cs_type)
+    assert r2 is not None
+
+    # Test with non-existent type returns None
+    r3 = canvas.get_controller_service_docs('NonExistentController')
+    assert r3 is None
+
+
+def test_get_controller_service_docs_with_entity(fix_pg, fix_cont):
+    """Test get_controller_service_docs with a ControllerServiceEntity."""
+    f_pg = fix_pg.generate()
+    f_c1 = fix_cont(parent_pg=f_pg)
+
+    r1 = canvas.get_controller_service_docs(f_c1)
+    assert r1 is not None
+    assert 'property_descriptors' in dir(r1)
+
+
+# =============================================================================
+# FLOWFILE INSPECTION TESTS
+# =============================================================================
+
+
+def test_list_flowfiles_empty(fix_proc):
+    """Test listing FlowFiles in an empty connection."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Create connection
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+
+    # List should return empty list
+    result = canvas.list_flowfiles(conn)
+    assert isinstance(result, list)
+    assert len(result) == 0
+
+    # Cleanup
+    canvas.delete_connection(conn)
+
+
+def test_list_flowfiles_with_data(fix_proc):
+    """Test listing FlowFiles when data is in the queue."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Configure first processor to generate data
+    canvas.update_processor(
+        f_p1, update=nifi.ProcessorConfigDTO(properties={'File Size': '10 B'})
+    )
+
+    # Create connection
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+
+    # Run first processor once to generate a FlowFile
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # List FlowFiles in the connection
+    result = canvas.list_flowfiles(conn)
+    assert isinstance(result, list)
+    assert len(result) >= 1
+
+    # Check FlowFile summary has expected fields
+    ff = result[0]
+    assert hasattr(ff, 'uuid')
+    assert hasattr(ff, 'filename')
+    assert hasattr(ff, 'size')
+    assert hasattr(ff, 'queued_duration')
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)
+
+
+def test_get_flowfile_details(fix_proc):
+    """Test getting full FlowFile details including attributes."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Create connection and generate data
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # List to get UUID
+    summaries = canvas.list_flowfiles(conn)
+    assert len(summaries) >= 1
+
+    # Get full details
+    details = canvas.get_flowfile_details(conn, summaries[0].uuid)
+    assert details is not None
+    assert hasattr(details, 'attributes')
+    assert isinstance(details.attributes, dict)
+    # Standard attributes should exist
+    assert 'uuid' in details.attributes
+    assert 'filename' in details.attributes
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)
+
+
+def test_peek_flowfiles(fix_proc):
+    """Test peek_flowfiles convenience function."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Create connection and generate data
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # Peek at first FlowFile
+    result = canvas.peek_flowfiles(conn, limit=1)
+    assert isinstance(result, list)
+    assert len(result) >= 1
+
+    # Should have full details including attributes
+    ff = result[0]
+    assert hasattr(ff, 'attributes')
+    assert isinstance(ff.attributes, dict)
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)
+
+
+def test_list_flowfiles_by_id(fix_proc):
+    """Test list_flowfiles accepts connection ID string."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+
+    # Should work with ID string
+    result = canvas.list_flowfiles(conn.id)
+    assert isinstance(result, list)
+
+    canvas.delete_connection(conn)
+
+
+def test_get_flowfile_content(fix_proc, tmpdir):
+    """Test downloading FlowFile content with various options."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Configure first processor to generate data with specific size
+    canvas.update_processor(
+        f_p1, update=nifi.ProcessorConfigDTO(properties={'File Size': '10 B'})
+    )
+
+    # Create connection and generate data
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # List to get UUID
+    summaries = canvas.list_flowfiles(conn)
+    assert len(summaries) >= 1
+    ff_uuid = summaries[0].uuid
+
+    # Test 1: Default - returns bytes (random content, no text mime type)
+    content = canvas.get_flowfile_content(conn, ff_uuid)
+    assert isinstance(content, bytes)
+    assert len(content) == 10
+
+    # Test 2: Force text decode
+    content_text = canvas.get_flowfile_content(conn, ff_uuid, decode='text')
+    assert isinstance(content_text, str)
+
+    # Test 3: Force bytes
+    content_bytes = canvas.get_flowfile_content(conn, ff_uuid, decode='bytes')
+    assert isinstance(content_bytes, bytes)
+
+    # Test 4: Save to specific file path
+    out_path = str(tmpdir.join("flowfile_content.bin"))
+    result_path = canvas.get_flowfile_content(conn, ff_uuid, output_file=out_path)
+    assert result_path.endswith("flowfile_content.bin")
+    with open(result_path, "rb") as f:
+        saved_content = f.read()
+    assert saved_content == content
+
+    # Test 5: Save to directory (uses FlowFile's filename)
+    dir_path = str(tmpdir.mkdir("subdir"))
+    result_path = canvas.get_flowfile_content(conn, ff_uuid, output_file=dir_path)
+    assert dir_path in result_path
+    with open(result_path, "rb") as f:
+        saved_content = f.read()
+    assert saved_content == content
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)

@@ -82,6 +82,22 @@ def test_fs_write(tmpdir):
                 obj=test_obj,
                 file_path=invalid_path
             )
+
+
+def test_fs_write_binary(tmpdir):
+    """Test fs_write with binary=True for raw byte content."""
+    f_fdir = tmpdir.mkdir("binary_test")
+    f_fpath = f_fdir.join("test.bin")
+    test_bytes = b"\x00\x01\x02\xff\xfe"
+
+    # Write binary content
+    result = utils.fs_write(test_bytes, str(f_fpath), binary=True)
+    assert result == test_bytes
+
+    # Verify content was written correctly
+    with open(str(f_fpath), "rb") as f:
+        read_content = f.read()
+    assert read_content == test_bytes
     # Test writing an invalid object
     with pytest.raises((TypeError,AttributeError)):
         _ = utils.fs_write(

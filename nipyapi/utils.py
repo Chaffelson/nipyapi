@@ -138,23 +138,39 @@ def load(obj, dto=None):
     return loaded_obj
 
 
-def fs_write(obj, file_path):
+def fs_write(obj, file_path, binary=False):
     """
-    Convenience function to write an Object to a FilePath
+    Convenience function to write an Object to a FilePath.
 
     Args:
         obj (varies): The Object to write out
         file_path (str): The Full path including filename to write to
+        binary (bool): If True, write in binary mode (obj should be bytes).
+            If False (default), write as text with encoding.
 
-    Returns: The object that was written
+    Returns:
+        The object that was written
+
+    Example::
+
+        # Write text content
+        nipyapi.utils.fs_write("hello world", "/tmp/test.txt")
+
+        # Write binary content
+        nipyapi.utils.fs_write(b"\\x00\\x01\\x02", "/tmp/test.bin", binary=True)
+
     """
     try:
-        with io.open(str(file_path), "w", encoding=DEF_ENCODING) as f:
-            if isinstance(obj, bytes):
-                obj_str = obj.decode(DEF_ENCODING)
-            else:
-                obj_str = obj
-            f.write(obj_str)
+        if binary:
+            with open(str(file_path), "wb") as f:
+                f.write(obj)
+        else:
+            with io.open(str(file_path), "w", encoding=DEF_ENCODING) as f:
+                if isinstance(obj, bytes):
+                    obj_str = obj.decode(DEF_ENCODING)
+                else:
+                    obj_str = obj
+                f.write(obj_str)
         return obj
     except TypeError as e:
         raise e
