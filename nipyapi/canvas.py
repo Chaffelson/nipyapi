@@ -26,6 +26,7 @@ __all__ = [
     "list_all_processors",
     "list_all_processor_types",
     "get_processor_type",
+    "get_processor_docs",
     "create_processor",
     "delete_processor",
     "get_processor",
@@ -523,6 +524,76 @@ def get_processor_type(identifier, identifier_type="name", greedy=True):
     return obj
 
 
+def get_processor_docs(processor):
+    """
+    Get detailed documentation for a processor, including properties, use cases, and tags.
+
+    This function retrieves the full ProcessorDefinition from NiFi, which contains
+    comprehensive documentation useful for understanding processor capabilities
+    and configuration options.
+
+    Args:
+        processor: One of:
+            - ProcessorEntity: An existing processor instance
+            - DocumentedTypeDTO: A processor type from get_processor_type()
+            - str: Processor type name (e.g., "GenerateFlowFile" or full qualified name)
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ProcessorDefinition`: Processor documentation
+            including property_descriptors, tags, supported_relationships,
+            multi_processor_use_cases, dynamic_properties, and more.
+        None: If processor type not found.
+
+    Example::
+
+        # From existing processor
+        proc = nipyapi.canvas.get_processor("MyProcessor")
+        docs = nipyapi.canvas.get_processor_docs(proc)
+        print(docs.tags)  # ['record', 'update', 'json', ...]
+        print(docs.property_descriptors.keys())
+
+        # From processor type
+        proc_type = nipyapi.canvas.get_processor_type("UpdateRecord")
+        docs = nipyapi.canvas.get_processor_docs(proc_type)
+
+        # From type name string
+        docs = nipyapi.canvas.get_processor_docs("GenerateFlowFile")
+
+    """
+    # Extract bundle info based on input type
+    if isinstance(processor, nipyapi.nifi.ProcessorEntity):
+        bundle = processor.component.bundle
+        proc_type = processor.component.type
+    elif isinstance(processor, nipyapi.nifi.DocumentedTypeDTO):
+        bundle = processor.bundle
+        proc_type = processor.type
+    elif isinstance(processor, str):
+        # Look up processor type by name
+        proc_type_obj = get_processor_type(processor, identifier_type="name", greedy=False)
+        if proc_type_obj is None:
+            # Try greedy match
+            proc_type_obj = get_processor_type(processor, identifier_type="name", greedy=True)
+        if proc_type_obj is None:
+            return None
+        if isinstance(proc_type_obj, list):
+            proc_type_obj = proc_type_obj[0]  # Take first match
+        bundle = proc_type_obj.bundle
+        proc_type = proc_type_obj.type
+    else:
+        raise ValueError(
+            f"processor must be ProcessorEntity, DocumentedTypeDTO, or str, "
+            f"got: {type(processor).__name__}"
+        )
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.FlowApi().get_processor_definition(
+            group=bundle.group,
+            artifact=bundle.artifact,
+            version=bundle.version,
+            type=proc_type,
+        )
+
+
 def create_processor(parent_pg, processor, location, name=None, config=None):
     """
     Instantiates a given processor on the canvas
@@ -635,20 +706,23 @@ def delete_processor(processor, refresh=True, force=False):
 
 def schedule_components(pg_id, scheduled, components=None):
     """
-    Changes the scheduled target state of a list of components within a given
-    Process Group.
+    Change the scheduled target state of a list of components within a Process Group.
 
     Note that this does not guarantee that components will be Started or
     Stopped afterwards, merely that they will have their scheduling updated.
 
+    This function only supports RUNNING and STOPPED states. For RUN_ONCE,
+    use :func:`schedule_processor` on individual processors.
+
     Args:
         pg_id (str): The UUID of the parent Process Group
-        scheduled (bool): True to start, False to stop
+        scheduled (bool): True to start (RUNNING), False to stop (STOPPED)
         components (list[ComponentType]): The list of Component Entities to
-            schdule, e.g. ProcessorEntity's
+            schedule, e.g. ProcessorEntity's. If None, schedules all
+            components in the Process Group.
 
     Returns:
-         (bool): True for success, False for not
+        bool: True for success, False for failure
 
     """
     assert isinstance(get_process_group(pg_id, "id"), nipyapi.nifi.ProcessGroupEntity)
@@ -667,26 +741,60 @@ def schedule_components(pg_id, scheduled, components=None):
 
 def schedule_processor(processor, scheduled, refresh=True):
     """
-    Set a Processor to Start or Stop.
+    Set a Processor to Start, Stop, Disable, or Run Once.
 
     Note that this doesn't guarantee that it will change state, merely that
-    it will be instructed to try.
-    Some effort is made to wait and see if the processor starts
+    it will be instructed to try. Some effort is made to wait and see if the
+    processor reaches the target state.
 
     Args:
-        processor (ProcessorEntity): The Processor to target
-        scheduled (bool): True to start, False to stop
+        processor: The Processor to target. Accepts:
+            - str: Processor ID
+            - ProcessorEntity: Processor object
+        scheduled: Target state. Accepts:
+            - bool: True for RUNNING, False for STOPPED (backwards-compatible)
+            - str: "RUNNING", "STOPPED", "DISABLED", or "RUN_ONCE"
         refresh (bool): Whether to refresh the object before action
 
     Returns:
-        (bool): True for success, False for failure
+        bool: True for success, False for failure
 
+    Example::
+
+        # Start a processor by ID
+        nipyapi.canvas.schedule_processor("<processor-id>", True)
+
+        # Start a processor object (backwards compatible)
+        nipyapi.canvas.schedule_processor(proc, True)
+
+        # Stop a processor
+        nipyapi.canvas.schedule_processor(proc, False)
+
+        # Disable a processor (prevents starting, useful for maintenance)
+        nipyapi.canvas.schedule_processor(proc, "DISABLED")
+
+        # Run once - executes one scheduling cycle then stops
+        nipyapi.canvas.schedule_processor(proc, "RUN_ONCE")
     """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor_id = processor
+        processor = get_processor(processor_id, "id")
+        if processor is None:
+            raise ValueError(f"Processor not found: {processor_id}")
     assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
-    assert isinstance(scheduled, bool)
     assert isinstance(refresh, bool)
 
-    def _running_schedule_processor(processor_):
+    # Normalize scheduled to a state string
+    valid_states = ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE")
+    if isinstance(scheduled, bool):
+        target_state = "RUNNING" if scheduled else "STOPPED"
+    elif isinstance(scheduled, str) and scheduled.upper() in valid_states:
+        target_state = scheduled.upper()
+    else:
+        raise ValueError(f"scheduled must be bool or one of {valid_states}, got: {scheduled!r}")
+
+    def _processor_stopped(processor_):
         test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
@@ -696,38 +804,58 @@ def schedule_processor(processor, scheduled, refresh=True):
         )
         return False
 
-    def _starting_schedule_processor(processor_):
+    def _processor_running(processor_):
         test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
         if test_obj.component.state == "RUNNING":
             return True
         log.info("Processor not started, run_status %s", test_obj.component.state)
         return False
 
-    assert isinstance(scheduled, bool)
+    def _processor_run_once_complete(processor_):
+        """Check if RUN_ONCE has completed (processor returns to STOPPED)."""
+        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
+        # RUN_ONCE completes when state returns to STOPPED and no active threads
+        if (
+            test_obj.component.state == "STOPPED"
+            and test_obj.status.aggregate_snapshot.active_thread_count == 0
+        ):
+            return True
+        log.info(
+            "RUN_ONCE not complete, state=%s threads=%s",
+            test_obj.component.state,
+            test_obj.status.aggregate_snapshot.active_thread_count,
+        )
+        return False
+
+    def _processor_disabled(processor_):
+        """Check if processor has reached DISABLED state."""
+        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
+        if test_obj.component.state == "DISABLED":
+            return True
+        log.info("Processor not disabled, state=%s", test_obj.component.state)
+        return False
+
     if refresh:
         target = nipyapi.canvas.get_processor(processor.id, "id")
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
     else:
         target = processor
-    result = schedule_components(
-        pg_id=target.status.group_id, scheduled=scheduled, components=[target]
-    )
-    # If target scheduled state was successfully updated
-    if result:
-        # If we want to stop the processor
-        if not scheduled:
-            # Test that the processor threads have halted
-            stop_test = nipyapi.utils.wait_to_complete(_running_schedule_processor, target)
-            if stop_test:
-                # Return True if we stopped the processor
-                return result
-            # Return False if we scheduled a stop, but it didn't stop
-            return False
-        # Test that the Processor started
-        start_test = nipyapi.utils.wait_to_complete(_starting_schedule_processor, target)
-        if start_test:
-            return result
-        return False
+
+    # Use direct processor API for all state changes (handles all transitions
+    # including from DISABLED state, which schedule_components cannot handle)
+    body = nipyapi.nifi.ProcessorRunStatusEntity(revision=target.revision, state=target_state)
+    with nipyapi.utils.rest_exceptions():
+        nipyapi.nifi.ProcessorsApi().update_run_status4(body=body, id=target.id)
+
+    # Wait for target state
+    if target_state == "RUN_ONCE":
+        return nipyapi.utils.wait_to_complete(_processor_run_once_complete, target)
+    if target_state == "DISABLED":
+        return nipyapi.utils.wait_to_complete(_processor_disabled, target)
+    if target_state == "STOPPED":
+        return nipyapi.utils.wait_to_complete(_processor_stopped, target)
+    # RUNNING
+    return nipyapi.utils.wait_to_complete(_processor_running, target)
 
 
 def update_process_group(pg, update, refresh=True):

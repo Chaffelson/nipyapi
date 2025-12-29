@@ -99,6 +99,10 @@ make dev-install    # Uses uv if available, pip otherwise
 make help           # See all available targets
 ```
 
+**Important**:
+- Always activate venv first: `source .venv/bin/activate` before running Python/make commands
+- Prefer make commands: Check `make help` for available targets before using generic tooling (pip, pytest, sphinx, etc.)
+
 ### Intent Routing
 
 | If you need to... | See |

@@ -550,7 +550,7 @@ class ProcessorDTO(object):
         :param state: The state of this ProcessorDTO.
         :type: str
         """
-        allowed_values = ["RUNNING", "STOPPED", "DISABLED", ]
+        allowed_values = ["RUNNING", "STOPPED", "DISABLED", "STARTING", "STOPPING", "RUN_ONCE", ]
         if state not in allowed_values:
             raise ValueError(
                 "Invalid value for `state` ({0}), must be one of {1}"

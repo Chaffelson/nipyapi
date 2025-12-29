@@ -101,3 +101,10 @@ docs = [
 
 [project.scripts]
 nipyapi = "nipyapi.cli:main"
+
+# Pytest configuration
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::urllib3.exceptions.InsecureRequestWarning",
+]

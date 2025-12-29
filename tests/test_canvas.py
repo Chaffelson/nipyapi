@@ -232,6 +232,40 @@ def test_get_processor_type():
     assert len(r3) > 10
 
 
+def test_get_processor_docs(fix_proc):
+    """Test get_processor_docs with various input types."""
+    # Test with string (processor type name)
+    r1 = canvas.get_processor_docs('GenerateFlowFile')
+    assert r1 is not None
+    assert isinstance(r1, nifi.ProcessorDefinition)
+    assert 'tags' in dir(r1)
+    assert isinstance(r1.tags, list)
+    assert 'property_descriptors' in dir(r1)
+    assert isinstance(r1.property_descriptors, dict)
+
+    # Test with DocumentedTypeDTO
+    proc_type = canvas.get_processor_type('UpdateRecord')
+    r2 = canvas.get_processor_docs(proc_type)
+    assert r2 is not None
+    assert isinstance(r2, nifi.ProcessorDefinition)
+    # UpdateRecord should have record-related tags
+    assert any('record' in tag.lower() for tag in r2.tags)
+
+    # Test with ProcessorEntity
+    proc = fix_proc.generate()
+    r3 = canvas.get_processor_docs(proc)
+    assert r3 is not None
+    assert isinstance(r3, nifi.ProcessorDefinition)
+
+    # Test with invalid input
+    with pytest.raises(ValueError, match="processor must be"):
+        canvas.get_processor_docs(12345)
+
+    # Test with non-existent processor type returns None
+    r4 = canvas.get_processor_docs('NonExistentProcessor')
+    assert r4 is None
+
+
 def test_create_processor(fix_pg):
     f_pg = fix_pg.generate()
     r1 = canvas.create_processor(
@@ -293,26 +327,47 @@ def test_get_processor(fix_proc):
 
 def test_schedule_processor(fix_proc):
     f_p1 = fix_proc.generate()
-    r1 = canvas.schedule_processor(
-        f_p1,
-        True
-    )
+    # Test bool True -> RUNNING (backwards compatible)
+    r1 = canvas.schedule_processor(f_p1, True)
     processor_info = canvas.get_processor(f_p1.id, 'id')
     assert r1 is True
     assert isinstance(processor_info, nifi.ProcessorEntity)
     assert processor_info.component.state == 'RUNNING'
-    r2 = canvas.schedule_processor(
-        f_p1,
-        False
-    )
+
+    # Test bool False -> STOPPED (backwards compatible)
+    r2 = canvas.schedule_processor(f_p1, False)
     status = canvas.get_processor(f_p1.id, 'id')
     assert status.component.state == 'STOPPED'
     assert r2 is True
-    with pytest.raises(AssertionError):
-        _ = canvas.schedule_processor(
-            f_p1,
-            'BANANA'
-        )
+
+    # Test with processor ID string instead of object
+    r3 = canvas.schedule_processor(f_p1.id, "RUNNING")
+    assert r3 is True
+    assert canvas.get_processor(f_p1.id, 'id').component.state == 'RUNNING'
+
+    # Test string "STOPPED"
+    r4 = canvas.schedule_processor(f_p1, "STOPPED")
+    assert r4 is True
+    assert canvas.get_processor(f_p1.id, 'id').component.state == 'STOPPED'
+
+    # Test RUN_ONCE - processor executes once then returns to STOPPED
+    r5 = canvas.schedule_processor(f_p1, "RUN_ONCE")
+    assert r5 is True
+    final_state = canvas.get_processor(f_p1.id, 'id')
+    assert final_state.component.state == 'STOPPED'
+
+    # Test DISABLED - prevents processor from being started
+    r6 = canvas.schedule_processor(f_p1, "DISABLED")
+    assert r6 is True
+    assert canvas.get_processor(f_p1.id, 'id').component.state == 'DISABLED'
+
+    # Re-enable (stop) to allow cleanup
+    r7 = canvas.schedule_processor(f_p1, "STOPPED")
+    assert r7 is True
+
+    # Test invalid value raises ValueError
+    with pytest.raises(ValueError, match="scheduled must be bool or one of"):
+        _ = canvas.schedule_processor(f_p1, 'BANANA')
 
 
 def test_delete_processor(fix_proc):
