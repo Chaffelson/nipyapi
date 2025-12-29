@@ -41,18 +41,14 @@ def upload_asset(
             Env: NIFI_ASSET_PARAM_NAME
 
     Returns:
-        dict with:
-            - asset_id: ID of the uploaded asset
-            - asset_name: Name of the uploaded asset
-            - asset_digest: SHA-256 digest of the asset
-            - context_id: Parameter context the asset was uploaded to
-            - context_name: Name of the parameter context
-            - parameter_updated: "true" if param_name was provided and updated
+        dict with keys: asset_id, asset_name, asset_digest, context_id,
+        context_name, and parameter_updated.
 
     Raises:
         ValueError: Missing required parameters or file not found
 
-    Example:
+    Example::
+
         # Upload from URL and link to parameter
         nipyapi ci upload_asset \\
             --url https://jdbc.postgresql.org/download/postgresql-42.7.6.jar \\

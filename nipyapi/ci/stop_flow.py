@@ -48,7 +48,8 @@ def stop_flow(
         ValueError: Missing required parameters
         Exception: NiFi API errors
 
-    Examples:
+    Example::
+
         # Simple stop (processors only, controllers stay enabled)
         nipyapi ci stop_flow --process_group_id PG_ID
 

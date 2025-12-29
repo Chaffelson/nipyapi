@@ -36,16 +36,14 @@ def import_flow_definition(  # pylint: disable=too-many-arguments,too-many-posit
             location in a grid layout.
 
     Returns:
-        dict with:
-            - process_group_id: ID of the newly created process group
-            - process_group_name: Name of the imported process group
-            - parent_id: ID of the parent process group
-            - source: "file" or "string" indicating the import source
+        dict with keys: process_group_id, process_group_name, parent_id,
+        and source ("file" or "string").
 
     Raises:
         ValueError: Missing required parameters or invalid flow definition
 
-    Example:
+    Example::
+
         # Import from file
         nipyapi ci import_flow_definition \\
             --file_path my-flow.json \\

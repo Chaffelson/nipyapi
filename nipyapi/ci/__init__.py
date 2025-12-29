@@ -9,7 +9,8 @@ These functions wrap nipyapi operations with:
 They return plain dicts and raise exceptions on error.
 The CLI handles output formatting, logging capture, and exit codes.
 
-Example:
+Example::
+
     nipyapi ci ensure_registry --repo owner/repo
     nipyapi ci deploy_flow --bucket flows --flow my-flow
     nipyapi ci start_flow

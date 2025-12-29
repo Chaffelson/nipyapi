@@ -503,50 +503,33 @@ def switch(profile_name=None, profiles_file=None, login=True):
     Automatically detects authentication methods based on available configuration
     parameters rather than profile names, making it flexible for custom profiles.
 
-    Supported authentication methods:
-
-    - OIDC: Requires oidc_token_endpoint, oidc_client_id, oidc_client_secret.
-            Optional nifi_user, nifi_pass (enables Resource Owner Password flow;
-            without them uses Client Credentials flow)
-    - mTLS: Requires client_cert, client_key (+ optional client_key_password)
-    - Basic: Requires nifi_user/nifi_pass for NiFi, registry_user/registry_pass for Registry
+    Supports OIDC (requires oidc_token_endpoint, oidc_client_id, oidc_client_secret),
+    mTLS (requires client_cert, client_key), and Basic auth (requires nifi_user/nifi_pass).
 
     Args:
-        profile_name (str, optional): Name of the profile to switch to.
-                           - None (default): Auto-resolve configuration source:
-                             1. Environment variables if NIFI_API_ENDPOINT is set
-                             2. NIPYAPI_PROFILE env var if set (selects named profile)
-                             3. First profile in ~/.nipyapi/profiles.yml if exists
-                             4. Raises helpful error if none found
-                           - "env": Explicit environment variable mode (for CI/CD).
-                             Fails if NIFI_API_ENDPOINT is not set.
-                           - "<name>": Use specific named profile from profiles file.
-        profiles_file (str, optional): Path to profiles file. Resolution order:
-                                      1. Explicit profiles_file parameter
-                                      2. NIPYAPI_PROFILES_FILE environment variable
-                                      3. nipyapi.config.default_profiles_file
-                                      Ignored when using environment variables.
+        profile_name (str, optional): Profile to switch to. None auto-resolves from
+            env vars or profiles file. "env" uses explicit environment variables.
+            Any other string uses that named profile from the profiles file.
+        profiles_file (str, optional): Path to profiles file. Defaults to
+            NIPYAPI_PROFILES_FILE env var or nipyapi.config.default_profiles_file.
         login (bool, optional): Whether to attempt authentication. Defaults to True.
-                               If False, configures SSL/endpoints but skips login attempts.
-                               Useful for readiness checks where you don't want to
-                               send credentials.
+            If False, configures SSL/endpoints but skips login attempts.
 
     Returns:
-        tuple: (profile_name, metadata) where metadata varies by authentication method:
-              - OIDC: token_data dict containing JWT token info for UUID extraction (login=True)
-              - Basic: username string of the logged-in user (login=True)
-              - mTLS: None (no metadata extracted)
-              - Any method with login=False: None
+        tuple of (profile_name, metadata). Metadata varies by auth method: OIDC
+        returns token_data dict, Basic returns username string, mTLS and
+        login=False return None.
 
     Raises:
         ValueError: If profile not found or required authentication parameters are missing
 
-    Example:
+    Example::
+
         >>> import nipyapi.profiles
         >>> nipyapi.profiles.switch()  # Auto-resolve: env vars or user profile
-        >>> nipyapi.profiles.switch('single-user')  # Uses basic auth (nifi_user/nifi_pass)
-        >>> nipyapi.profiles.switch('secure-mtls')  # Uses mTLS auth (client_cert/client_key)
-        >>> nipyapi.profiles.switch('secure-oidc')  # Uses OIDC auth (oidc_* params)
+        >>> nipyapi.profiles.switch('single-user')  # Uses basic auth
+        >>> nipyapi.profiles.switch('secure-mtls')  # Uses mTLS auth
+        >>> nipyapi.profiles.switch('secure-oidc')  # Uses OIDC auth
         >>> nipyapi.profiles.switch('my-custom')    # Uses whatever auth method is configured
         >>>
         >>> # Explicit environment variable mode for CI/CD (strict - fails if not set)

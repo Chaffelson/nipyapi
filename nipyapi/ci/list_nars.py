@@ -16,7 +16,8 @@ def list_nars() -> dict:
             - count: Number of installed NARs
             - nars: List of NAR summaries with coordinate, state, extensions
 
-    Example:
+    Example::
+
         nipyapi ci list_nars
     """
     log.info("Listing installed NARs")

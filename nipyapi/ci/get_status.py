@@ -30,7 +30,8 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
         - Version control info (versioned, version_id, version_state, etc.)
         - Parameter context info
 
-    Examples:
+    Example::
+
         # Get status of specific process group
         nipyapi ci get_status --process_group_id PG_ID
 

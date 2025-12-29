@@ -1030,7 +1030,8 @@ def get_connection(connection):
     Returns:
         ConnectionEntity: The requested connection
 
-    Example:
+    Example::
+
         # Fetch by ID
         conn = nipyapi.canvas.get_connection("abc-123-uuid")
 
@@ -1063,7 +1064,8 @@ def update_connection(connection, name=None, bends=None, refresh=True):
     Returns:
         ConnectionEntity: The updated connection
 
-    Example:
+    Example::
+
         # Clear all bends from a connection
         updated = nipyapi.canvas.update_connection(conn, bends=[])
 
@@ -1143,13 +1145,9 @@ def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
 
     Performs a breadth-first traversal of the connection graph to find the
     complete connected subgraph (the 'flow'). Useful for selecting an entire
-    flow to move or analyze as a unit.
-
-    Algorithm:
-        1. Fetch all components and connections in one API call (get_flow)
-        2. Build adjacency map: component_id -> set of connected component_ids
-        3. BFS from start_component to find all reachable nodes
-        4. Return both component entities and connections for the subgraph
+    flow to move or analyze as a unit. The algorithm fetches all components
+    in one API call, builds an adjacency map, then performs BFS from the
+    start component to find all reachable nodes.
 
     Args:
         start_component: Any component entity (processor, funnel, port) to
@@ -1158,11 +1156,11 @@ def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
             start_component.component.parent_group_id
 
     Returns:
-        FlowSubgraph: Named tuple with two fields:
-            - components: List of component entities (processors, funnels, ports)
-            - connections: List of ConnectionEntity objects within the flow
+        FlowSubgraph named tuple with 'components' (list of component entities)
+        and 'connections' (list of ConnectionEntity objects within the flow).
 
-    Example:
+    Example::
+
         # Get the complete flow subgraph
         flow = nipyapi.canvas.get_flow_components(proc1)
 
@@ -1977,16 +1975,16 @@ def verify_controller(controller, properties=None, attributes=None):
         attributes: Optional dict of FlowFile attributes for Expression Language
 
     Returns:
-        list[ConfigVerificationResultDTO]: Verification results, where each has:
-            - verification_step_name: What was verified
-            - outcome: "SUCCESSFUL", "FAILED", or "SKIPPED"
-            - explanation: Why it passed/failed
+        list[ConfigVerificationResultDTO]: Verification results. Each has
+        verification_step_name, outcome ("SUCCESSFUL"/"FAILED"/"SKIPPED"),
+        and explanation.
 
     Raises:
         ValueError: Controller not found or is currently enabled
         ApiException: NiFi API errors
 
-    Example:
+    Example::
+
         results = nipyapi.canvas.verify_controller(dbcp_service)
         for r in results:
             print(f"{r.verification_step_name}: {r.outcome}")
@@ -2063,16 +2061,16 @@ def verify_processor(processor, properties=None, attributes=None):
         attributes: Optional dict of FlowFile attributes for Expression Language
 
     Returns:
-        list[ConfigVerificationResultDTO]: Verification results, where each has:
-            - verification_step_name: What was verified
-            - outcome: "SUCCESSFUL", "FAILED", or "SKIPPED"
-            - explanation: Why it passed/failed
+        list[ConfigVerificationResultDTO]: Verification results. Each has
+        verification_step_name, outcome ("SUCCESSFUL"/"FAILED"/"SKIPPED"),
+        and explanation.
 
     Raises:
         ValueError: Processor not found or is currently running
         ApiException: NiFi API errors
 
-    Example:
+    Example::
+
         results = nipyapi.canvas.verify_processor(my_processor)
         for r in results:
             print(f"{r.verification_step_name}: {r.outcome}")
@@ -2143,23 +2141,17 @@ def get_controller_state(controller):
         controller: ControllerServiceEntity or controller service ID (str)
 
     Returns:
-        ComponentStateEntity: The state entity containing:
-            - component_state.component_id: Controller ID
-            - component_state.state_description: Description of what state is stored
-            - component_state.local_state: State for local scope (single node)
-            - component_state.cluster_state: State for cluster scope (distributed)
-
-        Check whichever state map (local_state or cluster_state) has entries.
-        Each state map contains:
-            - scope: "LOCAL" or "CLUSTER"
-            - total_entry_count: Number of entries
-            - state: List of StateEntryDTO with key/value pairs
+        ComponentStateEntity with component_state containing component_id,
+        state_description, local_state (single node), and cluster_state
+        (distributed). Check whichever state map has entries. Each state
+        map has scope, total_entry_count, and state (list of StateEntryDTO).
 
     Raises:
         ValueError: Controller not found
         ApiException: NiFi API errors
 
-    Example:
+    Example::
+
         state = nipyapi.canvas.get_controller_state(my_controller)
         state_map = state.component_state.local_state
         if state_map and state_map.state:
@@ -2199,7 +2191,8 @@ def clear_controller_state(controller):
         ValueError: Controller not found or controller is enabled
         ApiException: NiFi API errors
 
-    Example:
+    Example::
+
         # Disable controller first
         nipyapi.canvas.schedule_controller(my_controller, scheduled=False)
 
@@ -2233,23 +2226,17 @@ def get_processor_state(processor):
         processor: ProcessorEntity or processor ID (str)
 
     Returns:
-        ComponentStateEntity: The state entity containing:
-            - component_state.component_id: Processor ID
-            - component_state.state_description: Description of what state is stored
-            - component_state.local_state: State for local scope (single node)
-            - component_state.cluster_state: State for cluster scope (distributed)
-
-        Check whichever state map (local_state or cluster_state) has entries.
-        Each state map contains:
-            - scope: "LOCAL" or "CLUSTER"
-            - total_entry_count: Number of entries
-            - state: List of StateEntryDTO with key/value pairs
+        ComponentStateEntity with component_state containing component_id,
+        state_description, local_state (single node), and cluster_state
+        (distributed). Check whichever state map has entries. Each state
+        map has scope, total_entry_count, and state (list of StateEntryDTO).
 
     Raises:
         ValueError: Processor not found
         ApiException: NiFi API errors
 
-    Example:
+    Example::
+
         state = nipyapi.canvas.get_processor_state(my_list_file_processor)
         state_map = state.component_state.local_state
         if state_map and state_map.state:
@@ -2286,7 +2273,8 @@ def clear_processor_state(processor):
         ValueError: Processor not found
         ApiException: NiFi API errors
 
-    Example:
+    Example::
+
         # Clear all state
         nipyapi.canvas.clear_processor_state(my_processor)
 

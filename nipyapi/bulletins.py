@@ -57,7 +57,8 @@ def get_bulletins():
         source type) cannot be cleared via API. They expire automatically after
         5 minutes per NiFi's default bulletin retention settings.
 
-    Example:
+    Example::
+
         >>> bulletins = nipyapi.bulletins.get_bulletins()
         >>> for b in bulletins.bulletins or []:
         ...     print(f"{b.bulletin.level}: {b.bulletin.message}")
@@ -98,7 +99,8 @@ def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
                 - node_address (str): Cluster node address (if clustered)
                 - stack_trace (str): Java stack trace for errors (NiFi 2.7.0+)
 
-    Example:
+    Example::
+
         >>> bulletins = nipyapi.bulletins.get_bulletin_board(pg_id="abc-123")
         >>> for b in bulletins:
         ...     print(f"{b.source_name}: {b.message}")
@@ -142,7 +144,8 @@ def clear_processor_bulletins(processor_id, before=None):
     Raises:
         VersionError: If NiFi version < 2.7.0
 
-    Example:
+    Example::
+
         >>> # Clear all bulletins for a processor
         >>> nipyapi.bulletins.clear_processor_bulletins(proc.id)
         >>> # Clear bulletins before a specific time
@@ -374,7 +377,8 @@ def clear_process_group_bulletins(pg_id, before=None, component_ids=None):
         process group (one with no components). This function handles that
         case gracefully by returning None.
 
-    Example:
+    Example::
+
         >>> # Clear all bulletins in a process group hierarchy
         >>> nipyapi.bulletins.clear_process_group_bulletins(pg.id)
         >>> # Clear only specific components
@@ -418,7 +422,8 @@ def clear_all_bulletins(pg_id=None, before=None):
         in the process group clear API (may be fixed in future NiFi versions).
         FLOW_CONTROLLER bulletins cannot be cleared via API.
 
-    Example:
+    Example::
+
         >>> cleared = nipyapi.bulletins.clear_all_bulletins()
         >>> print(f"Cleared {cleared} bulletins")
     """

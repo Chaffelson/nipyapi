@@ -314,7 +314,8 @@ def get_parameter_context_hierarchy(context_id, include_bindings=False, include_
             - inherited: List of child hierarchy dicts (recursive)
             - bound_process_groups: List of {id, name} dicts (if include_bindings=True)
 
-    Example:
+    Example::
+
         >>> # Get full hierarchy with parameters
         >>> hierarchy = get_parameter_context_hierarchy(context_id)
         >>> print(hierarchy['name'])  # "PostgreSQL Ingestion Parameters"
@@ -388,19 +389,12 @@ def get_parameter_ownership_map(context_id):
         context_id (str): The ID of the root parameter context
 
     Returns:
-        dict: Map of parameter name to ownership info:
-            {
-                "param_name": {
-                    "context_id": "...",
-                    "context_name": "...",
-                    "sensitive": bool,
-                    "has_asset": bool,
-                    "asset_name": str or None,
-                    "current_value": str or None (None if sensitive)
-                }
-            }
+        dict mapping parameter names to ownership info dicts. Each ownership
+        dict has: context_id, context_name, sensitive, has_asset, asset_name,
+        and current_value (None if sensitive).
 
-    Example:
+    Example::
+
         >>> ownership = get_parameter_ownership_map(context_id)
         >>> print(ownership["PostgreSQL Username"])
         {'context_id': '...', 'context_name': 'PostgreSQL Source Parameters', ...}
@@ -449,7 +443,8 @@ def update_parameter_in_context(context_id, param_name, value, create_if_missing
         ValueError: If parameter not found and create_if_missing=False
         ValueError: If context not found
 
-    Example:
+    Example::
+
         >>> # Safe update - only if param exists in this context
         >>> update_parameter_in_context(ctx_id, "Username", "newuser")
 
@@ -503,7 +498,8 @@ def list_assets(context_id):
     Returns:
         list[dict]: List of asset info dicts with keys: id, name, digest, missing_content
 
-    Example:
+    Example::
+
         >>> assets = list_assets(context_id)
         >>> for asset in assets:
         ...     print(f"{asset['name']} ({asset['id']})")
@@ -541,7 +537,8 @@ def upload_asset(context_id, file_path=None, file_bytes=None, filename=None):
         ValueError: If neither file_path nor file_bytes provided
         ValueError: If filename not provided when using file_bytes
 
-    Example:
+    Example::
+
         >>> # Upload from file path
         >>> asset = upload_asset(context_id, file_path="/path/to/driver.jar")
 
@@ -589,7 +586,8 @@ def delete_asset(context_id, asset_id):
     Raises:
         ApiException: If asset not found or delete fails
 
-    Example:
+    Example::
+
         >>> result = delete_asset(context_id, asset_id)
         >>> print(f"Deleted: {result['name']}")
     """
@@ -622,7 +620,8 @@ def prepare_parameter_with_asset(name, asset_id, asset_name, description=None):
         :class:`~nipyapi.nifi.models.ParameterEntity`: ParameterEntity ready for
             use with update_parameter_context or upsert_parameter_to_context
 
-    Example:
+    Example::
+
         >>> # Upload asset first
         >>> asset = upload_asset(context_id, file_path="/path/to/driver.jar")
         >>> # Then prepare parameter to reference it

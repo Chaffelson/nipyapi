@@ -86,7 +86,8 @@ def create_registry_client(  # pylint: disable=too-many-arguments,too-many-posit
     Returns:
         :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The new registry client object
 
-    Example:
+    Example::
+
         >>> # NiFi Registry client
         >>> nifi_reg = nipyapi.versioning.create_registry_client(
         ...     name='my-registry',
@@ -200,7 +201,8 @@ def update_registry_client(client, properties=None, description=None, refresh=Tr
     Returns:
         (FlowRegistryClientEntity): The updated client object
 
-    Example:
+    Example::
+
         >>> client = nipyapi.versioning.get_registry_client("GitHub-FlowRegistry")
         >>> updated = nipyapi.versioning.update_registry_client(
         ...     client,
@@ -268,7 +270,8 @@ def list_registry_client_types():
         list[:class:`~nipyapi.nifi.models.DocumentedTypeDTO`]: List of available
             registry client types with their properties and descriptions
 
-    Example:
+    Example::
+
         >>> types = nipyapi.versioning.list_registry_client_types()
         >>> github_type = [t for t in types if 'GitHub' in t.type][0]
         >>> print(github_type.type)
@@ -433,7 +436,8 @@ def list_git_registry_buckets(registry_client_id, branch=None):
     Returns:
         :class:`~nipyapi.nifi.models.FlowRegistryBucketsEntity`
 
-    Example:
+    Example::
+
         >>> client = nipyapi.versioning.get_registry_client('my-github-client')
         >>> buckets = nipyapi.versioning.list_git_registry_buckets(client.id)
         >>> for b in buckets.buckets:
@@ -462,7 +466,8 @@ def get_git_registry_bucket(registry_client_id, identifier, greedy=True, branch=
         None for no matches, single object for unique match,
         list of objects for multiple matches.
 
-    Example:
+    Example::
+
         >>> client = nipyapi.versioning.get_registry_client('my-github-client')
         >>> bucket = nipyapi.versioning.get_git_registry_bucket(
         ...     client.id, 'flows', greedy=False
@@ -490,7 +495,8 @@ def list_git_registry_flows(registry_client_id, bucket_id, branch=None):
     Returns:
         :class:`~nipyapi.nifi.models.VersionedFlowsEntity`
 
-    Example:
+    Example::
+
         >>> client = nipyapi.versioning.get_registry_client('my-github-client')
         >>> flows = nipyapi.versioning.list_git_registry_flows(client.id, 'flows')
         >>> for f in flows.versioned_flows:
@@ -521,7 +527,8 @@ def get_git_registry_flow(registry_client_id, bucket_id, identifier, greedy=True
         None for no matches, single object for unique match,
         list of objects for multiple matches.
 
-    Example:
+    Example::
+
         >>> client = nipyapi.versioning.get_registry_client('my-github-client')
         >>> flow = nipyapi.versioning.get_git_registry_flow(
         ...     client.id, 'flows', 'http-responder', greedy=False
@@ -561,7 +568,8 @@ def list_git_registry_flow_versions(registry_client_id, bucket_id, flow_id, bran
     Returns:
         :class:`~nipyapi.nifi.models.VersionedFlowSnapshotMetadataSetEntity`
 
-    Example:
+    Example::
+
         >>> client = nipyapi.versioning.get_registry_client('my-github-client')
         >>> versions = nipyapi.versioning.list_git_registry_flow_versions(
         ...     client.id, 'flows', 'http-responder'
@@ -616,7 +624,8 @@ def deploy_git_registry_flow(
         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The newly deployed
             Process Group.
 
-    Example:
+    Example::
+
         >>> client = nipyapi.versioning.get_registry_client('my-github-client')
         >>> root_id = nipyapi.canvas.get_root_pg_id()
         >>> pg = nipyapi.versioning.deploy_git_registry_flow(
@@ -720,7 +729,8 @@ def update_git_flow_ver(process_group, target_version=None, branch=None):
         ValueError: If the process group is not under version control, if the
             target version is not found, or if the update fails.
 
-    Example:
+    Example::
+
         >>> pg = nipyapi.canvas.get_process_group('my-flow', 'name')
         >>> # Change to a specific commit
         >>> result = nipyapi.versioning.update_git_flow_ver(pg, 'abc123def456')
@@ -863,7 +873,8 @@ def save_git_flow_ver(
     Raises:
         ValueError: If required parameters are missing or objects not found.
 
-    Example:
+    Example::
+
         >>> pg = nipyapi.canvas.get_process_group('my-flow', 'name')
         >>> # Initial commit - start version control
         >>> result = nipyapi.versioning.save_git_flow_ver(
@@ -991,7 +1002,8 @@ def get_local_modifications(process_group):
     Raises:
         ValueError: If the process group is not found or not under version control.
 
-    Example:
+    Example::
+
         >>> pg = nipyapi.canvas.get_process_group('my-flow', 'name')
         >>> diff = nipyapi.versioning.get_local_modifications(pg)
         >>> for component in diff.component_differences:
@@ -1765,7 +1777,8 @@ def export_process_group_definition(
         str: The serialized flow definition if file_path is None, otherwise
             the path written to
 
-    Example:
+    Example::
+
         >>> pg = nipyapi.canvas.get_process_group('my-flow')
         >>> nipyapi.versioning.export_process_group_definition(
         ...     pg, file_path='my-flow.json', mode='json'
@@ -1815,7 +1828,8 @@ def import_process_group_definition(parent_pg, flow_definition=None, file_path=N
     Returns:
         ProcessGroupEntity: The newly imported process group
 
-    Example:
+    Example::
+
         >>> root_pg = nipyapi.canvas.get_process_group(
         ...     nipyapi.canvas.get_root_pg_id(), 'id'
         ... )

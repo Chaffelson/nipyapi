@@ -117,18 +117,15 @@ def verify_config(
         fail_on_error: Raise exception if any verification fails (default: True)
 
     Returns:
-        dict with:
-            - verified (str): "true" if all verifications passed
-            - failed_count (int): Number of components that failed verification
-            - controller_results (list): Results for each controller
-            - processor_results (list): Results for each processor
-            - summary (str): Human-readable summary
+        dict with keys: verified, failed_count, controller_results,
+        processor_results, and summary.
 
     Raises:
         ValueError: Missing required parameters or verification failed
             (when fail_on_error=True)
 
-    Example:
+    Example::
+
         # In CI/CD pipeline
         nipyapi ci verify_config --process-group-id <pg-id>
 

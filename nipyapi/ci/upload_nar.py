@@ -36,7 +36,8 @@ def upload_nar(
     Raises:
         ValueError: Missing required parameters, file not found, or installation fails
 
-    Example:
+    Example::
+
         nipyapi ci upload_nar --file_path /path/to/my-nar-1.0.0.nar
     """
     # Get from environment if not provided

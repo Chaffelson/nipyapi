@@ -37,7 +37,8 @@ def detach_flow(
     Raises:
         ValueError: Missing required parameters or not under version control
 
-    Example:
+    Example::
+
         # Fork workflow: detach from read-only registry, save to your own
         nipyapi ci detach_flow --process_group_id PG_ID
         nipyapi ci commit_flow --process_group_id PG_ID --registry_client MyRepo --bucket flows

@@ -49,7 +49,8 @@ def list_registry_flows(  # pylint: disable=too-many-locals
         ValueError: If registry client or bucket not found, or multiple
                    registry clients match when greedy=False.
 
-    Examples:
+    Example::
+
         # List all flows in bucket
         nipyapi ci list_registry_flows --registry_client my-github --bucket flows
 

@@ -40,18 +40,14 @@ def export_parameters(
                           context owns each parameter. Env: NIFI_INCLUDE_HIERARCHY
 
     Returns:
-        dict with:
-            - context_id: ID of the parameter context
-            - context_name: Name of the parameter context
-            - file_path: Path where file was written, or "stdout"
-            - format: 'json' or 'yaml'
-            - parameter_count: Number of parameters
-            - parameters: JSON/YAML string (only if file_path not provided)
+        dict with keys: context_id, context_name, file_path, format,
+        parameter_count, and parameters (if file_path not provided).
 
     Raises:
         ValueError: Missing required parameters or context not found
 
-    Example:
+    Example::
+
         # Export by context ID
         nipyapi ci export_parameters --context_id abc123
 

@@ -661,7 +661,8 @@ def resolve_relative_paths(file_path, root_path=None):
         str or None: Absolute path if input was a relative path string,
                     unchanged if input was absolute path or None.
 
-    Example:
+    Example::
+
         >>> resolve_relative_paths('certs/ca.pem', '/project')
         '/project/certs/ca.pem'
         >>> resolve_relative_paths('/etc/ssl/ca.pem')
@@ -710,7 +711,8 @@ def getenv_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     Returns:
         Optional[bool]: Boolean value or default if not set
 
-    Example:
+    Example::
+
         >>> os.environ['MY_FLAG'] = '0'
         >>> getenv_bool('MY_FLAG')  # False
         >>> os.environ['MY_FLAG'] = 'true'
@@ -755,7 +757,8 @@ def format_timestamp(ts=None, fmt=None):
         str: Formatted timestamp string. Default format includes millisecond
             precision and 'Z' suffix indicating UTC.
 
-    Example:
+    Example::
+
         >>> format_timestamp()  # Current time, ISO 8601
         '2025-01-15T12:30:45.123Z'
         >>> from datetime import datetime, timezone

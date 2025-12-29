@@ -31,7 +31,8 @@ Component Dimensions (empirically verified):
     - Queue Box: 224 x 56 px (connection label)
     - Label: User-definable (default 150 x 150 px)
 
-Flow Layout Example:
+Flow Layout Example::
+
     import nipyapi
 
     # Start a new flow on empty canvas (returns DEFAULT_ORIGIN: 400, 400)
@@ -50,7 +51,8 @@ Flow Layout Example:
     side_proc = nipyapi.canvas.create_processor(pg, proc_type,
         location=nipyapi.layout.fork(proc1, direction="right"))
 
-Process Group Grid Example:
+Process Group Grid Example::
+
     # Arrange all PGs in root canvas into a sorted grid
     nipyapi.layout.align_pg_grid(root_id, sort_by_name=True)
 
@@ -58,15 +60,14 @@ Process Group Grid Example:
     pos = nipyapi.layout.suggest_pg_position(root_id)
     nipyapi.canvas.create_process_group(root_pg, "New PG", location=pos)
 
-Automatic Flow Layout:
-    The suggest_flow_layout() function can organize a chaotic flow automatically:
+Automatic Flow Layout::
 
     plan = nipyapi.layout.suggest_flow_layout(pg.id)
     for item in plan['spine'] + plan['branches']:
         comp = get_component(item['id'])
         nipyapi.layout.move_component(comp, item['position'])
 
-    This typically achieves 90% organization. See limitations below.
+This typically achieves 90% organization. See limitations below.
 
 Limitations of suggest_flow_layout():
     The automatic layout handles most cases well but has known limitations that
@@ -210,7 +211,8 @@ def snap_to_grid(value: float) -> int:
     Returns:
         Value rounded to nearest multiple of GRID_SIZE (8)
 
-    Example:
+    Example::
+
         x = snap_to_grid(145)  # Returns 144
         y = snap_to_grid(150)  # Returns 152
     """
@@ -227,7 +229,8 @@ def snap_position(position: Tuple[float, float]) -> Tuple[int, int]:
     Returns:
         Grid-aligned (x, y) tuple
 
-    Example:
+    Example::
+
         pos = snap_position((145, 203))  # Returns (144, 200)
     """
     return (snap_to_grid(position[0]), snap_to_grid(position[1]))
@@ -283,7 +286,8 @@ def below(component, blocks: int = 1, align: str = "aligned") -> Tuple[float, fl
     Returns:
         Position tuple (x, y) for the new component
 
-    Example:
+    Example::
+
         proc2_pos = nipyapi.layout.below(proc1)
         funnel_pos = nipyapi.layout.below(proc1, align="center")
         port_pos = nipyapi.layout.below(proc1, align="center_port")
@@ -336,7 +340,8 @@ def right_of(component, blocks: int = 1, align: str = "aligned") -> Tuple[float,
     Returns:
         Position tuple (x, y) for the new component
 
-    Example:
+    Example::
+
         proc2_pos = nipyapi.layout.right_of(proc1)
         funnel_pos = nipyapi.layout.right_of(proc1, align="center")
     """
@@ -389,7 +394,8 @@ def suggest_bend_position(source, target) -> Tuple[float, float]:
     Returns:
         Position tuple (x, y) for the bend point
 
-    Example:
+    Example::
+
         bend = nipyapi.layout.suggest_bend_position(proc1, proc2)
         nipyapi.canvas.create_connection(proc1, proc2, bends=[bend])
     """
@@ -446,7 +452,8 @@ def fork(component, direction: str = "right", rows: int = 1) -> Tuple[float, flo
     Returns:
         Position tuple (x, y) for the forked processor
 
-    Example:
+    Example::
+
         # Fork a side path from a processor
         side_pos = nipyapi.layout.fork(main_proc, direction="right")
         side_proc = nipyapi.canvas.create_processor(pg, proc_type, location=side_pos)
@@ -488,7 +495,8 @@ def new_flow(component=None, direction: str = "right") -> Tuple[float, float]:
     Returns:
         Position tuple (x, y) for the new flow's first component
 
-    Example:
+    Example::
+
         # Start first flow on empty canvas
         first_pos = nipyapi.layout.new_flow()  # Returns DEFAULT_ORIGIN
 
@@ -526,7 +534,8 @@ def grid_position(row: int, col: int, origin: tuple = DEFAULT_ORIGIN) -> tuple:
     Returns:
         Position tuple (x, y) for the grid cell
 
-    Example:
+    Example::
+
         # Create a 2x2 grid of processors
         for row in range(2):
             for col in range(2):
@@ -560,7 +569,8 @@ def get_canvas_bounds(pg_id: str = None, components: list = None) -> dict:
         Dict with keys: min_x, max_x, min_y, max_y, width, height
         Returns None values if no components found.
 
-    Example:
+    Example::
+
         # Get bounds of entire canvas
         bounds = nipyapi.layout.get_canvas_bounds(pg_id=pg.id)
 
@@ -652,19 +662,17 @@ def find_flow_spine(  # pylint: disable=too-many-locals,too-many-branches,too-ma
         start_component: Optional component to start from. If provided, finds
             the longest path starting from this component. If None, finds the
             globally longest path.
-        prefer_success: Strategy for choosing between paths:
-            - False (default): Longest path wins, success count breaks ties.
-                Results in simplest/most linear flow shape.
-            - True: Heavily weight "success" relationships. Shorter paths with
-                more success edges may win over longer paths with fewer.
-                Reflects NiFi's semantic convention where "success" is the
-                happy path.
+        prefer_success: Strategy for choosing between paths. False (default)
+            picks longest path with success count as tiebreaker, giving the
+            simplest shape. True heavily weights "success" relationships, so
+            shorter paths with more success edges may win.
 
     Returns:
         List of component IDs representing the spine, ordered from entry to exit.
         Returns empty list if no connections exist.
 
-    Example:
+    Example::
+
         # Find the longest spine (default - simplest shape)
         spine_ids = nipyapi.layout.find_flow_spine(pg.id)
 
@@ -823,14 +831,13 @@ def get_side_branches(pg_id: str, spine: list = None, recursive: bool = True) ->
             If False, only find direct branches from spine components.
 
     Returns:
-        Dict mapping component IDs to lists of their branch component IDs:
-        {
-            'spine_comp_id': ['branch_comp_1', 'branch_comp_2', ...],
-            'branch_comp_1': ['sub_branch_1', ...],  # if recursive
-            ...
-        }
+        Dict mapping component IDs to lists of their branch component IDs.
+        Keys are component IDs that have branches, values are lists of branch
+        component IDs. If recursive=True, branch components that have their
+        own sub-branches will also appear as keys.
 
-    Example:
+    Example::
+
         spine = nipyapi.layout.find_flow_spine(pg.id)
         branches = nipyapi.layout.get_side_branches(pg.id, spine)
 
@@ -895,32 +902,20 @@ def suggest_flow_layout(  # pylint: disable=too-many-locals,too-many-branches
     """
     Analyze a flow and suggest an organized layout.
 
-    Returns a structured plan for laying out the flow:
-    - Spine components laid out vertically (column 0)
-    - Side branches laid out to the right, with sub-branches further right
-
-    The algorithm:
-    1. Find the spine (main forward path)
-    2. Recursively find all branches
-    3. Assign positions: spine at col 0, branches at col 1+, sub-branches at col 2+
+    Returns a structured plan for laying out the flow with spine components
+    vertically (column 0) and side branches to the right. The algorithm finds
+    the spine, recursively finds all branches, then assigns grid positions.
 
     Args:
         pg_id: Process group ID containing the flow
 
     Returns:
-        Dict with layout plan:
-        {
-            'spine': [
-                {'id': 'comp_id', 'row': 0, 'col': 0, 'position': (x, y)},
-                ...
-            ],
-            'branches': [
-                {'id': 'comp_id', 'fork_from': 'parent_id', 'row': 1, 'col': 1, 'position': (x, y)},
-                ...
-            ]
-        }
+        Dict with 'spine' and 'branches' keys. Each contains a list of dicts
+        with 'id', 'row', 'col', and 'position' keys. Branch items also have
+        'fork_from' indicating the parent component ID.
 
-    Example:
+    Example::
+
         plan = nipyapi.layout.suggest_flow_layout(pg.id)
 
         for item in plan['spine'] + plan['branches']:
@@ -1043,7 +1038,8 @@ def suggest_empty_position(pg_id: str, prefer: str = "right") -> tuple:
         Position tuple (x, y) for new component. Returns DEFAULT_ORIGIN if
         the canvas is empty.
 
-    Example:
+    Example::
+
         # Find empty space to the right of all existing flows
         pos = nipyapi.layout.suggest_empty_position(pg.id, prefer="right")
         proc = nipyapi.canvas.create_processor(pg, proc_type, location=pos)
@@ -1255,7 +1251,8 @@ def move_component(component, position: tuple, refresh: bool = True, include_ret
     Returns:
         Updated component entity
 
-    Example:
+    Example::
+
         # Move a processor down by one block
         new_pos = nipyapi.layout.below(proc1)
         nipyapi.layout.move_component(proc1, new_pos)
@@ -1282,10 +1279,9 @@ def transpose_flow(components: list, offset: tuple, pg_id: str = None, connectio
     """
     Move an entire flow by the given offset, including all connection bends.
 
-    This function handles the complexity of moving a flow as a unit:
-    1. Moves all components by the offset
-    2. Moves bends on all connections within the flow (both retry loops and
-       cross-component connections)
+    This function handles the complexity of moving a flow as a unit. It moves
+    all components by the offset, then moves bends on all connections within
+    the flow (both retry loops and cross-component connections).
 
     This matches the behavior of selecting multiple components in the NiFi UI
     and dragging them together.
@@ -1302,7 +1298,8 @@ def transpose_flow(components: list, offset: tuple, pg_id: str = None, connectio
     Returns:
         List of updated component entities
 
-    Example:
+    Example::
+
         # Get the complete flow subgraph (single API call)
         flow = nipyapi.canvas.get_flow_components(start_proc)
 
@@ -1376,7 +1373,8 @@ def clear_flow_bends(pg_id: str, include_self_loops: bool = False) -> int:
     Returns:
         int: Number of connections that had bends cleared
 
-    Example:
+    Example::
+
         # Before reorganizing a messy flow
         nipyapi.layout.clear_flow_bends(pg.id)
 
@@ -1422,7 +1420,8 @@ def get_pg_grid_position(row: int, col: int, origin: tuple = DEFAULT_ORIGIN) -> 
     Returns:
         Position tuple (x, y) for the grid cell
 
-    Example:
+    Example::
+
         # Get position for row 2, column 3
         pos = get_pg_grid_position(2, 3)  # Returns (1600, 800) with default origin
     """
@@ -1468,7 +1467,8 @@ def suggest_pg_position(parent_pg_id: str) -> tuple:
     Returns:
         Position tuple (x, y) for the new process group
 
-    Example:
+    Example::
+
         pos = nipyapi.layout.suggest_pg_position(root_pg_id)
         new_pg = nipyapi.canvas.create_process_group(root, "New PG", location=pos)
     """
@@ -1530,7 +1530,8 @@ def align_pg_grid(  # pylint: disable=too-many-locals
     Returns:
         List of dicts with move details: [{'name', 'id', 'from', 'to'}, ...]
 
-    Example:
+    Example::
+
         # Auto-calculate columns, sort alphabetically
         nipyapi.layout.align_pg_grid(pg_id, sort_by_name=True)
 

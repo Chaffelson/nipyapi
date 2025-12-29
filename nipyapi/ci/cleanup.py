@@ -63,7 +63,8 @@ def cleanup(
     Raises:
         ValueError: Missing required parameters
 
-    Examples:
+    Example::
+
         # Just stop the flow (safest)
         nipyapi ci cleanup --process_group_id PG_ID --stop_only
 

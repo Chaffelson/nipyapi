@@ -26,7 +26,8 @@ Python processors and other extension processors may require initialization time
 after being created (e.g., setting up a virtual environment). Use the processor
 initialization functions to detect and wait for this.
 
-Example:
+Example::
+
     >>> import nipyapi
     >>> # Upload a NAR and create a processor
     >>> nar = nipyapi.extensions.upload_nar('/path/to/custom.nar')
@@ -52,7 +53,8 @@ def list_nars():
     Returns:
         list[:class:`~nipyapi.nifi.models.NarSummaryDTO`]: List of NAR summary objects
 
-    Example:
+    Example::
+
         >>> nars = nipyapi.extensions.list_nars()
         >>> for nar in nars:
         ...     print(f"{nar.coordinate.group}:{nar.coordinate.artifact}")
@@ -77,7 +79,8 @@ def get_nar(identifier):
         :class:`~nipyapi.nifi.models.NarSummaryDTO`: NAR summary object,
             or None if not found
 
-    Example:
+    Example::
+
         >>> nar = nipyapi.extensions.get_nar('abc-123-def')
         >>> print(nar.state)
     """
@@ -103,7 +106,8 @@ def get_nar_details(identifier):
             processor_types, controller_service_types, reporting_task_types.
             Returns None if not found.
 
-    Example:
+    Example::
+
         >>> details = nipyapi.extensions.get_nar_details('abc-123-def')
         >>> for proc in details.processor_types:
         ...     print(proc.type)
@@ -130,7 +134,8 @@ def get_nar_by_coordinate(group, artifact, version=None):
         :class:`~nipyapi.nifi.models.NarSummaryDTO` or list: Single NAR if version
             specified, list of matching NARs otherwise. Returns None if not found.
 
-    Example:
+    Example::
+
         >>> nar = nipyapi.extensions.get_nar_by_coordinate(
         ...     'com.example', 'my-processors-nar', '1.0.0'
         ... )
@@ -153,13 +158,11 @@ def upload_nar(file_path=None, file_bytes=None, filename=None, timeout=120):
     """
     Upload a NAR file to NiFi and wait for installation to complete.
 
-    This function performs a two-phase wait:
-    1. Install phase: Waits for NAR to reach INSTALLED state
-    2. Discovery phase: For NARs with extensions (especially Python processors),
-       waits for processor types to be discovered and available in the API
-
-    The discovery phase is important for Python processor NARs because processor
-    type discovery happens asynchronously after the NAR is marked as installed.
+    This function performs a two-phase wait. First, it waits for the NAR to
+    reach INSTALLED state. Then, for NARs with extensions (especially Python
+    processors), it waits for processor types to be discovered in the API.
+    The discovery phase is important because processor type discovery happens
+    asynchronously after the NAR is marked as installed.
 
     Args:
         file_path (str, optional): Path to NAR file on disk
@@ -175,7 +178,8 @@ def upload_nar(file_path=None, file_bytes=None, filename=None, timeout=120):
         ValueError: If neither file_path nor file_bytes provided, or installation fails
         FileNotFoundError: If file_path doesn't exist
 
-    Example:
+    Example::
+
         >>> nar = nipyapi.extensions.upload_nar('/path/to/my-nar-1.0.0.nar')
         >>> print(f"Installed: {nar.identifier}")
         >>> # Processor types are now available
@@ -226,7 +230,8 @@ def download_nar(identifier, file_path=None):
     Returns:
         bytes or str: NAR file contents if file_path is None, otherwise the file path
 
-    Example:
+    Example::
+
         >>> nipyapi.extensions.download_nar('abc-123', '/tmp/backup.nar')
         >>> # Or get bytes directly
         >>> nar_bytes = nipyapi.extensions.download_nar('abc-123')
@@ -251,19 +256,13 @@ def delete_nar(identifier, force=False, timeout=30):
     """
     Delete an installed NAR from NiFi and wait for cleanup to complete.
 
-    When force=True, this function waits for the system to reach a stable
-    state before returning. This includes verifying:
-    - The NAR is no longer found in the system
-    - Any processors that were using the NAR have reached a halting state
-      (deleted, orphaned/missing_nar, or error)
+    When force=True, waits for the NAR to be removed and any processors using
+    it to reach a halting state (deleted, orphaned/missing_nar, or error).
 
-    Note: NiFi Bug Workaround
-        If force=True and any processors from this NAR are still initializing
-        (e.g., Python venv creation in progress), the NiFi API will block
-        indefinitely. This function checks for initializing processors and
-        raises an error to prevent this condition.
-
-        See: resources/scripts/NIFI_PYTHON_BRIDGE_BUGS.md for details.
+    Warning: If force=True and processors from this NAR are still initializing
+    (e.g., Python venv creation in progress), the NiFi API will block. This
+    function checks for initializing processors and raises an error to prevent
+    this. See resources/scripts/NIFI_PYTHON_BRIDGE_BUGS.md for details.
 
     Args:
         identifier (str): The NAR identifier
@@ -271,17 +270,15 @@ def delete_nar(identifier, force=False, timeout=30):
         timeout (int): Maximum seconds to wait for cleanup (default: 30)
 
     Returns:
-        dict: Deletion result with:
-            - nar_summary: The deleted NAR summary (if available)
-            - cleanup_complete: True if all processors reached halting state
-            - affected_processors: List of processor IDs that were affected
+        dict with keys: nar_summary, cleanup_complete, and affected_processors.
 
     Raises:
         ValueError: If force=True and processors from this NAR are still
             initializing. Delete the processors first or wait for them
             to complete initialization.
 
-    Example:
+    Example::
+
         >>> result = nipyapi.extensions.delete_nar('abc-123-def', force=True)
         >>> if result['cleanup_complete']:
         ...     print("NAR and all processors cleaned up")
@@ -476,7 +473,8 @@ def get_processor_init_status(processor):
             - validation_errors: List of validation error strings
             - init_message: Human-readable description of current state
 
-    Example:
+    Example::
+
         >>> status = nipyapi.extensions.get_processor_init_status(proc)
         >>> if status['is_ready']:
         ...     print("Processor ready for configuration")
@@ -553,7 +551,8 @@ def wait_for_processor_init(processor, timeout=60):
         ValueError: If processor not found, NAR missing, dependency download
             failed, or timeout reached
 
-    Example:
+    Example::
+
         >>> proc = nipyapi.canvas.create_processor(...)
         >>> proc = nipyapi.extensions.wait_for_processor_init(proc)
         >>> # Processor is now ready for configuration
@@ -622,7 +621,8 @@ def get_processor_bundle_versions(processor_type):
             - type: Full processor type name
             - description: Processor description
 
-    Example:
+    Example::
+
         >>> versions = nipyapi.extensions.get_processor_bundle_versions(
         ...     'PrepareRegulatoryFile'
         ... )
@@ -667,7 +667,8 @@ def get_processor_type_version(processor_type, version):
     Raises:
         ValueError: If no matching processor type/version found
 
-    Example:
+    Example::
+
         >>> # Get the v2 processor type
         >>> proc_type = nipyapi.extensions.get_processor_type_version(
         ...     'PrepareRegulatoryFile', '0.0.2-SNAPSHOT'
@@ -716,7 +717,8 @@ def change_processor_bundle_version(processor, target_version):
     Raises:
         ValueError: If processor not found, or target version not available
 
-    Example:
+    Example::
+
         >>> proc = nipyapi.canvas.get_processor('MyProcessor', 'name')
         >>> updated = nipyapi.extensions.change_processor_bundle_version(
         ...     proc, '0.0.2-SNAPSHOT'

@@ -48,7 +48,8 @@ def list_flows(  # pylint: disable=too-many-locals
         - modified: Whether local changes exist
         - flow_name, bucket_name: Registry flow info
 
-    Examples:
+    Example::
+
         # List immediate child process groups from root
         nipyapi ci list_flows
 

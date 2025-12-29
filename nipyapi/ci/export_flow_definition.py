@@ -34,17 +34,14 @@ def export_flow_definition(  # pylint: disable=too-many-arguments,too-many-posit
             Env: NIFI_INCLUDE_REFERENCED_SERVICES. Defaults to False.
 
     Returns:
-        dict with:
-            - process_group_id: ID of the exported process group
-            - process_group_name: Name of the exported process group
-            - file_path: Path where flow was written (or "stdout" if not written)
-            - format: Export format used (json or yaml)
-            - flow_definition: The flow definition string (if file_path not provided)
+        dict with keys: process_group_id, process_group_name, file_path,
+        format, and flow_definition (if file_path not provided).
 
     Raises:
         ValueError: Missing required parameters or process group not found
 
-    Example:
+    Example::
+
         # Export to file
         nipyapi ci export_flow_definition \\
             --process_group_id abc123 \\

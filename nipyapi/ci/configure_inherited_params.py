@@ -36,18 +36,14 @@ def configure_inherited_params(
                        exist in inherited contexts. Env: NIFI_ALLOW_OVERRIDE (default: false)
 
     Returns:
-        dict with:
-            - dry_run: "true" or "false"
-            - plan: Summary of planned/executed updates
-            - parameters_updated: Count of parameters updated
-            - contexts_modified: Count of contexts modified
-            - warnings: Any warnings (e.g., asset replacement)
-            - errors: Any errors (e.g., parameter not found)
+        dict with keys: dry_run, plan, parameters_updated, contexts_modified,
+        warnings, and errors.
 
     Raises:
         ValueError: Missing required parameters or invalid JSON
 
-    Example:
+    Example::
+
         # From inline JSON
         nipyapi ci configure_inherited_params \\
             --process_group_id abc123 \\

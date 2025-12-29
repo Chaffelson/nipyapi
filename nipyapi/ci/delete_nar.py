@@ -44,7 +44,8 @@ def delete_nar(
     Raises:
         ValueError: Missing required parameters or NAR not found
 
-    Example:
+    Example::
+
         # Delete by identifier
         nipyapi ci delete_nar --identifier abc-123-def
 

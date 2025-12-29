@@ -285,7 +285,9 @@ Caching Behavior
 Cache Location
 --------------
 
-Virtual environments are stored in NiFi's working directory::
+Virtual environments are stored in NiFi's working directory:
+
+.. code-block:: text
 
     $NIFI_HOME/work/python/extensions/<processor_name>/<version>/
 

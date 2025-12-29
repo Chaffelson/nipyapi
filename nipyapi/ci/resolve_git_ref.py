@@ -33,7 +33,8 @@ def resolve_git_ref(
     Raises:
         ValueError: If the ref cannot be resolved.
 
-    Example:
+    Example::
+
         >>> resolve_git_ref("v1.0.0", "owner/repo", "ghp_xxx", "github")
         "abc123def456..."
         >>> resolve_git_ref("abc123def456", None, None)  # Already a SHA

@@ -33,7 +33,8 @@ def purge_flowfiles(
     Raises:
         ValueError: Missing required parameters
 
-    Examples:
+    Example::
+
         # Purge with stop (safest)
         nipyapi ci purge_flowfiles --process_group_id PG_ID
 

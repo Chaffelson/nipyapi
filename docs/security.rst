@@ -291,7 +291,7 @@ For programmatic configuration:
    **Recommendation**: Use the profiles system instead of manual configuration for better maintainability and environment management.
 
 Registry vs NiFi Authentication Requirements
-===========================================
+=============================================
 
 **Important:** NiFi Registry and NiFi have different authentication requirements depending on their deployment mode:
 

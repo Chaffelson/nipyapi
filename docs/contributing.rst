@@ -136,6 +136,52 @@ When contributing to NiPyAPI, watch out for these frequent pitfalls:
 * **Skipping lint checks**: Always run ``make lint`` before committing. Both flake8 and pylint must pass.
 * **Incorrect line length**: Project uses 100-character line limit consistently across all tools (flake8, pylint, black, isort).
 
+**Docstring Standards**
+
+The project uses Google-style docstrings for Sphinx documentation generation:
+
+* Use triple double-quotes for all docstrings
+* First line is a concise imperative summary (e.g., "Return the root process group ID.")
+* Include Args, Returns, and Raises sections where applicable
+* Do not duplicate type hints in docstrings - focus on semantics and constraints
+* Document side-effects, exceptions, and non-obvious behavior
+* Use Sphinx cross-reference notation for return types (see example below)
+* For Example sections, use ``Example::`` (singular, not "Examples") with a **blank line** before the code block
+
+**Example section format** - the blank line after ``Example::`` is required::
+
+    def my_function():
+        """Do something useful.
+
+        Example::
+
+            result = my_function()
+            print(result)
+        """
+
+Without the blank line, Sphinx renders the code as plain text instead of a code block.
+
+**Cross-reference example**::
+
+    def get_process_group(pg_id, identifier_type='id'):
+        """Return a specific process group by identifier.
+
+        Args:
+            pg_id (str): The identifier of the process group
+            identifier_type (str): 'id' or 'name'
+
+        Returns:
+             :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The matching
+             process group, or None if not found
+
+        Raises:
+            ValueError: If identifier_type is not 'id' or 'name'
+        """
+
+The ``:class:`~nipyapi.nifi.models.ProcessGroupEntity``` notation creates clickable
+cross-references in generated documentation. The ``~`` prefix displays only the class
+name (not the full path) while still linking to the complete API reference.
+
 **NiFi vs Registry Security Differences**
 
 **Important:** NiFi and Registry have different security implementations in their OpenAPI specifications:
@@ -155,6 +201,73 @@ When contributing to NiPyAPI, watch out for these frequent pitfalls:
 
 * **Docker volume caching**: If you experience persistent issues, run ``make clean-docker`` to remove all containers and volumes, then restart the setup process.
 * **Wrong profile for test**: Ensure your ``NIPYAPI_PROFILE`` matches the profile you started with ``make up``. Mixing profiles causes authentication failures.
+
+Reuse Existing Code
+-------------------
+
+This is a mature project (~10 years). Before implementing new functionality, check if it already exists.
+Many common patterns have established, tested implementations.
+
+**Discovery Pattern**
+
+Before writing a new helper function:
+
+1. **Check ``__all__`` at the module head** - lists all exported functions
+2. **Identify relevant-sounding names** - function names indicate purpose
+3. **Grep to the definition** - find where the function is implemented
+4. **Read the docstring** - understand intent, parameters, edge cases handled
+
+Example workflow::
+
+    # Check what's exported from utils
+    head -50 nipyapi/utils.py | grep -A20 "__all__"
+
+    # Find a specific function
+    grep -n "def wait_to_complete" nipyapi/utils.py
+
+    # Read the docstring to understand it
+    # (or use your IDE's go-to-definition)
+
+**Where to Look First**
+
+Read ``nipyapi/__init__.py`` - the ``__all__`` list has inline comments describing each module's purpose.
+This is the authoritative module intent mapping, maintained alongside the code.
+
+**Test Writing Standards**
+
+Before writing new tests:
+
+1. **Read ``tests/conftest.py``** - contains shared fixtures for NiFi/Registry connections, test process groups, cleanup utilities
+2. **Read an existing test file** for the module you're modifying - follow established patterns
+3. **Use existing fixtures** - don't recreate connection setup, test PGs, or cleanup logic locally
+
+Fixture scoping conventions:
+
+* **Session-scoped** - expensive setup shared across all tests (connections, base infrastructure)
+* **Function-scoped** - per-test isolation (test-specific process groups, cleanup)
+* **Shared fixtures go in conftest.py** - not in individual test files
+
+.. warning:: **Test Object Namespace**
+
+   All test objects (process groups, buckets, flows, etc.) must use the ``nipyapi_test`` prefix
+   (via ``test_basename`` in conftest.py). The cleanup functions search for objects matching this
+   namespace to remove test artifacts. If you create objects without this prefix, they will not
+   be cleaned up automatically and will accumulate in NiFi, requiring manual removal.
+
+Example - before writing a new test::
+
+    # Check available fixtures
+    grep -n "^@pytest.fixture" tests/conftest.py
+
+    # Read an example test file for patterns
+    head -100 tests/test_canvas.py
+
+**Why This Matters**
+
+* Existing implementations handle edge cases you may not know about
+* Tested patterns are proven to work across NiFi versions and auth modes
+* Consistent patterns make the codebase maintainable
+* Duplicated code becomes a maintenance burden
 
 Make Targets Quick Reference
 -----------------------------

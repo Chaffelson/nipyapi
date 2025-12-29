@@ -18,20 +18,20 @@ except ImportError:  # pragma: no cover - version file not present in editable c
     except PackageNotFoundError:  # package metadata not available (e.g., source checkout)
         __version__ = "0.0.0+unknown"
 __all__ = [
-    "canvas",
-    "system",
-    "config",
-    "nifi",
-    "registry",
-    "versioning",
-    "utils",
-    "security",
-    "parameters",
-    "profiles",
-    "layout",
-    "extensions",
-    "ci",
-    "bulletins",
+    "ci",  # CI/CD operations: deploy, start, stop, cleanup flows
+    "canvas",  # Process groups, processors, connections, scheduling
+    "versioning",  # Flow import/export, registry operations
+    "security",  # Authentication, users, policies
+    "parameters",  # Parameter contexts and values
+    "profiles",  # Profile switching and configuration
+    "layout",  # Canvas positioning, flow structure analysis
+    "system",  # System info, cluster status
+    "bulletins",  # Bulletin retrieval, filtering, clearing
+    "extensions",  # NiFi extensions (NARs) management
+    "utils",  # File ops, retries, wait patterns, filtering
+    "config",  # Endpoint configuration, API clients
+    "nifi",  # Low-level NiFi API (generated - do not modify)
+    "registry",  # Low-level Registry API (generated - do not modify)
 ]
 
 for sub_module in __all__:
