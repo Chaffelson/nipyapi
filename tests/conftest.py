@@ -1,5 +1,6 @@
 """Configuration fixtures for pytest for `nipyapi` package."""
 
+import functools
 import logging
 import os
 import tempfile
@@ -769,24 +770,21 @@ def fixture_profiles():
 # environment variable. They use the nipyapi-actions repository test fixtures.
 
 
-# Cache for resolved V1 version SHA
-_git_registry_version_v1_cache = None
-
-
+@functools.lru_cache(maxsize=1)
 def get_git_registry_version_v1():
-    """Resolve v1.0.0 tag to commit SHA via GitHub API (cached)."""
-    global _git_registry_version_v1_cache  # pylint: disable=global-statement
-    if _git_registry_version_v1_cache is None:
-        token = os.environ.get('GH_REGISTRY_TOKEN')
-        if not token:
-            pytest.skip("GH_REGISTRY_TOKEN not set - cannot resolve v1.0.0 tag")
-        _git_registry_version_v1_cache = nipyapi.ci.resolve_git_ref(
-            ref='v1.0.0',
-            repo='Chaffelson/nipyapi-actions',
-            token=token,
-            provider='github'
-        )
-    return _git_registry_version_v1_cache
+    """Resolve v1.0.0 tag to commit SHA via GitHub API (cached).
+
+    Uses lru_cache for thread-safe caching of the resolved commit SHA.
+    """
+    token = os.environ.get('GH_REGISTRY_TOKEN')
+    if not token:
+        pytest.skip("GH_REGISTRY_TOKEN not set - cannot resolve v1.0.0 tag")
+    return nipyapi.ci.resolve_git_ref(
+        ref='v1.0.0',
+        repo='Chaffelson/nipyapi-actions',
+        token=token,
+        provider='github'
+    )
 
 
 

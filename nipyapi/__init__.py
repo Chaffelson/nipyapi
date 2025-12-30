@@ -20,7 +20,8 @@ except ImportError:  # pragma: no cover - version file not present in editable c
 __all__ = [
     "ci",  # CI/CD operations: deploy, start, stop, cleanup flows
     "canvas",  # Process groups, processors, connections, scheduling
-    "versioning",  # Flow import/export, registry operations
+    "versioning",  # Flow versioning, Git registry, generic version control
+    "nifi_registry",  # NiFi Registry specific operations (bucket/flow management)
     "security",  # Authentication, users, policies
     "parameters",  # Parameter contexts and values
     "profiles",  # Profile switching and configuration

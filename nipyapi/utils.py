@@ -51,6 +51,8 @@ log = logging.getLogger(__name__)
 DOCKER_AVAILABLE = False  # Docker management removed in 1.x (NiFi 2.x)
 
 # UUID pattern: 8-4-4-4-12 hexadecimal characters
+# Note: This validates format only, not UUID validity per RFC 4122
+# (does not check version or variant bits)
 _UUID_PATTERN = re.compile(
     r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE
 )
@@ -59,6 +61,9 @@ _UUID_PATTERN = re.compile(
 def is_uuid(value):
     """
     Check if a string looks like a UUID.
+
+    This validates the format only (8-4-4-4-12 hexadecimal pattern), not
+    UUID validity per RFC 4122. It does not verify version or variant bits.
 
     Args:
         value (str): The string to check

@@ -421,7 +421,8 @@ def resolve_profile_config(profile_name, profiles_file_path=None):
         if not utils.getenv("NIFI_API_ENDPOINT"):
             raise ValueError(
                 "Profile 'env' requires NIFI_API_ENDPOINT environment variable. "
-                "For auto-resolution (env vars or profile file), use switch() with no arguments."
+                "For auto-resolution (env vars or profile file), call "
+                "nipyapi.profiles.switch() with no arguments."
             )
         config = DEFAULT_PROFILE_CONFIG.copy()
         log.debug("Using 'env' profile - configuration from environment variables")

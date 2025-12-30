@@ -302,7 +302,7 @@ class TestResolveGitRef:
         assert result == "def456abc789"
         mock_get.assert_called_once()
         call_args = mock_get.call_args
-        assert "gitlab.com" in call_args[0][0]
+        assert urlparse(call_args[0][0]).hostname == "gitlab.com"
         assert call_args[1]["headers"]["PRIVATE-TOKEN"] == "glpat-xxx"
 
     @patch("requests.get")
