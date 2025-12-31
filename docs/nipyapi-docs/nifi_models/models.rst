@@ -3,7 +3,7 @@ NiFi Models
 
 Complete model class reference for NiFi APIs.
 
-This reference documents all **394** model classes used by NiFi APIs. These classes are automatically cross-referenced from API documentation - click any model type in API documentation to jump directly to its definition here.
+This reference documents all **403** model classes used by NiFi APIs. These classes are automatically cross-referenced from API documentation - click any model type in API documentation to jump directly to its definition here.
 
 Model Type Patterns
 --------------------
@@ -163,6 +163,22 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: BundleDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ClearBulletinsForGroupRequestEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ClearBulletinsForGroupResultsEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ClearBulletinsRequestEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ClearBulletinsResultEntity
    :members:
    :show-inheritance:
 
@@ -586,6 +602,10 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: FlowRegistryClientDefinition
+   :members:
+   :show-inheritance:
+
 .. autoclass:: FlowRegistryClientEntity
    :members:
    :show-inheritance:
@@ -679,6 +699,14 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: LineageResultsDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ListenPortDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ListenPortsEntity
    :members:
    :show-inheritance:
 
@@ -1122,6 +1150,10 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: PropertyListenPortDefinition
+   :members:
+   :show-inheritance:
+
 .. autoclass:: PropertyResourceDefinition
    :members:
    :show-inheritance:
@@ -1543,6 +1575,10 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: VersionedLabel
+   :members:
+   :show-inheritance:
+
+.. autoclass:: VersionedListenPortDefinition
    :members:
    :show-inheritance:
 

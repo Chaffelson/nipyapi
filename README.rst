@@ -31,16 +31,17 @@ Nifi-Python-Api: A rich Apache NiFi Python Client SDK
 Features
 --------
 
-**Three layers of Python support for working with Apache NiFi:**
- - Top-level examples (see `examples directory <examples/>`_ with usage guide)
- - Mid-level Client SDK for typical complex tasks
- - Low-level Client SDKs for the full API implementation of NiFi and selected sub-projects
+**Multiple interfaces for working with Apache NiFi:**
+ - **Command-Line Interface**: Shell access for scripting and CI/CD pipelines (``pip install nipyapi[cli]``)
+ - **Mid-level Client SDK**: Python functions for typical complex tasks
+ - **Low-level Client SDKs**: Full API implementation of NiFi and NiFi Registry
+ - **Examples**: Ready-to-use scripts in the `examples directory <examples/>`_
 
 **Functionality Highlights:**
+ - **CI/CD Operations**: Purpose-built commands for flow deployment pipelines (``nipyapi.ci``)
  - **Profiles System**: One-command environment switching with ``nipyapi.profiles.switch('single-user')`` (see `profiles documentation <docs/profiles.rst>`_)
  - **Modern Authentication**: Built-in support for Basic Auth, mTLS, OIDC/OAuth2, and LDAP
  - **Environment Management**: YAML/JSON configuration with environment variable overrides
- - **Detailed documentation** of the full SDK at all levels
  - **CRUD wrappers** for common task areas like Processor Groups, Processors, Clients, Buckets, Flows, etc.
  - **Convenience functions** for inventory tasks, such as recursively retrieving the entire canvas, or a flat list of all Process Groups
  - **Support for scheduling and purging** flows, controller services, and connections
@@ -53,8 +54,9 @@ Please see the `issue <https://github.com/Chaffelson/nipyapi/issues>`_ register 
 Quick Start
 -----------
 
-| The mid-level functionality is in *nipyapi.canvas / nipyapi.security / nipyapi.parameters / nipyapi.versioning*
-| You can access the entire API using the low-level SDKs in *nipyapi.nifi / nipyapi.registry*
+| **Python SDK**: Mid-level functions in *nipyapi.canvas / nipyapi.security / nipyapi.parameters / nipyapi.versioning*
+| **CLI**: Shell commands via ``nipyapi <module> <function>`` (requires ``pip install nipyapi[cli]``)
+| **Low-level**: Full API access via *nipyapi.nifi / nipyapi.registry*
 
 You need a running NiFi instance to connect to. Choose the approach that fits your situation:
 
@@ -146,6 +148,28 @@ Once your environment is set up, you can start using NiPyAPI::
     print(f"Root Process Group: {root_pg_id}")
     print(f"Found {len(process_groups)} process groups")
 
+**Command-Line Interface:**
+
+For shell scripting, CI/CD pipelines, and agentic workflows, install the CLI extras::
+
+    pip install "nipyapi[cli]"
+
+    # Set connection via environment variables
+    export NIFI_API_ENDPOINT=https://your-nifi-host.com/nifi-api
+    export NIFI_USERNAME=your_username
+    export NIFI_PASSWORD=your_password
+
+    # Or use a profile
+    nipyapi --profile single-user system get_nifi_version_info
+
+    # CI/CD operations
+    nipyapi ci deploy_flow --bucket flows --flow my-flow
+    nipyapi ci start_flow --process_group_id <id>
+    nipyapi ci get_status --process_group_id <id>
+
+See ``docs/cli.rst`` for the complete CLI reference and ``docs/ci.rst`` for CI/CD pipeline examples.
+See the companion repository `nipyapi-actions <https://github.com/Chaffelson/nipyapi-actions>`_ for GitHub Actions and GitLab CI examples and support.
+
 **Built-in Docker Profiles:**
 
 When using Path A (Docker), these profiles are available:
@@ -172,14 +196,15 @@ Background and Documentation
 
 | For more information on **Apache NiFi**, please visit `https://nifi.apache.org <https://nifi.apache.org>`_
 | For **complete NiPyAPI documentation**, please visit `https://nipyapi.readthedocs.io <https://nipyapi.readthedocs.io/en/latest>`_
-| For **migration from 0.x to 1.x**, see ``docs/migration.rst`` in the repository
+| For **CLI and CI/CD usage**, see ``docs/cli.rst`` and ``docs/ci.rst``
 | For **profiles and authentication**, see ``docs/profiles.rst`` and ``docs/security.rst``
+| For **migration from 0.x to 1.x**, see ``docs/migration.rst`` in the repository
 
 
 NiFi Version Support
 --------------------
 
-| **NiPyAPI 1.x targets Apache NiFi 2.x and NiFi Registry 2.x** (tested against 2.5.0).
+| **NiPyAPI 1.x targets Apache NiFi 2.x and NiFi Registry 2.x** (tested against 2.7.2).
 | **For NiFi 1.x compatibility**, please use NiPyAPI 0.x branch or pin nipyapi < 1.0.0.
 | **Breaking changes** exist between 0.x and 1.x - see ``docs/migration.rst`` for upgrade guidance.
 | **Docker profiles require Docker Desktop** with sufficient memory (recommend 4GB+ for NiFi).
@@ -195,5 +220,5 @@ Python Support
 | Tests are run against **upstream Apache NiFi and NiFi Registry Docker images** via integrated Makefile automation.
 | **Profile-driven testing** supports single-user, LDAP, mTLS, and OIDC authentication modes.
 | Developed on **macOS 14+ and Windows 10**.
-| **Runtime dependencies**: requests/urllib3, PyYAML, and PySocks.
+| **Runtime dependencies**: requests/urllib3, PyYAML, PySocks. CLI extras add google-fire.
 | **Development tools**: Comprehensive Makefile with ``make up``, ``make test``, ``make sandbox`` targets.

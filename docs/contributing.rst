@@ -64,17 +64,18 @@ Ready to contribute? Here's how to set up `nipyapi` for local development.
 
     $ git clone git@github.com:Chaffelson/nipyapi.git
 
-3. Create and activate a Python 3.9+ virtual environment (venv or conda), then install dev extras::
+3. Create and activate a Python 3.9+ virtual environment (venv or uv), then install dev extras::
 
     # using venv
     $ python -m venv .venv && source .venv/bin/activate
     $ cd nipyapi/
-    $ pip install -e ".[dev]"
+    $ make dev-install  # uses uv if available, falls back to pip
 
-    # or using conda
-    $ conda create -n nipyapi-dev python=3.11 -y
-    $ conda activate nipyapi-dev
-    $ pip install -e ".[dev]"
+    # or using uv (faster)
+    $ uv venv .venv && source .venv/bin/activate
+    $ make dev-install
+
+   **Note:** The Makefile automatically detects whether ``uv`` is available and uses it for faster installs. If not available, it falls back to ``pip``. Both work seamlessly.
 
 4. Create a branch for local development::
 
@@ -135,6 +136,88 @@ When contributing to NiPyAPI, watch out for these frequent pitfalls:
 * **Skipping lint checks**: Always run ``make lint`` before committing. Both flake8 and pylint must pass.
 * **Incorrect line length**: Project uses 100-character line limit consistently across all tools (flake8, pylint, black, isort).
 
+**Docstring Standards**
+
+The project uses Google-style docstrings for both Sphinx documentation and CLI help generation
+(via python-fire). Format docstrings to work well with both tools:
+
+* Use triple double-quotes for all docstrings
+* First line is a concise imperative summary (e.g., "Return the root process group ID.")
+* Include Args, Returns, and Raises sections where applicable
+* Do not duplicate type hints in docstrings - focus on semantics and constraints
+* Document side-effects, exceptions, and non-obvious behavior
+* Use Sphinx cross-reference notation for return types (see example below)
+* For Example sections, use ``Example::`` (singular, not "Examples") with a **blank line** before the code block
+
+**CLI Compatibility (Important)**
+
+The nipyapi CLI uses python-fire which parses docstrings to generate help text. Fire truncates
+content after nested bullet lists in Args descriptions. To ensure CLI help is useful:
+
+* **Do NOT use nested bullet lists** under Args parameters
+* **Do use inline format** with types in parentheses
+
+Bad (truncated in CLI)::
+
+    Args:
+        scheduled: Target state. Accepts:
+            - bool: True for RUNNING, False for STOPPED
+            - str: "RUNNING", "STOPPED", "DISABLED", "RUN_ONCE"
+
+Good (renders correctly in CLI and Sphinx)::
+
+    Args:
+        scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
+            "RUNNING", "STOPPED", "DISABLED", "RUN_ONCE".
+
+For union types, use ``(type1 or type2)`` format. For string literal options, list them
+inline with quotes. Line continuation is fine - just avoid nested bullet points.
+
+**CLI Boolean Parameters (Gotcha)**
+
+The ``fire`` CLI library passes ``--flag=false`` as the **string** ``"false"``, which is
+truthy in Python. This causes unexpected behavior for boolean parameters.
+
+Avoid boolean parameters with default ``True`` that users need to set to ``False`` via CLI.
+Instead:
+
+* Return structured results and let the caller decide (preferred)
+* Use ``--noflag`` syntax (fire's native boolean negation): ``nipyapi foo bar --noflag``
+
+**Example section format** - the blank line after ``Example::`` is required::
+
+    def my_function():
+        """Do something useful.
+
+        Example::
+
+            result = my_function()
+            print(result)
+        """
+
+Without the blank line, Sphinx renders the code as plain text instead of a code block.
+
+**Cross-reference example**::
+
+    def get_process_group(pg_id, identifier_type='id'):
+        """Return a specific process group by identifier.
+
+        Args:
+            pg_id (str): The identifier of the process group
+            identifier_type (str): 'id' or 'name'
+
+        Returns:
+             :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The matching
+             process group, or None if not found
+
+        Raises:
+            ValueError: If identifier_type is not 'id' or 'name'
+        """
+
+The ``:class:`~nipyapi.nifi.models.ProcessGroupEntity``` notation creates clickable
+cross-references in generated documentation. The ``~`` prefix displays only the class
+name (not the full path) while still linking to the complete API reference.
+
 **NiFi vs Registry Security Differences**
 
 **Important:** NiFi and Registry have different security implementations in their OpenAPI specifications:
@@ -155,6 +238,73 @@ When contributing to NiPyAPI, watch out for these frequent pitfalls:
 * **Docker volume caching**: If you experience persistent issues, run ``make clean-docker`` to remove all containers and volumes, then restart the setup process.
 * **Wrong profile for test**: Ensure your ``NIPYAPI_PROFILE`` matches the profile you started with ``make up``. Mixing profiles causes authentication failures.
 
+Reuse Existing Code
+-------------------
+
+This is a mature project (~10 years). Before implementing new functionality, check if it already exists.
+Many common patterns have established, tested implementations.
+
+**Discovery Pattern**
+
+Before writing a new helper function:
+
+1. **Check ``__all__`` at the module head** - lists all exported functions
+2. **Identify relevant-sounding names** - function names indicate purpose
+3. **Grep to the definition** - find where the function is implemented
+4. **Read the docstring** - understand intent, parameters, edge cases handled
+
+Example workflow::
+
+    # Check what's exported from utils
+    head -50 nipyapi/utils.py | grep -A20 "__all__"
+
+    # Find a specific function
+    grep -n "def wait_to_complete" nipyapi/utils.py
+
+    # Read the docstring to understand it
+    # (or use your IDE's go-to-definition)
+
+**Where to Look First**
+
+Read ``nipyapi/__init__.py`` - the ``__all__`` list has inline comments describing each module's purpose.
+This is the authoritative module intent mapping, maintained alongside the code.
+
+**Test Writing Standards**
+
+Before writing new tests:
+
+1. **Read ``tests/conftest.py``** - contains shared fixtures for NiFi/Registry connections, test process groups, cleanup utilities
+2. **Read an existing test file** for the module you're modifying - follow established patterns
+3. **Use existing fixtures** - don't recreate connection setup, test PGs, or cleanup logic locally
+
+Fixture scoping conventions:
+
+* **Session-scoped** - expensive setup shared across all tests (connections, base infrastructure)
+* **Function-scoped** - per-test isolation (test-specific process groups, cleanup)
+* **Shared fixtures go in conftest.py** - not in individual test files
+
+.. warning:: **Test Object Namespace**
+
+   All test objects (process groups, buckets, flows, etc.) must use the ``nipyapi_test`` prefix
+   (via ``test_basename`` in conftest.py). The cleanup functions search for objects matching this
+   namespace to remove test artifacts. If you create objects without this prefix, they will not
+   be cleaned up automatically and will accumulate in NiFi, requiring manual removal.
+
+Example - before writing a new test::
+
+    # Check available fixtures
+    grep -n "^@pytest.fixture" tests/conftest.py
+
+    # Read an example test file for patterns
+    head -100 tests/test_canvas.py
+
+**Why This Matters**
+
+* Existing implementations handle edge cases you may not know about
+* Tested patterns are proven to work across NiFi versions and auth modes
+* Consistent patterns make the codebase maintainable
+* Duplicated code becomes a maintenance burden
+
 Make Targets Quick Reference
 -----------------------------
 
@@ -163,7 +313,7 @@ NiPyAPI uses Makefile targets as the primary automation interface. Run ``make he
 **Setup & Installation**
 ::
 
-    make dev-install      # Install package with dev dependencies (recommended)
+    make dev-install      # Install with dev dependencies (uses uv if available, pip otherwise)
     make docs-install     # Install documentation dependencies
     make clean            # Remove build, pyc, and temp artifacts
     make clean-all        # Nuclear clean: removes ALL including generated code
@@ -193,10 +343,16 @@ NiPyAPI uses Makefile targets as the primary automation interface. Run ``make he
     make lint             # Run flake8 + pylint (excludes generated code)
     make flake8           # Run flake8 only
     make pylint           # Run pylint only
-    make pre-commit       # Run pre-commit hooks on all files
+    make pre-commit       # Run pre-commit hooks (black, isort, flake8, pylint)
 
-    # Formatting (manual)
-    black nipyapi/ && isort nipyapi/  # Auto-format code
+Pre-commit hooks are the recommended way to ensure code quality before committing. They automatically run formatting and linting checks.
+
+**Troubleshooting Lint Issues**
+
+* **Import order errors**: Run ``isort nipyapi/`` to auto-fix import ordering
+* **Line length errors**: Break long lines at logical points (operators, commas). Max is 100 chars.
+* **Formatting errors**: Run ``black nipyapi/`` to auto-format, then re-run ``make lint``
+* **Linting generated code**: Always use ``make lint`` which excludes generated code automatically
 
 **Docker Operations**
 ::
@@ -247,8 +403,12 @@ These files are automatically generated from OpenAPI specifications and should n
 
 Focus your contributions on these core modules:
 
+* ``nipyapi/bulletins.py`` - Bulletin retrieval, filtering, and clearing
 * ``nipyapi/canvas.py`` - Canvas management functions
+* ``nipyapi/ci.py`` - CI/CD convenience functions for flow deployment
 * ``nipyapi/config.py`` - Configuration and endpoints
+* ``nipyapi/extensions.py`` - NiFi extensions (NAR) management
+* ``nipyapi/layout.py`` - Canvas layout and component positioning
 * ``nipyapi/parameters.py`` - Parameter context operations
 * ``nipyapi/profiles.py`` - Profile management system
 * ``nipyapi/security.py`` - Authentication and security
@@ -258,6 +418,19 @@ Focus your contributions on these core modules:
 * ``tests/`` - Test suite (always add tests for new features)
 * ``examples/`` - Example scripts and usage patterns
 * ``docs/`` - Documentation (RST files)
+
+**Adding New Core Modules**
+
+When creating a new core module (e.g., ``nipyapi/mymodule.py``):
+
+1. Add the module name to ``nipyapi/__init__.py`` in the ``__all__`` list
+2. Add a description to ``docs/scripts/generate_structured_docs.py`` in ``module_descriptions``
+3. Regenerate documentation with ``make docs`` to create the RST file
+4. Add corresponding tests in ``tests/test_mymodule.py``
+
+The documentation generator auto-detects modules from ``__all__`` but uses ``module_descriptions``
+for human-readable descriptions. Without an entry in ``module_descriptions``, the module will
+still appear in docs but with a generic description.
 
 **Regenerating Clients**
 

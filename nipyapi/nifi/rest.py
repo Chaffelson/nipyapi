@@ -184,6 +184,13 @@ class RESTClientObject(object):
                                                   preload_content=_preload_content,
                                                   timeout=timeout,
                                                   headers=headers)
+                # Pass `bytes` directly for binary content types like octet-stream
+                elif isinstance(body, bytes):
+                    r = self.pool_manager.request(method, url,
+                                                  body=body,
+                                                  preload_content=_preload_content,
+                                                  timeout=timeout,
+                                                  headers=headers)
                 else:
                     # Cannot generate the request from given parameters
                     msg = """Cannot prepare a request message for provided arguments.

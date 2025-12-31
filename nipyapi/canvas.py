@@ -5,9 +5,14 @@ For interactions with the NiFi Canvas.
 """
 
 import logging
+import os
+from collections import namedtuple
 
 import nipyapi
 from nipyapi.utils import exception_handler
+
+# Named tuple for get_flow_components return value
+FlowSubgraph = namedtuple("FlowSubgraph", ["components", "connections"])
 
 __all__ = [
     "get_root_pg_id",
@@ -22,6 +27,7 @@ __all__ = [
     "list_all_processors",
     "list_all_processor_types",
     "get_processor_type",
+    "get_processor_docs",
     "create_processor",
     "delete_processor",
     "get_processor",
@@ -31,6 +37,10 @@ __all__ = [
     "get_variable_registry",
     "update_variable_registry",
     "purge_connection",
+    "list_flowfiles",
+    "get_flowfile_details",
+    "get_flowfile_content",
+    "peek_flowfiles",
     "purge_process_group",
     "schedule_components",
     "get_bulletins",
@@ -38,6 +48,8 @@ __all__ = [
     "list_invalid_processors",
     "list_sensitive_processors",
     "list_all_connections",
+    "get_connection",
+    "update_connection",
     "create_connection",
     "delete_connection",
     "get_component_connections",
@@ -49,6 +61,8 @@ __all__ = [
     "schedule_all_controllers",
     "get_controller",
     "list_all_controller_types",
+    "get_controller_type",
+    "get_controller_service_docs",
     "list_all_by_kind",
     "list_all_input_ports",
     "list_all_output_ports",
@@ -64,6 +78,14 @@ __all__ = [
     "get_pg_parents_ids",
     "delete_port",
     "create_port",
+    "get_flow_components",
+    "FlowSubgraph",
+    "verify_controller",
+    "verify_processor",
+    "get_controller_state",
+    "clear_controller_state",
+    "get_processor_state",
+    "clear_processor_state",
 ]
 
 log = logging.getLogger(__name__)
@@ -409,15 +431,8 @@ def delete_process_group(process_group, force=False, refresh=True):
             for con in list_all_connections(parent_pg_id):
                 if pg_id in [con.destination_group_id, con.source_group_id]:
                     delete_connection(con)
-            # Stop all Controller Services ONLY inside the PG
-            controllers_list = list_all_controllers(pg_id)
-            removed_controllers_id = []
-            parent_pgs_id = get_pg_parents_ids(pg_id)
-            for x in controllers_list:
-                if x.component.id not in removed_controllers_id:
-                    if x.component.parent_group_id not in parent_pgs_id:
-                        delete_controller(x, True)
-                        removed_controllers_id.append(x.component.id)
+            # Disable all Controller Services inside the PG
+            schedule_all_controllers(pg_id, scheduled=False)
 
             # Templates are not supported in NiFi 2.x
             if nipyapi.utils.check_version("2", service="nifi") == 1:
@@ -438,8 +453,9 @@ def create_process_group(parent_pg, new_pg_name, location, comment=""):
     Process Group at the given Location
 
     Args:
-        parent_pg (ProcessGroupEntity): The parent Process Group to create the
-            new process group in
+        parent_pg (str or ProcessGroupEntity): The parent Process Group ID
+            (as a string) or ProcessGroupEntity object to create the new
+            process group in. Use "root" for the root canvas.
         new_pg_name (str): The name of the new Process Group
         location (tuple[x, y]): the x,y coordinates to place the new Process
             Group under the parent
@@ -449,12 +465,20 @@ def create_process_group(parent_pg, new_pg_name, location, comment=""):
          :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The new Process Group
 
     """
-    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    # Accept either a string ID or ProcessGroupEntity
+    if isinstance(parent_pg, str):
+        parent_id = parent_pg
+    elif isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity):
+        parent_id = parent_pg.id
+    else:
+        raise TypeError(
+            f"parent_pg must be a string ID or ProcessGroupEntity, got {type(parent_pg).__name__}"
+        )
     assert isinstance(new_pg_name, str)
     assert isinstance(location, tuple)
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
-            id=parent_pg.id,
+            id=parent_id,
             body=nipyapi.nifi.ProcessGroupEntity(
                 revision={"version": 0},
                 component=nipyapi.nifi.ProcessGroupDTO(
@@ -500,12 +524,82 @@ def get_processor_type(identifier, identifier_type="name", greedy=True):
     return obj
 
 
+def get_processor_docs(processor):
+    """
+    Get detailed documentation for a processor, including properties, use cases, and tags.
+
+    This function retrieves the full ProcessorDefinition from NiFi, which contains
+    comprehensive documentation useful for understanding processor capabilities
+    and configuration options.
+
+    Args:
+        processor (ProcessorEntity or DocumentedTypeDTO or str): An existing processor,
+            a processor type from get_processor_type(), or a type name string
+            (e.g., "GenerateFlowFile" or full qualified name).
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ProcessorDefinition`: Processor documentation
+            including property_descriptors, tags, supported_relationships,
+            multi_processor_use_cases, dynamic_properties, and more.
+        None: If processor type not found.
+
+    Example::
+
+        # From existing processor
+        proc = nipyapi.canvas.get_processor("MyProcessor")
+        docs = nipyapi.canvas.get_processor_docs(proc)
+        print(docs.tags)  # ['record', 'update', 'json', ...]
+        print(docs.property_descriptors.keys())
+
+        # From processor type
+        proc_type = nipyapi.canvas.get_processor_type("UpdateRecord")
+        docs = nipyapi.canvas.get_processor_docs(proc_type)
+
+        # From type name string
+        docs = nipyapi.canvas.get_processor_docs("GenerateFlowFile")
+
+    """
+    # Extract bundle info based on input type
+    if isinstance(processor, nipyapi.nifi.ProcessorEntity):
+        bundle = processor.component.bundle
+        proc_type = processor.component.type
+    elif isinstance(processor, nipyapi.nifi.DocumentedTypeDTO):
+        bundle = processor.bundle
+        proc_type = processor.type
+    elif isinstance(processor, str):
+        # Look up processor type by name
+        proc_type_obj = get_processor_type(processor, identifier_type="name", greedy=False)
+        if proc_type_obj is None:
+            # Try greedy match
+            proc_type_obj = get_processor_type(processor, identifier_type="name", greedy=True)
+        if proc_type_obj is None:
+            return None
+        if isinstance(proc_type_obj, list):
+            proc_type_obj = proc_type_obj[0]  # Take first match
+        bundle = proc_type_obj.bundle
+        proc_type = proc_type_obj.type
+    else:
+        raise ValueError(
+            f"processor must be ProcessorEntity, DocumentedTypeDTO, or str, "
+            f"got: {type(processor).__name__}"
+        )
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.FlowApi().get_processor_definition(
+            group=bundle.group,
+            artifact=bundle.artifact,
+            version=bundle.version,
+            type=proc_type,
+        )
+
+
 def create_processor(parent_pg, processor, location, name=None, config=None):
     """
     Instantiates a given processor on the canvas
 
     Args:
-        parent_pg (ProcessGroupEntity): The parent Process Group
+        parent_pg (str or ProcessGroupEntity): The parent Process Group ID
+            (as a string) or ProcessGroupEntity object
         processor (DocumentedTypeDTO): The abstract processor type object to be
             instantiated
         location (tuple[x, y]): The location coordinates
@@ -517,7 +611,15 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
          :class:`~nipyapi.nifi.models.ProcessorEntity`: The new Processor
 
     """
-    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    # Accept either a string ID or ProcessGroupEntity
+    if isinstance(parent_pg, str):
+        parent_id = parent_pg
+    elif isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity):
+        parent_id = parent_pg.id
+    else:
+        raise TypeError(
+            f"parent_pg must be a string ID or ProcessGroupEntity, got {type(parent_pg).__name__}"
+        )
     assert isinstance(processor, nipyapi.nifi.DocumentedTypeDTO)
     if name is None:
         processor_name = processor.type.split(".")[-1]
@@ -529,12 +631,13 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
         target_config = config
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_processor(
-            id=parent_pg.id,
+            id=parent_id,
             body=nipyapi.nifi.ProcessorEntity(
                 revision={"version": 0},
                 component=nipyapi.nifi.ProcessorDTO(
                     position=nipyapi.nifi.PositionDTO(x=float(location[0]), y=float(location[1])),
                     type=processor.type,
+                    bundle=processor.bundle,
                     name=processor_name,
                     config=target_config,
                 ),
@@ -611,20 +714,23 @@ def delete_processor(processor, refresh=True, force=False):
 
 def schedule_components(pg_id, scheduled, components=None):
     """
-    Changes the scheduled target state of a list of components within a given
-    Process Group.
+    Change the scheduled target state of a list of components within a Process Group.
 
     Note that this does not guarantee that components will be Started or
     Stopped afterwards, merely that they will have their scheduling updated.
 
+    This function only supports RUNNING and STOPPED states. For RUN_ONCE,
+    use :func:`schedule_processor` on individual processors.
+
     Args:
         pg_id (str): The UUID of the parent Process Group
-        scheduled (bool): True to start, False to stop
+        scheduled (bool): True to start (RUNNING), False to stop (STOPPED)
         components (list[ComponentType]): The list of Component Entities to
-            schdule, e.g. ProcessorEntity's
+            schedule, e.g. ProcessorEntity's. If None, schedules all
+            components in the Process Group.
 
     Returns:
-         (bool): True for success, False for not
+        bool: True for success, False for failure
 
     """
     assert isinstance(get_process_group(pg_id, "id"), nipyapi.nifi.ProcessGroupEntity)
@@ -643,26 +749,57 @@ def schedule_components(pg_id, scheduled, components=None):
 
 def schedule_processor(processor, scheduled, refresh=True):
     """
-    Set a Processor to Start or Stop.
+    Set a Processor to Start, Stop, Disable, or Run Once.
 
     Note that this doesn't guarantee that it will change state, merely that
-    it will be instructed to try.
-    Some effort is made to wait and see if the processor starts
+    it will be instructed to try. Some effort is made to wait and see if the
+    processor reaches the target state.
 
     Args:
-        processor (ProcessorEntity): The Processor to target
-        scheduled (bool): True to start, False to stop
-        refresh (bool): Whether to refresh the object before action
+        processor (str or ProcessorEntity): The Processor ID or ProcessorEntity object.
+        scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
+            "RUNNING", "STOPPED", "DISABLED", "RUN_ONCE".
+        refresh (bool): Whether to refresh the object before action.
 
     Returns:
-        (bool): True for success, False for failure
+        bool: True for success, False for failure.
 
+    Example::
+
+        # Start a processor by ID
+        nipyapi.canvas.schedule_processor("<processor-id>", True)
+
+        # Start a processor object (backwards compatible)
+        nipyapi.canvas.schedule_processor(proc, True)
+
+        # Stop a processor
+        nipyapi.canvas.schedule_processor(proc, False)
+
+        # Disable a processor (prevents starting, useful for maintenance)
+        nipyapi.canvas.schedule_processor(proc, "DISABLED")
+
+        # Run once - executes one scheduling cycle then stops
+        nipyapi.canvas.schedule_processor(proc, "RUN_ONCE")
     """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor_id = processor
+        processor = get_processor(processor_id, "id")
+        if processor is None:
+            raise ValueError(f"Processor not found: {processor_id}")
     assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
-    assert isinstance(scheduled, bool)
     assert isinstance(refresh, bool)
 
-    def _running_schedule_processor(processor_):
+    # Normalize scheduled to a state string
+    valid_states = ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE")
+    if isinstance(scheduled, bool):
+        target_state = "RUNNING" if scheduled else "STOPPED"
+    elif isinstance(scheduled, str) and scheduled.upper() in valid_states:
+        target_state = scheduled.upper()
+    else:
+        raise ValueError(f"scheduled must be bool or one of {valid_states}, got: {scheduled!r}")
+
+    def _processor_stopped(processor_):
         test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
         if test_obj.status.aggregate_snapshot.active_thread_count == 0:
             return True
@@ -672,38 +809,58 @@ def schedule_processor(processor, scheduled, refresh=True):
         )
         return False
 
-    def _starting_schedule_processor(processor_):
+    def _processor_running(processor_):
         test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
         if test_obj.component.state == "RUNNING":
             return True
         log.info("Processor not started, run_status %s", test_obj.component.state)
         return False
 
-    assert isinstance(scheduled, bool)
+    def _processor_run_once_complete(processor_):
+        """Check if RUN_ONCE has completed (processor returns to STOPPED)."""
+        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
+        # RUN_ONCE completes when state returns to STOPPED and no active threads
+        if (
+            test_obj.component.state == "STOPPED"
+            and test_obj.status.aggregate_snapshot.active_thread_count == 0
+        ):
+            return True
+        log.info(
+            "RUN_ONCE not complete, state=%s threads=%s",
+            test_obj.component.state,
+            test_obj.status.aggregate_snapshot.active_thread_count,
+        )
+        return False
+
+    def _processor_disabled(processor_):
+        """Check if processor has reached DISABLED state."""
+        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
+        if test_obj.component.state == "DISABLED":
+            return True
+        log.info("Processor not disabled, state=%s", test_obj.component.state)
+        return False
+
     if refresh:
         target = nipyapi.canvas.get_processor(processor.id, "id")
         assert isinstance(target, nipyapi.nifi.ProcessorEntity)
     else:
         target = processor
-    result = schedule_components(
-        pg_id=target.status.group_id, scheduled=scheduled, components=[target]
-    )
-    # If target scheduled state was successfully updated
-    if result:
-        # If we want to stop the processor
-        if not scheduled:
-            # Test that the processor threads have halted
-            stop_test = nipyapi.utils.wait_to_complete(_running_schedule_processor, target)
-            if stop_test:
-                # Return True if we stopped the processor
-                return result
-            # Return False if we scheduled a stop, but it didn't stop
-            return False
-        # Test that the Processor started
-        start_test = nipyapi.utils.wait_to_complete(_starting_schedule_processor, target)
-        if start_test:
-            return result
-        return False
+
+    # Use direct processor API for all state changes (handles all transitions
+    # including from DISABLED state, which schedule_components cannot handle)
+    body = nipyapi.nifi.ProcessorRunStatusEntity(revision=target.revision, state=target_state)
+    with nipyapi.utils.rest_exceptions():
+        nipyapi.nifi.ProcessorsApi().update_run_status4(body=body, id=target.id)
+
+    # Wait for target state
+    if target_state == "RUN_ONCE":
+        return nipyapi.utils.wait_to_complete(_processor_run_once_complete, target)
+    if target_state == "DISABLED":
+        return nipyapi.utils.wait_to_complete(_processor_disabled, target)
+    if target_state == "STOPPED":
+        return nipyapi.utils.wait_to_complete(_processor_stopped, target)
+    # RUNNING
+    return nipyapi.utils.wait_to_complete(_processor_running, target)
 
 
 def update_process_group(pg, update, refresh=True):
@@ -870,7 +1027,7 @@ def update_variable_registry(process_group, update, refresh=True):
         )
 
 
-def create_connection(source, target, relationships=None, name=None):
+def create_connection(source, target, relationships=None, name=None, bends=None):
     """
     Creates a connection between two objects for the given relationships
 
@@ -880,6 +1037,9 @@ def create_connection(source, target, relationships=None, name=None):
         relationships (list): list of strings of relationships to connect, may
             be collected from the object 'relationships' property (optional)
         name (str): Defaults to None, String of Name for Connection (optional)
+        bends (list): List of PositionDTO or (x, y) tuples for connection bends.
+            For self-loop connections (source == target), bends are auto-calculated
+            if not provided, to ensure the loop renders correctly in the UI.
 
     Returns:
         :class:`~nipyapi.nifi.models.ConnectionEntity`: for the created connection
@@ -898,6 +1058,31 @@ def create_connection(source, target, relationships=None, name=None):
         else:
             # if no relationships supplied, we connect them all
             relationships = source_rels
+
+    # Auto-calculate bends for self-loop connections if not provided.
+    # Without bends, self-loops render incorrectly in the UI (zero-length line).
+    # Bend offsets derived from empirical analysis in layout module.
+    if source.id == target.id and bends is None:
+        # Self-loop: create bends to the right of the processor
+        # Offsets: X +477 (processor width + margin), Y +39 and +89 (bracket center)
+        src_x = source.position.x
+        src_y = source.position.y
+        bends = [
+            nipyapi.nifi.PositionDTO(x=src_x + 477, y=src_y + 39),
+            nipyapi.nifi.PositionDTO(x=src_x + 477, y=src_y + 89),
+        ]
+
+    # Convert tuple bends to PositionDTO if needed
+    if bends:
+        bend_dtos = []
+        for b in bends:
+            if isinstance(b, tuple):
+                # pylint: disable=unsubscriptable-object
+                bend_dtos.append(nipyapi.nifi.PositionDTO(x=float(b[0]), y=float(b[1])))
+            else:
+                bend_dtos.append(b)
+        bends = bend_dtos
+
     if source_type == "OUTPUT_PORT":
         # the hosting process group for an Output port connection to another
         # process group is the common parent process group
@@ -924,6 +1109,7 @@ def create_connection(source, target, relationships=None, name=None):
                         id=target.id, group_id=target.component.parent_group_id, type=target_type
                     ),
                     selected_relationships=relationships,
+                    bends=bends,
                 ),
             ),
         )
@@ -965,6 +1151,105 @@ def list_all_connections(pg_id="root", descendants=True):
     return list_all_by_kind("connections", pg_id, descendants)
 
 
+def get_connection(connection):
+    """
+    Get a connection by ID or refresh a ConnectionEntity.
+
+    Args:
+        connection: Either a connection UUID (str) or a ConnectionEntity object.
+            If a ConnectionEntity is provided, fetches a fresh copy (useful for
+            getting the latest revision before updates).
+
+    Returns:
+        ConnectionEntity: The requested connection
+
+    Example::
+
+        # Fetch by ID
+        conn = nipyapi.canvas.get_connection("abc-123-uuid")
+
+        # Refresh an existing entity
+        fresh_conn = nipyapi.canvas.get_connection(conn)
+    """
+    # Accept ID string or ConnectionEntity
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        connection = connection.id
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ConnectionsApi().get_connection(connection)
+
+
+def update_connection(connection, name=None, bends=None, refresh=True):
+    """
+    Update a connection's configuration.
+
+    Only parameters explicitly provided will be updated. To clear bends,
+    pass an empty list.
+
+    Args:
+        connection (ConnectionEntity or str): ConnectionEntity or connection ID to update.
+        name (str or None): New name for the connection, or None to leave unchanged.
+        bends (list or None): Bend points as list of PositionDTO or (x, y) tuples.
+            None keeps existing bends, [] clears all bends, [...] sets specific points.
+        refresh (bool): Whether to refresh the connection before updating.
+
+    Returns:
+        ConnectionEntity: The updated connection
+
+    Example::
+
+        # Clear all bends from a connection
+        updated = nipyapi.canvas.update_connection(conn, bends=[])
+
+        # Clear bends by connection ID
+        updated = nipyapi.canvas.update_connection("abc-123-uuid", bends=[])
+
+        # Rename a connection
+        updated = nipyapi.canvas.update_connection(conn, name="Primary Path")
+
+        # Set specific bend points
+        updated = nipyapi.canvas.update_connection(conn, bends=[(500, 300), (500, 400)])
+    """
+    # Accept ID or object
+    if isinstance(connection, str):
+        connection = get_connection(connection)
+
+    assert isinstance(connection, nipyapi.nifi.ConnectionEntity)
+
+    if refresh:
+        connection = get_connection(connection.id)
+
+    # Determine updated values (None means keep existing)
+    updated_name = connection.component.name if name is None else name
+    updated_bends = connection.component.bends if bends is None else bends
+
+    # Convert tuple bends to PositionDTO if needed
+    if updated_bends:
+        bend_dtos = []
+        for b in updated_bends:
+            if isinstance(b, tuple):
+                bend_dtos.append(nipyapi.nifi.PositionDTO(x=float(b[0]), y=float(b[1])))
+            else:
+                bend_dtos.append(b)
+        updated_bends = bend_dtos
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.ConnectionsApi().update_connection(
+            id=connection.id,
+            body=nipyapi.nifi.ConnectionEntity(
+                revision=connection.revision,
+                source_type=connection.source_type,
+                destination_type=connection.destination_type,
+                component=nipyapi.nifi.ConnectionDTO(
+                    id=connection.component.id,
+                    name=updated_name,
+                    source=connection.component.source,
+                    destination=connection.component.destination,
+                    bends=updated_bends,
+                ),
+            ),
+        )
+
+
 def get_component_connections(component):
     """
     Returns list of Connections related to a given Component, e.g. Processor
@@ -981,6 +1266,111 @@ def get_component_connections(component):
         for x in list_all_connections(pg_id=component.component.parent_group_id)
         if component.id in [x.destination_id, x.source_id]
     ]
+
+
+def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
+    start_component, pg_id=None
+):
+    """
+    Find all components and connections in a connected flow subgraph.
+
+    Performs a breadth-first traversal of the connection graph to find the
+    complete connected subgraph (the 'flow'). Useful for selecting an entire
+    flow to move or analyze as a unit. The algorithm fetches all components
+    in one API call, builds an adjacency map, then performs BFS from the
+    start component to find all reachable nodes.
+
+    Args:
+        start_component: Any component entity (processor, funnel, port) to
+            start the traversal from
+        pg_id: Process group ID containing the flow. If None, inferred from
+            start_component.component.parent_group_id
+
+    Returns:
+        FlowSubgraph named tuple with 'components' (list of component entities)
+        and 'connections' (list of ConnectionEntity objects within the flow).
+
+    Example::
+
+        # Get the complete flow subgraph
+        flow = nipyapi.canvas.get_flow_components(proc1)
+
+        # Access components
+        for c in flow.components:
+            print(c.component.name)
+
+        # Access connections (useful for transpose_flow)
+        nipyapi.layout.transpose_flow(
+            flow.components, offset=(400, 0), connections=flow.connections
+        )
+    """
+    # Infer pg_id from component if not provided
+    if pg_id is None:
+        if hasattr(start_component, "component") and hasattr(
+            start_component.component, "parent_group_id"
+        ):
+            pg_id = start_component.component.parent_group_id
+        else:
+            raise ValueError("Cannot infer pg_id from component. Please provide pg_id explicitly.")
+
+    # Single API call to get all components and connections
+    flow = get_flow(pg_id)
+    fc = flow.process_group_flow.flow
+
+    # Build lookup map: component_id -> component entity
+    # This avoids fetching each component individually
+    component_map = {}
+    for p in fc.processors or []:
+        component_map[p.id] = p
+    for f in fc.funnels or []:
+        component_map[f.id] = f
+    for p in fc.input_ports or []:
+        component_map[p.id] = p
+    for p in fc.output_ports or []:
+        component_map[p.id] = p
+
+    # Build adjacency map from connections (bidirectional for graph walk)
+    # adjacency[id] = set of connected component ids
+    adjacency = {}
+    for conn in fc.connections or []:
+        src_id = conn.source_id
+        dst_id = conn.destination_id
+        # Initialize sets if needed
+        if src_id not in adjacency:
+            adjacency[src_id] = set()
+        if dst_id not in adjacency:
+            adjacency[dst_id] = set()
+        # Bidirectional edges (we want the full connected subgraph)
+        adjacency[src_id].add(dst_id)
+        adjacency[dst_id].add(src_id)
+
+    # BFS traversal from start component
+    start_id = start_component.id
+    visited = set()
+    queue = [start_id]
+
+    while queue:
+        current_id = queue.pop(0)
+        if current_id in visited:
+            continue
+        visited.add(current_id)
+        # Add all connected neighbors to queue
+        for neighbor_id in adjacency.get(current_id, []):
+            if neighbor_id not in visited:
+                queue.append(neighbor_id)
+
+    # Build result: components and connections within the flow
+    result_components = [component_map[cid] for cid in visited if cid in component_map]
+
+    # Filter connections to those where at least one endpoint is in the flow
+    # This includes internal connections and connections to/from the flow boundary
+    flow_connections = [
+        conn
+        for conn in fc.connections or []
+        if conn.source_id in visited or conn.destination_id in visited
+    ]
+
+    return FlowSubgraph(components=result_components, connections=flow_connections)
 
 
 def purge_connection(con_id):
@@ -1023,6 +1413,323 @@ def purge_connection(con_id):
     return nipyapi.utils.wait_to_complete(_autumn_leaves, con_id, drop_req)
 
 
+def list_flowfiles(connection, limit=100):
+    """
+    List FlowFiles waiting in a connection's queue.
+
+    This is a non-destructive operation - FlowFiles remain in the queue.
+    Returns basic metadata for each FlowFile; use get_flowfile() to retrieve
+    full details including attributes.
+
+    Args:
+        connection: Connection ID (str) or ConnectionEntity
+        limit: Maximum number of FlowFiles to return (default 100)
+
+    Returns:
+        list[:class:`~nipyapi.nifi.models.FlowFileSummaryDTO`]: List of FlowFile
+            summaries with uuid, filename, size, queued_duration, etc.
+            Returns empty list if queue is empty.
+
+    Example::
+
+        # List FlowFiles in a connection
+        conn = nipyapi.canvas.get_connection(connection_id)
+        flowfiles = nipyapi.canvas.list_flowfiles(conn)
+        for ff in flowfiles:
+            print(f"{ff.uuid}: {ff.filename} ({ff.size} bytes, queued {ff.queued_duration}ms)")
+
+        # Get first FlowFile's full details
+        if flowfiles:
+            details = nipyapi.canvas.get_flowfile(conn, flowfiles[0].uuid)
+            print(details.attributes)
+
+    """
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    elif isinstance(connection, str):
+        con_id = connection
+    else:
+        raise ValueError(
+            f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
+        )
+
+    def _listing_complete(con_id_, listing_req_):
+        test_obj = nipyapi.nifi.FlowFileQueuesApi().get_listing_request(
+            con_id_, listing_req_.listing_request.id
+        )
+        if not test_obj.listing_request.finished:
+            return False
+        if test_obj.listing_request.failure_reason:
+            raise ValueError(
+                f"Unable to complete listing request, error: "
+                f"{test_obj.listing_request.failure_reason}"
+            )
+        return test_obj
+
+    with nipyapi.utils.rest_exceptions():
+        listing_req = nipyapi.nifi.FlowFileQueuesApi().create_flow_file_listing(con_id)
+    assert isinstance(listing_req, nipyapi.nifi.ListingRequestEntity)
+
+    # Wait for listing to complete and get results
+    result = nipyapi.utils.wait_to_complete(_listing_complete, con_id, listing_req)
+
+    # Clean up the listing request
+    try:
+        nipyapi.nifi.FlowFileQueuesApi().delete_listing_request(
+            con_id, listing_req.listing_request.id
+        )
+    except Exception:  # pylint: disable=broad-except
+        pass  # Best effort cleanup
+
+    if result and result.listing_request.flow_file_summaries:
+        return result.listing_request.flow_file_summaries[:limit]
+    return []
+
+
+def _resolve_flowfile_cluster_node(connection_id, flowfile_uuid, cluster_node_id=None):
+    """
+    Resolve cluster_node_id for a FlowFile, fetching from queue listing if not provided.
+
+    In clustered NiFi, FlowFile operations require the cluster_node_id to identify
+    which node holds the FlowFile. This helper fetches it from the queue listing
+    if not explicitly provided.
+
+    Args:
+        connection_id: Connection ID string
+        flowfile_uuid: UUID of the FlowFile
+        cluster_node_id: Optional cluster node ID. If provided, returned as-is.
+
+    Returns:
+        str: The cluster_node_id for the FlowFile
+
+    Raises:
+        ValueError: If FlowFile not found in queue listing
+    """
+    if cluster_node_id:
+        return cluster_node_id
+
+    summaries = list_flowfiles(connection_id, limit=100)
+    matching = [s for s in summaries if s.uuid == flowfile_uuid]
+    if matching:
+        return matching[0].cluster_node_id
+
+    if summaries:
+        raise ValueError(
+            f"FlowFile {flowfile_uuid} not found in queue. It may have been processed."
+        )
+    # Empty queue - return None and let API handle it (may work in standalone NiFi)
+    return None
+
+
+def get_flowfile_details(connection, flowfile_uuid, cluster_node_id=None):
+    """
+    Get full details for a specific FlowFile, including its attributes.
+
+    This is a non-destructive operation - the FlowFile remains in the queue.
+
+    Args:
+        connection: Connection ID (str) or ConnectionEntity
+        flowfile_uuid: UUID of the FlowFile to retrieve
+        cluster_node_id: Node ID for clustered NiFi. If not provided, will be
+            auto-resolved from queue listing (adds one API call).
+
+    Returns:
+        :class:`~nipyapi.nifi.models.FlowFileDTO`: FlowFile details including
+            attributes dict, filename, size, queued_duration, etc.
+
+    Example::
+
+        # Get FlowFile details
+        details = nipyapi.canvas.get_flowfile_details(connection_id, flowfile_uuid)
+        print(f"Filename: {details.filename}")
+        print(f"Size: {details.size} bytes")
+        print(f"Attributes: {details.attributes}")
+
+        # In clustered NiFi, pass the cluster_node_id from listing
+        flowfiles = nipyapi.canvas.list_flowfiles(connection_id)
+        if flowfiles:
+            details = nipyapi.canvas.get_flowfile_details(
+                connection_id,
+                flowfiles[0].uuid,
+                cluster_node_id=flowfiles[0].cluster_node_id
+            )
+
+    """
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    elif isinstance(connection, str):
+        con_id = connection
+    else:
+        raise ValueError(
+            f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
+        )
+
+    cluster_node_id = _resolve_flowfile_cluster_node(con_id, flowfile_uuid, cluster_node_id)
+
+    with nipyapi.utils.rest_exceptions():
+        result = nipyapi.nifi.FlowFileQueuesApi().get_flow_file(
+            con_id, flowfile_uuid, cluster_node_id=cluster_node_id
+        )
+    return result.flow_file
+
+
+def get_flowfile_content(
+    connection, flowfile_uuid, decode="auto", output_file=None, cluster_node_id=None
+):
+    """
+    Download the content of a specific FlowFile.
+
+    This is a non-destructive operation - the FlowFile remains in the queue.
+
+    Args:
+        connection (str or ConnectionEntity): Connection ID or ConnectionEntity.
+        flowfile_uuid (str): UUID of the FlowFile.
+        decode (str): How to decode content: "auto" (mime-based), "text" (UTF-8),
+            or "bytes" (raw).
+        output_file (None or bool or str): None returns content directly, True saves
+            to current dir with FlowFile's filename, str saves to that path/directory.
+        cluster_node_id (str or None): Node ID for clustered NiFi. If not provided,
+            will be auto-resolved from queue listing (adds one API call).
+
+    Returns:
+        If output_file is None: bytes or str (depending on decode)
+        If output_file is set: str path where file was saved
+
+    Example::
+
+        # Get content as auto-detected type
+        content = nipyapi.canvas.get_flowfile_content(connection_id, flowfile_uuid)
+
+        # Force text decoding
+        text = nipyapi.canvas.get_flowfile_content(conn, uuid, decode='text')
+
+        # Save to file using FlowFile's filename
+        path = nipyapi.canvas.get_flowfile_content(conn, uuid, output_file=True)
+        print(f"Saved to: {path}")
+
+        # Save to specific directory
+        path = nipyapi.canvas.get_flowfile_content(conn, uuid, output_file='/tmp/')
+
+        # In clustered NiFi, pass the cluster_node_id from listing
+        flowfiles = nipyapi.canvas.list_flowfiles(connection_id)
+        if flowfiles:
+            content = nipyapi.canvas.get_flowfile_content(
+                connection_id,
+                flowfiles[0].uuid,
+                cluster_node_id=flowfiles[0].cluster_node_id
+            )
+
+    """
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    elif isinstance(connection, str):
+        con_id = connection
+    else:
+        raise ValueError(
+            f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
+        )
+
+    cluster_node_id = _resolve_flowfile_cluster_node(con_id, flowfile_uuid, cluster_node_id)
+
+    # Get FlowFile details for filename and mime_type
+    flowfile = get_flowfile_details(con_id, flowfile_uuid, cluster_node_id=cluster_node_id)
+
+    # Download raw content
+    with nipyapi.utils.rest_exceptions():
+        response = nipyapi.nifi.FlowFileQueuesApi().download_flow_file_content(
+            con_id, flowfile_uuid, cluster_node_id=cluster_node_id, _preload_content=False
+        )
+    content = response.data
+
+    # Determine if content should be decoded as text
+    mime_type = flowfile.mime_type or ""
+    text_mime_types = (
+        "text/",
+        "application/json",
+        "application/xml",
+        "application/javascript",
+        "application/csv",
+    )
+    is_text = any(mime_type.startswith(t) for t in text_mime_types)
+
+    if decode == "text" or (decode == "auto" and is_text):
+        try:
+            content = content.decode("utf-8")
+        except UnicodeDecodeError:
+            # Fall back to bytes if decode fails
+            pass
+
+    # Handle output file
+    if output_file is not None:
+        # Get filename from FlowFile (sanitize to basename only)
+        filename = os.path.basename(flowfile.filename) if flowfile.filename else flowfile_uuid
+
+        if output_file is True:
+            # Save to current directory
+            file_path = filename
+        elif os.path.isdir(output_file) or output_file.endswith(os.sep):
+            # It's a directory - append filename
+            file_path = os.path.join(output_file, filename)
+        else:
+            # It's an explicit file path
+            file_path = output_file
+
+        # Write content using utility function
+        nipyapi.utils.fs_write(content, file_path, binary=isinstance(content, bytes))
+        return os.path.abspath(file_path)
+
+    return content
+
+
+def peek_flowfiles(connection, limit=1):
+    """
+    Convenience function to list and get full details for FlowFiles at front of queue.
+
+    Combines list_flowfiles() and get_flowfile() to return complete FlowFile
+    details including attributes for the first N FlowFiles in the queue.
+
+    Args:
+        connection: Connection ID (str) or ConnectionEntity
+        limit: Number of FlowFiles to retrieve details for (default 1)
+
+    Returns:
+        list[:class:`~nipyapi.nifi.models.FlowFileDTO`]: List of FlowFile details
+            with full attributes. Returns empty list if queue is empty.
+
+    Example::
+
+        # Peek at the first FlowFile
+        flowfiles = nipyapi.canvas.peek_flowfiles(connection_id)
+        if flowfiles:
+            ff = flowfiles[0]
+            print(f"Filename: {ff.filename}")
+            print(f"Attributes: {ff.attributes}")
+
+        # Peek at first 5
+        flowfiles = nipyapi.canvas.peek_flowfiles(connection_id, limit=5)
+
+    """
+    summaries = list_flowfiles(connection, limit=limit)
+    if not summaries:
+        return []
+
+    # Normalize connection to ID for subsequent calls
+    if isinstance(connection, nipyapi.nifi.ConnectionEntity):
+        con_id = connection.id
+    else:
+        con_id = connection
+
+    result = []
+    for summary in summaries:
+        flowfile = get_flowfile_details(
+            con_id, summary.uuid, cluster_node_id=summary.cluster_node_id
+        )
+        # Preserve cluster_node_id from summary (FlowFileDTO returns None from API)
+        flowfile.cluster_node_id = summary.cluster_node_id
+        result.append(flowfile)
+    return result
+
+
 def purge_process_group(process_group, stop=False):
     """
     EXPERIMENTAL
@@ -1054,25 +1761,37 @@ def purge_process_group(process_group, stop=False):
 
 def get_bulletins():
     """
-    Retrieves current bulletins (alerts) from the Flow Canvas
+    Retrieves current bulletins (alerts) from the Flow Canvas.
+
+    This is an alias for :func:`nipyapi.bulletins.get_bulletins`.
 
     Returns:
         (ControllerBulletinsEntity): The native datatype containing a list
-    of bulletins
+            of bulletins
     """
-    with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FlowApi().get_bulletins()
+    return nipyapi.bulletins.get_bulletins()
 
 
-def get_bulletin_board():
+def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
     """
-    Retrieves the bulletin board object
+    Retrieves bulletins from the bulletin board with optional filtering.
+
+    This is an alias for :func:`nipyapi.bulletins.get_bulletin_board`.
+
+    Args:
+        pg_id (str, optional): Filter to bulletins from this process group ID.
+            If None, returns bulletins from all groups.
+        source_name (str, optional): Filter by source component name (regex pattern).
+        message (str, optional): Filter by message content (regex pattern).
+        limit (int, optional): Maximum number of bulletins to return.
 
     Returns:
-        (BulletinBoardEntity): The native datatype BulletinBoard object
+        list[BulletinDTO]: List of bulletin objects matching the filters.
+            Returns empty list if no bulletins match.
     """
-    with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FlowApi().get_bulletin_board()
+    return nipyapi.bulletins.get_bulletin_board(
+        pg_id=pg_id, source_name=source_name, message=message, limit=limit
+    )
 
 
 def create_controller(parent_pg, controller, name=None):
@@ -1151,20 +1870,30 @@ def list_all_controllers(pg_id="root", descendants=True, include_reporting_tasks
     return out
 
 
-def delete_controller(controller, force=False):
+def delete_controller(controller, force=False, refresh=True):
     """
     Delete a Controller service, with optional prejudice
 
     Args:
-        controller (ControllerServiceEntity): Target Controller to delete
+        controller (ControllerServiceEntity or str): Target Controller to delete,
+            either as a ControllerServiceEntity object or a controller ID string
         force (bool): True to attempt Disable the Controller before deletion
+        refresh (bool): Whether to refresh the controller to get latest revision
+            before deletion. Defaults to True to avoid stale revision errors.
 
     Returns:
         (ControllerServiceEntity)
 
     """
-    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(force, bool)
+
+    # Accept ID string or object
+    if isinstance(controller, str):
+        controller_id = controller
+        controller = get_controller(controller_id, "id")
+        if controller is None:
+            raise ValueError(f"Controller not found: {controller_id}")
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
 
     def _del_cont(cont_id):
         if not get_controller(cont_id, "id", bool_response=True):
@@ -1173,35 +1902,53 @@ def delete_controller(controller, force=False):
 
     handle = nipyapi.nifi.ControllerServicesApi()
     if force:
-        # Stop and refresh
-        controller = schedule_controller(controller, False, True)
+        # Stop and optionally refresh
+        controller = schedule_controller(controller, False, refresh)
+    elif refresh:
+        # Just refresh to get latest revision
+        controller = get_controller(controller.id, "id")
     with nipyapi.utils.rest_exceptions():
         result = handle.remove_controller_service(
             id=controller.id, version=controller.revision.version
         )
     del_test = nipyapi.utils.wait_to_complete(
-        _del_cont, controller.id, nipyapi_max_wait=15, nipyapi_delay=1
+        _del_cont,
+        controller.id,
+        nipyapi_max_wait=15,
+        nipyapi_delay=nipyapi.config.short_retry_delay,
     )
     if not del_test:
         raise ValueError("Timed out waiting for Controller Deletion")
     return result
 
 
-def update_controller(controller, update):
+def update_controller(controller, update, refresh=True):
     """
     Updates the Configuration of a Controller Service
 
     Args:
-        controller (ControllerServiceEntity): Target Controller to update
+        controller (ControllerServiceEntity or str): Target Controller to update,
+            either as a ControllerServiceEntity object or a controller ID string
         update (ControllerServiceDTO): Controller Service configuration object
             containing the new config params and properties
+        refresh (bool): Whether to refresh the controller to get latest revision
+            before update. Defaults to True to avoid stale revision errors.
 
     Returns:
         (ControllerServiceEntity)
 
     """
+    # Accept ID string or object
+    if isinstance(controller, str):
+        controller = get_controller(controller, "id")
+        if controller is None:
+            raise ValueError(f"Controller not found: {controller}")
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
+
+    if refresh:
+        controller = get_controller(controller.id, "id")
+
     # Insert the ID into the update
     update.id = controller.id
     return nipyapi.nifi.ControllerServicesApi().update_controller_service(
@@ -1253,8 +2000,8 @@ def schedule_controller(controller, scheduled, refresh=False):
         _schedule_controller_state,
         controller.id,
         target_state,
-        nipyapi_delay=nipyapi.config.long_retry_delay,
-        nipyapi_max_wait=nipyapi.config.long_max_wait,
+        nipyapi_delay=nipyapi.config.short_retry_delay,
+        nipyapi_max_wait=15,
     )
     if state_test:
         return get_controller(controller.id, "id")
@@ -1266,7 +2013,8 @@ def schedule_all_controllers(pg_id, scheduled):
     Enable or Disable all Controller Services in a Process Group.
 
     Uses NiFi's native bulk controller service activation API which handles
-    all descendant controller services automatically.
+    all descendant controller services automatically. Waits for all controllers
+    to reach the target state before returning.
 
     Args:
         pg_id (str): The UUID of the Process Group
@@ -1281,11 +2029,27 @@ def schedule_all_controllers(pg_id, scheduled):
 
     target_state = "ENABLED" if scheduled else "DISABLED"
 
+    def _all_controllers_in_state():
+        controllers = list_all_controllers(pg_id)
+        if not controllers:
+            return True  # No controllers to wait for
+        return all(c.component.state == target_state for c in controllers)
+
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FlowApi().activate_controller_services(
+        result = nipyapi.nifi.FlowApi().activate_controller_services(
             id=pg_id,
             body=nipyapi.nifi.ActivateControllerServicesEntity(id=pg_id, state=target_state),
         )
+
+    # Wait for all controllers to reach target state
+    state_complete = nipyapi.utils.wait_to_complete(
+        _all_controllers_in_state,
+        nipyapi_delay=nipyapi.config.short_retry_delay,
+        nipyapi_max_wait=30,
+    )
+    if not state_complete:
+        raise ValueError(f"Timed out waiting for controllers to reach state {target_state}")
+    return result
 
 
 def get_controller(
@@ -1351,6 +2115,74 @@ def get_controller_type(identifier, identifier_type="name", greedy=True):
     if obj:
         return nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
     return obj
+
+
+def get_controller_service_docs(controller):
+    """
+    Get detailed documentation for a controller service type.
+
+    This function retrieves the full ControllerServiceDefinition from NiFi,
+    which contains comprehensive documentation useful for understanding
+    controller service capabilities and configuration options.
+
+    Args:
+        controller (ControllerServiceEntity or DocumentedTypeDTO or str): An existing
+            controller service, a type from get_controller_type(), or a type name
+            string (e.g., "JsonTreeReader" or full qualified name).
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: Controller
+            documentation including property_descriptors, tags, and more.
+        None: If controller type not found.
+
+    Example::
+
+        # From existing controller service
+        cs = nipyapi.canvas.get_controller("MyJsonReader")
+        docs = nipyapi.canvas.get_controller_service_docs(cs)
+        print(docs.tags)
+        print(docs.property_descriptors.keys())
+
+        # From controller type
+        cs_type = nipyapi.canvas.get_controller_type("JsonTreeReader")
+        docs = nipyapi.canvas.get_controller_service_docs(cs_type)
+
+        # From type name string
+        docs = nipyapi.canvas.get_controller_service_docs("AvroReader")
+
+    """
+    # Extract bundle info based on input type
+    if isinstance(controller, nipyapi.nifi.ControllerServiceEntity):
+        bundle = controller.component.bundle
+        cs_type = controller.component.type
+    elif isinstance(controller, nipyapi.nifi.DocumentedTypeDTO):
+        bundle = controller.bundle
+        cs_type = controller.type
+    elif isinstance(controller, str):
+        # Look up controller type by name
+        cs_type_obj = get_controller_type(controller, identifier_type="name", greedy=False)
+        if cs_type_obj is None:
+            # Try greedy match
+            cs_type_obj = get_controller_type(controller, identifier_type="name", greedy=True)
+        if cs_type_obj is None:
+            return None
+        if isinstance(cs_type_obj, list):
+            cs_type_obj = cs_type_obj[0]  # Take first match
+        bundle = cs_type_obj.bundle
+        cs_type = cs_type_obj.type
+    else:
+        raise ValueError(
+            f"controller must be ControllerServiceEntity, DocumentedTypeDTO, or str, "
+            f"got: {type(controller).__name__}"
+        )
+
+    with nipyapi.utils.rest_exceptions():
+        return nipyapi.nifi.FlowApi().get_controller_service_definition(
+            group=bundle.group,
+            artifact=bundle.artifact,
+            version=bundle.version,
+            type=cs_type,
+        )
 
 
 def list_all_by_kind(kind, pg_id="root", descendants=True):
@@ -1459,19 +2291,24 @@ def create_remote_process_group(target_uris, transport="RAW", pg_id="root", posi
         )
 
 
-def delete_remote_process_group(rpg, refresh=True):
+def delete_remote_process_group(rpg, refresh=True, force=False):
     """
-    Deletes a given remote process group
+    Deletes a given remote process group.
 
     Args:
         rpg (RemoteProcessGroupEntity): Remote Process Group to remove
         refresh (bool): Whether to refresh the object before action
+        force (bool): If True, stop transmission before deleting. Use this
+            when the RPG may be transmitting and you want to ensure deletion.
 
     Returns:
         (RemoteProcessGroupEntity)
     """
     assert isinstance(rpg, nipyapi.nifi.RemoteProcessGroupEntity)
-    if refresh:
+    if refresh or force:
+        rpg = get_remote_process_group(rpg.id)
+    if force and rpg.component.transmitting:
+        set_remote_process_group_transmission(rpg, enable=False)
         rpg = get_remote_process_group(rpg.id)
     handle = nipyapi.nifi.RemoteProcessGroupsApi()
     with nipyapi.utils.rest_exceptions():
@@ -1480,29 +2317,55 @@ def delete_remote_process_group(rpg, refresh=True):
 
 def set_remote_process_group_transmission(rpg, enable=True, refresh=True):
     """
-    Enable or Disable Transmission for an RPG
+    Enable or Disable Transmission for an RPG.
+
+    Waits for the transmission state to actually change before returning.
 
     Args:
-        rpg (RemoteProcessGroupEntity): The ID of the remote process group
-          to modify
-        enable (bool): True to enable, False to disable
+        rpg (RemoteProcessGroupEntity): The remote process group to modify
+        enable (bool): True to enable transmission, False to disable
         refresh (bool): Whether to refresh the object before action
 
     Returns:
+        (RemoteProcessGroupEntity): The updated remote process group
 
+    Raises:
+        ValueError: If the state change times out
     """
     assert isinstance(rpg, nipyapi.nifi.RemoteProcessGroupEntity)
     assert isinstance(enable, bool)
+
+    def _check_rpg_transmission_state(rpg_id, target_transmitting):
+        """Check if RPG transmission state matches target."""
+        test_obj = get_remote_process_group(rpg_id)
+        if test_obj.component.transmitting == target_transmitting:
+            return True
+        return False
+
     if refresh:
         rpg = get_remote_process_group(rpg.id)
     handle = nipyapi.nifi.RemoteProcessGroupsApi()
+    target_state = "TRANSMITTING" if enable else "STOPPED"
+
     with nipyapi.utils.rest_exceptions():
-        return handle.update_remote_process_group_run_status(
+        handle.update_remote_process_group_run_status(
             id=rpg.id,
-            body=nipyapi.nifi.RemotePortRunStatusEntity(
-                state="TRANSMITTING" if enable else "STOPPED", revision=rpg.revision
-            ),
+            body=nipyapi.nifi.RemotePortRunStatusEntity(state=target_state, revision=rpg.revision),
         )
+
+    # Wait for the state to actually change
+    state_test = nipyapi.utils.wait_to_complete(
+        _check_rpg_transmission_state,
+        rpg.id,
+        enable,
+        nipyapi_delay=nipyapi.config.long_retry_delay,
+        nipyapi_max_wait=nipyapi.config.long_max_wait,
+    )
+    if state_test:
+        return get_remote_process_group(rpg.id)
+    raise ValueError(
+        f"Timed out waiting for RPG {rpg.id} transmission to " f"{'start' if enable else 'stop'}"
+    )
 
 
 def create_port(pg_id, port_type, name, state, position=None):
@@ -1626,3 +2489,339 @@ def get_pg_parents_ids(pg_id):
     # Removing the None value
     parent_groups.pop()
     return parent_groups
+
+
+def verify_controller(controller, properties=None, attributes=None):
+    """
+    Verify a controller service's configuration properties are valid.
+
+    Validates that all required properties are set and property values meet
+    their defined constraints. Does NOT test actual connectivity or credentials.
+    Handles the async verification workflow: submit request, poll until
+    complete, cleanup.
+
+    The controller service must be DISABLED before verification.
+
+    Args:
+        controller: ControllerServiceEntity or controller service ID (str)
+        properties: Optional dict of property overrides to verify
+        attributes: Optional dict of FlowFile attributes for Expression Language
+
+    Returns:
+        list[ConfigVerificationResultDTO]: Verification results. Each has
+        verification_step_name, outcome ("SUCCESSFUL"/"FAILED"/"SKIPPED"),
+        and explanation.
+
+    Raises:
+        ValueError: Controller not found or is currently enabled
+        ApiException: NiFi API errors
+
+    Example::
+
+        results = nipyapi.canvas.verify_controller(dbcp_service)
+        for r in results:
+            print(f"{r.verification_step_name}: {r.outcome}")
+            if r.outcome == "FAILED":
+                print(f"  Reason: {r.explanation}")
+    """
+    # Accept ID or entity
+    if isinstance(controller, str):
+        controller = get_controller(controller, "id")
+
+    if controller is None:
+        raise ValueError("Controller service not found")
+
+    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+
+    # Verify controller is disabled
+    if controller.component.state != "DISABLED":
+        raise ValueError(
+            f"Controller service must be DISABLED before verification. "
+            f"Current state: {controller.component.state}"
+        )
+
+    # Build verification request
+    body = nipyapi.nifi.VerifyConfigRequestEntity(
+        request=nipyapi.nifi.VerifyConfigRequestDTO(
+            component_id=controller.id,
+            properties=properties or {},
+            attributes=attributes or {},
+        )
+    )
+
+    api = nipyapi.nifi.ControllerServicesApi()
+    request_id = None
+
+    try:
+        # Submit verification request
+        with nipyapi.utils.rest_exceptions():
+            response = api.submit_config_verification_request(body=body, id=controller.id)
+        request_id = response.request.request_id
+
+        # Poll until complete using wait_to_complete pattern
+        def _check_complete():
+            status = api.get_verification_request(id=controller.id, request_id=request_id)
+            if status.request.complete:
+                return status
+            return False
+
+        status = nipyapi.utils.wait_to_complete(_check_complete)
+        return status.request.results or []
+
+    finally:
+        # Always cleanup the verification request
+        if request_id:
+            try:
+                api.delete_verification_request(id=controller.id, request_id=request_id)
+            except Exception:  # pylint: disable=broad-except
+                log.warning("Failed to cleanup verification request %s", request_id)
+
+
+def verify_processor(processor, properties=None, attributes=None):
+    """
+    Verify a processor's configuration properties are valid.
+
+    Validates that all required properties are set and property values meet
+    their defined constraints. Does NOT test actual connectivity or external
+    service availability. Handles the async verification workflow: submit
+    request, poll until complete, cleanup.
+
+    The processor must be STOPPED before verification.
+
+    Args:
+        processor: ProcessorEntity or processor ID (str)
+        properties: Optional dict of property overrides to verify
+        attributes: Optional dict of FlowFile attributes for Expression Language
+
+    Returns:
+        list[ConfigVerificationResultDTO]: Verification results. Each has
+        verification_step_name, outcome ("SUCCESSFUL"/"FAILED"/"SKIPPED"),
+        and explanation.
+
+    Raises:
+        ValueError: Processor not found or is currently running
+        ApiException: NiFi API errors
+
+    Example::
+
+        results = nipyapi.canvas.verify_processor(my_processor)
+        for r in results:
+            print(f"{r.verification_step_name}: {r.outcome}")
+            if r.outcome == "FAILED":
+                print(f"  Reason: {r.explanation}")
+    """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor = get_processor(processor, "id")
+
+    if processor is None:
+        raise ValueError("Processor not found")
+
+    assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+
+    # Verify processor is stopped
+    run_status = processor.status.run_status if processor.status else None
+    if run_status and run_status.upper() in ("RUNNING", "VALIDATING"):
+        raise ValueError(
+            f"Processor must be STOPPED before verification. " f"Current state: {run_status}"
+        )
+
+    # Build verification request
+    body = nipyapi.nifi.VerifyConfigRequestEntity(
+        request=nipyapi.nifi.VerifyConfigRequestDTO(
+            component_id=processor.id,
+            properties=properties or {},
+            attributes=attributes or {},
+        )
+    )
+
+    api = nipyapi.nifi.ProcessorsApi()
+    request_id = None
+
+    try:
+        # Submit verification request
+        with nipyapi.utils.rest_exceptions():
+            response = api.submit_processor_verification_request(body=body, id=processor.id)
+        request_id = response.request.request_id
+
+        # Poll until complete
+        def _check_complete():
+            status = api.get_verification_request2(id=processor.id, request_id=request_id)
+            if status.request.complete:
+                return status
+            return False
+
+        status = nipyapi.utils.wait_to_complete(_check_complete)
+        return status.request.results or []
+
+    finally:
+        # Always cleanup the verification request
+        if request_id:
+            try:
+                api.delete_verification_request2(id=processor.id, request_id=request_id)
+            except Exception:  # pylint: disable=broad-except
+                log.warning("Failed to cleanup verification request %s", request_id)
+
+
+def get_controller_state(controller):
+    """
+    Get the state for a controller service.
+
+    Controller services can maintain internal state (e.g., cache entries,
+    connection tracking, CDC table status). This function retrieves that state.
+
+    Args:
+        controller: ControllerServiceEntity or controller service ID (str)
+
+    Returns:
+        ComponentStateEntity with component_state containing component_id,
+        state_description, local_state (single node), and cluster_state
+        (distributed). Check whichever state map has entries. Each state
+        map has scope, total_entry_count, and state (list of StateEntryDTO).
+
+    Raises:
+        ValueError: Controller not found
+        ApiException: NiFi API errors
+
+    Example::
+
+        state = nipyapi.canvas.get_controller_state(my_controller)
+        state_map = state.component_state.local_state
+        if state_map and state_map.state:
+            for entry in state_map.state:
+                print(f"{entry.key}: {entry.value}")
+    """
+    # Accept ID or entity
+    if isinstance(controller, str):
+        controller_id = controller
+    else:
+        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+        controller_id = controller.id
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.get_state(controller_id)
+
+
+def clear_controller_state(controller):
+    """
+    Clear all state for a controller service.
+
+    This removes all state entries from the controller service. Use with caution
+    as this may affect the controller's behavior (e.g., clearing a CDC table
+    state service will cause tables to be re-snapshotted).
+
+    Note: The controller must be DISABLED before clearing state. Attempting to
+    clear state on an enabled controller will raise an error.
+
+    Args:
+        controller: ControllerServiceEntity or controller service ID (str)
+
+    Returns:
+        ComponentStateEntity: The cleared state entity (should have 0 entries)
+
+    Raises:
+        ValueError: Controller not found or controller is enabled
+        ApiException: NiFi API errors
+
+    Example::
+
+        # Disable controller first
+        nipyapi.canvas.schedule_controller(my_controller, scheduled=False)
+
+        # Clear all state
+        nipyapi.canvas.clear_controller_state(my_controller)
+
+        # Verify cleared
+        state = nipyapi.canvas.get_controller_state(my_controller)
+        assert state.component_state.local_state.total_entry_count == 0
+    """
+    # Accept ID or entity
+    if isinstance(controller, str):
+        controller_id = controller
+    else:
+        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+        controller_id = controller.id
+
+    handle = nipyapi.nifi.ControllerServicesApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.clear_state1(controller_id)
+
+
+def get_processor_state(processor):
+    """
+    Get the state for a processor.
+
+    Processors can maintain internal state (e.g., ListFile tracks listed files,
+    TailFile tracks file positions). This function retrieves that state.
+
+    Args:
+        processor: ProcessorEntity or processor ID (str)
+
+    Returns:
+        ComponentStateEntity with component_state containing component_id,
+        state_description, local_state (single node), and cluster_state
+        (distributed). Check whichever state map has entries. Each state
+        map has scope, total_entry_count, and state (list of StateEntryDTO).
+
+    Raises:
+        ValueError: Processor not found
+        ApiException: NiFi API errors
+
+    Example::
+
+        state = nipyapi.canvas.get_processor_state(my_list_file_processor)
+        state_map = state.component_state.local_state
+        if state_map and state_map.state:
+            for entry in state_map.state:
+                print(f"{entry.key}: {entry.value}")
+    """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor_id = processor
+    else:
+        assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+        processor_id = processor.id
+
+    handle = nipyapi.nifi.ProcessorsApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.get_state2(processor_id)
+
+
+def clear_processor_state(processor):
+    """
+    Clear all state for a processor.
+
+    This removes all state entries from the processor. Use with caution as this
+    may affect the processor's behavior (e.g., clearing ListFile state will
+    cause all files to be re-listed).
+
+    Args:
+        processor: ProcessorEntity or processor ID (str)
+
+    Returns:
+        ComponentStateEntity: The cleared state entity (should have 0 entries)
+
+    Raises:
+        ValueError: Processor not found
+        ApiException: NiFi API errors
+
+    Example::
+
+        # Clear all state
+        nipyapi.canvas.clear_processor_state(my_processor)
+
+        # Verify cleared
+        state = nipyapi.canvas.get_processor_state(my_processor)
+        assert state.component_state.local_state.total_entry_count == 0
+    """
+    # Accept ID or entity
+    if isinstance(processor, str):
+        processor_id = processor
+    else:
+        assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+        processor_id = processor.id
+
+    handle = nipyapi.nifi.ProcessorsApi()
+    with nipyapi.utils.rest_exceptions():
+        return handle.clear_state3(processor_id)

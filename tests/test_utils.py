@@ -82,6 +82,22 @@ def test_fs_write(tmpdir):
                 obj=test_obj,
                 file_path=invalid_path
             )
+
+
+def test_fs_write_binary(tmpdir):
+    """Test fs_write with binary=True for raw byte content."""
+    f_fdir = tmpdir.mkdir("binary_test")
+    f_fpath = f_fdir.join("test.bin")
+    test_bytes = b"\x00\x01\x02\xff\xfe"
+
+    # Write binary content
+    result = utils.fs_write(test_bytes, str(f_fpath), binary=True)
+    assert result == test_bytes
+
+    # Verify content was written correctly
+    with open(str(f_fpath), "rb") as f:
+        read_content = f.read()
+    assert read_content == test_bytes
     # Test writing an invalid object
     with pytest.raises((TypeError,AttributeError)):
         _ = utils.fs_write(
@@ -130,6 +146,62 @@ def test_filter_obj(fix_pg):
 def test_wait_to_complete():
     # TODO: Implement test
     pass
+
+
+class TestIsUuid:
+    """Tests for the is_uuid utility function."""
+
+    def test_valid_uuid_lowercase(self):
+        """Test that lowercase UUIDs are recognized."""
+        assert utils.is_uuid("550e8400-e29b-41d4-a716-446655440000") is True
+        assert utils.is_uuid("00000000-0000-0000-0000-000000000000") is True
+        assert utils.is_uuid("ffffffff-ffff-ffff-ffff-ffffffffffff") is True
+
+    def test_valid_uuid_uppercase(self):
+        """Test that uppercase UUIDs are recognized."""
+        assert utils.is_uuid("550E8400-E29B-41D4-A716-446655440000") is True
+        assert utils.is_uuid("FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF") is True
+
+    def test_valid_uuid_mixed_case(self):
+        """Test that mixed case UUIDs are recognized."""
+        assert utils.is_uuid("550E8400-e29b-41D4-a716-446655440000") is True
+
+    def test_invalid_uuid_wrong_length(self):
+        """Test that wrong length strings are rejected."""
+        assert utils.is_uuid("550e8400-e29b-41d4-a716-44665544000") is False  # too short
+        assert utils.is_uuid("550e8400-e29b-41d4-a716-4466554400000") is False  # too long
+        assert utils.is_uuid("550e8400e29b41d4a716446655440000") is False  # no dashes
+
+    def test_invalid_uuid_wrong_format(self):
+        """Test that wrong format strings are rejected."""
+        assert utils.is_uuid("550e8400-e29b-41d4-a716446655440000") is False  # missing dash
+        assert utils.is_uuid("550e8400-e29b41d4-a716-446655440000") is False  # wrong position
+
+    def test_invalid_uuid_non_hex(self):
+        """Test that non-hex characters are rejected."""
+        assert utils.is_uuid("550g8400-e29b-41d4-a716-446655440000") is False  # 'g' invalid
+        assert utils.is_uuid("550e8400-xxxx-41d4-a716-446655440000") is False  # 'x' invalid
+
+    def test_non_string_types(self):
+        """Test that non-string types return False."""
+        assert utils.is_uuid(None) is False
+        assert utils.is_uuid(123) is False
+        assert utils.is_uuid(["550e8400-e29b-41d4-a716-446655440000"]) is False
+        assert utils.is_uuid({"uuid": "550e8400-e29b-41d4-a716-446655440000"}) is False
+
+    def test_empty_string(self):
+        """Test that empty string returns False."""
+        assert utils.is_uuid("") is False
+
+    def test_registry_client_name_vs_id(self):
+        """Test distinguishing registry client names from IDs."""
+        # These look like names, not UUIDs
+        assert utils.is_uuid("my-registry-client") is False
+        assert utils.is_uuid("GitHub-FlowRegistry") is False
+        assert utils.is_uuid("test-action-client") is False
+
+        # This is a UUID
+        assert utils.is_uuid("59c45063-019b-1000-d14f-fc1f5a10994c") is True
 
 
 def test_check_version():

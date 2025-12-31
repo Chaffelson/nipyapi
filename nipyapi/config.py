@@ -30,7 +30,9 @@ PROJECT_ROOT_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
 # --- Profiles Configuration ------
-# Default path to profiles file (can be overridden programmatically or via environment)
+# User-level profiles file location (checked first, similar to ~/.snowflake/config.toml)
+user_profiles_file = "~/.nipyapi/profiles.yml"
+# Development/fallback profiles file (used if user file doesn't exist)
 default_profiles_file = "examples/profiles.yml"
 
 

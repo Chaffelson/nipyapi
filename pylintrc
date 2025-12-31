@@ -429,7 +429,8 @@ disable=raw-checker-failed,
         use-symbolic-message-instead,
         bare-except,
         invalid-name,
-        C0103, E1101, R1710, E0401, C0209
+        duplicate-code,
+        C0103, E1101, R1710, E0401, C0209, R0801
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

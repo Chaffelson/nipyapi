@@ -5,12 +5,29 @@
 NIFI_VERSION ?= 2.7.2
 
 # Load .env file if it exists (for secrets like GH_REGISTRY_TOKEN)
+# WARNING: All variables from .env are exported and can override profile settings.
+# If tests fail with unexpected URLs, check if .env contains NIFI_API_ENDPOINT
+# or other NIFI_*/REGISTRY_* variables that conflict with examples/profiles.yml.
+# For development/testing, either remove .env or ensure it doesn't contain
+# conflicting endpoint URLs.
 -include .env
 export
 
 # Python command for cross-platform compatibility
 # Defaults to 'python' for conda/venv users, override with PYTHON=python3 for system installs
 PYTHON ?= python
+
+# Package installer: prefer uv if available, fall back to pip
+# Users with uv get faster installs; users without uv work unchanged
+UV := $(shell command -v uv 2>/dev/null)
+ifdef UV
+    PIP := uv pip
+else
+    PIP := pip
+endif
+
+# Profiles file for development/testing (explicitly use examples file, not user's ~/.nipyapi/profiles.yml)
+NIPYAPI_PROFILES_FILE ?= examples/profiles.yml
 
 # Paths and docker compose helpers (avoid cd by using -f)
 COMPOSE_DIR := $(abspath resources/docker)
@@ -107,8 +124,8 @@ clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
 	rm -fr .eggs/
-	find . -name '*.egg-info' -exec rm -fr {} +
-	find . -name '*.egg' -exec rm -f {} +
+	find . -path ./.venv -prune -o -name '*.egg-info' -exec rm -fr {} +
+	find . -path ./.venv -prune -o -name '*.egg' -exec rm -rf {} +
 
 clean-pyc: ## remove Python file artifacts
 	find . -name '*.pyc' -exec rm -f {} +
@@ -141,13 +158,13 @@ clean-docker: clean-act ## comprehensive Docker cleanup: act + containers + volu
 	@echo "Comprehensive Docker cleanup complete"
 
 install: clean ## install the package to the active Python's site-packages
-	pip install .
+	$(PIP) install .
 
 dev-install: ## install dev extras for local development
-	pip install -e ".[dev]"
+	$(PIP) install -e ".[dev]"
 
 docs-install: ## install docs extras
-	pip install -e ".[docs]"
+	$(PIP) install -e ".[docs]"
 
 coverage: ensure-certs ## run pytest with coverage and generate report (set coverage-min=NN to enforce; requires infrastructure)
 	@echo "Running coverage analysis (single-user profile)..."
@@ -155,7 +172,7 @@ coverage: ensure-certs ## run pytest with coverage and generate report (set cove
 	$(MAKE) up NIPYAPI_PROFILE=single-user
 	$(MAKE) wait-ready NIPYAPI_PROFILE=single-user
 	@echo "Running pytest with coverage..."
-	NIPYAPI_PROFILE=single-user PYTHONPATH=$(PWD):$$PYTHONPATH pytest --cov=nipyapi --cov-report=term-missing --cov-report=html
+	NIPYAPI_PROFILE=single-user NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest --cov=nipyapi --cov-report=term-missing --cov-report=html
 	@if [ -n "$(coverage-min)" ]; then coverage report --fail-under=$(coverage-min); fi
 	@echo "Coverage analysis complete. See htmlcov/index.html for detailed report."
 
@@ -181,7 +198,7 @@ flake8: ## run flake8 linter on core nipyapi files
 pylint: ## run pylint on core nipyapi files
 	pylint nipyapi/ --rcfile=pylintrc --ignore=nifi,registry,_version.py
 
-pre-commit: ## run pre-commit hooks on all files
+pre-commit: ## run pre-commit hooks on all files (black, isort, flake8, pylint)
 	pre-commit run --all-files
 
 #################################################################################
@@ -244,7 +261,7 @@ down: ## bring down all docker services
 wait-ready: ## wait for readiness using profile configuration; requires NIPYAPI_PROFILE=single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "ERROR: NIPYAPI_PROFILE is required"; exit 1; fi
 	@echo "Waiting for $(NIPYAPI_PROFILE) infrastructure to be ready..."
-	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) $(PYTHON) resources/scripts/wait_ready.py
+	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) $(PYTHON) resources/scripts/wait_ready.py
 
 # API & Client generation
 fetch-openapi-base: ## refresh base OpenAPI specs for current NIFI_VERSION (always overwrite base)
@@ -272,9 +289,9 @@ gen-clients: ## generate NiFi and Registry clients from specs (use wv_spec_varia
 
 # Individual testing
 
-test: ## run pytest with provided NIPYAPI_PROFILE; config resolved by tests/conftest.py
+test: ## run pytest with provided NIPYAPI_PROFILE; use PYTEST_ARGS for extra options (e.g., make test NIPYAPI_PROFILE=single-user PYTEST_ARGS="-k verify -v")
 	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi; \
-	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q
+	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(PYTEST_ARGS)
 
 test-su: ## shortcut: NIPYAPI_PROFILE=single-user pytest
 	NIPYAPI_PROFILE=single-user $(MAKE) test
@@ -288,10 +305,11 @@ test-mtls: ## shortcut: NIPYAPI_PROFILE=secure-mtls pytest
 test-oidc: check-certs ## shortcut: NIPYAPI_PROFILE=secure-oidc pytest (requires: make sandbox NIPYAPI_PROFILE=secure-oidc)
 	NIPYAPI_PROFILE=secure-oidc $(MAKE) test
 
-test-specific: ## run specific pytest with provided NIPYAPI_PROFILE and TEST_ARGS
-	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required (single-user|secure-ldap|secure-mtls|secure-oidc|github-cicd)"; exit 1; fi; \
-	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required (e.g., tests/test_utils.py::test_dump -v)"; exit 1; fi; \
-	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
+test-specific: ## DEPRECATED: use 'make test PYTEST_ARGS="..."' instead
+	@echo "DEPRECATED: Use 'make test NIPYAPI_PROFILE=... PYTEST_ARGS=\"...\"' instead"
+	@if [ -z "$(NIPYAPI_PROFILE)" ]; then echo "NIPYAPI_PROFILE is required"; exit 1; fi; \
+	if [ -z "$(TEST_ARGS)" ]; then echo "TEST_ARGS is required"; exit 1; fi; \
+	NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) PYTHONPATH=$(PWD):$$PYTHONPATH pytest -q $(TEST_ARGS)
 
 
 # Build & Documentation
@@ -345,7 +363,7 @@ sandbox: ensure-certs ## create isolated environment with sample objects: make s
 	@echo "=== 2/4: Waiting for readiness ==="
 	$(MAKE) wait-ready NIPYAPI_PROFILE=$(NIPYAPI_PROFILE)
 	@echo "=== 3/4: Setting up authentication and sample objects ==="
-	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) $(PYTHON) examples/sandbox.py $(NIPYAPI_PROFILE)
+	@NIPYAPI_PROFILE=$(NIPYAPI_PROFILE) NIPYAPI_PROFILES_FILE=$(NIPYAPI_PROFILES_FILE) $(PYTHON) examples/sandbox.py $(NIPYAPI_PROFILE)
 
 rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> validate -> docs
 	@echo "Starting comprehensive rebuild from clean slate..."

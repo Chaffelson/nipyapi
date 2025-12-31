@@ -8,9 +8,11 @@ import json
 import logging
 import operator
 import os
+import re
 import time
 from contextlib import contextmanager
 from copy import copy
+from datetime import datetime, timezone
 from functools import reduce, wraps
 from typing import Optional
 
@@ -28,6 +30,7 @@ __all__ = [
     "fs_read",
     "fs_write",
     "filter_obj",
+    "is_uuid",
     "wait_to_complete",
     "is_endpoint_up",
     "set_endpoint",
@@ -41,10 +44,36 @@ __all__ = [
     "getenv",
     "getenv_bool",
     "resolve_relative_paths",
+    "format_timestamp",
 ]
 
 log = logging.getLogger(__name__)
 DOCKER_AVAILABLE = False  # Docker management removed in 1.x (NiFi 2.x)
+
+# UUID pattern: 8-4-4-4-12 hexadecimal characters
+# Note: This validates format only, not UUID validity per RFC 4122
+# (does not check version or variant bits)
+_UUID_PATTERN = re.compile(
+    r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$", re.IGNORECASE
+)
+
+
+def is_uuid(value):
+    """
+    Check if a string looks like a UUID.
+
+    This validates the format only (8-4-4-4-12 hexadecimal pattern), not
+    UUID validity per RFC 4122. It does not verify version or variant bits.
+
+    Args:
+        value (str): The string to check
+
+    Returns:
+        bool: True if the string matches UUID format (8-4-4-4-12 hex pattern)
+    """
+    if not isinstance(value, str):
+        return False
+    return bool(_UUID_PATTERN.match(value))
 
 
 def dump(obj, mode="json"):
@@ -114,23 +143,39 @@ def load(obj, dto=None):
     return loaded_obj
 
 
-def fs_write(obj, file_path):
+def fs_write(obj, file_path, binary=False):
     """
-    Convenience function to write an Object to a FilePath
+    Convenience function to write an Object to a FilePath.
 
     Args:
         obj (varies): The Object to write out
         file_path (str): The Full path including filename to write to
+        binary (bool): If True, write in binary mode (obj should be bytes).
+            If False (default), write as text with encoding.
 
-    Returns: The object that was written
+    Returns:
+        The object that was written
+
+    Example::
+
+        # Write text content
+        nipyapi.utils.fs_write("hello world", "/tmp/test.txt")
+
+        # Write binary content
+        nipyapi.utils.fs_write(b"\\x00\\x01\\x02", "/tmp/test.bin", binary=True)
+
     """
     try:
-        with io.open(str(file_path), "w", encoding=DEF_ENCODING) as f:
-            if isinstance(obj, bytes):
-                obj_str = obj.decode(DEF_ENCODING)
-            else:
-                obj_str = obj
-            f.write(obj_str)
+        if binary:
+            with open(str(file_path), "wb") as f:
+                f.write(obj)
+        else:
+            with io.open(str(file_path), "w", encoding=DEF_ENCODING) as f:
+                if isinstance(obj, bytes):
+                    obj_str = obj.decode(DEF_ENCODING)
+                else:
+                    obj_str = obj
+                f.write(obj_str)
         return obj
     except TypeError as e:
         raise e
@@ -637,7 +682,8 @@ def resolve_relative_paths(file_path, root_path=None):
         str or None: Absolute path if input was a relative path string,
                     unchanged if input was absolute path or None.
 
-    Example:
+    Example::
+
         >>> resolve_relative_paths('certs/ca.pem', '/project')
         '/project/certs/ca.pem'
         >>> resolve_relative_paths('/etc/ssl/ca.pem')
@@ -686,7 +732,8 @@ def getenv_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     Returns:
         Optional[bool]: Boolean value or default if not set
 
-    Example:
+    Example::
+
         >>> os.environ['MY_FLAG'] = '0'
         >>> getenv_bool('MY_FLAG')  # False
         >>> os.environ['MY_FLAG'] = 'true'
@@ -710,3 +757,51 @@ def getenv_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
 
     # Everything else is truthy (including '1', 'yes', 'on', 'y', etc.)
     return True
+
+
+def format_timestamp(ts=None, fmt=None):
+    """
+    Format a timestamp as a string.
+
+    Converts a timestamp to a formatted string. Defaults to ISO 8601 format
+    with millisecond precision as expected by NiFi APIs.
+
+    Args:
+        ts (None or datetime or str): Timestamp to format. None uses current UTC,
+            datetime formats directly (assumes UTC if naive), str parses as ISO 8601.
+        fmt (str or None): strftime format string. Defaults to ISO 8601 with
+            milliseconds ("%Y-%m-%dT%H:%M:%S.{ms}Z").
+
+    Returns:
+        str: Formatted timestamp string. Default format includes millisecond
+            precision and 'Z' suffix indicating UTC.
+
+    Example::
+
+        >>> format_timestamp()  # Current time, ISO 8601
+        '2025-01-15T12:30:45.123Z'
+        >>> from datetime import datetime, timezone
+        >>> dt = datetime(2025, 1, 15, 12, 30, 45, 123456, tzinfo=timezone.utc)
+        >>> format_timestamp(dt)
+        '2025-01-15T12:30:45.123Z'
+        >>> format_timestamp(dt, fmt="%Y-%m-%d")
+        '2025-01-15'
+        >>> format_timestamp("2025-01-15T12:30:45.123Z", fmt="%Y-%m-%d")
+        '2025-01-15'
+    """
+    if ts is None:
+        dt = datetime.now(timezone.utc)
+    elif isinstance(ts, datetime):
+        dt = ts if ts.tzinfo else ts.replace(tzinfo=timezone.utc)
+    elif isinstance(ts, str):
+        # Parse ISO 8601 string - handle 'Z' suffix
+        ts_clean = ts.replace("Z", "+00:00") if ts.endswith("Z") else ts
+        dt = datetime.fromisoformat(ts_clean)
+    else:
+        raise TypeError(f"Expected None, datetime, or str; got {type(ts).__name__}")
+
+    if fmt is not None:
+        return dt.strftime(fmt)
+
+    # Default: ISO 8601 with milliseconds and Z suffix
+    return dt.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
