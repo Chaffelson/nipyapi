@@ -767,12 +767,10 @@ def format_timestamp(ts=None, fmt=None):
     with millisecond precision as expected by NiFi APIs.
 
     Args:
-        ts: Timestamp to format. Accepts:
-            - None: Uses current UTC time
-            - datetime: Formats directly (assumes UTC if naive)
-            - str: Parses as ISO 8601, then reformats
-        fmt (str, optional): strftime format string. Defaults to ISO 8601
-            with milliseconds ("%Y-%m-%dT%H:%M:%S.{ms}Z").
+        ts (None or datetime or str): Timestamp to format. None uses current UTC,
+            datetime formats directly (assumes UTC if naive), str parses as ISO 8601.
+        fmt (str or None): strftime format string. Defaults to ISO 8601 with
+            milliseconds ("%Y-%m-%dT%H:%M:%S.{ms}Z").
 
     Returns:
         str: Formatted timestamp string. Default format includes millisecond

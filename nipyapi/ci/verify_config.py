@@ -99,7 +99,6 @@ def verify_config(
     process_group_id: Optional[str] = None,
     verify_controllers: bool = True,
     verify_processors: bool = True,
-    fail_on_error: bool = True,
 ) -> dict:
     """
     Verify configuration of all components in a process group.
@@ -114,25 +113,26 @@ def verify_config(
         process_group_id: ID of the process group. Env: NIFI_PROCESS_GROUP_ID
         verify_controllers: Verify controller services (default: True)
         verify_processors: Verify processors (default: True)
-        fail_on_error: Raise exception if any verification fails (default: True)
 
     Returns:
-        dict with keys: verified, failed_count, controller_results,
-        processor_results, and summary.
+        dict with keys: verified ("true"/"false"), failed_count,
+        controller_results, processor_results, summary, and process_group_name.
+        Caller should check verified or failed_count to determine next steps.
 
     Raises:
-        ValueError: Missing required parameters or verification failed
-            (when fail_on_error=True)
+        ValueError: Missing required parameters or process group not found
 
     Example::
 
-        # In CI/CD pipeline
+        # CLI usage
         nipyapi ci verify_config --process-group-id <pg-id>
 
         # Programmatic usage
         result = nipyapi.ci.verify_config(process_group_id)
         if result["verified"] == "true":
             nipyapi.ci.start_flow(process_group_id)
+        else:
+            print(f"Verification failed: {result['summary']}")
     """
     process_group_id = process_group_id or os.environ.get("NIFI_PROCESS_GROUP_ID")
     if not process_group_id:
@@ -171,9 +171,6 @@ def verify_config(
     )
 
     log.info("Verification complete: %s", summary)
-
-    if fail_on_error and failed_count > 0:
-        raise ValueError(f"Verification failed: {summary}")
 
     return {
         "verified": "true" if failed_count == 0 else "false",

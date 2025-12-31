@@ -1698,7 +1698,7 @@ def test_verify_config_empty_pg(fix_pg):
     """Test verify_config on empty process group succeeds."""
     f_pg = fix_pg.generate()
 
-    result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+    result = ci.verify_config(process_group_id=f_pg.id)
 
     assert result["verified"] == "true"
     assert result["failed_count"] == 0
@@ -1711,7 +1711,7 @@ def test_verify_config_with_processor(fix_pg, fix_proc):
     f_pg = fix_pg.generate()
     f_p1 = fix_proc.generate(parent_pg=f_pg)
 
-    result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+    result = ci.verify_config(process_group_id=f_pg.id)
 
     assert "processor_results" in result
     assert len(result["processor_results"]) == 1
@@ -1723,15 +1723,15 @@ def test_verify_config_with_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
 
-    result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+    result = ci.verify_config(process_group_id=f_pg.id)
 
     assert "controller_results" in result
     assert len(result["controller_results"]) == 1
     assert result["controller_results"][0]["id"] == f_c1.id
 
 
-def test_verify_config_fail_on_error(fix_pg):
-    """Test verify_config raises when fail_on_error=True and verification fails."""
+def test_verify_config_returns_failures(fix_pg):
+    """Test verify_config returns failure info when verification fails."""
     import nipyapi
 
     f_pg = fix_pg.generate()
@@ -1745,14 +1745,12 @@ def test_verify_config_fail_on_error(fix_pg):
     controller = nipyapi.canvas.create_controller(f_pg, dbcp_type[0], name='TestDBCP')
 
     try:
-        # Should raise ValueError because verification fails
-        with pytest.raises(ValueError, match="Verification failed"):
-            ci.verify_config(process_group_id=f_pg.id, fail_on_error=True)
-
-        # With fail_on_error=False, should return result instead
-        result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+        # Should return result with verified=false (not raise)
+        result = ci.verify_config(process_group_id=f_pg.id)
         assert result["verified"] == "false"
         assert result["failed_count"] > 0
+        assert len(result["controller_results"]) == 1
+        assert result["controller_results"][0]["success"] is False
 
     finally:
         nipyapi.canvas.delete_controller(controller)
@@ -1769,7 +1767,7 @@ def test_verify_config_skips_enabled_controllers(fix_pg, fix_cont):
     f_c1 = nipyapi.canvas.schedule_controller(f_c1, True)
 
     try:
-        result = ci.verify_config(process_group_id=f_pg.id, fail_on_error=False)
+        result = ci.verify_config(process_group_id=f_pg.id)
 
         # Controller should be skipped
         assert len(result["controller_results"]) == 1

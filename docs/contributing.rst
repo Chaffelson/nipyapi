@@ -138,7 +138,8 @@ When contributing to NiPyAPI, watch out for these frequent pitfalls:
 
 **Docstring Standards**
 
-The project uses Google-style docstrings for Sphinx documentation generation:
+The project uses Google-style docstrings for both Sphinx documentation and CLI help generation
+(via python-fire). Format docstrings to work well with both tools:
 
 * Use triple double-quotes for all docstrings
 * First line is a concise imperative summary (e.g., "Return the root process group ID.")
@@ -147,6 +148,30 @@ The project uses Google-style docstrings for Sphinx documentation generation:
 * Document side-effects, exceptions, and non-obvious behavior
 * Use Sphinx cross-reference notation for return types (see example below)
 * For Example sections, use ``Example::`` (singular, not "Examples") with a **blank line** before the code block
+
+**CLI Compatibility (Important)**
+
+The nipyapi CLI uses python-fire which parses docstrings to generate help text. Fire truncates
+content after nested bullet lists in Args descriptions. To ensure CLI help is useful:
+
+* **Do NOT use nested bullet lists** under Args parameters
+* **Do use inline format** with types in parentheses
+
+Bad (truncated in CLI)::
+
+    Args:
+        scheduled: Target state. Accepts:
+            - bool: True for RUNNING, False for STOPPED
+            - str: "RUNNING", "STOPPED", "DISABLED", "RUN_ONCE"
+
+Good (renders correctly in CLI and Sphinx)::
+
+    Args:
+        scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
+            "RUNNING", "STOPPED", "DISABLED", "RUN_ONCE".
+
+For union types, use ``(type1 or type2)`` format. For string literal options, list them
+inline with quotes. Line continuation is fine - just avoid nested bullet points.
 
 **Example section format** - the blank line after ``Example::`` is required::
 

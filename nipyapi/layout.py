@@ -276,12 +276,10 @@ def below(component, blocks: int = 1, align: str = "aligned") -> Tuple[float, fl
     Use this for building vertical flows where components connect top-to-bottom.
 
     Args:
-        component: Reference component to position relative to
-        blocks: Number of blocks below (default 1)
-        align: Horizontal alignment:
-            - "aligned": Same X position (default)
-            - "center": Centered for funnels (152px offset)
-            - "center_port": Centered for ports (56px offset)
+        component: Reference component to position relative to.
+        blocks (int): Number of blocks below (default 1).
+        align (str): Horizontal alignment - "aligned" (same X, default),
+            "center" (for funnels), or "center_port" (for ports).
 
     Returns:
         Position tuple (x, y) for the new component
@@ -305,12 +303,10 @@ def above(component, blocks: int = 1, align: str = "aligned") -> Tuple[float, fl
     Calculate position above a component.
 
     Args:
-        component: Reference component to position relative to
-        blocks: Number of blocks above (default 1)
-        align: Horizontal alignment:
-            - "aligned": Same X position (default)
-            - "center": Centered for funnels
-            - "center_port": Centered for ports
+        component: Reference component to position relative to.
+        blocks (int): Number of blocks above (default 1).
+        align (str): Horizontal alignment - "aligned" (same X, default),
+            "center" (for funnels), or "center_port" (for ports).
 
     Returns:
         Position tuple (x, y) for the new component
@@ -330,12 +326,10 @@ def right_of(component, blocks: int = 1, align: str = "aligned") -> Tuple[float,
     Use this for placing related components side-by-side within the same flow.
 
     Args:
-        component: Reference component to position relative to
-        blocks: Number of blocks to the right (default 1)
-        align: Vertical alignment:
-            - "aligned": Same Y position (default)
-            - "center": Vertically centered for funnels
-            - "center_port": Vertically centered for ports
+        component: Reference component to position relative to.
+        blocks (int): Number of blocks to the right (default 1).
+        align (str): Vertical alignment - "aligned" (same Y, default),
+            "center" (for funnels), or "center_port" (for ports).
 
     Returns:
         Position tuple (x, y) for the new component
@@ -358,12 +352,10 @@ def left_of(component, blocks: int = 1, align: str = "aligned") -> Tuple[float, 
     Calculate position to the left of a component.
 
     Args:
-        component: Reference component to position relative to
-        blocks: Number of blocks to the left (default 1)
-        align: Vertical alignment:
-            - "aligned": Same Y position (default)
-            - "center": Vertically centered for funnels
-            - "center_port": Vertically centered for ports
+        component: Reference component to position relative to.
+        blocks (int): Number of blocks to the left (default 1).
+        align (str): Vertical alignment - "aligned" (same Y, default),
+            "center" (for funnels), or "center_port" (for ports).
 
     Returns:
         Position tuple (x, y) for the new component

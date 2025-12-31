@@ -1929,3 +1929,109 @@ def test_get_flowfile_content(fix_proc, tmpdir):
     # Cleanup
     canvas.purge_connection(conn.id)
     canvas.delete_connection(conn)
+
+
+def test_peek_flowfiles_preserves_cluster_node_id(fix_proc):
+    """Test that peek_flowfiles preserves cluster_node_id on returned FlowFileDTOs."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Create connection and generate data
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # Get summaries to see the cluster_node_id from listing
+    summaries = canvas.list_flowfiles(conn)
+    assert len(summaries) >= 1
+    summary_node_id = summaries[0].cluster_node_id
+
+    # Peek should preserve cluster_node_id on returned FlowFileDTO
+    result = canvas.peek_flowfiles(conn, limit=1)
+    assert len(result) >= 1
+    ff = result[0]
+
+    # FlowFileDTO should have the same cluster_node_id as the summary
+    assert ff.cluster_node_id == summary_node_id
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)
+
+
+def test_get_flowfile_details_auto_resolves_cluster_node(fix_proc):
+    """Test get_flowfile_details works without explicit cluster_node_id."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Create connection and generate data
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # Get UUID from listing
+    summaries = canvas.list_flowfiles(conn)
+    assert len(summaries) >= 1
+    ff_uuid = summaries[0].uuid
+
+    # Should work without cluster_node_id (auto-resolves)
+    details = canvas.get_flowfile_details(conn, ff_uuid)
+    assert details is not None
+    assert details.uuid == ff_uuid
+    assert hasattr(details, 'attributes')
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)
+
+
+def test_get_flowfile_content_auto_resolves_cluster_node(fix_proc):
+    """Test get_flowfile_content works without explicit cluster_node_id."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Configure first processor to generate data
+    canvas.update_processor(
+        f_p1, update=nifi.ProcessorConfigDTO(properties={'File Size': '10 B'})
+    )
+
+    # Create connection and generate data
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # Get UUID from listing
+    summaries = canvas.list_flowfiles(conn)
+    assert len(summaries) >= 1
+    ff_uuid = summaries[0].uuid
+
+    # Should work without cluster_node_id (auto-resolves)
+    content = canvas.get_flowfile_content(conn, ff_uuid)
+    assert content is not None
+    assert len(content) == 10
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)
+
+
+def test_get_flowfile_details_with_explicit_cluster_node(fix_proc):
+    """Test get_flowfile_details with explicit cluster_node_id skips auto-resolve."""
+    f_p1 = fix_proc.generate()
+    f_p2 = fix_proc.generate()
+
+    # Create connection and generate data
+    conn = canvas.create_connection(f_p1, f_p2, ['success'], conftest.test_basename)
+    canvas.schedule_processor(f_p1, 'RUN_ONCE')
+
+    # Get UUID and cluster_node_id from listing
+    summaries = canvas.list_flowfiles(conn)
+    assert len(summaries) >= 1
+    ff_uuid = summaries[0].uuid
+    cluster_node_id = summaries[0].cluster_node_id
+
+    # Should work with explicit cluster_node_id
+    details = canvas.get_flowfile_details(conn, ff_uuid, cluster_node_id=cluster_node_id)
+    assert details is not None
+    assert details.uuid == ff_uuid
+
+    # Cleanup
+    canvas.purge_connection(conn.id)
+    canvas.delete_connection(conn)

@@ -540,10 +540,9 @@ def get_processor_docs(processor):
     and configuration options.
 
     Args:
-        processor: One of:
-            - ProcessorEntity: An existing processor instance
-            - DocumentedTypeDTO: A processor type from get_processor_type()
-            - str: Processor type name (e.g., "GenerateFlowFile" or full qualified name)
+        processor (ProcessorEntity or DocumentedTypeDTO or str): An existing processor,
+            a processor type from get_processor_type(), or a type name string
+            (e.g., "GenerateFlowFile" or full qualified name).
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessorDefinition`: Processor documentation
@@ -606,7 +605,8 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
     Instantiates a given processor on the canvas
 
     Args:
-        parent_pg (ProcessGroupEntity): The parent Process Group
+        parent_pg (str or ProcessGroupEntity): The parent Process Group ID
+            (as a string) or ProcessGroupEntity object
         processor (DocumentedTypeDTO): The abstract processor type object to be
             instantiated
         location (tuple[x, y]): The location coordinates
@@ -618,7 +618,15 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
          :class:`~nipyapi.nifi.models.ProcessorEntity`: The new Processor
 
     """
-    assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
+    # Accept either a string ID or ProcessGroupEntity
+    if isinstance(parent_pg, str):
+        parent_id = parent_pg
+    elif isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity):
+        parent_id = parent_pg.id
+    else:
+        raise TypeError(
+            f"parent_pg must be a string ID or ProcessGroupEntity, got {type(parent_pg).__name__}"
+        )
     assert isinstance(processor, nipyapi.nifi.DocumentedTypeDTO)
     if name is None:
         processor_name = processor.type.split(".")[-1]
@@ -630,7 +638,7 @@ def create_processor(parent_pg, processor, location, name=None, config=None):
         target_config = config
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_processor(
-            id=parent_pg.id,
+            id=parent_id,
             body=nipyapi.nifi.ProcessorEntity(
                 revision={"version": 0},
                 component=nipyapi.nifi.ProcessorDTO(
@@ -755,16 +763,13 @@ def schedule_processor(processor, scheduled, refresh=True):
     processor reaches the target state.
 
     Args:
-        processor: The Processor to target. Accepts:
-            - str: Processor ID
-            - ProcessorEntity: Processor object
-        scheduled: Target state. Accepts:
-            - bool: True for RUNNING, False for STOPPED (backwards-compatible)
-            - str: "RUNNING", "STOPPED", "DISABLED", or "RUN_ONCE"
-        refresh (bool): Whether to refresh the object before action
+        processor (str or ProcessorEntity): The Processor ID or ProcessorEntity object.
+        scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
+            "RUNNING", "STOPPED", "DISABLED", "RUN_ONCE".
+        refresh (bool): Whether to refresh the object before action.
 
     Returns:
-        bool: True for success, False for failure
+        bool: True for success, False for failure.
 
     Example::
 
@@ -1188,13 +1193,11 @@ def update_connection(connection, name=None, bends=None, refresh=True):
     pass an empty list.
 
     Args:
-        connection: ConnectionEntity or connection ID (str) to update
-        name: New name for the connection. None to leave unchanged.
-        bends: List of PositionDTO or (x, y) tuples for bend points.
-            - None (default): Don't modify bends
-            - []: Clear all bends (straight line)
-            - [...]: Set these bend points
-        refresh: Whether to refresh the connection before updating (default True)
+        connection (ConnectionEntity or str): ConnectionEntity or connection ID to update.
+        name (str or None): New name for the connection, or None to leave unchanged.
+        bends (list or None): Bend points as list of PositionDTO or (x, y) tuples.
+            None keeps existing bends, [] clears all bends, [...] sets specific points.
+        refresh (bool): Whether to refresh the connection before updating.
 
     Returns:
         ConnectionEntity: The updated connection
@@ -1490,7 +1493,42 @@ def list_flowfiles(connection, limit=100):
     return []
 
 
-def get_flowfile_details(connection, flowfile_uuid):
+def _resolve_flowfile_cluster_node(connection_id, flowfile_uuid, cluster_node_id=None):
+    """
+    Resolve cluster_node_id for a FlowFile, fetching from queue listing if not provided.
+
+    In clustered NiFi, FlowFile operations require the cluster_node_id to identify
+    which node holds the FlowFile. This helper fetches it from the queue listing
+    if not explicitly provided.
+
+    Args:
+        connection_id: Connection ID string
+        flowfile_uuid: UUID of the FlowFile
+        cluster_node_id: Optional cluster node ID. If provided, returned as-is.
+
+    Returns:
+        str: The cluster_node_id for the FlowFile
+
+    Raises:
+        ValueError: If FlowFile not found in queue listing
+    """
+    if cluster_node_id:
+        return cluster_node_id
+
+    summaries = list_flowfiles(connection_id, limit=100)
+    matching = [s for s in summaries if s.uuid == flowfile_uuid]
+    if matching:
+        return matching[0].cluster_node_id
+
+    if summaries:
+        raise ValueError(
+            f"FlowFile {flowfile_uuid} not found in queue. It may have been processed."
+        )
+    # Empty queue - return None and let API handle it (may work in standalone NiFi)
+    return None
+
+
+def get_flowfile_details(connection, flowfile_uuid, cluster_node_id=None):
     """
     Get full details for a specific FlowFile, including its attributes.
 
@@ -1499,6 +1537,8 @@ def get_flowfile_details(connection, flowfile_uuid):
     Args:
         connection: Connection ID (str) or ConnectionEntity
         flowfile_uuid: UUID of the FlowFile to retrieve
+        cluster_node_id: Node ID for clustered NiFi. If not provided, will be
+            auto-resolved from queue listing (adds one API call).
 
     Returns:
         :class:`~nipyapi.nifi.models.FlowFileDTO`: FlowFile details including
@@ -1512,6 +1552,15 @@ def get_flowfile_details(connection, flowfile_uuid):
         print(f"Size: {details.size} bytes")
         print(f"Attributes: {details.attributes}")
 
+        # In clustered NiFi, pass the cluster_node_id from listing
+        flowfiles = nipyapi.canvas.list_flowfiles(connection_id)
+        if flowfiles:
+            details = nipyapi.canvas.get_flowfile_details(
+                connection_id,
+                flowfiles[0].uuid,
+                cluster_node_id=flowfiles[0].cluster_node_id
+            )
+
     """
     if isinstance(connection, nipyapi.nifi.ConnectionEntity):
         con_id = connection.id
@@ -1522,29 +1571,32 @@ def get_flowfile_details(connection, flowfile_uuid):
             f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
         )
 
+    cluster_node_id = _resolve_flowfile_cluster_node(con_id, flowfile_uuid, cluster_node_id)
+
     with nipyapi.utils.rest_exceptions():
-        result = nipyapi.nifi.FlowFileQueuesApi().get_flow_file(con_id, flowfile_uuid)
+        result = nipyapi.nifi.FlowFileQueuesApi().get_flow_file(
+            con_id, flowfile_uuid, cluster_node_id=cluster_node_id
+        )
     return result.flow_file
 
 
-def get_flowfile_content(connection, flowfile_uuid, decode="auto", output_file=None):
+def get_flowfile_content(
+    connection, flowfile_uuid, decode="auto", output_file=None, cluster_node_id=None
+):
     """
     Download the content of a specific FlowFile.
 
     This is a non-destructive operation - the FlowFile remains in the queue.
 
     Args:
-        connection: Connection ID (str) or ConnectionEntity
-        flowfile_uuid: UUID of the FlowFile
-        decode: How to decode the content:
-            - 'auto': Use mime_type to decide (text for text/*, application/json, etc.)
-            - 'text': Force UTF-8 decode
-            - 'bytes': Return raw bytes
-        output_file: Where to save the content:
-            - None: Return content directly
-            - True: Save to current directory with FlowFile's filename
-            - str (directory): Save to that directory with FlowFile's filename
-            - str (file path): Save to that exact path
+        connection (str or ConnectionEntity): Connection ID or ConnectionEntity.
+        flowfile_uuid (str): UUID of the FlowFile.
+        decode (str): How to decode content: "auto" (mime-based), "text" (UTF-8),
+            or "bytes" (raw).
+        output_file (None or bool or str): None returns content directly, True saves
+            to current dir with FlowFile's filename, str saves to that path/directory.
+        cluster_node_id (str or None): Node ID for clustered NiFi. If not provided,
+            will be auto-resolved from queue listing (adds one API call).
 
     Returns:
         If output_file is None: bytes or str (depending on decode)
@@ -1565,6 +1617,15 @@ def get_flowfile_content(connection, flowfile_uuid, decode="auto", output_file=N
         # Save to specific directory
         path = nipyapi.canvas.get_flowfile_content(conn, uuid, output_file='/tmp/')
 
+        # In clustered NiFi, pass the cluster_node_id from listing
+        flowfiles = nipyapi.canvas.list_flowfiles(connection_id)
+        if flowfiles:
+            content = nipyapi.canvas.get_flowfile_content(
+                connection_id,
+                flowfiles[0].uuid,
+                cluster_node_id=flowfiles[0].cluster_node_id
+            )
+
     """
     if isinstance(connection, nipyapi.nifi.ConnectionEntity):
         con_id = connection.id
@@ -1575,13 +1636,15 @@ def get_flowfile_content(connection, flowfile_uuid, decode="auto", output_file=N
             f"connection must be ConnectionEntity or str, got: {type(connection).__name__}"
         )
 
+    cluster_node_id = _resolve_flowfile_cluster_node(con_id, flowfile_uuid, cluster_node_id)
+
     # Get FlowFile details for filename and mime_type
-    flowfile = get_flowfile_details(con_id, flowfile_uuid)
+    flowfile = get_flowfile_details(con_id, flowfile_uuid, cluster_node_id=cluster_node_id)
 
     # Download raw content
     with nipyapi.utils.rest_exceptions():
         response = nipyapi.nifi.FlowFileQueuesApi().download_flow_file_content(
-            con_id, flowfile_uuid, _preload_content=False
+            con_id, flowfile_uuid, cluster_node_id=cluster_node_id, _preload_content=False
         )
     content = response.data
 
@@ -1665,7 +1728,11 @@ def peek_flowfiles(connection, limit=1):
 
     result = []
     for summary in summaries:
-        flowfile = get_flowfile_details(con_id, summary.uuid)
+        flowfile = get_flowfile_details(
+            con_id, summary.uuid, cluster_node_id=summary.cluster_node_id
+        )
+        # Preserve cluster_node_id from summary (FlowFileDTO returns None from API)
+        flowfile.cluster_node_id = summary.cluster_node_id
         result.append(flowfile)
     return result
 
@@ -2049,10 +2116,9 @@ def get_controller_service_docs(controller):
     controller service capabilities and configuration options.
 
     Args:
-        controller: One of:
-            - ControllerServiceEntity: An existing controller service instance
-            - DocumentedTypeDTO: A controller type from get_controller_type()
-            - str: Controller type name (e.g., "JsonTreeReader" or full qualified name)
+        controller (ControllerServiceEntity or DocumentedTypeDTO or str): An existing
+            controller service, a type from get_controller_type(), or a type name
+            string (e.g., "JsonTreeReader" or full qualified name).
 
     Returns:
         :class:`~nipyapi.nifi.models.ControllerServiceDefinition`: Controller

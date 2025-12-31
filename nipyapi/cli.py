@@ -282,7 +282,9 @@ class SafeModule:
 
     def _wrap_callable(self, func, name):
         """Wrap a callable to catch exceptions and return structured errors."""
+        from functools import wraps
 
+        @wraps(func)
         def wrapper(*args, **kwargs):
             # Let Fire handle help flags
             # Fire passes --help as help=True and -h as h=True
@@ -341,8 +343,6 @@ class SafeModule:
                 nipyapi_logger.removeHandler(log_capture)
                 nipyapi_logger.setLevel(original_level)
 
-        wrapper.__name__ = func.__name__
-        wrapper.__doc__ = func.__doc__
         return wrapper
 
     def __dir__(self):
