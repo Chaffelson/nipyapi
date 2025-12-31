@@ -431,15 +431,8 @@ def delete_process_group(process_group, force=False, refresh=True):
             for con in list_all_connections(parent_pg_id):
                 if pg_id in [con.destination_group_id, con.source_group_id]:
                     delete_connection(con)
-            # Stop all Controller Services ONLY inside the PG
-            controllers_list = list_all_controllers(pg_id)
-            removed_controllers_id = []
-            parent_pgs_id = get_pg_parents_ids(pg_id)
-            for x in controllers_list:
-                if x.component.id not in removed_controllers_id:
-                    if x.component.parent_group_id not in parent_pgs_id:
-                        delete_controller(x, True)
-                        removed_controllers_id.append(x.component.id)
+            # Disable all Controller Services inside the PG
+            schedule_all_controllers(pg_id, scheduled=False)
 
             # Templates are not supported in NiFi 2.x
             if nipyapi.utils.check_version("2", service="nifi") == 1:
