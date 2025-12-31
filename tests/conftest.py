@@ -1269,5 +1269,19 @@ def fixture_state_flow(request, fix_pg):
             self.list_file_proc = list_proc
             self.put_cache_proc = put_proc
 
-    # Cleanup is handled by fix_pg's finalizer (remove_test_pgs)
+    def cleanup():
+        if SKIP_TEARDOWN:
+            return
+        # Must disable controllers in fixture scope to avoid race condition with cleanup_nifi
+        # MapCacheServer binds to a port and won't release it until disabled
+        try:
+            nipyapi.canvas.schedule_controller(server, scheduled=False, refresh=True)
+        except Exception:
+            pass
+        try:
+            nipyapi.canvas.schedule_controller(client, scheduled=False, refresh=True)
+        except Exception:
+            pass
+
+    request.addfinalizer(cleanup)
     return StateFlowFixture()
