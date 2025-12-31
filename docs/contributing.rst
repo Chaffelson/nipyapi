@@ -173,6 +173,17 @@ Good (renders correctly in CLI and Sphinx)::
 For union types, use ``(type1 or type2)`` format. For string literal options, list them
 inline with quotes. Line continuation is fine - just avoid nested bullet points.
 
+**CLI Boolean Parameters (Gotcha)**
+
+The ``fire`` CLI library passes ``--flag=false`` as the **string** ``"false"``, which is
+truthy in Python. This causes unexpected behavior for boolean parameters.
+
+Avoid boolean parameters with default ``True`` that users need to set to ``False`` via CLI.
+Instead:
+
+* Return structured results and let the caller decide (preferred)
+* Use ``--noflag`` syntax (fire's native boolean negation): ``nipyapi foo bar --noflag``
+
 **Example section format** - the blank line after ``Example::`` is required::
 
     def my_function():
