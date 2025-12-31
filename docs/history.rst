@@ -2,6 +2,66 @@
 History
 =======
 
+1.2.0 (2025-12-31)
+-------------------
+
+| CLI and CI/CD automation release - Command-line interface for shell scripting and pipeline integration (tested against NiFi 2.7.2)
+
+**Command-Line Interface**
+
+- **Optional CLI install** (``pip install nipyapi[cli]``): Shell access to all nipyapi modules via Google Fire
+- JSON output by default with automatic CI platform detection (GitHub Actions, GitLab CI)
+- Profile selection via ``--profile`` flag or environment variables
+- ``--version`` flag and verbosity controls (``-v``, ``-vv``, ``-vvv``)
+
+**CI Operations Module** (``nipyapi.ci``)
+
+- **26 automation-focused commands** for flow deployment pipelines:
+    - ``verify_config``, ``ensure_registry``, ``deploy_flow``, ``start_flow``, ``stop_flow``
+    - ``list_flows``, ``list_registry_flows``, ``get_status``, ``get_flow_versions``
+    - ``commit_flow``, ``detach_flow``, ``get_flow_diff``, ``revert_flow``, ``change_flow_version``
+    - ``configure_params``, ``configure_inherited_params``, ``export_parameters``, ``upload_asset``
+    - ``export_flow_definition``, ``import_flow_definition``, ``cleanup``, ``purge_flowfiles``
+    - ``list_nars``, ``upload_nar``, ``delete_nar``, ``resolve_git_ref``
+
+**New Modules**
+
+- **nipyapi.bulletins**: Bulletin retrieval with filtering; ``clear_all_bulletins`` for NiFi 2.7.0+
+- **nipyapi.extensions**: NAR management, Python processor lifecycle, bundle version switching
+- **nipyapi.layout**: Canvas positioning with ``below()``, ``fork()``, automatic flow layout, grid alignment
+- **nipyapi.nifi_registry**: NiFi Registry operations extracted from versioning module
+
+**Canvas Module Enhancements**
+
+- FlowFile inspection: ``list_flowfiles``, ``get_flowfile_details``, ``get_flowfile_content``, ``peek_flowfiles``
+- Component state: ``get_processor_state``, ``clear_processor_state``, ``get_controller_state``, ``clear_controller_state``
+- ``schedule_processor`` now supports ``RUN_ONCE`` and ``DISABLED`` states
+- ``schedule_all_controllers`` now waits for target state
+- ``get_processor_docs``, ``get_controller_service_docs`` for processor discovery
+- ``get_flow_components`` returns connected subgraph for flow analysis
+
+**Parameters Module Enhancements**
+
+- ``get_parameter_context_hierarchy`` with ``include_bindings`` and ``include_parameters`` options
+
+**Utilities Enhancements**
+
+- ``fs_write`` supports ``binary=True`` for raw byte content
+- ``is_uuid`` for UUID format detection
+- ``format_timestamp`` for NiFi-compatible timestamps
+
+**Documentation**
+
+- CLI reference (``docs/cli.rst``)
+- CI operations guide with examples (``docs/ci.rst``)
+- NAR management guide (``docs/extensions.rst``)
+
+**Infrastructure**
+
+- Updated NiFi and Registry API clients to 2.7.2
+- New NiFi 2.7.2 API features: bulletin stack traces, listen ports, clear bulletins
+- Simplified ``revert_flow_ver()`` using VCI process_group_revision
+
 1.1.0 (2025-12-04)
 -------------------
 
