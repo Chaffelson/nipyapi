@@ -2013,7 +2013,8 @@ def schedule_all_controllers(pg_id, scheduled):
     Enable or Disable all Controller Services in a Process Group.
 
     Uses NiFi's native bulk controller service activation API which handles
-    all descendant controller services automatically.
+    all descendant controller services automatically. Waits for all controllers
+    to reach the target state before returning.
 
     Args:
         pg_id (str): The UUID of the Process Group
@@ -2028,11 +2029,27 @@ def schedule_all_controllers(pg_id, scheduled):
 
     target_state = "ENABLED" if scheduled else "DISABLED"
 
+    def _all_controllers_in_state():
+        controllers = list_all_controllers(pg_id)
+        if not controllers:
+            return True  # No controllers to wait for
+        return all(c.component.state == target_state for c in controllers)
+
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FlowApi().activate_controller_services(
+        result = nipyapi.nifi.FlowApi().activate_controller_services(
             id=pg_id,
             body=nipyapi.nifi.ActivateControllerServicesEntity(id=pg_id, state=target_state),
         )
+
+    # Wait for all controllers to reach target state
+    state_complete = nipyapi.utils.wait_to_complete(
+        _all_controllers_in_state,
+        nipyapi_delay=nipyapi.config.short_retry_delay,
+        nipyapi_max_wait=30,
+    )
+    if not state_complete:
+        raise ValueError(f"Timed out waiting for controllers to reach state {target_state}")
+    return result
 
 
 def get_controller(
