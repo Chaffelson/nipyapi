@@ -32,6 +32,7 @@ __all__ = [
     "delete_processor",
     "get_processor",
     "schedule_processor",
+    "schedule_port",
     "get_funnel",
     "update_processor",
     "get_variable_registry",
@@ -66,6 +67,7 @@ __all__ = [
     "list_all_by_kind",
     "list_all_input_ports",
     "list_all_output_ports",
+    "get_port",
     "list_all_funnels",
     "list_all_remote_process_groups",
     "delete_funnel",
@@ -861,6 +863,84 @@ def schedule_processor(processor, scheduled, refresh=True):
         return nipyapi.utils.wait_to_complete(_processor_stopped, target)
     # RUNNING
     return nipyapi.utils.wait_to_complete(_processor_running, target)
+
+
+def schedule_port(port, scheduled, refresh=True):
+    """
+    Set a Port to Start, Stop, or Disable.
+
+    Note that this doesn't guarantee that it will change state, merely that
+    it will be instructed to try. Some effort is made to wait and see if the
+    port reaches the target state.
+
+    Args:
+        port (str or PortEntity): The Port ID or PortEntity object.
+        scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
+            "RUNNING", "STOPPED", "DISABLED".
+        refresh (bool): Whether to refresh the object before action.
+
+    Returns:
+        bool: True for success, False for failure.
+
+    Example::
+
+        # Start a port by ID
+        nipyapi.canvas.schedule_port("<port-id>", True)
+
+        # Start a port object
+        nipyapi.canvas.schedule_port(port, True)
+
+        # Stop a port
+        nipyapi.canvas.schedule_port(port, False)
+
+        # Disable a port
+        nipyapi.canvas.schedule_port(port, "DISABLED")
+    """
+    # Accept ID or entity
+    if isinstance(port, str):
+        port = get_port(port, identifier_type="id")
+    assert isinstance(port, nipyapi.nifi.PortEntity)
+    assert isinstance(refresh, bool)
+
+    # Normalize scheduled to a state string
+    valid_states = ("RUNNING", "STOPPED", "DISABLED")
+    if isinstance(scheduled, bool):
+        target_state = "RUNNING" if scheduled else "STOPPED"
+    elif isinstance(scheduled, str) and scheduled.upper() in valid_states:
+        target_state = scheduled.upper()
+    else:
+        raise ValueError(f"scheduled must be bool or one of {valid_states}, got: {scheduled!r}")
+
+    is_input = "INPUT" in port.port_type
+
+    def _get_port(port_id_):
+        if is_input:
+            return nipyapi.nifi.InputPortsApi().get_input_port(port_id_)
+        return nipyapi.nifi.OutputPortsApi().get_output_port(port_id_)
+
+    def _port_state_reached(port_id_, target_):
+        test_obj = _get_port(port_id_)
+        if test_obj.component.state == target_:
+            return True
+        log.info("Port not in target state, current state %s", test_obj.component.state)
+        return False
+
+    if refresh:
+        target = _get_port(port.id)
+        assert isinstance(target, nipyapi.nifi.PortEntity)
+    else:
+        target = port
+
+    # Update run status using the appropriate API
+    body = nipyapi.nifi.PortRunStatusEntity(revision=target.revision, state=target_state)
+    with nipyapi.utils.rest_exceptions():
+        if is_input:
+            nipyapi.nifi.InputPortsApi().update_run_status2(body=body, id=target.id)
+        else:
+            nipyapi.nifi.OutputPortsApi().update_run_status3(body=body, id=target.id)
+
+    # Wait for target state
+    return nipyapi.utils.wait_to_complete(_port_state_reached, target.id, target_state)
 
 
 def update_process_group(pg, update, refresh=True):
@@ -2229,6 +2309,59 @@ def list_all_input_ports(pg_id="root", descendants=True):
 def list_all_output_ports(pg_id="root", descendants=True):
     """Convenience wrapper for list_all_by_kind for output ports"""
     return list_all_by_kind("output_ports", pg_id, descendants)
+
+
+def get_port(identifier, identifier_type="id"):
+    """
+    Get an Input or Output Port by identifier.
+
+    Tries input ports first, then output ports. For ID lookups, uses direct
+    API calls. For name lookups, searches all ports in the canvas.
+
+    Args:
+        identifier (str): The port ID or name to find.
+        identifier_type (str): "id" for UUID lookup, "name" for name search.
+
+    Returns:
+        PortEntity: The matching port.
+        None: If no port found (name lookup only).
+
+    Raises:
+        ValueError: If port not found (id lookup) or invalid identifier_type.
+
+    Example::
+
+        # Get by ID
+        port = nipyapi.canvas.get_port("abc-123-def", "id")
+
+        # Get by name
+        port = nipyapi.canvas.get_port("MyInputPort", "name")
+    """
+    assert isinstance(identifier, str)
+    if identifier_type not in ("id", "name"):
+        raise ValueError(f"identifier_type must be 'id' or 'name', got: {identifier_type!r}")
+
+    if identifier_type == "id":
+        # Try input port first, then output port
+        try:
+            with nipyapi.utils.rest_exceptions():
+                return nipyapi.nifi.InputPortsApi().get_input_port(identifier)
+        except (ValueError, nipyapi.nifi.rest.ApiException):
+            pass
+        try:
+            with nipyapi.utils.rest_exceptions():
+                return nipyapi.nifi.OutputPortsApi().get_output_port(identifier)
+        except (ValueError, nipyapi.nifi.rest.ApiException) as e:
+            raise ValueError(f"Port not found: {identifier}") from e
+    else:
+        # Name lookup - search all ports
+        all_input = list_all_input_ports()
+        result = nipyapi.utils.filter_obj(all_input, identifier, "name", greedy=False)
+        if result:
+            return result
+        all_output = list_all_output_ports()
+        result = nipyapi.utils.filter_obj(all_output, identifier, "name", greedy=False)
+        return result
 
 
 def list_all_funnels(pg_id="root", descendants=True):
