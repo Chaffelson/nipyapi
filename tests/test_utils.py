@@ -671,3 +671,311 @@ class TestSetEndpoint:
 
         result = utils.set_endpoint("http://localhost:8080/nifi-api", ssl=False, login=False)
         assert result is True  # Should still succeed despite version check failure
+
+
+class TestResolveScheduleState:
+    """Tests for the resolve_schedule_state utility function."""
+
+    def test_bool_true_returns_true_state(self):
+        """Test that True returns the true_state."""
+        result = utils.resolve_schedule_state(True, "RUNNING", "STOPPED")
+        assert result == "RUNNING"
+
+        result = utils.resolve_schedule_state(True, "ENABLED", "DISABLED")
+        assert result == "ENABLED"
+
+    def test_bool_false_returns_false_state(self):
+        """Test that False returns the false_state."""
+        result = utils.resolve_schedule_state(False, "RUNNING", "STOPPED")
+        assert result == "STOPPED"
+
+        result = utils.resolve_schedule_state(False, "ENABLED", "DISABLED")
+        assert result == "DISABLED"
+
+    def test_string_valid_state_uppercase(self):
+        """Test that valid state strings are accepted (uppercase)."""
+        states = ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE")
+        result = utils.resolve_schedule_state("RUNNING", "RUNNING", "STOPPED", states)
+        assert result == "RUNNING"
+
+        result = utils.resolve_schedule_state("RUN_ONCE", "RUNNING", "STOPPED", states)
+        assert result == "RUN_ONCE"
+
+    def test_string_valid_state_lowercase(self):
+        """Test that valid state strings are case-insensitive."""
+        states = ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE")
+        result = utils.resolve_schedule_state("running", "RUNNING", "STOPPED", states)
+        assert result == "RUNNING"
+
+        result = utils.resolve_schedule_state("run_once", "RUNNING", "STOPPED", states)
+        assert result == "RUN_ONCE"
+
+    def test_string_invalid_state_raises(self):
+        """Test that invalid state strings raise ValueError."""
+        states = ("RUNNING", "STOPPED", "DISABLED")
+        with pytest.raises(ValueError, match="scheduled must be bool or one of"):
+            utils.resolve_schedule_state("BANANA", "RUNNING", "STOPPED", states)
+
+    def test_default_valid_states(self):
+        """Test that valid_states defaults to (true_state, false_state)."""
+        # Should accept "ENABLED" and "DISABLED"
+        result = utils.resolve_schedule_state("ENABLED", "ENABLED", "DISABLED")
+        assert result == "ENABLED"
+
+        result = utils.resolve_schedule_state("disabled", "ENABLED", "DISABLED")
+        assert result == "DISABLED"
+
+        # Should reject "RUNNING"
+        with pytest.raises(ValueError):
+            utils.resolve_schedule_state("RUNNING", "ENABLED", "DISABLED")
+
+    def test_invalid_type_raises(self):
+        """Test that non-bool/non-string types raise ValueError."""
+        with pytest.raises(ValueError, match="scheduled must be bool or one of"):
+            utils.resolve_schedule_state(123, "RUNNING", "STOPPED")
+
+        with pytest.raises(ValueError, match="scheduled must be bool or one of"):
+            utils.resolve_schedule_state(None, "RUNNING", "STOPPED")
+
+        with pytest.raises(ValueError, match="scheduled must be bool or one of"):
+            utils.resolve_schedule_state(["RUNNING"], "RUNNING", "STOPPED")
+
+
+class TestResolveEntity:
+    """Tests for the resolve_entity utility function."""
+
+    def test_invalid_identifier_type_raises(self):
+        """Test that invalid identifier_type raises ValueError."""
+        class MockEntity:
+            pass
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            return None
+
+        with pytest.raises(ValueError, match="Invalid identifier_type"):
+            utils.resolve_entity("test", mock_getter, MockEntity, identifier_type="invalid")
+
+    def test_object_input_returns_as_is(self):
+        """Test that entity objects of expected_type are returned as-is."""
+        class MockEntity:
+            id = "test-uuid-1234"
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            raise AssertionError("Getter should not be called for object input")
+
+        entity = MockEntity()
+        result = utils.resolve_entity(entity, mock_getter, MockEntity)
+        assert result is entity
+
+    def test_wrong_type_raises_type_error(self):
+        """Test that wrong object type raises TypeError."""
+        class ExpectedEntity:
+            pass
+
+        class WrongEntity:
+            pass
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            raise AssertionError("Getter should not be called")
+
+        obj = WrongEntity()
+        with pytest.raises(TypeError, match="Expected ExpectedEntity or identifier string"):
+            utils.resolve_entity(obj, mock_getter, ExpectedEntity)
+
+    def test_dict_raises_type_error(self):
+        """Test that dict raises TypeError (caller must pass correct type)."""
+        class MockEntity:
+            pass
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            raise AssertionError("Getter should not be called")
+
+        obj = {"id": "test"}
+        with pytest.raises(TypeError, match="Expected MockEntity or identifier string"):
+            utils.resolve_entity(obj, mock_getter, MockEntity)
+
+    def test_uuid_calls_getter_with_id_type(self):
+        """Test that UUID strings call getter with identifier_type='id'."""
+        class MockEntity:
+            pass
+
+        call_args = []
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            call_args.append((identifier, identifier_type, greedy))
+            return MockEntity()
+
+        uuid_str = "550e8400-e29b-41d4-a716-446655440000"
+        result = utils.resolve_entity(uuid_str, mock_getter, MockEntity)
+        assert isinstance(result, MockEntity)
+        assert call_args == [(uuid_str, "id", True)]
+
+    def test_name_calls_getter_with_name_type(self):
+        """Test that non-UUID strings call getter with identifier_type='name'."""
+        class MockEntity:
+            pass
+
+        call_args = []
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            call_args.append((identifier, identifier_type, greedy))
+            return MockEntity()
+
+        result = utils.resolve_entity("MyProcessor", mock_getter, MockEntity)
+        assert isinstance(result, MockEntity)
+        assert call_args == [("MyProcessor", "name", True)]
+
+    def test_getter_name_lookup_not_supported(self):
+        """Test that getters without name support raise appropriate error."""
+        class MockEntity:
+            pass
+
+        def id_only_getter(identifier):
+            return None
+
+        with pytest.raises(ValueError, match="does not support name lookup"):
+            utils.resolve_entity(
+                "my-entity", id_only_getter, MockEntity, identifier_type="name"
+            )
+
+    def test_strict_mode_raises_on_not_found(self):
+        """Test that strict=True raises ValueError when entity not found."""
+        class MockEntity:
+            pass
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            return None
+
+        with pytest.raises(ValueError, match="Not found"):
+            utils.resolve_entity("missing", mock_getter, MockEntity, strict=True)
+
+    def test_strict_mode_raises_on_multiple(self):
+        """Test that strict=True raises ValueError on multiple matches."""
+        class MockEntity:
+            pass
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            return [MockEntity(), MockEntity()]
+
+        with pytest.raises(ValueError, match="Ambiguous"):
+            utils.resolve_entity("multiple", mock_getter, MockEntity, strict=True)
+
+    def test_non_strict_returns_none(self):
+        """Test that strict=False returns None when not found."""
+        class MockEntity:
+            pass
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            return None
+
+        result = utils.resolve_entity("missing", mock_getter, MockEntity, strict=False)
+        assert result is None
+
+    def test_non_strict_returns_list(self):
+        """Test that strict=False returns list on multiple matches."""
+        class MockEntity:
+            pass
+
+        entities = [MockEntity(), MockEntity()]
+
+        def mock_getter(identifier, identifier_type="name", greedy=True):
+            return entities
+
+        result = utils.resolve_entity("multiple", mock_getter, MockEntity, strict=False)
+        assert result == entities
+
+
+class TestResolveEntityIntegration:
+    """Integration tests for resolve_entity that require a running NiFi instance."""
+
+    def test_resolve_processor_by_name(self, fix_proc):
+        """Test resolving a processor by name."""
+        from nipyapi import canvas, nifi
+        proc = fix_proc.generate()
+
+        # Resolve by name
+        result = utils.resolve_entity(
+            proc.status.name, canvas.get_processor, nifi.ProcessorEntity,
+            strict=True, identifier_type="name"
+        )
+        assert result.id == proc.id
+
+        # Cleanup
+        canvas.delete_processor(proc, force=True)
+
+    def test_resolve_processor_by_id(self, fix_proc):
+        """Test resolving a processor by ID."""
+        from nipyapi import canvas, nifi
+        proc = fix_proc.generate()
+
+        # Resolve by ID (auto-detected as UUID)
+        result = utils.resolve_entity(
+            proc.id, canvas.get_processor, nifi.ProcessorEntity, strict=True
+        )
+        assert result.id == proc.id
+
+        # Cleanup
+        canvas.delete_processor(proc, force=True)
+
+    def test_resolve_entity_passthrough(self, fix_proc):
+        """Test that entity objects pass through unchanged."""
+        from nipyapi import canvas, nifi
+        proc = fix_proc.generate()
+
+        # Entity object should pass through without calling getter
+        result = utils.resolve_entity(proc, canvas.get_processor, nifi.ProcessorEntity)
+        assert result is proc
+
+        # Cleanup
+        canvas.delete_processor(proc, force=True)
+
+    def test_resolve_processor_strict_not_found(self):
+        """Test that strict mode raises on not found."""
+        from nipyapi import canvas, nifi
+        with pytest.raises(ValueError, match="Not found"):
+            utils.resolve_entity(
+                "nonexistent-processor-name-12345",
+                canvas.get_processor,
+                nifi.ProcessorEntity,
+                strict=True,
+                identifier_type="name"
+            )
+
+    def test_resolve_process_group_by_name(self, fix_pg):
+        """Test resolving a process group by name."""
+        from nipyapi import canvas, nifi
+        pg = fix_pg.generate()
+
+        result = utils.resolve_entity(
+            pg.status.name, canvas.get_process_group, nifi.ProcessGroupEntity,
+            strict=True, identifier_type="name"
+        )
+        assert result.id == pg.id
+
+        # Cleanup
+        canvas.delete_process_group(pg, force=True)
+
+    def test_resolve_controller_by_name(self, fix_pg):
+        """Test resolving a controller by name."""
+        from nipyapi import canvas, nifi
+        pg = fix_pg.generate()
+
+        # Create a controller with explicit name
+        cont_type = canvas.list_all_controller_types()[0]
+        controller_name = conftest.test_basename + "resolve_controller"
+        cont = canvas.create_controller(
+            parent_pg=pg,
+            controller=cont_type,
+            name=controller_name
+        )
+
+        try:
+            result = utils.resolve_entity(
+                controller_name, canvas.get_controller, nifi.ControllerServiceEntity,
+                strict=True, identifier_type="name"
+            )
+            assert result.id == cont.id
+        finally:
+            # Cleanup
+            canvas.delete_controller(cont, force=True)
+            canvas.delete_process_group(pg, force=True)

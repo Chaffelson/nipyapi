@@ -726,7 +726,8 @@ def schedule_components(pg_id, scheduled, components=None):
 
     Args:
         pg_id (str): The UUID of the parent Process Group
-        scheduled (bool): True to start (RUNNING), False to stop (STOPPED)
+        scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
+            "RUNNING", "STOPPED".
         components (list[ComponentType]): The list of Component Entities to
             schedule, e.g. ProcessorEntity's. If None, schedules all
             components in the Process Group.
@@ -736,9 +737,12 @@ def schedule_components(pg_id, scheduled, components=None):
 
     """
     assert isinstance(get_process_group(pg_id, "id"), nipyapi.nifi.ProcessGroupEntity)
-    assert isinstance(scheduled, bool)
     assert components is None or isinstance(components, list)
-    target_state = "RUNNING" if scheduled else "STOPPED"
+
+    # Normalize scheduled to a state string
+    target_state = nipyapi.utils.resolve_schedule_state(
+        scheduled, "RUNNING", "STOPPED", ("RUNNING", "STOPPED")
+    )
     body = nipyapi.nifi.ScheduleComponentsEntity(id=pg_id, state=target_state)
     if components:
         body.components = {i.id: i.revision for i in components}
@@ -793,13 +797,9 @@ def schedule_processor(processor, scheduled, refresh=True):
     assert isinstance(refresh, bool)
 
     # Normalize scheduled to a state string
-    valid_states = ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE")
-    if isinstance(scheduled, bool):
-        target_state = "RUNNING" if scheduled else "STOPPED"
-    elif isinstance(scheduled, str) and scheduled.upper() in valid_states:
-        target_state = scheduled.upper()
-    else:
-        raise ValueError(f"scheduled must be bool or one of {valid_states}, got: {scheduled!r}")
+    target_state = nipyapi.utils.resolve_schedule_state(
+        scheduled, "RUNNING", "STOPPED", ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE")
+    )
 
     def _processor_stopped(processor_):
         test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
@@ -903,13 +903,9 @@ def schedule_port(port, scheduled, refresh=True):
     assert isinstance(refresh, bool)
 
     # Normalize scheduled to a state string
-    valid_states = ("RUNNING", "STOPPED", "DISABLED")
-    if isinstance(scheduled, bool):
-        target_state = "RUNNING" if scheduled else "STOPPED"
-    elif isinstance(scheduled, str) and scheduled.upper() in valid_states:
-        target_state = scheduled.upper()
-    else:
-        raise ValueError(f"scheduled must be bool or one of {valid_states}, got: {scheduled!r}")
+    target_state = nipyapi.utils.resolve_schedule_state(
+        scheduled, "RUNNING", "STOPPED", ("RUNNING", "STOPPED", "DISABLED")
+    )
 
     is_input = "INPUT" in port.port_type
 
@@ -2050,7 +2046,8 @@ def schedule_controller(controller, scheduled, refresh=False):
 
     Args:
         controller (ControllerServiceEntity): Target Controller to schedule
-        scheduled (bool): True to start, False to stop
+        scheduled (bool or str): True/False for ENABLED/DISABLED, or one of
+            "ENABLED", "DISABLED".
         refresh (bool): Whether to refresh the component revision before
           execution
 
@@ -2059,7 +2056,11 @@ def schedule_controller(controller, scheduled, refresh=False):
 
     """
     assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
-    assert isinstance(scheduled, bool)
+
+    # Normalize scheduled to a state string
+    target_state = nipyapi.utils.resolve_schedule_state(
+        scheduled, "ENABLED", "DISABLED", ("ENABLED", "DISABLED")
+    )
 
     def _schedule_controller_state(cont_id, tgt_state):
         test_obj = get_controller(cont_id, "id")
@@ -2068,7 +2069,6 @@ def schedule_controller(controller, scheduled, refresh=False):
         return False
 
     handle = nipyapi.nifi.ControllerServicesApi()
-    target_state = "ENABLED" if scheduled else "DISABLED"
     if refresh:
         controller = nipyapi.canvas.get_controller(controller.id, "id")
         assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
@@ -2103,16 +2103,19 @@ def schedule_all_controllers(pg_id, scheduled):
 
     Args:
         pg_id (str): The UUID of the Process Group
-        scheduled (bool): True to enable, False to disable
+        scheduled (bool or str): True/False for ENABLED/DISABLED, or one of
+            "ENABLED", "DISABLED".
 
     Returns:
         ActivateControllerServicesEntity: The result of the operation
 
     """
     assert isinstance(pg_id, str)
-    assert isinstance(scheduled, bool)
 
-    target_state = "ENABLED" if scheduled else "DISABLED"
+    # Normalize scheduled to a state string
+    target_state = nipyapi.utils.resolve_schedule_state(
+        scheduled, "ENABLED", "DISABLED", ("ENABLED", "DISABLED")
+    )
 
     def _all_controllers_in_state():
         controllers = list_all_controllers(pg_id)

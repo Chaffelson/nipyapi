@@ -3,6 +3,7 @@ Convenience utility functions for NiPyApi, not really intended for external use
 """
 
 import base64
+import inspect
 import io
 import json
 import logging
@@ -31,6 +32,8 @@ __all__ = [
     "fs_write",
     "filter_obj",
     "is_uuid",
+    "resolve_entity",
+    "resolve_schedule_state",
     "wait_to_complete",
     "is_endpoint_up",
     "set_endpoint",
@@ -74,6 +77,206 @@ def is_uuid(value):
     if not isinstance(value, str):
         return False
     return bool(_UUID_PATTERN.match(value))
+
+
+def resolve_entity(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    identifier,
+    getter_func,
+    expected_type,
+    strict=True,
+    greedy=True,
+    identifier_type="auto",
+):
+    """
+    Resolve an identifier to an entity object.
+
+    This utility provides consistent entity resolution across nipyapi modules.
+    Given an identifier (string or object) and a getter function, it returns
+    the resolved entity object or raises an appropriate error.
+
+    Args:
+        identifier: Entity object, ID string, or name string.
+        getter_func: A getter function with signature (identifier, identifier_type, greedy)
+            e.g., nipyapi.canvas.get_processor, nipyapi.versioning.get_registry_client
+        expected_type: The class the result should be (e.g., nipyapi.nifi.ProcessorEntity).
+            Used to validate object inputs and for error messages.
+        strict (bool): Error handling mode:
+            - True (default): 0 matches -> ValueError, multiple -> ValueError
+            - False: 0 matches -> None, multiple -> list
+        greedy (bool): For name matching, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifiers:
+            - "auto" (default): UUID format -> ID lookup, else -> name lookup
+            - "id": Force ID lookup
+            - "name": Force name lookup
+
+    Returns:
+        Entity object of expected_type (or None/list if strict=False).
+
+    Raises:
+        TypeError: If identifier is not a string or instance of expected_type.
+        ValueError: If strict=True and 0 or multiple matches are found.
+
+    Examples:
+        # In canvas.py action functions
+        from nipyapi import utils, nifi
+        processor = utils.resolve_entity(
+            processor, get_processor, nifi.ProcessorEntity, strict=True
+        )
+
+        # Entity objects pass through unchanged
+        proc_entity = get_processor("my-processor")
+        result = utils.resolve_entity(proc_entity, get_processor, nifi.ProcessorEntity)
+        # result is proc_entity
+    """
+    # Already the correct type? Return it.
+    if isinstance(identifier, expected_type):
+        return identifier
+
+    # String? Resolve via getter.
+    if isinstance(identifier, str):
+        result = _call_getter(getter_func, identifier, identifier_type, greedy)
+        return _apply_strict_mode(result, identifier, strict)
+
+    # Neither string nor expected type - error
+    raise TypeError(
+        f"Expected {expected_type.__name__} or identifier string, "
+        f"got {type(identifier).__name__}"
+    )
+
+
+def _call_getter(getter_func, identifier, identifier_type, greedy):
+    """
+    Call the getter function, adapting to its signature.
+
+    This utility handles two sources of variability:
+
+    1. **Historical inconsistency**: Getter functions in nipyapi were built over time
+       with different signatures (e.g., get_processor takes 'greedy', get_controller
+       does not, get_connection only takes ID).
+
+    2. **Server API variability**: NiFi's API model differs across domains (canvas
+       components vs registry vs security) with different ID paths, naming conventions,
+       and response shapes.
+
+    Rather than retrofitting all getters and breaking compatibility, we centralise
+    the complexity here. The utility inspects the getter's signature and calls it
+    with the appropriate arguments.
+
+    Supported getter signatures:
+        - (identifier) - ID-only lookup (e.g., get_connection, get_funnel)
+        - (identifier, identifier_type) - ID or name lookup
+        - (identifier, identifier_type, greedy) - ID or name with match control
+
+    Args:
+        getter_func: The getter function to call.
+        identifier: The identifier string (ID or name).
+        identifier_type: "auto", "id", or "name".
+        greedy: Whether to use partial name matching.
+
+    Returns:
+        The result from the getter function.
+
+    Raises:
+        ValueError: If identifier_type is invalid or name lookup is not supported.
+    """
+    # Determine lookup type
+    if identifier_type == "auto":
+        lookup_type = "id" if is_uuid(identifier) else "name"
+    elif identifier_type in ("id", "name"):
+        lookup_type = identifier_type
+    else:
+        raise ValueError(
+            f"Invalid identifier_type: {identifier_type!r}. Must be 'auto', 'id', or 'name'."
+        )
+
+    # Inspect the getter's signature to call it correctly
+    try:
+        sig = inspect.signature(getter_func)
+        params = sig.parameters
+    except (ValueError, TypeError):
+        # Fallback for functions without introspectable signatures (rare)
+        params = {}
+
+    # Build kwargs based on what the getter accepts
+    kwargs = {}
+
+    if "identifier_type" in params:
+        kwargs["identifier_type"] = lookup_type
+    elif lookup_type == "name":
+        # Getter doesn't support name lookup
+        func_name = getattr(getter_func, "__name__", "getter")
+        raise ValueError(f"{func_name} does not support name lookup. Use ID instead.")
+
+    if "greedy" in params:
+        kwargs["greedy"] = greedy
+
+    return getter_func(identifier, **kwargs)
+
+
+def _apply_strict_mode(result, identifier, strict):
+    """Apply strict mode handling: raise on 0 or multiple matches."""
+    if not strict:
+        return result
+
+    if result is None or (isinstance(result, list) and len(result) == 0):
+        raise ValueError(f"Not found: {identifier!r}")
+
+    if isinstance(result, list) and len(result) > 1:
+        raise ValueError(
+            f"Ambiguous: {identifier!r} matched {len(result)} entities. "
+            f"Use a more specific identifier or identifier_type='id'."
+        )
+
+    return result[0] if isinstance(result, list) else result
+
+
+def resolve_schedule_state(scheduled, true_state, false_state, valid_states=None):
+    """
+    Normalize a scheduling parameter to a state string.
+
+    This utility provides consistent handling of the 'scheduled' parameter
+    across nipyapi scheduling functions, accepting bool or string values.
+
+    Args:
+        scheduled: The scheduling input, either:
+            - bool: True maps to true_state, False maps to false_state
+            - str: Must be one of valid_states (case-insensitive)
+        true_state (str): The state string when scheduled=True (e.g., "RUNNING", "ENABLED")
+        false_state (str): The state string when scheduled=False (e.g., "STOPPED", "DISABLED")
+        valid_states (tuple, optional): Tuple of valid state strings. If None, defaults to
+            (true_state, false_state).
+
+    Returns:
+        str: The normalized state string (uppercase).
+
+    Raises:
+        ValueError: If scheduled is not a bool or valid state string.
+
+    Examples:
+        # Processor scheduling
+        state = resolve_schedule_state(True, "RUNNING", "STOPPED",
+            ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE"))  # -> "RUNNING"
+        state = resolve_schedule_state("run_once", "RUNNING", "STOPPED",
+            ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE"))  # -> "RUN_ONCE"
+
+        # Controller scheduling
+        state = resolve_schedule_state(False, "ENABLED", "DISABLED")  # -> "DISABLED"
+    """
+    if valid_states is None:
+        valid_states = (true_state, false_state)
+
+    if isinstance(scheduled, bool):
+        return true_state if scheduled else false_state
+
+    if isinstance(scheduled, str):
+        scheduled_upper = scheduled.upper()
+        if scheduled_upper in valid_states:
+            return scheduled_upper
+        raise ValueError(f"scheduled must be bool or one of {valid_states}, got: {scheduled!r}")
+
+    raise ValueError(
+        f"scheduled must be bool or one of {valid_states}, got: {type(scheduled).__name__}"
+    )
 
 
 def dump(obj, mode="json"):

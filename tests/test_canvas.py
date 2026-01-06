@@ -818,12 +818,24 @@ def test_schedule_controller(fix_pg, fix_cont):
     f_c1 = fix_cont(parent_pg=f_pg)
     with pytest.raises(AssertionError):
         _ = canvas.schedule_controller('pie', False)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         _ = canvas.schedule_controller(f_c1, 'pie')
+
+    # Test bool True -> ENABLED
     r1 = canvas.schedule_controller(f_c1, True)
     assert r1.component.state == 'ENABLED'
+
+    # Test bool False -> DISABLED
     r2 = canvas.schedule_controller(r1, False)
     assert r2.component.state == 'DISABLED'
+
+    # Test string "ENABLED"
+    r3 = canvas.schedule_controller(r2, "ENABLED")
+    assert r3.component.state == 'ENABLED'
+
+    # Test string "DISABLED"
+    r4 = canvas.schedule_controller(r3, "DISABLED")
+    assert r4.component.state == 'DISABLED'
 
 
 def test_schedule_all_controllers(fix_pg, fix_cont):
@@ -833,22 +845,40 @@ def test_schedule_all_controllers(fix_pg, fix_cont):
     # Verify both start disabled
     assert f_c1.component.state == 'DISABLED'
     assert f_c2.component.state == 'DISABLED'
-    # Enable all
+
+    # Test invalid inputs
     with pytest.raises(AssertionError):
         _ = canvas.schedule_all_controllers(123, True)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         _ = canvas.schedule_all_controllers(f_pg.id, 'pie')
+
+    # Test bool True -> ENABLED
     r1 = canvas.schedule_all_controllers(f_pg.id, True)
     assert r1.state == 'ENABLED'
-    # Verify controllers are enabled
     c1 = canvas.get_controller(f_c1.id, 'id')
     c2 = canvas.get_controller(f_c2.id, 'id')
     assert c1.component.state == 'ENABLED'
     assert c2.component.state == 'ENABLED'
-    # Disable all
+
+    # Test bool False -> DISABLED
     r2 = canvas.schedule_all_controllers(f_pg.id, False)
     assert r2.state == 'DISABLED'
-    # Verify controllers are disabled
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'DISABLED'
+    assert c2.component.state == 'DISABLED'
+
+    # Test string "ENABLED"
+    r3 = canvas.schedule_all_controllers(f_pg.id, "ENABLED")
+    assert r3.state == 'ENABLED'
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'ENABLED'
+    assert c2.component.state == 'ENABLED'
+
+    # Test string "DISABLED"
+    r4 = canvas.schedule_all_controllers(f_pg.id, "DISABLED")
+    assert r4.state == 'DISABLED'
     c1 = canvas.get_controller(f_c1.id, 'id')
     c2 = canvas.get_controller(f_c2.id, 'id')
     assert c1.component.state == 'DISABLED'
