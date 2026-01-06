@@ -184,6 +184,10 @@ def delete_registry_client(client, refresh=True, greedy=True, identifier_type="a
 
     Returns:
         (FlowRegistryClientEntity): The updated client object
+
+    Raises:
+        TypeError: If client is not a string or FlowRegistryClientEntity.
+        ValueError: If registry client not found or multiple matches found.
     """
     client = nipyapi.utils.resolve_entity(
         client,
@@ -226,6 +230,10 @@ def update_registry_client(  # pylint: disable=too-many-arguments,too-many-posit
 
     Returns:
         (FlowRegistryClientEntity): The updated client object
+
+    Raises:
+        TypeError: If client is not a string or FlowRegistryClientEntity.
+        ValueError: If registry client not found or multiple matches found.
 
     Example::
 
@@ -764,8 +772,9 @@ def update_git_flow_ver(
             status information.
 
     Raises:
-        ValueError: If the process group is not under version control, if the
-            target version is not found, or if the update fails.
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, is not
+            under version control, target version is not found, or update fails.
 
     Example::
 
@@ -922,7 +931,9 @@ def save_git_flow_ver(  # pylint: disable=too-many-arguments,too-many-positional
             after the commit.
 
     Raises:
-        ValueError: If required parameters are missing or objects not found.
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, or
+            required parameters are missing.
 
     Example::
 
@@ -1056,7 +1067,9 @@ def get_local_modifications(process_group, greedy=True, identifier_type="auto"):
               difference description)
 
     Raises:
-        ValueError: If the process group is not found or not under version control.
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, or
+            not under version control.
 
     Example::
 
@@ -1262,6 +1275,10 @@ def stop_flow_ver(process_group, refresh=True, greedy=True, identifier_type="aut
 
     Returns:
         :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
+
+    Raises:
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
     process_group = nipyapi.utils.resolve_entity(
         process_group,
@@ -1303,7 +1320,9 @@ def revert_flow_ver(process_group, wait=False, greedy=True, identifier_type="aut
             revert completes
 
     Raises:
-        ValueError: If wait=True and the revert operation fails or times out
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, or
+            (when wait=True) the revert operation fails or times out.
     """
     process_group = nipyapi.utils.resolve_entity(
         process_group,
@@ -1414,6 +1433,10 @@ def get_version_info(process_group, greedy=True, identifier_type="auto"):
 
     Returns:
         :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
+
+    Raises:
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
     process_group = nipyapi.utils.resolve_entity(
         process_group,
@@ -1655,6 +1678,10 @@ def import_process_group_definition(
 
     Returns:
         ProcessGroupEntity: The newly imported process group
+
+    Raises:
+        TypeError: If parent_pg is not a string or ProcessGroupEntity.
+        ValueError: If parent process group not found or multiple matches found.
 
     Example::
 

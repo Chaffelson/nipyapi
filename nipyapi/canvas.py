@@ -364,6 +364,11 @@ def schedule_process_group(process_group_id, scheduled, greedy=True, identifier_
     Returns:
          (bool): True of successfully scheduled, False if not
 
+    Raises:
+        TypeError: If process_group_id is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, or
+            scheduled is not a bool or valid state string.
+
     """
     process_group = nipyapi.utils.resolve_entity(
         process_group_id,
@@ -422,6 +427,10 @@ def delete_process_group(
 
     Returns:
          (ProcessGroupEntity: The updated object state
+
+    Raises:
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
 
     """
     process_group = nipyapi.utils.resolve_entity(
@@ -486,6 +495,10 @@ def create_process_group(  # pylint: disable=too-many-arguments,too-many-positio
 
     Returns:
          :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The new Process Group
+
+    Raises:
+        TypeError: If parent_pg is not a string or ProcessGroupEntity.
+        ValueError: If parent process group not found or multiple matches found.
 
     """
     parent_pg = nipyapi.utils.resolve_entity(
@@ -640,6 +653,10 @@ def create_processor(  # pylint: disable=too-many-arguments,too-many-positional-
     Returns:
          :class:`~nipyapi.nifi.models.ProcessorEntity`: The new Processor
 
+    Raises:
+        TypeError: If parent_pg is not a string or ProcessGroupEntity.
+        ValueError: If parent process group not found or multiple matches found.
+
     """
     parent_pg = nipyapi.utils.resolve_entity(
         parent_pg,
@@ -763,6 +780,9 @@ def schedule_components(pg_id, scheduled, components=None):
     Returns:
         bool: True for success, False for failure
 
+    Raises:
+        ValueError: If scheduled is not a bool or valid state string.
+
     """
     assert isinstance(get_process_group(pg_id, "id"), nipyapi.nifi.ProcessGroupEntity)
     assert components is None or isinstance(components, list)
@@ -801,6 +821,11 @@ def schedule_processor(processor, scheduled, refresh=True, greedy=True, identifi
 
     Returns:
         bool: True for success, False for failure.
+
+    Raises:
+        TypeError: If processor is not a string or ProcessorEntity.
+        ValueError: If processor not found, multiple matches found, or
+            scheduled is not a bool or valid state string.
 
     Example::
 
@@ -897,6 +922,11 @@ def schedule_port(port, scheduled, refresh=True, greedy=True, identifier_type="a
     Returns:
         bool: True for success, False for failure.
 
+    Raises:
+        TypeError: If port is not a string or PortEntity.
+        ValueError: If port not found, multiple matches found, or
+            scheduled is not a bool or valid state string.
+
     Example::
 
         # Start a port by ID
@@ -970,6 +1000,10 @@ def update_process_group(pg, update, refresh=True, greedy=True, identifier_type=
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated ProcessGroupEntity
+
+    Raises:
+        TypeError: If pg is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
 
     Example::
 
@@ -1795,6 +1829,10 @@ def purge_process_group(process_group, stop=False, greedy=True, identifier_type=
         (list[dict{ID:True|False}]): Result set. A list of Dicts of
     Connection IDs mapped to True or False for success of each connection
 
+    Raises:
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
+
     """
     process_group = nipyapi.utils.resolve_entity(
         process_group,
@@ -1950,6 +1988,10 @@ def delete_controller(controller, force=False, refresh=True, greedy=True, identi
     Returns:
         (ControllerServiceEntity)
 
+    Raises:
+        TypeError: If controller is not a string or ControllerServiceEntity.
+        ValueError: If controller not found or multiple matches found.
+
     """
     assert isinstance(force, bool)
 
@@ -2007,6 +2049,10 @@ def update_controller(controller, update, refresh=True, greedy=True, identifier_
     Returns:
         (ControllerServiceEntity)
 
+    Raises:
+        TypeError: If controller is not a string or ControllerServiceEntity.
+        ValueError: If controller not found or multiple matches found.
+
     """
     controller = nipyapi.utils.resolve_entity(
         controller,
@@ -2048,6 +2094,11 @@ def schedule_controller(controller, scheduled, refresh=False, greedy=True, ident
 
     Returns:
         (ControllerServiceEntity)
+
+    Raises:
+        TypeError: If controller is not a string or ControllerServiceEntity.
+        ValueError: If controller not found, multiple matches found, or
+            scheduled is not a bool or valid state string.
 
     """
     controller = nipyapi.utils.resolve_entity(
@@ -2109,6 +2160,9 @@ def schedule_all_controllers(pg_id, scheduled):
 
     Returns:
         ActivateControllerServicesEntity: The result of the operation
+
+    Raises:
+        ValueError: If scheduled is not a bool or valid state string.
 
     """
     assert isinstance(pg_id, str)
@@ -2709,7 +2763,9 @@ def verify_controller(
         and explanation.
 
     Raises:
-        ValueError: Controller not found or is currently enabled
+        TypeError: If controller is not a string or ControllerServiceEntity.
+        ValueError: Controller not found, multiple matches found, or is
+            currently enabled.
         ApiException: NiFi API errors
 
     Example::
@@ -2780,7 +2836,9 @@ def verify_processor(
         and explanation.
 
     Raises:
-        ValueError: Processor not found or is currently running
+        TypeError: If processor is not a string or ProcessorEntity.
+        ValueError: Processor not found, multiple matches found, or is
+            currently running.
         ApiException: NiFi API errors
 
     Example::
@@ -2844,7 +2902,8 @@ def get_controller_state(controller, greedy=True, identifier_type="auto"):
         map has scope, total_entry_count, and state (list of StateEntryDTO).
 
     Raises:
-        ValueError: Controller not found
+        TypeError: If controller is not a string or ControllerServiceEntity.
+        ValueError: Controller not found or multiple matches found.
         ApiException: NiFi API errors
 
     Example::
@@ -2889,7 +2948,9 @@ def clear_controller_state(controller, greedy=True, identifier_type="auto"):
         ComponentStateEntity: The cleared state entity (should have 0 entries)
 
     Raises:
-        ValueError: Controller not found or controller is enabled
+        TypeError: If controller is not a string or ControllerServiceEntity.
+        ValueError: Controller not found, multiple matches found, or
+            controller is enabled.
         ApiException: NiFi API errors
 
     Example::
@@ -2937,7 +2998,8 @@ def get_processor_state(processor, greedy=True, identifier_type="auto"):
         map has scope, total_entry_count, and state (list of StateEntryDTO).
 
     Raises:
-        ValueError: Processor not found
+        TypeError: If processor is not a string or ProcessorEntity.
+        ValueError: Processor not found or multiple matches found.
         ApiException: NiFi API errors
 
     Example::
@@ -2979,7 +3041,8 @@ def clear_processor_state(processor, greedy=True, identifier_type="auto"):
         ComponentStateEntity: The cleared state entity (should have 0 entries)
 
     Raises:
-        ValueError: Processor not found
+        TypeError: If processor is not a string or ProcessorEntity.
+        ValueError: Processor not found or multiple matches found.
         ApiException: NiFi API errors
 
     Example::

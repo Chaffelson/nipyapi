@@ -192,6 +192,10 @@ def delete_parameter_context(context, refresh=True, greedy=True, identifier_type
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterContextEntity`: The removed Parameter Context
+
+    Raises:
+        TypeError: If context is not a string or ParameterContextEntity.
+        ValueError: If parameter context not found or multiple matches found.
     """
     enforce_min_ver("1.10.0")
     context = nipyapi.utils.resolve_entity(
@@ -243,6 +247,10 @@ def delete_parameter_from_context(context, parameter_name, greedy=True, identifi
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterContextEntity`: The updated Parameter Context
+
+    Raises:
+        TypeError: If context is not a string or ParameterContextEntity.
+        ValueError: If parameter context not found or multiple matches found.
     """
     enforce_min_ver("1.10.0")
     context = nipyapi.utils.resolve_entity(
@@ -271,6 +279,10 @@ def upsert_parameter_to_context(context, parameter, greedy=True, identifier_type
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterContextEntity`: The updated Parameter Context
+
+    Raises:
+        TypeError: If context is not a string or ParameterContextEntity.
+        ValueError: If parameter context not found or multiple matches found.
     """
     enforce_min_ver("1.10.0")
     context = nipyapi.utils.resolve_entity(
@@ -303,6 +315,10 @@ def assign_context_to_process_group(
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated Process Group
+
+    Raises:
+        TypeError: If pg is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
     assert isinstance(context_id, str)
     pg = nipyapi.utils.resolve_entity(
@@ -338,6 +354,10 @@ def remove_context_from_process_group(pg, greedy=True, identifier_type="auto"):
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated Process Group
+
+    Raises:
+        TypeError: If pg is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
     pg = nipyapi.utils.resolve_entity(
         pg,
