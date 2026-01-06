@@ -1883,7 +1883,8 @@ def create_controller(parent_pg, controller, name=None):
         parent_pg (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): Target Parent PG
         controller (:class:`~nipyapi.nifi.models.DocumentedTypeDTO`): Type of Controller to create,
             found via the list_all_controller_types method
-        name (str, optional): Name for the new Controller as a String
+        name (str, optional): Name for the new Controller as a String. If not provided,
+            defaults to the short type name (e.g., "JsonTreeReader").
 
     Returns:
         :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The created controller service
@@ -1892,20 +1893,24 @@ def create_controller(parent_pg, controller, name=None):
     assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)
     assert isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity)
     assert name is None or isinstance(name, str)
+    # Default name to short type name if not provided (consistent with create_processor)
+    if name is None:
+        controller_name = controller.type.split(".")[-1]
+    else:
+        controller_name = name
     with nipyapi.utils.rest_exceptions():
         # NiFi 2.x creates a PG-scoped Controller Service via ProcessGroupsApi
-        out = nipyapi.nifi.ProcessGroupsApi().create_controller_service1(
+        return nipyapi.nifi.ProcessGroupsApi().create_controller_service1(
             id=parent_pg.id,
             body=nipyapi.nifi.ControllerServiceEntity(
                 revision={"version": 0},
                 component=nipyapi.nifi.ControllerServiceDTO(
-                    bundle=controller.bundle, type=controller.type
+                    bundle=controller.bundle,
+                    type=controller.type,
+                    name=controller_name,
                 ),
             ),
         )
-        if name:
-            update_controller(out, nipyapi.nifi.ControllerServiceDTO(name=name))
-    return out
 
 
 def list_all_controllers(pg_id="root", descendants=True, include_reporting_tasks=False):
