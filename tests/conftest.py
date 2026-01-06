@@ -51,9 +51,6 @@ test_processor_name = test_basename + "_proc"
 test_bucket_name = test_basename + "_bucket"
 test_versioned_flow_name = test_basename + "_ver_flow"
 test_cloned_ver_flow_name = test_basename + '_cloned_ver_flow'
-test_variable_registry_entry = [
-    (test_basename + '_name', test_basename + '_name' + '_value')
-]
 test_write_file_path = test_basename + '_fs_write_dir'
 test_read_file_path = test_basename + '_fs_read_dir'
 test_write_file_name = test_basename + '_fs_write_file'
@@ -1192,8 +1189,8 @@ def fixture_multi_version_nars(request):
     )
 
 
-@pytest.fixture(name='fix_state_flow', scope='function')
-def fixture_state_flow(request, fix_pg):
+@pytest.fixture(name='fix_state_flow', scope='module')
+def fixture_state_flow(request):
     """
     Create a flow that generates state for both processor and controller:
     - MapCacheServer controller (stores cache entries)
@@ -1204,10 +1201,17 @@ def fixture_state_flow(request, fix_pg):
 
     Running this flow populates state in both ListFile (processor) and
     MapCacheServer (controller).
+
+    Module-scoped to avoid expensive setup for each test (3+ seconds).
     """
     import time
 
-    f_pg = fix_pg.generate()
+    # Create PG directly (can't use function-scoped fix_pg in module-scoped fixture)
+    f_pg = nipyapi.canvas.create_process_group(
+        nipyapi.canvas.get_root_pg_id(),
+        test_basename + '_state_flow_pg',
+        nipyapi.layout.new_flow()
+    )
 
     # Create MapCacheServer controller
     server_type = nipyapi.canvas.get_controller_type('MapCacheServer')
@@ -1272,14 +1276,17 @@ def fixture_state_flow(request, fix_pg):
     def cleanup():
         if SKIP_TEARDOWN:
             return
-        # Must disable controllers in fixture scope to avoid race condition with cleanup_nifi
-        # MapCacheServer binds to a port and won't release it until disabled
+        # Must disable controllers before deleting PG
         try:
             nipyapi.canvas.schedule_controller(server, scheduled=False, refresh=True)
         except Exception:
             pass
         try:
             nipyapi.canvas.schedule_controller(client, scheduled=False, refresh=True)
+        except Exception:
+            pass
+        try:
+            nipyapi.canvas.delete_process_group(f_pg, force=True, refresh=True)
         except Exception:
             pass
 

@@ -944,16 +944,16 @@ class TestResolveEntityIntegration:
     def test_resolve_process_group_by_name(self, fix_pg):
         """Test resolving a process group by name."""
         from nipyapi import canvas, nifi
-        pg = fix_pg.generate()
 
+        # Use fixture with unique suffix to avoid name collisions
+        pg = fix_pg.generate(suffix='_resolve_test')
+
+        # Test name resolution (exact match)
         result = utils.resolve_entity(
-            pg.status.name, canvas.get_process_group, nifi.ProcessGroupEntity,
-            strict=True, identifier_type="name"
+            pg.component.name, canvas.get_process_group, nifi.ProcessGroupEntity,
+            strict=True, identifier_type="name", greedy=False
         )
         assert result.id == pg.id
-
-        # Cleanup
-        canvas.delete_process_group(pg, force=True)
 
     def test_resolve_controller_by_name(self, fix_pg):
         """Test resolving a controller by name."""

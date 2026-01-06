@@ -35,8 +35,6 @@ __all__ = [
     "schedule_port",
     "get_funnel",
     "update_processor",
-    "get_variable_registry",
-    "update_variable_registry",
     "purge_connection",
     "list_flowfiles",
     "get_flowfile_details",
@@ -248,13 +246,6 @@ def list_all_process_groups(pg_id="root"):
     setattr(root_entity, "nipyapi_extended", root_flow)
     out.append(root_entity)
     return out
-    #
-    # if pg_id == 'root' or pg_id == get_root_pg_id():
-    #     # This duplicates the nipyapi_extended structure to the root case
-    #     root_entity = get_process_group('root', 'id')
-    #     root_entity.__setattr__('nipyapi_extended', root_flow)
-    #     out.append(root_entity)
-    # return out
 
 
 def list_invalid_processors(pg_id="root", summary=False):
@@ -354,7 +345,7 @@ def list_all_processors(pg_id="root"):
     return out
 
 
-def schedule_process_group(process_group_id, scheduled):
+def schedule_process_group(process_group_id, scheduled, greedy=True, identifier_type="auto"):
     """
     Start or Stop a Process Group and all components.
 
@@ -362,15 +353,32 @@ def schedule_process_group(process_group_id, scheduled):
     some may be in Invalid states.
 
     Args:
-        process_group_id (str): The UUID of the target Process Group
-        scheduled (bool): True to start, False to stop
+        process_group_id (str or ProcessGroupEntity): The target Process Group,
+            as a UUID string, process group name, or ProcessGroupEntity object.
+        scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
+            "RUNNING", "STOPPED".
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
          (bool): True of successfully scheduled, False if not
 
     """
-    assert isinstance(process_group_id, str)
-    assert isinstance(scheduled, bool)
+    process_group = nipyapi.utils.resolve_entity(
+        process_group_id,
+        get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
+    process_group_id = process_group.id
+
+    # Normalize scheduled to a state string
+    target_state = nipyapi.utils.resolve_schedule_state(
+        scheduled, "RUNNING", "STOPPED", ("RUNNING", "STOPPED")
+    )
 
     def _running_schedule_process_group(pg_id_):
         test_obj = nipyapi.nifi.ProcessGroupsApi().get_process_group(pg_id_)
@@ -378,12 +386,11 @@ def schedule_process_group(process_group_id, scheduled):
             return True
         return False
 
-    assert isinstance(get_process_group(process_group_id, "id"), nipyapi.nifi.ProcessGroupEntity)
-    result = schedule_components(pg_id=process_group_id, scheduled=scheduled)
+    result = schedule_components(pg_id=process_group_id, scheduled=target_state)
     # If target scheduled state was successfully updated
     if result:
-        # If we want to stop the processor
-        if not scheduled:
+        # If we want to stop the process group
+        if target_state == "STOPPED":
             # Test that the processor threads have halted
             stop_test = nipyapi.utils.wait_to_complete(
                 _running_schedule_process_group, process_group_id
@@ -397,21 +404,34 @@ def schedule_process_group(process_group_id, scheduled):
     return result
 
 
-def delete_process_group(process_group, force=False, refresh=True):
+def delete_process_group(
+    process_group, force=False, refresh=True, greedy=True, identifier_type="auto"
+):
     """
     Deletes a given Process Group, with optional prejudice.
 
     Args:
-        process_group (ProcessGroupEntity): The target Process Group
+        process_group (ProcessGroupEntity or str): The target Process Group,
+            as a ProcessGroupEntity object, process group ID, or name.
         force (bool): Stop, purge and clean the target Process Group before
             deletion. Experimental.
         refresh (bool): Whether to refresh the state first
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
          (ProcessGroupEntity: The updated object state
 
     """
-    assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
+    process_group = nipyapi.utils.resolve_entity(
+        process_group,
+        get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     assert isinstance(force, bool)
     assert isinstance(refresh, bool)
     pg_id = process_group.id
@@ -436,11 +456,6 @@ def delete_process_group(process_group, force=False, refresh=True):
             # Disable all Controller Services inside the PG
             schedule_all_controllers(pg_id, scheduled=False)
 
-            # Templates are not supported in NiFi 2.x
-            if nipyapi.utils.check_version("2", service="nifi") == 1:
-                for template in nipyapi.templates.list_all_templates(native=False):
-                    if target.id == template.template.group_id:
-                        nipyapi.templates.delete_template(template.id)
             # have to refresh revision after changes
             target = nipyapi.nifi.ProcessGroupsApi().get_process_group(pg_id)
             return nipyapi.nifi.ProcessGroupsApi().remove_process_group(
@@ -449,34 +464,42 @@ def delete_process_group(process_group, force=False, refresh=True):
         raise ValueError(e.body) from e
 
 
-def create_process_group(parent_pg, new_pg_name, location, comment=""):
+def create_process_group(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    parent_pg, new_pg_name, location=None, comment="", greedy=True, identifier_type="auto"
+):
     """
     Creates a new Process Group with the given name under the provided parent
     Process Group at the given Location
 
     Args:
-        parent_pg (str or ProcessGroupEntity): The parent Process Group ID
-            (as a string) or ProcessGroupEntity object to create the new
-            process group in. Use "root" for the root canvas.
+        parent_pg (str or ProcessGroupEntity): The parent Process Group,
+            as a ProcessGroupEntity object, process group ID, or name.
+            Use "root" for the root canvas.
         new_pg_name (str): The name of the new Process Group
-        location (tuple[x, y]): the x,y coordinates to place the new Process
-            Group under the parent
+        location (tuple[x, y], optional): the x,y coordinates to place the new
+            Process Group. If None, uses layout.suggest_pg_position() to find
+            a non-overlapping position.
         comment (str): Entry for the Comments field
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
          :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The new Process Group
 
     """
-    # Accept either a string ID or ProcessGroupEntity
-    if isinstance(parent_pg, str):
-        parent_id = parent_pg
-    elif isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity):
-        parent_id = parent_pg.id
-    else:
-        raise TypeError(
-            f"parent_pg must be a string ID or ProcessGroupEntity, got {type(parent_pg).__name__}"
-        )
+    parent_pg = nipyapi.utils.resolve_entity(
+        parent_pg,
+        get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
+    parent_id = parent_pg.id
     assert isinstance(new_pg_name, str)
+    if location is None:
+        location = nipyapi.layout.suggest_pg_position(parent_id)
     assert isinstance(location, tuple)
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(
@@ -595,33 +618,38 @@ def get_processor_docs(processor):
         )
 
 
-def create_processor(parent_pg, processor, location, name=None, config=None):
+def create_processor(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    parent_pg, processor, location, name=None, config=None, greedy=True, identifier_type="auto"
+):
     """
     Instantiates a given processor on the canvas
 
     Args:
-        parent_pg (str or ProcessGroupEntity): The parent Process Group ID
-            (as a string) or ProcessGroupEntity object
+        parent_pg (str or ProcessGroupEntity): The parent Process Group,
+            as a ProcessGroupEntity object, process group ID, or name.
         processor (DocumentedTypeDTO): The abstract processor type object to be
             instantiated
         location (tuple[x, y]): The location coordinates
         name (Optional [str]):  The name for the new Processor
         config (Optional [ProcessorConfigDTO]): A configuration object for the
             new processor
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
          :class:`~nipyapi.nifi.models.ProcessorEntity`: The new Processor
 
     """
-    # Accept either a string ID or ProcessGroupEntity
-    if isinstance(parent_pg, str):
-        parent_id = parent_pg
-    elif isinstance(parent_pg, nipyapi.nifi.ProcessGroupEntity):
-        parent_id = parent_pg.id
-    else:
-        raise TypeError(
-            f"parent_pg must be a string ID or ProcessGroupEntity, got {type(parent_pg).__name__}"
-        )
+    parent_pg = nipyapi.utils.resolve_entity(
+        parent_pg,
+        get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
+    parent_id = parent_pg.id
     assert isinstance(processor, nipyapi.nifi.DocumentedTypeDTO)
     if name is None:
         processor_name = processor.type.split(".")[-1]
@@ -753,7 +781,7 @@ def schedule_components(pg_id, scheduled, components=None):
     return False
 
 
-def schedule_processor(processor, scheduled, refresh=True):
+def schedule_processor(processor, scheduled, refresh=True, greedy=True, identifier_type="auto"):
     """
     Set a Processor to Start, Stop, Disable, or Run Once.
 
@@ -762,10 +790,14 @@ def schedule_processor(processor, scheduled, refresh=True):
     processor reaches the target state.
 
     Args:
-        processor (str or ProcessorEntity): The Processor ID or ProcessorEntity object.
+        processor (str or ProcessorEntity): The Processor,
+            as a ProcessorEntity object, processor ID, or processor name.
         scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
             "RUNNING", "STOPPED", "DISABLED", "RUN_ONCE".
         refresh (bool): Whether to refresh the object before action.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         bool: True for success, False for failure.
@@ -787,13 +819,14 @@ def schedule_processor(processor, scheduled, refresh=True):
         # Run once - executes one scheduling cycle then stops
         nipyapi.canvas.schedule_processor(proc, "RUN_ONCE")
     """
-    # Accept ID or entity
-    if isinstance(processor, str):
-        processor_id = processor
-        processor = get_processor(processor_id, "id")
-        if processor is None:
-            raise ValueError(f"Processor not found: {processor_id}")
-    assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
+    processor = nipyapi.utils.resolve_entity(
+        processor,
+        get_processor,
+        nipyapi.nifi.ProcessorEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     assert isinstance(refresh, bool)
 
     # Normalize scheduled to a state string
@@ -801,45 +834,30 @@ def schedule_processor(processor, scheduled, refresh=True):
         scheduled, "RUNNING", "STOPPED", ("RUNNING", "STOPPED", "DISABLED", "RUN_ONCE")
     )
 
-    def _processor_stopped(processor_):
-        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
-        if test_obj.status.aggregate_snapshot.active_thread_count == 0:
+    def _check_processor_state(processor_id, target):
+        """Check if processor has reached the target state."""
+        test_obj = nipyapi.canvas.get_processor(processor_id, "id")
+        state = test_obj.component.state
+        threads = test_obj.status.aggregate_snapshot.active_thread_count
+
+        if target == "RUN_ONCE":
+            # RUN_ONCE completes when state returns to STOPPED with no threads
+            if state == "STOPPED" and threads == 0:
+                return True
+        elif target == "STOPPED":
+            # STOPPED checks thread count (state changes before threads finish)
+            if threads == 0:
+                return True
+        elif state == target:
+            # RUNNING, DISABLED just check state directly
             return True
+
         log.info(
-            "Processor not stopped, active thread count %s",
-            test_obj.status.aggregate_snapshot.active_thread_count,
+            "Processor not in target state %s, current: state=%s threads=%s",
+            target,
+            state,
+            threads,
         )
-        return False
-
-    def _processor_running(processor_):
-        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
-        if test_obj.component.state == "RUNNING":
-            return True
-        log.info("Processor not started, run_status %s", test_obj.component.state)
-        return False
-
-    def _processor_run_once_complete(processor_):
-        """Check if RUN_ONCE has completed (processor returns to STOPPED)."""
-        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
-        # RUN_ONCE completes when state returns to STOPPED and no active threads
-        if (
-            test_obj.component.state == "STOPPED"
-            and test_obj.status.aggregate_snapshot.active_thread_count == 0
-        ):
-            return True
-        log.info(
-            "RUN_ONCE not complete, state=%s threads=%s",
-            test_obj.component.state,
-            test_obj.status.aggregate_snapshot.active_thread_count,
-        )
-        return False
-
-    def _processor_disabled(processor_):
-        """Check if processor has reached DISABLED state."""
-        test_obj = nipyapi.canvas.get_processor(processor_.id, "id")
-        if test_obj.component.state == "DISABLED":
-            return True
-        log.info("Processor not disabled, state=%s", test_obj.component.state)
         return False
 
     if refresh:
@@ -855,17 +873,10 @@ def schedule_processor(processor, scheduled, refresh=True):
         nipyapi.nifi.ProcessorsApi().update_run_status4(body=body, id=target.id)
 
     # Wait for target state
-    if target_state == "RUN_ONCE":
-        return nipyapi.utils.wait_to_complete(_processor_run_once_complete, target)
-    if target_state == "DISABLED":
-        return nipyapi.utils.wait_to_complete(_processor_disabled, target)
-    if target_state == "STOPPED":
-        return nipyapi.utils.wait_to_complete(_processor_stopped, target)
-    # RUNNING
-    return nipyapi.utils.wait_to_complete(_processor_running, target)
+    return nipyapi.utils.wait_to_complete(_check_processor_state, target.id, target_state)
 
 
-def schedule_port(port, scheduled, refresh=True):
+def schedule_port(port, scheduled, refresh=True, greedy=True, identifier_type="auto"):
     """
     Set a Port to Start, Stop, or Disable.
 
@@ -874,10 +885,14 @@ def schedule_port(port, scheduled, refresh=True):
     port reaches the target state.
 
     Args:
-        port (str or PortEntity): The Port ID or PortEntity object.
+        port (str or PortEntity): The Port, as a PortEntity object, port ID,
+            or port name.
         scheduled (bool or str): True/False for RUNNING/STOPPED, or one of
             "RUNNING", "STOPPED", "DISABLED".
         refresh (bool): Whether to refresh the object before action.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         bool: True for success, False for failure.
@@ -896,10 +911,14 @@ def schedule_port(port, scheduled, refresh=True):
         # Disable a port
         nipyapi.canvas.schedule_port(port, "DISABLED")
     """
-    # Accept ID or entity
-    if isinstance(port, str):
-        port = get_port(port, identifier_type="id")
-    assert isinstance(port, nipyapi.nifi.PortEntity)
+    port = nipyapi.utils.resolve_entity(
+        port,
+        get_port,
+        nipyapi.nifi.PortEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     assert isinstance(refresh, bool)
 
     # Normalize scheduled to a state string
@@ -907,25 +926,21 @@ def schedule_port(port, scheduled, refresh=True):
         scheduled, "RUNNING", "STOPPED", ("RUNNING", "STOPPED", "DISABLED")
     )
 
-    is_input = "INPUT" in port.port_type
-
-    def _get_port(port_id_):
-        if is_input:
-            return nipyapi.nifi.InputPortsApi().get_input_port(port_id_)
-        return nipyapi.nifi.OutputPortsApi().get_output_port(port_id_)
-
-    def _port_state_reached(port_id_, target_):
-        test_obj = _get_port(port_id_)
+    def _check_port_state(port_id_, target_):
+        """Check if port has reached the target state."""
+        test_obj = get_port(port_id_, identifier_type="id")
         if test_obj.component.state == target_:
             return True
         log.info("Port not in target state, current state %s", test_obj.component.state)
         return False
 
     if refresh:
-        target = _get_port(port.id)
+        target = get_port(port.id, identifier_type="id")
         assert isinstance(target, nipyapi.nifi.PortEntity)
     else:
         target = port
+
+    is_input = "INPUT" in target.port_type
 
     # Update run status using the appropriate API
     body = nipyapi.nifi.PortRunStatusEntity(revision=target.revision, state=target_state)
@@ -936,25 +951,43 @@ def schedule_port(port, scheduled, refresh=True):
             nipyapi.nifi.OutputPortsApi().update_run_status3(body=body, id=target.id)
 
     # Wait for target state
-    return nipyapi.utils.wait_to_complete(_port_state_reached, target.id, target_state)
+    return nipyapi.utils.wait_to_complete(_check_port_state, target.id, target_state)
 
 
-def update_process_group(pg, update, refresh=True):
+def update_process_group(pg, update, refresh=True, greedy=True, identifier_type="auto"):
     """
     Updates a given Process Group.
 
     Args:
-        pg (ProcessGroupEntity): The Process Group to
-          target for update
-        update (dict): key:value pairs to update
+        pg (ProcessGroupEntity or str): The Process Group to target for update,
+            as a ProcessGroupEntity object, process group ID, or name.
+        update (dict): key:value pairs to update (e.g., name, comments)
         refresh (bool): Whether to refresh the Process Group before
           applying the update
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
-        :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated ProcessorEntity
+        :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated ProcessGroupEntity
+
+    Example::
+
+        # Rename a process group
+        nipyapi.canvas.update_process_group(pg, {'name': 'New Name'})
+
+        # Update comments
+        nipyapi.canvas.update_process_group(pg, {'comments': 'Updated'})
 
     """
-    assert isinstance(pg, nipyapi.nifi.ProcessGroupEntity)
+    pg = nipyapi.utils.resolve_entity(
+        pg,
+        get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     with nipyapi.utils.rest_exceptions():
         if refresh:
             pg = get_process_group(pg.id, "id")
@@ -1041,66 +1074,6 @@ def update_processor(processor, update=None, name=None, refresh=True, auto_stop=
             result = get_processor(result.id, "id")
 
         return result
-
-
-def get_variable_registry(process_group, ancestors=True):
-    """
-    Gets the contents of the variable registry attached to a Process Group
-
-    Args:
-        process_group (ProcessGroupEntity): The Process Group to retrieve the
-            Variable Registry from
-        ancestors (bool): Whether to include the Variable Registries from child
-            Process Groups
-
-    Returns:
-        :class:`~nipyapi.nifi.models.VariableRegistryEntity`: The Variable Registry
-
-    """
-    with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.ProcessGroupsApi().get_variable_registry(
-            process_group.id, include_ancestor_groups=ancestors
-        )
-
-
-def update_variable_registry(process_group, update, refresh=True):
-    """
-    Updates one or more key:value pairs in the variable registry
-
-    Args:
-        process_group (:class:`~nipyapi.nifi.models.ProcessGroupEntity`): The Process Group which
-            has the Variable Registry to be updated
-        update (list[tuple]): The variables to write to the registry
-        refresh (bool): Whether to refresh the object revision before updating
-
-    Returns:
-        :class:`~nipyapi.nifi.models.VariableRegistryEntity`: The created or updated Variable
-            Registry Entries
-
-    """
-    if not isinstance(process_group, nipyapi.nifi.ProcessGroupEntity):
-        raise ValueError("param process_group is not a valid nifi.ProcessGroupEntity")
-    if not isinstance(update, list):
-        raise ValueError("param update is not a valid list of (key,value) tuples")
-    # Parse variable update into the datatype
-    var_update = [
-        nipyapi.nifi.VariableEntity(
-            nipyapi.nifi.VariableDTO(name=li[0], value=li[1], process_group_id=process_group.id)
-        )
-        for li in update
-    ]
-    with nipyapi.utils.rest_exceptions():
-        if refresh:
-            process_group = get_process_group(process_group.id, "id")
-        return nipyapi.nifi.ProcessGroupsApi().update_variable_registry(
-            id=process_group.id,
-            body=nipyapi.nifi.VariableRegistryEntity(
-                process_group_revision=process_group.revision,
-                variable_registry=nipyapi.nifi.VariableRegistryDTO(
-                    process_group_id=process_group.id, variables=var_update
-                ),
-            ),
-        )
 
 
 def create_connection(source, target, relationships=None, name=None, bends=None):
@@ -1451,7 +1424,6 @@ def get_flow_components(  # pylint: disable=too-many-locals,too-many-branches
 
 def purge_connection(con_id):
     """
-    EXPERIMENTAL
     Drops all FlowFiles in a given connection. Waits until the action is
     complete before returning.
 
@@ -1806,22 +1778,32 @@ def peek_flowfiles(connection, limit=1):
     return result
 
 
-def purge_process_group(process_group, stop=False):
+def purge_process_group(process_group, stop=False, greedy=True, identifier_type="auto"):
     """
-    EXPERIMENTAL
     Purges the connections in a given Process Group of FlowFiles, and
     optionally stops it first
 
     Args:
-        process_group (ProcessGroupEntity): Target Process Group
+        process_group (ProcessGroupEntity or str): Target Process Group,
+            as a ProcessGroupEntity object, process group ID, or name.
         stop (Optional [bool]): Whether to stop the Process Group before action
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         (list[dict{ID:True|False}]): Result set. A list of Dicts of
     Connection IDs mapped to True or False for success of each connection
 
     """
-    assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
+    process_group = nipyapi.utils.resolve_entity(
+        process_group,
+        get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     assert isinstance(stop, bool)
     if stop:
         if not schedule_process_group(process_group.id, False):
@@ -1951,16 +1933,19 @@ def list_all_controllers(pg_id="root", descendants=True, include_reporting_tasks
     return out
 
 
-def delete_controller(controller, force=False, refresh=True):
+def delete_controller(controller, force=False, refresh=True, greedy=True, identifier_type="auto"):
     """
     Delete a Controller service, with optional prejudice
 
     Args:
         controller (ControllerServiceEntity or str): Target Controller to delete,
-            either as a ControllerServiceEntity object or a controller ID string
+            as a ControllerServiceEntity object, controller ID, or controller name.
         force (bool): True to attempt Disable the Controller before deletion
         refresh (bool): Whether to refresh the controller to get latest revision
             before deletion. Defaults to True to avoid stale revision errors.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         (ControllerServiceEntity)
@@ -1968,13 +1953,14 @@ def delete_controller(controller, force=False, refresh=True):
     """
     assert isinstance(force, bool)
 
-    # Accept ID string or object
-    if isinstance(controller, str):
-        controller_id = controller
-        controller = get_controller(controller_id, "id")
-        if controller is None:
-            raise ValueError(f"Controller not found: {controller_id}")
-    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    controller = nipyapi.utils.resolve_entity(
+        controller,
+        get_controller,
+        nipyapi.nifi.ControllerServiceEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
 
     def _del_cont(cont_id):
         if not get_controller(cont_id, "id", bool_response=True):
@@ -2003,28 +1989,33 @@ def delete_controller(controller, force=False, refresh=True):
     return result
 
 
-def update_controller(controller, update, refresh=True):
+def update_controller(controller, update, refresh=True, greedy=True, identifier_type="auto"):
     """
     Updates the Configuration of a Controller Service
 
     Args:
         controller (ControllerServiceEntity or str): Target Controller to update,
-            either as a ControllerServiceEntity object or a controller ID string
+            as a ControllerServiceEntity object, controller ID, or controller name.
         update (ControllerServiceDTO): Controller Service configuration object
             containing the new config params and properties
         refresh (bool): Whether to refresh the controller to get latest revision
             before update. Defaults to True to avoid stale revision errors.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         (ControllerServiceEntity)
 
     """
-    # Accept ID string or object
-    if isinstance(controller, str):
-        controller = get_controller(controller, "id")
-        if controller is None:
-            raise ValueError(f"Controller not found: {controller}")
-    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    controller = nipyapi.utils.resolve_entity(
+        controller,
+        get_controller,
+        nipyapi.nifi.ControllerServiceEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     assert isinstance(update, nipyapi.nifi.ControllerServiceDTO)
 
     if refresh:
@@ -2040,22 +2031,33 @@ def update_controller(controller, update, refresh=True):
     )
 
 
-def schedule_controller(controller, scheduled, refresh=False):
+def schedule_controller(controller, scheduled, refresh=False, greedy=True, identifier_type="auto"):
     """
     Start/Enable or Stop/Disable a Controller Service
 
     Args:
-        controller (ControllerServiceEntity): Target Controller to schedule
+        controller (ControllerServiceEntity or str): Target Controller to schedule,
+            as a ControllerServiceEntity object, controller ID, or controller name.
         scheduled (bool or str): True/False for ENABLED/DISABLED, or one of
             "ENABLED", "DISABLED".
         refresh (bool): Whether to refresh the component revision before
           execution
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         (ControllerServiceEntity)
 
     """
-    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
+    controller = nipyapi.utils.resolve_entity(
+        controller,
+        get_controller,
+        nipyapi.nifi.ControllerServiceEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
 
     # Normalize scheduled to a state string
     target_state = nipyapi.utils.resolve_schedule_state(
@@ -2071,7 +2073,6 @@ def schedule_controller(controller, scheduled, refresh=False):
     handle = nipyapi.nifi.ControllerServicesApi()
     if refresh:
         controller = nipyapi.canvas.get_controller(controller.id, "id")
-        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
     # NiFi 2.x: update run status via ControllerServicesApi.update_run_status1
     result = handle.update_run_status1(
         id=controller.id,
@@ -2141,10 +2142,14 @@ def schedule_all_controllers(pg_id, scheduled):
 
 
 def get_controller(
-    identifier, identifier_type="name", bool_response=False, include_reporting_tasks=True
+    identifier,
+    identifier_type="name",
+    bool_response=False,
+    include_reporting_tasks=True,
+    greedy=True,
 ):
     """
-    Retrieve a given Controller
+    Retrieve a given Controller Service
 
     Args:
         identifier (str): ID or Name of a Controller to find
@@ -2152,8 +2157,10 @@ def get_controller(
         bool_response (bool): If True, will return False if the Controller is
             not found - useful when testing for deletion completion
         include_reporting_tasks (bool): If True, will include Reporting Tasks in the search
+        greedy (bool): Whether to exact match (False) or partial match (True)
 
     Returns:
+        ControllerServiceEntity or None/False depending on bool_response
 
     """
     assert isinstance(identifier, str)
@@ -2165,7 +2172,7 @@ def get_controller(
             out = handle.get_controller_service(identifier)
         else:
             obj = list_all_controllers(include_reporting_tasks=include_reporting_tasks)
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type)
+            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
     except nipyapi.nifi.rest.ApiException as e:
         if bool_response:
             return False
@@ -2572,12 +2579,14 @@ def create_funnel(pg_id, position=None):
 
     Args:
         pg_id (str): ID of the parent Process Group
-        position (tuple[int, int]): Position on canvas
+        position (tuple[int, int]): Position on canvas. If None, a
+            non-overlapping position is suggested.
 
     Returns:
         :class:`~nipyapi.nifi.models.FunnelEntity`: Created Funnel
     """
-    position = position if position else (400, 400)
+    if position is None:
+        position = nipyapi.layout.new_flow()
     assert isinstance(position, tuple)
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.ProcessGroupsApi().create_funnel(
@@ -2632,7 +2641,50 @@ def get_pg_parents_ids(pg_id):
     return parent_groups
 
 
-def verify_controller(controller, properties=None, attributes=None):
+def _run_verification_request(component_id, body, submit_func, get_func, delete_func):
+    """
+    Run an async verification request workflow: submit, poll, cleanup.
+
+    This helper consolidates the common pattern used by verify_controller
+    and verify_processor to avoid code duplication.
+
+    Args:
+        component_id: ID of the component being verified
+        body: VerifyConfigRequestEntity to submit
+        submit_func: Function to submit the request (takes body, id)
+        get_func: Function to get request status (takes id, request_id)
+        delete_func: Function to delete the request (takes id, request_id)
+
+    Returns:
+        list[ConfigVerificationResultDTO]: Verification results
+    """
+    request_id = None
+
+    try:
+        with nipyapi.utils.rest_exceptions():
+            response = submit_func(body=body, id=component_id)
+        request_id = response.request.request_id
+
+        def _check_complete():
+            status = get_func(id=component_id, request_id=request_id)
+            if status.request.complete:
+                return status
+            return False
+
+        status = nipyapi.utils.wait_to_complete(_check_complete)
+        return status.request.results or []
+
+    finally:
+        if request_id:
+            try:
+                delete_func(id=component_id, request_id=request_id)
+            except Exception:  # pylint: disable=broad-except
+                log.warning("Failed to cleanup verification request %s", request_id)
+
+
+def verify_controller(
+    controller, properties=None, attributes=None, greedy=True, identifier_type="auto"
+):
     """
     Verify a controller service's configuration properties are valid.
 
@@ -2644,9 +2696,12 @@ def verify_controller(controller, properties=None, attributes=None):
     The controller service must be DISABLED before verification.
 
     Args:
-        controller: ControllerServiceEntity or controller service ID (str)
+        controller: ControllerServiceEntity, controller ID, or controller name.
         properties: Optional dict of property overrides to verify
         attributes: Optional dict of FlowFile attributes for Expression Language
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         list[ConfigVerificationResultDTO]: Verification results. Each has
@@ -2665,23 +2720,21 @@ def verify_controller(controller, properties=None, attributes=None):
             if r.outcome == "FAILED":
                 print(f"  Reason: {r.explanation}")
     """
-    # Accept ID or entity
-    if isinstance(controller, str):
-        controller = get_controller(controller, "id")
+    controller = nipyapi.utils.resolve_entity(
+        controller,
+        get_controller,
+        nipyapi.nifi.ControllerServiceEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
 
-    if controller is None:
-        raise ValueError("Controller service not found")
-
-    assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
-
-    # Verify controller is disabled
     if controller.component.state != "DISABLED":
         raise ValueError(
             f"Controller service must be DISABLED before verification. "
             f"Current state: {controller.component.state}"
         )
 
-    # Build verification request
     body = nipyapi.nifi.VerifyConfigRequestEntity(
         request=nipyapi.nifi.VerifyConfigRequestDTO(
             component_id=controller.id,
@@ -2691,34 +2744,18 @@ def verify_controller(controller, properties=None, attributes=None):
     )
 
     api = nipyapi.nifi.ControllerServicesApi()
-    request_id = None
-
-    try:
-        # Submit verification request
-        with nipyapi.utils.rest_exceptions():
-            response = api.submit_config_verification_request(body=body, id=controller.id)
-        request_id = response.request.request_id
-
-        # Poll until complete using wait_to_complete pattern
-        def _check_complete():
-            status = api.get_verification_request(id=controller.id, request_id=request_id)
-            if status.request.complete:
-                return status
-            return False
-
-        status = nipyapi.utils.wait_to_complete(_check_complete)
-        return status.request.results or []
-
-    finally:
-        # Always cleanup the verification request
-        if request_id:
-            try:
-                api.delete_verification_request(id=controller.id, request_id=request_id)
-            except Exception:  # pylint: disable=broad-except
-                log.warning("Failed to cleanup verification request %s", request_id)
+    return _run_verification_request(
+        controller.id,
+        body,
+        api.submit_config_verification_request,
+        api.get_verification_request,
+        api.delete_verification_request,
+    )
 
 
-def verify_processor(processor, properties=None, attributes=None):
+def verify_processor(
+    processor, properties=None, attributes=None, greedy=True, identifier_type="auto"
+):
     """
     Verify a processor's configuration properties are valid.
 
@@ -2730,9 +2767,12 @@ def verify_processor(processor, properties=None, attributes=None):
     The processor must be STOPPED before verification.
 
     Args:
-        processor: ProcessorEntity or processor ID (str)
+        processor: ProcessorEntity, processor ID, or processor name.
         properties: Optional dict of property overrides to verify
         attributes: Optional dict of FlowFile attributes for Expression Language
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         list[ConfigVerificationResultDTO]: Verification results. Each has
@@ -2751,23 +2791,21 @@ def verify_processor(processor, properties=None, attributes=None):
             if r.outcome == "FAILED":
                 print(f"  Reason: {r.explanation}")
     """
-    # Accept ID or entity
-    if isinstance(processor, str):
-        processor = get_processor(processor, "id")
+    processor = nipyapi.utils.resolve_entity(
+        processor,
+        get_processor,
+        nipyapi.nifi.ProcessorEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
 
-    if processor is None:
-        raise ValueError("Processor not found")
-
-    assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
-
-    # Verify processor is stopped
     run_status = processor.status.run_status if processor.status else None
     if run_status and run_status.upper() in ("RUNNING", "VALIDATING"):
         raise ValueError(
             f"Processor must be STOPPED before verification. " f"Current state: {run_status}"
         )
 
-    # Build verification request
     body = nipyapi.nifi.VerifyConfigRequestEntity(
         request=nipyapi.nifi.VerifyConfigRequestDTO(
             component_id=processor.id,
@@ -2777,34 +2815,16 @@ def verify_processor(processor, properties=None, attributes=None):
     )
 
     api = nipyapi.nifi.ProcessorsApi()
-    request_id = None
-
-    try:
-        # Submit verification request
-        with nipyapi.utils.rest_exceptions():
-            response = api.submit_processor_verification_request(body=body, id=processor.id)
-        request_id = response.request.request_id
-
-        # Poll until complete
-        def _check_complete():
-            status = api.get_verification_request2(id=processor.id, request_id=request_id)
-            if status.request.complete:
-                return status
-            return False
-
-        status = nipyapi.utils.wait_to_complete(_check_complete)
-        return status.request.results or []
-
-    finally:
-        # Always cleanup the verification request
-        if request_id:
-            try:
-                api.delete_verification_request2(id=processor.id, request_id=request_id)
-            except Exception:  # pylint: disable=broad-except
-                log.warning("Failed to cleanup verification request %s", request_id)
+    return _run_verification_request(
+        processor.id,
+        body,
+        api.submit_processor_verification_request,
+        api.get_verification_request2,
+        api.delete_verification_request2,
+    )
 
 
-def get_controller_state(controller):
+def get_controller_state(controller, greedy=True, identifier_type="auto"):
     """
     Get the state for a controller service.
 
@@ -2812,7 +2832,10 @@ def get_controller_state(controller):
     connection tracking, CDC table status). This function retrieves that state.
 
     Args:
-        controller: ControllerServiceEntity or controller service ID (str)
+        controller: ControllerServiceEntity, controller ID, or controller name.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         ComponentStateEntity with component_state containing component_id,
@@ -2832,19 +2855,20 @@ def get_controller_state(controller):
             for entry in state_map.state:
                 print(f"{entry.key}: {entry.value}")
     """
-    # Accept ID or entity
-    if isinstance(controller, str):
-        controller_id = controller
-    else:
-        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
-        controller_id = controller.id
-
+    controller = nipyapi.utils.resolve_entity(
+        controller,
+        get_controller,
+        nipyapi.nifi.ControllerServiceEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     handle = nipyapi.nifi.ControllerServicesApi()
     with nipyapi.utils.rest_exceptions():
-        return handle.get_state(controller_id)
+        return handle.get_state(controller.id)
 
 
-def clear_controller_state(controller):
+def clear_controller_state(controller, greedy=True, identifier_type="auto"):
     """
     Clear all state for a controller service.
 
@@ -2856,7 +2880,10 @@ def clear_controller_state(controller):
     clear state on an enabled controller will raise an error.
 
     Args:
-        controller: ControllerServiceEntity or controller service ID (str)
+        controller: ControllerServiceEntity, controller ID, or controller name.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         ComponentStateEntity: The cleared state entity (should have 0 entries)
@@ -2877,19 +2904,20 @@ def clear_controller_state(controller):
         state = nipyapi.canvas.get_controller_state(my_controller)
         assert state.component_state.local_state.total_entry_count == 0
     """
-    # Accept ID or entity
-    if isinstance(controller, str):
-        controller_id = controller
-    else:
-        assert isinstance(controller, nipyapi.nifi.ControllerServiceEntity)
-        controller_id = controller.id
-
+    controller = nipyapi.utils.resolve_entity(
+        controller,
+        get_controller,
+        nipyapi.nifi.ControllerServiceEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     handle = nipyapi.nifi.ControllerServicesApi()
     with nipyapi.utils.rest_exceptions():
-        return handle.clear_state1(controller_id)
+        return handle.clear_state1(controller.id)
 
 
-def get_processor_state(processor):
+def get_processor_state(processor, greedy=True, identifier_type="auto"):
     """
     Get the state for a processor.
 
@@ -2897,7 +2925,10 @@ def get_processor_state(processor):
     TailFile tracks file positions). This function retrieves that state.
 
     Args:
-        processor: ProcessorEntity or processor ID (str)
+        processor: ProcessorEntity, processor ID, or processor name.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         ComponentStateEntity with component_state containing component_id,
@@ -2917,19 +2948,20 @@ def get_processor_state(processor):
             for entry in state_map.state:
                 print(f"{entry.key}: {entry.value}")
     """
-    # Accept ID or entity
-    if isinstance(processor, str):
-        processor_id = processor
-    else:
-        assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
-        processor_id = processor.id
-
+    processor = nipyapi.utils.resolve_entity(
+        processor,
+        get_processor,
+        nipyapi.nifi.ProcessorEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     handle = nipyapi.nifi.ProcessorsApi()
     with nipyapi.utils.rest_exceptions():
-        return handle.get_state2(processor_id)
+        return handle.get_state2(processor.id)
 
 
-def clear_processor_state(processor):
+def clear_processor_state(processor, greedy=True, identifier_type="auto"):
     """
     Clear all state for a processor.
 
@@ -2938,7 +2970,10 @@ def clear_processor_state(processor):
     cause all files to be re-listed).
 
     Args:
-        processor: ProcessorEntity or processor ID (str)
+        processor: ProcessorEntity, processor ID, or processor name.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         ComponentStateEntity: The cleared state entity (should have 0 entries)
@@ -2956,13 +2991,14 @@ def clear_processor_state(processor):
         state = nipyapi.canvas.get_processor_state(my_processor)
         assert state.component_state.local_state.total_entry_count == 0
     """
-    # Accept ID or entity
-    if isinstance(processor, str):
-        processor_id = processor
-    else:
-        assert isinstance(processor, nipyapi.nifi.ProcessorEntity)
-        processor_id = processor.id
-
+    processor = nipyapi.utils.resolve_entity(
+        processor,
+        get_processor,
+        nipyapi.nifi.ProcessorEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     handle = nipyapi.nifi.ProcessorsApi()
     with nipyapi.utils.rest_exceptions():
-        return handle.clear_state3(processor_id)
+        return handle.clear_state3(processor.id)

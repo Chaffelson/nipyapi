@@ -139,7 +139,8 @@ def test_create_process_group_invalid_type():
             new_pg_name="should_fail",
             location=(0, 0)
         )
-    assert "must be a string ID or ProcessGroupEntity" in str(exc_info.value)
+    # Error from resolve_entity for wrong type
+    assert "ProcessGroupEntity" in str(exc_info.value)
     assert "int" in str(exc_info.value)
 
 
@@ -177,6 +178,18 @@ def test_delete_process_group(fix_pg, fix_proc):
     )
     assert r2.status is None
 
+    # Test passing ID string instead of object
+    pg_3 = fix_pg.generate()
+    r3 = canvas.delete_process_group(pg_3.id)
+    assert r3.id == pg_3.id
+    assert r3.status is None
+
+    # Test passing name string instead of object - use unique suffix to avoid conflicts
+    pg_4 = fix_pg.generate(suffix='_delete_name_test')
+    pg_4_name = pg_4.component.name
+    r4 = canvas.delete_process_group(pg_4_name, identifier_type="name", greedy=False)
+    assert r4.id == pg_4.id
+
 
 def test_schedule_process_group(fix_proc, fix_pg):
     f_pg = fix_pg.generate()
@@ -196,7 +209,8 @@ def test_schedule_process_group(fix_proc, fix_pg):
     status = canvas.get_process_group(f_pg.id, 'id')
     assert status.running_count == 0
     assert status.stopped_count == 1
-    with pytest.raises(AssertionError):
+    # Test invalid scheduled value - now raises ValueError
+    with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_pg.id,
             'BANANA'
@@ -205,6 +219,7 @@ def test_schedule_process_group(fix_proc, fix_pg):
 
 def test_update_process_group(fix_pg):
     f_pg1 = fix_pg.generate()
+    # Test updating comments
     r1 = canvas.update_process_group(
         f_pg1,
         {
@@ -213,6 +228,14 @@ def test_update_process_group(fix_pg):
     )
     assert isinstance(r1, nifi.ProcessGroupEntity)
     assert r1.component.comments == 'test comment'
+
+    # Test renaming via update dict
+    new_name = f_pg1.component.name + '_renamed'
+    r2 = canvas.update_process_group(
+        r1,
+        {'name': new_name}
+    )
+    assert r2.component.name == new_name
 
 
 def test_list_all_processor_types():
@@ -816,8 +839,10 @@ def test_get_controller(fix_pg, fix_cont):
 def test_schedule_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
-    with pytest.raises(AssertionError):
-        _ = canvas.schedule_controller('pie', False)
+    # Test invalid controller identifier (not found)
+    with pytest.raises(ValueError, match="Not found"):
+        _ = canvas.schedule_controller('nonexistent_controller_12345', False)
+    # Test invalid scheduled value
     with pytest.raises(ValueError):
         _ = canvas.schedule_controller(f_c1, 'pie')
 
@@ -836,6 +861,16 @@ def test_schedule_controller(fix_pg, fix_cont):
     # Test string "DISABLED"
     r4 = canvas.schedule_controller(r3, "DISABLED")
     assert r4.component.state == 'DISABLED'
+
+    # Test passing ID string instead of object
+    r5 = canvas.schedule_controller(r4.id, True)
+    assert r5.component.state == 'ENABLED'
+
+    # Test passing name string instead of object
+    r6 = canvas.schedule_controller(
+        r5.component.name, False, identifier_type="name", greedy=False
+    )
+    assert r6.component.state == 'DISABLED'
 
 
 def test_schedule_all_controllers(fix_pg, fix_cont):

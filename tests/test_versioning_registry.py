@@ -42,7 +42,8 @@ def test_delete_registry_client():
         conftest.test_registry_client_name
     )
     assert r2 is None
-    with pytest.raises(AssertionError):
+    # Test non-existent client - now raises ValueError (not found) instead of AssertionError
+    with pytest.raises(ValueError, match="Not found"):
         _ = versioning.delete_registry_client('FakeClient')
 
 
@@ -154,7 +155,8 @@ def test_revert_flow_ver(fix_ver_flow):
     r1 = versioning.revert_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionedFlowUpdateRequestEntity)
     # TODO: Add Tests for flows with data loss on reversion
-    with pytest.raises(AssertionError):
+    # Test non-existent PG - now raises ValueError (not found) instead of AssertionError
+    with pytest.raises(ValueError, match="Not found"):
         _ = versioning.revert_flow_ver('NotAPg')
 
 
@@ -196,8 +198,21 @@ def test_get_latest_flow_ver(fix_ver_flow):
 def test_get_version_info(fix_ver_flow):
     r1 = versioning.get_version_info(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionControlInformationEntity)
-    with pytest.raises(AssertionError):
+    # Test non-existent PG - now raises ValueError (not found) instead of AssertionError
+    with pytest.raises(ValueError, match="Not found"):
         _ = versioning.get_version_info('NotAPG')
+
+    # Test passing ID string instead of object
+    r2 = versioning.get_version_info(fix_ver_flow.pg.id)
+    assert isinstance(r2, nifi.VersionControlInformationEntity)
+    assert r2.version_control_information.flow_id == r1.version_control_information.flow_id
+
+    # Test passing name string instead of object
+    r3 = versioning.get_version_info(
+        fix_ver_flow.pg.component.name, identifier_type="name", greedy=False
+    )
+    assert isinstance(r3, nifi.VersionControlInformationEntity)
+    assert r3.version_control_information.flow_id == r1.version_control_information.flow_id
 
 
 def test_create_flow(fix_ver_flow):
@@ -614,4 +629,3 @@ def test_ensure_registry_bucket_race_condition_handling(fix_bucket):
 
     # Clean up
     versioning.delete_registry_bucket(result1)
-
