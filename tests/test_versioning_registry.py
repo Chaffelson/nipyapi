@@ -155,7 +155,8 @@ def test_revert_flow_ver(fix_ver_flow):
     r1 = versioning.revert_flow_ver(fix_ver_flow.pg)
     assert isinstance(r1, nifi.VersionedFlowUpdateRequestEntity)
     # TODO: Add Tests for flows with data loss on reversion
-    # Test non-existent PG - now raises ValueError (not found) instead of AssertionError
+    # Test non-existent PG - raises ValueError because resolve_entity validates
+    # entity existence (previously raised AssertionError from isinstance check)
     with pytest.raises(ValueError, match="Not found"):
         _ = versioning.revert_flow_ver('NotAPg')
 
