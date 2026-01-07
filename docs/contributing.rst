@@ -178,8 +178,25 @@ inline with quotes. Line continuation is fine - just avoid nested bullet points.
 The ``fire`` CLI library passes ``--flag=false`` as the **string** ``"false"``, which is
 truthy in Python. This causes unexpected behavior for boolean parameters.
 
-Avoid boolean parameters with default ``True`` that users need to set to ``False`` via CLI.
-Instead:
+Use ``nipyapi.utils.parse_bool()`` to safely handle boolean parameters from CLI::
+
+    from nipyapi.utils import parse_bool
+
+    def my_function(dry_run=False):
+        # Handles CLI --dry_run=false correctly (returns False, not truthy "false")
+        dry_run = parse_bool(dry_run, default=False)
+        # Now safe to use as boolean
+
+For environment variables, use ``nipyapi.utils.getenv_bool()`` which internally uses
+``parse_bool()``::
+
+    from nipyapi.utils import getenv_bool
+
+    # Returns False for "false", "0", "no", "off", "n"
+    # Returns True for "true", "1", "yes", "on", "y", or any other non-falsy string
+    enabled = getenv_bool("MY_FEATURE_ENABLED", default=False)
+
+Alternative approaches (when ``parse_bool()`` is not suitable):
 
 * Return structured results and let the caller decide (preferred)
 * Use ``--noflag`` syntax (fire's native boolean negation): ``nipyapi foo bar --noflag``

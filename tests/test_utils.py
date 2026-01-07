@@ -553,6 +553,109 @@ class TestGetenvBool:
             assert result is True, f"SSL verification should be enabled for '{value}'"
 
 
+class TestParseBool:
+    """Tests for the parse_bool utility function."""
+
+    def test_string_falsy_values_return_false(self):
+        """Test that standard falsy string values return False."""
+        falsy_values = ['0', 'false', 'False', 'FALSE', 'no', 'No', 'NO',
+                        'off', 'Off', 'OFF', 'n', 'N']
+
+        for value in falsy_values:
+            result = utils.parse_bool(value)
+            assert result is False, f"'{value}' should return False"
+
+    def test_empty_string_returns_false(self):
+        """Test that empty string returns False."""
+        result = utils.parse_bool('')
+        assert result is False, "Empty string should return False"
+
+    def test_string_truthy_values_return_true(self):
+        """Test that non-falsy string values return True."""
+        truthy_values = ['1', 'true', 'True', 'TRUE', 'yes', 'Yes', 'YES',
+                         'on', 'On', 'ON', 'y', 'Y', 'anything', 'enable']
+
+        for value in truthy_values:
+            result = utils.parse_bool(value)
+            assert result is True, f"'{value}' should return True"
+
+    def test_bool_passthrough(self):
+        """Test that actual boolean values pass through unchanged."""
+        assert utils.parse_bool(True) is True
+        assert utils.parse_bool(False) is False
+
+    def test_none_returns_default(self):
+        """Test that None returns the default value."""
+        assert utils.parse_bool(None) is None
+        assert utils.parse_bool(None, default=True) is True
+        assert utils.parse_bool(None, default=False) is False
+
+    def test_default_ignored_for_non_none(self):
+        """Test that default is ignored when value is not None."""
+        assert utils.parse_bool('false', default=True) is False
+        assert utils.parse_bool('true', default=False) is True
+        assert utils.parse_bool(False, default=True) is False
+        assert utils.parse_bool(True, default=False) is True
+
+    def test_case_insensitive_parsing(self):
+        """Test that boolean parsing is case-insensitive."""
+        test_cases = [
+            ('false', False), ('FALSE', False), ('False', False),
+            ('true', True), ('TRUE', True), ('True', True),
+            ('no', False), ('NO', False), ('No', False),
+            ('yes', True), ('YES', True), ('Yes', True),
+            ('off', False), ('OFF', False), ('Off', False),
+            ('on', True), ('ON', True), ('On', True),
+        ]
+
+        for value, expected in test_cases:
+            result = utils.parse_bool(value)
+            assert result is expected, f"'{value}' should return {expected}"
+
+    def test_whitespace_handling(self):
+        """Test that whitespace doesn't affect parsing."""
+        test_cases = [
+            (' 0 ', False),
+            (' false ', False),
+            (' 1 ', True),
+            (' true ', True),
+            ('   ', False),  # whitespace-only string should be False
+        ]
+
+        for value, expected in test_cases:
+            result = utils.parse_bool(value)
+            assert result is expected, f"'{value}' should return {expected}"
+
+    def test_cli_fire_gotcha_scenario(self):
+        """Test the specific CLI fire gotcha: --flag=false passed as string 'false'."""
+        # This is the main use case: fire passes --flag=false as string "false"
+        # which is truthy in Python, but parse_bool correctly returns False
+        result = utils.parse_bool("false")
+        assert result is False, "String 'false' from CLI should return False"
+
+        result = utils.parse_bool("False")
+        assert result is False, "String 'False' from CLI should return False"
+
+        result = utils.parse_bool("FALSE")
+        assert result is False, "String 'FALSE' from CLI should return False"
+
+    def test_other_types_use_python_truthiness(self):
+        """Test that other types use Python's built-in truthiness."""
+        # Non-zero numbers are truthy
+        assert utils.parse_bool(1) is True
+        assert utils.parse_bool(42) is True
+        assert utils.parse_bool(-1) is True
+
+        # Zero is falsy
+        assert utils.parse_bool(0) is False
+
+        # Non-empty list is truthy
+        assert utils.parse_bool([1, 2, 3]) is True
+
+        # Empty list is falsy
+        assert utils.parse_bool([]) is False
+
+
 class TestSetEndpoint:
     """Test class for set_endpoint function."""
 

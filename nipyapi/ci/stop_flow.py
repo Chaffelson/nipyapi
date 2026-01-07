@@ -1,4 +1,3 @@
-# pylint: disable=duplicate-code
 """
 stop_flow - stop a running process group.
 """
@@ -10,16 +9,6 @@ from typing import Optional
 import nipyapi
 
 log = logging.getLogger(__name__)
-
-
-def _env_bool(name, default=False):
-    """Parse a boolean from environment variable."""
-    value = os.environ.get(name, "").lower()
-    if value in ("true", "1", "yes"):
-        return True
-    if value in ("false", "0", "no"):
-        return False
-    return default
 
 
 def stop_flow(
@@ -56,9 +45,13 @@ def stop_flow(
         # Stop for deletion (also disable controllers)
         nipyapi ci stop_flow --process_group_id PG_ID --disable_controllers
     """
+    # Use parse_bool for CLI parameters (fire passes --flag=false as string "false")
+    # Use getenv_bool for environment variable fallbacks
     process_group_id = process_group_id or os.environ.get("NIFI_PROCESS_GROUP_ID")
     if disable_controllers is None:
-        disable_controllers = _env_bool("NIFI_DISABLE_CONTROLLERS", default=False)
+        disable_controllers = nipyapi.utils.getenv_bool("NIFI_DISABLE_CONTROLLERS", default=False)
+    else:
+        disable_controllers = nipyapi.utils.parse_bool(disable_controllers, default=False)
 
     if not process_group_id:
         raise ValueError("process_group_id is required (or set NIFI_PROCESS_GROUP_ID)")

@@ -13,44 +13,8 @@ from nipyapi import ci
 # Pure Logic Tests (no NiFi required)
 # =============================================================================
 
-
-class TestEnvBool:
-    """Test _env_bool helper function used by stop_flow and cleanup."""
-
-    def test_env_bool_true_values(self):
-        """Test that true-like values return True."""
-        from nipyapi.ci.stop_flow import _env_bool
-
-        with patch.dict(os.environ, {"TEST_VAR": "true"}):
-            assert _env_bool("TEST_VAR") is True
-        with patch.dict(os.environ, {"TEST_VAR": "1"}):
-            assert _env_bool("TEST_VAR") is True
-        with patch.dict(os.environ, {"TEST_VAR": "yes"}):
-            assert _env_bool("TEST_VAR") is True
-        with patch.dict(os.environ, {"TEST_VAR": "TRUE"}):
-            assert _env_bool("TEST_VAR") is True
-
-    def test_env_bool_false_values(self):
-        """Test that false-like values return False."""
-        from nipyapi.ci.stop_flow import _env_bool
-
-        with patch.dict(os.environ, {"TEST_VAR": "false"}):
-            assert _env_bool("TEST_VAR") is False
-        with patch.dict(os.environ, {"TEST_VAR": "0"}):
-            assert _env_bool("TEST_VAR") is False
-        with patch.dict(os.environ, {"TEST_VAR": "no"}):
-            assert _env_bool("TEST_VAR") is False
-
-    def test_env_bool_default(self):
-        """Test default value when env var not set."""
-        from nipyapi.ci.stop_flow import _env_bool
-
-        # Clear the var if it exists
-        env = os.environ.copy()
-        env.pop("NONEXISTENT_VAR", None)
-        with patch.dict(os.environ, env, clear=True):
-            assert _env_bool("NONEXISTENT_VAR", default=False) is False
-            assert _env_bool("NONEXISTENT_VAR", default=True) is True
+# Note: Tests for parse_bool and getenv_bool are in test_utils.py::TestParseBool
+# and test_utils.py::TestGetenvBool respectively.
 
 
 class TestMaskValue:
