@@ -178,19 +178,34 @@ def update_parameter_context(context):
     return get_parameter_context(context.id, identifier_type="id")
 
 
-def delete_parameter_context(context, refresh=True):
+def delete_parameter_context(context, refresh=True, greedy=True, identifier_type="auto"):
     """
     Removes a Parameter Context
 
     Args:
-        context (ParameterContextEntity): Parameter Context to be deleted
+        context (ParameterContextEntity or str): Parameter Context to be deleted,
+            as a ParameterContextEntity object, context ID, or context name.
         refresh (bool): Whether to refresh the Context before Deletion
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterContextEntity`: The removed Parameter Context
+
+    Raises:
+        TypeError: If context is not a string or ParameterContextEntity.
+        ValueError: If parameter context not found or multiple matches found.
     """
     enforce_min_ver("1.10.0")
-    assert isinstance(context, nipyapi.nifi.ParameterContextEntity)
+    context = nipyapi.utils.resolve_entity(
+        context,
+        get_parameter_context,
+        nipyapi.nifi.ParameterContextEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     handle = nipyapi.nifi.ParameterContextsApi()
     if refresh:
         context = handle.get_parameter_context(context.id)
@@ -218,51 +233,102 @@ def prepare_parameter(name, value, description=None, sensitive=False):
     return out
 
 
-def delete_parameter_from_context(context, parameter_name):
+def delete_parameter_from_context(context, parameter_name, greedy=True, identifier_type="auto"):
     """
     Delete a specific Parameter from a Parameter Context
+
     Args:
-        context (ParameterContextEntity): The Parameter Context to Update
+        context (ParameterContextEntity or str): The Parameter Context to Update,
+            as a ParameterContextEntity object, context ID, or context name.
         parameter_name (str): The Parameter to delete
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterContextEntity`: The updated Parameter Context
+
+    Raises:
+        TypeError: If context is not a string or ParameterContextEntity.
+        ValueError: If parameter context not found or multiple matches found.
     """
     enforce_min_ver("1.10.0")
+    context = nipyapi.utils.resolve_entity(
+        context,
+        get_parameter_context,
+        nipyapi.nifi.ParameterContextEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     context.component.parameters = [ParameterEntity(parameter=ParameterDTO(name=parameter_name))]
     return update_parameter_context(context=context)
 
 
-def upsert_parameter_to_context(context, parameter):
+def upsert_parameter_to_context(context, parameter, greedy=True, identifier_type="auto"):
     """
     Insert or Update Parameter within a Parameter Context
 
     Args:
-        context (ParameterContextEntity): The Parameter Context to Modify
-        parameter(ParameterEntity): The ParameterEntity to insert or update
+        context (ParameterContextEntity or str): The Parameter Context to Modify,
+            as a ParameterContextEntity object, context ID, or context name.
+        parameter (ParameterEntity): The ParameterEntity to insert or update
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterContextEntity`: The updated Parameter Context
+
+    Raises:
+        TypeError: If context is not a string or ParameterContextEntity.
+        ValueError: If parameter context not found or multiple matches found.
     """
     enforce_min_ver("1.10.0")
+    context = nipyapi.utils.resolve_entity(
+        context,
+        get_parameter_context,
+        nipyapi.nifi.ParameterContextEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     context.component.parameters = [parameter]
     return update_parameter_context(context=context)
 
 
-def assign_context_to_process_group(pg, context_id, cascade=False):
+def assign_context_to_process_group(
+    pg, context_id, cascade=False, greedy=True, identifier_type="auto"
+):
     """
     Assigns a given Parameter Context to a specific Process Group
     Optionally cascades down to direct children Process Groups
 
     Args:
-        pg (ProcessGroupEntity): The Process Group to target
+        pg (ProcessGroupEntity or str): The Process Group to target,
+            as a ProcessGroupEntity object, process group ID, or name.
         context_id (str): The ID of the Parameter Context
         cascade (bool): Cascade Parameter Context down to child Process Groups?
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated Process Group
+
+    Raises:
+        TypeError: If pg is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
     assert isinstance(context_id, str)
+    pg = nipyapi.utils.resolve_entity(
+        pg,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     if cascade:
         # Update the specified Process Group & all children
         child_pgs = nipyapi.canvas.list_all_process_groups(pg_id=pg.id)
@@ -275,16 +341,32 @@ def assign_context_to_process_group(pg, context_id, cascade=False):
     )
 
 
-def remove_context_from_process_group(pg):
+def remove_context_from_process_group(pg, greedy=True, identifier_type="auto"):
     """
     Clears any Parameter Context from the given Process Group
 
     Args:
-        pg (ProcessGroupEntity): The Process Group to target
+        pg (ProcessGroupEntity or str): The Process Group to target,
+            as a ProcessGroupEntity object, process group ID, or name.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         :class:`~nipyapi.nifi.models.ProcessGroupEntity`: The updated Process Group
+
+    Raises:
+        TypeError: If pg is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
+    pg = nipyapi.utils.resolve_entity(
+        pg,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     return nipyapi.canvas.update_process_group(pg=pg, update={"parameter_context": {"id": None}})
 
 

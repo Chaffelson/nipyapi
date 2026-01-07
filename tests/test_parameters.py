@@ -94,6 +94,18 @@ def test_delete_parameter_context(fix_context):
     with pytest.raises(ApiException):
         _ = parameters.delete_parameter_context(c1)
 
+    # Test deletion by ID string
+    c2 = fix_context.generate(name=conftest.test_parameter_context_name + '_id_delete')
+    r2 = parameters.delete_parameter_context(c2.id)
+    assert r2.id == c2.id
+
+    # Test deletion by name string
+    c3 = fix_context.generate(name=conftest.test_parameter_context_name + '_name_delete')
+    r3 = parameters.delete_parameter_context(
+        c3.component.name, identifier_type="name", greedy=False
+    )
+    assert r3.id == c3.id
+
 
 def test_update_parameter_context(fix_context):
     if check_version('1.10.0') > 0:
@@ -149,6 +161,12 @@ def test_assign_context_to_process_group(fix_pg, fix_context):
     pg1 = fix_pg.generate()
     r1 = parameters.assign_context_to_process_group(pg1, c1.id)
     assert r1.component.parameter_context.id == c1.id
+
+    # Test with pg as ID string
+    c2 = fix_context.generate(name=conftest.test_parameter_context_name + '_assign_id')
+    pg2 = fix_pg.generate(suffix='_assign_id')
+    r2 = parameters.assign_context_to_process_group(pg2.id, c2.id)
+    assert r2.component.parameter_context.id == c2.id
 
 
 def test_remove_context_from_process_group(fix_pg, fix_context):

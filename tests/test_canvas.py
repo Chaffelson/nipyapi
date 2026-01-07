@@ -139,7 +139,8 @@ def test_create_process_group_invalid_type():
             new_pg_name="should_fail",
             location=(0, 0)
         )
-    assert "must be a string ID or ProcessGroupEntity" in str(exc_info.value)
+    # Error from resolve_entity for wrong type
+    assert "ProcessGroupEntity" in str(exc_info.value)
     assert "int" in str(exc_info.value)
 
 
@@ -177,6 +178,18 @@ def test_delete_process_group(fix_pg, fix_proc):
     )
     assert r2.status is None
 
+    # Test passing ID string instead of object
+    pg_3 = fix_pg.generate()
+    r3 = canvas.delete_process_group(pg_3.id)
+    assert r3.id == pg_3.id
+    assert r3.status is None
+
+    # Test passing name string instead of object - use unique suffix to avoid conflicts
+    pg_4 = fix_pg.generate(suffix='_delete_name_test')
+    pg_4_name = pg_4.component.name
+    r4 = canvas.delete_process_group(pg_4_name, identifier_type="name", greedy=False)
+    assert r4.id == pg_4.id
+
 
 def test_schedule_process_group(fix_proc, fix_pg):
     f_pg = fix_pg.generate()
@@ -196,7 +209,8 @@ def test_schedule_process_group(fix_proc, fix_pg):
     status = canvas.get_process_group(f_pg.id, 'id')
     assert status.running_count == 0
     assert status.stopped_count == 1
-    with pytest.raises(AssertionError):
+    # Test invalid scheduled value - now raises ValueError
+    with pytest.raises(ValueError):
         _ = canvas.schedule_process_group(
             f_pg.id,
             'BANANA'
@@ -205,6 +219,7 @@ def test_schedule_process_group(fix_proc, fix_pg):
 
 def test_update_process_group(fix_pg):
     f_pg1 = fix_pg.generate()
+    # Test updating comments
     r1 = canvas.update_process_group(
         f_pg1,
         {
@@ -213,6 +228,14 @@ def test_update_process_group(fix_pg):
     )
     assert isinstance(r1, nifi.ProcessGroupEntity)
     assert r1.component.comments == 'test comment'
+
+    # Test renaming via update dict
+    new_name = f_pg1.component.name + '_renamed'
+    r2 = canvas.update_process_group(
+        r1,
+        {'name': new_name}
+    )
+    assert r2.component.name == new_name
 
 
 def test_list_all_processor_types():
@@ -368,6 +391,92 @@ def test_schedule_processor(fix_proc):
     # Test invalid value raises ValueError
     with pytest.raises(ValueError, match="scheduled must be bool or one of"):
         _ = canvas.schedule_processor(f_p1, 'BANANA')
+
+
+def test_schedule_port(fix_proc):
+    """Test schedule_port for input and output ports."""
+    # NiFi requires ports to have connections before they can be started
+    # Create: input_port -> processor -> output_port at root level
+    root_pg_id = canvas.get_root_pg_id()
+
+    f_input_port = canvas.create_port(
+        pg_id=root_pg_id,
+        port_type='INPUT_PORT',
+        name=conftest.test_basename + 'schedule_input_port',
+        state='STOPPED'
+    )
+    assert isinstance(f_input_port, nifi.PortEntity)
+
+    f_output_port = canvas.create_port(
+        pg_id=root_pg_id,
+        port_type='OUTPUT_PORT',
+        name=conftest.test_basename + 'schedule_output_port',
+        state='STOPPED'
+    )
+    assert isinstance(f_output_port, nifi.PortEntity)
+
+    # Create processor to connect between ports
+    f_proc = fix_proc.generate()
+
+    # Connect: input_port -> processor -> output_port
+    conn1 = canvas.create_connection(f_input_port, f_proc)
+    assert conn1 is not None
+    conn2 = canvas.create_connection(f_proc, f_output_port, ['success'])
+    assert conn2 is not None
+
+    try:
+        # Test bool True -> RUNNING (input port)
+        r1 = canvas.schedule_port(f_input_port, True)
+        assert r1 is True
+        port_info = canvas.get_port(f_input_port.id, "id")
+        assert port_info.component.state == 'RUNNING'
+
+        # Test bool False -> STOPPED
+        r2 = canvas.schedule_port(f_input_port, False)
+        assert r2 is True
+        port_info = canvas.get_port(f_input_port.id, "id")
+        assert port_info.component.state == 'STOPPED'
+
+        # Test with port ID string instead of object
+        r3 = canvas.schedule_port(f_input_port.id, "RUNNING")
+        assert r3 is True
+        assert canvas.get_port(f_input_port.id, "id").component.state == 'RUNNING'
+
+        # Test string "STOPPED"
+        r4 = canvas.schedule_port(f_input_port, "STOPPED")
+        assert r4 is True
+        assert canvas.get_port(f_input_port.id, "id").component.state == 'STOPPED'
+
+        # Test DISABLED - prevents port from being started
+        r5 = canvas.schedule_port(f_input_port, "DISABLED")
+        assert r5 is True
+        assert canvas.get_port(f_input_port.id, "id").component.state == 'DISABLED'
+
+        # Re-enable (stop) to allow cleanup
+        r6 = canvas.schedule_port(f_input_port, "STOPPED")
+        assert r6 is True
+
+        # Test invalid value raises ValueError
+        with pytest.raises(ValueError, match="scheduled must be bool or one of"):
+            _ = canvas.schedule_port(f_input_port, 'BANANA')
+
+        # Test output port scheduling
+        r7 = canvas.schedule_port(f_output_port, True)
+        assert r7 is True
+        assert canvas.get_port(f_output_port.id, "id").component.state == 'RUNNING'
+
+        r8 = canvas.schedule_port(f_output_port, False)
+        assert r8 is True
+        assert canvas.get_port(f_output_port.id, "id").component.state == 'STOPPED'
+
+    finally:
+        # Cleanup - stop ports, delete connections, then delete ports
+        canvas.schedule_port(f_input_port.id, "STOPPED")
+        canvas.schedule_port(f_output_port.id, "STOPPED")
+        canvas.delete_connection(conn1, purge=True)
+        canvas.delete_connection(conn2, purge=True)
+        canvas.delete_port(canvas.get_port(f_input_port.id, "id"))
+        canvas.delete_port(canvas.get_port(f_output_port.id, "id"))
 
 
 def test_delete_processor(fix_proc):
@@ -730,14 +839,38 @@ def test_get_controller(fix_pg, fix_cont):
 def test_schedule_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
-    with pytest.raises(AssertionError):
-        _ = canvas.schedule_controller('pie', False)
-    with pytest.raises(AssertionError):
+    # Test invalid controller identifier (not found)
+    with pytest.raises(ValueError, match="Not found"):
+        _ = canvas.schedule_controller('nonexistent_controller_12345', False)
+    # Test invalid scheduled value
+    with pytest.raises(ValueError):
         _ = canvas.schedule_controller(f_c1, 'pie')
+
+    # Test bool True -> ENABLED
     r1 = canvas.schedule_controller(f_c1, True)
     assert r1.component.state == 'ENABLED'
+
+    # Test bool False -> DISABLED
     r2 = canvas.schedule_controller(r1, False)
     assert r2.component.state == 'DISABLED'
+
+    # Test string "ENABLED"
+    r3 = canvas.schedule_controller(r2, "ENABLED")
+    assert r3.component.state == 'ENABLED'
+
+    # Test string "DISABLED"
+    r4 = canvas.schedule_controller(r3, "DISABLED")
+    assert r4.component.state == 'DISABLED'
+
+    # Test passing ID string instead of object
+    r5 = canvas.schedule_controller(r4.id, True)
+    assert r5.component.state == 'ENABLED'
+
+    # Test passing name string instead of object
+    r6 = canvas.schedule_controller(
+        r5.component.name, False, identifier_type="name", greedy=False
+    )
+    assert r6.component.state == 'DISABLED'
 
 
 def test_schedule_all_controllers(fix_pg, fix_cont):
@@ -747,22 +880,40 @@ def test_schedule_all_controllers(fix_pg, fix_cont):
     # Verify both start disabled
     assert f_c1.component.state == 'DISABLED'
     assert f_c2.component.state == 'DISABLED'
-    # Enable all
+
+    # Test invalid inputs
     with pytest.raises(AssertionError):
         _ = canvas.schedule_all_controllers(123, True)
-    with pytest.raises(AssertionError):
+    with pytest.raises(ValueError):
         _ = canvas.schedule_all_controllers(f_pg.id, 'pie')
+
+    # Test bool True -> ENABLED
     r1 = canvas.schedule_all_controllers(f_pg.id, True)
     assert r1.state == 'ENABLED'
-    # Verify controllers are enabled
     c1 = canvas.get_controller(f_c1.id, 'id')
     c2 = canvas.get_controller(f_c2.id, 'id')
     assert c1.component.state == 'ENABLED'
     assert c2.component.state == 'ENABLED'
-    # Disable all
+
+    # Test bool False -> DISABLED
     r2 = canvas.schedule_all_controllers(f_pg.id, False)
     assert r2.state == 'DISABLED'
-    # Verify controllers are disabled
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'DISABLED'
+    assert c2.component.state == 'DISABLED'
+
+    # Test string "ENABLED"
+    r3 = canvas.schedule_all_controllers(f_pg.id, "ENABLED")
+    assert r3.state == 'ENABLED'
+    c1 = canvas.get_controller(f_c1.id, 'id')
+    c2 = canvas.get_controller(f_c2.id, 'id')
+    assert c1.component.state == 'ENABLED'
+    assert c2.component.state == 'ENABLED'
+
+    # Test string "DISABLED"
+    r4 = canvas.schedule_all_controllers(f_pg.id, "DISABLED")
+    assert r4.state == 'DISABLED'
     c1 = canvas.get_controller(f_c1.id, 'id')
     c2 = canvas.get_controller(f_c2.id, 'id')
     assert c1.component.state == 'DISABLED'
@@ -873,6 +1024,65 @@ def test_connect_output_ports(fix_pg):
         name=conftest.test_basename
     )
     assert isinstance(r1, nifi.ConnectionEntity)
+
+
+def test_get_port():
+    """Test get_port for input and output ports."""
+    root_pg_id = canvas.get_root_pg_id()
+
+    # Create test ports
+    f_input_port = canvas.create_port(
+        pg_id=root_pg_id,
+        port_type='INPUT_PORT',
+        name=conftest.test_basename + 'get_input_port',
+        state='STOPPED'
+    )
+    f_output_port = canvas.create_port(
+        pg_id=root_pg_id,
+        port_type='OUTPUT_PORT',
+        name=conftest.test_basename + 'get_output_port',
+        state='STOPPED'
+    )
+
+    try:
+        # Test get by ID - input port
+        result = canvas.get_port(f_input_port.id, "id")
+        assert isinstance(result, nifi.PortEntity)
+        assert result.id == f_input_port.id
+        assert "INPUT" in result.port_type
+
+        # Test get by ID - output port
+        result = canvas.get_port(f_output_port.id, "id")
+        assert isinstance(result, nifi.PortEntity)
+        assert result.id == f_output_port.id
+        assert "OUTPUT" in result.port_type
+
+        # Test get by name - input port
+        result = canvas.get_port(conftest.test_basename + 'get_input_port', "name")
+        assert isinstance(result, nifi.PortEntity)
+        assert result.id == f_input_port.id
+
+        # Test get by name - output port
+        result = canvas.get_port(conftest.test_basename + 'get_output_port', "name")
+        assert isinstance(result, nifi.PortEntity)
+        assert result.id == f_output_port.id
+
+        # Test not found by ID
+        with pytest.raises(ValueError, match="Port not found"):
+            canvas.get_port("nonexistent-id-12345", "id")
+
+        # Test not found by name returns None
+        result = canvas.get_port("nonexistent_port_name", "name")
+        assert result is None
+
+        # Test invalid identifier_type
+        with pytest.raises(ValueError, match="identifier_type must be"):
+            canvas.get_port(f_input_port.id, "invalid")
+
+    finally:
+        # Cleanup
+        canvas.delete_port(canvas.get_port(f_input_port.id, "id"))
+        canvas.delete_port(canvas.get_port(f_output_port.id, "id"))
 
 
 def test_create_funnel(fix_funnel):

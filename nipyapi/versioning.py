@@ -170,18 +170,33 @@ def create_registry_client(  # pylint: disable=too-many-arguments,too-many-posit
     return controller
 
 
-def delete_registry_client(client, refresh=True):
+def delete_registry_client(client, refresh=True, greedy=True, identifier_type="auto"):
     """
     Deletes a Registry Client from the list of NiFI Controller Services
 
     Args:
-        client (FlowRegistryClientEntity): The client to delete
+        client (FlowRegistryClientEntity or str): The client to delete,
+            as a FlowRegistryClientEntity object, client ID, or client name.
         refresh (bool): Whether to refresh the object before action
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         (FlowRegistryClientEntity): The updated client object
+
+    Raises:
+        TypeError: If client is not a string or FlowRegistryClientEntity.
+        ValueError: If registry client not found or multiple matches found.
     """
-    assert isinstance(client, nipyapi.nifi.FlowRegistryClientEntity)
+    client = nipyapi.utils.resolve_entity(
+        client,
+        get_registry_client,
+        nipyapi.nifi.FlowRegistryClientEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     with nipyapi.utils.rest_exceptions():
         if refresh:
             target = nipyapi.nifi.ControllerApi().get_flow_registry_client(client.id)
@@ -192,7 +207,9 @@ def delete_registry_client(client, refresh=True):
         )
 
 
-def update_registry_client(client, properties=None, description=None, refresh=True):
+def update_registry_client(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    client, properties=None, description=None, refresh=True, greedy=True, identifier_type="auto"
+):
     """
     Updates an existing Registry Client's configuration.
 
@@ -201,14 +218,22 @@ def update_registry_client(client, properties=None, description=None, refresh=Tr
     if provided, since existing values cannot be inspected for comparison.
 
     Args:
-        client (FlowRegistryClientEntity): The client to update
+        client (FlowRegistryClientEntity or str): The client to update,
+            as a FlowRegistryClientEntity object, client ID, or client name.
         properties (dict, optional): Properties to update. Merged with existing.
         description (str, optional): New description. If None, keeps existing.
         refresh (bool): Whether to refresh the object before action to get
             current revision. Defaults to True.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         (FlowRegistryClientEntity): The updated client object
+
+    Raises:
+        TypeError: If client is not a string or FlowRegistryClientEntity.
+        ValueError: If registry client not found or multiple matches found.
 
     Example::
 
@@ -218,7 +243,14 @@ def update_registry_client(client, properties=None, description=None, refresh=Tr
         ...     properties={'Default Branch': 'feature-branch'}
         ... )
     """
-    assert isinstance(client, nipyapi.nifi.FlowRegistryClientEntity)
+    client = nipyapi.utils.resolve_entity(
+        client,
+        get_registry_client,
+        nipyapi.nifi.FlowRegistryClientEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
 
     with nipyapi.utils.rest_exceptions():
         # Refresh to get current revision and properties
@@ -715,7 +747,9 @@ def deploy_git_registry_flow(
         return nipyapi.nifi.ProcessGroupsApi().create_process_group(**api_kwargs)
 
 
-def update_git_flow_ver(process_group, target_version=None, branch=None):
+def update_git_flow_ver(
+    process_group, target_version=None, branch=None, greedy=True, identifier_type="auto"
+):
     """
     Changes a Git-registry versioned flow to the specified version.
 
@@ -723,20 +757,24 @@ def update_git_flow_ver(process_group, target_version=None, branch=None):
     where versions are identified by commit SHAs rather than integer version numbers.
 
     Args:
-        process_group (ProcessGroupEntity): ProcessGroupEntity under Git-based
-            version control to change.
+        process_group (ProcessGroupEntity or str): ProcessGroupEntity under Git-based
+            version control to change, as an object, ID, or name.
         target_version (str, optional): The commit SHA to change to. If None,
             changes to the latest available version.
         branch (str, optional): The branch to use when finding versions. If None,
             uses the branch from the current version control information.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         VersionedFlowUpdateRequestEntity: The completed update request with
             status information.
 
     Raises:
-        ValueError: If the process group is not under version control, if the
-            target version is not found, or if the update fails.
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, is not
+            under version control, target version is not found, or update fails.
 
     Example::
 
@@ -746,6 +784,14 @@ def update_git_flow_ver(process_group, target_version=None, branch=None):
         >>> # Change to latest version
         >>> result = nipyapi.versioning.update_git_flow_ver(pg)
     """
+    process_group = nipyapi.utils.resolve_entity(
+        process_group,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
 
     def _running_update_flow_version():
         """Tests for completion of the version update operation."""
@@ -840,7 +886,7 @@ def update_git_flow_ver(process_group, target_version=None, branch=None):
 
 # pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
 # pylint: disable=too-many-branches
-def save_git_flow_ver(
+def save_git_flow_ver(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     process_group,
     registry_client=None,
     bucket=None,
@@ -849,6 +895,8 @@ def save_git_flow_ver(
     desc="",
     force=False,
     refresh=True,
+    greedy=True,
+    identifier_type="auto",
 ):
     """
     Saves a process group to a Git-based Flow Registry.
@@ -863,7 +911,7 @@ def save_git_flow_ver(
 
     Args:
         process_group (ProcessGroupEntity or str): The ProcessGroup to save,
-            or its ID as a string.
+            as a ProcessGroupEntity object, process group ID, or name.
         registry_client (FlowRegistryClientEntity or str, optional): The Git
             registry client, or its name/ID. Required for initial commit.
         bucket (str, optional): The bucket/folder name in the Git registry.
@@ -874,13 +922,18 @@ def save_git_flow_ver(
         desc (str): Description for the flow (initial commit only).
         force (bool): If True, use FORCE_COMMIT to ignore merge conflicts.
         refresh (bool): Whether to refresh the process group before saving.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         VersionControlInformationEntity: The version control information
             after the commit.
 
     Raises:
-        ValueError: If required parameters are missing or objects not found.
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, or
+            required parameters are missing.
 
     Example::
 
@@ -893,15 +946,17 @@ def save_git_flow_ver(
         >>> # Subsequent commit - save new version
         >>> result = nipyapi.versioning.save_git_flow_ver(pg, comment='Fixed bug')
     """
-    # Resolve process group if string ID provided
-    if isinstance(process_group, str):
-        target_pg = nipyapi.canvas.get_process_group(process_group, "id")
-        if not target_pg:
-            raise ValueError(f"Process group not found: {process_group}")
-    elif refresh:
-        target_pg = nipyapi.canvas.get_process_group(process_group.id, "id")
-    else:
-        target_pg = process_group
+    # Resolve process group
+    target_pg = nipyapi.utils.resolve_entity(
+        process_group,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
+    if refresh:
+        target_pg = nipyapi.canvas.get_process_group(target_pg.id, "id")
 
     # Check if already under version control
     vci = target_pg.component.version_control_information
@@ -985,7 +1040,7 @@ def save_git_flow_ver(
         )
 
 
-def get_local_modifications(process_group):
+def get_local_modifications(process_group, greedy=True, identifier_type="auto"):
     """
     Get local modifications to a versioned process group.
 
@@ -999,7 +1054,10 @@ def get_local_modifications(process_group):
 
     Args:
         process_group (ProcessGroupEntity or str): The versioned ProcessGroup,
-            or its ID as a string.
+            as a ProcessGroupEntity object, process group ID, or name.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         FlowComparisonEntity: The comparison result containing:
@@ -1009,7 +1067,9 @@ def get_local_modifications(process_group):
               difference description)
 
     Raises:
-        ValueError: If the process group is not found or not under version control.
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, or
+            not under version control.
 
     Example::
 
@@ -1018,15 +1078,15 @@ def get_local_modifications(process_group):
         >>> for component in diff.component_differences:
         ...     print(f"{component.component_name}: {len(component.differences)} changes")
     """
-    # Resolve process group if string ID provided
-    if isinstance(process_group, str):
-        target_pg = nipyapi.canvas.get_process_group(process_group, "id")
-        if not target_pg:
-            raise ValueError(f"Process group not found: {process_group}")
-        pg_id = process_group
-    else:
-        target_pg = process_group
-        pg_id = process_group.id
+    target_pg = nipyapi.utils.resolve_entity(
+        process_group,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
+    pg_id = target_pg.id
 
     # Check if under version control
     vci = target_pg.component.version_control_information
@@ -1201,17 +1261,33 @@ def save_flow_ver(
     )
 
 
-def stop_flow_ver(process_group, refresh=True):
+def stop_flow_ver(process_group, refresh=True, greedy=True, identifier_type="auto"):
     """
     Removes a Process Group from Version Control
 
     Args:
-        process_group (ProcessGroupEntity): the ProcessGroup to work with
+        process_group (ProcessGroupEntity or str): the ProcessGroup to work with,
+            as a ProcessGroupEntity object, process group ID, or name.
         refresh (bool): Whether to refresh the object status before actioning
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
+
+    Raises:
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
+    process_group = nipyapi.utils.resolve_entity(
+        process_group,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     with nipyapi.utils.rest_exceptions():
         if refresh:
             target_pg = nipyapi.canvas.get_process_group(process_group.id, "id")
@@ -1222,17 +1298,21 @@ def stop_flow_ver(process_group, refresh=True):
         )
 
 
-def revert_flow_ver(process_group, wait=False):
+def revert_flow_ver(process_group, wait=False, greedy=True, identifier_type="auto"):
     """
     Attempts to roll back uncommitted changes to a Process Group to the last
     committed version.
 
     Args:
-        process_group (ProcessGroupEntity): the ProcessGroup to work with
+        process_group (ProcessGroupEntity or str): the ProcessGroup to work with,
+            as a ProcessGroupEntity object, process group ID, or name.
         wait (bool): If True, waits for the revert operation to complete and
             returns the final VersionControlInformationEntity. If False
             (default), returns immediately with the request entity for
             backward compatibility.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         If wait=False: (VersionedFlowUpdateRequestEntity) - the initiated request
@@ -1240,9 +1320,18 @@ def revert_flow_ver(process_group, wait=False):
             revert completes
 
     Raises:
-        ValueError: If wait=True and the revert operation fails or times out
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found, multiple matches found, or
+            (when wait=True) the revert operation fails or times out.
     """
-    assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
+    process_group = nipyapi.utils.resolve_entity(
+        process_group,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
 
     with nipyapi.utils.rest_exceptions():
         # Get version control info - includes current process_group_revision
@@ -1331,17 +1420,32 @@ def get_latest_flow_ver(bucket_id, flow_id):
     return nipyapi.nifi_registry.get_latest_flow_ver(bucket_id, flow_id)
 
 
-def get_version_info(process_group):
+def get_version_info(process_group, greedy=True, identifier_type="auto"):
     """
     Gets the Version Control information for a particular Process Group
 
     Args:
-        process_group (ProcessGroupEntity): the ProcessGroup to work with
+        process_group (ProcessGroupEntity or str): the ProcessGroup to work with,
+            as a ProcessGroupEntity object, process group ID, or name.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         :class:`~nipyapi.nifi.models.VersionControlInformationEntity`
+
+    Raises:
+        TypeError: If process_group is not a string or ProcessGroupEntity.
+        ValueError: If process group not found or multiple matches found.
     """
-    assert isinstance(process_group, nipyapi.nifi.ProcessGroupEntity)
+    process_group = nipyapi.utils.resolve_entity(
+        process_group,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     with nipyapi.utils.rest_exceptions():
         return nipyapi.nifi.VersionsApi().get_version_information(process_group.id)
 
@@ -1547,22 +1651,37 @@ def export_process_group_definition(
         return export_str
 
 
-def import_process_group_definition(parent_pg, flow_definition=None, file_path=None, position=None):
+def import_process_group_definition(
+    parent_pg,
+    flow_definition=None,
+    file_path=None,
+    position=None,
+    greedy=True,
+    identifier_type="auto",
+):
     """
     Import a flow definition as a new process group (NiFi 2.x format).
     Does NOT require NiFi Registry - imports from flow definition JSON/YAML.
 
     Args:
-        parent_pg (ProcessGroupEntity): Parent process group to import into
+        parent_pg (ProcessGroupEntity or str): Parent process group to import into,
+            as a ProcessGroupEntity object, process group ID, or name.
         flow_definition (str, optional): Flow definition as JSON or YAML string.
             Either this or file_path must be provided, but not both
         file_path (str, optional): Path to flow definition file to import.
             Either this or flow_definition must be provided, but not both
         position (tuple, optional): (x, y) coordinates for the new process group.
             Defaults to (0, 0)
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         ProcessGroupEntity: The newly imported process group
+
+    Raises:
+        TypeError: If parent_pg is not a string or ProcessGroupEntity.
+        ValueError: If parent process group not found or multiple matches found.
 
     Example::
 
@@ -1575,9 +1694,14 @@ def import_process_group_definition(parent_pg, flow_definition=None, file_path=N
         ...     position=(100, 100)
         ... )
     """
-    assert isinstance(
-        parent_pg, nipyapi.nifi.ProcessGroupEntity
-    ), "parent_pg must be a ProcessGroupEntity"
+    parent_pg = nipyapi.utils.resolve_entity(
+        parent_pg,
+        nipyapi.canvas.get_process_group,
+        nipyapi.nifi.ProcessGroupEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
     assert (flow_definition is None) != (
         file_path is None
     ), "Exactly one of flow_definition or file_path must be provided"
