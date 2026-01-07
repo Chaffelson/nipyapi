@@ -2153,6 +2153,12 @@ def schedule_all_controllers(pg_id, scheduled):
     all descendant controller services automatically. Waits for all controllers
     to reach the target state before returning.
 
+    Note:
+        When enabling, INVALID controllers (those with validation errors) are
+        skipped since NiFi cannot enable them. The function waits only for
+        VALID controllers to reach ENABLED state. When disabling, all
+        controllers are included since any controller can be disabled.
+
     Args:
         pg_id (str): The UUID of the Process Group
         scheduled (bool or str): True/False for ENABLED/DISABLED, or one of
@@ -2176,7 +2182,15 @@ def schedule_all_controllers(pg_id, scheduled):
         controllers = list_all_controllers(pg_id)
         if not controllers:
             return True  # No controllers to wait for
-        return all(c.component.state == target_state for c in controllers)
+        # When enabling, only wait for VALID controllers (server skips INVALID ones)
+        # When disabling, all controllers can be disabled regardless of validation
+        if target_state == "ENABLED":
+            eligible = [c for c in controllers if c.component.validation_status == "VALID"]
+        else:
+            eligible = controllers
+        if not eligible:
+            return True  # No eligible controllers to wait for
+        return all(c.component.state == target_state for c in eligible)
 
     with nipyapi.utils.rest_exceptions():
         result = nipyapi.nifi.FlowApi().activate_controller_services(
