@@ -920,6 +920,41 @@ def test_schedule_all_controllers(fix_pg, fix_cont):
     assert c2.component.state == 'DISABLED'
 
 
+def test_schedule_all_controllers_with_invalid(fix_pg, fix_cont):
+    """Test schedule_all_controllers skips INVALID controllers when enabling.
+
+    NiFi server correctly skips INVALID controllers (they can't be enabled).
+    The client should only wait for VALID controllers to reach ENABLED state.
+    """
+    f_pg = fix_pg.generate()
+    # Create valid controller via fixture
+    valid_ctrl = fix_cont(parent_pg=f_pg, kind='CSVReader')
+    # Create invalid controller (SSLContextService requires keystore config)
+    invalid_ctrl = fix_cont(parent_pg=f_pg, kind='StandardSSLContextService')
+
+    # Verify preconditions
+    valid_ctrl = canvas.get_controller(valid_ctrl.id, 'id')
+    invalid_ctrl = canvas.get_controller(invalid_ctrl.id, 'id')
+    assert valid_ctrl.component.validation_status == 'VALID'
+    assert invalid_ctrl.component.validation_status == 'INVALID'
+
+    # Enable all - should complete without timeout
+    result = canvas.schedule_all_controllers(f_pg.id, True)
+    assert result.state == 'ENABLED'
+
+    # Valid controller should be ENABLED, invalid stays DISABLED
+    valid_ctrl = canvas.get_controller(valid_ctrl.id, 'id')
+    invalid_ctrl = canvas.get_controller(invalid_ctrl.id, 'id')
+    assert valid_ctrl.component.state == 'ENABLED'
+    assert invalid_ctrl.component.state == 'DISABLED'
+
+    # Disable all - should also work
+    result = canvas.schedule_all_controllers(f_pg.id, False)
+    assert result.state == 'DISABLED'
+    valid_ctrl = canvas.get_controller(valid_ctrl.id, 'id')
+    assert valid_ctrl.component.state == 'DISABLED'
+
+
 def test_delete_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
