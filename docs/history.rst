@@ -2,6 +2,49 @@
 History
 =======
 
+1.3.0 (2026-01-08)
+-------------------
+
+| Entity resolution and scheduling improvements - Consistent API patterns across canvas, versioning, and parameters modules
+
+**Entity Resolution** (``nipyapi.utils``)
+
+- **resolve_entity()**: New utility for consistent entity resolution - accepts object, ID, or name across 31 refactored functions
+- **resolve_schedule_state()**: Standardized bool/string to state normalization for scheduling functions
+- **parse_bool()**: Extracted utility for CLI boolean parameter handling (fixes ``--flag=false`` being truthy)
+
+**Canvas Module Enhancements**
+
+- **Port scheduling**: New ``get_port()`` and ``schedule_port()`` functions for input/output port management
+- **String state scheduling**: ``schedule_controller()`` and ``schedule_all_controllers()`` now accept string states ('ENABLED', 'DISABLED') in addition to bool
+- **INVALID controller fix**: ``schedule_all_controllers()`` now correctly skips INVALID controllers when enabling, avoiding 30-second timeouts
+- **create_controller()**: Fixed to set component name in initial creation request (was returning stale object)
+- **Flexible entity input**: 17 canvas functions now accept object, ID, or name via ``resolve_entity()``
+- **get_controller()**: Added ``greedy`` parameter for name matching control
+- **Optional location**: ``create_process_group()`` and ``create_funnel()`` no longer require location parameter
+
+**Versioning Module Enhancements**
+
+- **Flexible entity input**: 9 versioning functions now accept object, ID, or name via ``resolve_entity()``
+
+**Parameters Module Enhancements**
+
+- **Flexible entity input**: 5 parameters functions now accept object, ID, or name via ``resolve_entity()``
+
+**Deprecations**
+
+- Removed deprecated ``get_variable_registry()`` and ``update_variable_registry()`` (use parameter contexts)
+
+**Breaking Changes**
+
+- Invalid ``scheduled`` values now raise ``ValueError`` instead of ``AssertionError`` (more appropriate exception type)
+
+**Infrastructure**
+
+- Consolidated ``_run_verification_request()`` helper for controller verification pattern
+- Added ``PortEntity`` to ``config.py`` registered_filters for ``filter_obj`` support
+- Updated contributing guide with CLI boolean parameter handling examples
+
 1.2.0 (2025-12-31)
 -------------------
 
