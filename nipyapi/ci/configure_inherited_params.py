@@ -65,16 +65,17 @@ def configure_inherited_params(
     parameters = parameters or os.environ.get("NIFI_PARAMETERS")
     parameters_file = parameters_file or os.environ.get("NIFI_PARAMETERS_FILE")
 
-    # Parse boolean env vars
-    if isinstance(dry_run, str):
-        dry_run = dry_run.lower() in ("true", "1", "yes")
-    if os.environ.get("NIFI_DRY_RUN", "").lower() in ("true", "1", "yes"):
-        dry_run = True
+    # Parse boolean parameters using parse_bool (handles CLI --flag=false as string "false")
+    # Environment variables can override CLI defaults
+    dry_run = nipyapi.utils.parse_bool(dry_run, default=False)
+    env_dry_run = nipyapi.utils.getenv_bool("NIFI_DRY_RUN", default=None)
+    if env_dry_run is not None:
+        dry_run = env_dry_run
 
-    if isinstance(allow_override, str):
-        allow_override = allow_override.lower() in ("true", "1", "yes")
-    if os.environ.get("NIFI_ALLOW_OVERRIDE", "").lower() in ("true", "1", "yes"):
-        allow_override = True
+    allow_override = nipyapi.utils.parse_bool(allow_override, default=False)
+    env_allow_override = nipyapi.utils.getenv_bool("NIFI_ALLOW_OVERRIDE", default=None)
+    if env_allow_override is not None:
+        allow_override = env_allow_override
 
     if not process_group_id:
         raise ValueError("process_group_id is required (or set NIFI_PROCESS_GROUP_ID)")

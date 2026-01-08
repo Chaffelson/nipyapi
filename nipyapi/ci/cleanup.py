@@ -1,4 +1,4 @@
-# pylint: disable=broad-exception-caught,duplicate-code
+# pylint: disable=broad-exception-caught
 """
 cleanup - stop and delete a deployed process group.
 """
@@ -10,16 +10,6 @@ from typing import Optional
 import nipyapi
 
 log = logging.getLogger(__name__)
-
-
-def _env_bool(name, default=False):
-    """Parse a boolean from environment variable."""
-    value = os.environ.get(name, "").lower()
-    if value in ("true", "1", "yes"):
-        return True
-    if value in ("false", "0", "no"):
-        return False
-    return default
 
 
 # pylint: disable=too-many-arguments,too-many-positional-arguments
@@ -81,17 +71,33 @@ def cleanup(
         NIFI_DELETE_PARAMETER_CONTEXT=true NIFI_FORCE_DELETE=true nipyapi ci cleanup
     """
     # Resolve from env vars with safe defaults
+    # Use parse_bool for CLI parameters (fire passes --flag=false as string "false")
+    # Use getenv_bool for environment variable fallbacks
     process_group_id = process_group_id or os.environ.get("NIFI_PROCESS_GROUP_ID")
     if stop_only is None:
-        stop_only = _env_bool("NIFI_STOP_ONLY", default=False)
+        stop_only = nipyapi.utils.getenv_bool("NIFI_STOP_ONLY", default=False)
+    else:
+        stop_only = nipyapi.utils.parse_bool(stop_only, default=False)
     if force is None:
-        force = _env_bool("NIFI_FORCE_DELETE", default=False)
+        force = nipyapi.utils.getenv_bool("NIFI_FORCE_DELETE", default=False)
+    else:
+        force = nipyapi.utils.parse_bool(force, default=False)
     if delete_parameter_context is None:
-        delete_parameter_context = _env_bool("NIFI_DELETE_PARAMETER_CONTEXT", default=False)
+        delete_parameter_context = nipyapi.utils.getenv_bool(
+            "NIFI_DELETE_PARAMETER_CONTEXT", default=False
+        )
+    else:
+        delete_parameter_context = nipyapi.utils.parse_bool(delete_parameter_context, default=False)
     if delete_orphaned_contexts is None:
-        delete_orphaned_contexts = _env_bool("NIFI_DELETE_ORPHANED_CONTEXTS", default=False)
+        delete_orphaned_contexts = nipyapi.utils.getenv_bool(
+            "NIFI_DELETE_ORPHANED_CONTEXTS", default=False
+        )
+    else:
+        delete_orphaned_contexts = nipyapi.utils.parse_bool(delete_orphaned_contexts, default=False)
     if disable_controllers is None:
-        disable_controllers = _env_bool("NIFI_DISABLE_CONTROLLERS", default=True)
+        disable_controllers = nipyapi.utils.getenv_bool("NIFI_DISABLE_CONTROLLERS", default=True)
+    else:
+        disable_controllers = nipyapi.utils.parse_bool(disable_controllers, default=True)
 
     if not process_group_id:
         raise ValueError("process_group_id is required (or set NIFI_PROCESS_GROUP_ID)")

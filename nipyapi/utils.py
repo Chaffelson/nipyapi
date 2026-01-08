@@ -46,6 +46,7 @@ __all__ = [
     "extract_oidc_user_identity",
     "getenv",
     "getenv_bool",
+    "parse_bool",
     "resolve_relative_paths",
     "format_timestamp",
 ]
@@ -921,12 +922,70 @@ def getenv(name: str, default: Optional[str] = None) -> Optional[str]:
     return val if val is not None else default
 
 
+def parse_bool(value, default=None):  # pylint: disable=too-many-return-statements
+    """
+    Parse a value as boolean.
+
+    Handles string values from CLI parameters (where fire passes --flag=false
+    as the string "false") and environment variables. Also passes through
+    actual bool values unchanged.
+
+    This function addresses the CLI boolean parameter gotcha where fire passes
+    --flag=false as the string "false", which is truthy in Python. Use this
+    to safely convert CLI parameters to boolean.
+
+    Args:
+        value: The value to parse (str, bool, or None)
+        default: Value to return if input is None
+
+    Returns:
+        bool or default value if input is None
+
+    Example::
+
+        >>> parse_bool("false")  # False (handles CLI --flag=false)
+        >>> parse_bool("0")      # False
+        >>> parse_bool("yes")    # True
+        >>> parse_bool(True)     # True (passthrough)
+        >>> parse_bool(None, default=False)  # False
+    """
+    # Handle None
+    if value is None:
+        return default
+
+    # Pass through actual booleans unchanged
+    if isinstance(value, bool):
+        return value
+
+    # Handle string values
+    if isinstance(value, str):
+        val_clean = value.strip().lower()
+
+        # Handle empty string as falsy
+        if val_clean == "":
+            return False
+
+        # Handle JSON-style booleans directly
+        if val_clean in ("true", "false"):
+            return json.loads(val_clean)
+
+        # Handle common falsy patterns
+        if val_clean in ("0", "no", "off", "n"):
+            return False
+
+        # Everything else is truthy (including '1', 'yes', 'on', 'y', etc.)
+        return True
+
+    # For other types, use Python's truthiness
+    return bool(value)
+
+
 def getenv_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     """
-    Parse environment variable as boolean using JSON-style interpretation.
+    Parse environment variable as boolean.
 
-    Handles common boolean environment variable patterns and uses json.loads()
-    for the standard 'true'/'false' cases that most programmers understand.
+    Convenience wrapper around parse_bool() for environment variables.
+    Handles common boolean environment variable patterns.
 
     Args:
         name (str): Environment variable name
@@ -946,20 +1005,7 @@ def getenv_bool(name: str, default: Optional[bool] = None) -> Optional[bool]:
     val = os.getenv(name)
     if val is None:
         return default
-
-    # Clean and normalize the value
-    val_clean = val.strip().lower()
-
-    # Handle JSON-style booleans directly
-    if val_clean in ("true", "false"):
-        return json.loads(val_clean)
-
-    # Handle common falsy patterns
-    if val_clean in ("0", "no", "off", "n", ""):
-        return False
-
-    # Everything else is truthy (including '1', 'yes', 'on', 'y', etc.)
-    return True
+    return parse_bool(val)
 
 
 def format_timestamp(ts=None, fmt=None):
