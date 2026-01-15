@@ -172,7 +172,7 @@ def verify_config(
 
     log.info("Verification complete: %s", summary)
 
-    return {
+    result = {
         "verified": "true" if failed_count == 0 else "false",
         "failed_count": failed_count,
         "controller_results": controller_results,
@@ -180,3 +180,12 @@ def verify_config(
         "summary": summary,
         "process_group_name": pg_name,
     }
+
+    # Add error key for CLI exit code detection when verification fails
+    if failed_count > 0:
+        failed_names = [
+            r["name"] for r in controller_results + processor_results if r.get("success") is False
+        ]
+        result["error"] = f"Verification failed for: {', '.join(failed_names)}"
+
+    return result

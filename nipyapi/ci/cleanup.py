@@ -114,7 +114,7 @@ def cleanup(
                 "stopped": "false",
                 "deleted": "false",
                 "process_group_name": "",
-                "message": "Process group not found",
+                "error": "Process group not found",
             }
         raise
 
@@ -123,7 +123,7 @@ def cleanup(
             "stopped": "false",
             "deleted": "false",
             "process_group_name": "",
-            "message": "Process group not found",
+            "error": "Process group not found",
         }
 
     pg_name = process_group.component.name

@@ -341,7 +341,9 @@ Usage Examples
 Error Handling
 ==============
 
-The CLI returns structured error responses on failure:
+The CLI returns structured error responses and uses non-zero exit codes for failures.
+
+**Exception errors** (Python exceptions during execution):
 
 .. code-block:: json
 
@@ -353,10 +355,44 @@ The CLI returns structured error responses on failure:
       "logs": ["nipyapi.canvas: Fetching process group..."]
     }
 
+**Operational errors** (command completed but operation failed):
+
+CI functions include an ``error`` or ``errors`` field when an operation fails.
+The CLI detects these fields and exits with code 1.
+
+.. code-block:: json
+
+    {
+      "verified": "false",
+      "failed_count": 2,
+      "error": "Verification failed for: DBCPConnectionPool, ExecuteSQL"
+    }
+
 Exit codes:
 
-- ``0``: Success
-- ``1``: Error (check output for details)
+- ``0``: Success (no ``error``/``errors`` key in result)
+- ``1``: Error (exception raised, or result contains ``error``/``errors`` key)
+
+Error Field Convention
+----------------------
+
+When writing custom CI functions or extending nipyapi, follow this convention:
+
+- Include an ``error`` key (string) when an operation fails
+- Use ``errors`` key (string) for multiple error messages (pipe-separated)
+- Do NOT include ``error``/``errors`` keys on success
+
+This ensures the CLI exits with the correct code for scripting:
+
+.. code-block:: bash
+
+    # Script can rely on exit code
+    if nipyapi ci verify_config --process_group_id "$PG_ID"; then
+        nipyapi ci start_flow --process_group_id "$PG_ID"
+    else
+        echo "Verification failed, not starting flow"
+        exit 1
+    fi
 
 Cross-References
 ================

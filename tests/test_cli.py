@@ -10,19 +10,19 @@ import os
 
 
 def test_serialize_result_string():
-    """Test that strings are returned as-is."""
+    """Test that strings are returned as valid JSON."""
     from nipyapi.cli import _serialize_result
     result = _serialize_result("hello", "json")
-    assert result == "hello"
+    assert result == '"hello"'  # JSON-encoded string
 
 
 def test_serialize_result_simple_types():
-    """Test serialization of simple types."""
+    """Test serialization of simple types as valid JSON."""
     from nipyapi.cli import _serialize_result
     assert _serialize_result(42, "json") == "42"
     assert _serialize_result(3.14, "json") == "3.14"
-    assert _serialize_result(True, "json") == "True"
-    assert _serialize_result(None, "json") == "None"
+    assert _serialize_result(True, "json") == "true"  # JSON boolean
+    assert _serialize_result(None, "json") == "null"  # JSON null
 
 
 def test_serialize_result_dict_json():
@@ -996,6 +996,102 @@ def test_safe_module_with_log_level():
             os.environ["NIFI_LOG_LEVEL"] = old_level
         else:
             os.environ.pop("NIFI_LOG_LEVEL", None)
+
+
+def test_safe_module_error_key_exits_nonzero():
+    """Test SafeModule exits with code 1 when result contains 'error' key."""
+    from nipyapi.cli import SafeModule
+    from types import ModuleType
+    import io
+    from contextlib import redirect_stdout
+
+    mock_module = ModuleType("mock_module")
+
+    def function_with_error():
+        return {"verified": "false", "error": "Verification failed for: component1"}
+
+    mock_module.function_with_error = function_with_error
+
+    wrapped = SafeModule(mock_module)
+
+    # Force JSON output format
+    old_format = os.environ.get("NIFI_OUTPUT_FORMAT")
+    os.environ["NIFI_OUTPUT_FORMAT"] = "json"
+
+    captured = io.StringIO()
+    try:
+        with redirect_stdout(captured):
+            wrapped.function_with_error()
+    except SystemExit as e:
+        assert e.code == 1
+    finally:
+        if old_format is None:
+            os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+        else:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
+
+    output = captured.getvalue()
+    result = json.loads(output)
+    assert result["verified"] == "false"
+    assert result["error"] == "Verification failed for: component1"
+
+
+def test_safe_module_errors_key_exits_nonzero():
+    """Test SafeModule exits with code 1 when result contains 'errors' key."""
+    from nipyapi.cli import SafeModule
+    from types import ModuleType
+    import io
+    from contextlib import redirect_stdout
+
+    mock_module = ModuleType("mock_module")
+
+    def function_with_errors():
+        return {"parameters_updated": "0", "errors": "Parameter 'X' not found"}
+
+    mock_module.function_with_errors = function_with_errors
+
+    wrapped = SafeModule(mock_module)
+
+    # Force JSON output format
+    old_format = os.environ.get("NIFI_OUTPUT_FORMAT")
+    os.environ["NIFI_OUTPUT_FORMAT"] = "json"
+
+    captured = io.StringIO()
+    try:
+        with redirect_stdout(captured):
+            wrapped.function_with_errors()
+    except SystemExit as e:
+        assert e.code == 1
+    finally:
+        if old_format is None:
+            os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+        else:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
+
+    output = captured.getvalue()
+    result = json.loads(output)
+    assert result["parameters_updated"] == "0"
+    assert result["errors"] == "Parameter 'X' not found"
+
+
+def test_safe_module_no_error_exits_zero():
+    """Test SafeModule returns normally when no error key present."""
+    from nipyapi.cli import SafeModule
+    from types import ModuleType
+
+    mock_module = ModuleType("mock_module")
+
+    def success_function():
+        return {"verified": "true", "summary": "All 5 components passed verification"}
+
+    mock_module.success_function = success_function
+
+    wrapped = SafeModule(mock_module)
+
+    # Should return result directly, no SystemExit
+    result = wrapped.success_function()
+    assert result["verified"] == "true"
+    assert result["summary"] == "All 5 components passed verification"
 
 
 # =============================================================================

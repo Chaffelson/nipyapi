@@ -15,6 +15,39 @@ CI operations are designed for automation scenarios:
 - **Sensible defaults**: Minimal configuration required for common use cases
 - **Structured output**: Returns plain dicts suitable for CI artifact formats
 - **Error handling**: Raises exceptions with clear error messages
+- **Exit code support**: Operations that fail include an ``error`` key, causing the CLI to exit with code 1
+
+Error Field Convention
+----------------------
+
+CI functions follow a standard convention for indicating operational failures:
+
+- **Success**: Return a dict without ``error`` or ``errors`` keys
+- **Failure**: Include an ``error`` (string) or ``errors`` (string) key with a description
+
+This enables scripts to rely on exit codes:
+
+.. code-block:: bash
+
+    # Exit code will be 1 if verification fails
+    if nipyapi ci verify_config --process_group_id "$PG_ID"; then
+        nipyapi ci start_flow --process_group_id "$PG_ID"
+    else
+        echo "Verification failed"
+        exit 1
+    fi
+
+When writing custom CI functions, follow this convention:
+
+.. code-block:: python
+
+    def my_ci_operation(...) -> dict:
+        # On success - no error key
+        if success:
+            return {"status": "complete", "count": 5}
+
+        # On failure - include error key
+        return {"status": "failed", "error": "Operation failed: reason"}
 
 Quick Start
 ===========
