@@ -29,7 +29,7 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
         - Controller counts (total, enabled, disabled)
         - Version control info (versioned, version_id, version_state, etc.)
         - Parameter context info
-
+        - Bulletin counts (warnings/errors)
     Example::
 
         # Get status of specific process group
@@ -85,12 +85,19 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
 
     log.debug("State: %s (%d running, %d stopped)", state, running, stopped)
 
-    # Queue stats and active threads
+    # Queue stats, active threads, and throughput
     if pg.status and pg.status.aggregate_snapshot:
         agg = pg.status.aggregate_snapshot
         result["queued_flowfiles"] = str(agg.flow_files_queued or 0)
         result["queued_bytes"] = str(agg.bytes_queued or 0)
         result["active_threads"] = str(agg.active_thread_count or 0)
+        # Throughput stats (cumulative over stats retention period, typically 5 min)
+        result["flowfiles_in"] = str(agg.flow_files_in or 0)
+        result["flowfiles_out"] = str(agg.flow_files_out or 0)
+        result["bytes_in"] = str(agg.bytes_in or 0)
+        result["bytes_out"] = str(agg.bytes_out or 0)
+        result["bytes_read"] = str(agg.bytes_read or 0)
+        result["bytes_written"] = str(agg.bytes_written or 0)
 
     # Controller services
     controllers = nipyapi.canvas.list_all_controllers(process_group_id, descendants=True)
@@ -139,11 +146,9 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
         result["parameter_count"] = "0"
 
     # Bulletins (warnings/errors)
-    # Use get_bulletin_board for comprehensive bulletins including controller services
-    # The pg_entity.bulletins field only shows bulletins attached to the PG itself,
-    # missing controller service and some component bulletins
+    # Collect bulletins from this PG and all descendants (matching processor/controller behavior)
     try:
-        bulletins = nipyapi.bulletins.get_bulletin_board(pg_id=process_group_id)
+        bulletins = nipyapi.bulletins.get_bulletin_board(pg_id=process_group_id, descendants=True)
         if bulletins:
             warning_count = sum(1 for b in bulletins if b.level == "WARNING")
             error_count = sum(1 for b in bulletins if b.level == "ERROR")
