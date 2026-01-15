@@ -128,8 +128,11 @@ PORT_WIDTH = 240  # 30 grid units
 PORT_HEIGHT = 48  # 6 grid units (same as funnel)
 
 # Queue box - connection label displaying relationship name and queue stats
-QUEUE_BOX_WIDTH = 224  # 28 grid units - fits "Name: success" + stats
+# Note: Port-to-port connections between PGs use a larger queue box than
+# processor-to-processor connections within a PG.
+QUEUE_BOX_WIDTH = 224  # 28 grid units - processor-to-processor connections
 QUEUE_BOX_HEIGHT = 56  # 7 grid units - two lines of text
+PORT_QUEUE_BOX_WIDTH = 240  # 30 grid units - port-to-port connections between PGs
 
 # =============================================================================
 # BLOCK DIMENSIONS - Standard spacing for all grid layouts
