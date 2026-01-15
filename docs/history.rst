@@ -2,6 +2,51 @@
 History
 =======
 
+1.4.0 (2026-01-15)
+-------------------
+
+| CLI exit codes, bulletins descendants, batch parameter updates, and throughput stats
+
+**CLI Improvements**
+
+- **Standardized error exit codes**: CLI now exits with code 1 when result contains ``error`` or ``errors`` key, enabling scripts to reliably detect operational failures (not just exceptions)
+- **Error field convention**: CI functions now include ``error`` key for failures - documented convention for custom CI functions
+
+**Bulletins Module**
+
+- **get_bulletin_board()**: New ``descendants=True`` parameter to include bulletins from child process groups (default behavior matches processor/controller scope)
+
+**Canvas Module**
+
+- **list_all_controllers()**: Added ``greedy`` and ``identifier_type`` parameters for flexible process group resolution - now accepts ID, name, or ProcessGroupEntity
+
+**CI Module Enhancements**
+
+- **get_status()**: Added throughput stats (``flowfiles_in/out``, ``bytes_in/out``, ``bytes_read/written``) and fixed bulletin collection to use descendants
+- **configure_inherited_params()**: Batched parameter updates to reduce cycle overhead - all parameters per context now updated in single API call instead of one-by-one
+- **cleanup()**: Changed ``message`` key to ``error`` for failure responses (CLI exit code support)
+- **verify_config()**: Added ``error`` key with failed component names when verification fails
+
+**Parameters Module**
+
+- **prepare_parameter()**: Clarified value semantics - omitting ``value`` preserves existing, ``value=None`` explicitly unsets, ``value=""`` sets empty string
+- **list_orphaned_contexts()**: New function to find parameter contexts not bound to any process groups
+- **rename_parameter_context()**: New function to rename a parameter context
+
+**Layout Module**
+
+- **PORT_QUEUE_BOX_WIDTH**: New constant (240px) documenting port-to-port connection queue box width
+
+**Bug Fixes**
+
+- Fixed parameter value removal to correctly handle ``value=None`` vs omitted value
+- Fixed bulletin board to include controller service bulletins via group_id regex pattern
+
+**Documentation**
+
+- CLI error handling guide with exit code convention
+- CI error field convention for function authors
+
 1.3.0 (2026-01-08)
 -------------------
 
