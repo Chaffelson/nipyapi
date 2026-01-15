@@ -16,6 +16,9 @@ from nipyapi.utils import enforce_min_ver, exception_handler
 
 log = logging.getLogger(__name__)
 
+# Sentinel object to distinguish "value not provided" from "value is None"
+_NOT_PROVIDED = object()
+
 __all__ = [
     "list_all_parameter_contexts",
     "list_orphaned_contexts",
@@ -23,6 +26,7 @@ __all__ = [
     "delete_parameter_context",
     "get_parameter_context",
     "update_parameter_context",
+    "rename_parameter_context",
     "prepare_parameter",
     "delete_parameter_from_context",
     "upsert_parameter_to_context",
@@ -165,17 +169,71 @@ def update_parameter_context(context):
             id=target.id, revision=target.revision, component=context.component
         ),
     )
+    # Use long timeout: parameter updates involve stopping processors, disabling
+    # controller services, applying changes, re-enabling services, and restarting
+    # processors. This can take significant time especially with many parameters
+    # or slow-to-connect services.
     nipyapi.utils.wait_to_complete(
         _update_complete,
         target.id,
         update_request.request.request_id,
         nipyapi_delay=1,
-        nipyapi_max_wait=10,
+        nipyapi_max_wait=nipyapi.config.long_max_wait,
     )
     _ = handle.delete_update_request(
         context_id=target.id, request_id=update_request.request.request_id
     )
     return get_parameter_context(context.id, identifier_type="id")
+
+
+def rename_parameter_context(context, name, refresh=True, greedy=True, identifier_type="auto"):
+    """
+    Rename a Parameter Context without resubmitting parameter values.
+
+    This is a lightweight wrapper around update_parameter_context that only
+    updates the name field, avoiding the overhead of revalidating all parameters.
+
+    Args:
+        context (ParameterContextEntity or str): Parameter Context to rename,
+            as a ParameterContextEntity object, context ID, or context name.
+        name (str): The new name for the parameter context.
+        refresh (bool): Whether to refresh the Context before renaming.
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ParameterContextEntity`: The renamed Parameter Context
+
+    Raises:
+        TypeError: If context is not a string or ParameterContextEntity.
+        ValueError: If parameter context not found or multiple matches found.
+
+    Example::
+
+        # Rename by ID
+        nipyapi.parameters.rename_parameter_context('ctx-id', 'new-name')
+
+        # Rename by name
+        nipyapi.parameters.rename_parameter_context('old-name', 'new-name')
+    """
+    context = nipyapi.utils.resolve_entity(
+        context,
+        get_parameter_context,
+        ParameterContextEntity,
+        strict=True,
+        greedy=greedy,
+        identifier_type=identifier_type,
+    )
+
+    if refresh:
+        context = get_parameter_context(context.id, identifier_type="id")
+
+    # Build entity with just the name changed, empty parameters list
+    context.component.name = name
+    context.component.parameters = []
+
+    return update_parameter_context(context)
 
 
 def delete_parameter_context(context, refresh=True, greedy=True, identifier_type="auto"):
@@ -212,24 +270,60 @@ def delete_parameter_context(context, refresh=True, greedy=True, identifier_type
     return handle.delete_parameter_context(id=context.id, version=context.revision.version)
 
 
-def prepare_parameter(name, value, description=None, sensitive=False):
+def prepare_parameter(name, value=_NOT_PROVIDED, description=None, sensitive=False):
     """
     Parses basic inputs into a Parameter object ready for submission
 
     Args:
         name (str): The Name for the Parameter
-        value (str, int, float): The Value for the Parameter
+        value (str, int, float, None): The Value for the Parameter.
+            - Omit: Don't change existing value (useful for updating description only)
+            - None: Explicitly unset/remove the value
+            - "": Set to empty string
+            - Other: Set to that value
         description (str): Optional Description for the Parameter
         sensitive (bool): Whether to mark the Parameter Value as sensitive
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterEntity`: The ParameterEntity ready for use
+
+    Example::
+
+        >>> # Create parameter with value
+        >>> param = prepare_parameter("Username", "admin")
+
+        >>> # Update description without changing value (e.g., for sensitive params)
+        >>> param = prepare_parameter("Password", description="Database password")
+
+        >>> # Explicitly unset/remove a parameter's value
+        >>> param = prepare_parameter("OptionalSetting", value=None)
     """
     enforce_min_ver("1.10.0")
     assert all(x is None or isinstance(x, str) for x in [name, description])
-    out = ParameterEntity(
-        parameter=ParameterDTO(name=name, value=value, description=description, sensitive=sensitive)
-    )
+
+    if value is _NOT_PROVIDED:
+        # Value omitted - don't include value in DTO (leaves existing value unchanged)
+        out = ParameterEntity(
+            parameter=ParameterDTO(name=name, description=description, sensitive=sensitive)
+        )
+    elif value is None:
+        # Explicitly unset the value
+        out = ParameterEntity(
+            parameter=ParameterDTO(
+                name=name,
+                value=None,
+                value_removed=True,
+                description=description,
+                sensitive=sensitive,
+            )
+        )
+    else:
+        # Set to provided value
+        out = ParameterEntity(
+            parameter=ParameterDTO(
+                name=name, value=value, description=description, sensitive=sensitive
+            )
+        )
     return out
 
 
@@ -472,8 +566,8 @@ def get_parameter_ownership_map(context_id):
 
     Returns:
         dict mapping parameter names to ownership info dicts. Each ownership
-        dict has: context_id, context_name, sensitive, has_asset, asset_name,
-        and current_value (None if sensitive).
+        dict has: context_id, context_name, description, sensitive, has_asset,
+        asset_name, and current_value (None if sensitive).
 
     Example::
 
@@ -491,6 +585,7 @@ def get_parameter_ownership_map(context_id):
             ownership_map[param["name"]] = {
                 "context_id": h["id"],
                 "context_name": h["name"],
+                "description": param["description"],
                 "sensitive": param["sensitive"],
                 "has_asset": param["has_asset"],
                 "asset_name": param["asset_name"],
