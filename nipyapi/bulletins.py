@@ -67,7 +67,7 @@ def get_bulletins():
         return nipyapi.nifi.FlowApi().get_bulletins()
 
 
-def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
+def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None, descendants=True):
     """
     Retrieve bulletins from the bulletin board with optional filtering.
 
@@ -80,6 +80,9 @@ def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
         source_name (str, optional): Filter by source component name (regex).
         message (str, optional): Filter by message content (regex).
         limit (int, optional): Maximum number of bulletins to return.
+        descendants (bool): Include bulletins from child process groups (default True).
+            Only applies when pg_id is specified. If False, only returns bulletins
+            from components directly in the specified process group.
 
     Returns:
         list[BulletinDTO]: List of bulletin objects with direct field access.
@@ -101,15 +104,27 @@ def get_bulletin_board(pg_id=None, source_name=None, message=None, limit=None):
 
     Example::
 
+        >>> # Get bulletins from a PG and all its children (default)
         >>> bulletins = nipyapi.bulletins.get_bulletin_board(pg_id="abc-123")
         >>> for b in bulletins:
         ...     print(f"{b.source_name}: {b.message}")
-        ...     if b.stack_trace:
-        ...         print(f"  Stack: {b.stack_trace[:100]}...")
+
+        >>> # Get bulletins only from components directly in the PG
+        >>> bulletins = nipyapi.bulletins.get_bulletin_board(pg_id="abc-123", descendants=False)
     """
     kwargs = {}
+
+    # Build group_id filter - use regex to include descendants if requested
     if pg_id is not None:
-        kwargs["group_id"] = pg_id
+        if descendants:
+            # Get all child PG IDs recursively
+            all_pgs = nipyapi.canvas.list_all_process_groups(pg_id=pg_id)
+            pg_ids = [pg_id] + [pg.id for pg in all_pgs]
+            # Build regex pattern: "id1|id2|id3..."
+            kwargs["group_id"] = "|".join(pg_ids)
+        else:
+            kwargs["group_id"] = pg_id
+
     if source_name is not None:
         kwargs["source_name"] = source_name
     if message is not None:
