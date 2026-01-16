@@ -112,14 +112,11 @@ def _serialize_result(obj, output_format="json"):  # pylint: disable=too-many-re
     Serialize an object for CLI output.
 
     Handles nipyapi model objects by converting to dict via swagger's to_dict().
+    For JSON output format (default), all types are serialized as valid JSON.
     """
-    # Already a string - return as-is
-    if isinstance(obj, str):
-        return obj
-
-    # Simple types - return string representation
-    if isinstance(obj, (int, float, bool, type(None))):
-        return str(obj)
+    # Simple types including strings - return JSON representation
+    if isinstance(obj, (str, int, float, bool, type(None))):
+        return json.dumps(obj)
 
     # Lists - serialize each item
     if isinstance(obj, list):
@@ -311,14 +308,22 @@ class SafeModule:
                 # Get configured log level (None = no logs for success)
                 log_level = _get_log_level()
 
-                # If result is a dict, optionally add logs
+                # If result is a dict, optionally add logs and check for errors
                 if isinstance(result, dict):
                     if log_level is not None:
                         # User explicitly requested logs at this level
                         logs = log_capture.get_logs(min_level=log_level)
                         if logs:
                             result["logs"] = logs
-                    # else: no logs for clean output on success
+
+                    # Check for operational failure indicators (error or errors key)
+                    # This enables non-zero exit for operations that complete but fail
+                    has_error = "error" in result or "errors" in result
+                    if has_error:
+                        output_format = _detect_output_format()
+                        print(_serialize_result(result, output_format))
+                        sys.exit(1)
+
                     return result
                 # For non-dict results, return as-is
                 return result

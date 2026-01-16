@@ -1929,22 +1929,43 @@ def create_controller(parent_pg, controller, name=None):
         )
 
 
-def list_all_controllers(pg_id="root", descendants=True, include_reporting_tasks=False):
+def list_all_controllers(
+    pg_id="root",
+    descendants=True,
+    include_reporting_tasks=False,
+    greedy=True,
+    identifier_type="auto",
+):
     """
     Lists all controllers under a given Process Group, defaults to Root.
     Optionally recurses all child Process Groups as well.
 
     Args:
-        pg_id (str): String of the ID of the Process Group to list from
+        pg_id (str): The Process Group to list from, as a UUID string,
+            process group name, or ProcessGroupEntity object. Defaults to root.
         descendants (bool): True to recurse child PGs, False to not
         include_reporting_tasks (bool): True to include Reporting Tasks, False to not
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         None, ControllerServiceEntity, or list(ControllerServiceEntity)
 
     """
-    assert isinstance(pg_id, str)
     assert isinstance(descendants, bool)
+    assert pg_id == "root" or isinstance(pg_id, (str, nipyapi.nifi.ProcessGroupEntity))
+    # Resolve pg_id to actual ID (supports name lookup)
+    if pg_id != "root":
+        process_group = nipyapi.utils.resolve_entity(
+            pg_id,
+            get_process_group,
+            nipyapi.nifi.ProcessGroupEntity,
+            strict=True,
+            greedy=greedy,
+            identifier_type=identifier_type,
+        )
+        pg_id = process_group.id
     handle = nipyapi.nifi.FlowApi()
     # Testing shows that descendant doesn't work on NiFi-1.1.2
     # Or 1.2.0, despite the descendants option being available
@@ -2348,15 +2369,19 @@ def get_controller_service_docs(controller):
         )
 
 
-def list_all_by_kind(kind, pg_id="root", descendants=True):
+def list_all_by_kind(kind, pg_id="root", descendants=True, greedy=True, identifier_type="auto"):
     """
     Retrieves a list of all instances of a supported object type
 
     Args:
         kind (str):  one of input_ports, output_ports, funnels, controllers,
             connections, remote_process_groups
-        pg_id (str): optional, ID of the Process Group to use as search base
+        pg_id: The Process Group to list from, as a UUID string,
+            process group name, or ProcessGroupEntity object. Defaults to root.
         descendants (bool): optional, whether to collect child group info
+        greedy (bool): For name lookup, True for partial match, False for exact.
+        identifier_type (str): How to interpret string identifier:
+            "auto" (default) detects UUID vs name, "id" or "name" to force.
 
     Returns:
         list of the Entity type of the kind, or single instance, or None
@@ -2371,7 +2396,20 @@ def list_all_by_kind(kind, pg_id="root", descendants=True):
         "remote_process_groups",
     ]
     if kind == "controllers":
-        return list_all_controllers(pg_id, descendants)
+        return list_all_controllers(
+            pg_id, descendants, greedy=greedy, identifier_type=identifier_type
+        )
+    # Resolve pg_id to actual ID (supports name lookup)
+    if pg_id != "root":
+        process_group = nipyapi.utils.resolve_entity(
+            pg_id,
+            get_process_group,
+            nipyapi.nifi.ProcessGroupEntity,
+            strict=True,
+            greedy=greedy,
+            identifier_type=identifier_type,
+        )
+        pg_id = process_group.id
     handle = nipyapi.nifi.ProcessGroupsApi()
     call_function = getattr(handle, "get_" + kind)
     out = []

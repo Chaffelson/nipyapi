@@ -129,6 +129,30 @@ def test_update_parameter_context(fix_context):
     assert r2.component.parameters[0].parameter.description == 'Matter'
 
 
+def test_rename_parameter_context(fix_context):
+    """Test renaming a parameter context without affecting parameters."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+    # Create context with a parameter
+    c1 = fix_context.generate()
+    c1.component.parameters.append(
+        parameters.prepare_parameter('test_param', 'test_value')
+    )
+    c1 = parameters.update_parameter_context(c1)
+    original_name = c1.component.name
+    new_name = original_name + '_renamed'
+
+    # Rename the context
+    r1 = parameters.rename_parameter_context(c1, new_name)
+    assert isinstance(r1, ParameterContextEntity)
+    assert r1.component.name == new_name
+
+    # Verify parameters are preserved
+    assert len(r1.component.parameters) == 1
+    assert r1.component.parameters[0].parameter.name == 'test_param'
+    assert r1.component.parameters[0].parameter.value == 'test_value'
+
+
 def test_delete_parameter_from_context(fix_context):
     if check_version('1.10.0') > 0:
         pytest.skip("NiFi not 1.10+")
@@ -767,3 +791,109 @@ def test_update_parameter_in_context_invalid_context():
             param_name="Param",
             value="value"
         )
+
+
+# =============================================================================
+# prepare_parameter Value Handling Tests
+# =============================================================================
+
+
+def test_prepare_parameter_with_value():
+    """Test prepare_parameter with explicit value sets the value."""
+    param = parameters.prepare_parameter("TestParam", value="test_value")
+    assert param.parameter.name == "TestParam"
+    assert param.parameter.value == "test_value"
+    assert param.parameter.value_removed is None
+
+
+def test_prepare_parameter_with_empty_string():
+    """Test prepare_parameter with empty string sets empty string value."""
+    param = parameters.prepare_parameter("TestParam", value="")
+    assert param.parameter.name == "TestParam"
+    assert param.parameter.value == ""
+    assert param.parameter.value_removed is None
+
+
+def test_prepare_parameter_with_none_unsets_value():
+    """Test prepare_parameter with value=None sets value_removed=True."""
+    param = parameters.prepare_parameter("TestParam", value=None)
+    assert param.parameter.name == "TestParam"
+    assert param.parameter.value is None
+    assert param.parameter.value_removed is True
+
+
+def test_prepare_parameter_omitted_value_leaves_unchanged():
+    """Test prepare_parameter without value arg doesn't include value in DTO."""
+    param = parameters.prepare_parameter("TestParam")
+    assert param.parameter.name == "TestParam"
+    assert param.parameter.value is None
+    assert param.parameter.value_removed is None  # Not set = leave unchanged
+
+
+def test_prepare_parameter_update_description_only():
+    """Test prepare_parameter can update description without touching value."""
+    param = parameters.prepare_parameter("TestParam", description="New description")
+    assert param.parameter.name == "TestParam"
+    assert param.parameter.description == "New description"
+    assert param.parameter.value is None
+    assert param.parameter.value_removed is None  # Value not touched
+
+
+def test_prepare_parameter_unset_value_integration(fix_context):
+    """Integration test: create param with value, then unset it."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Create parameter with a value
+    param = parameters.prepare_parameter("UnsetTest", value="initial_value")
+    result = parameters.upsert_parameter_to_context(ctx, param)
+
+    # Verify it has a value
+    created = next(
+        p for p in result.component.parameters if p.parameter.name == "UnsetTest"
+    )
+    assert created.parameter.value == "initial_value"
+
+    # Now unset the value
+    unset_param = parameters.prepare_parameter("UnsetTest", value=None)
+    result = parameters.upsert_parameter_to_context(result, unset_param)
+
+    # Verify the value is now unset
+    updated = next(
+        p for p in result.component.parameters if p.parameter.name == "UnsetTest"
+    )
+    assert updated.parameter.value is None
+
+
+def test_prepare_parameter_update_description_preserves_value(fix_context):
+    """Integration test: update description without changing existing value."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    ctx = fix_context.generate()
+
+    # Create parameter with a value
+    param = parameters.prepare_parameter(
+        "DescTest", value="keep_this", description="Original"
+    )
+    result = parameters.upsert_parameter_to_context(ctx, param)
+
+    # Verify initial state
+    created = next(
+        p for p in result.component.parameters if p.parameter.name == "DescTest"
+    )
+    assert created.parameter.value == "keep_this"
+    assert created.parameter.description == "Original"
+
+    # Update only description (omit value)
+    desc_only = parameters.prepare_parameter("DescTest", description="Updated")
+    result = parameters.upsert_parameter_to_context(result, desc_only)
+
+    # Verify value preserved, description updated
+    updated = next(
+        p for p in result.component.parameters if p.parameter.name == "DescTest"
+    )
+    assert updated.parameter.value == "keep_this"
+    assert updated.parameter.description == "Updated"

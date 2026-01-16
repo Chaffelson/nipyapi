@@ -873,6 +873,87 @@ def test_configure_inherited_params_execute(fix_pg, fix_context):
     assert test_param.parameter.value == "new_value"
 
 
+def test_configure_inherited_params_empty_string(fix_pg, fix_context):
+    """Test configure_inherited_params sets empty string correctly."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter that has a value
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="EmptyStringTestParam",
+        value="initial_value",
+        description="Test parameter for empty string"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Set to empty string
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters='{"EmptyStringTestParam": ""}',
+        dry_run=False
+    )
+
+    assert result["dry_run"] == "false"
+    assert result["parameters_updated"] == "1"
+
+    # Verify value is empty string (not None, not masked)
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    test_param = next(
+        p for p in updated_ctx.component.parameters
+        if p.parameter.name == "EmptyStringTestParam"
+    )
+    assert test_param.parameter.value == ""
+
+
+def test_configure_inherited_params_none_unsets_value(fix_pg, fix_context):
+    """Test configure_inherited_params with None unsets the parameter value."""
+    import nipyapi
+    from nipyapi.utils import check_version
+
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Create context with a parameter that has a value
+    ctx = fix_context.generate()
+    param = nipyapi.parameters.prepare_parameter(
+        name="UnsetTestParam",
+        value="value_to_remove",
+        description="Test parameter for unsetting"
+    )
+    nipyapi.parameters.upsert_parameter_to_context(ctx, param)
+
+    # Create PG and attach context
+    pg = fix_pg.generate()
+    nipyapi.parameters.assign_context_to_process_group(pg, ctx.id)
+
+    # Pass None to unset the value (using Python API directly since JSON can't
+    # distinguish null from missing)
+    result = ci.configure_inherited_params(
+        process_group_id=pg.id,
+        parameters={"UnsetTestParam": None},
+        dry_run=False
+    )
+
+    assert result["dry_run"] == "false"
+    assert result["parameters_updated"] == "1"
+
+    # Verify value was unset (None)
+    updated_ctx = nipyapi.parameters.get_parameter_context(ctx.id, "id")
+    test_param = next(
+        p for p in updated_ctx.component.parameters
+        if p.parameter.name == "UnsetTestParam"
+    )
+    assert test_param.parameter.value is None
+
+
 def test_configure_inherited_params_not_found_error(fix_pg, fix_context):
     """Test configure_inherited_params with non-existent parameter."""
     import nipyapi

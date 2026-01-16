@@ -152,7 +152,7 @@ def configure_inherited_params(
                 )
                 if ctx_id not in updates_by_context:
                     updates_by_context[ctx_id] = []
-                updates_by_context[ctx_id].append((param_name, param_value, False))
+                updates_by_context[ctx_id].append((param_name, param_value, False, None))
             else:
                 errors.append(
                     f"Parameter '{param_name}' not found in any context. "
@@ -183,20 +183,38 @@ def configure_inherited_params(
         if owner["context_id"] not in updates_by_context:
             updates_by_context[owner["context_id"]] = []
         updates_by_context[owner["context_id"]].append(
-            (param_name, param_value, owner["sensitive"])
+            (param_name, param_value, owner["sensitive"], owner["description"])
         )
 
-    # Execute if not dry run
+    # Execute if not dry run - batch all parameters per context to avoid
+    # multiple disable/enable cycles. Each update_parameter_context call
+    # triggers a full cycle (stop processors -> disable controllers -> update
+    # -> re-enable -> restart), so we must batch all params for a context.
     if not dry_run and not errors:
         for target_ctx_id, param_updates in updates_by_context.items():
-            for param_name, param_value, _sensitive in param_updates:
-                log.info("Updating %s in context %s", param_name, target_ctx_id)
-                nipyapi.parameters.update_parameter_in_context(
-                    context_id=target_ctx_id,
-                    param_name=param_name,
-                    value=param_value,
-                    create_if_missing=allow_override,
+            log.info(
+                "Updating %d parameter(s) in context %s",
+                len(param_updates),
+                target_ctx_id,
+            )
+
+            # Get current context for revision info
+            ctx = nipyapi.parameters.get_parameter_context(target_ctx_id, identifier_type="id")
+            if ctx is None:
+                errors.append(f"Parameter context not found: {target_ctx_id}")
+                continue
+
+            # Build parameter entities from planning data
+            param_entities = [
+                nipyapi.parameters.prepare_parameter(
+                    name=name, value=value, description=desc, sensitive=sens
                 )
+                for name, value, sens, desc in param_updates
+            ]
+
+            # Update all parameters in one batch
+            ctx.component.parameters = param_entities
+            nipyapi.parameters.update_parameter_context(ctx)
 
     # Build result
     result = {

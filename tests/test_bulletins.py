@@ -52,6 +52,63 @@ def test_get_bulletin_board_with_pg_filter(fix_pg):
         assert b.group_id == pg.id
 
 
+def test_get_bulletin_board_descendants_parameter(fix_pg):
+    """Test that descendants parameter correctly includes/excludes child PG bulletins."""
+    import time
+
+    # Create parent and child PGs using fixtures
+    parent_pg = fix_pg.generate()
+    child_pg = fix_pg.generate(parent_pg=parent_pg, suffix='_child')
+
+    # Create an ExecuteScript processor in the child PG
+    processor_type = canvas.get_processor_type('org.apache.nifi.processors.script.ExecuteScript')
+    test_processor = canvas.create_processor(
+        parent_pg=child_pg,
+        processor=processor_type,
+        location=(200, 200),
+        name='test_bulletin_script'
+    )
+
+    # Create funnel and connect processor to it
+    funnel = canvas.create_funnel(child_pg.id, (400, 200))
+    canvas.create_connection(test_processor, funnel, relationships=['success', 'failure'])
+
+    # Configure with a script that validates but fails on execution
+    canvas.update_processor(
+        test_processor,
+        update=nifi.ProcessorConfigDTO(
+            properties={
+                'Script Engine': 'Clojure',
+                'Script Body': 'bob'
+            }
+        )
+    )
+
+    # Run the processor once to generate a bulletin
+    canvas.schedule_processor(test_processor, "RUN_ONCE")
+    time.sleep(2)  # Wait for bulletin generation
+
+    # Test 1: With descendants=True - should find child PG bulletins
+    bulletins_with_descendants = bulletins.get_bulletin_board(
+        pg_id=parent_pg.id, descendants=True
+    )
+    child_bulletins = [b for b in bulletins_with_descendants if b.group_id == child_pg.id]
+
+    assert len(child_bulletins) > 0, \
+        "Expected bulletins from child PG when descendants=True"
+
+    # Test 2: With descendants=False - should NOT find child PG bulletins
+    bulletins_without_descendants = bulletins.get_bulletin_board(
+        pg_id=parent_pg.id, descendants=False
+    )
+    child_bulletins_without = [
+        b for b in bulletins_without_descendants if b.group_id == child_pg.id
+    ]
+
+    assert len(child_bulletins_without) == 0, \
+        "Child PG bulletins should not appear when descendants=False"
+
+
 def test_get_bulletin_board_with_limit():
     """Test bulletin board with limit parameter."""
     r = bulletins.get_bulletin_board(limit=5)
