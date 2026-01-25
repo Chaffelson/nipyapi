@@ -781,23 +781,27 @@ def delete_asset(context_id, asset_id):
     }
 
 
-def prepare_parameter_with_asset(name, asset_id, asset_name, description=None):
+def prepare_parameter_with_asset(
+    name, asset_id=None, asset_name=None, description=None, assets=None
+):
     """
-    Prepare a parameter that references an asset.
+    Prepare a parameter that references one or more assets.
 
-    Use this to update a parameter to point to an uploaded asset.
+    Use this to update a parameter to point to uploaded asset(s).
 
     Args:
         name (str): Parameter name
-        asset_id (str): ID of the asset to reference
-        asset_name (str): Name of the asset
+        asset_id (str): ID of a single asset to reference (use with asset_name)
+        asset_name (str): Name of a single asset (use with asset_id)
         description (str): Optional parameter description
+        assets (list): List of asset dicts with 'id' and 'name' keys for
+            multiple assets. Cannot be used with asset_id/asset_name.
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterEntity`: ParameterEntity ready for
             use with update_parameter_context or upsert_parameter_to_context
 
-    Example::
+    Example (single asset)::
 
         >>> # Upload asset first
         >>> asset = upload_asset(context_id, file_path="/path/to/driver.jar")
@@ -807,13 +811,51 @@ def prepare_parameter_with_asset(name, asset_id, asset_name, description=None):
         ...     asset_id=asset['id'],
         ...     asset_name=asset['name']
         ... )
-        >>> # Update the parameter context
+        >>> upsert_parameter_to_context(context, param)
+
+    Example (multiple assets)::
+
+        >>> # Upload multiple JARs
+        >>> jar1 = upload_asset(context_id, file_path="/path/to/activemq-client.jar")
+        >>> jar2 = upload_asset(context_id, file_path="/path/to/activemq-broker.jar")
+        >>> # Reference all in one parameter
+        >>> param = prepare_parameter_with_asset(
+        ...     name="JMS Client Libraries",
+        ...     assets=[jar1, jar2]  # Each dict has 'id' and 'name'
+        ... )
         >>> upsert_parameter_to_context(context, param)
     """
     enforce_min_ver("1.10.0")
 
-    asset_ref = AssetReferenceDTO(id=asset_id, name=asset_name)
+    # Validate argument combinations
+    has_single = asset_id is not None or asset_name is not None
+    has_multiple = assets is not None
+
+    if has_single and has_multiple:
+        raise ValueError(
+            "Cannot specify both asset_id/asset_name and assets. "
+            "Use asset_id/asset_name for single asset, or assets for multiple."
+        )
+
+    if not has_single and not has_multiple:
+        raise ValueError("Must specify either asset_id and asset_name, or assets list.")
+
+    if has_single:
+        if asset_id is None or asset_name is None:
+            raise ValueError("Both asset_id and asset_name are required for single asset.")
+        asset_refs = [AssetReferenceDTO(id=asset_id, name=asset_name)]
+    else:
+        # Validate assets list
+        if not isinstance(assets, list) or len(assets) == 0:
+            raise ValueError("assets must be a non-empty list of dicts with 'id' and 'name' keys.")
+        asset_refs = []
+        for i, asset in enumerate(assets):
+            if not isinstance(asset, dict) or "id" not in asset or "name" not in asset:
+                raise ValueError(
+                    f"Asset at index {i} must be a dict with 'id' and 'name' keys. " f"Got: {asset}"
+                )
+            asset_refs.append(AssetReferenceDTO(id=asset["id"], name=asset["name"]))
 
     return ParameterEntity(
-        parameter=ParameterDTO(name=name, description=description, referenced_assets=[asset_ref])
+        parameter=ParameterDTO(name=name, description=description, referenced_assets=asset_refs)
     )
