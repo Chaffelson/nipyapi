@@ -348,6 +348,84 @@ def test_prepare_parameter_with_asset(fix_context):
     parameters.delete_asset(context_id=c1.id, asset_id=asset["id"])
 
 
+def test_prepare_parameter_with_multiple_assets(fix_context):
+    """Test preparing a parameter that references multiple assets."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    c1 = fix_context.generate()
+
+    # Upload multiple assets
+    asset1 = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=b"ActiveMQ client JAR",
+        filename="activemq-client-5.18.0.jar"
+    )
+    asset2 = parameters.upload_asset(
+        context_id=c1.id,
+        file_bytes=b"ActiveMQ broker JAR",
+        filename="activemq-broker-5.18.0.jar"
+    )
+
+    # Prepare a parameter referencing multiple assets
+    param = parameters.prepare_parameter_with_asset(
+        name="JMS Client Libraries",
+        assets=[asset1, asset2],
+        description="ActiveMQ client JARs"
+    )
+
+    # Verify the parameter structure
+    assert param.parameter.name == "JMS Client Libraries"
+    assert param.parameter.description == "ActiveMQ client JARs"
+    assert len(param.parameter.referenced_assets) == 2
+    asset_ids = {a.id for a in param.parameter.referenced_assets}
+    assert asset1["id"] in asset_ids
+    assert asset2["id"] in asset_ids
+
+    # Clean up
+    parameters.delete_asset(context_id=c1.id, asset_id=asset1["id"])
+    parameters.delete_asset(context_id=c1.id, asset_id=asset2["id"])
+
+
+def test_prepare_parameter_with_asset_validation():
+    """Test validation errors for prepare_parameter_with_asset."""
+    if check_version('1.10.0') > 0:
+        pytest.skip("NiFi not 1.10+")
+
+    # Cannot specify both single and multiple assets
+    with pytest.raises(ValueError) as exc_info:
+        parameters.prepare_parameter_with_asset(
+            name="Test",
+            asset_id="123",
+            asset_name="test.jar",
+            assets=[{"id": "456", "name": "other.jar"}]
+        )
+    assert "Cannot specify both" in str(exc_info.value)
+
+    # Must specify at least one
+    with pytest.raises(ValueError) as exc_info:
+        parameters.prepare_parameter_with_asset(name="Test")
+    assert "Must specify either" in str(exc_info.value)
+
+    # Single asset requires both id and name
+    with pytest.raises(ValueError) as exc_info:
+        parameters.prepare_parameter_with_asset(name="Test", asset_id="123")
+    assert "Both asset_id and asset_name are required" in str(exc_info.value)
+
+    # Assets list must have valid dicts
+    with pytest.raises(ValueError) as exc_info:
+        parameters.prepare_parameter_with_asset(
+            name="Test",
+            assets=[{"id": "123"}]  # Missing 'name'
+        )
+    assert "must be a dict with 'id' and 'name' keys" in str(exc_info.value)
+
+    # Assets cannot be empty list
+    with pytest.raises(ValueError) as exc_info:
+        parameters.prepare_parameter_with_asset(name="Test", assets=[])
+    assert "non-empty list" in str(exc_info.value)
+
+
 def test_upload_asset_and_link_to_parameter(fix_context):
     """Test full workflow: upload asset and link it to a parameter."""
     if check_version('1.10.0') > 0:

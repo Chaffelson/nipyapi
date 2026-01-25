@@ -64,6 +64,8 @@ import logging
 import os
 import sys
 
+import urllib3
+
 
 def _detect_output_format():
     """
@@ -425,10 +427,13 @@ def _apply_verbosity(verbosity):
 
 def main():
     """CLI entry point."""
+    # Disable pager for help output so agents don't hang waiting for input
+    # Only set when help is requested or in non-interactive/CI environments
+    if "--help" in sys.argv or "-h" in sys.argv or not sys.stdout.isatty() or os.environ.get("CI"):
+        os.environ.setdefault("PAGER", "cat")
+
     # Suppress SSL warnings early to prevent them polluting stdout in CI
     # This is safe as the warnings are informational and CLI users expect clean output
-    import urllib3
-
     if os.environ.get("NIFI_VERIFY_SSL", "true").lower() in ("false", "0", "no"):
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 

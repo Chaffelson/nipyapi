@@ -2058,6 +2058,267 @@ def test_list_flowfiles_with_data(fix_proc):
     canvas.delete_connection(conn)
 
 
+def test_prepare_processor_config_discovery(fix_proc):
+    """Test prepare_processor_config discovery mode returns list of valid keys."""
+    proc = fix_proc.generate()
+    keys = canvas.prepare_processor_config(proc)
+    assert isinstance(keys, list)
+    assert len(keys) > 0
+    assert 'File Size' in keys
+    assert 'Batch Size' in keys
+
+
+def test_prepare_processor_config_valid_properties(fix_proc):
+    """Test prepare_processor_config with valid properties returns DTO."""
+    proc = fix_proc.generate()
+    config = canvas.prepare_processor_config(proc, {'File Size': '10 B'})
+    assert isinstance(config, nifi.ProcessorConfigDTO)
+    assert config.properties == {'File Size': '10 B'}
+
+
+def test_prepare_processor_config_invalid_properties(fix_proc):
+    """Test prepare_processor_config raises on invalid property keys."""
+    proc = fix_proc.generate()
+    with pytest.raises(ValueError) as exc_info:
+        canvas.prepare_processor_config(proc, {'Invalid Key': 'value'})
+    assert 'Property keys not in static descriptors' in str(exc_info.value)
+    assert 'Invalid Key' in str(exc_info.value)
+    assert 'Valid static keys for' in str(exc_info.value)
+
+
+def test_prepare_processor_config_allow_dynamic(fix_proc):
+    """Test prepare_processor_config allow_dynamic bypasses validation."""
+    proc = fix_proc.generate()
+    config = canvas.prepare_processor_config(
+        proc, {'my.dynamic.prop': 'value'}, allow_dynamic=True
+    )
+    assert isinstance(config, nifi.ProcessorConfigDTO)
+    assert config.properties == {'my.dynamic.prop': 'value'}
+
+
+def test_prepare_controller_config_discovery(fix_cont):
+    """Test prepare_controller_config discovery mode returns list of valid keys."""
+    controller = fix_cont()
+    keys = canvas.prepare_controller_config(controller)
+    assert isinstance(keys, list)
+    assert len(keys) > 0
+
+
+def test_prepare_controller_config_valid_properties(fix_cont):
+    """Test prepare_controller_config with valid properties returns DTO."""
+    controller = fix_cont()
+    keys = canvas.prepare_controller_config(controller)
+    first_key = keys[0]
+    config = canvas.prepare_controller_config(controller, {first_key: 'test'})
+    assert isinstance(config, nifi.ControllerServiceDTO)
+    assert config.properties == {first_key: 'test'}
+
+
+def test_prepare_controller_config_invalid_properties(fix_cont):
+    """Test prepare_controller_config raises on invalid property keys."""
+    controller = fix_cont()
+    with pytest.raises(ValueError) as exc_info:
+        canvas.prepare_controller_config(controller, {'Invalid Key': 'value'})
+    assert 'Property keys not in static descriptors' in str(exc_info.value)
+    assert 'Invalid Key' in str(exc_info.value)
+
+
+def test_prepare_controller_config_allow_dynamic(fix_cont):
+    """Test prepare_controller_config allow_dynamic bypasses validation."""
+    controller = fix_cont()
+    config = canvas.prepare_controller_config(
+        controller, {'my.dynamic.prop': 'value'}, allow_dynamic=True
+    )
+    assert isinstance(config, nifi.ControllerServiceDTO)
+    assert config.properties == {'my.dynamic.prop': 'value'}
+
+
+def test_update_controller_auto_disable(fix_cont):
+    """Test update_controller auto_disable stops and restarts enabled controller."""
+    controller = fix_cont()
+    # Enable the controller first
+    canvas.schedule_controller(controller, True)
+    controller = canvas.get_controller(controller.id, 'id')
+    assert controller.component.state == 'ENABLED'
+
+    # Update with auto_disable should work
+    keys = canvas.prepare_controller_config(controller)
+    assert keys, "Expected controller to have configurable properties"
+    config = canvas.prepare_controller_config(controller, {keys[0]: 'test'})
+    result = canvas.update_controller(controller, update=config, auto_disable=True)
+    assert result.component.state == 'ENABLED'
+
+
+def test_update_controller_raises_when_enabled(fix_cont):
+    """Test update_controller raises ValueError when enabled and auto_disable=False."""
+    controller = fix_cont()
+    canvas.schedule_controller(controller, True)
+    controller = canvas.get_controller(controller.id, 'id')
+
+    with pytest.raises(ValueError) as exc_info:
+        canvas.update_controller(
+            controller,
+            update=nifi.ControllerServiceDTO(comments='test')
+        )
+    assert 'is enabled' in str(exc_info.value)
+    assert 'auto_disable' in str(exc_info.value)
+
+
+def test_update_controller_auto_disable_restores_on_error(fix_cont):
+    """Test auto_disable re-enables controller if update fails."""
+    from unittest.mock import patch
+
+    controller = fix_cont()
+    canvas.schedule_controller(controller, True)
+    controller = canvas.get_controller(controller.id, 'id')
+    assert controller.component.state == 'ENABLED'
+
+    # Mock the API call to raise an exception after the controller is disabled
+    with patch.object(
+        nifi.ControllerServicesApi,
+        'update_controller_service',
+        side_effect=RuntimeError('Simulated API failure')
+    ):
+        with pytest.raises(RuntimeError, match='Simulated API failure'):
+            canvas.update_controller(
+                controller,
+                update=nifi.ControllerServiceDTO(comments='should fail'),
+                auto_disable=True
+            )
+
+    # Controller should be re-enabled after error recovery
+    controller = canvas.get_controller(controller.id, 'id')
+    assert controller.component.state == 'ENABLED'
+
+
+def test_update_controller_auto_disable_recovery_also_fails(fix_cont):
+    """Test that original error is raised even if recovery fails."""
+    from unittest.mock import patch
+
+    controller = fix_cont()
+    canvas.schedule_controller(controller, True)
+    controller = canvas.get_controller(controller.id, 'id')
+    assert controller.component.state == 'ENABLED'
+
+    original_schedule = canvas.schedule_controller
+    call_count = [0]  # Use list to allow mutation in closure
+
+    def schedule_side_effect(*args, **kwargs):
+        call_count[0] += 1
+        if call_count[0] == 1:
+            # First call (disable) - use real implementation
+            return original_schedule(*args, **kwargs)
+        else:
+            # Second call (recovery re-enable) - fail
+            raise RuntimeError('Simulated recovery failure')
+
+    # Mock update to fail, and schedule_controller to fail only on recovery
+    with patch.object(
+        nifi.ControllerServicesApi,
+        'update_controller_service',
+        side_effect=RuntimeError('Simulated update failure')
+    ):
+        with patch.object(
+            canvas,
+            'schedule_controller',
+            side_effect=schedule_side_effect
+        ):
+            # The original exception should be raised, not the recovery exception
+            with pytest.raises(RuntimeError, match='Simulated update failure'):
+                canvas.update_controller(
+                    controller,
+                    update=nifi.ControllerServiceDTO(comments='should fail'),
+                    auto_disable=True
+                )
+
+    # Verify the recovery was attempted (2 calls to schedule_controller)
+    assert call_count[0] == 2
+
+
+def test_property_none_clears_static_property(fix_proc):
+    """Test that setting a static property to None clears/unsets it."""
+    proc = fix_proc.generate()
+    # Set Custom Text to a value
+    canvas.update_processor(
+        proc, update=nifi.ProcessorConfigDTO(properties={'Custom Text': 'hello'})
+    )
+    proc = canvas.get_processor(proc.id, 'id')
+    assert proc.component.config.properties['Custom Text'] == 'hello'
+
+    # Clear it with None
+    canvas.update_processor(
+        proc, update=nifi.ProcessorConfigDTO(properties={'Custom Text': None})
+    )
+    proc = canvas.get_processor(proc.id, 'id')
+    assert proc.component.config.properties['Custom Text'] is None
+
+
+def test_property_empty_string_sets_empty(fix_proc):
+    """Test that setting a property to empty string keeps it as empty string."""
+    proc = fix_proc.generate()
+    # Set Custom Text to empty string
+    canvas.update_processor(
+        proc, update=nifi.ProcessorConfigDTO(properties={'Custom Text': ''})
+    )
+    proc = canvas.get_processor(proc.id, 'id')
+    assert proc.component.config.properties['Custom Text'] == ''
+
+
+def test_dynamic_property_none_deletes(fix_proc):
+    """Test that setting a dynamic property to None deletes it entirely."""
+    # Create UpdateAttribute which supports dynamic properties
+    root_id = canvas.get_root_pg_id()
+    proc_type = canvas.get_processor_type('UpdateAttribute')
+    proc = canvas.create_processor(root_id, proc_type, (300, 300), conftest.test_basename + '_dyn')
+
+    try:
+        # Add a dynamic property
+        canvas.update_processor(
+            proc, update=nifi.ProcessorConfigDTO(properties={'my.test.attr': 'test_value'})
+        )
+        proc = canvas.get_processor(proc.id, 'id')
+        assert 'my.test.attr' in proc.component.config.properties
+        assert proc.component.config.properties['my.test.attr'] == 'test_value'
+        assert 'my.test.attr' in proc.component.config.descriptors
+        assert proc.component.config.descriptors['my.test.attr'].dynamic is True
+
+        # Delete it with None
+        canvas.update_processor(
+            proc, update=nifi.ProcessorConfigDTO(properties={'my.test.attr': None})
+        )
+        proc = canvas.get_processor(proc.id, 'id')
+        assert 'my.test.attr' not in proc.component.config.properties
+        assert 'my.test.attr' not in proc.component.config.descriptors
+    finally:
+        canvas.delete_processor(proc, force=True)
+
+
+def test_dynamic_property_empty_string_keeps(fix_proc):
+    """Test that setting a dynamic property to empty string keeps it."""
+    root_id = canvas.get_root_pg_id()
+    proc_type = canvas.get_processor_type('UpdateAttribute')
+    proc = canvas.create_processor(root_id, proc_type, (350, 350), conftest.test_basename + '_dyn2')
+
+    try:
+        # Add a dynamic property
+        canvas.update_processor(
+            proc, update=nifi.ProcessorConfigDTO(properties={'my.test.attr': 'test_value'})
+        )
+        proc = canvas.get_processor(proc.id, 'id')
+        assert 'my.test.attr' in proc.component.config.properties
+
+        # Set to empty string - should keep property
+        canvas.update_processor(
+            proc, update=nifi.ProcessorConfigDTO(properties={'my.test.attr': ''})
+        )
+        proc = canvas.get_processor(proc.id, 'id')
+        assert 'my.test.attr' in proc.component.config.properties
+        assert proc.component.config.properties['my.test.attr'] == ''
+        assert 'my.test.attr' in proc.component.config.descriptors
+    finally:
+        canvas.delete_processor(proc, force=True)
+
+
 def test_get_flowfile_details(fix_proc):
     """Test getting full FlowFile details including attributes."""
     f_p1 = fix_proc.generate()
