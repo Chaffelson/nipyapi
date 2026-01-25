@@ -2191,6 +2191,50 @@ def test_update_controller_auto_disable_restores_on_error(fix_cont):
     assert controller.component.state == 'ENABLED'
 
 
+def test_update_controller_auto_disable_recovery_also_fails(fix_cont):
+    """Test that original error is raised even if recovery fails."""
+    from unittest.mock import patch
+
+    controller = fix_cont()
+    canvas.schedule_controller(controller, True)
+    controller = canvas.get_controller(controller.id, 'id')
+    assert controller.component.state == 'ENABLED'
+
+    original_schedule = canvas.schedule_controller
+    call_count = [0]  # Use list to allow mutation in closure
+
+    def schedule_side_effect(*args, **kwargs):
+        call_count[0] += 1
+        if call_count[0] == 1:
+            # First call (disable) - use real implementation
+            return original_schedule(*args, **kwargs)
+        else:
+            # Second call (recovery re-enable) - fail
+            raise RuntimeError('Simulated recovery failure')
+
+    # Mock update to fail, and schedule_controller to fail only on recovery
+    with patch.object(
+        nifi.ControllerServicesApi,
+        'update_controller_service',
+        side_effect=RuntimeError('Simulated update failure')
+    ):
+        with patch.object(
+            canvas,
+            'schedule_controller',
+            side_effect=schedule_side_effect
+        ):
+            # The original exception should be raised, not the recovery exception
+            with pytest.raises(RuntimeError, match='Simulated update failure'):
+                canvas.update_controller(
+                    controller,
+                    update=nifi.ControllerServiceDTO(comments='should fail'),
+                    auto_disable=True
+                )
+
+    # Verify the recovery was attempted (2 calls to schedule_controller)
+    assert call_count[0] == 2
+
+
 def test_property_none_clears_static_property(fix_proc):
     """Test that setting a static property to None clears/unsets it."""
     proc = fix_proc.generate()
