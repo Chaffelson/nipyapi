@@ -2,6 +2,35 @@
 History
 =======
 
+1.5.0 (2026-01-25)
+-------------------
+
+| Property configuration helpers and multi-asset parameter support
+
+**Canvas Module**
+
+- **prepare_processor_config()**: New helper to validate property keys against processor descriptors before setting. Prevents accidental creation of dynamic properties by requiring explicit ``allow_dynamic=True`` for non-static properties.
+- **prepare_controller_config()**: Same validation for controller services - validates property keys exist in descriptors before setting.
+- **update_controller()**: Added error recovery when ``auto_disable=True`` - if update fails after disabling, attempts to re-enable controller before raising exception.
+- **Deterministic error messages**: Property validation errors now use sorted keys for consistent, diff-friendly output.
+
+**Parameters Module**
+
+- **prepare_parameter_with_asset()**: Enhanced to support multiple assets via new ``assets`` parameter. Pass a list of asset dicts to link multiple files (e.g., JMS client JARs) to a single parameter. Backwards compatible - existing single-asset usage unchanged.
+
+**CLI Improvements**
+
+- **PAGER handling**: CLI now only sets ``PAGER=cat`` when help is requested or in non-interactive/CI environments, preserving user's pager preference for normal interactive use.
+
+1.4.1 (2026-01-20)
+-------------------
+
+| Bug fix for verify_config processor scope
+
+**Bug Fixes**
+
+- **verify_config()**: Now correctly checks processors in child process groups, not just the immediate process group.
+
 1.4.0 (2026-01-15)
 -------------------
 
