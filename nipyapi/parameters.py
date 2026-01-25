@@ -788,14 +788,18 @@ def prepare_parameter_with_asset(
     Prepare a parameter that references one or more assets.
 
     Use this to update a parameter to point to uploaded asset(s).
+    Provide either (asset_id + asset_name) for a single asset, or assets
+    for multiple assets. These are mutually exclusive.
 
     Args:
-        name (str): Parameter name
-        asset_id (str): ID of a single asset to reference (use with asset_name)
-        asset_name (str): Name of a single asset (use with asset_id)
-        description (str): Optional parameter description
-        assets (list): List of asset dicts with 'id' and 'name' keys for
-            multiple assets. Cannot be used with asset_id/asset_name.
+        name (str): Parameter name (required)
+        asset_id (str, optional): ID of a single asset. Must be provided
+            together with asset_name. Cannot be used with assets.
+        asset_name (str, optional): Name of a single asset. Must be provided
+            together with asset_id. Cannot be used with assets.
+        description (str, optional): Parameter description
+        assets (list, optional): List of asset dicts, each with 'id' and
+            'name' keys. Cannot be used with asset_id/asset_name.
 
     Returns:
         :class:`~nipyapi.nifi.models.ParameterEntity`: ParameterEntity ready for

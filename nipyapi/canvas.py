@@ -1065,9 +1065,9 @@ def _prepare_component_config(descriptors, component_type, dto_class, properties
         invalid_keys = set(properties.keys()) - set(valid_keys)
         if invalid_keys:
             raise ValueError(
-                f"Property keys not in static descriptors: {list(invalid_keys)}\n"
+                f"Property keys not in static descriptors: {sorted(invalid_keys)}\n"
                 f"Valid static keys for {component_type}:\n"
-                f"  {valid_keys}\n"
+                f"  {sorted(valid_keys)}\n"
                 f"Use allow_dynamic=True to create dynamic properties intentionally."
             )
 
