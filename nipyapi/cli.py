@@ -425,6 +425,10 @@ def _apply_verbosity(verbosity):
 
 def main():
     """CLI entry point."""
+    # Disable pager for --help output so agents don't hang waiting for input
+    if "PAGER" not in os.environ:
+        os.environ["PAGER"] = "cat"
+
     # Suppress SSL warnings early to prevent them polluting stdout in CI
     # This is safe as the warnings are informational and CLI users expect clean output
     import urllib3
