@@ -2,6 +2,19 @@
 History
 =======
 
+Unreleased
+----------
+
+| Bug fix for verify_config controller service scope
+
+**Bug Fixes**
+
+- **verify_config()**: Controller service verification is now scoped strictly to the target Process Group. Previously, controller services inherited from ancestor/parent PGs (up to root) were included in verification results because NiFi's REST API returns ancestor services by default. A broken controller on root or a sibling flow could cause CI verification to fail for an unrelated child flow.
+
+**Canvas Module**
+
+- **list_all_controllers()**: Added ``include_ancestors`` keyword argument (default ``True`` to preserve existing behaviour). Pass ``include_ancestors=False`` to exclude controller services inherited from parent/ancestor Process Groups.
+
 1.5.0 (2026-01-25)
 -------------------
 
