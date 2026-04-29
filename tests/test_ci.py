@@ -1823,6 +1823,23 @@ def test_verify_config_skips_enabled_controllers(fix_pg, fix_cont):
         nipyapi.canvas.schedule_controller(f_c1, False)
 
 
+def test_verify_config_ignores_ancestor_controllers(fix_pg, fix_cont):
+    """verify_config must be scoped to the provided PG — no ancestor CSes."""
+    parent = fix_pg.generate()
+    child = fix_pg.generate(parent_pg=parent)
+    f_c_ancestor = fix_cont(parent_pg=parent)
+    f_c_target = fix_cont(parent_pg=child)
+
+    result = ci.verify_config(process_group_id=child.id)
+
+    # Only the child's controller service should appear in the results
+    result_ids = {r["id"] for r in result["controller_results"]}
+    assert f_c_target.id in result_ids
+    assert f_c_ancestor.id not in result_ids
+    assert len(result["controller_results"]) == 1
+    assert result["process_group_name"] == child.component.name
+
+
 # =============================================================================
 # Export Parameters Tests
 # =============================================================================

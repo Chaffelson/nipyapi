@@ -80,9 +80,17 @@ def _verify_single_processor(processor) -> Dict[str, Any]:
 
 
 def _verify_controllers(process_group_id: str) -> List[Dict[str, Any]]:
-    """Verify all controller services in a process group."""
-    controllers = nipyapi.canvas.list_all_controllers(process_group_id, descendants=False)
-    log.debug("Found %d controller services", len(controllers))
+    """Verify controller services owned by ``process_group_id``.
+
+    Scoped strictly to the given Process Group: excludes controller services
+    inherited from ancestor/parent PGs and does not recurse into descendants.
+    This keeps CI verification verdicts dependent only on the flow being
+    deployed.
+    """
+    controllers = nipyapi.canvas.list_all_controllers(
+        process_group_id, descendants=False, include_ancestors=False
+    )
+    log.debug("Found %d controller services in PG", len(controllers))
     return [_verify_single_controller(c) for c in controllers]
 
 
@@ -107,6 +115,12 @@ def verify_config(
     Designed for CI/CD pipelines to catch configuration errors before starting
     a flow. Verifies controller services and processors that are in a
     stopped/disabled state.
+
+    Scope:
+        - Controller services: only those owned by ``process_group_id``
+          (ancestor-inherited services are intentionally excluded so a broken
+          controller on a sibling/parent flow cannot fail this flow's CI).
+        - Processors: ``process_group_id`` and all descendant Process Groups.
 
     Args:
         process_group_id: ID of the process group. Env: NIFI_PROCESS_GROUP_ID

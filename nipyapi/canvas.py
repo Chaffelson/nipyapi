@@ -2115,12 +2115,13 @@ def create_controller(parent_pg, controller, name=None):
         )
 
 
-def list_all_controllers(
+def list_all_controllers(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     pg_id="root",
     descendants=True,
     include_reporting_tasks=False,
     greedy=True,
     identifier_type="auto",
+    include_ancestors=True,
 ):
     """
     Lists all controllers under a given Process Group, defaults to Root.
@@ -2134,12 +2135,18 @@ def list_all_controllers(
         greedy (bool): For name lookup, True for partial match, False for exact.
         identifier_type (str): How to interpret string identifier:
             "auto" (default) detects UUID vs name, "id" or "name" to force.
+        include_ancestors (bool): Whether to include controller services
+            inherited from parent/ancestor Process Groups. Defaults to True
+            to preserve historical behaviour (NiFi's REST API default).
+            Pass False to restrict the result to controller services that
+            live in ``pg_id`` (and its descendants when ``descendants=True``).
 
     Returns:
         None, ControllerServiceEntity, or list(ControllerServiceEntity)
 
     """
     assert isinstance(descendants, bool)
+    assert isinstance(include_ancestors, bool)
     assert pg_id == "root" or isinstance(pg_id, (str, nipyapi.nifi.ProcessGroupEntity))
     # Resolve pg_id to actual ID (supports name lookup)
     if pg_id != "root":
@@ -2163,14 +2170,18 @@ def list_all_controllers(
         else:
             pgs = [get_process_group(pg_id, "id")]
         for pg in pgs:
-            new_conts = handle.get_controller_services_from_group(pg.id).controller_services
+            new_conts = handle.get_controller_services_from_group(
+                pg.id, include_ancestor_groups=include_ancestors
+            ).controller_services
             # trim duplicates from inheritance
             out += [x for x in new_conts if x.id not in [y.id for y in out]]
     else:
         # Case where NiFi > 1.2.0
         # duplicate trim already handled by server
         out = handle.get_controller_services_from_group(
-            pg_id, include_descendant_groups=descendants
+            pg_id,
+            include_descendant_groups=descendants,
+            include_ancestor_groups=include_ancestors,
         ).controller_services
     if include_reporting_tasks:
         mgmt_handle = nipyapi.nifi.FlowApi()

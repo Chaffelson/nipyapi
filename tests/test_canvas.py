@@ -805,6 +805,49 @@ def test_list_all_controllers(fix_pg, fix_cont):
         _ = canvas.list_all_controllers(descendants=['pie'])
 
 
+def test_list_all_controllers_excludes_ancestors(fix_pg, fix_cont):
+    """list_all_controllers must honour include_ancestors=False.
+
+    Default (include_ancestors=True) preserves prior behaviour; the opt-out
+    path is what CI verify_config relies on to avoid verifying controller
+    services inherited from parent/root PGs.
+    """
+    f_pg_1 = fix_pg.generate()
+    f_pg_2 = fix_pg.generate(parent_pg=f_pg_1)
+    f_c_root = fix_cont()
+    f_c_mid = fix_cont(parent_pg=f_pg_1)
+    f_c_leaf = fix_cont(parent_pg=f_pg_2)
+    assert isinstance(f_c_root, nifi.ControllerServiceEntity)
+    assert isinstance(f_c_mid, nifi.ControllerServiceEntity)
+    assert isinstance(f_c_leaf, nifi.ControllerServiceEntity)
+
+    # Scoped to leaf, no descendants, no ancestors -> only leaf CS
+    r1 = canvas.list_all_controllers(
+        pg_id=f_pg_2.id, descendants=False, include_ancestors=False
+    )
+    r1 = [x for x in r1 if conftest.test_basename in x.component.name]
+    assert len(r1) == 1
+    assert r1[0].id == f_c_leaf.id
+
+    # Scoped to mid, descendants=True, ancestors=False -> mid + leaf, NOT root
+    r2 = canvas.list_all_controllers(
+        pg_id=f_pg_1.id, descendants=True, include_ancestors=False
+    )
+    r2 = [x for x in r2 if conftest.test_basename in x.component.name]
+    ids = {x.id for x in r2}
+    assert f_c_mid.id in ids
+    assert f_c_leaf.id in ids
+    assert f_c_root.id not in ids
+
+    # Backwards compat: default include_ancestors=True still returns root CS
+    r3 = canvas.list_all_controllers(pg_id=f_pg_2.id, descendants=False)
+    r3 = [x for x in r3 if conftest.test_basename in x.component.name]
+    ids3 = {x.id for x in r3}
+    assert f_c_root.id in ids3
+    assert f_c_mid.id in ids3
+    assert f_c_leaf.id in ids3
+
+
 def test_create_controller(fix_cont):
     root_pg = canvas.get_process_group(canvas.get_root_pg_id(), 'id')
     cont_type = canvas.list_all_controller_types()[0]
