@@ -278,7 +278,7 @@ class ControllerServiceReferencingComponentDTO(object):
         :param reference_type: The reference_type of this ControllerServiceReferencingComponentDTO.
         :type: str
         """
-        allowed_values = ["Processor", "ControllerService", "ReportingTask", "FlowRegistryClient", ]
+        allowed_values = ["Processor", "ControllerService", "ReportingTask", "FlowRegistryClient", "ParameterProvider", "FlowAnalysisRule", ]
         if reference_type not in allowed_values:
             raise ValueError(
                 "Invalid value for `reference_type` ({0}), must be one of {1}"
