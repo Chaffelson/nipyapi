@@ -2,14 +2,15 @@
 History
 =======
 
-Unreleased
-----------
+1.5.1 (2026-06-02)
+-------------------
 
-| Bug fix for verify_config controller service scope
+| Bug fixes for controller service verification scope and NiFi 2.x reference type handling
 
 **Bug Fixes**
 
 - **verify_config()**: Controller service verification is now scoped strictly to the target Process Group. Previously, controller services inherited from ancestor/parent PGs (up to root) were included in verification results because NiFi's REST API returns ancestor services by default. A broken controller on root or a sibling flow could cause CI verification to fail for an unrelated child flow.
+- **ControllerServiceReferencingComponentDTO**: Added ``ParameterProvider`` and ``FlowAnalysisRule`` to the ``reference_type`` allowed values. NiFi 2.x returns these types when a ParameterProvider or FlowAnalysisRule references a ControllerService, which previously caused a ``ValueError`` during deserialization.
 
 **Canvas Module**
 
