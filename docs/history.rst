@@ -2,6 +2,29 @@
 History
 =======
 
+1.6.0 (2026-06-21)
+-------------------
+
+| Port status visibility and consistent component recursion for CI functions
+
+**Bug Fixes**
+
+- **get_status()**: Processor counts (``running_processors``, ``invalid_processors``, etc.) are now derived from actual processor enumeration rather than the Process Group's aggregate component counts. Previously these counts included all component types (ports, etc.), so invalid output ports were mis-reported as invalid processors.
+- **verify_config()**: Controller service verification now recurses into descendant Process Groups (``descendants=True``), consistent with processor and port verification. Ancestor-inherited services remain excluded. Previously controllers in child PGs were not verified, so a broken controller in a sub-flow could pass CI.
+
+**CI Module**
+
+- **get_status()**: Now reports input and output port counts: ``total_input_ports``, ``running_input_ports``, ``stopped_input_ports``, ``invalid_input_ports`` and the equivalent ``_output_ports`` fields. Invalid ports (e.g. an output port with no outgoing connection) are a real operational problem that was previously invisible to status checks. These are additive fields; existing output is unchanged.
+- **verify_config()**: New ``verify_ports`` parameter (default ``True``) adds input/output port validation. Ports with validation errors now appear in a new ``port_results`` key and cause verification to fail.
+
+**Canvas Module**
+
+- **list_invalid_ports()**: New function, parallel to ``list_invalid_processors``, returning input/output ports with validation errors across a Process Group and its descendants.
+
+**Documentation**
+
+- **Release process**: Reworked the developer release guide (``docs/devnotes.rst``) into separate Patch and Full release workflows, following a "tag locally, build, verify, then push" principle to avoid force pushes when a built distribution is wrong.
+
 1.5.1 (2026-06-02)
 -------------------
 

@@ -215,8 +215,69 @@ Release Process
 
 Streamlined release workflow using our modern build system. Assumes development environment is set up (``make dev-install`` completed).
 
-Pre-release Preparation
-~~~~~~~~~~~~~~~~~~~~~~~
+The key principle is **tag locally, build, verify, then push**. This avoids force pushes if something is wrong with the built distribution.
+
+Patch Release (bug fixes only)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use this when only maintained code has changed (no client regeneration, no new NiFi version).
+
+1. **Update Release Notes**:
+
+   Update ``docs/history.rst`` — move the ``Unreleased`` section to a dated version heading.
+
+2. **Commit Release Preparation**:
+
+   .. code-block:: shell
+
+       git add docs/history.rst
+       git commit -S -m "Prepare release X.Y.Z: brief summary"
+
+3. **Tag Locally** (do NOT push yet):
+
+   .. code-block:: shell
+
+       git tag -a -s vX.Y.Z -m "Release X.Y.Z"
+
+4. **Build and Verify**:
+
+   .. code-block:: shell
+
+       # Clean build artifacts (preserves generated clients)
+       make clean && make dist
+
+       # Verify clean version string (no .devN+gHASH suffix)
+       ls dist/
+       # Should show: nipyapi-X.Y.Z-py2.py3-none-any.whl and nipyapi-X.Y.Z.tar.gz
+
+   .. warning::
+
+       Do NOT use ``make clean-all`` for patch releases — it removes generated API clients
+       (``nipyapi/nifi/``, ``nipyapi/registry/``) and would require ``make gen-clients`` to restore them.
+
+5. **Push to GitHub** (triggers CI validation):
+
+   .. code-block:: shell
+
+       git push origin main && git push --tags
+
+6. **Wait for CI to pass** before publishing:
+
+   .. code-block:: shell
+
+       gh run list --limit 3
+       # Or check GitHub Actions UI
+
+7. **Publish to PyPI** (only after CI is green):
+
+   .. code-block:: shell
+
+       twine upload dist/*
+
+Full Release (new features, client regeneration)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use this for minor/major releases, especially when generated clients have changed.
 
 1. **Update Release Notes**:
 
@@ -237,39 +298,45 @@ Pre-release Preparation
    .. code-block:: shell
 
        git add docs/history.rst
-       git commit -S -m "Prepare release: update history and documentation"
+       git commit -S -m "Prepare release X.Y.Z: brief summary"
 
-Build and Quality Assurance
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+4. **Tag Locally** (do NOT push yet):
 
-.. code-block:: shell
+   .. code-block:: shell
 
-    # Build fresh distributions for release (rebuild-all already validated them)
-    make clean-all
-    make dist
+       git tag -a -s vX.Y.Z -m "Release X.Y.Z"
 
-Create Release
-~~~~~~~~~~~~~~
+5. **Build and Verify**:
 
-.. code-block:: shell
+   .. code-block:: shell
 
-    # Tag the release (triggers version detection via setuptools-scm)
-    git tag -a -s v1.0.0 -m "Release 1.0.0"
+       # Clean build artifacts and rebuild with the tagged version
+       make clean && make dist
 
-    # Push commit and tags to GitHub (triggers CI validation)
-    git push origin main
-    git push --tags
+       # Verify clean version string (no .devN+gHASH suffix)
+       ls dist/
+       # Should show: nipyapi-X.Y.Z-py2.py3-none-any.whl and nipyapi-X.Y.Z.tar.gz
 
-Publish to PyPI
-~~~~~~~~~~~~~~~
+6. **Push to GitHub** (triggers CI validation):
 
-.. code-block:: shell
+   .. code-block:: shell
 
-    # Upload to PyPI (requires PyPI API token configured)
-    twine upload dist/*
+       git push origin main && git push --tags
 
-    # Alternative: Upload to TestPyPI first for validation
-    # twine upload --repository testpypi dist/*
+7. **Wait for CI to pass** before publishing:
+
+   .. code-block:: shell
+
+       gh run list --limit 3
+
+8. **Publish to PyPI** (only after CI is green):
+
+   .. code-block:: shell
+
+       twine upload dist/*
+
+       # Alternative: Upload to TestPyPI first for validation
+       # twine upload --repository testpypi dist/*
 
 Post-release Verification
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -292,3 +359,4 @@ Version Management Notes
 - **Development Versions**: Commits after tags get ``.devN+gHASH`` suffix automatically
 - **Release Versions**: Clean git tags (e.g., ``v1.0.0``) produce clean versions (``1.0.0``)
 - **Pre-releases**: Use tag patterns like ``v1.0.0rc1`` for release candidates
+- **If the build is wrong**: Delete the local tag (``git tag -d vX.Y.Z``), fix the issue, re-tag, and retry. No force push needed since nothing was pushed yet.

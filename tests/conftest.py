@@ -48,6 +48,7 @@ test_pg_name = test_basename + "_ProcessGroup"
 test_another_pg_name = test_basename + "_AnotherProcessGroup"
 test_registry_client_name = test_basename + "_reg_client"
 test_processor_name = test_basename + "_proc"
+test_port_name = test_basename + "_port"
 test_bucket_name = test_basename + "_bucket"
 test_versioned_flow_name = test_basename + "_ver_flow"
 test_cloned_ver_flow_name = test_basename + '_cloned_ver_flow'
@@ -456,6 +457,28 @@ def fixture_proc(request):
             )
 
     request.addfinalizer(remove_test_processors)
+    return Dummy()
+
+
+@pytest.fixture(name='fix_port')
+def fixture_port(request):
+    class Dummy:
+        def __init__(self):
+            pass
+
+        def generate(self, parent_pg=None, suffix='', port_type='OUTPUT_PORT', state='STOPPED'):
+            if parent_pg is None:
+                target_pg_id = nipyapi.canvas.get_root_pg_id()
+            else:
+                target_pg_id = parent_pg.id
+            return nipyapi.canvas.create_port(
+                pg_id=target_pg_id,
+                port_type=port_type,
+                name=test_port_name + suffix,
+                state=state,
+            )
+
+    request.addfinalizer(remove_test_ports)
     return Dummy()
 
 

@@ -194,6 +194,8 @@ Parameter                      Description                                   Env
 
 - ``process_group_id``, ``process_group_name``, ``state``, ``is_root``
 - Processor counts: ``total_processors``, ``running_processors``, ``stopped_processors``, ``invalid_processors``, ``disabled_processors``
+- Input port counts: ``total_input_ports``, ``running_input_ports``, ``stopped_input_ports``, ``invalid_input_ports``
+- Output port counts: ``total_output_ports``, ``running_output_ports``, ``stopped_output_ports``, ``invalid_output_ports``
 - Controller counts: ``total_controllers``, ``enabled_controllers``, ``disabled_controllers``
 - Queue stats: ``queued_flowfiles``, ``queued_bytes``, ``active_threads``
 - Version control: ``versioned``, ``version_id``, ``flow_id``, ``version_state``, ``modified``

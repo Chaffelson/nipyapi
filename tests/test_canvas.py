@@ -586,6 +586,26 @@ def test_list_invalid_processors():
     pass
 
 
+def test_list_invalid_ports(fix_pg, fix_port):
+    """Test list_invalid_ports returns ports with validation errors (R3)."""
+    f_pg = fix_pg.generate()
+    # Port with no connection — NiFi marks it invalid
+    f_port = fix_port.generate(parent_pg=f_pg)
+
+    # Full entity list
+    invalid = nipyapi.canvas.list_invalid_ports(pg_id=f_pg.id)
+    assert len(invalid) == 1
+    assert invalid[0].id == f_port.id
+    assert invalid[0].component.validation_errors
+
+    # Summary mode
+    summary = nipyapi.canvas.list_invalid_ports(pg_id=f_pg.id, summary=True)
+    assert len(summary) == 1
+    assert summary[0]["id"] == f_port.id
+    assert summary[0]["type"] == "OUTPUT_PORT"
+    assert len(summary[0]["summary"]) > 0
+
+
 def test_list_sensitive_processors():
     # TODO: write test for new feature
     pass

@@ -297,6 +297,13 @@ def test_get_status_root(fix_pg):
     assert "total_processors" in result
     assert "running_processors" in result
     assert "stopped_processors" in result
+    # Port fields (R2, R7)
+    assert "total_input_ports" in result
+    assert "total_output_ports" in result
+    assert "running_input_ports" in result
+    assert "invalid_input_ports" in result
+    assert "running_output_ports" in result
+    assert "invalid_output_ports" in result
 
 
 def test_get_status_specific_pg(fix_pg):
@@ -1734,9 +1741,11 @@ class TestVerifyConfigValidation:
             with patch("nipyapi.canvas.get_process_group", return_value=mock_pg):
                 with patch("nipyapi.canvas.list_all_controllers", return_value=[]):
                     with patch("nipyapi.canvas.list_all_processors", return_value=[]):
-                        result = ci.verify_config()
-                        assert result["verified"] == "true"
-                        assert result["process_group_name"] == "TestPG"
+                        with patch("nipyapi.canvas.list_all_input_ports", return_value=[]):
+                            with patch("nipyapi.canvas.list_all_output_ports", return_value=[]):
+                                result = ci.verify_config()
+                                assert result["verified"] == "true"
+                                assert result["process_group_name"] == "TestPG"
 
 
 def test_verify_config_empty_pg(fix_pg):
@@ -1838,6 +1847,51 @@ def test_verify_config_ignores_ancestor_controllers(fix_pg, fix_cont):
     assert f_c_ancestor.id not in result_ids
     assert len(result["controller_results"]) == 1
     assert result["process_group_name"] == child.component.name
+
+
+def test_verify_config_includes_descendant_controllers(fix_pg, fix_cont):
+    """verify_config must recurse into descendant PGs for controllers (R5)."""
+    parent = fix_pg.generate()
+    child = fix_pg.generate(parent_pg=parent)
+    f_c_descendant = fix_cont(parent_pg=child)
+
+    result = ci.verify_config(process_group_id=parent.id)
+
+    # The descendant PG's controller service must appear in the results
+    result_ids = {r["id"] for r in result["controller_results"]}
+    assert f_c_descendant.id in result_ids
+
+
+def test_verify_config_with_invalid_port(fix_pg, fix_port):
+    """Test verify_config detects invalid ports (R4)."""
+    f_pg = fix_pg.generate()
+    # Port with no connection — NiFi marks it invalid
+    f_port = fix_port.generate(parent_pg=f_pg)
+
+    result = ci.verify_config(process_group_id=f_pg.id)
+
+    assert result["verified"] == "false"
+    assert result["failed_count"] > 0
+    assert "port_results" in result
+    failed_ports = [r for r in result["port_results"] if r.get("success") is False]
+    assert len(failed_ports) == 1
+    assert failed_ports[0]["id"] == f_port.id
+    assert len(failed_ports[0]["failures"]) > 0
+
+
+def test_get_status_port_counts(fix_pg, fix_port):
+    """Test get_status reports accurate port counts (R1, R2)."""
+    f_pg = fix_pg.generate()
+    # Stopped output port (invalid due to no connection)
+    fix_port.generate(parent_pg=f_pg)
+
+    result = ci.get_status(process_group_id=f_pg.id)
+
+    assert result["total_output_ports"] == "1"
+    assert result["invalid_output_ports"] == "1"
+    assert result["total_input_ports"] == "0"
+    # Processors should be accurate (not conflated with ports)
+    assert result["invalid_processors"] == "0"
 
 
 # =============================================================================

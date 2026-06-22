@@ -273,6 +273,38 @@ def list_invalid_processors(pg_id="root", summary=False):
     return out
 
 
+def list_invalid_ports(pg_id="root", summary=False):
+    """
+    Returns a flattened list of all Ports with Invalid Statuses
+
+    Args:
+        pg_id (str): The UUID of the Process Group to start from, defaults to
+            the Canvas root
+        summary (bool): True to return just the list of relevant
+            properties per Port, False for the full listing
+
+    Returns:
+        list[PortEntity]
+    """
+    assert isinstance(pg_id, str), "pg_id should be a string"
+    assert isinstance(summary, bool)
+    all_ports = list_all_input_ports(pg_id) + list_all_output_ports(pg_id)
+    port_list = [x for x in all_ports if x.component.validation_errors]
+    if summary:
+        out = [
+            {
+                "id": x.id,
+                "name": x.component.name,
+                "type": x.component.type,
+                "summary": x.component.validation_errors,
+            }
+            for x in port_list
+        ]
+    else:
+        out = port_list
+    return out
+
+
 def list_sensitive_processors(pg_id="root", summary=False):
     """
     Returns a flattened list of all Processors on the canvas which have
