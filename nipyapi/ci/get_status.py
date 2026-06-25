@@ -26,6 +26,7 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
         dict with status information including:
         - process_group_id, process_group_name, state, is_root
         - Processor counts (total, running, stopped, invalid, disabled)
+        - Port counts (total, running, stopped, invalid for input and output)
         - Controller counts (total, enabled, disabled)
         - Version control info (versioned, version_id, version_state, etc.)
         - Parameter context info
@@ -63,27 +64,63 @@ def get_status(  # pylint: disable=too-many-locals,too-many-branches,too-many-st
         "is_root": str(is_root).lower(),
     }
 
-    # Processor counts
-    running = pg.running_count or 0
-    stopped = pg.stopped_count or 0
-    invalid = pg.invalid_count or 0
-    disabled = pg.disabled_count or 0
+    # Processor counts (enumerated for accuracy — pg.*_count includes all component types)
+    processors = nipyapi.canvas.list_all_processors(process_group_id)
 
-    if running > 0:
+    def _proc_status(p):
+        return (p.status.run_status or "").upper() if p.status else ""
+
+    proc_running = sum(1 for p in processors if _proc_status(p) == "RUNNING")
+    proc_stopped = sum(1 for p in processors if _proc_status(p) == "STOPPED")
+    proc_invalid = sum(1 for p in processors if _proc_status(p) == "INVALID")
+    proc_disabled = sum(1 for p in processors if _proc_status(p) == "DISABLED")
+
+    # State reflects processor activity only (processor-centric: ports and
+    # controllers do not influence the PG state field)
+    if proc_running > 0:
         state = "RUNNING"
-    elif stopped > 0:
+    elif proc_stopped > 0:
         state = "STOPPED"
     else:
         state = "EMPTY"
 
     result["state"] = state
-    result["total_processors"] = str(running + stopped + invalid + disabled)
-    result["running_processors"] = str(running)
-    result["stopped_processors"] = str(stopped)
-    result["invalid_processors"] = str(invalid)
-    result["disabled_processors"] = str(disabled)
+    result["total_processors"] = str(len(processors))
+    result["running_processors"] = str(proc_running)
+    result["stopped_processors"] = str(proc_stopped)
+    result["invalid_processors"] = str(proc_invalid)
+    result["disabled_processors"] = str(proc_disabled)
 
-    log.debug("State: %s (%d running, %d stopped)", state, running, stopped)
+    log.debug("State: %s (%d running, %d stopped)", state, proc_running, proc_stopped)
+
+    # Port counts (enumerated from all descendant PGs)
+    input_ports = nipyapi.canvas.list_all_input_ports(process_group_id)
+    output_ports = nipyapi.canvas.list_all_output_ports(process_group_id)
+
+    def _port_run_status(p):
+        return (p.status.run_status or "").upper() if p.status else ""
+
+    result["total_input_ports"] = str(len(input_ports))
+    result["running_input_ports"] = str(
+        sum(1 for p in input_ports if _port_run_status(p) == "RUNNING")
+    )
+    result["stopped_input_ports"] = str(
+        sum(1 for p in input_ports if _port_run_status(p) == "STOPPED")
+    )
+    result["invalid_input_ports"] = str(
+        sum(1 for p in input_ports if _port_run_status(p) == "INVALID")
+    )
+
+    result["total_output_ports"] = str(len(output_ports))
+    result["running_output_ports"] = str(
+        sum(1 for p in output_ports if _port_run_status(p) == "RUNNING")
+    )
+    result["stopped_output_ports"] = str(
+        sum(1 for p in output_ports if _port_run_status(p) == "STOPPED")
+    )
+    result["invalid_output_ports"] = str(
+        sum(1 for p in output_ports if _port_run_status(p) == "INVALID")
+    )
 
     # Queue stats, active threads, and throughput
     if pg.status and pg.status.aggregate_snapshot:

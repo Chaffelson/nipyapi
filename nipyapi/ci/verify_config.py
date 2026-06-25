@@ -80,15 +80,14 @@ def _verify_single_processor(processor) -> Dict[str, Any]:
 
 
 def _verify_controllers(process_group_id: str) -> List[Dict[str, Any]]:
-    """Verify controller services owned by ``process_group_id``.
+    """Verify controller services in ``process_group_id`` and descendants.
 
-    Scoped strictly to the given Process Group: excludes controller services
-    inherited from ancestor/parent PGs and does not recurse into descendants.
-    This keeps CI verification verdicts dependent only on the flow being
-    deployed.
+    Includes controllers owned by the target PG and all descendant PGs.
+    Excludes controllers inherited from ancestor/parent PGs so a broken
+    controller on a sibling/parent flow cannot fail this flow's CI.
     """
     controllers = nipyapi.canvas.list_all_controllers(
-        process_group_id, descendants=False, include_ancestors=False
+        process_group_id, descendants=True, include_ancestors=False
     )
     log.debug("Found %d controller services in PG", len(controllers))
     return [_verify_single_controller(c) for c in controllers]
@@ -101,10 +100,32 @@ def _verify_processors(process_group_id: str) -> List[Dict[str, Any]]:
     return [_verify_single_processor(p) for p in processors]
 
 
+def _verify_ports(process_group_id: str) -> List[Dict[str, Any]]:
+    """Verify all ports in a process group and its descendants."""
+    all_ports = nipyapi.canvas.list_all_input_ports(
+        process_group_id
+    ) + nipyapi.canvas.list_all_output_ports(process_group_id)
+    log.debug("Found %d ports in PG and descendants", len(all_ports))
+    results = []
+    for port in all_ports:
+        base_result = {
+            "id": port.id,
+            "name": port.component.name,
+            "type": port.component.type,
+        }
+        errors = port.component.validation_errors
+        if errors:
+            results.append({**base_result, "success": False, "failures": errors})
+        else:
+            results.append({**base_result, "success": True, "failures": []})
+    return results
+
+
 def verify_config(
     process_group_id: Optional[str] = None,
     verify_controllers: bool = True,
     verify_processors: bool = True,
+    verify_ports: bool = True,
     only_failures: bool = False,
 ) -> dict:
     """
@@ -113,28 +134,30 @@ def verify_config(
     Validates that all required properties are set and property values meet
     their defined constraints. Does NOT test actual connectivity or credentials.
     Designed for CI/CD pipelines to catch configuration errors before starting
-    a flow. Verifies controller services and processors that are in a
-    stopped/disabled state.
+    a flow. Verifies controller services, processors, and ports that are in a
+    stopped/disabled/invalid state.
 
     Scope:
-        - Controller services: only those owned by ``process_group_id``
-          (ancestor-inherited services are intentionally excluded so a broken
-          controller on a sibling/parent flow cannot fail this flow's CI).
+        - Controller services: ``process_group_id`` and all descendant PGs
+          (ancestor-inherited services are excluded so a broken controller on a
+          parent flow cannot fail this flow's CI).
         - Processors: ``process_group_id`` and all descendant Process Groups.
+        - Ports: ``process_group_id`` and all descendant Process Groups.
 
     Args:
         process_group_id: ID of the process group. Env: NIFI_PROCESS_GROUP_ID
         verify_controllers: Verify controller services (default: True)
         verify_processors: Verify processors (default: True)
+        verify_ports: Verify input/output ports (default: True)
         only_failures: Only include failed components in results (default: False).
             When True, controller_results and processor_results contain only
             items with success=False. Reduces output size for large process groups.
 
     Returns:
         dict with keys: verified ("true"/"false"), failed_count,
-        controller_results, processor_results, summary, and process_group_name.
-        When only_failures=True, also includes controllers_checked and
-        processors_checked counts.
+        controller_results, processor_results, port_results, summary, and
+        process_group_name. When only_failures=True, also includes
+        controllers_checked, processors_checked, and ports_checked counts.
         Caller should check verified or failed_count to determine next steps.
 
     Raises:
@@ -169,7 +192,8 @@ def verify_config(
     # Verify components
     controller_results = _verify_controllers(process_group_id) if verify_controllers else []
     processor_results = _verify_processors(process_group_id) if verify_processors else []
-    all_results = controller_results + processor_results
+    port_results = _verify_ports(process_group_id) if verify_ports else []
+    all_results = controller_results + processor_results + port_results
 
     # Count and log failures (results with success=False, excluding skipped)
     failed_count = sum(1 for r in all_results if r.get("success") is False)
@@ -200,6 +224,11 @@ def verify_config(
             if only_failures
             else processor_results
         ),
+        "port_results": (
+            [r for r in port_results if r.get("success") is False]
+            if only_failures
+            else port_results
+        ),
         "summary": summary,
         "process_group_name": process_group.component.name,
     }
@@ -208,6 +237,7 @@ def verify_config(
     if only_failures:
         result["controllers_checked"] = len(controller_results)
         result["processors_checked"] = len(processor_results)
+        result["ports_checked"] = len(port_results)
 
     # Add error key for CLI exit code detection when verification fails
     if failed_count > 0:
