@@ -1,5 +1,6 @@
 """Tests for `nipyapi` package."""
 
+import logging
 import pytest
 import time
 import uuid
@@ -936,7 +937,7 @@ def test_schedule_controller(fix_pg, fix_cont):
     assert r6.component.state == 'DISABLED'
 
 
-def test_schedule_all_controllers(fix_pg, fix_cont):
+def test_schedule_all_controllers(fix_pg, fix_cont, caplog):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
     f_c2 = fix_cont(parent_pg=f_pg)
@@ -950,9 +951,11 @@ def test_schedule_all_controllers(fix_pg, fix_cont):
     with pytest.raises(ValueError):
         _ = canvas.schedule_all_controllers(f_pg.id, 'pie')
 
-    # Test bool True -> ENABLED
-    r1 = canvas.schedule_all_controllers(f_pg.id, True)
+    # Test bool True -> ENABLED (all controllers valid -> no skip warning)
+    with caplog.at_level(logging.WARNING, logger='nipyapi.canvas'):
+        r1 = canvas.schedule_all_controllers(f_pg.id, True)
     assert r1.state == 'ENABLED'
+    assert not any('non-ENABLED' in rec.message for rec in caplog.records)
     c1 = canvas.get_controller(f_c1.id, 'id')
     c2 = canvas.get_controller(f_c2.id, 'id')
     assert c1.component.state == 'ENABLED'
@@ -983,11 +986,13 @@ def test_schedule_all_controllers(fix_pg, fix_cont):
     assert c2.component.state == 'DISABLED'
 
 
-def test_schedule_all_controllers_with_invalid(fix_pg, fix_cont):
+def test_schedule_all_controllers_with_invalid(fix_pg, fix_cont, caplog):
     """Test schedule_all_controllers skips INVALID controllers when enabling.
 
     NiFi server correctly skips INVALID controllers (they can't be enabled).
-    The client should only wait for VALID controllers to reach ENABLED state.
+    The client should only wait for VALID controllers to reach ENABLED state,
+    and (default strict=False) log a warning naming the skipped controllers
+    rather than returning success silently.
     """
     f_pg = fix_pg.generate()
     # Create valid controller via fixture
@@ -1001,9 +1006,16 @@ def test_schedule_all_controllers_with_invalid(fix_pg, fix_cont):
     assert valid_ctrl.component.validation_status == 'VALID'
     assert invalid_ctrl.component.validation_status == 'INVALID'
 
-    # Enable all - should complete without timeout
-    result = canvas.schedule_all_controllers(f_pg.id, True)
+    # Enable all - should complete without timeout and warn about the skipped
+    # INVALID controller (default strict=False does not raise)
+    with caplog.at_level(logging.WARNING, logger='nipyapi.canvas'):
+        result = canvas.schedule_all_controllers(f_pg.id, True)
     assert result.state == 'ENABLED'
+    assert any(
+        invalid_ctrl.id in rec.message and 'non-ENABLED' in rec.message
+        for rec in caplog.records
+        if rec.levelno == logging.WARNING
+    )
 
     # Valid controller should be ENABLED, invalid stays DISABLED
     valid_ctrl = canvas.get_controller(valid_ctrl.id, 'id')
@@ -1011,11 +1023,37 @@ def test_schedule_all_controllers_with_invalid(fix_pg, fix_cont):
     assert valid_ctrl.component.state == 'ENABLED'
     assert invalid_ctrl.component.state == 'DISABLED'
 
-    # Disable all - should also work
+    # Disable all - should also work (no warning on the disable path)
     result = canvas.schedule_all_controllers(f_pg.id, False)
     assert result.state == 'DISABLED'
     valid_ctrl = canvas.get_controller(valid_ctrl.id, 'id')
     assert valid_ctrl.component.state == 'DISABLED'
+
+
+def test_schedule_all_controllers_strict(fix_pg, fix_cont):
+    """strict=True raises when a controller is left non-ENABLED after enabling.
+
+    Default strict=False only warns (covered elsewhere); this verifies the
+    opt-in deterministic behaviour for automation.
+    """
+    f_pg = fix_pg.generate()
+    valid_ctrl = fix_cont(parent_pg=f_pg, kind='CSVReader')
+    invalid_ctrl = fix_cont(parent_pg=f_pg, kind='StandardSSLContextService')
+    valid_ctrl = canvas.get_controller(valid_ctrl.id, 'id')
+    invalid_ctrl = canvas.get_controller(invalid_ctrl.id, 'id')
+    assert valid_ctrl.component.validation_status == 'VALID'
+    assert invalid_ctrl.component.validation_status == 'INVALID'
+
+    # Default (strict=False) must not raise even with an INVALID controller
+    result = canvas.schedule_all_controllers(f_pg.id, True)
+    assert result.state == 'ENABLED'
+
+    # Reset to a disabled baseline before the strict attempt
+    canvas.schedule_all_controllers(f_pg.id, False)
+
+    # strict=True must raise because the INVALID controller cannot be enabled
+    with pytest.raises(ValueError):
+        _ = canvas.schedule_all_controllers(f_pg.id, True, strict=True)
 
 
 def test_delete_controller(fix_pg, fix_cont):

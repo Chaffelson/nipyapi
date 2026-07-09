@@ -2435,7 +2435,7 @@ def schedule_controller(controller, scheduled, refresh=False, greedy=True, ident
     raise ValueError("Scheduling request timed out")
 
 
-def schedule_all_controllers(pg_id, scheduled):
+def schedule_all_controllers(pg_id, scheduled, strict=False):
     """
     Enable or Disable all Controller Services in a Process Group.
 
@@ -2444,21 +2444,31 @@ def schedule_all_controllers(pg_id, scheduled):
     to reach the target state before returning.
 
     Note:
-        When enabling, INVALID controllers (those with validation errors) are
-        skipped since NiFi cannot enable them. The function waits only for
-        VALID controllers to reach ENABLED state. When disabling, all
-        controllers are included since any controller can be disabled.
+        When enabling, NiFi silently skips INVALID controllers (those with
+        validation errors) since they cannot be enabled, so the bulk operation
+        can report success while leaving some services disabled. This function
+        waits only for VALID controllers to reach ENABLED state, then checks for
+        any controllers left in a non-ENABLED state: by default it logs a
+        warning naming them; with strict=True it raises instead. When disabling,
+        all controllers are included since any controller can be disabled.
 
     Args:
         pg_id (str): The UUID of the Process Group
         scheduled (bool or str): True/False for ENABLED/DISABLED, or one of
             "ENABLED", "DISABLED".
+        strict (bool): When enabling, if True raise a ValueError if any
+            controller service is left in a non-ENABLED state (for example
+            because it is INVALID). When False (default) such controllers are
+            reported via a logged warning and the operation returns normally.
+            Has no effect when disabling.
 
     Returns:
         ActivateControllerServicesEntity: The result of the operation
 
     Raises:
-        ValueError: If scheduled is not a bool or valid state string.
+        ValueError: If scheduled is not a bool or valid state string, or if
+            strict is True and one or more controllers were left non-ENABLED
+            after an enable operation.
 
     """
     assert isinstance(pg_id, str)
@@ -2496,6 +2506,25 @@ def schedule_all_controllers(pg_id, scheduled):
     )
     if not state_complete:
         raise ValueError(f"Timed out waiting for controllers to reach state {target_state}")
+
+    # When enabling, NiFi silently skips INVALID controllers, so the bulk call
+    # can succeed while leaving services disabled. Surface any that remain in a
+    # non-ENABLED state rather than returning success silently.
+    if target_state == "ENABLED":
+        not_enabled = [c for c in list_all_controllers(pg_id) if c.component.state != "ENABLED"]
+        if not_enabled:
+            detail = ", ".join(
+                f"{c.component.name} (id={c.id}, "
+                f"validation_status={c.component.validation_status})"
+                for c in not_enabled
+            )
+            msg = (
+                f"{len(not_enabled)} controller service(s) in process group {pg_id} "
+                f"were not enabled and remain in a non-ENABLED state: {detail}"
+            )
+            if strict:
+                raise ValueError(msg)
+            log.warning(msg)
     return result
 
 
