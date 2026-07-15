@@ -2204,10 +2204,18 @@ def test_update_controller_auto_disable(fix_cont):
     controller = canvas.get_controller(controller.id, 'id')
     assert controller.component.state == 'ENABLED'
 
-    # Update with auto_disable should work
+    # Update with auto_disable should disable, apply the change, and re-enable.
+    # Choose a value that keeps the controller VALID across NiFi versions so it
+    # can re-enable: enum-constrained descriptors take their default value, while
+    # free-form properties accept an arbitrary string. (NiFi 2.10 reorders the
+    # CSVReader descriptors so keys[0] is the enum 'Schema Access Strategy', for
+    # which an arbitrary string is rejected.)
     keys = canvas.prepare_controller_config(controller)
     assert keys, "Expected controller to have configurable properties"
-    config = canvas.prepare_controller_config(controller, {keys[0]: 'test'})
+    prop = keys[0]
+    descriptor = controller.component.descriptors[prop]
+    value = descriptor.default_value if descriptor.allowable_values else 'test'
+    config = canvas.prepare_controller_config(controller, {prop: value})
     result = canvas.update_controller(controller, update=config, auto_disable=True)
     assert result.component.state == 'ENABLED'
 

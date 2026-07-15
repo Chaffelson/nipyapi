@@ -2,7 +2,7 @@
 .DEFAULT_GOAL := help
 
 # Default NiFi/Registry version for docker compose profiles
-NIFI_VERSION ?= 2.7.2
+NIFI_VERSION ?= 2.10.0
 
 # Load .env file if it exists (for secrets like GH_REGISTRY_TOKEN)
 # WARNING: All variables from .env are exported and can override profile settings.
