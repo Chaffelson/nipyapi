@@ -3,6 +3,7 @@
 from .access_api import AccessApi
 from .authentication_api import AuthenticationApi
 from .connections_api import ConnectionsApi
+from .connectors_api import ConnectorsApi
 from .controller_api import ControllerApi
 from .controller_services_api import ControllerServicesApi
 from .counters_api import CountersApi

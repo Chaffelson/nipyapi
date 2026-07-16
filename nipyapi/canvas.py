@@ -146,7 +146,9 @@ def get_flow(pg_id="root"):
     """
     assert isinstance(pg_id, str), "pg_id should be a string"
     with nipyapi.utils.rest_exceptions():
-        return nipyapi.nifi.FlowApi().get_flow(pg_id)
+        # get_flow1: NiFi 2.10 ConnectorsApi added a colliding getFlow op, so
+        # swagger-codegen suffixed the original flow-by-id method to get_flow1
+        return nipyapi.nifi.FlowApi().get_flow1(pg_id)
 
 
 def get_process_group_status(pg_id="root", detail="names"):
@@ -929,7 +931,7 @@ def schedule_processor(processor, scheduled, refresh=True, greedy=True, identifi
     # including from DISABLED state, which schedule_components cannot handle)
     body = nipyapi.nifi.ProcessorRunStatusEntity(revision=target.revision, state=target_state)
     with nipyapi.utils.rest_exceptions():
-        nipyapi.nifi.ProcessorsApi().update_run_status4(body=body, id=target.id)
+        nipyapi.nifi.ProcessorsApi().update_run_status5(body=body, id=target.id)
 
     # Wait for target state
     return nipyapi.utils.wait_to_complete(_check_processor_state, target.id, target_state)
@@ -1010,9 +1012,9 @@ def schedule_port(port, scheduled, refresh=True, greedy=True, identifier_type="a
     body = nipyapi.nifi.PortRunStatusEntity(revision=target.revision, state=target_state)
     with nipyapi.utils.rest_exceptions():
         if is_input:
-            nipyapi.nifi.InputPortsApi().update_run_status2(body=body, id=target.id)
+            nipyapi.nifi.InputPortsApi().update_run_status3(body=body, id=target.id)
         else:
-            nipyapi.nifi.OutputPortsApi().update_run_status3(body=body, id=target.id)
+            nipyapi.nifi.OutputPortsApi().update_run_status4(body=body, id=target.id)
 
     # Wait for target state
     return nipyapi.utils.wait_to_complete(_check_port_state, target.id, target_state)
@@ -2414,8 +2416,8 @@ def schedule_controller(controller, scheduled, refresh=False, greedy=True, ident
     handle = nipyapi.nifi.ControllerServicesApi()
     if refresh:
         controller = nipyapi.canvas.get_controller(controller.id, "id")
-    # NiFi 2.x: update run status via ControllerServicesApi.update_run_status1
-    result = handle.update_run_status1(
+    # NiFi 2.x: update run status via ControllerServicesApi.update_run_status2
+    result = handle.update_run_status2(
         id=controller.id,
         body=nipyapi.nifi.ControllerServiceRunStatusEntity(
             revision=controller.revision, state=target_state
