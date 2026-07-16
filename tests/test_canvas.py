@@ -886,6 +886,87 @@ def test_create_controller(fix_cont):
         canvas.delete_controller(r1, force=True)
 
 
+# Management (controller-level) controller service type available on stock NiFi
+_MGMT_CS_TYPE = (
+    "org.apache.nifi.web.client.provider.service.StandardWebClientServiceProvider"
+)
+
+
+def test_create_management_controller():
+    cs_type = canvas.get_controller_type(
+        _MGMT_CS_TYPE, identifier_type="name", greedy=False
+    )
+    assert cs_type is not None
+    r1 = canvas.create_management_controller(cs_type, name="test-mgmt-webclient")
+    try:
+        assert isinstance(r1, nifi.ControllerServiceEntity)
+        assert r1.component.name == "test-mgmt-webclient"
+        assert r1.component.type == _MGMT_CS_TYPE
+        # Controller-level service is not scoped to a process group
+        assert r1.component.parent_group_id is None
+        # Bad argument types raise, consistent with create_controller
+        with pytest.raises(AssertionError):
+            _ = canvas.create_management_controller("not-a-type")
+        with pytest.raises(AssertionError):
+            _ = canvas.create_management_controller(cs_type, name=123)
+    finally:
+        canvas.delete_controller(r1, force=True)
+
+
+def test_ensure_management_controller():
+    name = "test-ensure-mgmt-webclient"
+    r1 = canvas.ensure_management_controller(name, _MGMT_CS_TYPE)
+    try:
+        assert isinstance(r1, nifi.ControllerServiceEntity)
+        assert r1.component.name == name
+        assert r1.component.state == "ENABLED"
+        # Idempotent by name: a second call returns the same service
+        r2 = canvas.ensure_management_controller(name, _MGMT_CS_TYPE)
+        assert r2.id == r1.id
+        # Unknown type raises ValueError
+        with pytest.raises(ValueError, match="not available"):
+            _ = canvas.ensure_management_controller(
+                "does-not-exist", "org.apache.nifi.NoSuchControllerService"
+            )
+    finally:
+        canvas.delete_controller(r1.id, force=True)
+
+
+def test_management_controller_crud():
+    """Full CRUD via the shared canvas controller functions on a controller-level
+    (management) controller service. This proves get/update/schedule/delete
+    operate correctly on management services (created via ControllerApi), not
+    only on PG-scoped controller services created via ProcessGroupsApi.
+    """
+    cs_type = canvas.get_controller_type(
+        _MGMT_CS_TYPE, identifier_type="name", greedy=False
+    )
+    cs = canvas.create_management_controller(cs_type, name="test-mgmt-crud")
+    try:
+        # READ: resolve the management service by id and by name
+        by_id = canvas.get_controller(cs.id, "id")
+        assert by_id is not None and by_id.id == cs.id
+        by_name = canvas.get_controller(
+            "test-mgmt-crud", identifier_type="name", greedy=False
+        )
+        assert by_name is not None and by_name.id == cs.id
+        # UPDATE: apply a non-sensitive property to the management service
+        config = canvas.prepare_controller_config(cs, {"Connect Timeout": "20 secs"})
+        updated = canvas.update_controller(cs, update=config)
+        assert updated.component.properties["Connect Timeout"] == "20 secs"
+        # SCHEDULE: enable then disable the management service
+        enabled = canvas.schedule_controller(updated, True)
+        assert enabled.component.state == "ENABLED"
+        disabled = canvas.schedule_controller(enabled, False)
+        assert disabled.component.state == "DISABLED"
+    finally:
+        # DELETE: remove the management service and confirm it is gone
+        canvas.delete_controller(cs.id, force=True)
+    assert canvas.get_controller(
+        "test-mgmt-crud", identifier_type="name", greedy=False
+    ) is None
+
+
 def test_get_controller(fix_pg, fix_cont):
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)

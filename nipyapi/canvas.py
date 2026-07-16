@@ -55,6 +55,8 @@ __all__ = [
     "delete_connection",
     "get_component_connections",
     "create_controller",
+    "create_management_controller",
+    "ensure_management_controller",
     "list_all_controllers",
     "delete_controller",
     "update_controller",
@@ -2147,6 +2149,95 @@ def create_controller(parent_pg, controller, name=None):
                 ),
             ),
         )
+
+
+def create_management_controller(controller, name=None):
+    """
+    Creates a new controller-level (management) Controller Service of the given
+    type, with the given Name.
+
+    Management controller services live at the Controller level (Controller
+    Settings), not inside a Process Group, and are the kind referenced by Flow
+    Registry Clients, Reporting Tasks, and similar. Unlike
+    :func:`create_controller`, no parent Process Group is required; the service
+    is created via the Controller API.
+
+    Args:
+        controller (:class:`~nipyapi.nifi.models.DocumentedTypeDTO`): Type of
+            Controller Service to create, found via the list_all_controller_types
+            method
+        name (str, optional): Name for the new Controller Service. If not
+            provided, defaults to the short type name (e.g.,
+            "StandardOauth2AccessTokenProvider").
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The created controller service
+
+    """
+    assert isinstance(controller, nipyapi.nifi.DocumentedTypeDTO)
+    assert name is None or isinstance(name, str)
+    # Default name to short type name if not provided (consistent with create_controller)
+    if name is None:
+        controller_name = controller.type.split(".")[-1]
+    else:
+        controller_name = name
+    with nipyapi.utils.rest_exceptions():
+        # NiFi 2.x creates a controller-level Controller Service via ControllerApi
+        return nipyapi.nifi.ControllerApi().create_controller_service(
+            body=nipyapi.nifi.ControllerServiceEntity(
+                revision={"version": 0},
+                component=nipyapi.nifi.ControllerServiceDTO(
+                    bundle=controller.bundle,
+                    type=controller.type,
+                    name=controller_name,
+                ),
+            ),
+        )
+
+
+def ensure_management_controller(name, controller_type, properties=None, enable=True):
+    """
+    Ensure a controller-level (management) Controller Service exists, is
+    configured, and (optionally) enabled. Idempotent by name.
+
+    Composes the existing controller-service functions: finds an existing
+    service by name, creates it via :func:`create_management_controller` if
+    absent, applies ``properties`` via :func:`update_controller`, and enables it
+    via :func:`schedule_controller`.
+
+    Args:
+        name (str): Controller Service name (used for idempotent lookup).
+        controller_type (str): Fully-qualified controller service class name,
+            e.g. ``org.apache.nifi.oauth2.StandardOauth2AccessTokenProvider``.
+        properties (dict, optional): Properties to set on the service.
+        enable (bool): Whether to enable the service (default True).
+
+    Returns:
+        :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The ensured controller service
+
+    Raises:
+        ValueError: If the controller service type is not available on this NiFi.
+
+    """
+    assert isinstance(name, str)
+    assert isinstance(controller_type, str)
+    assert properties is None or isinstance(properties, dict)
+    controller = get_controller(name, identifier_type="name", bool_response=True, greedy=False)
+    if not controller:
+        cs_type = get_controller_type(controller_type, identifier_type="name", greedy=False)
+        if cs_type is None:
+            raise ValueError(
+                f"Controller service type '{controller_type}' is not available "
+                "on this NiFi instance"
+            )
+        controller = create_management_controller(cs_type, name=name)
+    if properties:
+        controller = update_controller(
+            controller, nipyapi.nifi.ControllerServiceDTO(properties=properties)
+        )
+    if enable:
+        controller = schedule_controller(controller, scheduled=True, refresh=True)
+    return controller
 
 
 def list_all_controllers(  # pylint: disable=too-many-arguments,too-many-positional-arguments

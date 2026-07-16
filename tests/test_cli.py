@@ -98,6 +98,67 @@ def test_serialize_result_dict_dotenv_special_chars():
     assert 'WITH_QUOTES="value with \\"quotes\\""' in result
 
 
+def test_serialize_result_dict_azurepipelines():
+    """Test Azure Pipelines setvariable output format."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result({"process_group_id": "abc123", "state": "RUNNING"},
+                               "azurepipelines")
+    # One ##vso[task.setvariable] logging command per output, isOutput=true
+    assert (
+        "##vso[task.setvariable variable=process_group_id;isOutput=true]abc123"
+        in result
+    )
+    assert "##vso[task.setvariable variable=state;isOutput=true]RUNNING" in result
+
+
+def test_serialize_result_dict_azure_alias():
+    """Test the 'azure' alias resolves to the Azure Pipelines format."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result({"state": "RUNNING"}, "azure")
+    assert "##vso[task.setvariable variable=state;isOutput=true]RUNNING" in result
+
+
+def test_serialize_result_dict_azurepipelines_special_chars():
+    """Test Azure Pipelines percent-encoding of newlines, CR, and percent signs."""
+    from nipyapi.cli import _serialize_result
+    result = _serialize_result({"note": "100%\nline2\r"}, "azurepipelines")
+    # % must be encoded first (%AZP25), then CR (%0D) and LF (%0A), so the value
+    # round-trips instead of truncating at the newline.
+    assert "]100%AZP25%0Aline2%0D" in result
+    # Raw newline/CR must NOT appear in the emitted command value
+    assert "\n" not in result
+    assert "\r" not in result
+
+
+def test_serialize_result_dict_azurepipelines_nested_list():
+    """Test Azure Pipelines format JSON-serializes nested lists on a single line."""
+    from nipyapi.cli import _serialize_result
+    data = {
+        "flow_count": "2",
+        "flows": [{"name": "flow1", "id": "abc"}, {"name": "flow2", "id": "def"}],
+    }
+    result = _serialize_result(data, "azurepipelines")
+    lines = result.strip().split("\n")
+    # One logging command per line (no accidental multiline from the JSON value)
+    assert len(lines) == 2
+    assert "variable=flow_count;isOutput=true]2" in result
+    flows_line = [ln for ln in lines if "variable=flows;" in ln][0]
+    flows_json = flows_line.split("isOutput=true]", 1)[1]
+    parsed = json.loads(flows_json)
+    assert len(parsed) == 2
+    assert parsed[0]["name"] == "flow1"
+
+
+def test_serialize_result_dict_azurepipelines_nested_dict():
+    """Test Azure Pipelines format flattens nested dicts (existing flatten behavior)."""
+    from nipyapi.cli import _serialize_result
+    data = {"name": "test", "metadata": {"key1": "value1", "key2": "value2"}}
+    result = _serialize_result(data, "azurepipelines")
+    assert "variable=name;isOutput=true]test" in result
+    assert "variable=metadata_key1;isOutput=true]value1" in result
+    assert "variable=metadata_key2;isOutput=true]value2" in result
+
+
 def test_serialize_result_list_json():
     """Test JSON serialization of list."""
     from nipyapi.cli import _serialize_result
@@ -105,7 +166,6 @@ def test_serialize_result_list_json():
     parsed = json.loads(result)
     assert len(parsed) == 2
     assert parsed[0]["a"] == 1
-
 
 def test_serialize_result_list_non_json():
     """Test list serialization with non-JSON format returns JSONL."""
@@ -534,6 +594,49 @@ def test_detect_output_format_gitlab():
             os.environ.pop("GITLAB_CI", None)
         if old_github:
             os.environ["GITHUB_ACTIONS"] = old_github
+
+
+def test_detect_output_format_azure():
+    """Test Azure Pipelines auto-detection via TF_BUILD."""
+    from nipyapi.cli import _detect_output_format
+    old_format = os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+    old_github = os.environ.pop("GITHUB_ACTIONS", None)
+    old_gitlab = os.environ.pop("GITLAB_CI", None)
+    old_tf = os.environ.get("TF_BUILD")
+    try:
+        os.environ["TF_BUILD"] = "True"
+        assert _detect_output_format() == "azurepipelines"
+    finally:
+        if old_format:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
+        if old_github:
+            os.environ["GITHUB_ACTIONS"] = old_github
+        if old_gitlab:
+            os.environ["GITLAB_CI"] = old_gitlab
+        if old_tf:
+            os.environ["TF_BUILD"] = old_tf
+        else:
+            os.environ.pop("TF_BUILD", None)
+
+
+def test_detect_output_format_explicit_over_tf_build():
+    """Test explicit NIFI_OUTPUT_FORMAT beats TF_BUILD auto-detection."""
+    from nipyapi.cli import _detect_output_format
+    old_format = os.environ.get("NIFI_OUTPUT_FORMAT")
+    old_tf = os.environ.get("TF_BUILD")
+    try:
+        os.environ["TF_BUILD"] = "True"
+        os.environ["NIFI_OUTPUT_FORMAT"] = "json"
+        assert _detect_output_format() == "json"
+    finally:
+        if old_format:
+            os.environ["NIFI_OUTPUT_FORMAT"] = old_format
+        else:
+            os.environ.pop("NIFI_OUTPUT_FORMAT", None)
+        if old_tf:
+            os.environ["TF_BUILD"] = old_tf
+        else:
+            os.environ.pop("TF_BUILD", None)
 
 
 def test_get_log_level_default():
