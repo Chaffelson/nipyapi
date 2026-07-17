@@ -915,14 +915,18 @@ def test_create_management_controller():
 
 def test_ensure_management_controller():
     name = "test-ensure-mgmt-webclient"
-    r1 = canvas.ensure_management_controller(name, _MGMT_CS_TYPE)
+    props = {"Connect Timeout": "20 secs"}
+    r1 = canvas.ensure_management_controller(name, _MGMT_CS_TYPE, properties=props)
     try:
         assert isinstance(r1, nifi.ControllerServiceEntity)
         assert r1.component.name == name
+        assert r1.component.properties["Connect Timeout"] == "20 secs"
         assert r1.component.state == "ENABLED"
-        # Idempotent by name: a second call returns the same service
-        r2 = canvas.ensure_management_controller(name, _MGMT_CS_TYPE)
+        # Idempotent by name: a second call reuses the same service and can
+        # re-apply properties even though it is now ENABLED (auto_disable path).
+        r2 = canvas.ensure_management_controller(name, _MGMT_CS_TYPE, properties=props)
         assert r2.id == r1.id
+        assert r2.component.state == "ENABLED"
         # Unknown type raises ValueError
         with pytest.raises(ValueError, match="not available"):
             _ = canvas.ensure_management_controller(

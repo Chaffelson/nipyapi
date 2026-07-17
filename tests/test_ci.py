@@ -2536,6 +2536,13 @@ def test_ado_ensure_registry_live(fix_ado_reg_client):
     assert oauth_cs.component.state == "ENABLED"
     assert web_cs.component.state == "ENABLED"
 
+    # Prove real auth, not just VALID config ("Valid != access"): listing
+    # buckets forces the SP OAuth2 token fetch + a live Azure DevOps API call,
+    # so a successful (non-raising) call means the service principal actually
+    # authenticated against the repository.
+    buckets = nipyapi.versioning.list_git_registry_buckets(client.id)
+    assert buckets is not None
+
 
 def test_ado_ensure_registry_idempotent(fix_ado_reg_client):
     """Live: calling the helper twice with the same name reuses client + services."""
