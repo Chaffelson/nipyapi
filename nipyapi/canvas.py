@@ -2232,13 +2232,12 @@ def ensure_management_controller(name, controller_type, properties=None, enable=
             )
         controller = create_management_controller(cs_type, name=name)
     if properties:
-        # auto_disable so re-applying properties to an existing, already-enabled
-        # service (idempotent re-invocation) works instead of raising.
-        controller = update_controller(
-            controller,
-            nipyapi.nifi.ControllerServiceDTO(properties=properties),
-            auto_disable=True,
-        )
+        # Validate the property keys against the service descriptors (same guard
+        # as elsewhere), so a typo raises instead of silently creating a dynamic
+        # property. auto_disable lets us re-apply to an existing, already-enabled
+        # service (idempotent re-invocation) instead of raising.
+        config = prepare_controller_config(controller, properties)
+        controller = update_controller(controller, update=config, auto_disable=True)
     if enable:
         controller = schedule_controller(controller, scheduled=True, refresh=True)
     return controller
