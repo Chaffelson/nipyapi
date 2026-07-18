@@ -2,6 +2,15 @@
 History
 =======
 
+1.7.0 (2026-07-18)
+-------------------
+
+| Upgrade to NiFi 2.10.0 support with regenerated API clients
+
+**Supported Versions**
+
+- Bumped the supported and tested NiFi/Registry version from 2.7.2 to 2.10.0 and regenerated the NiFi and Registry API clients against the 2.10.0 OpenAPI specification. New Connectors API operations introduced ``operationId`` collisions in the generated clients; the affected hand-written call sites were updated accordingly (for example ``get_flow1``, ``create_asset1``, ``get_assets1``, and the renumbered ``update_run_status`` variants).
+
 1.6.0 (2026-06-21)
 -------------------
 
