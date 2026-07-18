@@ -74,7 +74,7 @@ Available Operations
 ensure_registry
 ---------------
 
-Create or update a Git Flow Registry Client (GitHub or GitLab).
+Create or update a Git Flow Registry Client (GitHub, GitLab, or Azure DevOps).
 
 .. code-block:: console
 
@@ -93,13 +93,49 @@ Parameter                      Description                                   Env
 ``--token``                    Personal Access Token                         ``GH_REGISTRY_TOKEN`` or ``GL_REGISTRY_TOKEN``
 ``--repo``                     Repository in owner/repo format               ``NIFI_REGISTRY_REPO``
 ``--client_name``              Registry client name                          ``NIFI_REGISTRY_CLIENT_NAME``
-``--provider``                 Git provider (github/gitlab)                  ``NIFI_REGISTRY_PROVIDER``
+``--provider``                 Git provider (github/gitlab/azuredevops)      ``NIFI_REGISTRY_PROVIDER``
 ``--api_url``                  API URL override                              ``NIFI_REGISTRY_API_URL``
 ``--default_branch``           Default branch (default: main)                ``NIFI_REGISTRY_BRANCH``
 ``--repository_path``          Path within repository                        ``NIFI_REPOSITORY_PATH``
 =============================  ============================================  ================================
 
 **Returns:** ``registry_client_id``, ``registry_client_name``
+
+**Azure DevOps:**
+
+Azure DevOps authenticates with a **service principal** (OAuth2 client credentials), not a
+personal access token. Provide the service-principal credentials and repository coordinates
+as arguments or via ``NIFI_ADO_*`` environment variables:
+
+.. code-block:: console
+
+    nipyapi ci ensure_registry \
+        --provider azuredevops \
+        --organization myorg \
+        --project myproject \
+        --repository nifi-flows \
+        --tenant_id $NIFI_ADO_TENANT_ID \
+        --client_id $NIFI_ADO_CLIENT_ID \
+        --client_secret $NIFI_ADO_CLIENT_SECRET \
+        --default_branch main
+
+=============================  ============================================  ================================
+Parameter                      Description                                   Environment Variable
+=============================  ============================================  ================================
+``--provider``                 Set to ``azuredevops``                        ``NIFI_REGISTRY_PROVIDER``
+``--organization``             Azure DevOps organization                     ``NIFI_ADO_ORG``
+``--project``                  Azure DevOps project                          ``NIFI_ADO_PROJECT``
+``--repository``               Azure DevOps repository name                  ``NIFI_ADO_REPO``
+``--tenant_id``                Entra (Azure AD) tenant id                    ``NIFI_ADO_TENANT_ID``
+``--client_id``                Service principal client id                   ``NIFI_ADO_CLIENT_ID``
+``--client_secret``            Service principal client secret               ``NIFI_ADO_CLIENT_SECRET``
+``--default_branch``           Default branch (default: main)                ``NIFI_REGISTRY_BRANCH``
+``--repository_path``          Path within repository                        ``NIFI_REPOSITORY_PATH``
+=============================  ============================================  ================================
+
+Provisioning an Azure DevOps registry client also creates the supporting management
+controller services (a web client service and an OAuth2 token provider) that NiFi
+needs to authenticate to Azure DevOps.
 
 deploy_flow
 -----------
@@ -589,10 +625,16 @@ Variable                       Description
 ``NIFI_REGISTRY_REPO``         Repository in owner/repo format
 ``NIFI_REGISTRY_CLIENT_ID``    Registry client ID
 ``NIFI_REGISTRY_CLIENT_NAME``  Registry client name
-``NIFI_REGISTRY_PROVIDER``     Git provider (github/gitlab)
+``NIFI_REGISTRY_PROVIDER``     Git provider (github/gitlab/azuredevops)
 ``NIFI_REGISTRY_API_URL``      API URL override
 ``NIFI_REGISTRY_BRANCH``       Default branch
 ``NIFI_REPOSITORY_PATH``       Path within repository
+``NIFI_ADO_ORG``               Azure DevOps organization
+``NIFI_ADO_PROJECT``           Azure DevOps project
+``NIFI_ADO_REPO``              Azure DevOps repository name
+``NIFI_ADO_TENANT_ID``         Azure DevOps (Entra) tenant id
+``NIFI_ADO_CLIENT_ID``         Azure DevOps service principal client id
+``NIFI_ADO_CLIENT_SECRET``     Azure DevOps service principal secret
 =============================  ============================================
 
 Flow Operations
@@ -711,6 +753,29 @@ For GitLab CI, include the fragments template:
         - !reference [.nipyapi, ensure-registry]
         - !reference [.nipyapi, deploy-flow]
         - !reference [.nipyapi, start-flow]
+
+Azure Pipelines
+---------------
+
+For Azure Pipelines, the CLI auto-detects the environment (via ``TF_BUILD``) and emits
+``##vso[task.setvariable]`` logging commands, so operation outputs become pipeline
+variables referenceable in later steps. See the `nipyapi-actions
+<https://github.com/Chaffelson/nipyapi-actions>`_ repository for a complete pipeline
+and reusable step template.
+
+.. code-block:: yaml
+
+    variables:
+      - group: nipyapi-ado        # NIFI_API_ENDPOINT, NIFI_ADO_* credentials, etc.
+
+    steps:
+      - script: pip install "nipyapi[cli]"
+        displayName: Install nipyapi
+      - script: |
+          nipyapi ci ensure_registry --provider azuredevops
+          nipyapi ci deploy_flow --bucket connectors --flow postgresql
+          nipyapi ci start_flow --process_group_id $(process-group-id)
+        displayName: Deploy NiFi flow
 
 Python Usage
 ============
