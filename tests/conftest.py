@@ -81,6 +81,26 @@ def remove_test_git_registry_clients():
          ]
 
 
+def remove_test_ado_controller_services():
+    """Delete controller-level controller services created by ADO registry tests.
+
+    The Azure DevOps registry helper creates two management (controller-level)
+    controller services named ``<client>-WebClient`` and ``<client>-OAuth2``.
+    Registry-client teardown does not remove them, so clean them up by name.
+    """
+    if SKIP_TEARDOWN:
+        return None
+    _ = [nipyapi.canvas.delete_controller(li, True) for li
+         in nipyapi.canvas.list_all_controllers(include_reporting_tasks=True) if
+         li.component and test_git_registry_client_name in (li.component.name or "")]
+
+
+def remove_test_ado_registry_artifacts():
+    """Full ADO teardown: registry client(s) then their controller services."""
+    remove_test_git_registry_clients()
+    remove_test_ado_controller_services()
+
+
 def _wait_until_service_up(gui_url: str):
     if not nipyapi.utils.wait_to_complete(
         nipyapi.utils.is_endpoint_up,
@@ -849,6 +869,65 @@ def fixture_git_registry_client(request):
             return self._client
 
     request.addfinalizer(remove_test_git_registry_clients)
+    return Dummy()
+
+
+# Azure DevOps registry fixtures require a service principal via ADO_* env vars:
+#   ADO_TENANT_ID, ADO_CLIENT_ID, ADO_CLIENT_SECRET, ADO_ORG, ADO_PROJECT, ADO_REPO
+# Unlike GitHub/GitLab (PAT string), Azure DevOps auth is SERVICE_PRINCIPAL-only,
+# so the helper also provisions two controller services (Web Client + OAuth2).
+ADO_REGISTRY_ENV_VARS = (
+    "ADO_TENANT_ID",
+    "ADO_CLIENT_ID",
+    "ADO_CLIENT_SECRET",
+    "ADO_ORG",
+    "ADO_PROJECT",
+    "ADO_REPO",
+)
+
+
+@pytest.fixture(name='fix_ado_reg_client', scope='function')
+def fixture_ado_registry_client(request):
+    """Create an Azure DevOps registry client for testing with real credentials.
+
+    Requires ADO_TENANT_ID, ADO_CLIENT_ID, ADO_CLIENT_SECRET, ADO_ORG,
+    ADO_PROJECT and ADO_REPO environment variables (a service principal with
+    repo write access on an Entra-backed Azure DevOps organization). The helper
+    provisions the two required controller services in addition to the registry
+    client; teardown removes all three by name.
+    """
+    missing = [v for v in ADO_REGISTRY_ENV_VARS if not os.environ.get(v)]
+    if missing:
+        pytest.skip(
+            "Azure DevOps env not set (" + ", ".join(missing) + ") - skipping ADO registry tests"
+        )
+
+    class Dummy:
+        def __init__(self):
+            self._client = None
+
+        def generate(self, suffix=''):
+            client_name = test_git_registry_client_name + '_ado' + suffix
+            # Clean up any prior client + its controller services
+            existing = nipyapi.versioning.list_registry_clients().registries
+            for client in existing:
+                if client.component and client_name in client.component.name:
+                    nipyapi.versioning.delete_registry_client(client)
+
+            self._client = nipyapi.versioning.ensure_azuredevops_registry(
+                name=client_name,
+                organization=os.environ['ADO_ORG'],
+                project=os.environ['ADO_PROJECT'],
+                repository=os.environ['ADO_REPO'],
+                tenant_id=os.environ['ADO_TENANT_ID'],
+                client_id=os.environ['ADO_CLIENT_ID'],
+                client_secret=os.environ['ADO_CLIENT_SECRET'],
+                default_branch=os.environ.get('ADO_BRANCH', 'main'),
+                repository_path=os.environ.get('ADO_REPO_PATH') or None,
+            )
+            return self._client
+
+    request.addfinalizer(remove_test_ado_registry_artifacts)
     return Dummy()
 
 

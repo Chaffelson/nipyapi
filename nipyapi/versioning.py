@@ -39,6 +39,8 @@ __all__ = [
     "deploy_git_registry_flow",
     "save_git_flow_ver",
     "get_local_modifications",
+    # Azure DevOps Registry Provisioning (service-principal auth)
+    "ensure_azuredevops_registry",
     # Generic Version Control (works with any registry type)
     "get_version_info",
     # Process Group Export/Import (no registry required)
@@ -1744,3 +1746,121 @@ def import_process_group_definition(
         )
 
         return result
+
+
+# =============================================================================
+# Azure DevOps Flow Registry Client helpers
+# =============================================================================
+# NiFi ships a native Azure DevOps Flow Registry Client. Unlike GitHub/GitLab
+# (which authenticate with a single Personal Access Token property), the Azure
+# DevOps client authenticates only via a Microsoft Entra service principal using
+# OAuth2 client credentials, and therefore requires two management-level
+# controller services: a Web Client Service and an OAuth2 Access Token Provider.
+# These helpers abstract that away behind a single ensure_azuredevops_registry()
+# call, consistent with the other ensure_* convenience functions.
+
+# The fixed Microsoft-assigned Azure DevOps resource application ID; the OAuth2
+# client-credentials scope is this id suffixed with "/.default".
+AZURE_DEVOPS_OAUTH_SCOPE = "499b84ac-1321-427f-aa17-267ca6975798/.default"
+
+AZURE_DEVOPS_REGISTRY_TYPE = "org.apache.nifi.azure.devops.AzureDevOpsFlowRegistryClient"
+_WEB_CLIENT_SERVICE_TYPE = (
+    "org.apache.nifi.web.client.provider.service.StandardWebClientServiceProvider"
+)
+_OAUTH2_TOKEN_PROVIDER_TYPE = "org.apache.nifi.oauth2.StandardOauth2AccessTokenProvider"
+
+
+# pylint: disable=too-many-arguments,too-many-positional-arguments,too-many-locals
+def ensure_azuredevops_registry(
+    name,
+    organization,
+    project,
+    repository,
+    tenant_id,
+    client_id,
+    client_secret,
+    default_branch="main",
+    repository_path=None,
+    scope=None,
+    api_url="https://dev.azure.com",
+):
+    """
+    Ensure an Azure DevOps Flow Registry Client exists and is ready to use,
+    creating and wiring the required controller services automatically.
+
+    This single call abstracts the full Azure DevOps setup: it ensures a Web
+    Client Service and an OAuth2 Access Token Provider (client-credentials, using
+    the supplied Entra service principal), then creates or updates the Azure
+    DevOps Flow Registry Client referencing them. Mirrors the one-call developer
+    experience of the GitHub/GitLab registry setup.
+
+    Args:
+        name (str): Registry client name.
+        organization (str): Azure DevOps organization.
+        project (str): Azure DevOps project.
+        repository (str): Repository name holding the flows.
+        tenant_id (str): Microsoft Entra tenant id (for the OAuth2 token endpoint).
+        client_id (str): Service principal application (client) id.
+        client_secret (str): Service principal client secret.
+        default_branch (str): Default branch (default 'main').
+        repository_path (str, optional): Subfolder path in the repo for flows.
+        scope (str, optional): OAuth2 scope. Defaults to the Azure DevOps
+            resource scope (AZURE_DEVOPS_OAUTH_SCOPE).
+        api_url (str): Azure DevOps API base URL (default 'https://dev.azure.com').
+
+    Returns:
+        :class:`~nipyapi.nifi.models.FlowRegistryClientEntity`: The registry client.
+    """
+    scope = scope or AZURE_DEVOPS_OAUTH_SCOPE
+    _required = {
+        "name": name,
+        "organization": organization,
+        "project": project,
+        "repository": repository,
+        "tenant_id": tenant_id,
+        "client_id": client_id,
+        "client_secret": client_secret,
+    }
+    _missing = [key for key, value in _required.items() if not value]
+    if _missing:
+        raise ValueError(
+            "ensure_azuredevops_registry missing required argument(s): " + ", ".join(_missing)
+        )
+    token_url = f"https://login.microsoftonline.com/{tenant_id}/oauth2/v2.0/token"
+
+    web_client = nipyapi.canvas.ensure_management_controller(
+        name=f"{name}-WebClient",
+        controller_type=_WEB_CLIENT_SERVICE_TYPE,
+    )
+    oauth_provider = nipyapi.canvas.ensure_management_controller(
+        name=f"{name}-OAuth2",
+        controller_type=_OAUTH2_TOKEN_PROVIDER_TYPE,
+        properties={
+            "Authorization Server URL": token_url,
+            "Grant Type": "client_credentials",
+            "Client Authentication Strategy": "REQUEST_BODY",
+            "Client ID": client_id,
+            "Client Secret": client_secret,
+            "Scope": scope,
+        },
+    )
+
+    properties = {
+        "Azure DevOps API URL": api_url,
+        "Organization": organization,
+        "Project": project,
+        "Repository Name": repository,
+        "Default Branch": default_branch,
+        "Authentication Strategy": "SERVICE_PRINCIPAL",
+        "OAuth2 Access Token Provider": oauth_provider.id,
+        "Web Client Service": web_client.id,
+    }
+    if repository_path:
+        properties["Repository Path"] = repository_path
+
+    return ensure_registry_client(
+        name=name,
+        reg_type=AZURE_DEVOPS_REGISTRY_TYPE,
+        description=f"Azure DevOps Flow Registry Client for {organization}/{project}/{repository}",
+        properties=properties,
+    )

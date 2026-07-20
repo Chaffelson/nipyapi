@@ -168,7 +168,7 @@ For shell scripting, CI/CD pipelines, and agentic workflows, install the CLI ext
     nipyapi ci get_status --process_group_id <id>
 
 See ``docs/cli.rst`` for the complete CLI reference and ``docs/ci.rst`` for CI/CD pipeline examples.
-See the companion repository `nipyapi-actions <https://github.com/Chaffelson/nipyapi-actions>`_ for GitHub Actions and GitLab CI examples and support.
+See the companion repository `nipyapi-actions <https://github.com/Chaffelson/nipyapi-actions>`_ for GitHub Actions, GitLab CI, and Azure Pipelines examples and support.
 
 **Built-in Docker Profiles:**
 

@@ -265,14 +265,26 @@ The CLI automatically formats output based on the execution environment:
         nipyapi ci deploy_flow ... > deploy.env
         # Output: PROCESS_GROUP_ID=abc-123
 
+**Azure Pipelines**
+    Auto-detected when ``TF_BUILD`` env var is set. Emits ``##vso[task.setvariable]``
+    logging commands so each output becomes a pipeline variable (``isOutput=true``),
+    referenceable in later steps/jobs.
+
+    .. code-block:: console
+
+        # In an Azure Pipelines step
+        nipyapi ci deploy_flow ...
+        # Output: ##vso[task.setvariable variable=process_group_id;isOutput=true]abc-123
+
 **Manual Override**
     Force a specific format using ``NIFI_OUTPUT_FORMAT``:
 
     .. code-block:: console
 
-        export NIFI_OUTPUT_FORMAT=json    # JSON (default)
-        export NIFI_OUTPUT_FORMAT=github  # GitHub Actions format
-        export NIFI_OUTPUT_FORMAT=dotenv  # GitLab dotenv format
+        export NIFI_OUTPUT_FORMAT=json            # JSON (default)
+        export NIFI_OUTPUT_FORMAT=github          # GitHub Actions format
+        export NIFI_OUTPUT_FORMAT=dotenv          # GitLab dotenv format
+        export NIFI_OUTPUT_FORMAT=azurepipelines  # Azure Pipelines format
 
 Log Level Control
 =================
