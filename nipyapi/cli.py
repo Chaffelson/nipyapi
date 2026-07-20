@@ -46,11 +46,12 @@ Configuration:
 
 Output Formatting:
     Complex objects are serialized to JSON by default. Override with:
-    NIFI_OUTPUT_FORMAT=github   GitHub Actions format (key=value, heredoc for complex)
-    NIFI_OUTPUT_FORMAT=dotenv   GitLab CI format (KEY=VALUE)
-    NIFI_OUTPUT_FORMAT=json     JSON format (default)
+    NIFI_OUTPUT_FORMAT=github          GitHub Actions format (key=value, heredoc for complex)
+    NIFI_OUTPUT_FORMAT=dotenv          GitLab CI format (KEY=VALUE)
+    NIFI_OUTPUT_FORMAT=azurepipelines  Azure Pipelines format (##vso[task.setvariable])
+    NIFI_OUTPUT_FORMAT=json            JSON format (default)
 
-    CI environments are auto-detected via GITHUB_ACTIONS or GITLAB_CI env vars.
+    CI environments are auto-detected via GITHUB_ACTIONS, GITLAB_CI, or TF_BUILD env vars.
 
 Log Level Control:
     NIFI_LOG_LEVEL=WARNING      Default - only warnings and errors in output
@@ -73,7 +74,7 @@ def _detect_output_format():
 
     Priority:
     1. Explicit NIFI_OUTPUT_FORMAT env var
-    2. Auto-detect CI environment (GITHUB_ACTIONS, GITLAB_CI)
+    2. Auto-detect CI environment (GITHUB_ACTIONS, GITLAB_CI, TF_BUILD)
     3. Default to 'json' for structured output
     """
     explicit = os.environ.get("NIFI_OUTPUT_FORMAT")
@@ -85,9 +86,32 @@ def _detect_output_format():
         return "github"
     if os.environ.get("GITLAB_CI"):
         return "dotenv"
+    if os.environ.get("TF_BUILD"):
+        # Azure Pipelines sets TF_BUILD=True on every agent
+        return "azurepipelines"
 
     # Default to JSON for complex objects
     return "json"
+
+
+def _format_azure_pipelines_value(key, value):
+    """Format a key-value pair as an Azure Pipelines setvariable logging command.
+
+    Emits ``##vso[task.setvariable variable=<key>;isOutput=true]<value>`` which
+    Azure Pipelines captures from stdout as an output variable, referenceable in
+    later steps as ``$(<stepRef>.<key>)``. Values are percent-encoded per the
+    Azure Pipelines logging-command convention so they round-trip intact
+    (notably newlines, which would otherwise truncate the value).
+    """
+    # JSON-serialize lists/dicts for valid single-line output, str() for scalars
+    if isinstance(value, (list, dict)):
+        v_str = json.dumps(value, default=str)
+    else:
+        v_str = str(value)
+    # Azure Pipelines logging-command escaping. Order matters: % must be first
+    # so we do not double-encode the escape sequences introduced below.
+    v_escaped = v_str.replace("%", "%AZP25").replace("\r", "%0D").replace("\n", "%0A")
+    return f"##vso[task.setvariable variable={key};isOutput=true]{v_escaped}"
 
 
 def _format_dotenv_value(key, value):
@@ -154,6 +178,10 @@ def _serialize_result(obj, output_format="json"):  # pylint: disable=too-many-re
         # GitLab dotenv format: KEY=VALUE (quoted if special chars)
         lines = [_format_dotenv_value(k, v) for k, v in _flatten_dict(data).items()]
         return "\n".join(line for line in lines if line is not None)
+    if output_format in ("azurepipelines", "azure"):
+        # Azure Pipelines: one ##vso[task.setvariable] logging command per output
+        lines = [_format_azure_pipelines_value(k, v) for k, v in _flatten_dict(data).items()]
+        return "\n".join(lines)
     # JSON format (default)
     return json.dumps(data, indent=2, default=str)
 

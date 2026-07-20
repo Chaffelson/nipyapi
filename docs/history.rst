@@ -5,11 +5,31 @@ History
 1.7.0 (2026-07-18)
 -------------------
 
-| Upgrade to NiFi 2.10.0 support with regenerated API clients
+| NiFi 2.10.0 support and Azure DevOps Flow Registry Client integration
 
 **Supported Versions**
 
 - Bumped the supported and tested NiFi/Registry version from 2.7.2 to 2.10.0 and regenerated the NiFi and Registry API clients against the 2.10.0 OpenAPI specification. New Connectors API operations introduced ``operationId`` collisions in the generated clients; the affected hand-written call sites were updated accordingly (for example ``get_flow1``, ``create_asset1``, ``get_assets1``, and the renumbered ``update_run_status`` variants).
+
+**Registry Client**
+
+- **ensure_azuredevops_registry()**: New ``nipyapi.versioning`` function to create or update an Azure DevOps Flow Registry Client. Unlike GitHub and GitLab (which use a personal access token), Azure DevOps authenticates with a service principal via OAuth2 client credentials, so the client is provisioned with the supporting management controller services.
+
+**Canvas Module**
+
+- **create_management_controller()** / **ensure_management_controller()**: New functions for controller-level (management) Controller Services — the kind referenced by Flow Registry Clients, which live at the Controller Settings level rather than inside a Process Group. ``ensure_management_controller`` is idempotent by name and validates supplied properties against the service's property descriptors.
+
+**CI Module**
+
+- **ensure_registry()**: Now accepts ``provider=azuredevops`` in addition to ``github`` and ``gitlab``. Azure DevOps organization, project, repository, and service-principal credentials are read from arguments or the corresponding ``NIFI_ADO_*`` environment variables.
+
+**CLI**
+
+- **Azure Pipelines output**: The CLI now auto-detects Azure Pipelines (via the ``TF_BUILD`` environment variable) and emits ``##vso[task.setvariable]`` logging commands so operation results round-trip as pipeline output variables. Can be forced with ``NIFI_OUTPUT_FORMAT=azurepipelines``.
+
+**Documentation**
+
+- Added Azure DevOps / Azure Pipelines coverage to the CI operations guide (``docs/ci.rst``), the CLI output-format reference (``docs/cli.rst``), and the project README. See the companion ``nipyapi-actions`` repository for a complete Azure Pipelines example.
 
 1.6.0 (2026-06-21)
 -------------------

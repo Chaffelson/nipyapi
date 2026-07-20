@@ -135,6 +135,176 @@ class TestEnsureRegistryValidation:
                 os.environ.pop("GL_REGISTRY_TOKEN", None)
 
 
+ADO_ENV_VARS = (
+    "NIFI_ADO_TENANT_ID",
+    "NIFI_ADO_CLIENT_ID",
+    "NIFI_ADO_CLIENT_SECRET",
+    "NIFI_ADO_ORG",
+    "NIFI_ADO_PROJECT",
+    "NIFI_ADO_REPO",
+)
+
+
+class TestEnsureRegistryAzureDevOps:
+    """Test the Azure DevOps provider branch of ensure_registry (no NiFi)."""
+
+    def _clear_ado_env(self):
+        return {k: os.environ.pop(k, None) for k in ADO_ENV_VARS}
+
+    def _restore_ado_env(self, saved):
+        for key, value in saved.items():
+            if value is not None:
+                os.environ[key] = value
+            else:
+                os.environ.pop(key, None)
+
+    def test_azuredevops_missing_creds_raises(self):
+        """ADO provider without any creds raises ValueError listing all missing."""
+        saved = self._clear_ado_env()
+        try:
+            with pytest.raises(ValueError, match="Azure DevOps provider requires"):
+                ci.ensure_registry(provider="azuredevops")
+        finally:
+            self._restore_ado_env(saved)
+
+    def test_azuredevops_partial_creds_lists_missing(self):
+        """Only the missing ADO args are reported, not the supplied ones."""
+        saved = self._clear_ado_env()
+        try:
+            with pytest.raises(ValueError) as excinfo:
+                ci.ensure_registry(
+                    provider="azuredevops",
+                    tenant_id="t",
+                    client_id="c",
+                    client_secret="s",
+                    organization="org",
+                    # project + repository intentionally omitted
+                )
+            message = str(excinfo.value)
+            assert "project" in message
+            assert "repository" in message
+            assert "tenant_id" not in message
+        finally:
+            self._restore_ado_env(saved)
+
+    @patch("nipyapi.versioning.ensure_azuredevops_registry")
+    def test_azuredevops_reads_env_and_delegates(self, mock_ensure):
+        """ADO provider resolves NIFI_ADO_* env vars and delegates to versioning."""
+        mock_client = MagicMock()
+        mock_client.id = "ado-client-id"
+        mock_client.component.name = "AzureDevOps-FlowRegistry"
+        mock_ensure.return_value = mock_client
+
+        saved = self._clear_ado_env()
+        old_branch = os.environ.pop("NIFI_REGISTRY_BRANCH", None)
+        try:
+            os.environ["NIFI_ADO_TENANT_ID"] = "tenant-123"
+            os.environ["NIFI_ADO_CLIENT_ID"] = "client-456"
+            os.environ["NIFI_ADO_CLIENT_SECRET"] = "secret-789"
+            os.environ["NIFI_ADO_ORG"] = "my-org"
+            os.environ["NIFI_ADO_PROJECT"] = "my-project"
+            os.environ["NIFI_ADO_REPO"] = "my-repo"
+
+            result = ci.ensure_registry(provider="azuredevops")
+
+            assert result["registry_client_id"] == "ado-client-id"
+            assert result["registry_client_name"] == "AzureDevOps-FlowRegistry"
+
+            call_kwargs = mock_ensure.call_args[1]
+            assert call_kwargs["organization"] == "my-org"
+            assert call_kwargs["project"] == "my-project"
+            assert call_kwargs["repository"] == "my-repo"
+            assert call_kwargs["tenant_id"] == "tenant-123"
+            assert call_kwargs["client_id"] == "client-456"
+            assert call_kwargs["client_secret"] == "secret-789"
+            # Default branch applied when neither arg nor env override present
+            assert call_kwargs["default_branch"] == "main"
+        finally:
+            self._restore_ado_env(saved)
+            if old_branch:
+                os.environ["NIFI_REGISTRY_BRANCH"] = old_branch
+
+    @patch("nipyapi.versioning.ensure_azuredevops_registry")
+    def test_azuredevops_args_override_env(self, mock_ensure):
+        """Explicit args take precedence over NIFI_ADO_* env vars."""
+        mock_client = MagicMock()
+        mock_client.id = "id"
+        mock_client.component.name = "custom-name"
+        mock_ensure.return_value = mock_client
+
+        saved = self._clear_ado_env()
+        old_branch = os.environ.pop("NIFI_REGISTRY_BRANCH", None)
+        try:
+            os.environ["NIFI_ADO_ORG"] = "env-org"
+            ci.ensure_registry(
+                provider="azuredevops",
+                client_name="custom-name",
+                tenant_id="t",
+                client_id="c",
+                client_secret="s",
+                organization="arg-org",
+                project="p",
+                repository="r",
+                default_branch="develop",
+            )
+            call_kwargs = mock_ensure.call_args[1]
+            assert call_kwargs["organization"] == "arg-org"
+            assert call_kwargs["name"] == "custom-name"
+            assert call_kwargs["default_branch"] == "develop"
+        finally:
+            self._restore_ado_env(saved)
+            if old_branch:
+                os.environ["NIFI_REGISTRY_BRANCH"] = old_branch
+
+    @patch("nipyapi.versioning.ensure_azuredevops_registry")
+    def test_azuredevops_provider_aliases(self, mock_ensure):
+        """'azure-devops' and 'ado' aliases route to the ADO branch."""
+        mock_client = MagicMock()
+        mock_client.id = "id"
+        mock_client.component.name = "n"
+        mock_ensure.return_value = mock_client
+
+        saved = self._clear_ado_env()
+        try:
+            for alias in ("azure-devops", "ado"):
+                mock_ensure.reset_mock()
+                ci.ensure_registry(
+                    provider=alias,
+                    tenant_id="t",
+                    client_id="c",
+                    client_secret="s",
+                    organization="o",
+                    project="p",
+                    repository="r",
+                )
+                assert mock_ensure.called
+        finally:
+            self._restore_ado_env(saved)
+
+
+class TestEnsureAzureDevOpsRegistryValidation:
+    """Test versioning.ensure_azuredevops_registry validation (no NiFi)."""
+
+    def test_missing_required_args_raises(self):
+        """Direct call with missing required args raises listing them."""
+        import nipyapi
+
+        with pytest.raises(ValueError) as excinfo:
+            nipyapi.versioning.ensure_azuredevops_registry(
+                name="client",
+                organization="org",
+                project="proj",
+                repository="repo",
+                tenant_id=None,
+                client_id=None,
+                client_secret=None,
+            )
+        message = str(excinfo.value)
+        assert "tenant_id" in message
+        assert "client_id" in message
+        assert "client_secret" in message
+
+
 class TestDeployFlowValidation:
     """Test deploy_flow validation logic (no NiFi required)."""
 
@@ -2319,3 +2489,82 @@ def test_export_import_roundtrip_with_inheritance(fix_inherited_context_hierarch
         if p.parameter.name == fixture.child_param_name
     )
     assert child_param.parameter.value == "child_value"
+
+
+# =============================================================================
+# Azure DevOps Registry Integration Tests (require ADO_* service principal env)
+# =============================================================================
+
+
+def test_ado_registry_client_type_available():
+    """The Azure DevOps registry client type must ship with the running NiFi.
+
+    Proves the nifi-azure NAR is present (needs NiFi connection, not ADO creds).
+    """
+    import nipyapi
+
+    types = nipyapi.versioning.list_registry_client_types()
+    type_names = {t.type for t in types}
+    assert nipyapi.versioning.AZURE_DEVOPS_REGISTRY_TYPE in type_names, (
+        f"AzureDevOpsFlowRegistryClient not available; present types: {sorted(type_names)}"
+    )
+
+
+def test_ado_ensure_registry_live(fix_ado_reg_client):
+    """Live: ensure_azuredevops_registry creates a valid client + controller services."""
+    import nipyapi
+
+    client = fix_ado_reg_client.generate()
+
+    # Registry client is the ADO type
+    assert client.component.type == (
+        "org.apache.nifi.azure.devops.AzureDevOpsFlowRegistryClient"
+    )
+    props = client.component.properties
+    assert props["Authentication Strategy"] == "SERVICE_PRINCIPAL"
+    assert props["Organization"] == os.environ["ADO_ORG"]
+    assert props["Project"] == os.environ["ADO_PROJECT"]
+    assert props["Repository Name"] == os.environ["ADO_REPO"]
+    # Both controller services are wired in by id
+    assert props["OAuth2 Access Token Provider"]
+    assert props["Web Client Service"]
+
+    # The referenced controller services exist and are ENABLED
+    cs_api = nipyapi.nifi.ControllerServicesApi()
+    oauth_cs = cs_api.get_controller_service(props["OAuth2 Access Token Provider"])
+    web_cs = cs_api.get_controller_service(props["Web Client Service"])
+    assert oauth_cs.component.state == "ENABLED"
+    assert web_cs.component.state == "ENABLED"
+
+    # Prove real auth, not just VALID config ("Valid != access"): listing
+    # buckets forces the SP OAuth2 token fetch + a live Azure DevOps API call,
+    # so a successful (non-raising) call means the service principal actually
+    # authenticated against the repository.
+    buckets = nipyapi.versioning.list_git_registry_buckets(client.id)
+    assert buckets is not None
+
+
+def test_ado_ensure_registry_idempotent(fix_ado_reg_client):
+    """Live: calling the helper twice with the same name reuses client + services."""
+    import nipyapi
+
+    # First call via the fixture (also registers teardown for these artifacts)
+    first = fix_ado_reg_client.generate(suffix='_idem')
+    first_oauth = first.component.properties["OAuth2 Access Token Provider"]
+    first_web = first.component.properties["Web Client Service"]
+
+    # Second call directly with the SAME name must find-or-update, not duplicate
+    second = nipyapi.versioning.ensure_azuredevops_registry(
+        name=first.component.name,
+        organization=os.environ["ADO_ORG"],
+        project=os.environ["ADO_PROJECT"],
+        repository=os.environ["ADO_REPO"],
+        tenant_id=os.environ["ADO_TENANT_ID"],
+        client_id=os.environ["ADO_CLIENT_ID"],
+        client_secret=os.environ["ADO_CLIENT_SECRET"],
+        default_branch=os.environ.get("ADO_BRANCH", "main"),
+    )
+
+    assert second.id == first.id
+    assert second.component.properties["OAuth2 Access Token Provider"] == first_oauth
+    assert second.component.properties["Web Client Service"] == first_web
