@@ -453,6 +453,40 @@ def _apply_verbosity(verbosity):
     # verbosity 0: leave as default (WARNING or unset)
 
 
+def _apply_profile(explicit_profile):
+    """
+    Configure the SDK connection from the selected profile before dispatch.
+
+    When an explicit ``--profile`` was given, a resolution failure is fatal: emit
+    a structured error and exit non-zero rather than silently falling back to the
+    SDK default (localhost). A misconfigured explicit profile that fell through
+    would otherwise surface as a confusing localhost connection error on the first
+    API call, masking the real cause.
+
+    When no profile was given (auto-resolve), a ValueError is non-fatal - there may
+    simply be no configuration yet, and any error surfaces on the first API call.
+    This preserves the AWS-CLI-style "just works without explicit config" behaviour.
+    """
+    import nipyapi
+
+    try:
+        nipyapi.profiles.switch(explicit_profile)
+    except ValueError as e:
+        if explicit_profile is None:
+            # Auto-resolve: no configuration found - errors surface on first API call
+            return
+        output_format = _detect_output_format()
+        error_result = {
+            "success": False,
+            "error": str(e),
+            "error_type": type(e).__name__,
+            "command": "profiles.switch",
+            "profile": explicit_profile,
+        }
+        print(_serialize_result(error_result, output_format))
+        sys.exit(1)
+
+
 def main():
     """CLI entry point."""
     # Disable pager for help output so agents don't hang waiting for input
@@ -490,11 +524,10 @@ def main():
 
     # Auto-configure NiFi connection.
     # Priority: explicit --profile arg > NIFI_API_ENDPOINT > NIPYAPI_PROFILE > first profile
-    # This matches AWS CLI / gcloud pattern - just works without explicit config
-    try:
-        nipyapi.profiles.switch(explicit_profile)
-    except ValueError:
-        pass  # No configuration found - errors will surface on first API call
+    # This matches AWS CLI / gcloud pattern - just works without explicit config.
+    # An explicit --profile that fails to resolve is fatal (see _apply_profile);
+    # auto-resolve failures fall through so errors surface on the first API call.
+    _apply_profile(explicit_profile)
 
     # Create CLI interface with docstring that Fire will display in help
     # pylint: disable=too-many-instance-attributes,too-few-public-methods
