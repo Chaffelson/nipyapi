@@ -684,7 +684,8 @@ def list_assets(context_id):
     enforce_min_ver("1.10.0")
 
     handle = nipyapi.nifi.ParameterContextsApi()
-    response = handle.get_assets(context_id)
+    # get_assets1: NiFi 2.10 ConnectorsApi collision suffixed the original
+    response = handle.get_assets1(context_id)
 
     return [
         {
@@ -738,7 +739,8 @@ def upload_asset(context_id, file_path=None, file_bytes=None, filename=None):
         raise ValueError("filename is required when using file_bytes")
 
     handle = nipyapi.nifi.ParameterContextsApi()
-    result = handle.create_asset(body=file_bytes, context_id=context_id, filename=filename)
+    # create_asset1: NiFi 2.10 ConnectorsApi collision suffixed the original
+    result = handle.create_asset1(body=file_bytes, context_id=context_id, filename=filename)
 
     log.info("Uploaded asset '%s' to context %s", filename, context_id)
 
