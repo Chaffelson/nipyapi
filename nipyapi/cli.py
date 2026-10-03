@@ -469,12 +469,16 @@ def _apply_profile(explicit_profile):
     """
     import nipyapi
 
+    if explicit_profile is None:
+        try:
+            nipyapi.profiles.switch(None)
+        except ValueError:
+            pass  # Auto-resolve: no configuration found - errors surface on first API call
+        return
+
     try:
         nipyapi.profiles.switch(explicit_profile)
     except ValueError as e:
-        if explicit_profile is None:
-            # Auto-resolve: no configuration found - errors surface on first API call
-            return
         output_format = _detect_output_format()
         error_result = {
             "success": False,
