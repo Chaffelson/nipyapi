@@ -3,6 +3,8 @@
 import json
 import os
 
+import pytest
+
 
 # =============================================================================
 # Helper Function Tests (no NiFi connection required)
@@ -975,6 +977,64 @@ def test_log_capture_handler():
 
     # Cleanup
     logger.removeHandler(handler)
+
+
+# =============================================================================
+# Profile application Tests (no NiFi connection required)
+# =============================================================================
+
+
+def test_apply_profile_explicit_failure_exits(monkeypatch, capsys):
+    """An explicit --profile that fails to resolve must exit non-zero and name the
+    profile - not silently fall back to the SDK default (localhost)."""
+    import nipyapi
+    from nipyapi import cli
+
+    def _raise(*args, **kwargs):
+        raise ValueError("Profile 'bogus' not found. Available: []")
+
+    monkeypatch.setattr(nipyapi.profiles, "switch", _raise)
+
+    with pytest.raises(SystemExit) as exc_info:
+        cli._apply_profile("bogus")
+
+    assert exc_info.value.code == 1
+    out = capsys.readouterr().out
+    # The error must name the failing profile, not a localhost connection error
+    assert "bogus" in out
+    assert "localhost" not in out
+
+
+def test_apply_profile_autoresolve_failure_passes(monkeypatch):
+    """No --profile (auto-resolve) failure is non-fatal: errors surface later on the
+    first API call, preserving the just-works-without-config behaviour."""
+    import nipyapi
+    from nipyapi import cli
+
+    def _raise(*args, **kwargs):
+        raise ValueError("No configuration found.")
+
+    monkeypatch.setattr(nipyapi.profiles, "switch", _raise)
+
+    # Should NOT raise or exit
+    cli._apply_profile(None)
+
+
+def test_apply_profile_success_forwards_profile(monkeypatch):
+    """A successful switch forwards the explicit profile name and returns normally."""
+    import nipyapi
+    from nipyapi import cli
+
+    called = {}
+
+    def _ok(profile_name=None, *args, **kwargs):
+        called["profile"] = profile_name
+        return (profile_name, None)
+
+    monkeypatch.setattr(nipyapi.profiles, "switch", _ok)
+
+    cli._apply_profile("prod")
+    assert called["profile"] == "prod"
 
 
 # =============================================================================
