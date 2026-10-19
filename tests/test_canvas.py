@@ -918,6 +918,14 @@ def test_get_management_controller(fix_mgmt_cont, fix_cont):
     assert canvas.get_management_controller(grouped.component.name, greedy=False) is None
     assert canvas.get_management_controller('nipyapi_test_missing_mgmt') is None
     assert canvas.get_management_controller('nipyapi_test_missing_mgmt', bool_response=True) is None
+    # A missing ID is an API error: False with bool_response, ValueError otherwise.
+    assert canvas.get_management_controller(str(uuid.uuid4()), 'id', bool_response=True) is False
+    with pytest.raises(ValueError):
+        canvas.get_management_controller(str(uuid.uuid4()), 'id')
+    duplicate = fix_mgmt_cont.generate('_dup')
+    fix_mgmt_cont.generate('_dup')
+    with pytest.raises(ValueError, match='Several controller-level services'):
+        canvas.ensure_management_controller(duplicate.component.name, _MGMT_CS_TYPE)
 
 
 def test_create_management_controller():

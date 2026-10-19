@@ -372,6 +372,39 @@ def test_context_inheritance_cycle_conflict(fix_context, entrypoint):
         parameters.set_inherited_parameter_contexts(second, [], mode='replace')
 
 
+def test_parameter_helper_argument_validation(fix_param_provider, fix_context):
+    """Invalid arguments are rejected before anything is submitted."""
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider)
+    group = fetched.component.parameter_group_configurations[0].group_name
+    with pytest.raises(TypeError, match='properties'):
+        parameters.update_parameter_provider(provider, 'HOME')
+    with pytest.raises(ValueError, match='sensitivity must'):
+        parameters.apply_parameter_provider(provider, sensitivity='SECRET')
+    with pytest.raises(TypeError, match='sensitivities must'):
+        parameters.apply_parameter_provider(provider, sensitivities='HOME')
+    with pytest.raises(ValueError, match='sensitivities must'):
+        parameters.apply_parameter_provider(provider, sensitivities={'HOME': 'SECRET'})
+    with pytest.raises(TypeError, match='group_names'):
+        parameters.apply_parameter_provider(provider, [1], fetch_result=fetched)
+    other = fix_param_provider.generate(suffix='_other')
+    with pytest.raises(ValueError, match='fetch_result'):
+        parameters.apply_parameter_provider(other, fetch_result=fetched)
+    # A single group name is accepted as well as a list.
+    assert parameters.apply_parameter_provider(provider, group, fetch_result=fetched).complete
+    context = fix_context.generate()
+    parameters.upsert_parameter_to_context(context, parameters.prepare_parameter('KEY', 'v', sensitive=True))
+    with pytest.raises(ValueError, match='mode'):
+        parameters.set_inherited_parameter_contexts(context, [], mode='append')
+    with pytest.raises(TypeError, match='inherited'):
+        parameters.set_inherited_parameter_contexts(context, context.id)
+    with pytest.raises(ValueError, match='inherit itself'):
+        parameters.set_inherited_parameter_contexts(context, [context])
+    target = fix_context.generate(conftest.test_parameter_context_name + '_alias_target')
+    with pytest.raises(ValueError, match='reference itself'):
+        parameters.connect_parameter_provider_group(target, context.component.name, {'KEY': 'KEY'})
+
+
 def test_inherited_references_unreadable():
     """An inherited context the user cannot read has no component; keep it by id."""
     hidden = conftest.nipyapi.nifi.ParameterContextReferenceEntity(id='hidden', component=None)

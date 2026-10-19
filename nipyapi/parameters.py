@@ -754,10 +754,6 @@ def connect_parameter_provider_group(
     missing = sorted({name for name in mappings.values() if not available[name]})
     if missing:
         raise ValueError(f"Source parameters are not sensitive: {missing}")
-    if any("}" in name or "#{" in name for name in mappings.values()):
-        raise ValueError(
-            "Source parameter names must be representable as a single parameter reference"
-        )
     existing = {
         item.parameter.name: item.parameter
         for item in live.component.parameters or []
