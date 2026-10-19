@@ -17,7 +17,6 @@ History
 - **get_process_group**: a lookup by an ID that does not exist raised ``ValueError`` ("Unable to locate group ...") instead of returning ``None`` as its 404 handler intends, unlike ``get_processor`` and ``get_parameter_context``. It now returns ``None``; other API errors still raise ``ValueError``. The ``nipyapi.ci`` commands already handled ``None``, so their missing-group error is now ``Process group not found: <id>``.
 - **ensure_management_controller**: the lookup by name also matched process-group services, so an existing process-group service with the same name could be reconfigured and enabled instead of a controller-level one being created. It now matches controller-level services only, and raises ``ValueError`` if several share the name.
 - **Parameter provider models**: ``ParameterGroupConfigurationEntity.parameter_sensitivities`` validated its map keys (parameter names) against the ``SENSITIVE``/``NON_SENSITIVE`` enum instead of its values, so parameter provider fetch and apply responses could not be deserialized. Values are now validated, and ``None`` (staged on the first fetch of a new group) is accepted.
-- **AffectedComponentEntity**: ``reference_type`` now accepts ``STATELESS_GROUP``, which NiFi returns in the referencing components of parameter context update and parameter provider apply requests.
 
 **Parameter Providers and Contexts**
 

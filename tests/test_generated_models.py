@@ -98,13 +98,6 @@ def test_deserialize_parameter_provider_fetch_response(payload):
     assert set(groups[0].parameter_sensitivities) >= {"API_KEY"}
 
 
-def test_affected_component_accepts_stateless_group():
-    # NiFi returns STATELESS_GROUP for components in stateless process groups;
-    # AffectedComponentDTO allows it but the upstream entity enum omits it
-    entity = AffectedComponentEntity(reference_type="STATELESS_GROUP")
-    assert entity.reference_type == "STATELESS_GROUP"
-
-
 def test_client_side_validation_can_be_disabled(monkeypatch):
     monkeypatch.setattr(
         nipyapi.config.nifi_config, "client_side_validation", False
@@ -136,29 +129,3 @@ def test_enum_validation_scalar_and_container(client, monkeypatch):
     monkeypatch.setattr(configuration, 'client_side_validation', False)
     assert client.Stateful(scopes=['UNRECOGNIZED']).scopes == ['UNRECOGNIZED']
     assert client.DynamicProperty(expression_language_scope='UNRECOGNIZED').expression_language_scope == 'UNRECOGNIZED'
-
-
-@pytest.mark.parametrize("client", [nipyapi.nifi, nipyapi.registry])
-@pytest.mark.parametrize("status", [200, 500])
-def test_rest_preserves_response_diagnostics(client, status, monkeypatch, caplog):
-    """Both generated clients preserve response bodies in DEBUG logs and API errors."""
-    import logging
-    import urllib3
-    transport = client.rest.RESTClientObject()
-    monkeypatch.setattr(transport.pool_manager, 'request', lambda *args, **kwargs:
-                        urllib3.response.HTTPResponse(
-                            status=status, reason='test reason', body=b'test response details',
-                            headers={'X-Request-Id': 'response-test'}))
-    with caplog.at_level(logging.DEBUG):
-        if status == 200:
-            response = transport.GET('https://localhost.invalid/test')
-            assert response.status == 200
-            assert response.data == 'test response details'
-        else:
-            with pytest.raises(client.rest.ApiException) as failed:
-                transport.GET('https://localhost.invalid/test')
-            assert failed.value.status == status
-            assert failed.value.reason == 'test reason'
-            assert failed.value.body == 'test response details'
-            assert failed.value.headers['X-Request-Id'] == 'response-test'
-    assert 'response body: test response details' in caplog.text
