@@ -581,9 +581,8 @@ def test_cleanup(fix_pg):
     assert result["deleted"] == "true"
     assert result["process_group_name"] == "test_ci_cleanup_target"
 
-    # Verify it's gone - get_process_group raises ValueError for missing PG
-    with pytest.raises(ValueError, match="Unable to locate"):
-        nipyapi.canvas.get_process_group(pg.id, "id")
+    # Verify it's gone - get_process_group returns None for a missing ID
+    assert nipyapi.canvas.get_process_group(pg.id, "id") is None
 
 
 def test_cleanup_with_orphaned_contexts():
@@ -730,7 +729,7 @@ def test_configure_params_non_dict():
 def test_configure_params_json_embedded_quotes():
     """Test configure_params accepts JSON with embedded quotes."""
     # Should fail on PG lookup, not on JSON parsing
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"message": "value with \\"quotes\\""}'
@@ -739,7 +738,7 @@ def test_configure_params_json_embedded_quotes():
 
 def test_configure_params_json_newlines():
     """Test configure_params accepts JSON with escaped newlines."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"multiline": "line1\\nline2"}'
@@ -748,7 +747,7 @@ def test_configure_params_json_newlines():
 
 def test_configure_params_json_backslashes():
     """Test configure_params accepts JSON with backslashes (Windows paths)."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"path": "C:\\\\Users\\\\data"}'
@@ -757,7 +756,7 @@ def test_configure_params_json_backslashes():
 
 def test_configure_params_json_nested_dict():
     """Test configure_params accepts JSON with nested dict values."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"config": {"nested": "value"}}'
@@ -766,7 +765,7 @@ def test_configure_params_json_nested_dict():
 
 def test_configure_params_json_list_value():
     """Test configure_params accepts JSON with list values."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"items": ["a", "b", "c"]}'
@@ -775,7 +774,7 @@ def test_configure_params_json_list_value():
 
 def test_configure_params_json_null_value():
     """Test configure_params accepts JSON with null values."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"optional": null}'
@@ -784,7 +783,7 @@ def test_configure_params_json_null_value():
 
 def test_configure_params_json_empty_string():
     """Test configure_params accepts JSON with empty string values."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"empty": ""}'
@@ -793,7 +792,7 @@ def test_configure_params_json_empty_string():
 
 def test_configure_params_json_unicode():
     """Test configure_params accepts JSON with Unicode characters."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"greeting": "Hello \\u4e16\\u754c"}'
@@ -802,7 +801,7 @@ def test_configure_params_json_unicode():
 
 def test_configure_params_json_special_key_chars():
     """Test configure_params accepts JSON with special chars in keys."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"my-key": "value1", "my.key": "value2"}'
@@ -811,7 +810,7 @@ def test_configure_params_json_special_key_chars():
 
 def test_configure_params_json_mixed_types():
     """Test configure_params accepts JSON with mixed value types."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters='{"str": "text", "int": 42, "float": 3.14, "bool": true}'
@@ -820,7 +819,7 @@ def test_configure_params_json_mixed_types():
 
 def test_configure_params_dict_input():
     """Test configure_params accepts dict input directly (not JSON string)."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters={"key": "value", "nested": {"deep": "data"}}
@@ -829,7 +828,7 @@ def test_configure_params_dict_input():
 
 def test_configure_params_dict_with_complex_values():
     """Test configure_params accepts dict with complex nested values."""
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_params(
             process_group_id="nonexistent-pg-id",
             parameters={
@@ -950,7 +949,7 @@ def test_configure_inherited_params_non_dict():
 def test_configure_inherited_params_pg_not_found():
     """Test configure_inherited_params with non-existent PG raises error."""
     import uuid
-    with pytest.raises(ValueError, match="Unable to locate group"):
+    with pytest.raises(ValueError, match="Process group not found"):
         ci.configure_inherited_params(
             process_group_id=str(uuid.uuid4()),
             parameters='{"key": "value"}'
@@ -971,10 +970,6 @@ def test_configure_inherited_params_no_context(fix_pg):
 def test_configure_inherited_params_dry_run(fix_pg, fix_context):
     """Test configure_inherited_params dry run mode."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter
     ctx = fix_context.generate()
@@ -1012,10 +1007,6 @@ def test_configure_inherited_params_dry_run(fix_pg, fix_context):
 def test_configure_inherited_params_execute(fix_pg, fix_context):
     """Test configure_inherited_params actually updates parameter."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter
     ctx = fix_context.generate()
@@ -1053,10 +1044,6 @@ def test_configure_inherited_params_execute(fix_pg, fix_context):
 def test_configure_inherited_params_empty_string(fix_pg, fix_context):
     """Test configure_inherited_params sets empty string correctly."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter that has a value
     ctx = fix_context.generate()
@@ -1093,10 +1080,6 @@ def test_configure_inherited_params_empty_string(fix_pg, fix_context):
 def test_configure_inherited_params_none_unsets_value(fix_pg, fix_context):
     """Test configure_inherited_params with None unsets the parameter value."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter that has a value
     ctx = fix_context.generate()
@@ -1134,10 +1117,6 @@ def test_configure_inherited_params_none_unsets_value(fix_pg, fix_context):
 def test_configure_inherited_params_not_found_error(fix_pg, fix_context):
     """Test configure_inherited_params with non-existent parameter."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create empty context
     ctx = fix_context.generate()
@@ -1163,10 +1142,6 @@ def test_configure_inherited_params_not_found_error(fix_pg, fix_context):
 def test_configure_inherited_params_allow_override(fix_pg, fix_context):
     """Test configure_inherited_params with allow_override creates new param."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create empty context
     ctx = fix_context.generate()
@@ -1202,10 +1177,6 @@ def test_configure_inherited_params_allow_override(fix_pg, fix_context):
 def test_upload_asset_from_file_path(fix_context, tmp_path):
     """Test ci.upload_asset from local file path."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -1231,10 +1202,6 @@ def test_upload_asset_from_file_path(fix_context, tmp_path):
 def test_upload_asset_from_process_group(fix_pg, fix_context, tmp_path):
     """Test ci.upload_asset resolves context from process group."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context and attach to PG
     ctx = fix_context.generate()
@@ -1261,10 +1228,6 @@ def test_upload_asset_from_process_group(fix_pg, fix_context, tmp_path):
 def test_upload_asset_with_param_link(fix_context, tmp_path):
     """Test ci.upload_asset with parameter linking."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -1301,10 +1264,6 @@ def test_upload_asset_with_param_link(fix_context, tmp_path):
 def test_upload_asset_custom_filename(fix_context, tmp_path):
     """Test ci.upload_asset with custom filename override."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -1327,10 +1286,6 @@ def test_upload_asset_custom_filename(fix_context, tmp_path):
 
 def test_upload_asset_file_not_found(fix_context):
     """Test ci.upload_asset with non-existent file raises error."""
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -1344,10 +1299,6 @@ def test_upload_asset_file_not_found(fix_context):
 def test_upload_asset_invalid_context():
     """Test ci.upload_asset with invalid context_id raises error."""
     import uuid
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     with pytest.raises(ValueError, match="Parameter context not found"):
         ci.upload_asset(
@@ -2098,10 +2049,6 @@ def test_export_parameters_no_context(fix_pg):
 def test_export_parameters_simple_json(fix_pg, fix_context):
     """Test export_parameters with simple single context (JSON format)."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter
     ctx = fix_context.generate()
@@ -2133,10 +2080,6 @@ def test_export_parameters_simple_json(fix_pg, fix_context):
 def test_export_parameters_yaml_format(fix_pg, fix_context):
     """Test export_parameters with YAML format."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter
     ctx = fix_context.generate()
@@ -2164,10 +2107,6 @@ def test_export_parameters_yaml_format(fix_pg, fix_context):
 def test_export_parameters_to_file(fix_pg, fix_context, tmp_path):
     """Test export_parameters writes to file."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
     param = nipyapi.parameters.prepare_parameter(
@@ -2198,10 +2137,6 @@ def test_export_parameters_to_file(fix_pg, fix_context, tmp_path):
 
 def test_export_parameters_with_hierarchy(fix_inherited_context_hierarchy):
     """Test export_parameters with include_hierarchy flag."""
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     fixture = fix_inherited_context_hierarchy
     pg = fixture.pg
@@ -2233,10 +2168,6 @@ def test_export_parameters_with_hierarchy(fix_inherited_context_hierarchy):
 
 def test_export_parameters_flat_with_inherited(fix_inherited_context_hierarchy):
     """Test flat export includes parameters from all contexts in hierarchy."""
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     fixture = fix_inherited_context_hierarchy
     pg = fixture.pg
@@ -2260,10 +2191,6 @@ def test_export_parameters_flat_with_inherited(fix_inherited_context_hierarchy):
 def test_configure_inherited_params_from_file(fix_pg, fix_context, tmp_path):
     """Test configure_inherited_params reads parameters from file."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter
     ctx = fix_context.generate()
@@ -2304,10 +2231,6 @@ def test_configure_inherited_params_from_file(fix_pg, fix_context, tmp_path):
 def test_configure_inherited_params_from_yaml_file(fix_pg, fix_context, tmp_path):
     """Test configure_inherited_params reads parameters from YAML file."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with a parameter
     ctx = fix_context.generate()
@@ -2341,10 +2264,6 @@ def test_configure_inherited_params_from_yaml_file(fix_pg, fix_context, tmp_path
 
 def test_configure_inherited_params_both_sources_error(fix_pg, fix_context, tmp_path):
     """Test providing both parameters and parameters_file raises error."""
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
     pg = fix_pg.generate()
@@ -2379,10 +2298,6 @@ def test_configure_inherited_params_file_not_found():
 def test_export_import_roundtrip_simple(fix_pg, fix_context, tmp_path):
     """Test exporting parameters and importing them back (simple case)."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create context with parameters
     ctx = fix_context.generate()
@@ -2434,10 +2349,6 @@ def test_export_import_roundtrip_simple(fix_pg, fix_context, tmp_path):
 def test_export_import_roundtrip_with_inheritance(fix_inherited_context_hierarchy, tmp_path):
     """Test exporting and importing with inherited contexts."""
     import nipyapi
-    from nipyapi.utils import check_version
-
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     fixture = fix_inherited_context_hierarchy
     pg = fixture.pg

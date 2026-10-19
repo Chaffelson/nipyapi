@@ -36,6 +36,10 @@ class Configuration(object):
         self.api_client = None
         # Temp file folder for downloading files
         self.temp_folder_path = None
+        # Validate enum-constrained model fields when they are set.
+        # Set to False to accept values the generated enums do not list yet
+        # (e.g. a newer server than the spec the client was generated from).
+        self.client_side_validation = True
 
         # Authentication Settings
         self.force_basic_auth = False

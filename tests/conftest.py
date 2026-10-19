@@ -215,11 +215,6 @@ def remove_test_parameter_contexts():
     """
     if SKIP_TEARDOWN:
         return None
-    # check_version returns 1 if NiFi is OLDER than specified version, -1 if newer, 0 if equal
-    # We skip cleanup if NiFi is older than 1.10.0 (doesn't have parameter contexts)
-    if nipyapi.utils.check_version('1.10.0') > 0:
-        log.info("NiFi version is older than 1.10, skipping Parameter Context cleanup")
-        return None
 
     # Multiple passes to handle inheritance dependencies
     max_attempts = 5
@@ -340,6 +335,7 @@ def cleanup_nifi():
     remove_test_funnels()
     remove_test_rpgs()
     remove_test_parameter_contexts()
+    remove_test_parameter_providers()
 
 def remove_test_rpgs():
     if SKIP_TEARDOWN:
@@ -386,6 +382,75 @@ def remove_test_controllers(include_reporting_tasks=False):
     _ = [nipyapi.canvas.delete_controller(li, True) for li
          in nipyapi.canvas.list_all_controllers(include_reporting_tasks=include_reporting_tasks) if
          test_basename in li.component.name]
+
+
+def remove_test_parameter_providers():
+    """Remove test providers after their generated contexts have been deleted."""
+    if SKIP_TEARDOWN:
+        return None
+    handle = nipyapi.nifi.ParameterProvidersApi()
+    providers = nipyapi.nifi.FlowApi().get_parameter_providers().parameter_providers
+    for provider in providers:
+        if provider.component.name.startswith(test_basename + '_param_provider'):
+            live = handle.get_parameter_provider(provider.id)
+            handle.remove_parameter_provider(live.id, version=live.revision.version)
+    return None
+
+
+@pytest.fixture(name='fix_param_provider')
+def fixture_parameter_provider(request):
+    """Create providers restricted to the harmless HOME environment variable."""
+    class Dummy:
+        def generate(self, suffix='', properties=None):
+            provider_type = next(
+                item for item in nipyapi.nifi.FlowApi()
+                .get_parameter_provider_types().parameter_provider_types
+                if item.type == 'org.apache.nifi.parameter.EnvironmentVariableParameterProvider'
+            )
+            configuration = {
+                'parameter-group-name': test_parameter_context_name + '_provider' + suffix,
+                'environment-variable-inclusion-strategy': 'comma-separated',
+                'include-environment-variables': 'HOME',
+            }
+            if properties:
+                configuration.update(properties)
+            return nipyapi.nifi.ControllerApi().create_parameter_provider(
+                nipyapi.nifi.ParameterProviderEntity(
+                    revision=nipyapi.nifi.RevisionDTO(version=0),
+                    component=nipyapi.nifi.ParameterProviderDTO(
+                        name=test_basename + '_param_provider' + suffix,
+                        type=provider_type.type,
+                        bundle=provider_type.bundle,
+                        properties=configuration,
+                    ),
+                )
+            )
+
+    def cleanup():
+        remove_test_parameter_contexts()
+        remove_test_parameter_providers()
+
+    request.addfinalizer(cleanup)
+    return Dummy()
+
+
+@pytest.fixture(name='fix_mgmt_cont')
+def fixture_management_controller(request):
+    """Create controller-level services using the shared controller helpers."""
+    class Dummy:
+        def generate(self, suffix=''):
+            controller_type = nipyapi.canvas.get_controller_type(
+                'org.apache.nifi.web.client.provider.service.StandardWebClientServiceProvider',
+                greedy=False,
+            )
+            return nipyapi.canvas.create_management_controller(
+                controller_type, name=test_basename + '_mgmt_cont' + suffix
+            )
+
+    request.addfinalizer(
+        functools.partial(remove_test_controllers, include_reporting_tasks=True)
+    )
+    return Dummy()
 
 
 def cleanup_reg():

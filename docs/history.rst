@@ -2,6 +2,40 @@
 History
 =======
 
+1.8.0 (unreleased)
+-------------------
+
+| NiFi 2.12.0 support and parameter provider fixes
+
+**Supported Versions**
+
+- Bumped the supported and tested NiFi/Registry version from 2.10.0 to 2.12.0 and regenerated the NiFi and Registry API clients against the 2.12.0 OpenAPI specification. The change to the generated surface is additive: no API methods or models were removed or renamed. New operations include connector migration and backlog requests, processor backlog requests, and versioned flow rebase.
+- The seeded test flows in the companion ``nipyapi-actions`` repository were updated to NiFi 2.12.0 component bundles. A flow saved on an older NiFi version reports an environmental "Component Bundle Changed" local modification when deployed to a newer one.
+
+**Bug Fixes**
+
+- **get_process_group**: a lookup by an ID that does not exist raised ``ValueError`` ("Unable to locate group ...") instead of returning ``None`` as its 404 handler intends, unlike ``get_processor`` and ``get_parameter_context``. It now returns ``None``; other API errors still raise ``ValueError``. The ``nipyapi.ci`` commands already handled ``None``, so their missing-group error is now ``Process group not found: <id>``.
+- **ensure_management_controller**: the lookup by name also matched process-group services, so an existing process-group service with the same name could be reconfigured and enabled instead of a controller-level one being created. It now matches controller-level services only, and raises ``ValueError`` if several share the name.
+- **Parameter provider models**: ``ParameterGroupConfigurationEntity.parameter_sensitivities`` validated its map keys (parameter names) against the ``SENSITIVE``/``NON_SENSITIVE`` enum instead of its values, so parameter provider fetch and apply responses could not be deserialized. Values are now validated, and ``None`` (staged on the first fetch of a new group) is accepted.
+- **AffectedComponentEntity**: ``reference_type`` now accepts ``STATELESS_GROUP``, which NiFi returns in the referencing components of parameter context update and parameter provider apply requests.
+
+**Parameter Providers and Contexts**
+
+- Added provider discovery, type lookup, property updates, fetch, apply, and combined fetch/apply helpers to ``nipyapi.parameters``. Apply retains staged sensitivity and ``synchronized`` choices unless overridden, and defaults unset choices to sensitive and synchronized, matching NiFi. Unknown parameter names in ``sensitivities`` raise ``ValueError``, and an apply with no synchronized groups logs a warning. The combined helper accepts the same override arguments.
+- Added ordered context inheritance updates, process-group bound-context lookup, and local sensitive aliases to parameters in provider-created contexts. Connecting keeps an already inherited source in place unless a higher-precedence context shadows a mapped name, rejects non-sensitive source parameters, and keeps descriptions of overwritten aliases. New asynchronous helpers return the completed request DTO, including affected components. Existing context-update return types are unchanged.
+- Standardized provider apply, context update and processor/controller verification on ``utils.wait_for_request``. Completed requests are deleted, including failed requests; timeouts, polling errors and interruptions no longer implicitly cancel unfinished requests. Context updates and verification now raise request-level failures instead of ignoring them. Cleanup errors propagate after success (including verification); a terminal request failure takes precedence if cleanup also fails. Individual ``FAILED`` verification results remain returned data.
+- Added ``canvas.list_all_management_controllers()`` and ``canvas.get_management_controller()`` for controller-level services without process-group-scoped results.
+
+**Maintenance**
+
+- Corrected the ``canvas.get_controller()`` docstring: ``bool_response=True`` returns ``False`` only when the API call fails (for example a missing ID); a name with no match returns ``None``. Behaviour is unchanged.
+
+- Removed version guards and branches for NiFi releases older than 2.0, which nipyapi 1.x does not support. Parameter functions no longer make an extra ``/flow/about`` request on each call. ``canvas.list_all_processors``, ``canvas.list_all_controllers`` and ``nifi_registry.save_flow_ver`` now always use the 2.x API path they already took on supported servers.
+
+**Generated Clients**
+
+- **Configuration.client_side_validation**: New flag (default ``True``) on the NiFi and Registry ``Configuration`` objects. Setting it to ``False`` disables enum validation in generated models, for use against servers that return values the generated enums do not list yet.
+
 1.7.0 (2026-07-18)
 -------------------
 

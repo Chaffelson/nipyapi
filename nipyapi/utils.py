@@ -35,6 +35,7 @@ __all__ = [
     "resolve_entity",
     "resolve_schedule_state",
     "wait_to_complete",
+    "wait_for_request",
     "is_endpoint_up",
     "set_endpoint",
     "infer_object_label_from_class",
@@ -493,6 +494,53 @@ def wait_to_complete(test_function, *args, **kwargs):
         time.sleep(delay)
     log.info("Hit Timeout, raising TimeOut Error")
     raise ValueError("Timed Out waiting for {0} to complete".format(test_function.__name__))
+
+
+def wait_for_request(get_request, delete_request, nipyapi_delay=None, nipyapi_max_wait=None):
+    """Wait for a submitted NiFi request and delete it only after completion.
+
+    An unfinished request is not deleted on timeout, polling error or interruption:
+    deleting it would cancel the operation. Individual verification result outcomes
+    are returned unchanged; only the request-level failure_reason raises an error.
+
+    Args:
+        get_request: Bound callback returning an entity with a request DTO whose
+            complete and failure_reason fields describe the operation.
+        delete_request: Bound callback deleting the submitted request.
+        nipyapi_delay (float): Poll interval; defaults to config.short_retry_delay.
+        nipyapi_max_wait (float): Timeout; defaults to config.short_max_wait.
+
+    Returns:
+        The completed request DTO, retained before deletion.
+
+    Raises:
+        ValueError: Timeout or the completed request's failure_reason.
+        Exception: Polling or deletion errors. A deletion error does not replace
+            a terminal request failure.
+    """
+
+    def completed():
+        request = get_request().request
+        return request if request.complete else False
+
+    result = wait_to_complete(
+        completed,
+        nipyapi_delay=(
+            nipyapi.config.short_retry_delay if nipyapi_delay is None else nipyapi_delay
+        ),
+        nipyapi_max_wait=(
+            nipyapi.config.short_max_wait if nipyapi_max_wait is None else nipyapi_max_wait
+        ),
+    )
+    try:
+        delete_request()
+    except Exception as exc:  # pylint: disable=broad-exception-caught
+        if not result.failure_reason:
+            raise
+        log.warning("Could not delete completed failed request: %s", exc)
+    if result.failure_reason:
+        raise ValueError(result.failure_reason)
+    return result
 
 
 def is_endpoint_up(endpoint_url):  # pylint: disable=too-many-return-statements

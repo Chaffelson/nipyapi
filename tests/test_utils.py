@@ -1,5 +1,6 @@
 """Tests for `nipyapi` _utils package."""
 
+import itertools
 import os
 import sys
 import pytest
@@ -143,9 +144,123 @@ def test_filter_obj(fix_pg):
     assert r5 is None
 
 
-def test_wait_to_complete():
-    # TODO: Implement test
-    pass
+def test_wait_to_complete(monkeypatch):
+    """Polling returns the truthy result, forwards arguments, and honors timing."""
+    from types import SimpleNamespace
+    ticks = iter([0, 0, 1])
+    sleeps = []
+    calls = []
+    result = object()
+    monkeypatch.setattr(utils, 'time', SimpleNamespace(
+        time=lambda: next(ticks), sleep=sleeps.append))
+
+    def check(value, *, marker):
+        calls.append((value, marker))
+        return result if len(calls) == 2 else False
+
+    assert utils.wait_to_complete(check, 'value', marker='test',
+                                  nipyapi_delay=0.25, nipyapi_max_wait=2) is result
+    assert calls == [('value', 'test'), ('value', 'test')]
+    assert sleeps == [0.25]
+
+
+def test_wait_to_complete_timeout_and_error():
+    """The existing polling utility propagates callback errors and raises on timeout."""
+    def pending():
+        return False
+
+    with pytest.raises(ValueError, match='Timed Out'):
+        utils.wait_to_complete(pending, nipyapi_max_wait=0)
+
+    def failed():
+        raise RuntimeError('poll failed')
+
+    with pytest.raises(RuntimeError, match='poll failed'):
+        utils.wait_to_complete(failed)
+
+
+@pytest.mark.parametrize('scenario', [
+    'success', 'server', 'delete_error', 'server_delete_error',
+    'timeout', 'poll_error', 'interrupt',
+])
+def test_wait_for_request(scenario):
+    """Only observed completion allows cleanup; terminal failures retain precedence.
+
+    Fake request states follow NiFi's StandardAsynchronousWebRequest: failures and
+    cancellations are reported as complete with failure_reason.
+    """
+    entity_type = nifi.ParameterContextUpdateRequestEntity
+    dto_type = nifi.ParameterContextUpdateRequestDTO
+    events = []
+    completed = dto_type(complete=True, failure_reason=(
+        'request failed' if scenario in ('server', 'server_delete_error') else None))
+    pending = dto_type(complete=False)
+    responses = (itertools.repeat(pending) if scenario == 'timeout'
+                 else iter([pending, completed]))
+    poll_error = RuntimeError('poll failed')
+    delete_error = RuntimeError('delete failed')
+
+    def get_request():
+        events.append('poll')
+        if scenario == 'poll_error':
+            raise poll_error
+        if scenario == 'interrupt':
+            raise KeyboardInterrupt('interrupted')
+        return entity_type(request=next(responses))
+
+    def delete_request():
+        events.append('delete')
+        if scenario in ('delete_error', 'server_delete_error'):
+            raise delete_error
+
+    kwargs = {'nipyapi_delay': 0, 'nipyapi_max_wait': 0.05 if scenario == 'timeout' else 1}
+    if scenario in ('server', 'server_delete_error'):
+        with pytest.raises(ValueError, match='^request failed$'):
+            utils.wait_for_request(get_request, delete_request, **kwargs)
+    elif scenario in ('poll_error', 'delete_error'):
+        # Cleanup errors must not be confused with an exception in the caller.
+        try:
+            raise LookupError('unrelated caller error')
+        except LookupError:
+            with pytest.raises(RuntimeError) as failed:
+                utils.wait_for_request(get_request, delete_request, **kwargs)
+        assert failed.value is (poll_error if scenario == 'poll_error' else delete_error)
+    elif scenario == 'interrupt':
+        with pytest.raises(KeyboardInterrupt, match='interrupted'):
+            utils.wait_for_request(get_request, delete_request, **kwargs)
+    elif scenario == 'timeout':
+        with pytest.raises(ValueError, match='Timed Out'):
+            utils.wait_for_request(get_request, delete_request, **kwargs)
+    else:
+        assert utils.wait_for_request(get_request, delete_request, **kwargs) is completed
+    if scenario == 'timeout':
+        # A request polled while still pending is never deleted (DELETE would cancel it).
+        assert 'poll' in events and 'delete' not in events
+    elif scenario in ('interrupt', 'poll_error'):
+        assert events == ['poll']
+    else:
+        assert events == ['poll', 'poll', 'delete']
+
+
+def test_wait_for_request_timing(monkeypatch):
+    """Delegate timing to the existing polling utility, with runtime defaults."""
+    timings = []
+    request = nifi.VerifyConfigRequestDTO(complete=True)
+
+    def wait(check, **kwargs):
+        timings.append(kwargs)
+        return check()
+
+    monkeypatch.setattr(utils, 'wait_to_complete', wait)
+    monkeypatch.setattr(conftest.nipyapi.config, 'short_retry_delay', 0.25)
+    monkeypatch.setattr(conftest.nipyapi.config, 'short_max_wait', 7)
+    get_request = lambda: nifi.VerifyConfigRequestEntity(request=request)
+    utils.wait_for_request(get_request, lambda: None)
+    utils.wait_for_request(get_request, lambda: None, nipyapi_delay=1, nipyapi_max_wait=99)
+    assert timings == [
+        {'nipyapi_delay': 0.25, 'nipyapi_max_wait': 7},
+        {'nipyapi_delay': 1, 'nipyapi_max_wait': 99},
+    ]
 
 
 class TestIsUuid:

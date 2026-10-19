@@ -3,7 +3,7 @@ NiFi APIs
 
 Complete NiFi REST API client documentation.
 
-This section documents all **28** NiFi API classes. Each API class provides methods for interacting with specific NiFi endpoints. Click any API to see its methods and their model parameters.
+This section documents all **29** NiFi API classes. Each API class provides methods for interacting with specific NiFi endpoints. Click any API to see its methods and their model parameters.
 
 .. toctree::
    :maxdepth: 1
@@ -11,6 +11,7 @@ This section documents all **28** NiFi API classes. Each API class provides meth
    access_api
    authentication_api
    connections_api
+   connectors_api
    controller_api
    controller_services_api
    counters_api

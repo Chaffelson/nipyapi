@@ -3,7 +3,7 @@ NiFi Models
 
 Complete model class reference for NiFi APIs.
 
-This reference documents all **403** model classes used by NiFi APIs. These classes are automatically cross-referenced from API documentation - click any model type in API documentation to jump directly to its definition here.
+This reference documents all **451** model classes used by NiFi APIs. These classes are automatically cross-referenced from API documentation - click any model type in API documentation to jump directly to its definition here.
 
 Model Type Patterns
 --------------------
@@ -115,6 +115,22 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: AuthenticationConfigurationEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: BacklogDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: BacklogRequestDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: BacklogRequestEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: BacklogUpdateStepDTO
    :members:
    :show-inheritance:
 
@@ -274,6 +290,30 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: ConfigurationStep
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConfigurationStepConfigurationDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConfigurationStepDependency
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConfigurationStepDependencyDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConfigurationStepEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConfigurationStepNamesEntity
+   :members:
+   :show-inheritance:
+
 .. autoclass:: ConnectableComponent
    :members:
    :show-inheritance:
@@ -323,6 +363,74 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: ConnectionsEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorActionDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorConfigurationDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorDefinition
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyAllowableValuesEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyDependency
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyDependencyDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyDescriptor
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyDescriptorDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyGroup
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorRunStatusEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorStatusDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorStatusSnapshotDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorTypesEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorValueReferenceDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorsEntity
    :members:
    :show-inheritance:
 
@@ -443,6 +551,10 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: CreateActiveRequestEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: CreateFlowBranchRequestEntity
    :members:
    :show-inheritance:
 
@@ -722,6 +834,30 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: MigrationPayloadDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: MigrationPayloadEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: MigrationRequestDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: MigrationRequestEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: MigrationRequestLocalSourceDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: MigrationUpdateStepDTO
+   :members:
+   :show-inheritance:
+
 .. autoclass:: MultiProcessorUseCase
    :members:
    :show-inheritance:
@@ -751,6 +887,10 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: NodeConnectionStatusSnapshotDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: NodeConnectorStatusSnapshotDTO
    :members:
    :show-inheritance:
 
@@ -1146,6 +1286,10 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: PropertyGroupConfigurationDTO
+   :members:
+   :show-inheritance:
+
 .. autoclass:: PropertyHistoryDTO
    :members:
    :show-inheritance:
@@ -1207,6 +1351,18 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: QueueSizeDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: RebaseAnalysisEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: RebaseChangeDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: RebaseRequestEntity
    :members:
    :show-inheritance:
 
@@ -1374,6 +1530,14 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: SecretDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: SecretsEntity
+   :members:
+   :show-inheritance:
+
 .. autoclass:: SnippetDTO
    :members:
    :show-inheritance:
@@ -1411,6 +1575,10 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: StatusSnapshotDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: StepDocumentationEntity
    :members:
    :show-inheritance:
 
@@ -1506,6 +1674,14 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: VerifyConnectorConfigStepRequestDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: VerifyConnectorConfigStepRequestEntity
+   :members:
+   :show-inheritance:
+
 .. autoclass:: VersionControlComponentMappingEntity
    :members:
    :show-inheritance:
@@ -1526,6 +1702,10 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: VersionedComponentState
+   :members:
+   :show-inheritance:
+
 .. autoclass:: VersionedConnection
    :members:
    :show-inheritance:
@@ -1543,6 +1723,14 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: VersionedFlowEntity
+   :members:
+   :show-inheritance:
+
+.. autoclass:: VersionedFlowMigrationSourceDTO
+   :members:
+   :show-inheritance:
+
+.. autoclass:: VersionedFlowMigrationSourcesEntity
    :members:
    :show-inheritance:
 
@@ -1579,6 +1767,10 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: VersionedListenPortDefinition
+   :members:
+   :show-inheritance:
+
+.. autoclass:: VersionedNodeState
    :members:
    :show-inheritance:
 

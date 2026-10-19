@@ -3,7 +3,7 @@ Registry Models
 
 Complete model class reference for Registry APIs.
 
-This reference documents all **87** model classes used by Registry APIs. These classes are automatically cross-referenced from API documentation - click any model type in API documentation to jump directly to its definition here.
+This reference documents all **94** model classes used by Registry APIs. These classes are automatically cross-referenced from API documentation - click any model type in API documentation to jump directly to its definition here.
 
 Model Type Patterns
 --------------------
@@ -90,7 +90,27 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: ConfigurationStep
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConfigurationStepDependency
+   :members:
+   :show-inheritance:
+
 .. autoclass:: ConnectableComponent
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorProperty
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyDependency
+   :members:
+   :show-inheritance:
+
+.. autoclass:: ConnectorPropertyGroup
    :members:
    :show-inheritance:
 
@@ -294,6 +314,10 @@ All Model Classes
    :members:
    :show-inheritance:
 
+.. autoclass:: VersionedComponentState
+   :members:
+   :show-inheritance:
+
 .. autoclass:: VersionedConnection
    :members:
    :show-inheritance:
@@ -331,6 +355,10 @@ All Model Classes
    :show-inheritance:
 
 .. autoclass:: VersionedListenPortDefinition
+   :members:
+   :show-inheritance:
+
+.. autoclass:: VersionedNodeState
    :members:
    :show-inheritance:
 
