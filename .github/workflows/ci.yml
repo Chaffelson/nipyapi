@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ main, maint-0.x ]
 
+permissions:
+  contents: read
+
 jobs:
   test-python-312-single-user:
     runs-on: ubuntu-24.04
