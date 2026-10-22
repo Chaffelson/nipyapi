@@ -46,7 +46,7 @@ early deletion would cancel subsequent server-side steps. NiFi may continue the
 operation after the client stops waiting; interruption is not a rollback.
 
 For a combined operation, use ``fetch_and_apply_parameter_provider(provider)``.
-The CLI form is ``nipyapi parameters fetch_and_apply_parameter_provider <id> --identifier_type id``.
+The CLI form is ``nipyapi parameters fetch_and_apply_parameter_provider <provider-id>``; a UUID is looked up by ID automatically.
 It rejects missing or empty selected groups by default. Scope provider properties
 before fetching.
 

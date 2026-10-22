@@ -2,10 +2,22 @@
 History
 =======
 
-1.8.0 (unreleased)
+1.8.0 (2026-10-22)
 -------------------
 
-| NiFi 2.12.0 support and parameter provider fixes
+| NiFi 2.12.0 support, parameter provider helpers and behaviour fixes
+
+**Behaviour Changes**
+
+This is a minor release: no public function was removed or had its signature changed, but the following existing functions now behave differently. Review callers of ``get_process_group`` in particular.
+
+- **get_process_group** (high-traffic): a lookup by an ID that does not exist now returns ``None`` instead of raising ``ValueError("Unable to locate group ...")``. Code that caught ``ValueError`` to detect a missing group should check for ``None`` instead. Other API errors still raise ``ValueError``, and lookups by name are unchanged. The ``nipyapi.ci`` commands report a missing group as ``Process group not found: <id>``. See Bug Fixes.
+- **Parameter context updates**: ``update_parameter_context``, and the helpers that call it (``rename_parameter_context``, ``upsert_parameter_to_context``, ``delete_parameter_from_context`` and ``update_parameter_in_context``), now raise ``ValueError`` when the update request completes with a ``failureReason``. Previously the failure was ignored and the re-read context was returned as if the update had succeeded.
+- **verify_controller and verify_processor**: a verification request that completes with a ``failureReason`` now raises ``ValueError``. A timeout or interruption no longer sends a DELETE that would cancel the server-side request, and an error deleting a completed request now propagates instead of being logged and ignored. Individual ``FAILED`` verification results are still returned as data.
+- **ensure_management_controller**: now matches controller-level services only, and raises ``ValueError`` if several share the requested name. Previously a process-group service with the same name could be found and reconfigured. See Bug Fixes.
+- **ParameterGroupConfigurationEntity**: ``parameter_sensitivities`` now validates its values rather than its keys and accepts ``None``, so parameter provider responses deserialize. See Bug Fixes.
+
+Wait timings, return types of existing functions and behaviour against supported NiFi 2.x servers are otherwise unchanged.
 
 **Supported Versions**
 
@@ -22,12 +34,13 @@ History
 
 - Added provider discovery, type lookup, property updates, fetch, apply, and combined fetch/apply helpers to ``nipyapi.parameters``. Apply retains staged sensitivity and ``synchronized`` choices unless overridden, and defaults unset choices to sensitive and synchronized, matching NiFi. Unknown parameter names in ``sensitivities`` raise ``ValueError``, and an apply with no synchronized groups logs a warning. The combined helper accepts the same override arguments.
 - Added ordered context inheritance updates, process-group bound-context lookup, and local sensitive aliases to parameters in provider-created contexts. Connecting keeps an already inherited source in place unless a higher-precedence context shadows a mapped name, rejects non-sensitive source parameters, and keeps descriptions of overwritten aliases. New asynchronous helpers return the completed request DTO, including affected components. Existing context-update return types are unchanged.
-- Standardized provider apply, context update and processor/controller verification on ``utils.wait_for_request``. Completed requests are deleted, including failed requests; timeouts, polling errors and interruptions no longer implicitly cancel unfinished requests. Context updates and verification now raise request-level failures instead of ignoring them. Cleanup errors propagate after success (including verification); a terminal request failure takes precedence if cleanup also fails. Individual ``FAILED`` verification results remain returned data.
+- Standardized provider apply, context update and processor/controller verification on ``utils.wait_for_request``: completed requests are deleted, including failed ones, and an unfinished request is never cancelled implicitly. If a request fails and its cleanup also fails, the request failure is raised. See Behaviour Changes.
 - Added ``canvas.list_all_management_controllers()`` and ``canvas.get_management_controller()`` for controller-level services without process-group-scoped results.
 
 **Maintenance**
 
 - Corrected the ``canvas.get_controller()`` docstring: ``bool_response=True`` returns ``False`` only when the API call fails (for example a missing ID); a name with no match returns ``None``. Behaviour is unchanged.
+- Build targets no longer delete test certificates or coverage reports: ``make dist``, ``wheel``, ``sdist`` and ``install`` now clean only build output, and ``make check-dist`` and ``make test-dist`` reuse an existing build rather than rebuilding it. Certificates are removed only by the new ``make clean-certs`` or by ``make clean-all``.
 
 - Removed version guards and branches for NiFi releases older than 2.0, which nipyapi 1.x does not support. Parameter functions no longer make an extra ``/flow/about`` request on each call. ``canvas.list_all_processors``, ``canvas.list_all_controllers`` and ``nifi_registry.save_flow_ver`` now always use the 2.x API path they already took on supported servers.
 
