@@ -19,6 +19,10 @@ This is a minor release: no public function was removed or had its signature cha
 
 Wait timings, return types of existing functions and behaviour against supported NiFi 2.x servers are otherwise unchanged.
 
+**Deprecations**
+
+- **Python 3.9**: support is deprecated and will be removed in an upcoming release. Python 3.9 reached end of life in October 2025, and ``actions/setup-python`` publishes no Python 3.9 build for the Ubuntu 26.04 runner image, so CI is pinned to ``ubuntu-24.04`` for this release. 1.8.0 is still tested on Python 3.9; plan to move to Python 3.10 or later.
+
 **Supported Versions**
 
 - Bumped the supported and tested NiFi/Registry version from 2.10.0 to 2.12.0 and regenerated the NiFi and Registry API clients against the 2.12.0 OpenAPI specification. The change to the generated surface is additive: no API methods or models were removed or renamed. New operations include connector migration and backlog requests, processor backlog requests, and versioned flow rebase.
