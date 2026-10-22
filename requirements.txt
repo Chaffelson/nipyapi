@@ -9,7 +9,7 @@ packaging>=17.1
 # HTTP stack (explicit because generated clients import these directly)
 # TODO: evaluate reducing direct requests usage in favor of urllib3-only later
 urllib3>=1.26,<3
-certifi>=2023.7.22
+certifi>=2026.10.19
 
 # Security and Connectivity (used in utils and demos)
 requests>=2.18
