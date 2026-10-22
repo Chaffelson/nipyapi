@@ -71,6 +71,11 @@ registered_filters = {
     "ControllerServiceEntity": {"id": ["id"], "name": ["component", "name"]},
     "PortEntity": {"id": ["id"], "name": ["status", "name"]},
     "ParameterContextEntity": {"id": ["id"], "name": ["component", "name"]},
+    "ParameterProviderEntity": {
+        "id": ["id"],
+        "name": ["component", "name"],
+        "type": ["component", "type"],
+    },
     "ReportingTaskEntity": {"id": ["id"], "name": ["component", "name"]},
     # Git-based Flow Registry types (GitHub, GitLab, Bitbucket, Azure DevOps)
     "FlowRegistryBucketEntity": {"id": ["id"], "name": ["bucket", "name"]},

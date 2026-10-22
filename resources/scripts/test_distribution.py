@@ -30,7 +30,15 @@ def validate_distribution():
         
     wheel_file = wheels[0]
     wheel_name = os.path.basename(wheel_file)
-    
+
+    # A build without git tags (e.g. a shallow clone) falls back to 0.0.x
+    # instead of the real release version; refuse to validate it.
+    wheel_version = wheel_name.split('-')[1]
+    if wheel_version.startswith('0.0.') or 'unknown' in wheel_version:
+        print(f"❌ Wheel has a fallback version: {wheel_version}")
+        print("Build from a checkout with git tags (e.g. fetch-depth: 0 in CI)")
+        return False
+
     print(f"🧪 Testing distribution: {wheel_name}")
     
     with tempfile.TemporaryDirectory() as tmpdir:

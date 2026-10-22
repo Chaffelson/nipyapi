@@ -13,6 +13,7 @@ Contents:
    profiles
    security
    extensions
+   parameters
    migration
    nipyapi-docs/api_reference
    contributing

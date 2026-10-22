@@ -55,6 +55,8 @@ __all__ = [
     "delete_connection",
     "get_component_connections",
     "create_controller",
+    "list_all_management_controllers",
+    "get_management_controller",
     "create_management_controller",
     "ensure_management_controller",
     "list_all_controllers",
@@ -197,14 +199,14 @@ def get_process_group(identifier, identifier_type="name", greedy=True):
     """
     assert isinstance(identifier, str)
     assert identifier_type in ["name", "id"]
-    with nipyapi.utils.rest_exceptions():
-        if identifier_type == "id" or identifier == "root":
-            # assuming unique fetch of pg id, 'root' is special case
-            # implementing separately to avoid recursing entire canvas
-            out = nipyapi.nifi.ProcessGroupsApi().get_process_group(identifier)
-        else:
-            obj = list_all_process_groups()
-            out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
+    # exception_handler maps 404 to None and other API errors to ValueError.
+    if identifier_type == "id" or identifier == "root":
+        # assuming unique fetch of pg id, 'root' is special case
+        # implementing separately to avoid recursing entire canvas
+        out = nipyapi.nifi.ProcessGroupsApi().get_process_group(identifier)
+    else:
+        obj = list_all_process_groups()
+        out = nipyapi.utils.filter_obj(obj, identifier, identifier_type, greedy=greedy)
     return out
 
 
@@ -365,22 +367,10 @@ def list_all_processors(pg_id="root"):
     """
     assert isinstance(pg_id, str), "pg_id should be a string"
 
-    if nipyapi.utils.check_version("1.7.0") <= 0:
-        # Case where NiFi > 1.7.0
-        targets = nipyapi.nifi.ProcessGroupsApi().get_processors(
-            id=pg_id, include_descendant_groups=True
-        )
-        return targets.processors
-    # Handle older NiFi instances
-    out = []
-    # list of child process groups
-    pg_ids = [x.id for x in list_all_process_groups(pg_id)]
-    # process target list
-    for this_pg_id in pg_ids:
-        procs = nipyapi.nifi.ProcessGroupsApi().get_processors(this_pg_id)
-        if procs.processors:
-            out += procs.processors
-    return out
+    targets = nipyapi.nifi.ProcessGroupsApi().get_processors(
+        id=pg_id, include_descendant_groups=True
+    )
+    return targets.processors
 
 
 def schedule_process_group(process_group_id, scheduled, greedy=True, identifier_type="auto"):
@@ -2151,6 +2141,50 @@ def create_controller(parent_pg, controller, name=None):
         )
 
 
+def list_all_management_controllers():
+    """List controller-level services, excluding process-group services.
+
+    Returns:
+        list[ControllerServiceEntity]: Management controller services.
+    """
+    return nipyapi.nifi.FlowApi().get_controller_services_from_controller().controller_services
+
+
+def get_management_controller(identifier, identifier_type="name", bool_response=False, greedy=True):
+    """Find controller-level services by name or ID.
+
+    Args:
+        identifier (str): Name or ID to match.
+        identifier_type (str): "name" or "id".
+        bool_response (bool): Return False instead of raising when the API call fails,
+            matching get_controller. A name with no match returns None.
+        greedy (bool): Use substring matching instead of exact matching.
+
+    Returns:
+        ControllerServiceEntity or list or None or False: Matching management
+            services. Process-group-scoped services are not returned.
+
+    Raises:
+        ValueError: If the API request fails and bool_response is False.
+    """
+    assert isinstance(identifier, str)
+    assert identifier_type in ["name", "id"]
+    try:
+        if identifier_type == "id":
+            result = nipyapi.nifi.ControllerServicesApi().get_controller_service(identifier)
+            if result.component.parent_group_id is not None:
+                result = None
+        else:
+            result = nipyapi.utils.filter_obj(
+                list_all_management_controllers(), identifier, identifier_type, greedy=greedy
+            )
+    except nipyapi.nifi.rest.ApiException as exc:
+        if bool_response:
+            return False
+        raise ValueError(exc.body) from exc
+    return result
+
+
 def create_management_controller(controller, name=None):
     """
     Creates a new controller-level (management) Controller Service of the given
@@ -2201,7 +2235,8 @@ def ensure_management_controller(name, controller_type, properties=None, enable=
     configured, and (optionally) enabled. Idempotent by name.
 
     Composes the existing controller-service functions: finds an existing
-    service by name, creates it via :func:`create_management_controller` if
+    controller-level service by exact name (process-group services are ignored),
+    creates it via :func:`create_management_controller` if
     absent, applies ``properties`` via :func:`update_controller`, and enables it
     via :func:`schedule_controller`.
 
@@ -2216,13 +2251,16 @@ def ensure_management_controller(name, controller_type, properties=None, enable=
         :class:`~nipyapi.nifi.models.ControllerServiceEntity`: The ensured controller service
 
     Raises:
-        ValueError: If the controller service type is not available on this NiFi.
+        ValueError: If the controller service type is not available on this NiFi,
+            or several controller-level services have the name.
 
     """
     assert isinstance(name, str)
     assert isinstance(controller_type, str)
     assert properties is None or isinstance(properties, dict)
-    controller = get_controller(name, identifier_type="name", bool_response=True, greedy=False)
+    controller = get_management_controller(name, bool_response=True, greedy=False)
+    if isinstance(controller, list):
+        raise ValueError(f"Several controller-level services are named '{name}'")
     if not controller:
         cs_type = get_controller_type(controller_type, identifier_type="name", greedy=False)
         if cs_type is None:
@@ -2288,29 +2326,12 @@ def list_all_controllers(  # pylint: disable=too-many-arguments,too-many-positio
         )
         pg_id = process_group.id
     handle = nipyapi.nifi.FlowApi()
-    # Testing shows that descendant doesn't work on NiFi-1.1.2
-    # Or 1.2.0, despite the descendants option being available
-    if nipyapi.utils.check_version("1.2.0") >= 0:
-        # Case where NiFi <= 1.2.0
-        out = []
-        if descendants:
-            pgs = list_all_process_groups(pg_id)
-        else:
-            pgs = [get_process_group(pg_id, "id")]
-        for pg in pgs:
-            new_conts = handle.get_controller_services_from_group(
-                pg.id, include_ancestor_groups=include_ancestors
-            ).controller_services
-            # trim duplicates from inheritance
-            out += [x for x in new_conts if x.id not in [y.id for y in out]]
-    else:
-        # Case where NiFi > 1.2.0
-        # duplicate trim already handled by server
-        out = handle.get_controller_services_from_group(
-            pg_id,
-            include_descendant_groups=descendants,
-            include_ancestor_groups=include_ancestors,
-        ).controller_services
+    # The server removes duplicates across inherited and descendant groups.
+    out = handle.get_controller_services_from_group(
+        pg_id,
+        include_descendant_groups=descendants,
+        include_ancestor_groups=include_ancestors,
+    ).controller_services
     if include_reporting_tasks:
         mgmt_handle = nipyapi.nifi.FlowApi()
         out += mgmt_handle.get_controller_services_from_controller().controller_services
@@ -2637,13 +2658,15 @@ def get_controller(
     Args:
         identifier (str): ID or Name of a Controller to find
         identifier_type (str): 'id' or 'name', defaults to name
-        bool_response (bool): If True, will return False if the Controller is
-            not found - useful when testing for deletion completion
+        bool_response (bool): If True, return False instead of raising when the API
+            call fails, such as an ID that no longer exists; useful when testing for
+            deletion completion. A name with no match still returns None.
         include_reporting_tasks (bool): If True, will include Reporting Tasks in the search
         greedy (bool): Whether to exact match (False) or partial match (True)
 
     Returns:
-        ControllerServiceEntity or None/False depending on bool_response
+        ControllerServiceEntity or list or None or False: False only when
+            bool_response is True and the API call fails.
 
     """
     assert isinstance(identifier, str)
@@ -3146,7 +3169,8 @@ def _run_verification_request(component_id, body, submit_func, get_func, delete_
     Run an async verification request workflow: submit, poll, cleanup.
 
     This helper consolidates the common pattern used by verify_controller
-    and verify_processor to avoid code duplication.
+    and verify_processor to avoid code duplication. Polling and completed-request
+    deletion use utils.wait_for_request; interrupted waits do not cancel requests.
 
     Args:
         component_id: ID of the component being verified
@@ -3158,28 +3182,14 @@ def _run_verification_request(component_id, body, submit_func, get_func, delete_
     Returns:
         list[ConfigVerificationResultDTO]: Verification results
     """
-    request_id = None
-
-    try:
-        with nipyapi.utils.rest_exceptions():
-            response = submit_func(body=body, id=component_id)
-        request_id = response.request.request_id
-
-        def _check_complete():
-            status = get_func(id=component_id, request_id=request_id)
-            if status.request.complete:
-                return status
-            return False
-
-        status = nipyapi.utils.wait_to_complete(_check_complete)
-        return status.request.results or []
-
-    finally:
-        if request_id:
-            try:
-                delete_func(id=component_id, request_id=request_id)
-            except Exception:  # pylint: disable=broad-except
-                log.warning("Failed to cleanup verification request %s", request_id)
+    with nipyapi.utils.rest_exceptions():
+        response = submit_func(body=body, id=component_id)
+    request_id = response.request.request_id
+    request = nipyapi.utils.wait_for_request(
+        lambda: get_func(id=component_id, request_id=request_id),
+        lambda: delete_func(id=component_id, request_id=request_id),
+    )
+    return request.results or []
 
 
 def verify_controller(
@@ -3191,7 +3201,8 @@ def verify_controller(
     Validates that all required properties are set and property values meet
     their defined constraints. Does NOT test actual connectivity or credentials.
     Handles the async verification workflow: submit request, poll until
-    complete, cleanup.
+    complete, then delete the completed request. Timeout or polling interruption
+    does not cancel the server-side operation.
 
     The controller service must be DISABLED before verification.
 
@@ -3211,8 +3222,8 @@ def verify_controller(
     Raises:
         TypeError: If controller is not a string or ControllerServiceEntity.
         ValueError: Controller not found, multiple matches found, or is
-            currently enabled.
-        ApiException: NiFi API errors
+            currently enabled, or the request fails or times out.
+        ApiException: NiFi API errors, including completed-request deletion errors.
 
     Example::
 
@@ -3264,7 +3275,8 @@ def verify_processor(
     Validates that all required properties are set and property values meet
     their defined constraints. Does NOT test actual connectivity or external
     service availability. Handles the async verification workflow: submit
-    request, poll until complete, cleanup.
+    request, poll until complete, then delete the completed request. Timeout or
+    polling interruption does not cancel the server-side operation.
 
     The processor must be STOPPED before verification.
 
@@ -3284,8 +3296,8 @@ def verify_processor(
     Raises:
         TypeError: If processor is not a string or ProcessorEntity.
         ValueError: Processor not found, multiple matches found, or is
-            currently running.
-        ApiException: NiFi API errors
+            currently running, or the request fails or times out.
+        ApiException: NiFi API errors, including completed-request deletion errors.
 
     Example::
 

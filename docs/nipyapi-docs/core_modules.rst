@@ -10,6 +10,7 @@ They wrap the lower-level generated API clients with Pythonic interfaces.
    core_modules/ci
    core_modules/canvas
    core_modules/versioning
+   core_modules/nifi_registry
    core_modules/security
    core_modules/parameters
    core_modules/profiles

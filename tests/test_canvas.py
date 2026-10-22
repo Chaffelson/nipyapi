@@ -148,6 +148,9 @@ def test_create_process_group_invalid_type():
 def test_get_process_group(fix_pg):
     with pytest.raises(AssertionError):
         _ = canvas.get_process_group('nipyapi_test', 'invalid')
+    # A missing ID returns None, like get_processor and get_parameter_context.
+    assert canvas.get_process_group(str(uuid.uuid4()), 'id') is None
+    assert canvas.get_processor(str(uuid.uuid4()), 'id') is None
     f_pg = fix_pg.generate()
     pg1 = canvas.get_process_group(f_pg.id, 'id')
     assert isinstance(pg1, ProcessGroupEntity)
@@ -893,6 +896,38 @@ _MGMT_CS_TYPE = (
 )
 
 
+def test_list_all_management_controllers(fix_mgmt_cont, fix_cont):
+    """Management listing excludes process-group-scoped services."""
+    management = fix_mgmt_cont.generate()
+    grouped = fix_cont()
+    identifiers = {item.id for item in canvas.list_all_management_controllers()}
+    assert management.id in identifiers
+    assert grouped.id not in identifiers
+
+
+def test_get_management_controller(fix_mgmt_cont, fix_cont):
+    """Management lookup honours scope, matching, and missing-result contracts."""
+    first = fix_mgmt_cont.generate('_first')
+    second = fix_mgmt_cont.generate('_second')
+    grouped = fix_cont()
+    assert canvas.get_management_controller(first.id, 'id').id == first.id
+    assert canvas.get_management_controller(first.component.name, greedy=False).id == first.id
+    matches = canvas.get_management_controller(conftest.test_basename + '_mgmt_cont')
+    assert {item.id for item in matches} == {first.id, second.id}
+    assert canvas.get_management_controller(grouped.id, 'id') is None
+    assert canvas.get_management_controller(grouped.component.name, greedy=False) is None
+    assert canvas.get_management_controller('nipyapi_test_missing_mgmt') is None
+    assert canvas.get_management_controller('nipyapi_test_missing_mgmt', bool_response=True) is None
+    # A missing ID is an API error: False with bool_response, ValueError otherwise.
+    assert canvas.get_management_controller(str(uuid.uuid4()), 'id', bool_response=True) is False
+    with pytest.raises(ValueError):
+        canvas.get_management_controller(str(uuid.uuid4()), 'id')
+    duplicate = fix_mgmt_cont.generate('_dup')
+    fix_mgmt_cont.generate('_dup')
+    with pytest.raises(ValueError, match='Several controller-level services'):
+        canvas.ensure_management_controller(duplicate.component.name, _MGMT_CS_TYPE)
+
+
 def test_create_management_controller():
     cs_type = canvas.get_controller_type(
         _MGMT_CS_TYPE, identifier_type="name", greedy=False
@@ -914,12 +949,18 @@ def test_create_management_controller():
         canvas.delete_controller(r1, force=True)
 
 
-def test_ensure_management_controller():
+def test_ensure_management_controller(fix_pg):
     name = "test-ensure-mgmt-webclient"
     props = {"Connect Timeout": "20 secs"}
+    cs_type = canvas.get_controller_type(_MGMT_CS_TYPE, identifier_type="name", greedy=False)
+    # A process-group service with the same name must not be adopted.
+    grouped = canvas.create_controller(fix_pg.generate(), cs_type, name=name)
     r1 = canvas.ensure_management_controller(name, _MGMT_CS_TYPE, properties=props)
     try:
         assert isinstance(r1, nifi.ControllerServiceEntity)
+        assert r1.id != grouped.id
+        assert r1.component.parent_group_id is None
+        assert canvas.get_controller(grouped.id, 'id').component.state == "DISABLED"
         assert r1.component.name == name
         assert r1.component.properties["Connect Timeout"] == "20 secs"
         assert r1.component.state == "ENABLED"
@@ -983,6 +1024,9 @@ def test_get_controller(fix_pg, fix_cont):
     _ = fix_cont(parent_pg=f_pg, kind='CSVReader')
     r3 = canvas.get_controller('CSVReader')
     assert len(r3) == 2
+    # bool_response only changes API errors: a missing ID returns False, a missing name None.
+    assert canvas.get_controller(str(uuid.uuid4()), 'id', bool_response=True) is False
+    assert canvas.get_controller('nipyapi_test_missing_controller', bool_response=True) is None
 
 
 def test_schedule_controller(fix_pg, fix_cont):
@@ -1477,8 +1521,47 @@ def test_remote_process_group_controls(fix_proc):
 # =============================================================================
 
 
-def test_verify_controller_disabled(fix_pg, fix_cont):
+@pytest.mark.parametrize('kind', ['controller', 'processor'])
+def test_verification_request_failure(fix_pg, fix_cont, fix_proc, monkeypatch, kind):
+    """A completed failed verification request raises NiFi's reason and is deleted.
+
+    NiFi marks a failed request complete with failure_reason; no reliable live
+    trigger exists, so the request boundary is simulated. Live completion,
+    FAILED result rows and deletion are covered by the real verification tests.
+    """
+    group = fix_pg.generate()
+    component = fix_cont(parent_pg=group) if kind == 'controller' else fix_proc.generate(parent_pg=group)
+    api = nifi.ControllerServicesApi if kind == 'controller' else nifi.ProcessorsApi
+    deleted = []
+    suffix = '' if kind == 'controller' else '2'
+    monkeypatch.setattr(
+        api, 'submit_config_verification_request' if kind == 'controller'
+        else 'submit_processor_verification_request',
+        lambda *args, **kwargs: nifi.VerifyConfigRequestEntity(
+            request=nifi.VerifyConfigRequestDTO(request_id='verify-request')))
+    monkeypatch.setattr(api, 'get_verification_request' + suffix, lambda *args, **kwargs:
+                        nifi.VerifyConfigRequestEntity(request=nifi.VerifyConfigRequestDTO(
+                            complete=True, failure_reason='verification failed')))
+    monkeypatch.setattr(api, 'delete_verification_request' + suffix,
+                        lambda self, id, request_id: deleted.append((id, request_id)))
+    invoke = canvas.verify_controller if kind == 'controller' else canvas.verify_processor
+    with pytest.raises(ValueError, match='^verification failed$'):
+        invoke(component)
+    assert deleted == [(component.id, 'verify-request')]
+
+
+def test_verify_controller_disabled(fix_pg, fix_cont, monkeypatch):
     """Test verifying a disabled controller service configuration."""
+    api = nifi.ControllerServicesApi
+    original_delete = api.delete_verification_request
+    deleted = []
+
+    def record_delete(handle, id, request_id, **kwargs):
+        deleted.append((id, request_id))
+        return original_delete(handle, id=id, request_id=request_id, **kwargs)
+
+    # Pass-through spy: the real NiFi DELETE runs; only its IDs are recorded.
+    monkeypatch.setattr(api, 'delete_verification_request', record_delete)
     f_pg = fix_pg.generate()
     f_c1 = fix_cont(parent_pg=f_pg)
 
@@ -1494,6 +1577,10 @@ def test_verify_controller_disabled(fix_pg, fix_cont):
         assert hasattr(r, 'verification_step_name')
         assert hasattr(r, 'outcome')
         assert r.outcome in ('SUCCESSFUL', 'FAILED', 'SKIPPED')
+    assert len(deleted) == 1
+    with pytest.raises(nifi.rest.ApiException) as gone:
+        api().get_verification_request(*deleted[0])
+    assert gone.value.status == 404
 
 
 def test_verify_controller_by_id(fix_pg, fix_cont):

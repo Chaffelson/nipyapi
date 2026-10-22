@@ -14,6 +14,8 @@ services:
       - ../certs/nifi.env
     environment:
       - AUTH=ldap
+      # Synthetic provider fixture, never a real credential.
+      - NIPYAPI_TEST_PROVIDER_SECRET=fixture-secret-value
       # Provide TLS keystore/truststore for secure.sh
       - KEYSTORE_PATH=/certs/nifi/keystore.p12
       - KEYSTORE_TYPE=PKCS12
@@ -84,6 +86,7 @@ services:
       - TRUSTSTORE_TYPE=PKCS12
       - TRUSTSTORE_PASSWORD=${CERT_PASSWORD:-changeit}
       - INITIAL_ADMIN_IDENTITY=C=US, O=NiPyAPI, CN=user1
+      - NIPYAPI_TEST_PROVIDER_SECRET=fixture-secret-value
       - NIFI_WEB_PROXY_HOST=localhost:9445,localhost:8443
       - NIFI_WEB_HTTPS_PORT=8443
       - NIFI_WEB_HTTPS_HOST=0.0.0.0
@@ -133,6 +136,7 @@ services:
     environment:
       - SINGLE_USER_CREDENTIALS_USERNAME=einstein
       - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
+      - NIPYAPI_TEST_PROVIDER_SECRET=fixture-secret-value
       - NIFI_WEB_PROXY_HOST=localhost:9443,localhost:8443
     networks: [nipynet]
 
@@ -205,6 +209,7 @@ services:
       - NIFI_SECURITY_USER_AUTHORIZER=managed-authorizer
       - NIFI_SECURITY_USER_LOGIN_IDENTITY_PROVIDER=
       - NIFI_SECURITY_ALLOW_ANONYMOUS_AUTHENTICATION=false
+      - NIPYAPI_TEST_PROVIDER_SECRET=fixture-secret-value
       - NIFI_WEB_PROXY_HOST=localhost:9446,localhost:8443
     networks: [nipynet]
     depends_on:
@@ -240,6 +245,7 @@ services:
     environment:
       - SINGLE_USER_CREDENTIALS_USERNAME=einstein
       - SINGLE_USER_CREDENTIALS_PASSWORD=password1234
+      - NIPYAPI_TEST_PROVIDER_SECRET=fixture-secret-value
       - NIFI_WEB_PROXY_HOST=localhost:9447,localhost:8443,host.docker.internal:9447
       # Provide TLS keystore/truststore with SANs for act testing
       - KEYSTORE_PATH=/certs/nifi/keystore.p12

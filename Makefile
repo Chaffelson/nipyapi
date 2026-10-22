@@ -1,8 +1,8 @@
-.PHONY: clean clean-pyc clean-build clean-act clean-docker test docs help
+.PHONY: clean clean-all clean-temp clean-certs clean-generated clean-pyc clean-build clean-act clean-docker install dist wheel sdist check-dist test-dist test docs help
 .DEFAULT_GOAL := help
 
 # Default NiFi/Registry version for docker compose profiles
-NIFI_VERSION ?= 2.10.0
+NIFI_VERSION ?= 2.12.0
 
 # Load .env file if it exists (for secrets like GH_REGISTRY_TOKEN)
 # WARNING: All variables from .env are exported and can override profile settings.
@@ -95,35 +95,37 @@ help:
 ## Operational Targets ##
 #################################################################################
 
-clean: clean-build clean-pyc clean-temp ## remove all build, test, coverage and Python artifacts
+clean: clean-build clean-pyc clean-temp ## remove build, coverage and Python artifacts (keeps test certificates)
 
-clean-all: clean-build clean-pyc clean-temp openapi-clean ## nuclear clean: removes ALL artifacts including committed generated code
-	@echo "=== Nuclear Clean: Removing ALL Artifacts ==="
+clean-all: clean-build clean-pyc clean-temp clean-certs openapi-clean clean-generated ## nuclear clean: removes ALL artifacts including committed generated code
+	@echo "ALL artifacts removed: build, Python, OpenAPI, committed code, test certificates."
+	@echo "Use 'make certs', 'make gen-clients' and 'make docs' to regenerate them."
+
+clean-generated: ## remove committed generated code (API clients, structured docs); nipyapi cannot be imported until 'make gen-clients'
 	@echo "WARNING: This removes committed generated code (API clients, docs)!"
 	# Generated API clients (committed code)
 	rm -rf nipyapi/nifi/* nipyapi/registry/* || true
 	# Generated documentation (committed code)
 	rm -rf docs/nipyapi-docs || true
-	@echo "ALL artifacts removed: build, Python, OpenAPI, committed code, test certificates."
-	@echo "Use 'make openapi-generate' and 'make docs' to regenerate committed code."
 
-clean-temp: ## remove temporary artifacts but preserve committed code
+clean-temp: ## remove coverage, docs build and generation temp files; preserves committed code and test certificates
 	# Coverage artifacts
 	rm -rf htmlcov/ .coverage coverage.xml .pytest_cache || true
 	# Documentation build artifacts
 	rm -rf docs/_build/* || true
 	# Temporary generation files and cache
 	rm -rf resources/client_gen/_tmp/* resources/client_gen/_cache/* || true
-	# Test certificates and configuration (non-committed test artifacts)
+
+clean-certs: ## remove generated test certificates and env files (regenerate with 'make certs')
 	rm -rf resources/certs/ca/ resources/certs/nifi/ resources/certs/registry/ resources/certs/client/ resources/certs/truststore/ || true
 	rm -f resources/certs/certs.env resources/certs/nifi.env resources/certs/registry.env || true
-	# Auto-generated version file
-	rm -f nipyapi/_version.py || true
 
 clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
 	rm -fr .eggs/
+	# Auto-generated version file (rewritten by setuptools-scm on build)
+	rm -f nipyapi/_version.py || true
 	find . -path ./.venv -prune -o -name '*.egg-info' -exec rm -fr {} +
 	find . -path ./.venv -prune -o -name '*.egg' -exec rm -rf {} +
 
@@ -157,7 +159,7 @@ clean-docker: clean-act ## comprehensive Docker cleanup: act + containers + volu
 	docker volume prune -f || true
 	@echo "Comprehensive Docker cleanup complete"
 
-install: clean ## install the package to the active Python's site-packages
+install: clean-build ## install the package to the active Python's site-packages
 	$(PIP) install .
 
 dev-install: ## install dev extras for local development
@@ -313,19 +315,21 @@ test-specific: ## DEPRECATED: use 'make test PYTEST_ARGS="..."' instead
 
 
 # Build & Documentation
-dist: clean ## builds source and wheel package using modern build system
+dist: clean-build ## builds source and wheel package using modern build system
 	$(PYTHON) -m build
 
-wheel: clean ## builds wheel package only
+wheel: clean-build ## builds wheel package only
 	$(PYTHON) -m build --wheel
 
-sdist: clean ## builds source distribution only
+sdist: clean-build ## builds source distribution only
 	$(PYTHON) -m build --sdist
 
-check-dist: dist ## validate distribution files
+check-dist: ## validate distribution files (builds dist only if dist/ is empty)
+	@ls dist/*.whl >/dev/null 2>&1 || $(MAKE) dist
 	$(PYTHON) -m twine check dist/*
 
-test-dist: dist ## test that built distribution can be imported and used
+test-dist: ## test that built distribution can be imported and used (builds dist only if dist/ is empty)
+	@ls dist/*.whl >/dev/null 2>&1 || $(MAKE) dist
 	$(PYTHON) resources/scripts/test_distribution.py
 
 docs: ## generate Sphinx HTML documentation with improved navigation
@@ -367,17 +371,18 @@ sandbox: ensure-certs ## create isolated environment with sample objects: make s
 
 rebuild-all: ## comprehensive rebuild: clean -> certs -> extract APIs -> gen clients -> test all -> build -> validate -> docs
 	@echo "Starting comprehensive rebuild from clean slate..."
-	@echo "=== 1/9: Clean All Artifacts ==="
-	$(MAKE) clean-all
+	@echo "=== 1/9: Clean All Artifacts (generated code is removed at step 5) ==="
+	$(MAKE) clean-build clean-pyc clean-temp clean-certs openapi-clean
 	@echo "=== 2/9: Generate Certificates ==="
 	$(MAKE) certs
 	@echo "=== 3/9: Extract OpenAPI Specs ==="
 	$(MAKE) up NIPYAPI_PROFILE=single-user
 	$(MAKE) wait-ready NIPYAPI_PROFILE=single-user
-	$(MAKE) fetch-openapi
+	$(MAKE) fetch-openapi-base
 	@echo "=== 4/9: Augment OpenAPI Specs ==="
 	$(MAKE) augment-openapi
 	@echo "=== 5/9: Generate Fresh Clients ==="
+	$(MAKE) clean-generated
 	$(MAKE) gen-clients
 	@echo "=== 6/9: Test All Profiles with Fresh Clients ==="
 	$(MAKE) test-all

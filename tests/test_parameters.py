@@ -6,12 +6,553 @@ import pytest
 from nipyapi import parameters
 from nipyapi.nifi import ParameterContextEntity
 from nipyapi.nifi.rest import ApiException
-from nipyapi.utils import check_version
+
+
+def test_list_all_parameter_providers(fix_param_provider):
+    """Provider listing returns the created entities."""
+    provider = fix_param_provider.generate()
+    assert provider.id in {item.id for item in parameters.list_all_parameter_providers()}
+
+
+def test_get_parameter_provider(fix_param_provider):
+    """Provider lookup supports id/name/type and None/single/list results."""
+    first = fix_param_provider.generate('_first')
+    second = fix_param_provider.generate('_second')
+    assert parameters.get_parameter_provider(first.id, 'id').id == first.id
+    assert parameters.get_parameter_provider(first.component.name, greedy=False).id == first.id
+    matches = parameters.get_parameter_provider(conftest.test_basename + '_param_provider')
+    assert {item.id for item in matches} == {first.id, second.id}
+    typed = parameters.get_parameter_provider('EnvironmentVariableParameterProvider', 'type')
+    assert {first.id, second.id}.issubset({item.id for item in typed})
+    assert parameters.get_parameter_provider('nipyapi_test_missing_provider') is None
+    assert parameters.get_parameter_provider(str(uuid.uuid4()), 'id') is None
+
+
+def test_list_all_parameter_provider_types():
+    """Provider type discovery includes the stock environment provider."""
+    types = parameters.list_all_parameter_provider_types()
+    assert any(item.type.endswith('.EnvironmentVariableParameterProvider') for item in types)
+
+
+def test_get_parameter_provider_type():
+    """Provider type lookup follows the existing documented-type filter contract."""
+    provider_type = parameters.get_parameter_provider_type('EnvironmentVariableParameterProvider')
+    assert provider_type.type == 'org.apache.nifi.parameter.EnvironmentVariableParameterProvider'
+    assert parameters.get_parameter_provider_type(provider_type.type, greedy=False) == provider_type
+    assert parameters.get_parameter_provider_type('nipyapi_test_missing_type') is None
+    assert len(parameters.get_parameter_provider_type('ParameterProvider')) > 1
+
+
+def test_provider_stale_revision(fix_param_provider):
+    """refresh exists because NiFi rejects a stale provider revision."""
+    provider = fix_param_provider.generate()
+    stale = parameters.get_parameter_provider(provider.id, 'id')
+    parameters.update_parameter_provider(provider, {'include-environment-variables': 'HOME'})
+    for operation in (
+        lambda **kwargs: parameters.update_parameter_provider(
+            stale, {'include-environment-variables': 'HOME'}, **kwargs),
+        lambda **kwargs: parameters.fetch_parameter_provider(stale, **kwargs),
+    ):
+        with pytest.raises(ApiException) as rejected:
+            operation(refresh=False)
+        assert rejected.value.status in (400, 409)
+        assert 'up-to-date' in rejected.value.body
+        assert operation().id == provider.id
+
+def test_update_parameter_provider(fix_param_provider):
+    """Provider updates refresh stale revisions and validate property keys."""
+    provider = fix_param_provider.generate()
+    properties = {'parameter-group-name': conftest.test_parameter_context_name + '_changed'}
+    updated = parameters.update_parameter_provider(provider, properties)
+    assert updated.component.properties['parameter-group-name'] == properties['parameter-group-name']
+    cleared = parameters.update_parameter_provider(provider, {'include-environment-variables': None})
+    assert cleared.component.properties['include-environment-variables'] is None
+    with pytest.raises(ValueError, match='property'):
+        parameters.update_parameter_provider(provider, {'not-a-property': 'unused'})
+
+
+def test_fetch_parameter_provider(fix_param_provider):
+    """Fetch stages only the configured group and refreshes the provider revision."""
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider.id)
+    assert fetched.id == provider.id
+    group = fetched.component.parameter_group_configurations[0]
+    assert group.group_name == provider.component.properties['parameter-group-name']
+    assert set(group.parameter_sensitivities) == {'HOME'}
+    assert parameters.fetch_parameter_provider(provider).id == provider.id
+
+
+def test_apply_parameter_provider(fix_param_provider):
+    """First apply assigns explicit sensitivities and returns a completed request."""
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider)
+    group_name = provider.component.properties['parameter-group-name']
+    request = parameters.apply_parameter_provider(provider, [group_name], fetch_result=fetched)
+    assert request.complete and not request.failure_reason
+    context = parameters.get_parameter_context(group_name, greedy=False)
+    home = next(item.parameter for item in context.component.parameters if item.parameter.name == 'HOME')
+    assert home.sensitive is True
+    assert home.value in (None, '********')
+    with pytest.raises(ApiException) as deleted:
+        conftest.nipyapi.nifi.ParameterProvidersApi().get_parameter_provider_apply_parameters_request(
+            provider.id, request.request_id
+        )
+    assert deleted.value.status == 404
+    with pytest.raises(ValueError, match='missing'):
+        parameters.apply_parameter_provider(provider, ['missing'])
+
+
+def test_fetch_and_apply_parameter_provider(fix_param_provider):
+    """Fetch and apply by ID supports repeat refresh and rejects empty requested groups."""
+    provider = fix_param_provider.generate()
+    request = parameters.fetch_and_apply_parameter_provider(provider.id, identifier_type='id')
+    assert request.complete and not request.failure_reason
+    repeated = parameters.fetch_and_apply_parameter_provider(provider)
+    assert not repeated.referencing_components
+    parameters.update_parameter_provider(provider, {'include-environment-variables': 'NIPYAPI_ABSENT_VARIABLE'})
+    with pytest.raises(ValueError, match='empty|parameters'):
+        parameters.fetch_and_apply_parameter_provider(provider)
+    parameters.update_parameter_provider(provider, {'include-environment-variables': 'HOME'})
+    # Overrides reach apply, so a mistyped name is rejected before anything is submitted.
+    with pytest.raises(ValueError, match='Unknown parameters'):
+        parameters.fetch_and_apply_parameter_provider(
+            provider, sensitivities={'NIPYAPI_TYPO': 'SENSITIVE'})
+    with pytest.raises(TypeError, match='synchronized'):
+        parameters.fetch_and_apply_parameter_provider(provider, synchronized='yes')
+
+
+def test_set_inherited_parameter_contexts(fix_context, fix_inherited_context_hierarchy):
+    """Prepend controls actual inherited precedence; replace preserves locals."""
+    hierarchy = fix_inherited_context_hierarchy
+    first = fix_context.generate(conftest.test_parameter_context_name + '_first')
+    parameters.upsert_parameter_to_context(
+        first, parameters.prepare_parameter(hierarchy.child_param_name, 'first_value'))
+    second = hierarchy.child_ctx
+    target = hierarchy.parent_ctx
+    request = parameters.set_inherited_parameter_contexts(target, [second], mode='replace')
+    assert request.complete and not request.failure_reason
+    with pytest.raises(ApiException) as deleted:
+        conftest.nipyapi.nifi.ParameterContextsApi().get_parameter_context_update(
+            target.id, request.request_id)
+    assert deleted.value.status == 404
+    parameters.set_inherited_parameter_contexts(target.id, [first, second], mode='prepend')
+    repeated = parameters.set_inherited_parameter_contexts(target, [first], mode='prepend')
+    live = conftest.nipyapi.nifi.ParameterContextsApi().get_parameter_context(
+        target.id, include_inherited_parameters=True)
+    assert [item.id for item in live.component.inherited_parameter_contexts] == [first.id, second.id]
+    assert not repeated.referencing_components
+    assert next(item.parameter.value for item in live.component.parameters
+                if item.parameter.name == hierarchy.child_param_name) == 'first_value'
+    parameters.set_inherited_parameter_contexts(target, [], mode='replace')
+    live = parameters.get_parameter_context(target.id, 'id')
+    assert not live.component.inherited_parameter_contexts
+    assert [(item.parameter.name, item.parameter.value) for item in live.component.parameters] == [
+        (hierarchy.parent_param_name, 'parent_value'),
+    ]
+
+
+def test_inheritance_uses_live_context(fix_inherited_context_hierarchy, fix_context):
+    """A stale context entity cannot drop inheritance added after it was read."""
+    hierarchy = fix_inherited_context_hierarchy
+    target = hierarchy.parent_ctx
+    stale = parameters.get_parameter_context(target.id, 'id')
+    added = fix_context.generate(conftest.test_parameter_context_name + '_added')
+    parameters.set_inherited_parameter_contexts(target, [added])
+    later = fix_context.generate(conftest.test_parameter_context_name + '_later')
+    parameters.set_inherited_parameter_contexts(stale, [later])
+    live = parameters.get_parameter_context(target.id, 'id')
+    assert [item.id for item in live.component.inherited_parameter_contexts] == [
+        later.id, added.id, hierarchy.child_ctx.id]
+
+def test_connect_uses_live_target(fix_context, fix_pg):
+    """Stale context and process-group entities resolve to the current target."""
+    source = fix_context.generate(conftest.test_parameter_context_name + '_live_source')
+    parameters.upsert_parameter_to_context(source, parameters.prepare_parameter('KEY', 'value', sensitive=True))
+    target = fix_context.generate(conftest.test_parameter_context_name + '_live_target')
+    stale_target = parameters.get_parameter_context(target.id, 'id')
+    group = fix_pg.generate()
+    parameters.assign_context_to_process_group(group, target.id)
+    other = fix_context.generate(conftest.test_parameter_context_name + '_live_other')
+    parameters.set_inherited_parameter_contexts(target, [other])
+    parameters.connect_parameter_provider_group(group, source.component.name, {'Alias': 'KEY'})
+    parameters.connect_parameter_provider_group(stale_target, source.component.name, {'Alias': 'KEY'})
+    live = parameters.get_parameter_context(target.id, 'id')
+    assert [item.id for item in live.component.inherited_parameter_contexts] == [source.id, other.id]
+
+def test_get_process_group_parameter_context(fix_pg, fix_context):
+    """Bound-context discovery accepts entities and strings; unbound returns None."""
+    group = fix_pg.generate()
+    assert parameters.get_process_group_parameter_context(group) is None
+    context = fix_context.generate()
+    parameters.assign_context_to_process_group(group, context.id)
+    assert parameters.get_process_group_parameter_context(group).id == context.id
+    assert parameters.get_process_group_parameter_context(group.id).id == context.id
+
+
+def test_connect_parameter_provider_group(fix_context, fix_pg):
+    """Connect prepends the supplied context and creates a local sensitive alias."""
+    source = fix_context.generate(conftest.test_parameter_context_name + '_source')
+    parameters.upsert_parameter_to_context(
+        source, parameters.prepare_parameter('API_KEY', 'fixture-secret-value', sensitive=True)
+    )
+    target = fix_context.generate(conftest.test_parameter_context_name + '_target')
+    group = fix_pg.generate()
+    parameters.assign_context_to_process_group(group, target.id)
+    request = parameters.connect_parameter_provider_group(
+        group, source.component.name, {'Local Secret': 'API_KEY'}
+    )
+    assert request.complete and not request.failure_reason
+    live = parameters.get_parameter_context(target.id, 'id')
+    assert live.component.inherited_parameter_contexts[0].id == source.id
+    alias = next(item.parameter for item in live.component.parameters if item.parameter.name == 'Local Secret')
+    assert alias.sensitive is True
+    repeated = parameters.connect_parameter_provider_group(
+        target.id, source.component.name, {'Local Secret': 'API_KEY'}
+    )
+    assert not repeated.referencing_components
+    # An already-inherited source keeps its position unless a higher context shadows it.
+    other = fix_context.generate(conftest.test_parameter_context_name + '_other')
+    parameters.set_inherited_parameter_contexts(target, [other, source], mode='replace')
+    parameters.connect_parameter_provider_group(target, source.component.name, {'Local Secret': 'API_KEY'})
+    live = parameters.get_parameter_context(target.id, 'id')
+    assert [item.id for item in live.component.inherited_parameter_contexts] == [other.id, source.id]
+    parameters.upsert_parameter_to_context(
+        other, parameters.prepare_parameter('API_KEY', 'shadow', sensitive=True))
+    with pytest.raises(ValueError, match=r"shadow.*\['API_KEY'\]"):
+        parameters.connect_parameter_provider_group(
+            target, source.component.name, {'Local Secret': 'API_KEY'})
+    with pytest.raises(ValueError, match='MISSING'):
+        parameters.connect_parameter_provider_group(target, source.component.name, {'Local Secret': 'MISSING'})
+
+
+def test_provider_sensitivity_precedence(fix_param_provider):
+    """Explicit overrides beat staged choices, which beat the default."""
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider)
+    group = fetched.component.parameter_group_configurations[0]
+    group.parameter_sensitivities = {'HOME': 'NON_SENSITIVE'}
+    parameters.apply_parameter_provider(
+        provider, sensitivities={'HOME': 'SENSITIVE'}, fetch_result=fetched,
+    )
+    context = parameters.get_parameter_context(group.group_name, greedy=False)
+    assert next(item.parameter for item in context.component.parameters
+                if item.parameter.name == 'HOME').sensitive is True
+    # A new default must not override the stored sensitivity on subsequent fetches.
+    repeated = parameters.fetch_and_apply_parameter_provider(provider, sensitivity='NON_SENSITIVE')
+    assert repeated.complete and not repeated.failure_reason
+    context = parameters.get_parameter_context(group.group_name, greedy=False)
+    assert next(item.parameter for item in context.component.parameters
+                if item.parameter.name == 'HOME').sensitive is True
+
+
+def test_apply_parameter_provider_request_failure(fix_param_provider, monkeypatch):
+    """A completed failed apply raises NiFi's reason and deletes that request.
+
+    NiFi marks a failed request complete with failure_reason; no reliable live
+    trigger exists, so the request boundary is simulated. Cleanup policy itself
+    is covered by tests/test_utils.py.
+    """
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider)
+    nifi = conftest.nipyapi.nifi
+    deleted = []
+    monkeypatch.setattr(nifi.ParameterProvidersApi, 'submit_apply_parameters',
+                        lambda *args, **kwargs: nifi.ParameterProviderApplyParametersRequestEntity(
+                            request=nifi.ParameterProviderApplyParametersRequestDTO(request_id='test-request')))
+    monkeypatch.setattr(nifi.ParameterProvidersApi, 'get_parameter_provider_apply_parameters_request',
+                        lambda *args: nifi.ParameterProviderApplyParametersRequestEntity(
+                            request=nifi.ParameterProviderApplyParametersRequestDTO(
+                                complete=True, failure_reason='provider request failed: source unavailable')))
+    monkeypatch.setattr(nifi.ParameterProvidersApi, 'delete_apply_parameters_request',
+                        lambda self, provider_id, request_id: deleted.append((provider_id, request_id)))
+    with pytest.raises(ValueError, match='^provider request failed: source unavailable$'):
+        parameters.apply_parameter_provider(provider, fetch_result=fetched)
+    assert deleted == [(provider.id, 'test-request')]
+
+
+def test_provider_fetch_failure_hint(fix_param_provider, monkeypatch, caplog):
+    """Fetch preserves the REST error details and logs the additional scope hint."""
+    import logging
+    import urllib3
+    provider = fix_param_provider.generate()
+    original_request = urllib3.PoolManager.request
+    def failed_fetch(pool, method, url, **kwargs):
+        if method == 'POST' and url.endswith('/fetch-requests'):
+            return urllib3.response.HTTPResponse(
+                status=500, reason='Internal Server Error',
+                body=b'Provider source unavailable', headers={'X-Request-Id': 'fetch-test'},
+            )
+        return original_request(pool, method, url, **kwargs)
+    monkeypatch.setattr(urllib3.PoolManager, 'request', failed_fetch)
+    with caplog.at_level(logging.DEBUG), pytest.raises(ApiException) as failed:
+        parameters.fetch_parameter_provider(provider)
+    assert failed.value.status == 500
+    assert failed.value.reason == 'Internal Server Error'
+    assert failed.value.body == 'Provider source unavailable'
+    assert failed.value.headers['X-Request-Id'] == 'fetch-test'
+    assert 'Provider source unavailable' in caplog.text
+    assert 'scope' in caplog.text
+
+
+def test_parameter_helpers_do_not_expose_secrets(fix_param_provider, fix_context, caplog):
+    """Sensitive context values stay absent from returned models and DEBUG logs."""
+    import logging
+    target = fix_context.generate(conftest.test_parameter_context_name + '_secret_target')
+    # This synthetic value originates in the provider, not a separate context.
+    provider = fix_param_provider.generate(properties={
+        'include-environment-variables': 'NIPYAPI_TEST_PROVIDER_SECRET',
+    })
+    caplog.clear()
+    with caplog.at_level(logging.DEBUG):
+        fetched = parameters.fetch_parameter_provider(provider)
+        applied = parameters.apply_parameter_provider(provider, fetch_result=fetched)
+        refreshed = parameters.fetch_and_apply_parameter_provider(provider)
+        source = parameters.get_parameter_context(
+            provider.component.properties['parameter-group-name'], greedy=False)
+        assert {item.parameter.name for item in source.component.parameters} == {'NIPYAPI_TEST_PROVIDER_SECRET'}
+        assert all(item.parameter.sensitive is True and item.parameter.value in (None, '********')
+                   for item in source.component.parameters)
+        inherited = parameters.set_inherited_parameter_contexts(target, [source])
+        connected = parameters.connect_parameter_provider_group(
+            target, source.component.name, {'Local Secret': 'NIPYAPI_TEST_PROVIDER_SECRET'}
+        )
+    for result in [fetched, applied, refreshed, source, inherited, connected]:
+        assert 'fixture-secret-value' not in repr(result.to_dict())
+    assert 'fixture-secret-value' not in caplog.text
+
+
+@pytest.mark.parametrize('entrypoint', ['update', 'inherit'])
+def test_context_request_failure_cleanup(fix_context, monkeypatch, entrypoint):
+    """Both context APIs raise a completed request failure and delete the request.
+
+    NiFi marks a failed request complete with failure_reason; no reliable live
+    trigger exists, so the request boundary is simulated. Live success and
+    deletion are covered by the real update tests.
+    """
+    context = fix_context.generate()
+    nifi = conftest.nipyapi.nifi
+    deleted = []
+
+    def invoke():
+        if entrypoint == 'update':
+            return parameters.update_parameter_context(context)
+        return parameters.set_inherited_parameter_contexts(context, [], mode='replace')
+    monkeypatch.setattr(nifi.ParameterContextsApi, 'submit_parameter_context_update',
+                        lambda *args, **kwargs: nifi.ParameterContextUpdateRequestEntity(
+                            request=nifi.ParameterContextUpdateRequestDTO(request_id='context-request')))
+    monkeypatch.setattr(nifi.ParameterContextsApi, 'get_parameter_context_update',
+                        lambda *args: nifi.ParameterContextUpdateRequestEntity(
+                            request=nifi.ParameterContextUpdateRequestDTO(
+                                complete=True, failure_reason='context update failed')))
+    monkeypatch.setattr(nifi.ParameterContextsApi, 'delete_update_request',
+                        lambda self, context_id, request_id: deleted.append((context_id, request_id)))
+    with pytest.raises(ValueError, match='^context update failed$'):
+        invoke()
+    assert deleted == [(context.id, 'context-request')]
+
+
+@pytest.mark.parametrize('entrypoint', ['update', 'inherit'])
+def test_context_inheritance_cycle_conflict(fix_context, entrypoint):
+    """NiFi rejects a circular inheritance at submit; the 409 propagates unchanged."""
+    first = fix_context.generate(conftest.test_parameter_context_name + '_cycle_a')
+    second = fix_context.generate(conftest.test_parameter_context_name + '_cycle_b')
+    parameters.set_inherited_parameter_contexts(second, [first])
+    try:
+        with pytest.raises(ApiException) as failed:
+            if entrypoint == 'update':
+                first.component.inherited_parameter_contexts = [
+                    ParameterContextEntity(id=second.id, component=conftest.nipyapi.nifi
+                                           .ParameterContextDTO(id=second.id))]
+                parameters.update_parameter_context(first)
+            else:
+                parameters.set_inherited_parameter_contexts(first, [second])
+        assert failed.value.status == 409
+        assert 'Circular' in failed.value.body
+    finally:
+        parameters.set_inherited_parameter_contexts(second, [], mode='replace')
+
+
+def test_parameter_helper_argument_validation(fix_param_provider, fix_context):
+    """Invalid arguments are rejected before anything is submitted."""
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider)
+    group = fetched.component.parameter_group_configurations[0].group_name
+    with pytest.raises(TypeError, match='properties'):
+        parameters.update_parameter_provider(provider, 'HOME')
+    with pytest.raises(ValueError, match='sensitivity must'):
+        parameters.apply_parameter_provider(provider, sensitivity='SECRET')
+    with pytest.raises(TypeError, match='sensitivities must'):
+        parameters.apply_parameter_provider(provider, sensitivities='HOME')
+    with pytest.raises(ValueError, match='sensitivities must'):
+        parameters.apply_parameter_provider(provider, sensitivities={'HOME': 'SECRET'})
+    with pytest.raises(TypeError, match='group_names'):
+        parameters.apply_parameter_provider(provider, [1], fetch_result=fetched)
+    other = fix_param_provider.generate(suffix='_other')
+    with pytest.raises(ValueError, match='fetch_result'):
+        parameters.apply_parameter_provider(other, fetch_result=fetched)
+    # A single group name is accepted as well as a list.
+    assert parameters.apply_parameter_provider(provider, group, fetch_result=fetched).complete
+    context = fix_context.generate()
+    parameters.upsert_parameter_to_context(context, parameters.prepare_parameter('KEY', 'v', sensitive=True))
+    with pytest.raises(ValueError, match='mode'):
+        parameters.set_inherited_parameter_contexts(context, [], mode='append')
+    with pytest.raises(TypeError, match='inherited'):
+        parameters.set_inherited_parameter_contexts(context, context.id)
+    with pytest.raises(ValueError, match='inherit itself'):
+        parameters.set_inherited_parameter_contexts(context, [context])
+    target = fix_context.generate(conftest.test_parameter_context_name + '_alias_target')
+    with pytest.raises(ValueError, match='reference itself'):
+        parameters.connect_parameter_provider_group(target, context.component.name, {'KEY': 'KEY'})
+
+
+def test_inherited_references_unreadable():
+    """An inherited context the user cannot read has no component; keep it by id."""
+    hidden = conftest.nipyapi.nifi.ParameterContextReferenceEntity(id='hidden', component=None)
+    context = ParameterContextEntity(
+        id='target',
+        component=conftest.nipyapi.nifi.ParameterContextDTO(
+            id='target', inherited_parameter_contexts=[hidden]),
+    )
+    references = parameters._inherited_context_references(context, [], 'prepend', False, 'id')
+    assert [(item.id, item.component.id) for item in references] == [('hidden', 'hidden')]
+
+
+def test_connect_parameter_provider_group_target_guards(fix_context, fix_pg):
+    """An unbound group and colliding context/group names must never pick a target."""
+    group = fix_pg.generate()
+    source = fix_context.generate(group.component.name)
+    with pytest.raises(ValueError, match='bound'):
+        parameters.connect_parameter_provider_group(group, source.component.name, {})
+    with pytest.raises(ValueError, match='exactly one'):
+        parameters.connect_parameter_provider_group(group.component.name, source.component.name, {})
+    with pytest.raises(TypeError, match='mappings'):
+        parameters.connect_parameter_provider_group(group, source.component.name, ['API_KEY'])
+
+
+def test_connect_parameter_provider_group_overwrites_local(fix_context, monkeypatch):
+    """Connecting replaces an existing sensitive literal and preserves other locals."""
+    source = fix_context.generate(conftest.test_parameter_context_name + '_source')
+    parameters.upsert_parameter_to_context(source, parameters.prepare_parameter('API_KEY', 'secret', sensitive=True))
+    target = fix_context.generate(conftest.test_parameter_context_name + '_target')
+    parameters.upsert_parameter_to_context(source, parameters.prepare_parameter('PLAIN', 'visible'))
+    parameters.upsert_parameter_to_context(
+        target, parameters.prepare_parameter('Alias', 'old', description='kept', sensitive=True))
+    parameters.upsert_parameter_to_context(target, parameters.prepare_parameter('Untouched', 'keep'))
+    # NiFi leaves a sensitive alias to a non-sensitive parameter unresolved.
+    with pytest.raises(ValueError, match=r"not sensitive: \['PLAIN'\]"):
+        parameters.connect_parameter_provider_group(target, source.component.name, {'New': 'PLAIN'})
+    submitted = []
+    api = conftest.nipyapi.nifi.ParameterContextsApi
+    original_submit = api.submit_parameter_context_update
+    def capture_submit(handle, context_id, body, **kwargs):
+        submitted.append(body)
+        return original_submit(handle, context_id=context_id, body=body, **kwargs)
+    monkeypatch.setattr(api, 'submit_parameter_context_update', capture_submit)
+    result = parameters.connect_parameter_provider_group(target, source.component.name, {'Alias': 'API_KEY'})
+    assert result.complete and not result.failure_reason
+    # The exact alias and inheritance travel in the same atomic request.
+    assert len(submitted) == 1
+    component = submitted[0].component
+    assert [(item.parameter.name, item.parameter.value, item.parameter.sensitive)
+            for item in component.parameters] == [('Alias', '#{API_KEY}', True)]
+    assert [item.id for item in component.inherited_parameter_contexts] == [source.id]
+    live = parameters.get_parameter_context(target.id, 'id')
+    assert next(item.parameter.value for item in live.component.parameters
+                if item.parameter.name == 'Untouched') == 'keep'
+    assert next(item.parameter.description for item in live.component.parameters
+                if item.parameter.name == 'Alias') == 'kept'
+    with pytest.raises(ValueError, match='non-sensitive'):
+        parameters.connect_parameter_provider_group(target, source.component.name, {'Untouched': 'API_KEY'})
+    # Confirm the server restriction behind the helper's preflight rejection.
+    live = parameters.get_parameter_context(target.id, 'id')
+    with pytest.raises(ApiException) as conversion:
+        original_submit(
+            api(), context_id=live.id,
+            body=ParameterContextEntity(
+                id=live.id, revision=live.revision,
+                component=conftest.nipyapi.nifi.ParameterContextDTO(
+                    id=live.id, name=live.component.name,
+                    parameters=[parameters.prepare_parameter('Untouched', '#{API_KEY}', sensitive=True)],
+                ),
+            ),
+        )
+    assert conversion.value.status in (400, 409)
+    assert 'sensitive' in conversion.value.body.lower()
+
+
+def test_apply_parameter_provider_group_selection(fix_param_provider, monkeypatch):
+    """Select requested groups; keep staged choices unless explicitly overridden.
+
+    The environment-variable provider yields one group, so the multi-group staging
+    is simulated; the single-group live path is covered by the apply tests.
+    """
+    nifi = conftest.nipyapi.nifi
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider)
+    fetched.component.parameter_group_configurations = [
+        nifi.ParameterGroupConfigurationEntity(
+            group_name='selected',
+            parameter_sensitivities={'unset': None, 'staged': 'NON_SENSITIVE', 'override': 'NON_SENSITIVE'},
+        ),
+        nifi.ParameterGroupConfigurationEntity(
+            group_name='kept', parameter_sensitivities={'p': 'SENSITIVE'}, synchronized=False),
+        nifi.ParameterGroupConfigurationEntity(group_name='unrelated', parameter_sensitivities={'other': None}),
+    ]
+    submitted = []
+    def submit(handle, provider_id, body):
+        submitted.append(body)
+        return nifi.ParameterProviderApplyParametersRequestEntity(
+            request=nifi.ParameterProviderApplyParametersRequestDTO(request_id='selected-request'))
+    monkeypatch.setattr(nifi.ParameterProvidersApi, 'submit_apply_parameters', submit)
+    monkeypatch.setattr(nifi.ParameterProvidersApi, 'get_parameter_provider_apply_parameters_request',
+                        lambda *args: nifi.ParameterProviderApplyParametersRequestEntity(
+                            request=nifi.ParameterProviderApplyParametersRequestDTO(complete=True)))
+    monkeypatch.setattr(nifi.ParameterProvidersApi, 'delete_apply_parameters_request', lambda *args: None)
+    result = parameters.apply_parameter_provider(
+        provider, ['selected', 'kept'], sensitivities={'override': 'SENSITIVE'}, fetch_result=fetched,
+    )
+    assert result.complete
+    assert len(submitted) == 1
+    groups = submitted[0].parameter_group_configurations
+    assert [group.group_name for group in groups] == ['selected', 'kept']
+    assert groups[0].group_name == groups[0].parameter_context_name == 'selected'
+    assert groups[0].parameter_sensitivities == {
+        'unset': 'SENSITIVE', 'staged': 'NON_SENSITIVE', 'override': 'SENSITIVE',
+    }
+    # NiFi skips unsynchronized groups on apply: unset defaults to True, staged False is kept.
+    assert [group.synchronized for group in groups] == [True, False]
+    assert fetched.component.parameter_group_configurations[0].parameter_sensitivities['unset'] is None
+    parameters.apply_parameter_provider(
+        provider, ['selected', 'kept'], synchronized=True, fetch_result=fetched)
+    assert [group.synchronized for group in submitted[1].parameter_group_configurations] == [True, True]
+    with pytest.raises(TypeError, match='synchronized'):
+        parameters.apply_parameter_provider(provider, synchronized='yes', fetch_result=fetched)
+    # Override keys are parameter names; one matching no selected parameter must not be ignored.
+    with pytest.raises(ValueError, match=r"Unknown parameters.*\['other'\]"):
+        parameters.apply_parameter_provider(
+            provider, ['selected'], sensitivities={'other': 'SENSITIVE'}, fetch_result=fetched)
+    assert len(submitted) == 2
+
+
+def test_apply_parameter_provider_nothing_to_apply(fix_param_provider, caplog):
+    """NiFi completes an apply of only unsynchronized groups without changing anything."""
+    provider = fix_param_provider.generate()
+    fetched = parameters.fetch_parameter_provider(provider)
+    group = fetched.component.parameter_group_configurations[0].group_name
+    with caplog.at_level('WARNING', logger='nipyapi.parameters'):
+        result = parameters.apply_parameter_provider(
+            provider, [group], synchronized=False, fetch_result=fetched)
+    assert result.complete and not result.failure_reason
+    assert 'nothing to apply' in caplog.text
+    assert parameters.get_parameter_context(group, greedy=False) is None
+    caplog.clear()
+    with caplog.at_level('WARNING', logger='nipyapi.parameters'):
+        parameters.apply_parameter_provider(provider, [group], fetch_result=fetched)
+    assert 'nothing to apply' not in caplog.text
+    assert parameters.get_parameter_context(group, greedy=False) is not None
 
 
 def test_create_parameter_context(fix_context):
-    if check_version('1.10.0') >= 0:
-        pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate(name=conftest.test_parameter_context_name)
     assert isinstance(c1, ParameterContextEntity)
     with pytest.raises(AssertionError):
@@ -25,8 +566,6 @@ def test_create_parameter_context(fix_context):
 
 def test_get_parameter_context(fix_context):
     # Regression tests are parametrized, skip inside function to work properly
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     r1 = parameters.get_parameter_context('fake news', 'name')
     assert r1 is None
     c2 = parameters.get_parameter_context(
@@ -44,8 +583,6 @@ def test_get_parameter_context(fix_context):
 
 
 def test_list_all_parameter_contexts(fix_context):
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     _ = fix_context.generate()
     r1 = parameters.list_all_parameter_contexts()
     assert isinstance(r1, list)
@@ -64,8 +601,6 @@ def test_list_all_parameter_contexts(fix_context):
 
 def test_list_orphaned_contexts(fix_context):
     """Test listing parameter contexts not bound to any process groups."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     # Create an unbound context (orphan)
     orphan = fix_context.generate(name=conftest.test_basename + '_orphan')
     assert orphan is not None
@@ -84,8 +619,6 @@ def test_list_orphaned_contexts(fix_context):
 
 
 def test_delete_parameter_context(fix_context):
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
     assert c1.revision is not None
     r1 = parameters.delete_parameter_context(c1)
@@ -107,9 +640,17 @@ def test_delete_parameter_context(fix_context):
     assert r3.id == c3.id
 
 
-def test_update_parameter_context(fix_context):
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
+def test_update_parameter_context(fix_context, monkeypatch):
+    api = conftest.nipyapi.nifi.ParameterContextsApi
+    original_delete = api.delete_update_request
+    deleted = []
+
+    def record_delete(handle, context_id, request_id, **kwargs):
+        deleted.append((context_id, request_id))
+        return original_delete(handle, context_id=context_id, request_id=request_id, **kwargs)
+
+    # Pass-through spy: the real NiFi DELETE runs; only its IDs are recorded.
+    monkeypatch.setattr(api, 'delete_update_request', record_delete)
     c1 = fix_context.generate()
     c1.component.parameters.append(
         parameters.prepare_parameter('Black', 'Lives', 'Matter', True)
@@ -119,6 +660,10 @@ def test_update_parameter_context(fix_context):
     )
     assert isinstance(r1, ParameterContextEntity)
     assert 1 == len([x for x in r1.component.parameters if 'Black' in x.parameter.name])
+    assert len(deleted) == 1
+    with pytest.raises(ApiException) as gone:
+        api().get_parameter_context_update(*deleted[0])
+    assert gone.value.status == 404
     r1.component.parameters = [
         parameters.prepare_parameter('Black', 'Votes', 'Matter', True)
     ]
@@ -131,8 +676,6 @@ def test_update_parameter_context(fix_context):
 
 def test_rename_parameter_context(fix_context):
     """Test renaming a parameter context without affecting parameters."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     # Create context with a parameter
     c1 = fix_context.generate()
     c1.component.parameters.append(
@@ -154,8 +697,6 @@ def test_rename_parameter_context(fix_context):
 
 
 def test_delete_parameter_from_context(fix_context):
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
     c1.component.parameters.append(
         parameters.prepare_parameter('Black', 'Lives', 'Matter', True)
@@ -168,8 +709,6 @@ def test_delete_parameter_from_context(fix_context):
 
 
 def test_upsert_parameter_to_context(fix_context):
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
     r1 = parameters.upsert_parameter_to_context(
         c1,
@@ -179,8 +718,6 @@ def test_upsert_parameter_to_context(fix_context):
 
 
 def test_assign_context_to_process_group(fix_pg, fix_context):
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
     pg1 = fix_pg.generate()
     r1 = parameters.assign_context_to_process_group(pg1, c1.id)
@@ -194,8 +731,6 @@ def test_assign_context_to_process_group(fix_pg, fix_context):
 
 
 def test_remove_context_from_process_group(fix_pg, fix_context):
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
     c1 = fix_context.generate()
     pg1 = fix_pg.generate()
     r1 = parameters.assign_context_to_process_group(pg1, c1.id)
@@ -211,8 +746,6 @@ def test_remove_context_from_process_group(fix_pg, fix_context):
 
 def test_upload_asset_from_bytes(fix_context):
     """Test uploading an asset from bytes - validates octet-stream handling."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     c1 = fix_context.generate()
 
@@ -242,8 +775,6 @@ def test_upload_asset_from_bytes(fix_context):
 
 def test_list_assets(fix_context):
     """Test listing assets in a parameter context."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     c1 = fix_context.generate()
 
@@ -286,8 +817,6 @@ def test_list_assets(fix_context):
 
 def test_delete_asset(fix_context):
     """Test deleting an asset from a parameter context."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     c1 = fix_context.generate()
 
@@ -317,8 +846,6 @@ def test_delete_asset(fix_context):
 
 def test_prepare_parameter_with_asset(fix_context):
     """Test preparing a parameter that references an asset."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     c1 = fix_context.generate()
 
@@ -350,8 +877,6 @@ def test_prepare_parameter_with_asset(fix_context):
 
 def test_prepare_parameter_with_multiple_assets(fix_context):
     """Test preparing a parameter that references multiple assets."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     c1 = fix_context.generate()
 
@@ -389,8 +914,6 @@ def test_prepare_parameter_with_multiple_assets(fix_context):
 
 def test_prepare_parameter_with_asset_validation():
     """Test validation errors for prepare_parameter_with_asset."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Cannot specify both single and multiple assets
     with pytest.raises(ValueError) as exc_info:
@@ -428,8 +951,6 @@ def test_prepare_parameter_with_asset_validation():
 
 def test_upload_asset_and_link_to_parameter(fix_context):
     """Test full workflow: upload asset and link it to a parameter."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     c1 = fix_context.generate()
 
@@ -486,8 +1007,6 @@ def test_upload_asset_validation_errors():
 
 def test_get_parameter_context_hierarchy_simple(fix_context):
     """Test get_parameter_context_hierarchy with a single context."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -523,8 +1042,6 @@ def test_get_parameter_context_hierarchy_simple(fix_context):
 
 def test_get_parameter_context_hierarchy_with_inheritance(fix_context):
     """Test get_parameter_context_hierarchy with inherited contexts."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create child context (will be inherited)
     child_ctx = fix_context.generate(name=conftest.test_parameter_context_name + "_child")
@@ -570,8 +1087,6 @@ def test_get_parameter_context_hierarchy_with_inheritance(fix_context):
 
 def test_get_parameter_context_hierarchy_not_found():
     """Test get_parameter_context_hierarchy with invalid context."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     import uuid
     with pytest.raises(ValueError, match="Parameter context not found"):
@@ -580,8 +1095,6 @@ def test_get_parameter_context_hierarchy_not_found():
 
 def test_get_parameter_context_hierarchy_include_bindings(fix_context, fix_pg):
     """Test get_parameter_context_hierarchy with include_bindings=True."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -615,8 +1128,6 @@ def test_get_parameter_context_hierarchy_include_bindings(fix_context, fix_pg):
 
 def test_get_parameter_context_hierarchy_exclude_parameters(fix_context):
     """Test get_parameter_context_hierarchy with include_parameters=False."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -643,8 +1154,6 @@ def test_get_parameter_context_hierarchy_exclude_parameters(fix_context):
 
 def test_get_parameter_context_hierarchy_bindings_only(fix_context, fix_pg):
     """Test get_parameter_context_hierarchy with bindings only (no parameters)."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create child context
     child_ctx = fix_context.generate(name=conftest.test_parameter_context_name + "_bind_child")
@@ -693,8 +1202,6 @@ def test_get_parameter_context_hierarchy_bindings_only(fix_context, fix_pg):
 
 def test_get_parameter_context_hierarchy_defaults_backwards_compatible(fix_context):
     """Test that default behavior is backwards compatible."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -719,8 +1226,6 @@ def test_get_parameter_context_hierarchy_defaults_backwards_compatible(fix_conte
 
 def test_get_parameter_ownership_map(fix_context):
     """Test get_parameter_ownership_map with simple context."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -755,8 +1260,6 @@ def test_get_parameter_ownership_map(fix_context):
 
 def test_get_parameter_ownership_map_with_inheritance(fix_context):
     """Test get_parameter_ownership_map tracks correct owning context."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     # Create child context with a parameter
     child_ctx = fix_context.generate(name=conftest.test_parameter_context_name + "_owner_child")
@@ -792,8 +1295,6 @@ def test_get_parameter_ownership_map_with_inheritance(fix_context):
 
 def test_update_parameter_in_context(fix_context):
     """Test update_parameter_in_context updates existing parameter."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -818,8 +1319,6 @@ def test_update_parameter_in_context(fix_context):
 
 def test_update_parameter_in_context_not_found(fix_context):
     """Test update_parameter_in_context raises error for missing parameter."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -833,8 +1332,6 @@ def test_update_parameter_in_context_not_found(fix_context):
 
 def test_update_parameter_in_context_create_if_missing(fix_context):
     """Test update_parameter_in_context with create_if_missing=True."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -859,8 +1356,6 @@ def test_update_parameter_in_context_create_if_missing(fix_context):
 
 def test_update_parameter_in_context_invalid_context():
     """Test update_parameter_in_context with invalid context raises error."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     import uuid
     with pytest.raises(ValueError, match="Parameter context not found"):
@@ -919,8 +1414,6 @@ def test_prepare_parameter_update_description_only():
 
 def test_prepare_parameter_unset_value_integration(fix_context):
     """Integration test: create param with value, then unset it."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 
@@ -947,8 +1440,6 @@ def test_prepare_parameter_unset_value_integration(fix_context):
 
 def test_prepare_parameter_update_description_preserves_value(fix_context):
     """Integration test: update description without changing existing value."""
-    if check_version('1.10.0') > 0:
-        pytest.skip("NiFi not 1.10+")
 
     ctx = fix_context.generate()
 

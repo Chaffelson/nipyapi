@@ -332,8 +332,9 @@ NiPyAPI uses Makefile targets as the primary automation interface. Run ``make he
 
     make dev-install      # Install with dev dependencies (uses uv if available, pip otherwise)
     make docs-install     # Install documentation dependencies
-    make clean            # Remove build, pyc, and temp artifacts
-    make clean-all        # Nuclear clean: removes ALL including generated code
+    make clean            # Remove build, pyc, coverage and temp artifacts (keeps test certificates)
+    make clean-certs      # Remove generated test certificates (regenerate with make certs)
+    make clean-all        # Nuclear clean: removes ALL including certificates and generated code
 
 **Testing Workflow**
 ::

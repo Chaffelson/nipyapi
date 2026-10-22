@@ -532,9 +532,7 @@ def save_flow_ver(
         flow_id=flow_id,
         registry_id=registry_client.id,
     )
-    if nipyapi.utils.check_version("1.10.0") <= 0:
-        # no 'action' property in versions < 1.10
-        flow_dto.action = "FORCE_COMMIT" if force else "COMMIT"
+    flow_dto.action = "FORCE_COMMIT" if force else "COMMIT"
     with nipyapi.utils.rest_exceptions():
         nipyapi.utils.validate_parameters_versioning_support()
         return nipyapi.nifi.VersionsApi().save_to_flow_registry(

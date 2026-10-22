@@ -5,6 +5,8 @@
 from pprint import pformat
 import re
 
+from ..configuration import Configuration
+
 
 class {{classname}}(object):
     """
@@ -89,32 +91,36 @@ class {{classname}}(object):
 {{/isReadOnly}}
 {{/required}}
 {{#isEnum}}
+        if Configuration().client_side_validation:
 {{#isContainer}}
-        allowed_values = [{{#allowableValues}}{{#enumVars}}{{{value}}}, {{/enumVars}}{{/allowableValues}}]
+            allowed_values = [{{#allowableValues}}{{#enumVars}}{{{value}}}, {{/enumVars}}{{/allowableValues}}]
 {{#isListContainer}}
-        if not set({{{name}}}).issubset(set(allowed_values)):
-            raise ValueError(
-                "Invalid values for `{{{name}}}` [{0}], must be a subset of [{1}]"
-                .format(", ".join(map(str, set({{{name}}})-set(allowed_values))),
-                        ", ".join(map(str, allowed_values)))
-            )
+            if not set({{{name}}}).issubset(set(allowed_values)):
+                raise ValueError(
+                    "Invalid values for `{{{name}}}` [{0}], must be a subset of [{1}]"
+                    .format(", ".join(map(str, set({{{name}}})-set(allowed_values))),
+                            ", ".join(map(str, allowed_values)))
+                )
 {{/isListContainer}}
 {{#isMapContainer}}
-        if not set({{{name}}}.keys()).issubset(set(allowed_values)):
-            raise ValueError(
-                "Invalid keys in `{{{name}}}` [{0}], must be a subset of [{1}]"
-                .format(", ".join(map(str, set({{{name}}}.keys())-set(allowed_values))),
-                        ", ".join(map(str, allowed_values)))
-            )
+            # The enum constrains the map values; keys are free-form names.
+            # A None value means no choice has been made yet.
+            invalid = {v for v in ({{{name}}} or {}).values() if v is not None} - set(allowed_values)
+            if invalid:
+                raise ValueError(
+                    "Invalid values in `{{{name}}}` [{0}], must be a subset of [{1}]"
+                    .format(", ".join(map(str, invalid)),
+                            ", ".join(map(str, allowed_values)))
+                )
 {{/isMapContainer}}
 {{/isContainer}}
 {{^isContainer}}
-        allowed_values = [{{#allowableValues}}{{#enumVars}}{{{value}}}, {{/enumVars}}{{/allowableValues}}]
-        if {{{name}}} not in allowed_values:
-            raise ValueError(
-                "Invalid value for `{{{name}}}` ({0}), must be one of {1}"
-                .format({{{name}}}, allowed_values)
-            )
+            allowed_values = [{{#allowableValues}}{{#enumVars}}{{{value}}}, {{/enumVars}}{{/allowableValues}}]
+            if {{{name}}} not in allowed_values:
+                raise ValueError(
+                    "Invalid value for `{{{name}}}` ({0}), must be one of {1}"
+                    .format({{{name}}}, allowed_values)
+                )
 {{/isContainer}}
 {{/isEnum}}
 {{^isEnum}}
