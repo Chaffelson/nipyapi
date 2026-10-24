@@ -2,8 +2,8 @@
 History
 =======
 
-Unreleased
-----------
+1.8.1 (2026-10-24)
+-------------------
 
 | Bug fixes for stateless process groups in parameter provider fetch/apply and for ``verify_config`` port results
 
