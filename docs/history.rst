@@ -2,6 +2,16 @@
 History
 =======
 
+Unreleased
+----------
+
+| Bug fixes for stateless process groups in parameter provider fetch/apply and for ``verify_config`` port results
+
+**Bug Fixes**
+
+- **AffectedComponentEntity**: Added ``STATELESS_GROUP`` to the ``reference_type`` allowed values (`#419 <https://github.com/Chaffelson/nipyapi/issues/419>`_). NiFi returns it for components in stateless process groups, but the NiFi 2.12.0 OpenAPI spec omits it from the entity (`NIFI-16464 <https://issues.apache.org/jira/browse/NIFI-16464>`_), so fetching or applying a parameter provider on a flow with stateless groups raised ``ValueError`` during deserialization. A spec augmentation mirrors the ``AffectedComponentDTO`` enum into the entity until the client is regenerated from a NiFi release that includes the upstream fix.
+- **verify_config()**: Port failures in ``port_results`` now use the same ``{"step", "explanation"}`` shape as controller and processor failures (`#418 <https://github.com/Chaffelson/nipyapi/issues/418>`_). Previously each port failure was a plain string. Callers that read the port strings directly should read ``explanation`` instead.
+
 1.8.0 (2026-10-22)
 -------------------
 

@@ -98,6 +98,13 @@ def test_deserialize_parameter_provider_fetch_response(payload):
     assert set(groups[0].parameter_sensitivities) >= {"API_KEY"}
 
 
+def test_affected_component_accepts_stateless_group():
+    # NiFi returns STATELESS_GROUP for components in stateless process groups;
+    # the 2.12.0 entity enum omits it (NIFI-16464), restored by augmentation
+    entity = AffectedComponentEntity(reference_type="STATELESS_GROUP")
+    assert entity.reference_type == "STATELESS_GROUP"
+
+
 def test_client_side_validation_can_be_disabled(monkeypatch):
     monkeypatch.setattr(
         nipyapi.config.nifi_config, "client_side_validation", False
