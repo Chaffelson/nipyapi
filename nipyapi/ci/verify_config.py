@@ -115,7 +115,8 @@ def _verify_ports(process_group_id: str) -> List[Dict[str, Any]]:
         }
         errors = port.component.validation_errors
         if errors:
-            results.append({**base_result, "success": False, "failures": errors})
+            failures = [{"step": "Port validation", "explanation": e} for e in errors]
+            results.append({**base_result, "success": False, "failures": failures})
         else:
             results.append({**base_result, "success": True, "failures": []})
     return results

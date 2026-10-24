@@ -263,7 +263,7 @@ class AffectedComponentEntity(object):
         :type: str
         """
         if Configuration().client_side_validation:
-            allowed_values = ["PROCESSOR", "CONTROLLER_SERVICE", "INPUT_PORT", "OUTPUT_PORT", "REMOTE_INPUT_PORT", "REMOTE_OUTPUT_PORT", ]
+            allowed_values = ["PROCESSOR", "CONTROLLER_SERVICE", "INPUT_PORT", "OUTPUT_PORT", "REMOTE_INPUT_PORT", "REMOTE_OUTPUT_PORT", "STATELESS_GROUP", ]
             if reference_type not in allowed_values:
                 raise ValueError(
                     "Invalid value for `reference_type` ({0}), must be one of {1}"

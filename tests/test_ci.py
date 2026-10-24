@@ -1998,6 +1998,10 @@ def test_verify_config_with_invalid_port(fix_pg, fix_port):
     assert len(failed_ports) == 1
     assert failed_ports[0]["id"] == f_port.id
     assert len(failed_ports[0]["failures"]) > 0
+    # Same failure shape as controller and processor results
+    for failure in failed_ports[0]["failures"]:
+        assert set(failure) == {"step", "explanation"}
+        assert failure["explanation"]
 
 
 def test_get_status_port_counts(fix_pg, fix_port):
